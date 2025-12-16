@@ -7,6 +7,10 @@ export default defineConfig({
   base: process.env.BASE_PATH || './',
   plugins: [react()],
   build: {
+    // Improve build performance
+    target: 'es2020',
+    // Chunk size warnings at 500KB
+    chunkSizeWarningLimit: 500,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -14,8 +18,15 @@ export default defineConfig({
           'vendor-react': ['react', 'react-dom'],
           'vendor-three': ['three', '@react-three/fiber', '@react-three/drei'],
           'vendor-pdf': ['jspdf'],
+          // Separate heavy dependencies
+          'vendor-html2canvas': ['html2canvas'],
+          'vendor-purify': ['dompurify'],
         },
       },
     },
+  },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
   },
 });
