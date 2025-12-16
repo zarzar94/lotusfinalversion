@@ -1,31 +1,21 @@
 import { useRef, useState, useMemo, useCallback, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Float, Sphere, MeshDistortMaterial } from '@react-three/drei';
+import { OrbitControls, Float } from '@react-three/drei';
 import * as THREE from 'three';
-import { brandCyan, brandPurple, brandPink, brandPurpleDark } from '../styles';
+import { brandCyan, brandPurple, brandPink } from '../styles';
 
 // Treatment area bubbles positioned on anatomical brain regions
 const BRAIN_BUBBLES = [
-  // Temporal lobe - Auditory cortex (side of brain, near ear)
-  { id: 'auditory', label: 'السمع', labelEn: 'Auditory', color: '#FF6B35', position: [1.6, -0.3, 0.4] as [number, number, number], size: 0.32 },
-  // Temporal/Frontal - Language (Broca's and Wernicke's area)
-  { id: 'language', label: 'اللغة', labelEn: 'Language', color: '#00A8CC', position: [1.3, 0.4, 1.2] as [number, number, number], size: 0.32 },
-  // Right temporal - Music processing
-  { id: 'music', label: 'الموسيقى', labelEn: 'Music', color: '#C41E3A', position: [-1.5, 0.0, 0.6] as [number, number, number], size: 0.28 },
-  // Frontal lobe - Attention/Executive function (front top)
-  { id: 'attention', label: 'التركيز', labelEn: 'Attention', color: '#1E40AF', position: [0, 1.2, 1.4] as [number, number, number], size: 0.35 },
-  // Parietal lobe - Sensory processing (top back)
-  { id: 'sensory', label: 'الحسي', labelEn: 'Sensory', color: '#166534', position: [0.8, 1.4, -0.2] as [number, number, number], size: 0.32 },
-  // Cerebellum - Balance (back bottom)
-  { id: 'balance', label: 'التوازن', labelEn: 'Balance', color: '#15803D', position: [0, -1.2, -1.6] as [number, number, number], size: 0.35 },
-  // Hippocampus area - Memory (deep temporal)
-  { id: 'memory', label: 'الذاكرة', labelEn: 'Memory', color: '#EA580C', position: [-1.0, -0.5, 0.0] as [number, number, number], size: 0.32 },
-  // Prefrontal - Learning (front)
-  { id: 'learning', label: 'التعلم', labelEn: 'Learning', color: '#1E3A5F', position: [-0.6, 0.8, 1.6] as [number, number, number], size: 0.30 },
-  // Prefrontal/Limbic - Behavior regulation
-  { id: 'behavior', label: 'السلوك', labelEn: 'Behavior', color: '#9333EA', position: [0.6, 0.6, 1.8] as [number, number, number], size: 0.32 },
-  // Limbic system - Well-being/Emotional center
-  { id: 'wellbeing', label: 'الرفاهية', labelEn: 'Well-Being', color: '#2563EB', position: [-0.8, 1.0, 0.6] as [number, number, number], size: 0.32 },
+  { id: 'auditory', label: 'السمع', labelEn: 'Auditory', color: '#FF6B35', position: [1.8, -0.3, 0.5] as [number, number, number], size: 0.28 },
+  { id: 'language', label: 'اللغة', labelEn: 'Language', color: '#00A8CC', position: [1.5, 0.5, 1.3] as [number, number, number], size: 0.28 },
+  { id: 'music', label: 'الموسيقى', labelEn: 'Music', color: '#C41E3A', position: [-1.7, 0.0, 0.7] as [number, number, number], size: 0.24 },
+  { id: 'attention', label: 'التركيز', labelEn: 'Attention', color: '#1E40AF', position: [0, 1.4, 1.5] as [number, number, number], size: 0.30 },
+  { id: 'sensory', label: 'الحسي', labelEn: 'Sensory', color: '#166534', position: [1.0, 1.5, -0.2] as [number, number, number], size: 0.28 },
+  { id: 'balance', label: 'التوازن', labelEn: 'Balance', color: '#15803D', position: [0, -1.3, -1.7] as [number, number, number], size: 0.30 },
+  { id: 'memory', label: 'الذاكرة', labelEn: 'Memory', color: '#EA580C', position: [-1.2, -0.5, 0.1] as [number, number, number], size: 0.28 },
+  { id: 'learning', label: 'التعلم', labelEn: 'Learning', color: '#1E3A5F', position: [-0.7, 1.0, 1.7] as [number, number, number], size: 0.26 },
+  { id: 'behavior', label: 'السلوك', labelEn: 'Behavior', color: '#9333EA', position: [0.7, 0.7, 1.9] as [number, number, number], size: 0.28 },
+  { id: 'wellbeing', label: 'الرفاهية', labelEn: 'Well-Being', color: '#2563EB', position: [-1.0, 1.2, 0.7] as [number, number, number], size: 0.28 },
 ];
 
 // Neural connections between bubbles
@@ -55,24 +45,24 @@ const playBubbleSound = (frequency: number) => {
   } catch { /* Audio unavailable */ }
 };
 
-// Create brain geometry with two hemispheres
+// Create realistic brain geometry with hemispheres, sulci, and gyri
 function createBrainGeometry(): THREE.BufferGeometry {
   const geometry = new THREE.BufferGeometry();
   const vertices: number[] = [];
   const indices: number[] = [];
   const normals: number[] = [];
 
-  const widthSegments = 48;
-  const heightSegments = 32;
+  const widthSegments = 64;
+  const heightSegments = 48;
 
   // Create brain-shaped vertices
   for (let y = 0; y <= heightSegments; y++) {
     const v = y / heightSegments;
-    const phi = v * Math.PI; // 0 to PI
+    const phi = v * Math.PI;
 
     for (let x = 0; x <= widthSegments; x++) {
       const u = x / widthSegments;
-      const theta = u * Math.PI * 2; // 0 to 2PI
+      const theta = u * Math.PI * 2;
 
       // Base sphere
       let px = Math.sin(phi) * Math.cos(theta);
@@ -80,49 +70,63 @@ function createBrainGeometry(): THREE.BufferGeometry {
       let pz = Math.sin(phi) * Math.sin(theta);
 
       // Brain shape modifiers
-      // 1. Elongate front-to-back (z-axis)
-      pz *= 1.25;
 
-      // 2. Flatten top slightly
-      if (py > 0.3) {
-        py *= 0.85 + 0.15 * (1 - (py - 0.3) / 0.7);
+      // 1. Elongate front-to-back and widen sides (brain shape)
+      pz *= 1.35;
+      px *= 1.15;
+
+      // 2. Flatten top
+      if (py > 0.2) {
+        py *= 0.82 + 0.18 * (1 - Math.pow((py - 0.2) / 0.8, 2));
       }
 
-      // 3. Create central fissure (dividing hemispheres)
-      const centralFissure = Math.abs(px) < 0.15 && py > -0.3 ?
-        -0.15 * (1 - Math.abs(px) / 0.15) * Math.max(0, py + 0.3) : 0;
+      // 3. Create prominent central fissure (longitudinal fissure)
+      const centralFissureDepth = 0.22;
+      const centralFissure = Math.abs(px) < 0.12 && py > -0.2 ?
+        -centralFissureDepth * (1 - Math.abs(px) / 0.12) * Math.max(0, py + 0.2) * 1.2 : 0;
       py += centralFissure;
 
-      // 4. Add gyri (brain ridges) using noise-like function
-      const gyriNoise =
-        Math.sin(theta * 8 + phi * 3) * 0.04 +
-        Math.sin(theta * 12 + phi * 5) * 0.025 +
-        Math.sin(theta * 4 + phi * 8) * 0.035;
+      // 4. Create detailed gyri (brain ridges/folds)
+      const gyri1 = Math.sin(theta * 10 + phi * 4) * 0.05;
+      const gyri2 = Math.sin(theta * 15 + phi * 6) * 0.03;
+      const gyri3 = Math.sin(theta * 5 + phi * 10) * 0.04;
+      const gyriNoise = gyri1 + gyri2 + gyri3;
 
-      // 5. Bulge frontal lobe
-      const frontalBulge = pz > 0.4 ? 0.12 * Math.pow((pz - 0.4) / 0.85, 2) : 0;
+      // 5. Create sulci (grooves between gyri)
+      const sulci = Math.cos(theta * 8 + phi * 5) * 0.025;
 
-      // 6. Temporal lobe bulge (sides, lower)
-      const temporalBulge = py < 0 && Math.abs(px) > 0.4 ?
-        0.08 * Math.abs(px) * Math.abs(py) : 0;
+      // 6. Prominent frontal lobe bulge
+      const frontalBulge = pz > 0.5 ? 0.18 * Math.pow((pz - 0.5) / 0.85, 1.5) : 0;
 
-      // 7. Occipital lobe (back, slightly pointed)
-      const occipitalShape = pz < -0.6 ? 0.1 * Math.pow((-pz - 0.6) / 0.65, 1.5) : 0;
+      // 7. Temporal lobe bulge (sides, lower)
+      const temporalBulge = py < 0.1 && Math.abs(px) > 0.5 ?
+        0.12 * Math.pow(Math.abs(px), 1.5) * Math.max(0, 0.1 - py) : 0;
 
-      // 8. Cerebellum bulge (back, bottom)
-      const cerebellumBulge = py < -0.4 && pz < -0.2 ?
-        0.15 * Math.abs(py + 0.4) * Math.max(0, -pz - 0.2) : 0;
+      // 8. Occipital lobe (back, rounded point)
+      const occipitalShape = pz < -0.7 ? 0.12 * Math.pow((-pz - 0.7) / 0.65, 1.3) : 0;
 
-      // Apply modifications
-      const scale = 1.7;
-      const finalX = (px + px * gyriNoise + px * temporalBulge) * scale;
-      const finalY = (py + gyriNoise * 0.5) * scale;
-      const finalZ = (pz + frontalBulge + occipitalShape + cerebellumBulge + gyriNoise * 0.8) * scale;
+      // 9. Cerebellum (back, bottom) - distinct smaller structure
+      const cerebellumBulge = py < -0.35 && pz < -0.1 ?
+        0.18 * Math.pow(Math.abs(py + 0.35), 0.8) * Math.max(0, -pz - 0.1) : 0;
+
+      // 10. Parietal bulge (top back)
+      const parietalBulge = py > 0.3 && pz < 0 ?
+        0.06 * py * Math.abs(pz) : 0;
+
+      // Apply all modifications
+      const scale = 1.8;
+      const finalX = (px + px * gyriNoise * 0.8 + px * temporalBulge) * scale;
+      const finalY = (py + gyriNoise * 0.3 + sulci * 0.5 + parietalBulge) * scale;
+      const finalZ = (pz + frontalBulge + occipitalShape + cerebellumBulge + gyriNoise * 0.6) * scale;
 
       vertices.push(finalX, finalY, finalZ);
 
-      // Approximate normals
-      normals.push(px, py, pz);
+      // Calculate normals
+      const nx = px + gyriNoise;
+      const ny = py;
+      const nz = pz;
+      const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
+      normals.push(nx / len, ny / len, nz / len);
     }
   }
 
@@ -147,81 +151,110 @@ function createBrainGeometry(): THREE.BufferGeometry {
   return geometry;
 }
 
-// Realistic brain mesh with hemispheres
+// Realistic brain mesh with visible hemispheres and texture
 function BrainMesh() {
   const meshRef = useRef<THREE.Mesh>(null);
   const wireRef = useRef<THREE.LineSegments>(null);
   const groupRef = useRef<THREE.Group>(null);
+  const pulseRef = useRef(0);
 
   const brainGeometry = useMemo(() => createBrainGeometry(), []);
-  const wireGeometry = useMemo(() => {
-    const geo = createBrainGeometry();
-    return new THREE.WireframeGeometry(geo);
-  }, []);
+  const wireGeometry = useMemo(() => new THREE.WireframeGeometry(brainGeometry), [brainGeometry]);
+
+  // Brain material with realistic coloring
+  const brainMaterial = useMemo(() => new THREE.MeshPhongMaterial({
+    color: new THREE.Color('#e8b4bc'), // Pinkish gray brain color
+    emissive: new THREE.Color(brandCyan),
+    emissiveIntensity: 0.08,
+    specular: new THREE.Color('#ffffff'),
+    shininess: 15,
+    transparent: true,
+    opacity: 0.75,
+    side: THREE.DoubleSide,
+  }), []);
+
+  // Inner glow material
+  const innerGlowMaterial = useMemo(() => new THREE.MeshBasicMaterial({
+    color: new THREE.Color(brandCyan),
+    transparent: true,
+    opacity: 0.15,
+  }), []);
 
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.elapsedTime * 0.08;
-      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
+      groupRef.current.rotation.y = state.clock.elapsedTime * 0.06;
+      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.08) * 0.03;
+    }
+
+    // Pulsing effect
+    pulseRef.current = Math.sin(state.clock.elapsedTime * 2) * 0.5 + 0.5;
+    if (brainMaterial) {
+      brainMaterial.emissiveIntensity = 0.06 + pulseRef.current * 0.04;
+    }
+    if (innerGlowMaterial) {
+      innerGlowMaterial.opacity = 0.12 + pulseRef.current * 0.06;
     }
   });
 
   return (
     <group ref={groupRef}>
-      {/* Inner glow core - brain shaped */}
-      <Float speed={0.8} rotationIntensity={0.05} floatIntensity={0.1}>
-        <mesh ref={meshRef} geometry={brainGeometry}>
-          <MeshDistortMaterial
-            color="#e8a5b8"
-            emissive="#8FD3CC"
-            emissiveIntensity={0.12}
-            distort={0.08}
-            speed={0.8}
-            roughness={0.6}
-            transparent
-            opacity={0.35}
-          />
-        </mesh>
+      {/* Inner glow core */}
+      <Float speed={0.5} rotationIntensity={0.02} floatIntensity={0.05}>
+        <mesh geometry={brainGeometry} scale={0.92} material={innerGlowMaterial} />
       </Float>
 
-      {/* Neural network wireframe - brain shaped */}
+      {/* Main brain surface */}
+      <Float speed={0.6} rotationIntensity={0.03} floatIntensity={0.08}>
+        <mesh ref={meshRef} geometry={brainGeometry} material={brainMaterial} />
+      </Float>
+
+      {/* Neural network wireframe - subtle */}
       <lineSegments ref={wireRef} geometry={wireGeometry}>
-        <lineBasicMaterial color={brandCyan} transparent opacity={0.25} />
+        <lineBasicMaterial color={brandCyan} transparent opacity={0.12} />
       </lineSegments>
 
-      {/* Sulci (grooves) effect - additional wireframe layer */}
-      <lineSegments geometry={wireGeometry} scale={1.01}>
-        <lineBasicMaterial color={brandPurple} transparent opacity={0.15} />
+      {/* Secondary wireframe for depth */}
+      <lineSegments geometry={wireGeometry} scale={1.008}>
+        <lineBasicMaterial color={brandPurple} transparent opacity={0.08} />
       </lineSegments>
 
-      {/* Central fissure highlight */}
-      <mesh position={[0, 0.3, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.02, 0.02, 3, 8]} />
-        <meshBasicMaterial color={brandPink} transparent opacity={0.3} />
+      {/* Central fissure highlight line */}
+      <mesh position={[0, 0.4, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.015, 0.015, 3.2, 8]} />
+        <meshBasicMaterial color={brandPink} transparent opacity={0.4} />
+      </mesh>
+
+      {/* Left hemisphere accent */}
+      <mesh position={[-0.9, 0.2, 0]}>
+        <sphereGeometry args={[0.08, 16, 16]} />
+        <meshBasicMaterial color={brandCyan} transparent opacity={0.3} />
+      </mesh>
+
+      {/* Right hemisphere accent */}
+      <mesh position={[0.9, 0.2, 0]}>
+        <sphereGeometry args={[0.08, 16, 16]} />
+        <meshBasicMaterial color={brandPurple} transparent opacity={0.3} />
       </mesh>
     </group>
   );
 }
 
-// Connection line component using primitive
+// Connection line component
 function ConnectionLine({ from, to, color }: { from: [number, number, number]; to: [number, number, number]; color: string }) {
-  const lineRef = useRef<THREE.Line>(null);
-
   const geometry = useMemo(() => {
     const points = [];
     const segments = 20;
     const mid = [
       (from[0] + to[0]) / 2,
-      (from[1] + to[1]) / 2 + 0.2,
+      (from[1] + to[1]) / 2 + 0.3,
       (from[2] + to[2]) / 2,
     ];
 
     for (let i = 0; i <= segments; i++) {
       const t = i / segments;
-      // Bezier curve
-      const x = (1-t)*(1-t)*from[0] + 2*(1-t)*t*mid[0] + t*t*to[0];
-      const y = (1-t)*(1-t)*from[1] + 2*(1-t)*t*mid[1] + t*t*to[1];
-      const z = (1-t)*(1-t)*from[2] + 2*(1-t)*t*mid[2] + t*t*to[2];
+      const x = (1 - t) * (1 - t) * from[0] + 2 * (1 - t) * t * mid[0] + t * t * to[0];
+      const y = (1 - t) * (1 - t) * from[1] + 2 * (1 - t) * t * mid[1] + t * t * to[1];
+      const z = (1 - t) * (1 - t) * from[2] + 2 * (1 - t) * t * mid[2] + t * t * to[2];
       points.push(new THREE.Vector3(x, y, z));
     }
 
@@ -231,22 +264,22 @@ function ConnectionLine({ from, to, color }: { from: [number, number, number]; t
   const material = useMemo(() => new THREE.LineBasicMaterial({
     color: color,
     transparent: true,
-    opacity: 0.25,
+    opacity: 0.2,
   }), [color]);
 
   const line = useMemo(() => new THREE.Line(geometry, material), [geometry, material]);
 
-  return <primitive ref={lineRef} object={line} />;
+  return <primitive object={line} />;
 }
 
-// Animated connection lines between bubbles
+// Neural connections
 function NeuralNetwork() {
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.elapsedTime * 0.08;
-      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
+      groupRef.current.rotation.y = state.clock.elapsedTime * 0.06;
+      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.08) * 0.03;
     }
   });
 
@@ -264,14 +297,13 @@ function NeuralNetwork() {
   );
 }
 
-// Flowing particles along connections
+// Flowing neural particles
 function FlowingParticles() {
   const particlesRef = useRef<THREE.Points>(null);
-  const particleCount = 400;
+  const particleCount = 300;
 
-  const { positions, velocities, colors } = useMemo(() => {
+  const { positions, colors } = useMemo(() => {
     const pos = new Float32Array(particleCount * 3);
-    const vel = new Float32Array(particleCount * 3);
     const col = new Float32Array(particleCount * 3);
 
     for (let i = 0; i < particleCount; i++) {
@@ -284,17 +316,13 @@ function FlowingParticles() {
       pos[i * 3 + 1] = from[1] + (to[1] - from[1]) * t;
       pos[i * 3 + 2] = from[2] + (to[2] - from[2]) * t;
 
-      vel[i * 3] = (to[0] - from[0]) * 0.01;
-      vel[i * 3 + 1] = (to[1] - from[1]) * 0.01;
-      vel[i * 3 + 2] = (to[2] - from[2]) * 0.01;
-
       const bubbleColor = new THREE.Color(BRAIN_BUBBLES[conn.from].color);
       col[i * 3] = bubbleColor.r;
       col[i * 3 + 1] = bubbleColor.g;
       col[i * 3 + 2] = bubbleColor.b;
     }
 
-    return { positions: pos, velocities: vel, colors: col };
+    return { positions: pos, colors: col };
   }, []);
 
   useFrame((state) => {
@@ -309,15 +337,15 @@ function FlowingParticles() {
       const from = BRAIN_BUBBLES[conn.from].position;
       const to = BRAIN_BUBBLES[conn.to].position;
 
-      const t = ((time * 0.2 + i * 0.01) % 1);
-      pos[i * 3] = from[0] + (to[0] - from[0]) * t + Math.sin(time * 2 + i) * 0.02;
-      pos[i * 3 + 1] = from[1] + (to[1] - from[1]) * t + Math.cos(time * 2 + i) * 0.02;
+      const t = ((time * 0.15 + i * 0.012) % 1);
+      pos[i * 3] = from[0] + (to[0] - from[0]) * t + Math.sin(time * 1.5 + i) * 0.015;
+      pos[i * 3 + 1] = from[1] + (to[1] - from[1]) * t + Math.cos(time * 1.5 + i) * 0.015;
       pos[i * 3 + 2] = from[2] + (to[2] - from[2]) * t;
     }
 
     particlesRef.current.geometry.attributes.position.needsUpdate = true;
-    particlesRef.current.rotation.y = time * 0.08;
-    particlesRef.current.rotation.x = Math.sin(time * 0.1) * 0.05;
+    particlesRef.current.rotation.y = time * 0.06;
+    particlesRef.current.rotation.x = Math.sin(time * 0.08) * 0.03;
   });
 
   return (
@@ -326,12 +354,12 @@ function FlowingParticles() {
         <bufferAttribute attach="attributes-position" count={particleCount} array={positions} itemSize={3} />
         <bufferAttribute attach="attributes-color" count={particleCount} array={colors} itemSize={3} />
       </bufferGeometry>
-      <pointsMaterial size={0.04} vertexColors transparent opacity={0.8} sizeAttenuation blending={THREE.AdditiveBlending} />
+      <pointsMaterial size={0.035} vertexColors transparent opacity={0.7} sizeAttenuation blending={THREE.AdditiveBlending} />
     </points>
   );
 }
 
-// Interactive treatment area bubble
+// Interactive treatment bubble
 interface BubbleProps {
   bubble: typeof BRAIN_BUBBLES[number];
   isHovered: boolean;
@@ -347,80 +375,77 @@ function TreatmentBubble({ bubble, isHovered, isSelected, onClick, onHover }: Bu
 
   useFrame((state) => {
     if (meshRef.current) {
-      const targetScale = isHovered ? 1.25 : isSelected ? 1.15 : 1;
-      meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
+      const targetScale = isHovered ? 1.3 : isSelected ? 1.2 : 1;
+      meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.12);
     }
     if (glowRef.current) {
       const mat = glowRef.current.material as THREE.MeshBasicMaterial;
-      mat.opacity = 0.15 + Math.sin(state.clock.elapsedTime * 2 + bubble.position[0]) * 0.08;
+      mat.opacity = 0.18 + Math.sin(state.clock.elapsedTime * 2.5 + bubble.position[0]) * 0.1;
     }
     if (ringRef.current && (isHovered || isSelected)) {
-      ringRef.current.rotation.z = state.clock.elapsedTime * 2;
+      ringRef.current.rotation.z = state.clock.elapsedTime * 2.5;
     }
   });
 
   return (
     <group position={bubble.position}>
-        {/* Outer glow */}
-        <Sphere ref={glowRef} args={[bubble.size * 1.5, 16, 16]}>
-          <meshBasicMaterial color={bubble.color} transparent opacity={0.12} />
-        </Sphere>
+      {/* Outer glow */}
+      <mesh ref={glowRef}>
+        <sphereGeometry args={[bubble.size * 1.6, 16, 16]} />
+        <meshBasicMaterial color={bubble.color} transparent opacity={0.15} />
+      </mesh>
 
-        {/* Hover ring */}
-        {(isHovered || isSelected) && (
-          <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[bubble.size * 1.3, 0.02, 8, 32]} />
-            <meshBasicMaterial color="#fff" transparent opacity={0.6} />
-          </mesh>
-        )}
+      {/* Hover ring */}
+      {(isHovered || isSelected) && (
+        <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[bubble.size * 1.4, 0.025, 8, 32]} />
+          <meshBasicMaterial color="#fff" transparent opacity={0.7} />
+        </mesh>
+      )}
 
-        {/* Main bubble */}
-        <Float speed={1.5} rotationIntensity={0.1} floatIntensity={0.15}>
-          <Sphere
-            ref={meshRef}
-            args={[bubble.size, 32, 32]}
-            onClick={(e) => { e.stopPropagation(); onClick(); }}
-            onPointerEnter={() => onHover(true)}
-            onPointerLeave={() => onHover(false)}
-          >
-            <MeshDistortMaterial
-              color={bubble.color}
-              emissive={bubble.color}
-              emissiveIntensity={isHovered ? 0.6 : isSelected ? 0.4 : 0.2}
-              distort={0.15}
-              speed={2}
-              roughness={0.3}
-              metalness={0.1}
-              transparent
-              opacity={0.92}
-            />
-          </Sphere>
-        </Float>
+      {/* Main bubble */}
+      <Float speed={1.8} rotationIntensity={0.08} floatIntensity={0.12}>
+        <mesh
+          ref={meshRef}
+          onClick={(e) => { e.stopPropagation(); onClick(); }}
+          onPointerEnter={() => onHover(true)}
+          onPointerLeave={() => onHover(false)}
+        >
+          <sphereGeometry args={[bubble.size, 32, 32]} />
+          <meshPhongMaterial
+            color={bubble.color}
+            emissive={bubble.color}
+            emissiveIntensity={isHovered ? 0.5 : isSelected ? 0.35 : 0.15}
+            specular="#ffffff"
+            shininess={30}
+            transparent
+            opacity={0.9}
+          />
+        </mesh>
+      </Float>
 
-        {/* Label - always visible */}
-        <sprite position={[0, 0, bubble.size + 0.1]} scale={[1.2, 0.4, 1]}>
-          <spriteMaterial transparent opacity={isHovered ? 1 : 0.85}>
-            <canvasTexture attach="map" image={createLabelTexture(bubble.label, bubble.color, isHovered)} />
-          </spriteMaterial>
-        </sprite>
+      {/* Label */}
+      <sprite position={[0, 0, bubble.size + 0.12]} scale={[1.1, 0.38, 1]}>
+        <spriteMaterial transparent opacity={isHovered ? 1 : 0.85}>
+          <canvasTexture attach="map" image={createLabelTexture(bubble.label, bubble.color, isHovered)} />
+        </spriteMaterial>
+      </sprite>
     </group>
   );
 }
 
-// Create canvas texture for labels
+// Create label texture
 function createLabelTexture(text: string, color: string, isHovered: boolean): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
   canvas.width = 256;
   canvas.height = 80;
   const ctx = canvas.getContext('2d')!;
 
-  // Background pill
-  ctx.fillStyle = isHovered ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.85)';
+  ctx.fillStyle = isHovered ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.88)';
   ctx.beginPath();
   ctx.roundRect(8, 8, 240, 64, 32);
   ctx.fill();
 
-  // Text
   ctx.fillStyle = isHovered ? color : '#1a1a2e';
   ctx.font = 'bold 32px Cairo, Arial';
   ctx.textAlign = 'center';
@@ -430,18 +455,14 @@ function createLabelTexture(text: string, color: string, isHovered: boolean): HT
   return canvas;
 }
 
-// Rotating group for bubbles that syncs with brain rotation
-interface RotatingBubblesProps {
-  children: React.ReactNode;
-}
-
-function RotatingBubbles({ children }: RotatingBubblesProps) {
+// Rotating bubbles group
+function RotatingBubbles({ children }: { children: React.ReactNode }) {
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.elapsedTime * 0.08;
-      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
+      groupRef.current.rotation.y = state.clock.elapsedTime * 0.06;
+      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.08) * 0.03;
     }
   });
 
@@ -457,21 +478,21 @@ function BrainScene({ onBubbleSelect }: { onBubbleSelect: (bubble: typeof BRAIN_
     const isAlreadySelected = selectedBubble === bubble.id;
     setSelectedBubble(isAlreadySelected ? null : bubble.id);
     onBubbleSelect(isAlreadySelected ? null : bubble);
-
-    // Play sound based on bubble position (higher = higher pitch)
     const baseFreq = 300 + (bubble.position[1] + 1.5) * 150;
     playBubbleSound(baseFreq);
   }, [selectedBubble, onBubbleSelect]);
 
   return (
     <>
-      {/* Lighting */}
-      <ambientLight intensity={0.4} />
-      <pointLight position={[10, 10, 10]} intensity={0.6} color="#8FD3CC" />
-      <pointLight position={[-10, -10, -10]} intensity={0.4} color="#AF84BA" />
-      <pointLight position={[0, 5, 5]} intensity={0.3} color="#fff" />
+      {/* Lighting for brain visibility */}
+      <ambientLight intensity={0.5} />
+      <pointLight position={[8, 8, 8]} intensity={0.8} color="#ffffff" />
+      <pointLight position={[-8, -5, -8]} intensity={0.5} color={brandCyan} />
+      <pointLight position={[0, 10, 0]} intensity={0.4} color="#ffffff" />
+      <pointLight position={[0, -8, 5]} intensity={0.3} color={brandPurple} />
+      <directionalLight position={[5, 5, 5]} intensity={0.3} color="#ffffff" />
 
-      {/* Brain mesh wireframe */}
+      {/* Brain mesh */}
       <BrainMesh />
 
       {/* Neural connections */}
@@ -480,7 +501,7 @@ function BrainScene({ onBubbleSelect }: { onBubbleSelect: (bubble: typeof BRAIN_
       {/* Flowing particles */}
       <FlowingParticles />
 
-      {/* Treatment area bubbles - rotate with the brain */}
+      {/* Treatment bubbles */}
       <RotatingBubbles>
         {BRAIN_BUBBLES.map((bubble) => (
           <TreatmentBubble
@@ -498,24 +519,19 @@ function BrainScene({ onBubbleSelect }: { onBubbleSelect: (bubble: typeof BRAIN_
       <OrbitControls
         enablePan={false}
         enableZoom={true}
-        minDistance={4}
-        maxDistance={10}
+        minDistance={4.5}
+        maxDistance={12}
         autoRotate
-        autoRotateSpeed={0.3}
-        maxPolarAngle={Math.PI * 0.75}
-        minPolarAngle={Math.PI * 0.25}
+        autoRotateSpeed={0.25}
+        maxPolarAngle={Math.PI * 0.72}
+        minPolarAngle={Math.PI * 0.28}
       />
     </>
   );
 }
 
-// Info panel for selected bubble
-interface InfoPanelProps {
-  bubble: typeof BRAIN_BUBBLES[number] | null;
-  onClose: () => void;
-}
-
-function BubbleInfoPanel({ bubble, onClose }: InfoPanelProps) {
+// Info panel
+function BubbleInfoPanel({ bubble, onClose }: { bubble: typeof BRAIN_BUBBLES[number] | null; onClose: () => void }) {
   if (!bubble) return null;
 
   const descriptions: Record<string, string> = {
@@ -603,7 +619,7 @@ function BubbleInfoPanel({ bubble, onClose }: InfoPanelProps) {
   );
 }
 
-// Main exported component
+// Main component
 interface Brain3DProps {
   height?: number | string;
   showUI?: boolean;
@@ -623,30 +639,28 @@ export default function Brain3D({ height = 500, showUI = true }: Brain3DProps) {
   return (
     <div style={{ position: 'relative', width: '100%', height }}>
       <Canvas
-        camera={{ position: [0, 0, isMobile ? 7 : 6], fov: isMobile ? 60 : 50 }}
+        camera={{ position: [0, 0.5, isMobile ? 8 : 6.5], fov: isMobile ? 55 : 45 }}
         style={{ background: 'transparent' }}
         gl={{ antialias: true, alpha: true }}
       >
         <BrainScene onBubbleSelect={setSelectedBubble} />
       </Canvas>
 
-      {/* Info panel */}
       {showUI && <BubbleInfoPanel bubble={selectedBubble} onClose={() => setSelectedBubble(null)} />}
 
-      {/* Instructions */}
       {showUI && !selectedBubble && (
         <div style={{
           position: 'absolute',
           bottom: 20,
           left: '50%',
           transform: 'translateX(-50%)',
-          background: 'rgba(11,15,28,0.7)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255,255,255,0.1)',
+          background: 'rgba(11,15,28,0.75)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(143,211,204,0.2)',
           borderRadius: 14,
           padding: isMobile ? '8px 16px' : '10px 20px',
           fontSize: isMobile ? 12 : 14,
-          color: 'rgba(255,255,255,0.7)',
+          color: 'rgba(255,255,255,0.75)',
           textAlign: 'center',
         }}>
           {isMobile ? 'المس الفقاعات لاستكشاف مجالات العلاج' : 'انقر على الفقاعات لاستكشاف كيف يؤثر Berard AIT على كل منطقة'}

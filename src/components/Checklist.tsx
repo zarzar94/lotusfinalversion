@@ -34,10 +34,26 @@ const playSelectSound = (selected: boolean) => {
   } catch { /* Audio unavailable */ }
 };
 
+const playRadarPing = () => {
+  try {
+    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1800, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.04, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.2);
+  } catch { /* Audio unavailable */ }
+};
+
 const playLaunchSound = () => {
   try {
     const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    // Deep rumble
     const osc1 = ctx.createOscillator();
     const gain1 = ctx.createGain();
     osc1.type = 'sawtooth';
@@ -50,7 +66,6 @@ const playLaunchSound = () => {
     osc1.start();
     osc1.stop(ctx.currentTime + 0.4);
 
-    // High ping
     const osc2 = ctx.createOscillator();
     const gain2 = ctx.createGain();
     osc2.type = 'sine';
@@ -68,7 +83,6 @@ const playLaunchSound = () => {
 const playExplosionSound = () => {
   try {
     const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    // Explosion noise
     const bufferSize = ctx.sampleRate * 0.4;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -77,217 +91,239 @@ const playExplosionSound = () => {
     }
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
-
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.frequency.setValueAtTime(2000, ctx.currentTime);
     filter.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.3);
-
     const gain = ctx.createGain();
     gain.gain.setValueAtTime(0.3, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(ctx.destination);
     noise.start();
     noise.stop(ctx.currentTime + 0.4);
-
-    // Impact thud
-    const osc = ctx.createOscillator();
-    const oscGain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(150, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.2);
-    oscGain.gain.setValueAtTime(0.2, ctx.currentTime);
-    oscGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-    osc.connect(oscGain);
-    oscGain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.2);
   } catch { /* Audio unavailable */ }
 };
 
-// Missile component that flies from button to target
+// Radar blip item on the radar display
+interface RadarBlipProps {
+  item: ChecklistItem;
+  isSelected: boolean;
+  angle: number;
+  distance: number;
+  color: string;
+  onToggle: () => void;
+  isHit: boolean;
+  radarAngle: number;
+}
+
+function RadarBlip({ item, isSelected, angle, distance, color, onToggle, isHit, radarAngle }: RadarBlipProps) {
+  const x = Math.cos(angle) * distance;
+  const y = Math.sin(angle) * distance;
+
+  // Check if radar sweep is near this blip
+  const normalizedAngle = ((angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  const normalizedRadar = ((radarAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  const angleDiff = Math.abs(normalizedAngle - normalizedRadar);
+  const isSwept = angleDiff < 0.3 || angleDiff > (Math.PI * 2 - 0.3);
+
+  return (
+    <button
+      type="button"
+      onClick={() => { playSelectSound(!isSelected); onToggle(); }}
+      style={{
+        position: 'absolute',
+        left: `calc(50% + ${x}px)`,
+        top: `calc(50% + ${y}px)`,
+        transform: 'translate(-50%, -50%)',
+        width: isSelected ? 60 : 48,
+        height: isSelected ? 60 : 48,
+        borderRadius: 8,
+        background: isHit
+          ? 'rgba(220,38,38,0.9)'
+          : isSelected
+            ? `linear-gradient(135deg, ${color}99, ${color}55)`
+            : isSwept
+              ? `rgba(143,211,204,0.35)`
+              : 'rgba(11,15,28,0.8)',
+        border: `2px solid ${isSelected ? color : isSwept ? brandCyan : 'rgba(143,211,204,0.3)'}`,
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'all 0.2s ease',
+        boxShadow: isSelected
+          ? `0 0 20px ${color}66, 0 0 40px ${color}33`
+          : isSwept
+            ? `0 0 15px ${brandCyan}44`
+            : '0 2px 8px rgba(0,0,0,0.3)',
+        animation: isHit ? 'blipExplode 0.5s ease-out forwards' : isSelected ? 'blipPulse 1.5s ease-in-out infinite' : 'none',
+        zIndex: isSelected ? 10 : 1,
+      }}
+    >
+      {/* Blip indicator */}
+      <div style={{
+        width: isSelected ? 20 : 14,
+        height: isSelected ? 20 : 14,
+        borderRadius: '50%',
+        background: isSelected ? '#fff' : isSwept ? brandCyan : 'rgba(143,211,204,0.6)',
+        boxShadow: isSelected ? `0 0 10px ${color}` : 'none',
+        transition: 'all 0.2s ease',
+      }} />
+
+      {/* Selection checkmark */}
+      {isSelected && (
+        <div style={{
+          position: 'absolute',
+          top: -8,
+          right: -8,
+          width: 22,
+          height: 22,
+          borderRadius: '50%',
+          background: color,
+          border: '2px solid rgba(11,15,28,1)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <path d="M20 6L9 17L4 12" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      )}
+
+      {/* Item label on hover */}
+      <div style={{
+        position: 'absolute',
+        bottom: '100%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        background: 'rgba(11,15,28,0.95)',
+        border: `1px solid ${color}44`,
+        borderRadius: 8,
+        padding: '6px 10px',
+        fontSize: 11,
+        fontWeight: 700,
+        color: '#fff',
+        whiteSpace: 'nowrap',
+        marginBottom: 6,
+        opacity: 0,
+        pointerEvents: 'none',
+        transition: 'opacity 0.2s ease',
+        maxWidth: 160,
+        textAlign: 'center',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+      }}
+        className="blip-label"
+      >
+        {item.ar}
+      </div>
+
+      <style>{`
+        button:hover .blip-label { opacity: 1; }
+      `}</style>
+    </button>
+  );
+}
+
+// Missile component
 interface MissileProps {
   active: boolean;
-  targetRef: React.RefObject<HTMLDivElement>;
-  buttonRef: React.RefObject<HTMLButtonElement>;
+  startPos: { x: number; y: number };
+  targetPos: { x: number; y: number };
   onImpact: () => void;
   color: string;
 }
 
-function Missile({ active, targetRef, buttonRef, onImpact, color }: MissileProps) {
+function Missile({ active, startPos, targetPos, onImpact, color }: MissileProps) {
   const [position, setPosition] = useState({ x: 0, y: 0, visible: false, impacted: false });
 
   useEffect(() => {
-    if (!active || !targetRef.current || !buttonRef.current) return;
+    if (!active) return;
 
-    const buttonRect = buttonRef.current.getBoundingClientRect();
-    const targetRect = targetRef.current.getBoundingClientRect();
+    setPosition({ x: startPos.x, y: startPos.y, visible: true, impacted: false });
 
-    const startX = buttonRect.left + buttonRect.width / 2;
-    const startY = buttonRect.top;
-    const endX = targetRect.left + targetRect.width / 2;
-    const endY = targetRect.top + targetRect.height / 2;
-
-    setPosition({ x: startX, y: startY, visible: true, impacted: false });
-
-    // Animate missile flight
-    const duration = 400;
+    const duration = 350;
     const startTime = Date.now();
 
     const animate = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
-
-      // Easing - accelerate
       const eased = progress * progress;
 
-      const currentX = startX + (endX - startX) * eased;
-      const currentY = startY + (endY - startY) * eased;
+      const currentX = startPos.x + (targetPos.x - startPos.x) * eased;
+      const currentY = startPos.y + (targetPos.y - startPos.y) * eased;
 
       setPosition({ x: currentX, y: currentY, visible: true, impacted: false });
 
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
-        // Impact!
         setPosition(prev => ({ ...prev, impacted: true }));
         playExplosionSound();
         onImpact();
-        setTimeout(() => setPosition(prev => ({ ...prev, visible: false })), 600);
+        setTimeout(() => setPosition(prev => ({ ...prev, visible: false })), 500);
       }
     };
 
     requestAnimationFrame(animate);
-  }, [active, targetRef, buttonRef, onImpact]);
+  }, [active, startPos, targetPos, onImpact]);
 
   if (!position.visible) return null;
 
+  const angle = Math.atan2(targetPos.y - startPos.y, targetPos.x - startPos.x);
+
   return (
     <>
-      {/* Missile */}
       {!position.impacted && (
         <div style={{
-          position: 'fixed',
+          position: 'absolute',
           left: position.x,
           top: position.y,
-          transform: 'translate(-50%, -50%) rotate(-90deg)',
-          zIndex: 10000,
+          transform: `translate(-50%, -50%) rotate(${angle + Math.PI / 2}rad)`,
+          zIndex: 1000,
           pointerEvents: 'none',
         }}>
-          {/* Missile body */}
           <div style={{
-            width: 12,
-            height: 40,
+            width: 10,
+            height: 30,
             background: 'linear-gradient(180deg, #dc2626 0%, #991b1b 50%, #7f1d1d 100%)',
-            borderRadius: '6px 6px 2px 2px',
+            borderRadius: '5px 5px 2px 2px',
             position: 'relative',
-            boxShadow: '0 0 20px rgba(220,38,38,0.8), 0 0 40px rgba(220,38,38,0.4)',
+            boxShadow: '0 0 15px rgba(220,38,38,0.8)',
           }}>
-            {/* Nose cone */}
             <div style={{
               position: 'absolute',
-              top: -10,
+              bottom: -15,
               left: '50%',
               transform: 'translateX(-50%)',
-              width: 0,
-              height: 0,
-              borderLeft: '6px solid transparent',
-              borderRight: '6px solid transparent',
-              borderBottom: '12px solid #dc2626',
-            }} />
-            {/* Fins */}
-            <div style={{
-              position: 'absolute',
-              bottom: 0,
-              left: -6,
-              width: 0,
-              height: 0,
-              borderTop: '8px solid transparent',
-              borderRight: '8px solid #7f1d1d',
-            }} />
-            <div style={{
-              position: 'absolute',
-              bottom: 0,
-              right: -6,
-              width: 0,
-              height: 0,
-              borderTop: '8px solid transparent',
-              borderLeft: '8px solid #7f1d1d',
-            }} />
-            {/* Exhaust flame */}
-            <div style={{
-              position: 'absolute',
-              bottom: -20,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 8,
-              height: 25,
-              background: 'linear-gradient(180deg, #fbbf24 0%, #f97316 40%, #dc2626 70%, transparent 100%)',
+              width: 6,
+              height: 20,
+              background: 'linear-gradient(180deg, #fbbf24 0%, #f97316 40%, transparent 100%)',
               borderRadius: '50%',
               filter: 'blur(2px)',
-              animation: 'flameFlicker 0.1s ease-in-out infinite',
             }} />
           </div>
         </div>
       )}
 
-      {/* Explosion */}
       {position.impacted && (
         <div style={{
-          position: 'fixed',
+          position: 'absolute',
           left: position.x,
           top: position.y,
           transform: 'translate(-50%, -50%)',
-          zIndex: 10000,
+          zIndex: 1000,
           pointerEvents: 'none',
         }}>
-          {/* Central flash */}
           <div style={{
-            width: 120,
-            height: 120,
+            width: 80,
+            height: 80,
             borderRadius: '50%',
             background: `radial-gradient(circle, #fff 0%, ${color} 30%, #f97316 60%, transparent 70%)`,
             animation: 'explosionFlash 0.4s ease-out forwards',
-          }} />
-          {/* Particles */}
-          {[...Array(12)].map((_, i) => {
-            const angle = (i / 12) * Math.PI * 2;
-            const distance = 80 + Math.random() * 40;
-            const tx = Math.cos(angle) * distance;
-            const ty = Math.sin(angle) * distance;
-            return (
-              <div
-                key={i}
-                style={{
-                  position: 'absolute',
-                  left: '50%',
-                  top: '50%',
-                  width: 8 + Math.random() * 8,
-                  height: 8 + Math.random() * 8,
-                  borderRadius: '50%',
-                  background: i % 2 === 0 ? '#fbbf24' : color,
-                  boxShadow: `0 0 10px ${i % 2 === 0 ? '#fbbf24' : color}`,
-                  ['--tx' as string]: `${tx}px`,
-                  ['--ty' as string]: `${ty}px`,
-                  animation: 'explosionParticle 0.5s ease-out forwards',
-                }}
-              />
-            );
-          })}
-          {/* Shockwave ring */}
-          <div style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 20,
-            height: 20,
-            borderRadius: '50%',
-            border: `3px solid ${color}`,
-            animation: 'shockwave 0.4s ease-out forwards',
           }} />
         </div>
       )}
@@ -295,114 +331,21 @@ function Missile({ active, targetRef, buttonRef, onImpact, color }: MissileProps
   );
 }
 
-interface ItemCardProps {
-  item: ChecklistItem;
-  isSelected: boolean;
-  color: string;
-  onToggle: () => void;
-  animationDelay: number;
-  isExiting: boolean;
-  isHit: boolean;
-}
-
-function ItemCard({ item, isSelected, color, onToggle, animationDelay, isExiting, isHit }: ItemCardProps) {
-  const [hovered, setHovered] = useState(false);
-
-  const getAnimation = () => {
-    if (isHit) return `itemExplode 0.5s ease-out ${animationDelay}s forwards`;
-    if (isExiting) return `itemPop 0.4s ease-out ${animationDelay}s forwards`;
-    return `itemEnter 0.5s ease-out ${animationDelay}s backwards`;
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={() => { playSelectSound(!isSelected); onToggle(); }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: isSelected
-          ? `linear-gradient(135deg, ${color}22, ${color}11)`
-          : hovered ? 'rgba(255,255,255,0.04)' : 'rgba(15,22,41,0.5)',
-        border: `2px solid ${isSelected ? color : hovered ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'}`,
-        borderRadius: 14,
-        padding: '12px 14px',
-        cursor: 'pointer',
-        textAlign: 'right',
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: 12,
-        transition: 'all 0.2s ease',
-        transform: isSelected ? 'scale(1.02)' : 'scale(1)',
-        boxShadow: isSelected ? `0 4px 20px ${color}33` : 'none',
-        position: 'relative',
-        overflow: 'hidden',
-        animation: getAnimation(),
-      }}
-    >
-      {/* Checkbox indicator */}
-      <div style={{
-        width: 26,
-        height: 26,
-        borderRadius: 8,
-        border: `2px solid ${isSelected ? color : 'rgba(255,255,255,0.25)'}`,
-        background: isSelected ? color : 'transparent',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-        transition: 'all 0.2s ease',
-      }}>
-        {isSelected && (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-            <path d="M20 6L9 17L4 12" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        )}
-      </div>
-
-      {/* Content */}
-      <div style={{ flex: 1 }}>
-        <div style={{ fontWeight: 700, fontSize: 14, color: isSelected ? '#fff' : 'rgba(255,255,255,0.9)', lineHeight: 1.4 }}>
-          {item.ar}
-        </div>
-        {item.en && (
-          <div style={{ fontSize: 11, color: isSelected ? color : 'rgba(255,255,255,0.45)', marginTop: 3, direction: 'ltr', textAlign: 'left' }}>
-            {item.en}
-          </div>
-        )}
-      </div>
-
-      {/* Glow line when selected */}
-      {isSelected && (
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 2,
-          background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
-          animation: 'scanLine 2s ease-in-out infinite',
-        }} />
-      )}
-    </button>
-  );
-}
-
-// Submarine-style missile launch button
+// Launch button
 interface LaunchButtonProps {
   onClick: () => void;
   disabled?: boolean;
-  isLast?: boolean;
   buttonRef?: React.RefObject<HTMLButtonElement>;
 }
 
-function LaunchButton({ onClick, disabled, isLast, buttonRef }: LaunchButtonProps) {
+function LaunchButton({ onClick, disabled, buttonRef }: LaunchButtonProps) {
   const [isPressed, setIsPressed] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleClick = () => {
     if (disabled) return;
     setIsPressed(true);
+    playLaunchSound();
     setTimeout(() => {
       setIsPressed(false);
       onClick();
@@ -419,8 +362,8 @@ function LaunchButton({ onClick, disabled, isLast, buttonRef }: LaunchButtonProp
       disabled={disabled}
       style={{
         position: 'relative',
-        width: 140,
-        height: 140,
+        width: 120,
+        height: 120,
         borderRadius: '50%',
         border: 'none',
         cursor: disabled ? 'not-allowed' : 'pointer',
@@ -445,46 +388,37 @@ function LaunchButton({ onClick, disabled, isLast, buttonRef }: LaunchButtonProp
         `,
       }} />
 
-      {/* Yellow warning stripe ring */}
+      {/* Warning stripe ring */}
       <div style={{
         position: 'absolute',
-        inset: 8,
+        inset: 6,
         borderRadius: '50%',
-        background: `repeating-conic-gradient(
-          from 0deg,
-          #fbbf24 0deg 10deg,
-          #1a1a1a 10deg 20deg
-        )`,
+        background: `repeating-conic-gradient(from 0deg, #fbbf24 0deg 10deg, #1a1a1a 10deg 20deg)`,
         opacity: 0.9,
       }} />
 
-      {/* Inner metallic bezel */}
+      {/* Inner bezel */}
       <div style={{
         position: 'absolute',
-        inset: 16,
+        inset: 14,
         borderRadius: '50%',
         background: 'linear-gradient(145deg, #2a2a2a 0%, #1a1a1a 100%)',
         boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.5)',
       }} />
 
-      {/* Red button surface */}
+      {/* Red button */}
       <div style={{
         position: 'absolute',
-        inset: 22,
+        inset: 20,
         borderRadius: '50%',
         background: isPressed
           ? 'linear-gradient(145deg, #7f1d1d 0%, #991b1b 50%, #b91c1c 100%)'
           : 'linear-gradient(145deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%)',
         boxShadow: isPressed
           ? 'inset 0 4px 15px rgba(0,0,0,0.5)'
-          : `
-            inset 0 -4px 15px rgba(0,0,0,0.3),
-            inset 0 4px 15px rgba(255,255,255,0.1),
-            0 4px 20px rgba(220,38,38,0.4)
-          `,
+          : `inset 0 -4px 15px rgba(0,0,0,0.3), inset 0 4px 15px rgba(255,255,255,0.1), 0 4px 20px rgba(220,38,38,0.4)`,
         transition: 'all 0.15s ease',
       }}>
-        {/* Glass highlight */}
         <div style={{
           position: 'absolute',
           top: '10%',
@@ -497,7 +431,7 @@ function LaunchButton({ onClick, disabled, isLast, buttonRef }: LaunchButtonProp
         }} />
       </div>
 
-      {/* Center icon/text */}
+      {/* Icon */}
       <div style={{
         position: 'absolute',
         inset: 0,
@@ -509,22 +443,15 @@ function LaunchButton({ onClick, disabled, isLast, buttonRef }: LaunchButtonProp
         textShadow: '0 2px 4px rgba(0,0,0,0.5)',
         pointerEvents: 'none',
       }}>
-        <span style={{ fontSize: 28, marginBottom: 2 }}>{isLast ? '✓' : '▶'}</span>
-        <span style={{
-          fontSize: 12,
-          fontWeight: 900,
-          letterSpacing: 1,
-          textTransform: 'uppercase',
-        }}>
-          {isLast ? 'إنهاء' : 'التالي'}
-        </span>
+        <span style={{ fontSize: 24, marginBottom: 2 }}>🚀</span>
+        <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1 }}>إطلاق</span>
       </div>
 
-      {/* Pulsing glow when active */}
+      {/* Pulsing glow */}
       {!disabled && (
         <div style={{
           position: 'absolute',
-          inset: -10,
+          inset: -8,
           borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(220,38,38,0.3), transparent 70%)',
           animation: 'launchPulse 1.5s ease-in-out infinite',
@@ -535,38 +462,66 @@ function LaunchButton({ onClick, disabled, isLast, buttonRef }: LaunchButtonProp
   );
 }
 
-// Back button (smaller, grey)
-function BackButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
-  const [isHovered, setIsHovered] = useState(false);
+// Category navigation tabs
+interface CategoryTabProps {
+  category: typeof checklistCategories[number];
+  isActive: boolean;
+  selectedCount: number;
+  onClick: () => void;
+  config: { icon: string; color: string };
+}
 
+function CategoryTab({ category, isActive, selectedCount, onClick, config }: CategoryTabProps) {
   return (
     <button
       type="button"
       onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      disabled={disabled}
       style={{
-        width: 60,
-        height: 60,
-        borderRadius: '50%',
-        border: 'none',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        background: 'linear-gradient(145deg, #4a4a4a 0%, #2a2a2a 100%)',
-        boxShadow: isHovered
-          ? '0 4px 20px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.1)'
-          : '0 2px 10px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.1)',
+        background: isActive
+          ? `linear-gradient(135deg, ${config.color}33, ${config.color}11)`
+          : 'rgba(11,15,28,0.6)',
+        border: `2px solid ${isActive ? config.color : 'rgba(255,255,255,0.1)'}`,
+        borderRadius: 12,
+        padding: '10px 14px',
+        cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        color: '#fff',
-        fontSize: 20,
+        gap: 8,
         transition: 'all 0.2s ease',
-        opacity: disabled ? 0.3 : 1,
-        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+        minWidth: 140,
+        boxShadow: isActive ? `0 4px 20px ${config.color}33` : 'none',
       }}
     >
-      ◀
+      <span style={{ fontSize: 20 }}>{config.icon}</span>
+      <div style={{ textAlign: 'right', flex: 1 }}>
+        <div style={{
+          fontSize: 11,
+          fontWeight: 800,
+          color: isActive ? config.color : 'rgba(255,255,255,0.8)',
+          lineHeight: 1.2,
+        }}>
+          {category.title.slice(0, 20)}...
+        </div>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>
+          {selectedCount}/{category.items.length}
+        </div>
+      </div>
+      {selectedCount > 0 && (
+        <div style={{
+          width: 20,
+          height: 20,
+          borderRadius: '50%',
+          background: config.color,
+          fontSize: 10,
+          fontWeight: 900,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#fff',
+        }}>
+          {selectedCount}
+        </div>
+      )}
     </button>
   );
 }
@@ -575,23 +530,19 @@ const Checklist = () => {
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [exporting, setExporting] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [transitionDirection, setTransitionDirection] = useState<'next' | 'prev'>('next');
-  const [missileFired, setMissileFired] = useState(false);
-  const [isHit, setIsHit] = useState(false);
-  const [screenShake, setScreenShake] = useState(false);
+  const [radarAngle, setRadarAngle] = useState(0);
+  const [missileTarget, setMissileTarget] = useState<{ item: ChecklistItem; pos: { x: number; y: number } } | null>(null);
+  const [hitItems, setHitItems] = useState<Set<string>>(new Set());
   const { completeChecklist } = useGamification();
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const radarRef = useRef<HTMLDivElement>(null);
   const launchButtonRef = useRef<HTMLButtonElement>(null);
 
   const selectedItems = useMemo(() => checklistItems.filter((item) => selected[item.id]), [selected]);
   const selectedCount = selectedItems.length;
   const totalItems = checklistItems.length;
-  const totalSections = checklistCategories.length;
 
   const currentCategory = checklistCategories[currentSection];
   const currentConfig = CATEGORY_CONFIG[currentCategory?.title] || { icon: '📊', color: brandCyan };
-  const currentSelectedCount = currentCategory?.items.filter(item => selected[item.id]).length || 0;
 
   const categoryStats = useMemo(() => {
     return checklistCategories.map(cat => ({
@@ -610,6 +561,19 @@ const Checklist = () => {
     return { level: 'high', label: 'مؤشرات مرتفعة', labelEn: 'High', color: brandPink, icon: '🔴', msg: 'ننصح بحجز تقييم متخصص — خاصة إذا كانت الأعراض تؤثر على المدرسة أو السلوك.' };
   }, [selectedCount]);
 
+  // Radar sweep animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRadarAngle(prev => {
+        const newAngle = prev + 0.03;
+        // Play ping sound occasionally
+        if (Math.random() < 0.02) playRadarPing();
+        return newAngle;
+      });
+    }, 30);
+    return () => clearInterval(interval);
+  }, []);
+
   const toggle = useCallback((id: string) => {
     setSelected(prev => {
       const newSelected = { ...prev, [id]: !prev[id] };
@@ -618,40 +582,51 @@ const Checklist = () => {
     });
   }, [completeChecklist]);
 
-  const goToNext = useCallback(() => {
-    if (currentSection >= totalSections - 1 || isTransitioning || missileFired) return;
-    playLaunchSound();
-    setMissileFired(true);
-  }, [currentSection, totalSections, isTransitioning, missileFired]);
+  // Calculate blip positions in a circular pattern
+  const getBlipPosition = (index: number, total: number, radarSize: number) => {
+    const angleStep = (Math.PI * 2) / total;
+    const angle = index * angleStep - Math.PI / 2;
+    const rings = 3;
+    const ringIndex = index % rings;
+    const distance = (radarSize / 2.5) * (0.5 + ringIndex * 0.25);
+    return { angle, distance };
+  };
 
-  const handleMissileImpact = useCallback(() => {
-    setIsHit(true);
-    setScreenShake(true);
-    setTimeout(() => setScreenShake(false), 500);
+  const handleLaunch = () => {
+    const selectedInCategory = currentCategory?.items.filter(item => selected[item.id]);
+    if (!selectedInCategory || selectedInCategory.length === 0 || !radarRef.current || !launchButtonRef.current) return;
+
+    // Target a random selected item
+    const targetItem = selectedInCategory[Math.floor(Math.random() * selectedInCategory.length)];
+    const targetIndex = currentCategory.items.findIndex(i => i.id === targetItem.id);
+    const radarRect = radarRef.current.getBoundingClientRect();
+    const buttonRect = launchButtonRef.current.getBoundingClientRect();
+
+    const { angle, distance } = getBlipPosition(targetIndex, currentCategory.items.length, radarRect.width);
+    const targetX = radarRect.width / 2 + Math.cos(angle) * distance;
+    const targetY = radarRect.height / 2 + Math.sin(angle) * distance;
+
+    const startX = buttonRect.left + buttonRect.width / 2 - radarRect.left;
+    const startY = buttonRect.top + buttonRect.height / 2 - radarRect.top;
+
+    setMissileTarget({
+      item: targetItem,
+      pos: { x: targetX, y: targetY },
+    });
+
     setTimeout(() => {
-      setMissileFired(false);
-      setIsHit(false);
-      setTransitionDirection('next');
-      setCurrentSection(prev => prev + 1);
-    }, 600);
-  }, []);
-
-  const goToPrev = useCallback(() => {
-    if (currentSection <= 0 || isTransitioning) return;
-    setTransitionDirection('prev');
-    setIsTransitioning(true);
-  }, [currentSection, isTransitioning]);
-
-  // Handle transition end (for prev only, next uses missile)
-  useEffect(() => {
-    if (isTransitioning && transitionDirection === 'prev') {
-      const timer = setTimeout(() => {
-        setCurrentSection(prev => prev - 1);
-        setIsTransitioning(false);
+      setHitItems(prev => new Set([...prev, targetItem.id]));
+      setTimeout(() => {
+        setSelected(prev => ({ ...prev, [targetItem.id]: false }));
+        setHitItems(prev => {
+          const next = new Set(prev);
+          next.delete(targetItem.id);
+          return next;
+        });
+        setMissileTarget(null);
       }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isTransitioning, transitionDirection]);
+    }, 350);
+  };
 
   const clearAll = () => setSelected({});
 
@@ -688,69 +663,26 @@ const Checklist = () => {
     } finally { setExporting(false); }
   };
 
-  const isLastSection = currentSection === totalSections - 1;
+  const radarSize = 380;
+  const currentSelectedInCategory = currentCategory?.items.filter(item => selected[item.id]).length || 0;
 
   return (
     <section id="checklist" style={styles.sectionCard}>
       <style>{`
-        @keyframes scanLine { 0% { transform: translateX(-100%); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateX(100%); opacity: 0; } }
         @keyframes radarSweep { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        @keyframes launchPulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
-        @keyframes itemEnter {
-          0% { opacity: 0; transform: scale(0.3) translateY(30px); }
-          60% { transform: scale(1.05) translateY(-5px); }
-          100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        @keyframes itemPop {
-          0% { opacity: 1; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.2); }
-          100% { opacity: 0; transform: scale(0) rotate(15deg); }
-        }
-        @keyframes sectionEnter {
-          0% { opacity: 0; transform: translateX(100px) scale(0.8); }
-          100% { opacity: 1; transform: translateX(0) scale(1); }
-        }
-        @keyframes sectionExit {
-          0% { opacity: 1; transform: translateX(0) scale(1); }
-          100% { opacity: 0; transform: translateX(-100px) scale(0.8); }
-        }
-        @keyframes sectionEnterPrev {
-          0% { opacity: 0; transform: translateX(-100px) scale(0.8); }
-          100% { opacity: 1; transform: translateX(0) scale(1); }
-        }
-        @keyframes sectionExitPrev {
-          0% { opacity: 1; transform: translateX(0) scale(1); }
-          100% { opacity: 0; transform: translateX(100px) scale(0.8); }
-        }
-        @keyframes explosionParticle {
-          0% { opacity: 1; transform: translate(0, 0) scale(1); }
-          100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+        @keyframes blipPulse { 0%, 100% { box-shadow: 0 0 10px currentColor; } 50% { box-shadow: 0 0 25px currentColor, 0 0 50px currentColor; } }
+        @keyframes blipExplode {
+          0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+          50% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
         }
         @keyframes explosionFlash {
           0% { opacity: 1; transform: scale(0.5); }
           50% { opacity: 1; transform: scale(1.2); }
           100% { opacity: 0; transform: scale(1.5); }
         }
-        @keyframes shockwave {
-          0% { width: 20px; height: 20px; opacity: 1; }
-          100% { width: 200px; height: 200px; opacity: 0; }
-        }
-        @keyframes flameFlicker {
-          0%, 100% { transform: translateX(-50%) scaleY(1); }
-          50% { transform: translateX(-50%) scaleY(0.8); }
-        }
-        @keyframes itemExplode {
-          0% { opacity: 1; transform: scale(1) rotate(0deg); filter: brightness(1); }
-          20% { opacity: 1; transform: scale(1.3) rotate(5deg); filter: brightness(2); }
-          40% { opacity: 1; transform: scale(1.1) rotate(-3deg); filter: brightness(1.5); }
-          100% { opacity: 0; transform: scale(0) rotate(45deg); filter: brightness(0); }
-        }
-        @keyframes screenShake {
-          0%, 100% { transform: translateX(0); }
-          10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-          20%, 40%, 60%, 80% { transform: translateX(4px); }
-        }
+        @keyframes launchPulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
+        @keyframes scanLine { 0% { transform: translateY(-100%); opacity: 0; } 50% { opacity: 0.5; } 100% { transform: translateY(100%); opacity: 0; } }
       `}</style>
 
       {/* Header */}
@@ -761,227 +693,242 @@ const Checklist = () => {
             {recommendation.icon} {selectedCount}/{totalItems}
           </span>
         </div>
-        <p style={styles.bodyText}>حدد المؤشرات التي تلاحظها لبناء تقرير تقييمي أولي. كلما زادت المؤشرات، زادت أهمية التقييم المتخصص.</p>
+        <p style={styles.bodyText}>حدد المؤشرات على الرادار لبناء تقرير تقييمي. اضغط الزر الأحمر لتدمير المؤشرات المحددة.</p>
       </div>
 
-      {/* Progress Indicator */}
+      {/* Category Tabs */}
       <div style={{
-        marginTop: 20,
         display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        justifyContent: 'center',
-        flexWrap: 'wrap',
+        gap: 10,
+        overflowX: 'auto',
+        padding: '16px 0',
+        marginBottom: 16,
       }}>
         {checklistCategories.map((cat, idx) => {
           const cfg = CATEGORY_CONFIG[cat.title] || { icon: '📊', color: brandCyan };
-          const catSelected = categoryStats[idx]?.selectedCount || 0;
-          const isActive = idx === currentSection;
-          const isPast = idx < currentSection;
-
           return (
-            <div
+            <CategoryTab
               key={cat.title}
-              onClick={() => !isTransitioning && setCurrentSection(idx)}
-              style={{
-                width: isActive ? 50 : 36,
-                height: isActive ? 50 : 36,
-                borderRadius: '50%',
-                background: isActive
-                  ? `linear-gradient(135deg, ${cfg.color}, ${cfg.color}88)`
-                  : isPast
-                    ? `${cfg.color}44`
-                    : 'rgba(255,255,255,0.08)',
-                border: `2px solid ${isActive ? cfg.color : isPast ? cfg.color : 'rgba(255,255,255,0.15)'}`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: isActive ? 22 : 16,
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: isActive ? `0 0 25px ${cfg.color}66` : 'none',
-                position: 'relative',
-              }}
-            >
-              {cfg.icon}
-              {catSelected > 0 && (
-                <div style={{
-                  position: 'absolute',
-                  top: -4,
-                  right: -4,
-                  width: 18,
-                  height: 18,
-                  borderRadius: '50%',
-                  background: cfg.color,
-                  fontSize: 10,
-                  fontWeight: 900,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                  border: '2px solid rgba(11,15,28,1)',
-                }}>
-                  {catSelected}
-                </div>
-              )}
-            </div>
+              category={cat}
+              isActive={idx === currentSection}
+              selectedCount={categoryStats[idx]?.selectedCount || 0}
+              onClick={() => setCurrentSection(idx)}
+              config={cfg}
+            />
           );
         })}
       </div>
 
-      {/* Missile */}
-      <Missile
-        active={missileFired}
-        targetRef={sectionRef}
-        buttonRef={launchButtonRef}
-        onImpact={handleMissileImpact}
-        color={currentConfig.color}
-      />
-
-      {/* Current Section */}
-      <div
-        ref={sectionRef}
-        style={{
-          marginTop: 24,
-          padding: 24,
-          background: isHit
-            ? `linear-gradient(135deg, rgba(220,38,38,0.3), rgba(25,30,50,0.95))`
-            : 'linear-gradient(135deg, rgba(11,15,28,0.95), rgba(25,30,50,0.95))',
-          borderRadius: 24,
-          border: `2px solid ${isHit ? '#dc2626' : currentConfig.color}44`,
-          position: 'relative',
-          overflow: 'hidden',
-          minHeight: 400,
-          animation: screenShake
-            ? 'screenShake 0.5s ease'
-            : isTransitioning
-              ? (transitionDirection === 'next' ? 'sectionExit 0.5s ease forwards' : 'sectionExitPrev 0.5s ease forwards')
-              : (transitionDirection === 'next' ? 'sectionEnter 0.5s ease' : 'sectionEnterPrev 0.5s ease'),
-          transition: 'background 0.3s ease, border-color 0.3s ease',
-        }}
-      >
-        {/* Grid background */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: `linear-gradient(${currentConfig.color}08 1px, transparent 1px), linear-gradient(90deg, ${currentConfig.color}08 1px, transparent 1px)`,
-          backgroundSize: '24px 24px',
-        }} />
-
-        {/* Section Header */}
+      {/* Radar Display Container */}
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 24,
+      }}>
+        {/* Category Info */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 16,
-          marginBottom: 20,
-          position: 'relative',
-          zIndex: 1,
+          gap: 12,
+          padding: '12px 20px',
+          background: `linear-gradient(135deg, ${currentConfig.color}22, transparent)`,
+          border: `1px solid ${currentConfig.color}44`,
+          borderRadius: 16,
         }}>
-          <div style={{
-            width: 64,
-            height: 64,
-            borderRadius: 16,
-            background: `linear-gradient(135deg, ${currentConfig.color}33, ${currentConfig.color}11)`,
-            border: `2px solid ${currentConfig.color}66`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 32,
-            boxShadow: `0 0 30px ${currentConfig.color}33`,
-          }}>
-            {currentConfig.icon}
-          </div>
-          <div style={{ flex: 1 }}>
-            <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: '#fff' }}>
-              {currentCategory?.title}
-            </h3>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
-              القسم {currentSection + 1} من {totalSections} • {currentSelectedCount} مؤشر محدد
-            </div>
-          </div>
-          <div style={{
-            padding: '10px 16px',
-            borderRadius: 12,
-            background: `${currentConfig.color}22`,
-            border: `1px solid ${currentConfig.color}44`,
-          }}>
-            <div style={{ fontSize: 24, fontWeight: 900, color: currentConfig.color, textAlign: 'center' }}>
-              {currentSelectedCount}/{currentCategory?.items.length}
+          <span style={{ fontSize: 28 }}>{currentConfig.icon}</span>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 900, color: currentConfig.color }}>{currentCategory?.title}</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
+              {currentSelectedInCategory} مؤشر محدد من {currentCategory?.items.length}
             </div>
           </div>
         </div>
 
-        {/* Items Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: 10,
-          position: 'relative',
-          zIndex: 1,
-        }}>
-          {currentCategory?.items.map((item, idx) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              isSelected={!!selected[item.id]}
-              color={currentConfig.color}
-              onToggle={() => toggle(item.id)}
-              animationDelay={idx * 0.03}
-              isExiting={isTransitioning}
-              isHit={isHit}
+        {/* Radar Display */}
+        <div
+          ref={radarRef}
+          style={{
+            width: radarSize,
+            height: radarSize,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(11,15,28,0.95) 0%, rgba(11,15,28,0.98) 100%)',
+            border: `3px solid ${brandCyan}44`,
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: `
+              0 0 60px rgba(143,211,204,0.15),
+              inset 0 0 100px rgba(143,211,204,0.05)
+            `,
+          }}
+        >
+          {/* Grid circles */}
+          {[0.25, 0.5, 0.75, 1].map((scale, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                width: `${scale * 100}%`,
+                height: `${scale * 100}%`,
+                borderRadius: '50%',
+                border: `1px solid ${brandCyan}22`,
+                transform: 'translate(-50%, -50%)',
+              }}
             />
           ))}
+
+          {/* Cross lines */}
+          <div style={{
+            position: 'absolute',
+            left: '50%',
+            top: 0,
+            bottom: 0,
+            width: 1,
+            background: `linear-gradient(180deg, transparent, ${brandCyan}33, transparent)`,
+          }} />
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: 0,
+            right: 0,
+            height: 1,
+            background: `linear-gradient(90deg, transparent, ${brandCyan}33, transparent)`,
+          }} />
+
+          {/* Radar sweep line */}
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              width: '50%',
+              height: 2,
+              background: `linear-gradient(90deg, ${brandCyan} 0%, transparent 100%)`,
+              transformOrigin: '0 50%',
+              transform: `rotate(${radarAngle}rad)`,
+              boxShadow: `0 0 20px ${brandCyan}`,
+            }}
+          />
+
+          {/* Sweep glow trail */}
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              width: '50%',
+              height: '50%',
+              background: `conic-gradient(from ${radarAngle - 0.5}rad at 0% 0%, transparent, ${brandCyan}33, transparent)`,
+              transformOrigin: '0 0',
+              transform: 'rotate(0deg)',
+              borderRadius: '0 100% 0 0',
+            }}
+          />
+
+          {/* Center dot */}
+          <div style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 12,
+            height: 12,
+            borderRadius: '50%',
+            background: brandCyan,
+            boxShadow: `0 0 20px ${brandCyan}`,
+          }} />
+
+          {/* Blips */}
+          {currentCategory?.items.map((item, idx) => {
+            const { angle, distance } = getBlipPosition(idx, currentCategory.items.length, radarSize);
+            return (
+              <RadarBlip
+                key={item.id}
+                item={item}
+                isSelected={!!selected[item.id]}
+                angle={angle}
+                distance={distance}
+                color={currentConfig.color}
+                onToggle={() => toggle(item.id)}
+                isHit={hitItems.has(item.id)}
+                radarAngle={radarAngle}
+              />
+            );
+          })}
+
+          {/* Missile */}
+          {missileTarget && radarRef.current && launchButtonRef.current && (
+            <Missile
+              active={true}
+              startPos={{
+                x: radarSize / 2,
+                y: radarSize + 80,
+              }}
+              targetPos={missileTarget.pos}
+              onImpact={() => {}}
+              color={currentConfig.color}
+            />
+          )}
+
+          {/* Scan line effect */}
+          <div style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            height: 2,
+            background: `linear-gradient(90deg, transparent, ${brandCyan}66, transparent)`,
+            animation: 'scanLine 3s linear infinite',
+          }} />
         </div>
 
-        {/* Category Note */}
-        {currentCategory?.note && (
+        {/* Launch Button */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 20,
+        }}>
+          <LaunchButton
+            onClick={handleLaunch}
+            disabled={currentSelectedInCategory === 0}
+            buttonRef={launchButtonRef}
+          />
           <div style={{
-            marginTop: 16,
-            padding: '10px 14px',
-            background: 'rgba(255,255,255,0.03)',
-            borderRadius: 10,
-            border: '1px solid rgba(255,255,255,0.08)',
-            fontSize: 12,
-            color: 'rgba(255,255,255,0.6)',
-            position: 'relative',
-            zIndex: 1,
+            textAlign: 'center',
+            maxWidth: 160,
           }}>
-            💡 {currentCategory.note}
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>
+              اضغط الزر الأحمر
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: currentConfig.color }}>
+              لتدمير المؤشرات
+            </div>
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Navigation Controls */}
-      <div style={{
-        marginTop: 30,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 30,
-      }}>
-        <BackButton onClick={goToPrev} disabled={currentSection === 0 || isTransitioning} />
-
-        <LaunchButton
-          onClick={isLastSection ? exportSelectedPdf : goToNext}
-          disabled={isTransitioning || missileFired || (isLastSection && selectedCount === 0)}
-          isLast={isLastSection}
-          buttonRef={launchButtonRef}
-        />
-      </div>
-
-      {/* Launch instruction text */}
-      <div style={{
-        marginTop: 16,
-        textAlign: 'center',
-        fontSize: 13,
-        color: 'rgba(255,255,255,0.5)',
-      }}>
-        {isLastSection
-          ? `اضغط الزر لتصدير التقرير • ${selectedCount} مؤشر محدد`
-          : '🚀 اضغط الزر الأحمر لإطلاق الصاروخ وتدمير القسم الحالي'}
-      </div>
+      {/* Category Note */}
+      {currentCategory?.note && (
+        <div style={{
+          marginTop: 20,
+          padding: '12px 16px',
+          background: `linear-gradient(135deg, ${currentConfig.color}10, transparent)`,
+          border: `1px solid ${currentConfig.color}33`,
+          borderRadius: 12,
+          fontSize: 13,
+          color: 'rgba(255,255,255,0.75)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}>
+          <span style={{ fontSize: 18 }}>💡</span>
+          {currentCategory.note}
+        </div>
+      )}
 
       {/* Quick Actions */}
-      <div style={{ marginTop: 20, display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div style={{ marginTop: 24, display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
         <a href={assetUrl('downloads/Check list (2).pdf')} target="_blank" rel="noreferrer" style={{ ...styles.ghostBtn, textDecoration: 'none' }}>
           📄 PDF الرسمي
         </a>
@@ -994,14 +941,14 @@ const Checklist = () => {
               onClick={exportSelectedPdf}
               disabled={exporting}
             >
-              {exporting ? '⏳ تصدير...' : `📊 تصدير التقرير`}
+              {exporting ? '⏳ تصدير...' : `📊 تصدير التقرير (${selectedCount})`}
             </button>
           </>
         )}
         <a href="#games" style={{ ...styles.primaryBtn, textDecoration: 'none', background: `linear-gradient(135deg, ${brandPurple}, ${brandPink})` }}>🎮 الألعاب السمعية</a>
       </div>
 
-      {/* Result Summary (shows when selections exist) */}
+      {/* Result Summary */}
       {selectedCount > 0 && (
         <div style={{
           marginTop: 24,
