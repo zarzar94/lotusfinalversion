@@ -129,9 +129,67 @@ export default function NeuroplasticitySection() {
         ))}
       </div>
 
-      {/* How AIT Uses Neuroplasticity */}
+      {/* Dr. Berard Quote */}
       <div style={{
         marginTop: 24,
+        padding: 20,
+        background: `linear-gradient(135deg, rgba(143,211,204,0.1), rgba(175,132,186,0.05))`,
+        borderRadius: 14,
+        border: `1px solid ${brandCyan}33`,
+        position: 'relative',
+      }}>
+        <div style={{
+          position: 'absolute',
+          top: 12,
+          right: 16,
+          fontSize: 40,
+          opacity: 0.2,
+          color: brandCyan,
+        }}>
+          "
+        </div>
+        <p style={{
+          fontSize: 16,
+          lineHeight: 1.8,
+          color: '#f7f8fb',
+          margin: 0,
+          fontStyle: 'italic',
+        }}>
+          كل شيء يحدث كما لو أن السلوك البشري مشروط إلى حد كبير بالطريقة التي يسمع بها المرء.
+        </p>
+        <div style={{
+          marginTop: 12,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+        }}>
+          <div style={{
+            width: 50,
+            height: 50,
+            borderRadius: '50%',
+            background: `linear-gradient(135deg, ${brandCyan}33, ${brandPurple}33)`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 24,
+          }}>
+            🧠
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, color: brandCyan }}>الدكتور جاي بيرارد</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
+              طبيب أنف وأذن وحنجرة • مخترع Berard AIT • أنيسي، فرنسا
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>
+              مؤلف كتاب "Hearing Equals Behavior" • عالج أكثر من 8,000 مريض
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* How AIT Uses Neuroplasticity */}
+      <div style={{
+        marginTop: 20,
         padding: 20,
         background: `linear-gradient(135deg, rgba(176,18,112,0.1), rgba(143,211,204,0.1))`,
         borderRadius: 14,
@@ -146,6 +204,16 @@ export default function NeuroplasticitySection() {
           <li><b>المدة:</b> 30 دقيقة لكل جلسة مع فترات راحة للتكيف</li>
           <li><b>التحفيز:</b> ترددات صوتية متنوعة تحفز مناطق مختلفة من الدماغ</li>
         </ul>
+        <div style={{
+          marginTop: 12,
+          padding: '10px 14px',
+          background: 'rgba(255,255,255,0.05)',
+          borderRadius: 10,
+          fontSize: 12,
+          color: 'rgba(255,255,255,0.7)',
+        }}>
+          <b>الأجهزة المعتمدة:</b> AudioKinetron • Earducator • AIM (Auditory Integration Modulator)
+        </div>
       </div>
 
       <div style={{ marginTop: 16, display: 'flex', gap: 10, flexWrap: 'wrap' }}>

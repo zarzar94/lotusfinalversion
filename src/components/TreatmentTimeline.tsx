@@ -59,16 +59,15 @@ const timelineSteps = [
 ];
 
 const benefits = [
-  { icon: '🎯', label: 'تحسن التركيز', percent: 85 },
-  { icon: '👂', label: 'معالجة سمعية', percent: 90 },
-  { icon: '💬', label: 'تواصل أفضل', percent: 78 },
-  { icon: '😴', label: 'نوم محسّن', percent: 72 },
+  { icon: '🎯', label: 'تحسن التركيز', description: 'تقارير أولياء الأمور' },
+  { icon: '👂', label: 'معالجة سمعية', description: 'ملاحظات سريرية' },
+  { icon: '💬', label: 'تواصل أفضل', description: 'تغذية راجعة' },
+  { icon: '😴', label: 'نوم محسّن', description: 'ملاحظات العائلات' },
 ];
 
 export default function TreatmentTimeline() {
   const [activeStep, setActiveStep] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-  const [animatedPercents, setAnimatedPercents] = useState<number[]>([0, 0, 0, 0]);
   const sectionRef = useRef<HTMLElement>(null);
 
   // Intersection observer for animations
@@ -77,23 +76,6 @@ export default function TreatmentTimeline() {
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          // Animate benefit percentages
-          benefits.forEach((benefit, i) => {
-            let current = 0;
-            const increment = benefit.percent / 40;
-            const interval = setInterval(() => {
-              current += increment;
-              if (current >= benefit.percent) {
-                current = benefit.percent;
-                clearInterval(interval);
-              }
-              setAnimatedPercents(prev => {
-                const newPercents = [...prev];
-                newPercents[i] = Math.floor(current);
-                return newPercents;
-              });
-            }, 25);
-          });
         }
       },
       { threshold: 0.3 }
@@ -369,49 +351,42 @@ export default function TreatmentTimeline() {
             gridTemplateColumns: 'repeat(2, 1fr)',
             gap: 12,
           }}>
-            {benefits.map((benefit, i) => (
+            {benefits.map((benefit) => (
               <div key={benefit.label} style={{
                 padding: 16,
                 background: 'rgba(15,22,41,0.8)',
                 borderRadius: 14,
                 border: '1px solid rgba(255,255,255,0.08)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
               }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  marginBottom: 10,
+                <span style={{ fontSize: 28, marginBottom: 8 }}>{benefit.icon}</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>
+                  {benefit.label}
+                </span>
+                <span style={{
+                  fontSize: 11,
+                  color: 'rgba(255,255,255,0.5)',
                 }}>
-                  <span style={{ fontSize: 20 }}>{benefit.icon}</span>
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>
-                    {benefit.label}
-                  </span>
-                </div>
-                <div style={{
-                  height: 8,
-                  background: 'rgba(255,255,255,0.1)',
-                  borderRadius: 4,
-                  overflow: 'hidden',
-                  marginBottom: 6,
-                }}>
-                  <div style={{
-                    height: '100%',
-                    width: `${animatedPercents[i]}%`,
-                    background: `linear-gradient(90deg, ${brandCyan}, ${brandPurple})`,
-                    borderRadius: 4,
-                    transition: 'width 0.1s linear',
-                  }} />
-                </div>
-                <div style={{
-                  fontSize: 20,
-                  fontWeight: 900,
-                  color: brandCyan,
-                  fontFamily: 'monospace',
-                }}>
-                  {animatedPercents[i]}%
-                </div>
+                  {benefit.description}
+                </span>
               </div>
             ))}
+          </div>
+
+          {/* Disclaimer */}
+          <div style={{
+            marginTop: 12,
+            padding: '8px 12px',
+            background: 'rgba(255,255,255,0.04)',
+            borderRadius: 8,
+            fontSize: 11,
+            color: 'rgba(255,255,255,0.5)',
+            textAlign: 'center',
+          }}>
+            * النتائج تختلف من شخص لآخر - المعلومات مبنية على ملاحظات سريرية وتقارير العائلات
           </div>
         </div>
       </div>
