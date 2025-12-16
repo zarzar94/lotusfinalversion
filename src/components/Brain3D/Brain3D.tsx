@@ -91,7 +91,9 @@ function NeuralPathway({ from, to, color, active, pulseOffset }: NeuralPathwayPr
 
   useFrame((state) => {
     if (!particlesRef.current || !active) return;
-    const positions = particlesRef.current.geometry.attributes.position.array as Float32Array;
+    const posAttr = particlesRef.current.geometry.attributes.position;
+    if (!posAttr || !('array' in posAttr)) return;
+    const positions = posAttr.array as Float32Array;
     const time = state.clock.elapsedTime + pulseOffset;
 
     for (let i = 0; i < particleCount; i++) {

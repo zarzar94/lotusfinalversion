@@ -1,6 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useGamification, type Achievement } from '../context/GamificationContext';
 import { brandCyan, brandPurple, brandPink } from './styles';
+
+// Generate random particles for confetti effect
+const generateParticles = (count: number) => {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    delay: Math.random() * 0.5,
+    duration: 1 + Math.random() * 1,
+    size: 4 + Math.random() * 6,
+    color: [brandCyan, brandPurple, brandPink, '#FFD700', '#FF6B6B'][Math.floor(Math.random() * 5)],
+  }));
+};
 
 const notificationStyle: React.CSSProperties = {
   position: 'fixed',
@@ -8,7 +20,6 @@ const notificationStyle: React.CSSProperties = {
   left: '50%',
   transform: 'translateX(-50%) translateY(-20px)',
   background: 'linear-gradient(135deg, rgba(11,15,28,0.98), rgba(25,30,50,0.98))',
-  border: `2px solid ${brandCyan}`,
   borderRadius: 20,
   padding: '16px 24px',
   display: 'flex',
@@ -19,6 +30,7 @@ const notificationStyle: React.CSSProperties = {
   opacity: 0,
   transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
   pointerEvents: 'none',
+  overflow: 'visible',
 };
 
 const visibleStyle: React.CSSProperties = {
@@ -77,10 +89,12 @@ export default function AchievementNotification() {
   const { recentUnlock, clearRecentUnlock } = useGamification();
   const [visible, setVisible] = useState(false);
   const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
+  const [particles, setParticles] = useState<ReturnType<typeof generateParticles>>([]);
 
   useEffect(() => {
     if (recentUnlock) {
       setCurrentAchievement(recentUnlock);
+      setParticles(generateParticles(20));
       setVisible(true);
 
       const hideTimer = setTimeout(() => {
@@ -106,11 +120,62 @@ export default function AchievementNotification() {
           0% { background-position: -200% center; }
           100% { background-position: 200% center; }
         }
+        @keyframes confettiFall {
+          0% {
+            transform: translateY(-20px) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(80px) rotate(360deg);
+            opacity: 0;
+          }
+        }
+        @keyframes borderGlow {
+          0%, 100% {
+            border-color: ${brandCyan};
+            box-shadow: 0 0 20px rgba(143,211,204,0.3), 0 20px 60px rgba(0,0,0,0.5);
+          }
+          33% {
+            border-color: ${brandPurple};
+            box-shadow: 0 0 20px rgba(175,132,186,0.3), 0 20px 60px rgba(0,0,0,0.5);
+          }
+          66% {
+            border-color: ${brandPink};
+            box-shadow: 0 0 20px rgba(176,18,112,0.3), 0 20px 60px rgba(0,0,0,0.5);
+          }
+        }
+        .achievement-notification {
+          border: 2px solid ${brandCyan};
+        }
+        .achievement-notification.visible {
+          animation: borderGlow 2s ease-in-out infinite;
+        }
       `}</style>
-      <div style={visible ? visibleStyle : notificationStyle}>
+      <div
+        className={`achievement-notification ${visible ? 'visible' : ''}`}
+        style={visible ? visibleStyle : notificationStyle}
+      >
+        {/* Confetti particles */}
+        {visible && particles.map(particle => (
+          <div
+            key={particle.id}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: `${particle.x}%`,
+              width: particle.size,
+              height: particle.size,
+              background: particle.color,
+              borderRadius: particle.size > 6 ? 2 : '50%',
+              animation: `confettiFall ${particle.duration}s ease-out ${particle.delay}s forwards`,
+              pointerEvents: 'none',
+            }}
+          />
+        ))}
+
         <div style={iconStyle}>{currentAchievement.icon}</div>
         <div style={contentStyle}>
-          <span style={labelStyle}>Achievement Unlocked!</span>
+          <span style={labelStyle}>🎉 إنجاز جديد!</span>
           <h4 style={titleStyle}>{currentAchievement.titleAr}</h4>
           <p style={descStyle}>{currentAchievement.descriptionAr}</p>
         </div>

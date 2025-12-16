@@ -32,8 +32,10 @@ const hudButtonStyle: React.CSSProperties = {
   alignItems: 'center',
   gap: 10,
   cursor: 'pointer',
-  transition: 'all 0.3s ease',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   boxShadow: `0 4px 20px rgba(143,211,204,0.2)`,
+  position: 'relative',
+  overflow: 'hidden',
 };
 
 const expandedPanelStyle: React.CSSProperties = {

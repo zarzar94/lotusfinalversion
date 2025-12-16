@@ -1,7 +1,7 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 
 import Header from './components/Header';
-import { styles, brandCyan, brandPink, brandPurpleDark } from './components/styles';
+import { styles } from './components/styles';
 import BackgroundFX from './components/BackgroundFX';
 import HeroSection from './components/HeroSection';
 import ProgramOverview from './components/ProgramOverview';
@@ -14,6 +14,8 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { GamificationProvider } from './context/GamificationContext';
 import AchievementNotification from './components/AchievementNotification';
 import ProgressHUD from './components/ProgressHUD';
+import SectionLoader from './components/SectionLoader';
+import FadeIn from './components/FadeIn';
 
 const SlideViewer = lazy(() => import('./components/SlideViewer'));
 const Checklist = lazy(() => import('./components/Checklist'));
@@ -53,36 +55,60 @@ function App() {
 
           <main style={styles.container}>
             {/* HERO with 3D Brain */}
-            <HeroSection />
+            <FadeIn duration={800}>
+              <HeroSection />
+            </FadeIn>
 
             {/* Interactive Audio Journey */}
-            <Suspense fallback={<div style={styles.sectionCard}>جارٍ تحميل رحلة الصوت…</div>}>
-              <AudioJourney />
-            </Suspense>
+            <FadeIn delay={100}>
+              <Suspense fallback={<SectionLoader label="جارٍ تحميل رحلة الصوت..." height={400} />}>
+                <AudioJourney />
+              </Suspense>
+            </FadeIn>
 
-            <ProgramOverview />
-            <ResultsSection />
+            <FadeIn delay={50}>
+              <ProgramOverview />
+            </FadeIn>
 
-            <Suspense fallback={<div style={styles.sectionCard}>جارٍ تحميل عارض الشرائح…</div>}>
-              <SlideViewer />
-            </Suspense>
+            <FadeIn delay={50}>
+              <ResultsSection />
+            </FadeIn>
 
-            <Suspense fallback={<div style={styles.sectionCard}>جارٍ تحميل قائمة التحقق…</div>}>
-              <Checklist />
-            </Suspense>
+            <FadeIn delay={50}>
+              <Suspense fallback={<SectionLoader label="جارٍ تحميل عارض الشرائح..." height={500} />}>
+                <SlideViewer />
+              </Suspense>
+            </FadeIn>
 
-            <Suspense fallback={<div style={styles.sectionCard}>جارٍ تحميل الألعاب…</div>}>
-              <GameSection />
-            </Suspense>
+            <FadeIn delay={50}>
+              <Suspense fallback={<SectionLoader label="جارٍ تحميل قائمة التحقق..." height={400} />}>
+                <Checklist />
+              </Suspense>
+            </FadeIn>
 
-            <ComparisonSection />
-            <SchoolPartnershipSection />
+            <FadeIn delay={50}>
+              <Suspense fallback={<SectionLoader label="جارٍ تحميل الألعاب..." height={350} />}>
+                <GameSection />
+              </Suspense>
+            </FadeIn>
 
-            <Suspense fallback={<div style={styles.sectionCard}>جارٍ تحميل نموذج التواصل…</div>}>
-              <ContactForm />
-            </Suspense>
+            <FadeIn delay={50}>
+              <ComparisonSection />
+            </FadeIn>
 
-            <Footer />
+            <FadeIn delay={50}>
+              <SchoolPartnershipSection />
+            </FadeIn>
+
+            <FadeIn delay={50}>
+              <Suspense fallback={<SectionLoader label="جارٍ تحميل نموذج التواصل..." height={300} />}>
+                <ContactForm />
+              </Suspense>
+            </FadeIn>
+
+            <FadeIn delay={100}>
+              <Footer />
+            </FadeIn>
           </main>
 
           <WhatsAppFab />
