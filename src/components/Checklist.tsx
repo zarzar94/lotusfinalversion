@@ -65,6 +65,236 @@ const playLaunchSound = () => {
   } catch { /* Audio unavailable */ }
 };
 
+const playExplosionSound = () => {
+  try {
+    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    // Explosion noise
+    const bufferSize = ctx.sampleRate * 0.4;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(2000, ctx.currentTime);
+    filter.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.3);
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    noise.start();
+    noise.stop(ctx.currentTime + 0.4);
+
+    // Impact thud
+    const osc = ctx.createOscillator();
+    const oscGain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(150, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.2);
+    oscGain.gain.setValueAtTime(0.2, ctx.currentTime);
+    oscGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+    osc.connect(oscGain);
+    oscGain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.2);
+  } catch { /* Audio unavailable */ }
+};
+
+// Missile component that flies from button to target
+interface MissileProps {
+  active: boolean;
+  targetRef: React.RefObject<HTMLDivElement>;
+  buttonRef: React.RefObject<HTMLButtonElement>;
+  onImpact: () => void;
+  color: string;
+}
+
+function Missile({ active, targetRef, buttonRef, onImpact, color }: MissileProps) {
+  const [position, setPosition] = useState({ x: 0, y: 0, visible: false, impacted: false });
+
+  useEffect(() => {
+    if (!active || !targetRef.current || !buttonRef.current) return;
+
+    const buttonRect = buttonRef.current.getBoundingClientRect();
+    const targetRect = targetRef.current.getBoundingClientRect();
+
+    const startX = buttonRect.left + buttonRect.width / 2;
+    const startY = buttonRect.top;
+    const endX = targetRect.left + targetRect.width / 2;
+    const endY = targetRect.top + targetRect.height / 2;
+
+    setPosition({ x: startX, y: startY, visible: true, impacted: false });
+
+    // Animate missile flight
+    const duration = 400;
+    const startTime = Date.now();
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Easing - accelerate
+      const eased = progress * progress;
+
+      const currentX = startX + (endX - startX) * eased;
+      const currentY = startY + (endY - startY) * eased;
+
+      setPosition({ x: currentX, y: currentY, visible: true, impacted: false });
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        // Impact!
+        setPosition(prev => ({ ...prev, impacted: true }));
+        playExplosionSound();
+        onImpact();
+        setTimeout(() => setPosition(prev => ({ ...prev, visible: false })), 600);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [active, targetRef, buttonRef, onImpact]);
+
+  if (!position.visible) return null;
+
+  return (
+    <>
+      {/* Missile */}
+      {!position.impacted && (
+        <div style={{
+          position: 'fixed',
+          left: position.x,
+          top: position.y,
+          transform: 'translate(-50%, -50%) rotate(-90deg)',
+          zIndex: 10000,
+          pointerEvents: 'none',
+        }}>
+          {/* Missile body */}
+          <div style={{
+            width: 12,
+            height: 40,
+            background: 'linear-gradient(180deg, #dc2626 0%, #991b1b 50%, #7f1d1d 100%)',
+            borderRadius: '6px 6px 2px 2px',
+            position: 'relative',
+            boxShadow: '0 0 20px rgba(220,38,38,0.8), 0 0 40px rgba(220,38,38,0.4)',
+          }}>
+            {/* Nose cone */}
+            <div style={{
+              position: 'absolute',
+              top: -10,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 0,
+              height: 0,
+              borderLeft: '6px solid transparent',
+              borderRight: '6px solid transparent',
+              borderBottom: '12px solid #dc2626',
+            }} />
+            {/* Fins */}
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: -6,
+              width: 0,
+              height: 0,
+              borderTop: '8px solid transparent',
+              borderRight: '8px solid #7f1d1d',
+            }} />
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              right: -6,
+              width: 0,
+              height: 0,
+              borderTop: '8px solid transparent',
+              borderLeft: '8px solid #7f1d1d',
+            }} />
+            {/* Exhaust flame */}
+            <div style={{
+              position: 'absolute',
+              bottom: -20,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 8,
+              height: 25,
+              background: 'linear-gradient(180deg, #fbbf24 0%, #f97316 40%, #dc2626 70%, transparent 100%)',
+              borderRadius: '50%',
+              filter: 'blur(2px)',
+              animation: 'flameFlicker 0.1s ease-in-out infinite',
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* Explosion */}
+      {position.impacted && (
+        <div style={{
+          position: 'fixed',
+          left: position.x,
+          top: position.y,
+          transform: 'translate(-50%, -50%)',
+          zIndex: 10000,
+          pointerEvents: 'none',
+        }}>
+          {/* Central flash */}
+          <div style={{
+            width: 120,
+            height: 120,
+            borderRadius: '50%',
+            background: `radial-gradient(circle, #fff 0%, ${color} 30%, #f97316 60%, transparent 70%)`,
+            animation: 'explosionFlash 0.4s ease-out forwards',
+          }} />
+          {/* Particles */}
+          {[...Array(12)].map((_, i) => {
+            const angle = (i / 12) * Math.PI * 2;
+            const distance = 80 + Math.random() * 40;
+            const tx = Math.cos(angle) * distance;
+            const ty = Math.sin(angle) * distance;
+            return (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  width: 8 + Math.random() * 8,
+                  height: 8 + Math.random() * 8,
+                  borderRadius: '50%',
+                  background: i % 2 === 0 ? '#fbbf24' : color,
+                  boxShadow: `0 0 10px ${i % 2 === 0 ? '#fbbf24' : color}`,
+                  ['--tx' as string]: `${tx}px`,
+                  ['--ty' as string]: `${ty}px`,
+                  animation: 'explosionParticle 0.5s ease-out forwards',
+                }}
+              />
+            );
+          })}
+          {/* Shockwave ring */}
+          <div style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 20,
+            height: 20,
+            borderRadius: '50%',
+            border: `3px solid ${color}`,
+            animation: 'shockwave 0.4s ease-out forwards',
+          }} />
+        </div>
+      )}
+    </>
+  );
+}
+
 interface ItemCardProps {
   item: ChecklistItem;
   isSelected: boolean;
@@ -72,10 +302,17 @@ interface ItemCardProps {
   onToggle: () => void;
   animationDelay: number;
   isExiting: boolean;
+  isHit: boolean;
 }
 
-function ItemCard({ item, isSelected, color, onToggle, animationDelay, isExiting }: ItemCardProps) {
+function ItemCard({ item, isSelected, color, onToggle, animationDelay, isExiting, isHit }: ItemCardProps) {
   const [hovered, setHovered] = useState(false);
+
+  const getAnimation = () => {
+    if (isHit) return `itemExplode 0.5s ease-out ${animationDelay}s forwards`;
+    if (isExiting) return `itemPop 0.4s ease-out ${animationDelay}s forwards`;
+    return `itemEnter 0.5s ease-out ${animationDelay}s backwards`;
+  };
 
   return (
     <button
@@ -100,9 +337,7 @@ function ItemCard({ item, isSelected, color, onToggle, animationDelay, isExiting
         boxShadow: isSelected ? `0 4px 20px ${color}33` : 'none',
         position: 'relative',
         overflow: 'hidden',
-        animation: isExiting
-          ? `itemPop 0.4s ease-out ${animationDelay}s forwards`
-          : `itemEnter 0.5s ease-out ${animationDelay}s backwards`,
+        animation: getAnimation(),
       }}
     >
       {/* Checkbox indicator */}
@@ -158,24 +393,25 @@ interface LaunchButtonProps {
   onClick: () => void;
   disabled?: boolean;
   isLast?: boolean;
+  buttonRef?: React.RefObject<HTMLButtonElement>;
 }
 
-function LaunchButton({ onClick, disabled, isLast }: LaunchButtonProps) {
+function LaunchButton({ onClick, disabled, isLast, buttonRef }: LaunchButtonProps) {
   const [isPressed, setIsPressed] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleClick = () => {
     if (disabled) return;
     setIsPressed(true);
-    playLaunchSound();
     setTimeout(() => {
       setIsPressed(false);
       onClick();
-    }, 300);
+    }, 150);
   };
 
   return (
     <button
+      ref={buttonRef}
       type="button"
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
@@ -341,8 +577,12 @@ const Checklist = () => {
   const [currentSection, setCurrentSection] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionDirection, setTransitionDirection] = useState<'next' | 'prev'>('next');
+  const [missileFired, setMissileFired] = useState(false);
+  const [isHit, setIsHit] = useState(false);
+  const [screenShake, setScreenShake] = useState(false);
   const { completeChecklist } = useGamification();
   const sectionRef = useRef<HTMLDivElement>(null);
+  const launchButtonRef = useRef<HTMLButtonElement>(null);
 
   const selectedItems = useMemo(() => checklistItems.filter((item) => selected[item.id]), [selected]);
   const selectedCount = selectedItems.length;
@@ -379,10 +619,22 @@ const Checklist = () => {
   }, [completeChecklist]);
 
   const goToNext = useCallback(() => {
-    if (currentSection >= totalSections - 1 || isTransitioning) return;
-    setTransitionDirection('next');
-    setIsTransitioning(true);
-  }, [currentSection, totalSections, isTransitioning]);
+    if (currentSection >= totalSections - 1 || isTransitioning || missileFired) return;
+    playLaunchSound();
+    setMissileFired(true);
+  }, [currentSection, totalSections, isTransitioning, missileFired]);
+
+  const handleMissileImpact = useCallback(() => {
+    setIsHit(true);
+    setScreenShake(true);
+    setTimeout(() => setScreenShake(false), 500);
+    setTimeout(() => {
+      setMissileFired(false);
+      setIsHit(false);
+      setTransitionDirection('next');
+      setCurrentSection(prev => prev + 1);
+    }, 600);
+  }, []);
 
   const goToPrev = useCallback(() => {
     if (currentSection <= 0 || isTransitioning) return;
@@ -390,11 +642,11 @@ const Checklist = () => {
     setIsTransitioning(true);
   }, [currentSection, isTransitioning]);
 
-  // Handle transition end
+  // Handle transition end (for prev only, next uses missile)
   useEffect(() => {
-    if (isTransitioning) {
+    if (isTransitioning && transitionDirection === 'prev') {
       const timer = setTimeout(() => {
-        setCurrentSection(prev => transitionDirection === 'next' ? prev + 1 : prev - 1);
+        setCurrentSection(prev => prev - 1);
         setIsTransitioning(false);
       }, 500);
       return () => clearTimeout(timer);
@@ -475,6 +727,30 @@ const Checklist = () => {
           0% { opacity: 1; transform: translate(0, 0) scale(1); }
           100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
         }
+        @keyframes explosionFlash {
+          0% { opacity: 1; transform: scale(0.5); }
+          50% { opacity: 1; transform: scale(1.2); }
+          100% { opacity: 0; transform: scale(1.5); }
+        }
+        @keyframes shockwave {
+          0% { width: 20px; height: 20px; opacity: 1; }
+          100% { width: 200px; height: 200px; opacity: 0; }
+        }
+        @keyframes flameFlicker {
+          0%, 100% { transform: translateX(-50%) scaleY(1); }
+          50% { transform: translateX(-50%) scaleY(0.8); }
+        }
+        @keyframes itemExplode {
+          0% { opacity: 1; transform: scale(1) rotate(0deg); filter: brightness(1); }
+          20% { opacity: 1; transform: scale(1.3) rotate(5deg); filter: brightness(2); }
+          40% { opacity: 1; transform: scale(1.1) rotate(-3deg); filter: brightness(1.5); }
+          100% { opacity: 0; transform: scale(0) rotate(45deg); filter: brightness(0); }
+        }
+        @keyframes screenShake {
+          0%, 100% { transform: translateX(0); }
+          10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+          20%, 40%, 60%, 80% { transform: translateX(4px); }
+        }
       `}</style>
 
       {/* Header */}
@@ -553,21 +829,35 @@ const Checklist = () => {
         })}
       </div>
 
+      {/* Missile */}
+      <Missile
+        active={missileFired}
+        targetRef={sectionRef}
+        buttonRef={launchButtonRef}
+        onImpact={handleMissileImpact}
+        color={currentConfig.color}
+      />
+
       {/* Current Section */}
       <div
         ref={sectionRef}
         style={{
           marginTop: 24,
           padding: 24,
-          background: 'linear-gradient(135deg, rgba(11,15,28,0.95), rgba(25,30,50,0.95))',
+          background: isHit
+            ? `linear-gradient(135deg, rgba(220,38,38,0.3), rgba(25,30,50,0.95))`
+            : 'linear-gradient(135deg, rgba(11,15,28,0.95), rgba(25,30,50,0.95))',
           borderRadius: 24,
-          border: `2px solid ${currentConfig.color}44`,
+          border: `2px solid ${isHit ? '#dc2626' : currentConfig.color}44`,
           position: 'relative',
           overflow: 'hidden',
           minHeight: 400,
-          animation: isTransitioning
-            ? (transitionDirection === 'next' ? 'sectionExit 0.5s ease forwards' : 'sectionExitPrev 0.5s ease forwards')
-            : (transitionDirection === 'next' ? 'sectionEnter 0.5s ease' : 'sectionEnterPrev 0.5s ease'),
+          animation: screenShake
+            ? 'screenShake 0.5s ease'
+            : isTransitioning
+              ? (transitionDirection === 'next' ? 'sectionExit 0.5s ease forwards' : 'sectionExitPrev 0.5s ease forwards')
+              : (transitionDirection === 'next' ? 'sectionEnter 0.5s ease' : 'sectionEnterPrev 0.5s ease'),
+          transition: 'background 0.3s ease, border-color 0.3s ease',
         }}
       >
         {/* Grid background */}
@@ -635,8 +925,9 @@ const Checklist = () => {
               isSelected={!!selected[item.id]}
               color={currentConfig.color}
               onToggle={() => toggle(item.id)}
-              animationDelay={idx * 0.05}
+              animationDelay={idx * 0.03}
               isExiting={isTransitioning}
+              isHit={isHit}
             />
           ))}
         </div>
@@ -671,8 +962,9 @@ const Checklist = () => {
 
         <LaunchButton
           onClick={isLastSection ? exportSelectedPdf : goToNext}
-          disabled={isTransitioning || (isLastSection && selectedCount === 0)}
+          disabled={isTransitioning || missileFired || (isLastSection && selectedCount === 0)}
           isLast={isLastSection}
+          buttonRef={launchButtonRef}
         />
       </div>
 
@@ -685,7 +977,7 @@ const Checklist = () => {
       }}>
         {isLastSection
           ? `اضغط الزر لتصدير التقرير • ${selectedCount} مؤشر محدد`
-          : 'اضغط الزر الأحمر للانتقال إلى القسم التالي'}
+          : '🚀 اضغط الزر الأحمر لإطلاق الصاروخ وتدمير القسم الحالي'}
       </div>
 
       {/* Quick Actions */}
