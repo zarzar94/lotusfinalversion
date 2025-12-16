@@ -1,4 +1,4 @@
-import{r,j as e,s as t,C as i,h as b}from"./index-Clg2L0qx.js";const v=s=>s.replace(/\D/g,""),u=s=>{const o=v(s);return o.length>=9&&o.length<=15},d=1e3,c=100,W=()=>{const[s,o]=r.useState(""),[p,x]=r.useState(""),[n,m]=r.useState(""),[a,g]=r.useState(""),[y,j]=r.useState(!1),h=r.useMemo(()=>s.trim().length>1&&s.trim().length<=c&&a.trim().length>4&&a.length<=d&&u(n),[s,a,n]),f=l=>{if(l.preventDefault(),!h)return;const X=`الاسم: ${s}
+import{r,j as e,s as t,C as i,h as b}from"./index-DUUMM_2G.js";const v=s=>s.replace(/\D/g,""),u=s=>{const o=v(s);return o.length>=9&&o.length<=15},d=1e3,c=100,W=()=>{const[s,o]=r.useState(""),[p,x]=r.useState(""),[n,m]=r.useState(""),[a,g]=r.useState(""),[y,j]=r.useState(!1),h=r.useMemo(()=>s.trim().length>1&&s.trim().length<=c&&a.trim().length>4&&a.length<=d&&u(n),[s,a,n]),f=l=>{if(l.preventDefault(),!h)return;const X=`الاسم: ${s}
 رقم الهاتف: ${n}
 البريد الإلكتروني: ${p||"—"}
 
