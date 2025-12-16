@@ -4,18 +4,28 @@ import { OrbitControls, Float, Sphere, MeshDistortMaterial } from '@react-three/
 import * as THREE from 'three';
 import { brandCyan, brandPurple, brandPink, brandPurpleDark } from '../styles';
 
-// Treatment area bubbles based on the brain map image
+// Treatment area bubbles positioned on anatomical brain regions
 const BRAIN_BUBBLES = [
-  { id: 'auditory', label: 'السمع', labelEn: 'Auditory', color: '#FF6B35', position: [0.3, 1.4, 0.8] as [number, number, number], size: 0.38 },
-  { id: 'language', label: 'اللغة', labelEn: 'Language', color: '#00A8CC', position: [1.4, 1.1, 0.5] as [number, number, number], size: 0.38 },
-  { id: 'music', label: 'الموسيقى', labelEn: 'Music', color: '#C41E3A', position: [-1.3, 0.5, 0.6] as [number, number, number], size: 0.32 },
-  { id: 'attention', label: 'التركيز', labelEn: 'Attention', color: '#1E40AF', position: [0, 0.3, 1.0] as [number, number, number], size: 0.4 },
-  { id: 'sensory', label: 'الحسي', labelEn: 'Sensory', color: '#166534', position: [0.9, 0.2, 0.9] as [number, number, number], size: 0.38 },
-  { id: 'balance', label: 'التوازن', labelEn: 'Balance', color: '#15803D', position: [1.8, 0.3, 0.3] as [number, number, number], size: 0.4 },
-  { id: 'memory', label: 'الذاكرة', labelEn: 'Memory', color: '#EA580C', position: [-1.5, -0.2, 0.5] as [number, number, number], size: 0.4 },
-  { id: 'learning', label: 'التعلم', labelEn: 'Learning', color: '#1E3A5F', position: [0.5, -0.6, 0.8] as [number, number, number], size: 0.35 },
-  { id: 'behavior', label: 'السلوك', labelEn: 'Behavior', color: '#9333EA', position: [-0.5, -0.8, 0.7] as [number, number, number], size: 0.4 },
-  { id: 'wellbeing', label: 'الرفاهية', labelEn: 'Well-Being', color: '#2563EB', position: [1.5, -0.5, 0.4] as [number, number, number], size: 0.38 },
+  // Temporal lobe - Auditory cortex (side of brain, near ear)
+  { id: 'auditory', label: 'السمع', labelEn: 'Auditory', color: '#FF6B35', position: [1.6, -0.3, 0.4] as [number, number, number], size: 0.32 },
+  // Temporal/Frontal - Language (Broca's and Wernicke's area)
+  { id: 'language', label: 'اللغة', labelEn: 'Language', color: '#00A8CC', position: [1.3, 0.4, 1.2] as [number, number, number], size: 0.32 },
+  // Right temporal - Music processing
+  { id: 'music', label: 'الموسيقى', labelEn: 'Music', color: '#C41E3A', position: [-1.5, 0.0, 0.6] as [number, number, number], size: 0.28 },
+  // Frontal lobe - Attention/Executive function (front top)
+  { id: 'attention', label: 'التركيز', labelEn: 'Attention', color: '#1E40AF', position: [0, 1.2, 1.4] as [number, number, number], size: 0.35 },
+  // Parietal lobe - Sensory processing (top back)
+  { id: 'sensory', label: 'الحسي', labelEn: 'Sensory', color: '#166534', position: [0.8, 1.4, -0.2] as [number, number, number], size: 0.32 },
+  // Cerebellum - Balance (back bottom)
+  { id: 'balance', label: 'التوازن', labelEn: 'Balance', color: '#15803D', position: [0, -1.2, -1.6] as [number, number, number], size: 0.35 },
+  // Hippocampus area - Memory (deep temporal)
+  { id: 'memory', label: 'الذاكرة', labelEn: 'Memory', color: '#EA580C', position: [-1.0, -0.5, 0.0] as [number, number, number], size: 0.32 },
+  // Prefrontal - Learning (front)
+  { id: 'learning', label: 'التعلم', labelEn: 'Learning', color: '#1E3A5F', position: [-0.6, 0.8, 1.6] as [number, number, number], size: 0.30 },
+  // Prefrontal/Limbic - Behavior regulation
+  { id: 'behavior', label: 'السلوك', labelEn: 'Behavior', color: '#9333EA', position: [0.6, 0.6, 1.8] as [number, number, number], size: 0.32 },
+  // Limbic system - Well-being/Emotional center
+  { id: 'wellbeing', label: 'الرفاهية', labelEn: 'Well-Being', color: '#2563EB', position: [-0.8, 1.0, 0.6] as [number, number, number], size: 0.32 },
 ];
 
 // Neural connections between bubbles
@@ -45,46 +55,150 @@ const playBubbleSound = (frequency: number) => {
   } catch { /* Audio unavailable */ }
 };
 
-// Organic brain mesh wireframe
+// Create brain geometry with two hemispheres
+function createBrainGeometry(): THREE.BufferGeometry {
+  const geometry = new THREE.BufferGeometry();
+  const vertices: number[] = [];
+  const indices: number[] = [];
+  const normals: number[] = [];
+
+  const widthSegments = 48;
+  const heightSegments = 32;
+
+  // Create brain-shaped vertices
+  for (let y = 0; y <= heightSegments; y++) {
+    const v = y / heightSegments;
+    const phi = v * Math.PI; // 0 to PI
+
+    for (let x = 0; x <= widthSegments; x++) {
+      const u = x / widthSegments;
+      const theta = u * Math.PI * 2; // 0 to 2PI
+
+      // Base sphere
+      let px = Math.sin(phi) * Math.cos(theta);
+      let py = Math.cos(phi);
+      let pz = Math.sin(phi) * Math.sin(theta);
+
+      // Brain shape modifiers
+      // 1. Elongate front-to-back (z-axis)
+      pz *= 1.25;
+
+      // 2. Flatten top slightly
+      if (py > 0.3) {
+        py *= 0.85 + 0.15 * (1 - (py - 0.3) / 0.7);
+      }
+
+      // 3. Create central fissure (dividing hemispheres)
+      const centralFissure = Math.abs(px) < 0.15 && py > -0.3 ?
+        -0.15 * (1 - Math.abs(px) / 0.15) * Math.max(0, py + 0.3) : 0;
+      py += centralFissure;
+
+      // 4. Add gyri (brain ridges) using noise-like function
+      const gyriNoise =
+        Math.sin(theta * 8 + phi * 3) * 0.04 +
+        Math.sin(theta * 12 + phi * 5) * 0.025 +
+        Math.sin(theta * 4 + phi * 8) * 0.035;
+
+      // 5. Bulge frontal lobe
+      const frontalBulge = pz > 0.4 ? 0.12 * Math.pow((pz - 0.4) / 0.85, 2) : 0;
+
+      // 6. Temporal lobe bulge (sides, lower)
+      const temporalBulge = py < 0 && Math.abs(px) > 0.4 ?
+        0.08 * Math.abs(px) * Math.abs(py) : 0;
+
+      // 7. Occipital lobe (back, slightly pointed)
+      const occipitalShape = pz < -0.6 ? 0.1 * Math.pow((-pz - 0.6) / 0.65, 1.5) : 0;
+
+      // 8. Cerebellum bulge (back, bottom)
+      const cerebellumBulge = py < -0.4 && pz < -0.2 ?
+        0.15 * Math.abs(py + 0.4) * Math.max(0, -pz - 0.2) : 0;
+
+      // Apply modifications
+      const scale = 1.7;
+      const finalX = (px + px * gyriNoise + px * temporalBulge) * scale;
+      const finalY = (py + gyriNoise * 0.5) * scale;
+      const finalZ = (pz + frontalBulge + occipitalShape + cerebellumBulge + gyriNoise * 0.8) * scale;
+
+      vertices.push(finalX, finalY, finalZ);
+
+      // Approximate normals
+      normals.push(px, py, pz);
+    }
+  }
+
+  // Create faces
+  for (let y = 0; y < heightSegments; y++) {
+    for (let x = 0; x < widthSegments; x++) {
+      const a = y * (widthSegments + 1) + x;
+      const b = a + 1;
+      const c = a + (widthSegments + 1);
+      const d = c + 1;
+
+      indices.push(a, c, b);
+      indices.push(b, c, d);
+    }
+  }
+
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+  geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+
+  return geometry;
+}
+
+// Realistic brain mesh with hemispheres
 function BrainMesh() {
   const meshRef = useRef<THREE.Mesh>(null);
   const wireRef = useRef<THREE.LineSegments>(null);
+  const groupRef = useRef<THREE.Group>(null);
+
+  const brainGeometry = useMemo(() => createBrainGeometry(), []);
+  const wireGeometry = useMemo(() => {
+    const geo = createBrainGeometry();
+    return new THREE.WireframeGeometry(geo);
+  }, []);
 
   useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.08;
-      meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
-    }
-    if (wireRef.current) {
-      wireRef.current.rotation.y = state.clock.elapsedTime * 0.08;
-      wireRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
+    if (groupRef.current) {
+      groupRef.current.rotation.y = state.clock.elapsedTime * 0.08;
+      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
     }
   });
 
   return (
-    <group>
-      {/* Inner glow core */}
+    <group ref={groupRef}>
+      {/* Inner glow core - brain shaped */}
       <Float speed={0.8} rotationIntensity={0.05} floatIntensity={0.1}>
-        <mesh ref={meshRef}>
-          <icosahedronGeometry args={[1.8, 3]} />
+        <mesh ref={meshRef} geometry={brainGeometry}>
           <MeshDistortMaterial
-            color="#4a90a4"
+            color="#e8a5b8"
             emissive="#8FD3CC"
-            emissiveIntensity={0.15}
-            distort={0.25}
-            speed={1.2}
-            roughness={0.4}
+            emissiveIntensity={0.12}
+            distort={0.08}
+            speed={0.8}
+            roughness={0.6}
             transparent
-            opacity={0.25}
+            opacity={0.35}
           />
         </mesh>
       </Float>
 
-      {/* Neural network wireframe */}
-      <lineSegments ref={wireRef}>
-        <icosahedronGeometry args={[1.9, 2]} />
-        <lineBasicMaterial color={brandCyan} transparent opacity={0.35} />
+      {/* Neural network wireframe - brain shaped */}
+      <lineSegments ref={wireRef} geometry={wireGeometry}>
+        <lineBasicMaterial color={brandCyan} transparent opacity={0.25} />
       </lineSegments>
+
+      {/* Sulci (grooves) effect - additional wireframe layer */}
+      <lineSegments geometry={wireGeometry} scale={1.01}>
+        <lineBasicMaterial color={brandPurple} transparent opacity={0.15} />
+      </lineSegments>
+
+      {/* Central fissure highlight */}
+      <mesh position={[0, 0.3, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.02, 0.02, 3, 8]} />
+        <meshBasicMaterial color={brandPink} transparent opacity={0.3} />
+      </mesh>
     </group>
   );
 }
@@ -227,16 +341,11 @@ interface BubbleProps {
 }
 
 function TreatmentBubble({ bubble, isHovered, isSelected, onClick, onHover }: BubbleProps) {
-  const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.elapsedTime * 0.08;
-      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
-    }
     if (meshRef.current) {
       const targetScale = isHovered ? 1.25 : isSelected ? 1.15 : 1;
       meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
@@ -251,8 +360,7 @@ function TreatmentBubble({ bubble, isHovered, isSelected, onClick, onHover }: Bu
   });
 
   return (
-    <group ref={groupRef}>
-      <group position={bubble.position}>
+    <group position={bubble.position}>
         {/* Outer glow */}
         <Sphere ref={glowRef} args={[bubble.size * 1.5, 16, 16]}>
           <meshBasicMaterial color={bubble.color} transparent opacity={0.12} />
@@ -295,7 +403,6 @@ function TreatmentBubble({ bubble, isHovered, isSelected, onClick, onHover }: Bu
             <canvasTexture attach="map" image={createLabelTexture(bubble.label, bubble.color, isHovered)} />
           </spriteMaterial>
         </sprite>
-      </group>
     </group>
   );
 }
@@ -321,6 +428,24 @@ function createLabelTexture(text: string, color: string, isHovered: boolean): HT
   ctx.fillText(text, 128, 44);
 
   return canvas;
+}
+
+// Rotating group for bubbles that syncs with brain rotation
+interface RotatingBubblesProps {
+  children: React.ReactNode;
+}
+
+function RotatingBubbles({ children }: RotatingBubblesProps) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y = state.clock.elapsedTime * 0.08;
+      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
+    }
+  });
+
+  return <group ref={groupRef}>{children}</group>;
 }
 
 // Main brain scene
@@ -355,17 +480,19 @@ function BrainScene({ onBubbleSelect }: { onBubbleSelect: (bubble: typeof BRAIN_
       {/* Flowing particles */}
       <FlowingParticles />
 
-      {/* Treatment area bubbles */}
-      {BRAIN_BUBBLES.map((bubble) => (
-        <TreatmentBubble
-          key={bubble.id}
-          bubble={bubble}
-          isHovered={hoveredBubble === bubble.id}
-          isSelected={selectedBubble === bubble.id}
-          onClick={() => handleBubbleClick(bubble)}
-          onHover={(h) => setHoveredBubble(h ? bubble.id : null)}
-        />
-      ))}
+      {/* Treatment area bubbles - rotate with the brain */}
+      <RotatingBubbles>
+        {BRAIN_BUBBLES.map((bubble) => (
+          <TreatmentBubble
+            key={bubble.id}
+            bubble={bubble}
+            isHovered={hoveredBubble === bubble.id}
+            isSelected={selectedBubble === bubble.id}
+            onClick={() => handleBubbleClick(bubble)}
+            onHover={(h) => setHoveredBubble(h ? bubble.id : null)}
+          />
+        ))}
+      </RotatingBubbles>
 
       {/* Camera controls */}
       <OrbitControls
