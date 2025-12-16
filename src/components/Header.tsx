@@ -5,6 +5,7 @@ import { styles, brandPurple, brandCyan, brandPink, brandPurpleDark } from './st
 
 const navItems = [
   { href: '#about', label: 'الرئيسية' },
+  { href: '#audio-journey', label: '🎧 رحلة الصوت' },
   { href: '#overview', label: 'البرنامج' },
   { href: '#results', label: 'النتائج' },
   { href: '#pptx', label: 'الشرائح' },
