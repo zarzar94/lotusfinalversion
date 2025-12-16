@@ -1,410 +1,369 @@
 import { useRef, useState, useMemo, useCallback, useEffect } from 'react';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Float, Text, Sphere, MeshDistortMaterial, Line } from '@react-three/drei';
+import { OrbitControls, Float, Sphere, MeshDistortMaterial } from '@react-three/drei';
 import * as THREE from 'three';
-import { useGamification, BRAIN_REGIONS } from '../../context/GamificationContext';
 import { brandCyan, brandPurple, brandPink, brandPurpleDark } from '../styles';
 
-// Audio feedback for region exploration
-const playRegionSound = (frequency: number) => {
+// Treatment area bubbles based on the brain map image
+const BRAIN_BUBBLES = [
+  { id: 'auditory', label: 'السمع', labelEn: 'Auditory', color: '#FF6B35', position: [0.3, 1.4, 0.8] as [number, number, number], size: 0.38 },
+  { id: 'language', label: 'اللغة', labelEn: 'Language', color: '#00A8CC', position: [1.4, 1.1, 0.5] as [number, number, number], size: 0.38 },
+  { id: 'music', label: 'الموسيقى', labelEn: 'Music', color: '#C41E3A', position: [-1.3, 0.5, 0.6] as [number, number, number], size: 0.32 },
+  { id: 'attention', label: 'التركيز', labelEn: 'Attention', color: '#1E40AF', position: [0, 0.3, 1.0] as [number, number, number], size: 0.4 },
+  { id: 'sensory', label: 'الحسي', labelEn: 'Sensory', color: '#166534', position: [0.9, 0.2, 0.9] as [number, number, number], size: 0.38 },
+  { id: 'balance', label: 'التوازن', labelEn: 'Balance', color: '#15803D', position: [1.8, 0.3, 0.3] as [number, number, number], size: 0.4 },
+  { id: 'memory', label: 'الذاكرة', labelEn: 'Memory', color: '#EA580C', position: [-1.5, -0.2, 0.5] as [number, number, number], size: 0.4 },
+  { id: 'learning', label: 'التعلم', labelEn: 'Learning', color: '#1E3A5F', position: [0.5, -0.6, 0.8] as [number, number, number], size: 0.35 },
+  { id: 'behavior', label: 'السلوك', labelEn: 'Behavior', color: '#9333EA', position: [-0.5, -0.8, 0.7] as [number, number, number], size: 0.4 },
+  { id: 'wellbeing', label: 'الرفاهية', labelEn: 'Well-Being', color: '#2563EB', position: [1.5, -0.5, 0.4] as [number, number, number], size: 0.38 },
+];
+
+// Neural connections between bubbles
+const NEURAL_CONNECTIONS = [
+  { from: 0, to: 3 }, { from: 1, to: 3 }, { from: 2, to: 6 },
+  { from: 3, to: 4 }, { from: 4, to: 5 }, { from: 6, to: 8 },
+  { from: 7, to: 3 }, { from: 8, to: 7 }, { from: 9, to: 5 },
+  { from: 0, to: 2 }, { from: 1, to: 4 }, { from: 3, to: 7 },
+  { from: 5, to: 9 }, { from: 6, to: 7 }, { from: 4, to: 9 },
+];
+
+// Sound effect for bubble interaction
+const playBubbleSound = (frequency: number) => {
   try {
     const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-
     osc.type = 'sine';
     osc.frequency.setValueAtTime(frequency, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(frequency * 1.5, ctx.currentTime + 0.15);
-
-    gain.gain.setValueAtTime(0.12, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-
+    osc.frequency.exponentialRampToValueAtTime(frequency * 1.3, ctx.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
     osc.connect(gain);
     gain.connect(ctx.destination);
-
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.4);
-  } catch {
-    // Audio unavailable
-  }
+    osc.start();
+    osc.stop(ctx.currentTime + 0.3);
+  } catch { /* Audio unavailable */ }
 };
 
-// Region frequencies for audio feedback
-const REGION_FREQUENCIES: Record<string, number> = {
-  auditory_cortex: 440,
-  temporal_lobe: 523.25,
-  brainstem: 329.63,
-  thalamus: 392,
-  prefrontal: 587.33,
-  cerebellum: 493.88,
-};
-
-// Brain region positions in 3D space (normalized)
-const REGION_POSITIONS: Record<string, [number, number, number]> = {
-  auditory_cortex: [-1.2, 0.2, 0.5],
-  temporal_lobe: [-1.0, -0.3, 0.8],
-  brainstem: [0, -1.2, -0.3],
-  thalamus: [0, 0.1, 0],
-  prefrontal: [0, 0.6, 1.2],
-  cerebellum: [0, -0.8, -0.8],
-};
-
-// Neural pathway connections
-const NEURAL_PATHWAYS = [
-  { from: 'auditory_cortex', to: 'thalamus', color: brandCyan },
-  { from: 'thalamus', to: 'temporal_lobe', color: brandPurple },
-  { from: 'temporal_lobe', to: 'prefrontal', color: brandPink },
-  { from: 'brainstem', to: 'thalamus', color: brandCyan },
-  { from: 'thalamus', to: 'cerebellum', color: brandPurpleDark },
-  { from: 'prefrontal', to: 'thalamus', color: brandPurple },
-];
-
-interface NeuralPathwayProps {
-  from: [number, number, number];
-  to: [number, number, number];
-  color: string;
-  active: boolean;
-  pulseOffset: number;
-}
-
-function NeuralPathway({ from, to, color, active, pulseOffset }: NeuralPathwayProps) {
-  const particlesRef = useRef<THREE.Points>(null);
-  const particleCount = 30;
-
-  const { positions, initialPositions } = useMemo(() => {
-    const pos = new Float32Array(particleCount * 3);
-    const initPos: number[] = [];
-
-    for (let i = 0; i < particleCount; i++) {
-      const t = i / particleCount;
-      const x = from[0] + (to[0] - from[0]) * t;
-      const y = from[1] + (to[1] - from[1]) * t;
-      const z = from[2] + (to[2] - from[2]) * t;
-      pos[i * 3] = x;
-      pos[i * 3 + 1] = y;
-      pos[i * 3 + 2] = z;
-      initPos.push(t);
-    }
-
-    return { positions: pos, initialPositions: initPos };
-  }, [from, to]);
-
-  useFrame((state) => {
-    if (!particlesRef.current || !active) return;
-    const posAttr = particlesRef.current.geometry.attributes.position;
-    if (!posAttr || !('array' in posAttr)) return;
-    const positions = posAttr.array as Float32Array;
-    const time = state.clock.elapsedTime + pulseOffset;
-
-    for (let i = 0; i < particleCount; i++) {
-      const t = (initialPositions[i] + time * 0.3) % 1;
-      const x = from[0] + (to[0] - from[0]) * t;
-      const y = from[1] + (to[1] - from[1]) * t;
-      const z = from[2] + (to[2] - from[2]) * t;
-
-      // Add subtle wave motion
-      positions[i * 3] = x + Math.sin(time * 2 + i * 0.5) * 0.02;
-      positions[i * 3 + 1] = y + Math.cos(time * 2 + i * 0.3) * 0.02;
-      positions[i * 3 + 2] = z;
-    }
-
-    particlesRef.current.geometry.attributes.position.needsUpdate = true;
-  });
-
-  return (
-    <points ref={particlesRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={particleCount}
-          array={positions}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={active ? 0.08 : 0.03}
-        color={color}
-        transparent
-        opacity={active ? 0.9 : 0.3}
-        sizeAttenuation
-        blending={THREE.AdditiveBlending}
-      />
-    </points>
-  );
-}
-
-interface BrainRegionNodeProps {
-  position: [number, number, number];
-  region: typeof BRAIN_REGIONS[number];
-  isExplored: boolean;
-  isHovered: boolean;
-  onClick: () => void;
-  onHover: (hovered: boolean) => void;
-}
-
-function BrainRegionNode({ position, region, isExplored, isHovered, onClick, onHover }: BrainRegionNodeProps) {
+// Organic brain mesh wireframe
+function BrainMesh() {
   const meshRef = useRef<THREE.Mesh>(null);
-  const glowRef = useRef<THREE.Mesh>(null);
+  const wireRef = useRef<THREE.LineSegments>(null);
 
   useFrame((state) => {
     if (meshRef.current) {
-      const scale = isHovered ? 1.3 : isExplored ? 1.1 : 1;
-      meshRef.current.scale.lerp(new THREE.Vector3(scale, scale, scale), 0.1);
+      meshRef.current.rotation.y = state.clock.elapsedTime * 0.08;
+      meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
     }
-    if (glowRef.current) {
-      const mat = glowRef.current.material as THREE.MeshBasicMaterial;
-      mat.opacity = 0.3 + Math.sin(state.clock.elapsedTime * 2) * 0.1;
+    if (wireRef.current) {
+      wireRef.current.rotation.y = state.clock.elapsedTime * 0.08;
+      wireRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
     }
   });
 
-  const color = isExplored ? brandCyan : isHovered ? brandPurple : brandPurpleDark;
-
   return (
-    <group position={position}>
-      {/* Glow effect */}
-      <Sphere ref={glowRef} args={[0.25, 16, 16]}>
-        <meshBasicMaterial color={color} transparent opacity={0.2} />
-      </Sphere>
-
-      {/* Main node */}
-      <Float speed={2} rotationIntensity={0.2} floatIntensity={0.3}>
-        <Sphere
-          ref={meshRef}
-          args={[0.15, 32, 32]}
-          onClick={(e) => {
-            e.stopPropagation();
-            onClick();
-          }}
-          onPointerEnter={() => onHover(true)}
-          onPointerLeave={() => onHover(false)}
-        >
+    <group>
+      {/* Inner glow core */}
+      <Float speed={0.8} rotationIntensity={0.05} floatIntensity={0.1}>
+        <mesh ref={meshRef}>
+          <icosahedronGeometry args={[1.8, 3]} />
           <MeshDistortMaterial
-            color={color}
-            emissive={color}
-            emissiveIntensity={isHovered ? 0.8 : isExplored ? 0.5 : 0.2}
-            distort={0.2}
-            speed={2}
-            roughness={0.2}
+            color="#4a90a4"
+            emissive="#8FD3CC"
+            emissiveIntensity={0.15}
+            distort={0.25}
+            speed={1.2}
+            roughness={0.4}
+            transparent
+            opacity={0.25}
           />
-        </Sphere>
+        </mesh>
       </Float>
 
-      {/* Label */}
-      {isHovered && (
-        <Text
-          position={[0, 0.4, 0]}
-          fontSize={0.15}
-          color="#ffffff"
-          anchorX="center"
-          anchorY="middle"
-          outlineWidth={0.02}
-          outlineColor="#000000"
-        >
-          {region.nameAr}
-        </Text>
-      )}
+      {/* Neural network wireframe */}
+      <lineSegments ref={wireRef}>
+        <icosahedronGeometry args={[1.9, 2]} />
+        <lineBasicMaterial color={brandCyan} transparent opacity={0.35} />
+      </lineSegments>
     </group>
   );
 }
 
-function BrainCore() {
-  const meshRef = useRef<THREE.Mesh>(null);
+// Connection line component using primitive
+function ConnectionLine({ from, to, color }: { from: [number, number, number]; to: [number, number, number]; color: string }) {
+  const lineRef = useRef<THREE.Line>(null);
+
+  const geometry = useMemo(() => {
+    const points = [];
+    const segments = 20;
+    const mid = [
+      (from[0] + to[0]) / 2,
+      (from[1] + to[1]) / 2 + 0.2,
+      (from[2] + to[2]) / 2,
+    ];
+
+    for (let i = 0; i <= segments; i++) {
+      const t = i / segments;
+      // Bezier curve
+      const x = (1-t)*(1-t)*from[0] + 2*(1-t)*t*mid[0] + t*t*to[0];
+      const y = (1-t)*(1-t)*from[1] + 2*(1-t)*t*mid[1] + t*t*to[1];
+      const z = (1-t)*(1-t)*from[2] + 2*(1-t)*t*mid[2] + t*t*to[2];
+      points.push(new THREE.Vector3(x, y, z));
+    }
+
+    return new THREE.BufferGeometry().setFromPoints(points);
+  }, [from, to]);
+
+  const material = useMemo(() => new THREE.LineBasicMaterial({
+    color: color,
+    transparent: true,
+    opacity: 0.25,
+  }), [color]);
+
+  const line = useMemo(() => new THREE.Line(geometry, material), [geometry, material]);
+
+  return <primitive ref={lineRef} object={line} />;
+}
+
+// Animated connection lines between bubbles
+function NeuralNetwork() {
+  const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.1;
+    if (groupRef.current) {
+      groupRef.current.rotation.y = state.clock.elapsedTime * 0.08;
+      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
     }
   });
 
   return (
-    <Float speed={1} rotationIntensity={0.1} floatIntensity={0.2}>
-      <mesh ref={meshRef}>
-        {/* Brain hemisphere shape using icosahedron */}
-        <icosahedronGeometry args={[1.5, 2]} />
-        <MeshDistortMaterial
-          color={brandPurpleDark}
-          emissive={brandPurple}
-          emissiveIntensity={0.15}
-          distort={0.4}
-          speed={1.5}
-          roughness={0.3}
-          metalness={0.1}
-          transparent
-          opacity={0.6}
-          wireframe
+    <group ref={groupRef}>
+      {NEURAL_CONNECTIONS.map((conn, idx) => (
+        <ConnectionLine
+          key={idx}
+          from={BRAIN_BUBBLES[conn.from].position}
+          to={BRAIN_BUBBLES[conn.to].position}
+          color={BRAIN_BUBBLES[conn.from].color}
         />
-      </mesh>
-    </Float>
+      ))}
+    </group>
   );
 }
 
-interface ParticleFieldProps {
-  count?: number;
-}
-
-function ParticleField({ count = 500 }: ParticleFieldProps) {
+// Flowing particles along connections
+function FlowingParticles() {
   const particlesRef = useRef<THREE.Points>(null);
+  const particleCount = 400;
 
-  const positions = useMemo(() => {
-    const pos = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      // Spherical distribution
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      const r = 2 + Math.random() * 1.5;
+  const { positions, velocities, colors } = useMemo(() => {
+    const pos = new Float32Array(particleCount * 3);
+    const vel = new Float32Array(particleCount * 3);
+    const col = new Float32Array(particleCount * 3);
 
-      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-      pos[i * 3 + 2] = r * Math.cos(phi);
+    for (let i = 0; i < particleCount; i++) {
+      const conn = NEURAL_CONNECTIONS[i % NEURAL_CONNECTIONS.length];
+      const from = BRAIN_BUBBLES[conn.from].position;
+      const to = BRAIN_BUBBLES[conn.to].position;
+      const t = Math.random();
+
+      pos[i * 3] = from[0] + (to[0] - from[0]) * t;
+      pos[i * 3 + 1] = from[1] + (to[1] - from[1]) * t;
+      pos[i * 3 + 2] = from[2] + (to[2] - from[2]) * t;
+
+      vel[i * 3] = (to[0] - from[0]) * 0.01;
+      vel[i * 3 + 1] = (to[1] - from[1]) * 0.01;
+      vel[i * 3 + 2] = (to[2] - from[2]) * 0.01;
+
+      const bubbleColor = new THREE.Color(BRAIN_BUBBLES[conn.from].color);
+      col[i * 3] = bubbleColor.r;
+      col[i * 3 + 1] = bubbleColor.g;
+      col[i * 3 + 2] = bubbleColor.b;
     }
-    return pos;
-  }, [count]);
+
+    return { positions: pos, velocities: vel, colors: col };
+  }, []);
 
   useFrame((state) => {
-    if (particlesRef.current) {
-      particlesRef.current.rotation.y = state.clock.elapsedTime * 0.02;
-      particlesRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.1;
+    if (!particlesRef.current) return;
+    const posAttr = particlesRef.current.geometry.attributes.position as THREE.BufferAttribute;
+    if (!posAttr || !posAttr.array) return;
+    const pos = posAttr.array as Float32Array;
+    const time = state.clock.elapsedTime;
+
+    for (let i = 0; i < particleCount; i++) {
+      const conn = NEURAL_CONNECTIONS[i % NEURAL_CONNECTIONS.length];
+      const from = BRAIN_BUBBLES[conn.from].position;
+      const to = BRAIN_BUBBLES[conn.to].position;
+
+      const t = ((time * 0.2 + i * 0.01) % 1);
+      pos[i * 3] = from[0] + (to[0] - from[0]) * t + Math.sin(time * 2 + i) * 0.02;
+      pos[i * 3 + 1] = from[1] + (to[1] - from[1]) * t + Math.cos(time * 2 + i) * 0.02;
+      pos[i * 3 + 2] = from[2] + (to[2] - from[2]) * t;
     }
+
+    particlesRef.current.geometry.attributes.position.needsUpdate = true;
+    particlesRef.current.rotation.y = time * 0.08;
+    particlesRef.current.rotation.x = Math.sin(time * 0.1) * 0.05;
   });
 
   return (
     <points ref={particlesRef}>
       <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={count}
-          array={positions}
-          itemSize={3}
-        />
+        <bufferAttribute attach="attributes-position" count={particleCount} array={positions} itemSize={3} />
+        <bufferAttribute attach="attributes-color" count={particleCount} array={colors} itemSize={3} />
       </bufferGeometry>
-      <pointsMaterial
-        size={0.015}
-        color={brandCyan}
-        transparent
-        opacity={0.4}
-        sizeAttenuation
-        blending={THREE.AdditiveBlending}
-      />
+      <pointsMaterial size={0.04} vertexColors transparent opacity={0.8} sizeAttenuation blending={THREE.AdditiveBlending} />
     </points>
   );
 }
 
-// Connection line component
-function ConnectionLine({ from, to, color, active }: { from: [number, number, number]; to: [number, number, number]; color: string; active: boolean }) {
-  const points = useMemo(() => {
-    const curve = new THREE.QuadraticBezierCurve3(
-      new THREE.Vector3(...from),
-      new THREE.Vector3(
-        (from[0] + to[0]) / 2,
-        (from[1] + to[1]) / 2 + 0.3,
-        (from[2] + to[2]) / 2
-      ),
-      new THREE.Vector3(...to)
-    );
-    return curve.getPoints(20);
-  }, [from, to]);
+// Interactive treatment area bubble
+interface BubbleProps {
+  bubble: typeof BRAIN_BUBBLES[number];
+  isHovered: boolean;
+  isSelected: boolean;
+  onClick: () => void;
+  onHover: (hovered: boolean) => void;
+}
+
+function TreatmentBubble({ bubble, isHovered, isSelected, onClick, onHover }: BubbleProps) {
+  const groupRef = useRef<THREE.Group>(null);
+  const meshRef = useRef<THREE.Mesh>(null);
+  const glowRef = useRef<THREE.Mesh>(null);
+  const ringRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y = state.clock.elapsedTime * 0.08;
+      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
+    }
+    if (meshRef.current) {
+      const targetScale = isHovered ? 1.25 : isSelected ? 1.15 : 1;
+      meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
+    }
+    if (glowRef.current) {
+      const mat = glowRef.current.material as THREE.MeshBasicMaterial;
+      mat.opacity = 0.15 + Math.sin(state.clock.elapsedTime * 2 + bubble.position[0]) * 0.08;
+    }
+    if (ringRef.current && (isHovered || isSelected)) {
+      ringRef.current.rotation.z = state.clock.elapsedTime * 2;
+    }
+  });
 
   return (
-    <Line
-      points={points}
-      color={color}
-      lineWidth={active ? 3 : 1}
-      transparent
-      opacity={active ? 0.8 : 0.2}
-      dashed={!active}
-      dashSize={0.1}
-      gapSize={0.05}
-    />
+    <group ref={groupRef}>
+      <group position={bubble.position}>
+        {/* Outer glow */}
+        <Sphere ref={glowRef} args={[bubble.size * 1.5, 16, 16]}>
+          <meshBasicMaterial color={bubble.color} transparent opacity={0.12} />
+        </Sphere>
+
+        {/* Hover ring */}
+        {(isHovered || isSelected) && (
+          <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[bubble.size * 1.3, 0.02, 8, 32]} />
+            <meshBasicMaterial color="#fff" transparent opacity={0.6} />
+          </mesh>
+        )}
+
+        {/* Main bubble */}
+        <Float speed={1.5} rotationIntensity={0.1} floatIntensity={0.15}>
+          <Sphere
+            ref={meshRef}
+            args={[bubble.size, 32, 32]}
+            onClick={(e) => { e.stopPropagation(); onClick(); }}
+            onPointerEnter={() => onHover(true)}
+            onPointerLeave={() => onHover(false)}
+          >
+            <MeshDistortMaterial
+              color={bubble.color}
+              emissive={bubble.color}
+              emissiveIntensity={isHovered ? 0.6 : isSelected ? 0.4 : 0.2}
+              distort={0.15}
+              speed={2}
+              roughness={0.3}
+              metalness={0.1}
+              transparent
+              opacity={0.92}
+            />
+          </Sphere>
+        </Float>
+
+        {/* Label - always visible */}
+        <sprite position={[0, 0, bubble.size + 0.1]} scale={[1.2, 0.4, 1]}>
+          <spriteMaterial transparent opacity={isHovered ? 1 : 0.85}>
+            <canvasTexture attach="map" image={createLabelTexture(bubble.label, bubble.color, isHovered)} />
+          </spriteMaterial>
+        </sprite>
+      </group>
+    </group>
   );
 }
 
-function BrainScene() {
-  const { brainRegions, exploreBrainRegion } = useGamification();
-  const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
-  const [activePathways, setActivePathways] = useState<Set<string>>(new Set());
-  const [pulseRegion, setPulseRegion] = useState<string | null>(null);
+// Create canvas texture for labels
+function createLabelTexture(text: string, color: string, isHovered: boolean): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 80;
+  const ctx = canvas.getContext('2d')!;
 
-  const handleRegionClick = useCallback((regionId: string) => {
-    exploreBrainRegion(regionId);
+  // Background pill
+  ctx.fillStyle = isHovered ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.85)';
+  ctx.beginPath();
+  ctx.roundRect(8, 8, 240, 64, 32);
+  ctx.fill();
 
-    // Play audio feedback
-    playRegionSound(REGION_FREQUENCIES[regionId] || 440);
+  // Text
+  ctx.fillStyle = isHovered ? color : '#1a1a2e';
+  ctx.font = 'bold 32px Cairo, Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, 128, 44);
 
-    // Visual pulse effect
-    setPulseRegion(regionId);
-    setTimeout(() => setPulseRegion(null), 500);
+  return canvas;
+}
 
-    // Activate connected pathways
-    const connectedPathways = NEURAL_PATHWAYS.filter(
-      p => p.from === regionId || p.to === regionId
-    ).map(p => `${p.from}-${p.to}`);
+// Main brain scene
+function BrainScene({ onBubbleSelect }: { onBubbleSelect: (bubble: typeof BRAIN_BUBBLES[number] | null) => void }) {
+  const [hoveredBubble, setHoveredBubble] = useState<string | null>(null);
+  const [selectedBubble, setSelectedBubble] = useState<string | null>(null);
 
-    setActivePathways(new Set(connectedPathways));
+  const handleBubbleClick = useCallback((bubble: typeof BRAIN_BUBBLES[number]) => {
+    const isAlreadySelected = selectedBubble === bubble.id;
+    setSelectedBubble(isAlreadySelected ? null : bubble.id);
+    onBubbleSelect(isAlreadySelected ? null : bubble);
 
-    // Deactivate after animation
-    setTimeout(() => setActivePathways(new Set()), 3000);
-
-    // Dispatch custom event for info panel
-    window.dispatchEvent(new CustomEvent('brainRegionSelected', { detail: regionId }));
-  }, [exploreBrainRegion]);
-
-  const handleRegionHover = useCallback((regionId: string, hovered: boolean) => {
-    setHoveredRegion(hovered ? regionId : null);
-  }, []);
+    // Play sound based on bubble position (higher = higher pitch)
+    const baseFreq = 300 + (bubble.position[1] + 1.5) * 150;
+    playBubbleSound(baseFreq);
+  }, [selectedBubble, onBubbleSelect]);
 
   return (
     <>
-      {/* Ambient lighting */}
-      <ambientLight intensity={0.3} />
-      <pointLight position={[10, 10, 10]} intensity={0.5} color={brandCyan} />
-      <pointLight position={[-10, -10, -10]} intensity={0.3} color={brandPink} />
+      {/* Lighting */}
+      <ambientLight intensity={0.4} />
+      <pointLight position={[10, 10, 10]} intensity={0.6} color="#8FD3CC" />
+      <pointLight position={[-10, -10, -10]} intensity={0.4} color="#AF84BA" />
+      <pointLight position={[0, 5, 5]} intensity={0.3} color="#fff" />
 
-      {/* Brain core visualization */}
-      <BrainCore />
+      {/* Brain mesh wireframe */}
+      <BrainMesh />
 
-      {/* Particle field */}
-      <ParticleField />
+      {/* Neural connections */}
+      <NeuralNetwork />
 
-      {/* Brain regions */}
-      {BRAIN_REGIONS.map((region) => {
-        const position = REGION_POSITIONS[region.id];
-        const regionData = brainRegions.find(r => r.id === region.id);
-        const isExplored = regionData?.explored ?? false;
+      {/* Flowing particles */}
+      <FlowingParticles />
 
-        return (
-          <BrainRegionNode
-            key={region.id}
-            position={position}
-            region={region}
-            isExplored={isExplored}
-            isHovered={hoveredRegion === region.id}
-            onClick={() => handleRegionClick(region.id)}
-            onHover={(h) => handleRegionHover(region.id, h)}
-          />
-        );
-      })}
-
-      {/* Connection lines */}
-      {NEURAL_PATHWAYS.map((pathway) => (
-        <ConnectionLine
-          key={`line-${pathway.from}-${pathway.to}`}
-          from={REGION_POSITIONS[pathway.from]}
-          to={REGION_POSITIONS[pathway.to]}
-          color={pathway.color}
-          active={activePathways.has(`${pathway.from}-${pathway.to}`)}
-        />
-      ))}
-
-      {/* Neural pathways (particles) */}
-      {NEURAL_PATHWAYS.map((pathway, idx) => (
-        <NeuralPathway
-          key={`${pathway.from}-${pathway.to}`}
-          from={REGION_POSITIONS[pathway.from]}
-          to={REGION_POSITIONS[pathway.to]}
-          color={pathway.color}
-          active={activePathways.has(`${pathway.from}-${pathway.to}`)}
-          pulseOffset={idx * 0.5}
+      {/* Treatment area bubbles */}
+      {BRAIN_BUBBLES.map((bubble) => (
+        <TreatmentBubble
+          key={bubble.id}
+          bubble={bubble}
+          isHovered={hoveredBubble === bubble.id}
+          isSelected={selectedBubble === bubble.id}
+          onClick={() => handleBubbleClick(bubble)}
+          onHover={(h) => setHoveredBubble(h ? bubble.id : null)}
         />
       ))}
 
@@ -412,111 +371,104 @@ function BrainScene() {
       <OrbitControls
         enablePan={false}
         enableZoom={true}
-        minDistance={3}
-        maxDistance={8}
+        minDistance={4}
+        maxDistance={10}
         autoRotate
-        autoRotateSpeed={0.5}
+        autoRotateSpeed={0.3}
+        maxPolarAngle={Math.PI * 0.75}
+        minPolarAngle={Math.PI * 0.25}
       />
     </>
   );
 }
 
-interface Brain3DProps {
-  height?: number | string;
-}
-
-interface RegionInfoPanelProps {
-  region: typeof BRAIN_REGIONS[number] | null;
+// Info panel for selected bubble
+interface InfoPanelProps {
+  bubble: typeof BRAIN_BUBBLES[number] | null;
   onClose: () => void;
 }
 
-function RegionInfoPanel({ region, onClose }: RegionInfoPanelProps) {
-  if (!region) return null;
+function BubbleInfoPanel({ bubble, onClose }: InfoPanelProps) {
+  if (!bubble) return null;
+
+  const descriptions: Record<string, string> = {
+    auditory: 'معالجة الأصوات والمعلومات السمعية، بما في ذلك التمييز بين الأصوات المختلفة',
+    language: 'فهم وإنتاج اللغة المنطوقة والمكتوبة، بما في ذلك القراءة والكتابة',
+    music: 'إدراك الموسيقى والإيقاع واللحن، وتطوير المهارات الموسيقية',
+    attention: 'القدرة على التركيز والانتباه، وتصفية المشتتات البيئية',
+    sensory: 'معالجة المدخلات الحسية من البيئة المحيطة بطريقة متوازنة',
+    balance: 'التوازن الجسدي والتنسيق الحركي والتكامل الدهليزي',
+    memory: 'تخزين واسترجاع المعلومات، بما في ذلك الذاكرة العاملة والطويلة المدى',
+    learning: 'اكتساب مهارات ومعلومات جديدة، وتطوير القدرات الأكاديمية',
+    behavior: 'التنظيم السلوكي والعاطفي، والتحكم في الاستجابات',
+    wellbeing: 'الصحة النفسية والعاطفية العامة، والشعور بالراحة والهدوء',
+  };
 
   return (
     <div style={{
       position: 'absolute',
-      bottom: 80,
+      bottom: 20,
       left: '50%',
       transform: 'translateX(-50%)',
       background: 'rgba(11,15,28,0.95)',
-      backdropFilter: 'blur(15px)',
-      border: `1px solid ${brandCyan}44`,
-      borderRadius: 16,
-      padding: 20,
-      maxWidth: 340,
+      backdropFilter: 'blur(20px)',
+      border: `2px solid ${bubble.color}66`,
+      borderRadius: 20,
+      padding: '20px 24px',
+      maxWidth: 380,
       width: '90%',
-      animation: 'slideUp 0.3s ease-out',
-      boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 30px ${brandCyan}22`,
+      animation: 'slideUp 0.4s ease-out',
+      boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 40px ${bubble.color}22`,
     }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
-        <div>
-          <div style={{ fontSize: 18, fontWeight: 900, color: brandCyan }}>{region.nameAr}</div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{region.name}</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            background: bubble.color,
+            boxShadow: `0 0 20px ${bubble.color}66`,
+          }} />
+          <div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: bubble.color }}>{bubble.label}</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{bubble.labelEn}</div>
+          </div>
         </div>
-        <button
-          onClick={onClose}
-          style={{
-            background: 'rgba(255,255,255,0.1)',
-            border: 'none',
-            borderRadius: 8,
-            width: 28,
-            height: 28,
-            cursor: 'pointer',
-            color: 'rgba(255,255,255,0.6)',
-            fontSize: 16,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >×</button>
+        <button onClick={onClose} style={{
+          background: 'rgba(255,255,255,0.1)',
+          border: 'none',
+          borderRadius: 10,
+          width: 32,
+          height: 32,
+          cursor: 'pointer',
+          color: 'rgba(255,255,255,0.7)',
+          fontSize: 18,
+        }}>×</button>
       </div>
 
-      {/* Description */}
-      <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, marginBottom: 14 }}>
-        {region.descriptionAr}
+      <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.85)', lineHeight: 1.8 }}>
+        {descriptions[bubble.id]}
       </p>
 
-      {/* Treatment Areas */}
-      <div>
-        <div style={{ fontSize: 11, fontWeight: 800, color: brandPurple, marginBottom: 8, letterSpacing: 1 }}>
-          مجالات العلاج
-        </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {region.treatmentAreasAr.map((area, idx) => (
-            <span key={idx} style={{
-              background: `linear-gradient(135deg, ${brandPurple}22, ${brandCyan}22)`,
-              border: `1px solid ${brandPurple}44`,
-              borderRadius: 8,
-              padding: '4px 10px',
-              fontSize: 11,
-              color: '#fff',
-              fontWeight: 600,
-            }}>
-              {area}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* XP Badge */}
       <div style={{
-        marginTop: 14,
-        padding: '8px 12px',
-        background: `linear-gradient(135deg, ${brandCyan}22, ${brandPurple}22)`,
-        borderRadius: 10,
+        marginTop: 16,
+        padding: '10px 14px',
+        background: `${bubble.color}22`,
+        border: `1px solid ${bubble.color}44`,
+        borderRadius: 12,
         display: 'flex',
         alignItems: 'center',
-        gap: 8,
+        gap: 10,
       }}>
-        <span style={{ fontSize: 18 }}>✨</span>
-        <span style={{ fontSize: 12, color: brandCyan, fontWeight: 700 }}>+25 XP مكتسب!</span>
+        <span style={{ fontSize: 20 }}>🎧</span>
+        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.9)' }}>
+          Berard AIT يستهدف هذه المنطقة من خلال التحفيز السمعي المتخصص
+        </span>
       </div>
 
       <style>{`
         @keyframes slideUp {
-          from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+          from { opacity: 0; transform: translateX(-50%) translateY(30px); }
           to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
       `}</style>
@@ -524,13 +476,16 @@ function RegionInfoPanel({ region, onClose }: RegionInfoPanelProps) {
   );
 }
 
-export default function Brain3D({ height = 500 }: Brain3DProps) {
-  const { brainRegions } = useGamification();
-  const exploredCount = brainRegions.filter(r => r.explored).length;
-  const [selectedRegion, setSelectedRegion] = useState<typeof BRAIN_REGIONS[number] | null>(null);
+// Main exported component
+interface Brain3DProps {
+  height?: number | string;
+  showUI?: boolean;
+}
+
+export default function Brain3D({ height = 500, showUI = true }: Brain3DProps) {
+  const [selectedBubble, setSelectedBubble] = useState<typeof BRAIN_BUBBLES[number] | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Detect mobile
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -538,110 +493,36 @@ export default function Brain3D({ height = 500 }: Brain3DProps) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Listen for region clicks from BrainScene
-  useEffect(() => {
-    const handleRegionSelect = (e: CustomEvent<string>) => {
-      const region = BRAIN_REGIONS.find(r => r.id === e.detail);
-      if (region) setSelectedRegion(region);
-    };
-    window.addEventListener('brainRegionSelected' as never, handleRegionSelect as EventListener);
-    return () => window.removeEventListener('brainRegionSelected' as never, handleRegionSelect as EventListener);
-  }, []);
-
   return (
     <div style={{ position: 'relative', width: '100%', height }}>
       <Canvas
-        camera={{ position: [0, 0, isMobile ? 6 : 5], fov: isMobile ? 55 : 50 }}
+        camera={{ position: [0, 0, isMobile ? 7 : 6], fov: isMobile ? 60 : 50 }}
         style={{ background: 'transparent' }}
         gl={{ antialias: true, alpha: true }}
       >
-        <BrainScene />
+        <BrainScene onBubbleSelect={setSelectedBubble} />
       </Canvas>
 
-      {/* Overlay UI - Responsive */}
-      <div style={{
-        position: 'absolute',
-        top: isMobile ? 8 : 16,
-        right: isMobile ? 8 : 16,
-        background: 'rgba(11,15,28,0.85)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(143,211,204,0.3)',
-        borderRadius: isMobile ? 12 : 14,
-        padding: isMobile ? '8px 12px' : '12px 16px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 6,
-      }}>
-        <div style={{ fontSize: isMobile ? 10 : 12, color: 'rgba(255,255,255,0.6)', fontWeight: 800 }}>
-          {isMobile ? '🧠 EXPLORER' : 'BRAIN EXPLORER'}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {!isMobile && <span style={{ fontSize: 24 }}>🧠</span>}
-          <div>
-            <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 900, color: brandCyan }}>
-              {exploredCount}/{BRAIN_REGIONS.length}
-            </div>
-            <div style={{ fontSize: isMobile ? 9 : 11, color: 'rgba(255,255,255,0.5)' }}>
-              {isMobile ? 'مستكشفة' : 'المناطق المستكشفة'}
-            </div>
-          </div>
-        </div>
+      {/* Info panel */}
+      {showUI && <BubbleInfoPanel bubble={selectedBubble} onClose={() => setSelectedBubble(null)} />}
 
-        {/* Progress bar */}
-        <div style={{
-          height: 4,
-          background: 'rgba(255,255,255,0.1)',
-          borderRadius: 2,
-          overflow: 'hidden',
-        }}>
-          <div style={{
-            height: '100%',
-            width: `${(exploredCount / BRAIN_REGIONS.length) * 100}%`,
-            background: `linear-gradient(90deg, ${brandCyan}, ${brandPurple})`,
-            transition: 'width 0.5s ease',
-          }} />
-        </div>
-
-        {/* Region dots - Mobile mini map */}
-        {isMobile && (
-          <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
-            {BRAIN_REGIONS.map(region => {
-              const isExplored = brainRegions.find(r => r.id === region.id)?.explored;
-              return (
-                <div key={region.id} style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  background: isExplored ? brandCyan : 'rgba(255,255,255,0.2)',
-                  transition: 'background 0.3s',
-                }} />
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Region Info Panel */}
-      <RegionInfoPanel region={selectedRegion} onClose={() => setSelectedRegion(null)} />
-
-      {/* Instructions - Responsive */}
-      {!selectedRegion && (
+      {/* Instructions */}
+      {showUI && !selectedBubble && (
         <div style={{
           position: 'absolute',
-          bottom: isMobile ? 12 : 16,
+          bottom: 20,
           left: '50%',
           transform: 'translateX(-50%)',
-          background: 'rgba(11,15,28,0.75)',
+          background: 'rgba(11,15,28,0.7)',
           backdropFilter: 'blur(10px)',
           border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: 12,
-          padding: isMobile ? '6px 12px' : '8px 16px',
-          fontSize: isMobile ? 11 : 13,
+          borderRadius: 14,
+          padding: isMobile ? '8px 16px' : '10px 20px',
+          fontSize: isMobile ? 12 : 14,
           color: 'rgba(255,255,255,0.7)',
           textAlign: 'center',
-          maxWidth: '90%',
         }}>
-          {isMobile ? 'المس للتدوير • انقر النقاط المضيئة' : 'اسحب للتدوير • انقر على المناطق المضيئة لاستكشافها'}
+          {isMobile ? 'المس الفقاعات لاستكشاف مجالات العلاج' : 'انقر على الفقاعات لاستكشاف كيف يؤثر Berard AIT على كل منطقة'}
         </div>
       )}
     </div>
