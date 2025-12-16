@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "../../.github"
+		},
+		{
+			"path": "../../public"
+		},
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"claudeCode.disableLoginPrompt": true,
+		"claudeCode.allowDangerouslySkipPermissions": true,
+		"claudeCode.initialPermissionMode": "acceptEdits",
+		"claudeCode.useCtrlEnterToSend": true,
+		"claudeCode.useTerminal": true,
+		"liveServer.settings.multiRootWorkspaceName": ".github"
+	}
+}

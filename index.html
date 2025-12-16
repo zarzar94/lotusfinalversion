@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self';" />
+    <!-- Prevent clickjacking -->
+    <title>مختبر الصوت • برنامج بيرارد (Berard AIT) | Lotus</title>
+    <meta name="description" content="موقع عربي تفاعلي (React) لبرنامج بيرارد AIT داخل Lotus Holistic Centre — ألعاب سمعية، عارض شرائح، قائمة تحقق، مقارنة البدائل، ومحتوى مدرسي." />
+    <meta name="theme-color" content="#774E87" />
+    <link rel="icon" type="image/png" href="./assets/images/brain_icon_44.png" />
+    <!-- Arabic-first font (falls back to system if blocked) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+      *, *::before, *::after { font-family: 'Cairo', system-ui, sans-serif; }
+      body { font-family: 'Cairo', system-ui, sans-serif; }
+    </style>
+    <!-- jsPDF loaded via npm package, no CDN needed -->
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
