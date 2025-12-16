@@ -1,11 +1,10 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import React, { useState, useCallback, useMemo, memo } from 'react';
+import { styles, brandCyan, brandPink, brandPurple } from './styles';
 import { BrainIcon, UserIcon, HeartIcon, ChartIcon, CheckCircleIcon, ClipboardIcon } from './Icons';
-import { BrainLogoSVG } from './BrainLogo';
 
 /**
  * Berard AIT Registration/Intake Form
- * Designed as a Medical Tech Board/Tablet Interface
+ * Designed as a Professional Notepad/Clipboard Interface
  */
 
 interface PersonalData {
@@ -13,206 +12,123 @@ interface PersonalData {
   age: string;
   gender: 'male' | 'female' | '';
   birthDate: string;
-  birthPlace: string;
   residence: string;
-  siblingsBoys: string;
-  siblingsGirls: string;
-  educationLevel: string;
   nationality: string;
-  work: string;
   mobile: string;
+  educationLevel: string;
 }
 
 interface ParentInfo {
   fatherName: string;
-  fatherWork: string;
-  fatherEducation: string;
-  fatherEmail: string;
   fatherMobile: string;
-  fatherPhone: string;
+  fatherEmail: string;
   motherName: string;
-  motherWork: string;
-  motherEducation: string;
-  motherEmail: string;
   motherMobile: string;
-  motherPhone: string;
+  motherEmail: string;
 }
 
 interface MedicalHistory {
-  pregnancyProblems: 'yes' | 'no' | '';
-  pregnancyDetails: string;
-  birthProblems: 'yes' | 'no' | '';
-  birthDetails: string;
-  developmentDelay: {
-    walking: boolean;
-    speech: boolean;
-    toiletTraining: boolean;
-  };
   hearingImpairment: 'none' | 'mild' | 'moderate' | 'severe' | '';
-  hearingAids: 'yes' | 'no' | '';
-  cochlearImplant: 'yes' | 'no' | '';
-  painTolerance: 'high' | 'low' | 'normal' | '';
-  earProblems: 'none' | 'previous' | 'current' | '';
-  earTubeSurgery: 'yes' | 'no' | '';
-  earTubeRemovalDate: string;
-  skinSensitivity: 'yes' | 'no' | '';
-  skinSensitivityLocation: string;
-  seizures: 'yes' | 'no' | '';
-  diet: 'none' | 'previous' | 'current' | '';
-  dietDetails: string;
-  medications: 'none' | 'previous' | 'current' | '';
-  medicationDetails: string;
-  balanceDifficulty: 'yes' | 'no' | '';
-  sleepDisorders: 'never' | 'rarely' | 'sometimes' | 'often' | '';
-  fineMotorDifficulty: 'yes' | 'no' | '';
-  anxiety: 'yes' | 'no' | '';
-  anxietyTriggers: string;
+  soundSensitivity: 'yes' | 'no' | '';
+  speechDiscrimination: 'never' | 'sometimes' | 'often' | '';
   attentionDifficulty: 'yes' | 'no' | '';
   hyperactivity: 'yes' | 'no' | '';
   followingInstructions: 'yes' | 'no' | 'sometimes' | '';
-  soundSensitivity: 'yes' | 'no' | '';
-  speechDiscrimination: 'never' | 'sometimes' | 'often' | '';
-  socialDiscomfort: 'yes' | 'no' | '';
-}
-
-interface PreviousAIT {
-  hadPreviousAIT: 'yes' | 'no' | '';
-  previousLocation1: string;
-  previousDate1: string;
-  previousLocation2: string;
-  previousDate2: string;
+  seizures: 'yes' | 'no' | '';
+  sleepDisorders: 'never' | 'rarely' | 'sometimes' | 'often' | '';
 }
 
 type ImprovementLevel = 'clear' | 'slight' | 'none' | '';
 
 interface ProgressTracking {
-  previousDate: string;
-  currentDate: string;
   sensoryChanges: {
     soundSensitivity: ImprovementLevel;
     eyeContact: ImprovementLevel;
-    eatingPatterns: ImprovementLevel;
     sleep: ImprovementLevel;
-    skinSensitivity: ImprovementLevel;
     handSkills: ImprovementLevel;
-    walkingBalance: ImprovementLevel;
   };
   behavioralChanges: {
-    hyperactivity: ImprovementLevel;
     attention: ImprovementLevel;
-    focus: ImprovementLevel;
+    hyperactivity: ImprovementLevel;
     followingCommands: ImprovementLevel;
-    playingWithChildren: ImprovementLevel;
-    selfReliance: ImprovementLevel;
-    languageBehavior: ImprovementLevel;
-    anxietyFear: ImprovementLevel;
     socialInteraction: ImprovementLevel;
   };
-  otherNotes: string;
 }
 
 const STEPS = [
-  { id: 1, title: 'البيانات الشخصية', icon: <UserIcon size={18} /> },
-  { id: 2, title: 'بيانات ولي الأمر', icon: <HeartIcon size={18} /> },
-  { id: 3, title: 'التاريخ الطبي', icon: <ClipboardIcon size={18} /> },
-  { id: 4, title: 'متابعة التقدم', icon: <ChartIcon size={18} /> },
+  { id: 1, title: 'البيانات الشخصية', icon: <UserIcon size={16} color="#5a4a3a" /> },
+  { id: 2, title: 'ولي الأمر', icon: <HeartIcon size={16} color="#5a4a3a" /> },
+  { id: 3, title: 'التاريخ الطبي', icon: <ClipboardIcon size={16} color="#5a4a3a" /> },
+  { id: 4, title: 'متابعة التقدم', icon: <ChartIcon size={16} color="#5a4a3a" /> },
 ];
 
-// Medical tablet input style
-const tabletInputStyle: React.CSSProperties = {
+// Notepad styled input
+const notepadInputStyle: React.CSSProperties = {
   width: '100%',
-  padding: '14px 16px',
-  borderRadius: 8,
-  border: '2px solid rgba(143,211,204,0.2)',
-  background: 'rgba(0,20,30,0.6)',
-  color: '#00ffcc',
-  fontSize: 15,
-  fontFamily: 'monospace',
+  padding: '10px 12px',
+  borderRadius: 4,
+  border: '1px solid #c4b8a8',
+  background: 'rgba(255,255,255,0.9)',
+  color: '#3a3020',
+  fontSize: 14,
+  fontFamily: "'Cairo', serif",
   direction: 'rtl',
   outline: 'none',
-  transition: 'all 0.2s ease',
 };
 
-// Form field component - medical style
-const MedicalField: React.FC<{
-  label: string;
-  children: React.ReactNode;
-  required?: boolean;
-}> = ({ label, children, required }) => (
-  <div style={{ marginBottom: 18 }}>
+// Field label for notepad
+const NotepadField = memo(({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) => (
+  <div style={{ marginBottom: 16 }}>
     <label style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: 8,
-      marginBottom: 8,
+      display: 'block',
+      marginBottom: 6,
       fontSize: 13,
       fontWeight: 700,
-      color: brandCyan,
-      fontFamily: 'monospace',
-      textTransform: 'uppercase',
-      letterSpacing: 1,
+      color: '#5a4a3a',
     }}>
-      <span style={{
-        width: 6,
-        height: 6,
-        borderRadius: '50%',
-        background: required ? brandPink : brandCyan,
-        boxShadow: required ? `0 0 8px ${brandPink}` : `0 0 8px ${brandCyan}`,
-      }} />
       {label}
-      {required && <span style={{ color: brandPink, fontSize: 10 }}>مطلوب</span>}
+      {required && <span style={{ color: '#b01270', marginRight: 4 }}>*</span>}
     </label>
     {children}
   </div>
-);
+));
+NotepadField.displayName = 'NotepadField';
 
-// Radio selector - medical style
-const MedicalRadio: React.FC<{
+// Radio option for notepad
+const NotepadRadio = memo(({ options, value, onChange, name }: {
   options: { value: string; label: string }[];
   value: string;
   onChange: (value: string) => void;
   name: string;
-}> = ({ options, value, onChange, name }) => (
-  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+}) => (
+  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
     {options.map((opt) => (
       <label
         key={opt.value}
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 10,
-          padding: '12px 18px',
-          borderRadius: 8,
-          background: value === opt.value
-            ? `linear-gradient(135deg, ${brandCyan}20, ${brandPurple}15)`
-            : 'rgba(0,20,30,0.5)',
-          border: `2px solid ${value === opt.value ? brandCyan : 'rgba(143,211,204,0.15)'}`,
+          gap: 6,
+          padding: '8px 14px',
+          borderRadius: 4,
+          background: value === opt.value ? 'rgba(143,211,204,0.2)' : 'rgba(255,255,255,0.6)',
+          border: `1px solid ${value === opt.value ? brandCyan : '#c4b8a8'}`,
           cursor: 'pointer',
-          transition: 'all 0.2s ease',
-          fontFamily: 'monospace',
-          fontSize: 14,
-          color: value === opt.value ? brandCyan : 'rgba(255,255,255,0.7)',
+          fontSize: 13,
+          color: '#3a3020',
         }}
       >
         <div style={{
-          width: 18,
-          height: 18,
+          width: 14,
+          height: 14,
           borderRadius: '50%',
-          border: `2px solid ${value === opt.value ? brandCyan : 'rgba(143,211,204,0.3)'}`,
+          border: `2px solid ${value === opt.value ? brandCyan : '#9a8a7a'}`,
+          background: value === opt.value ? brandCyan : 'transparent',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: value === opt.value ? brandCyan : 'transparent',
-          transition: 'all 0.2s ease',
         }}>
-          {value === opt.value && (
-            <div style={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: '#0a1520',
-            }} />
-          )}
+          {value === opt.value && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff' }} />}
         </div>
         <input
           type="radio"
@@ -226,52 +142,42 @@ const MedicalRadio: React.FC<{
       </label>
     ))}
   </div>
-);
+));
+NotepadRadio.displayName = 'NotepadRadio';
 
-// Improvement level selector - medical monitor style
-const VitalSelector: React.FC<{
+// Improvement selector
+const ImprovementSelector = memo(({ value, onChange, label }: {
   value: ImprovementLevel;
   onChange: (value: ImprovementLevel) => void;
   label: string;
-}> = ({ value, onChange, label }) => (
+}) => (
   <div style={{
-    display: 'grid',
-    gridTemplateColumns: '1fr auto',
-    gap: 16,
+    display: 'flex',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '14px 18px',
-    background: 'rgba(0,20,30,0.4)',
-    borderRadius: 8,
-    marginBottom: 10,
-    border: '1px solid rgba(143,211,204,0.1)',
+    padding: '10px 0',
+    borderBottom: '1px dashed #d4c8b8',
   }}>
-    <span style={{
-      fontSize: 13,
-      fontWeight: 600,
-      fontFamily: 'monospace',
-      color: 'rgba(255,255,255,0.85)',
-    }}>{label}</span>
-    <div style={{ display: 'flex', gap: 8 }}>
+    <span style={{ fontSize: 13, color: '#5a4a3a' }}>{label}</span>
+    <div style={{ display: 'flex', gap: 6 }}>
       {[
-        { v: 'clear' as ImprovementLevel, l: 'تحسن واضح', c: '#22c55e' },
-        { v: 'slight' as ImprovementLevel, l: 'تحسن بسيط', c: brandCyan },
-        { v: 'none' as ImprovementLevel, l: 'لم يتحسن', c: 'rgba(255,255,255,0.3)' },
+        { v: 'clear' as ImprovementLevel, l: 'واضح', c: '#22c55e' },
+        { v: 'slight' as ImprovementLevel, l: 'بسيط', c: brandCyan },
+        { v: 'none' as ImprovementLevel, l: 'لا', c: '#9a8a7a' },
       ].map((opt) => (
         <button
           key={opt.v}
           type="button"
           onClick={() => onChange(opt.v)}
           style={{
-            padding: '8px 14px',
-            borderRadius: 6,
-            border: `2px solid ${value === opt.v ? opt.c : 'rgba(255,255,255,0.08)'}`,
-            background: value === opt.v ? `${opt.c}20` : 'transparent',
-            color: value === opt.v ? opt.c : 'rgba(255,255,255,0.4)',
+            padding: '4px 10px',
+            borderRadius: 4,
+            border: `1px solid ${value === opt.v ? opt.c : '#c4b8a8'}`,
+            background: value === opt.v ? `${opt.c}15` : 'transparent',
+            color: value === opt.v ? opt.c : '#7a6a5a',
             fontSize: 11,
-            fontFamily: 'monospace',
             cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            fontWeight: value === opt.v ? 700 : 500,
+            fontWeight: value === opt.v ? 700 : 400,
           }}
         >
           {opt.l}
@@ -279,55 +185,31 @@ const VitalSelector: React.FC<{
       ))}
     </div>
   </div>
-);
+));
+ImprovementSelector.displayName = 'ImprovementSelector';
 
 const IntakeForm: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isChild, setIsChild] = useState(true);
   const [isReturningClient, setIsReturningClient] = useState(false);
+  const [hadPreviousAIT, setHadPreviousAIT] = useState('');
 
-  // Form state
   const [personalData, setPersonalData] = useState<PersonalData>({
-    name: '', age: '', gender: '', birthDate: '', birthPlace: '',
-    residence: '', siblingsBoys: '', siblingsGirls: '', educationLevel: '',
-    nationality: '', work: '', mobile: '',
+    name: '', age: '', gender: '', birthDate: '', residence: '', nationality: '', mobile: '', educationLevel: '',
   });
 
   const [parentInfo, setParentInfo] = useState<ParentInfo>({
-    fatherName: '', fatherWork: '', fatherEducation: '', fatherEmail: '',
-    fatherMobile: '', fatherPhone: '', motherName: '', motherWork: '',
-    motherEducation: '', motherEmail: '', motherMobile: '', motherPhone: '',
+    fatherName: '', fatherMobile: '', fatherEmail: '', motherName: '', motherMobile: '', motherEmail: '',
   });
 
   const [medicalHistory, setMedicalHistory] = useState<MedicalHistory>({
-    pregnancyProblems: '', pregnancyDetails: '', birthProblems: '', birthDetails: '',
-    developmentDelay: { walking: false, speech: false, toiletTraining: false },
-    hearingImpairment: '', hearingAids: '', cochlearImplant: '', painTolerance: '',
-    earProblems: '', earTubeSurgery: '', earTubeRemovalDate: '', skinSensitivity: '',
-    skinSensitivityLocation: '', seizures: '', diet: '', dietDetails: '',
-    medications: '', medicationDetails: '', balanceDifficulty: '', sleepDisorders: '',
-    fineMotorDifficulty: '', anxiety: '', anxietyTriggers: '', attentionDifficulty: '',
-    hyperactivity: '', followingInstructions: '', soundSensitivity: '',
-    speechDiscrimination: '', socialDiscomfort: '',
-  });
-
-  const [previousAIT, setPreviousAIT] = useState<PreviousAIT>({
-    hadPreviousAIT: '', previousLocation1: '', previousDate1: '',
-    previousLocation2: '', previousDate2: '',
+    hearingImpairment: '', soundSensitivity: '', speechDiscrimination: '', attentionDifficulty: '',
+    hyperactivity: '', followingInstructions: '', seizures: '', sleepDisorders: '',
   });
 
   const [progressTracking, setProgressTracking] = useState<ProgressTracking>({
-    previousDate: '', currentDate: '',
-    sensoryChanges: {
-      soundSensitivity: '', eyeContact: '', eatingPatterns: '',
-      sleep: '', skinSensitivity: '', handSkills: '', walkingBalance: '',
-    },
-    behavioralChanges: {
-      hyperactivity: '', attention: '', focus: '', followingCommands: '',
-      playingWithChildren: '', selfReliance: '', languageBehavior: '',
-      anxietyFear: '', socialInteraction: '',
-    },
-    otherNotes: '',
+    sensoryChanges: { soundSensitivity: '', eyeContact: '', sleep: '', handSkills: '' },
+    behavioralChanges: { attention: '', hyperactivity: '', followingCommands: '', socialInteraction: '' },
   });
 
   const updatePersonalData = useCallback((field: keyof PersonalData, value: string) => {
@@ -338,7 +220,7 @@ const IntakeForm: React.FC = () => {
     setParentInfo(prev => ({ ...prev, [field]: value }));
   }, []);
 
-  const updateMedicalHistory = useCallback((field: keyof MedicalHistory, value: unknown) => {
+  const updateMedicalHistory = useCallback((field: keyof MedicalHistory, value: string) => {
     setMedicalHistory(prev => ({ ...prev, [field]: value }));
   }, []);
 
@@ -356,29 +238,24 @@ const IntakeForm: React.FC = () => {
     }));
   }, []);
 
-  const progress = useMemo(() => {
-    const totalSteps = isReturningClient ? 4 : 3;
-    return Math.round((currentStep / totalSteps) * 100);
-  }, [currentStep, isReturningClient]);
+  const maxStep = isReturningClient ? 4 : 3;
+  const progress = useMemo(() => Math.round((currentStep / maxStep) * 100), [currentStep, maxStep]);
 
-  const handleNext = () => {
-    const maxStep = isReturningClient ? 4 : 3;
+  const handleNext = useCallback(() => {
     if (currentStep < maxStep) {
       setCurrentStep(prev => prev + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  };
+  }, [currentStep, maxStep]);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     if (currentStep > 1) {
       setCurrentStep(prev => prev - 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  };
+  }, [currentStep]);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     const formSummary = `
-*استمارة تسجيل برنامج Berard AIT*
+*استمارة تسجيل - Berard AIT*
 ━━━━━━━━━━━━━━━━━━━━
 
 *البيانات الشخصية:*
@@ -386,356 +263,134 @@ const IntakeForm: React.FC = () => {
 العمر: ${personalData.age}
 الجنس: ${personalData.gender === 'male' ? 'ذكر' : personalData.gender === 'female' ? 'أنثى' : ''}
 الجوال: ${personalData.mobile}
-الجنسية: ${personalData.nationality}
 
 ${isChild ? `*بيانات ولي الأمر:*
-اسم الأب: ${parentInfo.fatherName}
 جوال الأب: ${parentInfo.fatherMobile}
-اسم الأم: ${parentInfo.motherName}
 جوال الأم: ${parentInfo.motherMobile}` : ''}
 
-*ملاحظات طبية:*
-ضعف سمعي: ${medicalHistory.hearingImpairment === 'none' ? 'لا يوجد' : medicalHistory.hearingImpairment}
+*التاريخ الطبي:*
 حساسية للأصوات: ${medicalHistory.soundSensitivity === 'yes' ? 'نعم' : 'لا'}
-صعوبة في الانتباه: ${medicalHistory.attentionDifficulty === 'yes' ? 'نعم' : 'لا'}
-فرط الحركة: ${medicalHistory.hyperactivity === 'yes' ? 'نعم' : 'لا'}
+تشتت الانتباه: ${medicalHistory.attentionDifficulty === 'yes' ? 'نعم' : 'لا'}
 
 ━━━━━━━━━━━━━━━━━━━━
 أرغب في حجز موعد للتقييم
     `.trim();
 
-    const encodedMessage = encodeURIComponent(formSummary);
     const phone = import.meta.env.VITE_CLINIC_PHONE || '+971000000000';
     const cleanPhone = phone.replace(/\D/g, '');
-    window.open(`https://wa.me/${cleanPhone}?text=${encodedMessage}`, '_blank');
-  };
+    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(formSummary)}`, '_blank');
+  }, [personalData, parentInfo, medicalHistory, isChild]);
 
   const renderStep = () => {
     switch (currentStep) {
       case 1:
         return (
           <div>
-            {/* Patient Type Selector */}
-            <div style={{
-              display: 'flex',
-              gap: 16,
-              marginBottom: 28,
-              padding: 20,
-              background: 'rgba(0,20,30,0.5)',
-              borderRadius: 12,
-              border: '1px solid rgba(143,211,204,0.1)',
-            }}>
+            {/* Patient Type */}
+            <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
               {[
-                { val: true, label: 'طفل', icon: '👶', desc: 'أقل من 18 سنة' },
-                { val: false, label: 'بالغ', icon: '🧑', desc: '18 سنة أو أكثر' },
+                { val: true, label: 'طفل', desc: 'أقل من 18' },
+                { val: false, label: 'بالغ', desc: '18+' },
               ].map((opt) => (
-                <label
-                  key={opt.label}
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: 10,
-                    padding: 20,
-                    borderRadius: 10,
-                    background: isChild === opt.val
-                      ? `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}10)`
-                      : 'transparent',
-                    border: `2px solid ${isChild === opt.val ? brandCyan : 'rgba(143,211,204,0.15)'}`,
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                  }}
-                >
-                  <input
-                    type="radio"
-                    checked={isChild === opt.val}
-                    onChange={() => setIsChild(opt.val)}
-                    style={{ display: 'none' }}
-                  />
-                  <span style={{ fontSize: 36 }}>{opt.icon}</span>
-                  <span style={{
-                    fontWeight: 800,
-                    fontSize: 16,
-                    color: isChild === opt.val ? brandCyan : 'rgba(255,255,255,0.6)',
-                    fontFamily: 'monospace',
-                  }}>{opt.label}</span>
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{opt.desc}</span>
+                <label key={opt.label} style={{
+                  flex: 1,
+                  padding: '16px',
+                  borderRadius: 6,
+                  background: isChild === opt.val ? 'rgba(143,211,204,0.15)' : '#faf8f5',
+                  border: `2px solid ${isChild === opt.val ? brandCyan : '#d4c8b8'}`,
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                }}>
+                  <input type="radio" checked={isChild === opt.val} onChange={() => setIsChild(opt.val)} style={{ display: 'none' }} />
+                  <div style={{ fontWeight: 700, fontSize: 16, color: '#3a3020' }}>{opt.label}</div>
+                  <div style={{ fontSize: 11, color: '#7a6a5a' }}>{opt.desc}</div>
                 </label>
               ))}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 18 }}>
-              <MedicalField label="اسم المريض" required>
-                <input
-                  type="text"
-                  value={personalData.name}
-                  onChange={(e) => updatePersonalData('name', e.target.value)}
-                  style={tabletInputStyle}
-                  placeholder="الاسم الكامل..."
-                />
-              </MedicalField>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+              <NotepadField label="اسم المريض" required>
+                <input type="text" value={personalData.name} onChange={(e) => updatePersonalData('name', e.target.value)}
+                  style={notepadInputStyle} placeholder="الاسم الكامل" />
+              </NotepadField>
 
-              <MedicalField label="العمر" required>
-                <input
-                  type="number"
-                  value={personalData.age}
-                  onChange={(e) => updatePersonalData('age', e.target.value)}
-                  style={tabletInputStyle}
-                  placeholder="00"
-                />
-              </MedicalField>
+              <NotepadField label="العمر" required>
+                <input type="number" value={personalData.age} onChange={(e) => updatePersonalData('age', e.target.value)}
+                  style={notepadInputStyle} placeholder="السنوات" />
+              </NotepadField>
 
-              <MedicalField label="الجنس" required>
-                <MedicalRadio
-                  name="gender"
-                  options={[
-                    { value: 'male', label: 'ذكر' },
-                    { value: 'female', label: 'أنثى' },
-                  ]}
-                  value={personalData.gender}
-                  onChange={(v) => updatePersonalData('gender', v)}
-                />
-              </MedicalField>
+              <NotepadField label="الجنس" required>
+                <NotepadRadio name="gender" options={[{ value: 'male', label: 'ذكر' }, { value: 'female', label: 'أنثى' }]}
+                  value={personalData.gender} onChange={(v) => updatePersonalData('gender', v)} />
+              </NotepadField>
 
-              <MedicalField label="تاريخ الميلاد">
-                <input
-                  type="date"
-                  value={personalData.birthDate}
-                  onChange={(e) => updatePersonalData('birthDate', e.target.value)}
-                  style={tabletInputStyle}
-                />
-              </MedicalField>
+              <NotepadField label="رقم الجوال" required>
+                <input type="tel" value={personalData.mobile} onChange={(e) => updatePersonalData('mobile', e.target.value)}
+                  style={{ ...notepadInputStyle, direction: 'ltr', textAlign: 'right' }} placeholder="+971 XX XXX XXXX" />
+              </NotepadField>
 
-              <MedicalField label="مكان الإقامة" required>
-                <input
-                  type="text"
-                  value={personalData.residence}
-                  onChange={(e) => updatePersonalData('residence', e.target.value)}
-                  style={tabletInputStyle}
-                  placeholder="المدينة / الدولة"
-                />
-              </MedicalField>
+              <NotepadField label="مكان الإقامة">
+                <input type="text" value={personalData.residence} onChange={(e) => updatePersonalData('residence', e.target.value)}
+                  style={notepadInputStyle} placeholder="المدينة / الدولة" />
+              </NotepadField>
 
-              <MedicalField label="الجنسية">
-                <input
-                  type="text"
-                  value={personalData.nationality}
-                  onChange={(e) => updatePersonalData('nationality', e.target.value)}
-                  style={tabletInputStyle}
-                  placeholder="الجنسية"
-                />
-              </MedicalField>
-
-              <MedicalField label="رقم الجوال" required>
-                <input
-                  type="tel"
-                  value={personalData.mobile}
-                  onChange={(e) => updatePersonalData('mobile', e.target.value)}
-                  style={{ ...tabletInputStyle, direction: 'ltr', textAlign: 'right' }}
-                  placeholder="+971 XX XXX XXXX"
-                />
-              </MedicalField>
-
-              <MedicalField label="المستوى التعليمي">
-                <input
-                  type="text"
-                  value={personalData.educationLevel}
-                  onChange={(e) => updatePersonalData('educationLevel', e.target.value)}
-                  style={tabletInputStyle}
-                  placeholder="الصف / المرحلة"
-                />
-              </MedicalField>
+              <NotepadField label="المستوى التعليمي">
+                <input type="text" value={personalData.educationLevel} onChange={(e) => updatePersonalData('educationLevel', e.target.value)}
+                  style={notepadInputStyle} placeholder="الصف / المرحلة" />
+              </NotepadField>
             </div>
 
             {/* Previous AIT */}
-            <div style={{
-              marginTop: 28,
-              padding: 20,
-              background: 'rgba(175,132,186,0.08)',
-              borderRadius: 12,
-              border: '1px solid rgba(175,132,186,0.2)',
-            }}>
-              <MedicalField label="هل سبق أن خضعت لجلسات AIT؟">
-                <MedicalRadio
-                  name="previousAIT"
-                  options={[
-                    { value: 'yes', label: 'نعم' },
-                    { value: 'no', label: 'لا' },
-                  ]}
-                  value={previousAIT.hadPreviousAIT}
-                  onChange={(v) => {
-                    setPreviousAIT(prev => ({ ...prev, hadPreviousAIT: v as 'yes' | 'no' }));
-                    setIsReturningClient(v === 'yes');
-                  }}
-                />
-              </MedicalField>
-
-              {previousAIT.hadPreviousAIT === 'yes' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16 }}>
-                  <MedicalField label="أين؟">
-                    <input
-                      type="text"
-                      value={previousAIT.previousLocation1}
-                      onChange={(e) => setPreviousAIT(prev => ({ ...prev, previousLocation1: e.target.value }))}
-                      style={tabletInputStyle}
-                    />
-                  </MedicalField>
-                  <MedicalField label="متى؟">
-                    <input
-                      type="text"
-                      value={previousAIT.previousDate1}
-                      onChange={(e) => setPreviousAIT(prev => ({ ...prev, previousDate1: e.target.value }))}
-                      style={tabletInputStyle}
-                    />
-                  </MedicalField>
-                </div>
-              )}
+            <div style={{ marginTop: 24, padding: 16, background: '#faf5f0', borderRadius: 6, border: '1px solid #d4c8b8' }}>
+              <NotepadField label="هل سبق أن خضعت لجلسات AIT؟">
+                <NotepadRadio name="prevAIT" options={[{ value: 'yes', label: 'نعم' }, { value: 'no', label: 'لا' }]}
+                  value={hadPreviousAIT} onChange={(v) => { setHadPreviousAIT(v); setIsReturningClient(v === 'yes'); }} />
+              </NotepadField>
             </div>
           </div>
         );
 
       case 2:
-        if (!isChild) {
-          setCurrentStep(3);
-          return null;
-        }
+        if (!isChild) { setCurrentStep(3); return null; }
         return (
           <div>
-            {/* Father Info */}
-            <div style={{
-              padding: 24,
-              background: 'rgba(143,211,204,0.05)',
-              borderRadius: 12,
-              marginBottom: 24,
-              border: '1px solid rgba(143,211,204,0.15)',
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                marginBottom: 20,
-                paddingBottom: 16,
-                borderBottom: '1px solid rgba(143,211,204,0.1)',
-              }}>
-                <div style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 10,
-                  background: `linear-gradient(135deg, ${brandCyan}20, ${brandPurple}20)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 20,
-                }}>👨</div>
-                <span style={{
-                  fontWeight: 800,
-                  fontSize: 16,
-                  color: brandCyan,
-                  fontFamily: 'monospace',
-                }}>بيانات الأب</span>
+            {/* Father */}
+            <div style={{ padding: 20, background: '#f8faf9', borderRadius: 6, marginBottom: 20, border: '1px solid #c4d8d4' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#3a5a4a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                👨 بيانات الأب
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
-                <MedicalField label="الاسم">
-                  <input
-                    type="text"
-                    value={parentInfo.fatherName}
-                    onChange={(e) => updateParentInfo('fatherName', e.target.value)}
-                    style={tabletInputStyle}
-                  />
-                </MedicalField>
-                <MedicalField label="الجوال" required>
-                  <input
-                    type="tel"
-                    value={parentInfo.fatherMobile}
-                    onChange={(e) => updateParentInfo('fatherMobile', e.target.value)}
-                    style={{ ...tabletInputStyle, direction: 'ltr', textAlign: 'right' }}
-                  />
-                </MedicalField>
-                <MedicalField label="البريد الإلكتروني">
-                  <input
-                    type="email"
-                    value={parentInfo.fatherEmail}
-                    onChange={(e) => updateParentInfo('fatherEmail', e.target.value)}
-                    style={{ ...tabletInputStyle, direction: 'ltr', textAlign: 'right' }}
-                  />
-                </MedicalField>
-                <MedicalField label="العمل">
-                  <input
-                    type="text"
-                    value={parentInfo.fatherWork}
-                    onChange={(e) => updateParentInfo('fatherWork', e.target.value)}
-                    style={tabletInputStyle}
-                  />
-                </MedicalField>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+                <NotepadField label="الاسم">
+                  <input type="text" value={parentInfo.fatherName} onChange={(e) => updateParentInfo('fatherName', e.target.value)} style={notepadInputStyle} />
+                </NotepadField>
+                <NotepadField label="الجوال" required>
+                  <input type="tel" value={parentInfo.fatherMobile} onChange={(e) => updateParentInfo('fatherMobile', e.target.value)}
+                    style={{ ...notepadInputStyle, direction: 'ltr', textAlign: 'right' }} />
+                </NotepadField>
+                <NotepadField label="البريد الإلكتروني">
+                  <input type="email" value={parentInfo.fatherEmail} onChange={(e) => updateParentInfo('fatherEmail', e.target.value)}
+                    style={{ ...notepadInputStyle, direction: 'ltr', textAlign: 'right' }} />
+                </NotepadField>
               </div>
             </div>
 
-            {/* Mother Info */}
-            <div style={{
-              padding: 24,
-              background: 'rgba(176,18,112,0.05)',
-              borderRadius: 12,
-              border: '1px solid rgba(176,18,112,0.15)',
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                marginBottom: 20,
-                paddingBottom: 16,
-                borderBottom: '1px solid rgba(176,18,112,0.1)',
-              }}>
-                <div style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 10,
-                  background: `linear-gradient(135deg, ${brandPink}20, ${brandPurple}20)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 20,
-                }}>👩</div>
-                <span style={{
-                  fontWeight: 800,
-                  fontSize: 16,
-                  color: brandPink,
-                  fontFamily: 'monospace',
-                }}>بيانات الأم</span>
+            {/* Mother */}
+            <div style={{ padding: 20, background: '#faf5f8', borderRadius: 6, border: '1px solid #d8c4c8' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#5a3a4a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                👩 بيانات الأم
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
-                <MedicalField label="الاسم">
-                  <input
-                    type="text"
-                    value={parentInfo.motherName}
-                    onChange={(e) => updateParentInfo('motherName', e.target.value)}
-                    style={tabletInputStyle}
-                  />
-                </MedicalField>
-                <MedicalField label="الجوال" required>
-                  <input
-                    type="tel"
-                    value={parentInfo.motherMobile}
-                    onChange={(e) => updateParentInfo('motherMobile', e.target.value)}
-                    style={{ ...tabletInputStyle, direction: 'ltr', textAlign: 'right' }}
-                  />
-                </MedicalField>
-                <MedicalField label="البريد الإلكتروني">
-                  <input
-                    type="email"
-                    value={parentInfo.motherEmail}
-                    onChange={(e) => updateParentInfo('motherEmail', e.target.value)}
-                    style={{ ...tabletInputStyle, direction: 'ltr', textAlign: 'right' }}
-                  />
-                </MedicalField>
-                <MedicalField label="العمل">
-                  <input
-                    type="text"
-                    value={parentInfo.motherWork}
-                    onChange={(e) => updateParentInfo('motherWork', e.target.value)}
-                    style={tabletInputStyle}
-                  />
-                </MedicalField>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+                <NotepadField label="الاسم">
+                  <input type="text" value={parentInfo.motherName} onChange={(e) => updateParentInfo('motherName', e.target.value)} style={notepadInputStyle} />
+                </NotepadField>
+                <NotepadField label="الجوال" required>
+                  <input type="tel" value={parentInfo.motherMobile} onChange={(e) => updateParentInfo('motherMobile', e.target.value)}
+                    style={{ ...notepadInputStyle, direction: 'ltr', textAlign: 'right' }} />
+                </NotepadField>
+                <NotepadField label="البريد الإلكتروني">
+                  <input type="email" value={parentInfo.motherEmail} onChange={(e) => updateParentInfo('motherEmail', e.target.value)}
+                    style={{ ...notepadInputStyle, direction: 'ltr', textAlign: 'right' }} />
+                </NotepadField>
               </div>
             </div>
           </div>
@@ -744,158 +399,52 @@ ${isChild ? `*بيانات ولي الأمر:*
       case 3:
         return (
           <div>
-            {/* Hearing Section */}
-            <div style={{
-              padding: 24,
-              background: 'rgba(143,211,204,0.05)',
-              borderRadius: 12,
-              marginBottom: 24,
-              border: '1px solid rgba(143,211,204,0.15)',
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                marginBottom: 20,
-                color: brandCyan,
-                fontFamily: 'monospace',
-                fontWeight: 700,
-              }}>
-                <BrainIcon size={20} color={brandCyan} />
-                <span>السمع والمعالجة السمعية</span>
+            {/* Hearing */}
+            <div style={{ padding: 20, background: '#f5fafa', borderRadius: 6, marginBottom: 20, border: '1px solid #b8d4d4' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#3a5a5a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <BrainIcon size={18} color="#3a5a5a" /> السمع والمعالجة
               </div>
 
-              <MedicalField label="هل تعاني من ضعف سمعي؟">
-                <MedicalRadio
-                  name="hearingImpairment"
-                  options={[
-                    { value: 'none', label: 'لا' },
-                    { value: 'mild', label: 'بسيط' },
-                    { value: 'moderate', label: 'متوسط' },
-                    { value: 'severe', label: 'شديد' },
-                  ]}
-                  value={medicalHistory.hearingImpairment}
-                  onChange={(v) => updateMedicalHistory('hearingImpairment', v)}
-                />
-              </MedicalField>
+              <NotepadField label="ضعف سمعي؟">
+                <NotepadRadio name="hearing" options={[
+                  { value: 'none', label: 'لا' }, { value: 'mild', label: 'بسيط' },
+                  { value: 'moderate', label: 'متوسط' }, { value: 'severe', label: 'شديد' },
+                ]} value={medicalHistory.hearingImpairment} onChange={(v) => updateMedicalHistory('hearingImpairment', v)} />
+              </NotepadField>
 
-              <MedicalField label="حساسية تجاه الأصوات؟">
-                <MedicalRadio
-                  name="soundSensitivity"
-                  options={[
-                    { value: 'yes', label: 'نعم' },
-                    { value: 'no', label: 'لا' },
-                  ]}
-                  value={medicalHistory.soundSensitivity}
-                  onChange={(v) => updateMedicalHistory('soundSensitivity', v)}
-                />
-              </MedicalField>
+              <NotepadField label="حساسية للأصوات؟">
+                <NotepadRadio name="soundSens" options={[{ value: 'yes', label: 'نعم' }, { value: 'no', label: 'لا' }]}
+                  value={medicalHistory.soundSensitivity} onChange={(v) => updateMedicalHistory('soundSensitivity', v)} />
+              </NotepadField>
 
-              <MedicalField label="صعوبة في تمييز الكلام؟">
-                <MedicalRadio
-                  name="speechDiscrimination"
-                  options={[
-                    { value: 'never', label: 'لا' },
-                    { value: 'sometimes', label: 'أحياناً' },
-                    { value: 'often', label: 'غالباً' },
-                  ]}
-                  value={medicalHistory.speechDiscrimination}
-                  onChange={(v) => updateMedicalHistory('speechDiscrimination', v)}
-                />
-              </MedicalField>
+              <NotepadField label="صعوبة تمييز الكلام؟">
+                <NotepadRadio name="speech" options={[
+                  { value: 'never', label: 'لا' }, { value: 'sometimes', label: 'أحياناً' }, { value: 'often', label: 'غالباً' },
+                ]} value={medicalHistory.speechDiscrimination} onChange={(v) => updateMedicalHistory('speechDiscrimination', v)} />
+              </NotepadField>
             </div>
 
-            {/* Behavior Section */}
-            <div style={{
-              padding: 24,
-              background: 'rgba(175,132,186,0.05)',
-              borderRadius: 12,
-              marginBottom: 24,
-              border: '1px solid rgba(175,132,186,0.15)',
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                marginBottom: 20,
-                color: brandPurple,
-                fontFamily: 'monospace',
-                fontWeight: 700,
-              }}>
-                <ChartIcon size={20} color={brandPurple} />
-                <span>السلوك والانتباه</span>
+            {/* Behavior */}
+            <div style={{ padding: 20, background: '#faf5fa', borderRadius: 6, border: '1px solid #d4b8d4' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#5a3a5a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <ChartIcon size={18} color="#5a3a5a" /> السلوك والانتباه
               </div>
 
-              <MedicalField label="تشتت الانتباه؟">
-                <MedicalRadio
-                  name="attentionDifficulty"
-                  options={[
-                    { value: 'yes', label: 'نعم' },
-                    { value: 'no', label: 'لا' },
-                  ]}
-                  value={medicalHistory.attentionDifficulty}
-                  onChange={(v) => updateMedicalHistory('attentionDifficulty', v)}
-                />
-              </MedicalField>
+              <NotepadField label="تشتت الانتباه؟">
+                <NotepadRadio name="attention" options={[{ value: 'yes', label: 'نعم' }, { value: 'no', label: 'لا' }]}
+                  value={medicalHistory.attentionDifficulty} onChange={(v) => updateMedicalHistory('attentionDifficulty', v)} />
+              </NotepadField>
 
-              <MedicalField label="فرط الحركة؟">
-                <MedicalRadio
-                  name="hyperactivity"
-                  options={[
-                    { value: 'yes', label: 'نعم' },
-                    { value: 'no', label: 'لا' },
-                  ]}
-                  value={medicalHistory.hyperactivity}
-                  onChange={(v) => updateMedicalHistory('hyperactivity', v)}
-                />
-              </MedicalField>
+              <NotepadField label="فرط الحركة؟">
+                <NotepadRadio name="hyper" options={[{ value: 'yes', label: 'نعم' }, { value: 'no', label: 'لا' }]}
+                  value={medicalHistory.hyperactivity} onChange={(v) => updateMedicalHistory('hyperactivity', v)} />
+              </NotepadField>
 
-              <MedicalField label="صعوبة اتباع التعليمات؟">
-                <MedicalRadio
-                  name="followingInstructions"
-                  options={[
-                    { value: 'yes', label: 'نعم' },
-                    { value: 'no', label: 'لا' },
-                    { value: 'sometimes', label: 'أحياناً' },
-                  ]}
-                  value={medicalHistory.followingInstructions}
-                  onChange={(v) => updateMedicalHistory('followingInstructions', v)}
-                />
-              </MedicalField>
-            </div>
-
-            {/* Other Medical */}
-            <div style={{
-              padding: 24,
-              background: 'rgba(0,20,30,0.3)',
-              borderRadius: 12,
-              border: '1px solid rgba(255,255,255,0.08)',
-            }}>
-              <MedicalField label="نوبات صرع / تشنجات؟">
-                <MedicalRadio
-                  name="seizures"
-                  options={[
-                    { value: 'yes', label: 'نعم' },
-                    { value: 'no', label: 'لا' },
-                  ]}
-                  value={medicalHistory.seizures}
-                  onChange={(v) => updateMedicalHistory('seizures', v)}
-                />
-              </MedicalField>
-
-              <MedicalField label="اضطرابات النوم؟">
-                <MedicalRadio
-                  name="sleepDisorders"
-                  options={[
-                    { value: 'never', label: 'لا' },
-                    { value: 'rarely', label: 'نادراً' },
-                    { value: 'sometimes', label: 'أحياناً' },
-                    { value: 'often', label: 'غالباً' },
-                  ]}
-                  value={medicalHistory.sleepDisorders}
-                  onChange={(v) => updateMedicalHistory('sleepDisorders', v)}
-                />
-              </MedicalField>
+              <NotepadField label="صعوبة اتباع التعليمات؟">
+                <NotepadRadio name="follow" options={[
+                  { value: 'yes', label: 'نعم' }, { value: 'no', label: 'لا' }, { value: 'sometimes', label: 'أحياناً' },
+                ]} value={medicalHistory.followingInstructions} onChange={(v) => updateMedicalHistory('followingInstructions', v)} />
+              </NotepadField>
             </div>
           </div>
         );
@@ -904,89 +453,34 @@ ${isChild ? `*بيانات ولي الأمر:*
         if (!isReturningClient) return null;
         return (
           <div>
-            {/* Sensory Changes */}
-            <div style={{
-              padding: 24,
-              background: 'rgba(143,211,204,0.05)',
-              borderRadius: 12,
-              marginBottom: 24,
-              border: '1px solid rgba(143,211,204,0.15)',
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                marginBottom: 20,
-                color: brandCyan,
-                fontFamily: 'monospace',
-                fontWeight: 700,
-              }}>
-                <BrainIcon size={20} color={brandCyan} />
-                <span>التغيرات الحسية</span>
+            {/* Sensory */}
+            <div style={{ padding: 20, background: '#f5fafa', borderRadius: 6, marginBottom: 20, border: '1px solid #b8d4d4' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#3a5a5a', marginBottom: 16 }}>
+                <BrainIcon size={18} color="#3a5a5a" /> التغيرات الحسية
               </div>
-
-              <VitalSelector
-                label="الحساسية السمعية"
-                value={progressTracking.sensoryChanges.soundSensitivity}
-                onChange={(v) => updateSensoryChanges('soundSensitivity', v)}
-              />
-              <VitalSelector
-                label="التواصل البصري"
-                value={progressTracking.sensoryChanges.eyeContact}
-                onChange={(v) => updateSensoryChanges('eyeContact', v)}
-              />
-              <VitalSelector
-                label="النوم"
-                value={progressTracking.sensoryChanges.sleep}
-                onChange={(v) => updateSensoryChanges('sleep', v)}
-              />
-              <VitalSelector
-                label="المهارات اليدوية"
-                value={progressTracking.sensoryChanges.handSkills}
-                onChange={(v) => updateSensoryChanges('handSkills', v)}
-              />
+              <ImprovementSelector label="الحساسية السمعية" value={progressTracking.sensoryChanges.soundSensitivity}
+                onChange={(v) => updateSensoryChanges('soundSensitivity', v)} />
+              <ImprovementSelector label="التواصل البصري" value={progressTracking.sensoryChanges.eyeContact}
+                onChange={(v) => updateSensoryChanges('eyeContact', v)} />
+              <ImprovementSelector label="النوم" value={progressTracking.sensoryChanges.sleep}
+                onChange={(v) => updateSensoryChanges('sleep', v)} />
+              <ImprovementSelector label="المهارات اليدوية" value={progressTracking.sensoryChanges.handSkills}
+                onChange={(v) => updateSensoryChanges('handSkills', v)} />
             </div>
 
-            {/* Behavioral Changes */}
-            <div style={{
-              padding: 24,
-              background: 'rgba(175,132,186,0.05)',
-              borderRadius: 12,
-              border: '1px solid rgba(175,132,186,0.15)',
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                marginBottom: 20,
-                color: brandPurple,
-                fontFamily: 'monospace',
-                fontWeight: 700,
-              }}>
-                <ChartIcon size={20} color={brandPurple} />
-                <span>التغيرات السلوكية</span>
+            {/* Behavioral */}
+            <div style={{ padding: 20, background: '#faf5fa', borderRadius: 6, border: '1px solid #d4b8d4' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#5a3a5a', marginBottom: 16 }}>
+                <ChartIcon size={18} color="#5a3a5a" /> التغيرات السلوكية
               </div>
-
-              <VitalSelector
-                label="الانتباه والتركيز"
-                value={progressTracking.behavioralChanges.attention}
-                onChange={(v) => updateBehavioralChanges('attention', v)}
-              />
-              <VitalSelector
-                label="فرط الحركة"
-                value={progressTracking.behavioralChanges.hyperactivity}
-                onChange={(v) => updateBehavioralChanges('hyperactivity', v)}
-              />
-              <VitalSelector
-                label="اتباع الأوامر"
-                value={progressTracking.behavioralChanges.followingCommands}
-                onChange={(v) => updateBehavioralChanges('followingCommands', v)}
-              />
-              <VitalSelector
-                label="التفاعل الاجتماعي"
-                value={progressTracking.behavioralChanges.socialInteraction}
-                onChange={(v) => updateBehavioralChanges('socialInteraction', v)}
-              />
+              <ImprovementSelector label="الانتباه والتركيز" value={progressTracking.behavioralChanges.attention}
+                onChange={(v) => updateBehavioralChanges('attention', v)} />
+              <ImprovementSelector label="فرط الحركة" value={progressTracking.behavioralChanges.hyperactivity}
+                onChange={(v) => updateBehavioralChanges('hyperactivity', v)} />
+              <ImprovementSelector label="اتباع الأوامر" value={progressTracking.behavioralChanges.followingCommands}
+                onChange={(v) => updateBehavioralChanges('followingCommands', v)} />
+              <ImprovementSelector label="التفاعل الاجتماعي" value={progressTracking.behavioralChanges.socialInteraction}
+                onChange={(v) => updateBehavioralChanges('socialInteraction', v)} />
             </div>
           </div>
         );
@@ -996,303 +490,277 @@ ${isChild ? `*بيانات ولي الأمر:*
     }
   };
 
-  const maxStep = isReturningClient ? 4 : 3;
-  const currentTime = new Date().toLocaleTimeString('ar-AE', { hour: '2-digit', minute: '2-digit' });
-  const currentDate = new Date().toLocaleDateString('ar-AE', { day: 'numeric', month: 'short', year: 'numeric' });
-
-  const css = useMemo(() => `
-    @keyframes scanline {
-      0% { transform: translateY(-100%); }
-      100% { transform: translateY(100vh); }
+  const clipboardCSS = useMemo(() => `
+    .notepad-paper {
+      background:
+        repeating-linear-gradient(
+          transparent 0px,
+          transparent 27px,
+          #e8e0d8 28px
+        ),
+        linear-gradient(180deg, #fefcf9 0%, #f8f4ee 100%);
     }
-    @keyframes blink {
-      0%, 50%, 100% { opacity: 1; }
-      25%, 75% { opacity: 0.5; }
-    }
-    .tablet-screen::-webkit-scrollbar {
-      width: 6px;
-    }
-    .tablet-screen::-webkit-scrollbar-track {
-      background: rgba(0,20,30,0.5);
-    }
-    .tablet-screen::-webkit-scrollbar-thumb {
-      background: ${brandCyan}40;
-      border-radius: 3px;
-    }
+    .notepad-paper::-webkit-scrollbar { width: 8px; }
+    .notepad-paper::-webkit-scrollbar-track { background: #e8e0d8; border-radius: 4px; }
+    .notepad-paper::-webkit-scrollbar-thumb { background: #c4b8a8; border-radius: 4px; }
   `, []);
 
   return (
-    <section id="intake-form" style={{ ...styles.sectionCard, padding: 0, overflow: 'hidden' }}>
-      <style>{css}</style>
+    <section id="intake-form" style={styles.sectionCard}>
+      <style>{clipboardCSS}</style>
 
-      {/* Medical Tablet Frame */}
+      {/* Section Title */}
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <h2 style={{
+          margin: '0 0 8px',
+          fontSize: 24,
+          background: `linear-gradient(135deg, ${brandPurple}, ${brandCyan})`,
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+        }}>
+          استمارة التسجيل
+        </h2>
+        <p style={{ margin: 0, opacity: 0.7, fontSize: 14 }}>
+          سجل بياناتك للحجز والتقييم المبدئي
+        </p>
+      </div>
+
+      {/* CLIPBOARD FRAME */}
       <div style={{
-        background: 'linear-gradient(180deg, #1a1f2e 0%, #0a0f18 100%)',
-        borderRadius: 20,
-        border: '3px solid #2a3040',
-        overflow: 'hidden',
-        boxShadow: '0 30px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
+        maxWidth: 700,
+        margin: '0 auto',
+        position: 'relative',
       }}>
-        {/* Tablet Top Bezel - Status Bar */}
+        {/* Clipboard Board */}
         <div style={{
-          padding: '12px 20px',
-          background: 'linear-gradient(90deg, #0a1520, #0f1a28)',
-          borderBottom: '2px solid rgba(143,211,204,0.15)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          background: 'linear-gradient(180deg, #b89c72 0%, #9a8060 50%, #8a7050 100%)',
+          borderRadius: '20px 20px 12px 12px',
+          padding: '60px 16px 16px',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.1), inset 0 -2px 0 rgba(0,0,0,0.2)',
+          position: 'relative',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: `linear-gradient(135deg, ${brandCyan}20, ${brandPurple}20)`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid rgba(143,211,204,0.3)',
-            }}>
-              <BrainLogoSVG size={28} />
-            </div>
-            <div>
-              <div style={{
-                fontSize: 14,
-                fontWeight: 800,
-                color: brandCyan,
-                fontFamily: 'monospace',
-              }}>BERARD AIT</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
-                Patient Registration System
-              </div>
-            </div>
-          </div>
-
-          {/* Status indicators */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '6px 12px',
-              background: 'rgba(34,197,94,0.15)',
-              borderRadius: 6,
-              border: '1px solid rgba(34,197,94,0.3)',
-            }}>
-              <div style={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                background: '#22c55e',
-                animation: 'blink 2s infinite',
-              }} />
-              <span style={{ fontSize: 11, color: '#22c55e', fontFamily: 'monospace', fontWeight: 600 }}>
-                ONLINE
-              </span>
-            </div>
-            <div style={{ textAlign: 'left', fontFamily: 'monospace' }}>
-              <div style={{ fontSize: 14, color: brandCyan, fontWeight: 700 }}>{currentTime}</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{currentDate}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Step Navigation - Medical Monitor Style */}
-        <div style={{
-          padding: '16px 20px',
-          background: 'rgba(0,20,30,0.5)',
-          borderBottom: '1px solid rgba(143,211,204,0.1)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          overflowX: 'auto',
-        }}>
-          {STEPS.slice(0, maxStep).map((step, idx) => (
-            <button
-              key={step.id}
-              onClick={() => setCurrentStep(step.id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '12px 20px',
-                borderRadius: 8,
-                border: `2px solid ${currentStep === step.id ? brandCyan : 'rgba(143,211,204,0.15)'}`,
-                background: currentStep === step.id
-                  ? `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}10)`
-                  : 'rgba(0,20,30,0.5)',
-                color: currentStep === step.id ? brandCyan : 'rgba(255,255,255,0.5)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                fontFamily: 'monospace',
-                fontSize: 13,
-                fontWeight: currentStep === step.id ? 700 : 500,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {step.icon}
-              <span>{step.title}</span>
-              {currentStep > step.id && <CheckCircleIcon size={16} color="#22c55e" />}
-            </button>
-          ))}
-        </div>
-
-        {/* Progress Bar - Vital Signs Style */}
-        <div style={{
-          padding: '12px 20px',
-          background: 'rgba(0,10,20,0.5)',
-          borderBottom: '1px solid rgba(143,211,204,0.1)',
-        }}>
+          {/* Metal Clip */}
           <div style={{
+            position: 'absolute',
+            top: -10,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 120,
+            height: 60,
+            background: 'linear-gradient(180deg, #e0e0e0 0%, #a0a0a0 50%, #c0c0c0 100%)',
+            borderRadius: '8px 8px 0 0',
+            boxShadow: '0 -5px 15px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.5)',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 8,
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            paddingBottom: 8,
           }}>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
-              PROGRESS
-            </span>
-            <span style={{ fontSize: 13, color: brandCyan, fontFamily: 'monospace', fontWeight: 700 }}>
-              {progress}%
-            </span>
-          </div>
-          <div style={{
-            height: 6,
-            background: 'rgba(0,20,30,0.8)',
-            borderRadius: 3,
-            overflow: 'hidden',
-          }}>
+            {/* Clip inner */}
             <div style={{
-              height: '100%',
-              width: `${progress}%`,
-              background: `linear-gradient(90deg, ${brandCyan}, ${brandPurple})`,
-              borderRadius: 3,
-              transition: 'width 0.5s ease',
-              boxShadow: `0 0 10px ${brandCyan}50`,
+              width: 80,
+              height: 30,
+              background: 'linear-gradient(180deg, #c8c8c8 0%, #888 100%)',
+              borderRadius: '4px 4px 0 0',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)',
             }} />
           </div>
-        </div>
 
-        {/* Main Screen Content */}
-        <div
-          className="tablet-screen"
-          style={{
-            padding: '24px 20px',
-            minHeight: 450,
-            maxHeight: '60vh',
-            overflowY: 'auto',
-            background: 'rgba(0,10,20,0.3)',
-          }}
-        >
-          {renderStep()}
-        </div>
+          {/* Clip arms */}
+          <div style={{
+            position: 'absolute',
+            top: 35,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 140,
+            height: 25,
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}>
+            <div style={{
+              width: 30,
+              height: 25,
+              background: 'linear-gradient(90deg, #b0b0b0, #909090)',
+              borderRadius: '0 0 6px 6px',
+              boxShadow: '2px 2px 4px rgba(0,0,0,0.2)',
+            }} />
+            <div style={{
+              width: 30,
+              height: 25,
+              background: 'linear-gradient(90deg, #909090, #b0b0b0)',
+              borderRadius: '0 0 6px 6px',
+              boxShadow: '-2px 2px 4px rgba(0,0,0,0.2)',
+            }} />
+          </div>
 
-        {/* Bottom Navigation - Control Panel */}
-        <div style={{
-          padding: '20px',
-          background: 'linear-gradient(180deg, rgba(0,20,30,0.8), #0a1520)',
-          borderTop: '2px solid rgba(143,211,204,0.15)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: 16,
-        }}>
-          <button
-            onClick={handlePrev}
-            disabled={currentStep === 1}
+          {/* PAPER */}
+          <div
+            className="notepad-paper"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '14px 24px',
-              borderRadius: 8,
-              border: '2px solid rgba(143,211,204,0.2)',
-              background: 'rgba(0,20,30,0.6)',
-              color: currentStep === 1 ? 'rgba(255,255,255,0.3)' : brandCyan,
-              cursor: currentStep === 1 ? 'not-allowed' : 'pointer',
-              fontFamily: 'monospace',
-              fontSize: 14,
-              fontWeight: 600,
-              transition: 'all 0.3s ease',
+              borderRadius: 6,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.15), inset 0 0 30px rgba(0,0,0,0.03)',
+              overflow: 'hidden',
             }}
           >
-            <span>→</span> السابق
-          </button>
+            {/* Paper Header - Hole punches */}
+            <div style={{
+              padding: '12px 20px',
+              borderBottom: '1px solid #d4c8b8',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              background: '#faf8f5',
+            }}>
+              <div style={{ display: 'flex', gap: 30 }}>
+                <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#c4b8a8', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }} />
+                <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#c4b8a8', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }} />
+                <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#c4b8a8', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }} />
+              </div>
+              <div style={{ fontSize: 12, color: '#8a7a6a', fontStyle: 'italic' }}>
+                Berard AIT - Sound Lab
+              </div>
+            </div>
 
-          {currentStep < maxStep ? (
-            <button
-              onClick={handleNext}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '14px 32px',
-                borderRadius: 8,
-                border: 'none',
-                background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
-                color: '#fff',
-                cursor: 'pointer',
-                fontFamily: 'monospace',
-                fontSize: 14,
-                fontWeight: 700,
-                boxShadow: `0 0 20px ${brandCyan}30`,
-                transition: 'all 0.3s ease',
-              }}
-            >
-              التالي <span>←</span>
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '14px 32px',
-                borderRadius: 8,
-                border: 'none',
-                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-                color: '#fff',
-                cursor: 'pointer',
-                fontFamily: 'monospace',
-                fontSize: 14,
-                fontWeight: 700,
-                boxShadow: '0 0 20px rgba(34,197,94,0.3)',
-                transition: 'all 0.3s ease',
-              }}
-            >
-              <span>📤</span> إرسال عبر واتساب
-            </button>
-          )}
-        </div>
+            {/* Step Tabs */}
+            <div style={{
+              display: 'flex',
+              gap: 6,
+              padding: '12px 16px',
+              background: '#f5f0ea',
+              borderBottom: '2px solid #d4c8b8',
+              overflowX: 'auto',
+            }}>
+              {STEPS.slice(0, maxStep).map((step) => (
+                <button
+                  key={step.id}
+                  onClick={() => setCurrentStep(step.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '8px 14px',
+                    borderRadius: '6px 6px 0 0',
+                    border: 'none',
+                    background: currentStep === step.id ? '#fefcf9' : 'transparent',
+                    boxShadow: currentStep === step.id ? '0 -2px 4px rgba(0,0,0,0.05)' : 'none',
+                    color: currentStep === step.id ? '#3a3020' : '#8a7a6a',
+                    cursor: 'pointer',
+                    fontSize: 12,
+                    fontWeight: currentStep === step.id ? 700 : 500,
+                    whiteSpace: 'nowrap',
+                    borderBottom: currentStep === step.id ? '2px solid transparent' : 'none',
+                    marginBottom: currentStep === step.id ? -2 : 0,
+                  }}
+                >
+                  {step.icon}
+                  {step.title}
+                  {currentStep > step.id && <CheckCircleIcon size={14} color="#22c55e" />}
+                </button>
+              ))}
+            </div>
 
-        {/* Tablet Bottom Bezel */}
-        <div style={{
-          padding: '10px 20px',
-          background: '#0a1015',
-          borderTop: '1px solid rgba(255,255,255,0.05)',
-          textAlign: 'center',
-        }}>
-          <div style={{
-            width: 80,
-            height: 4,
-            background: 'rgba(255,255,255,0.15)',
-            borderRadius: 2,
-            margin: '0 auto',
-          }} />
+            {/* Progress */}
+            <div style={{ padding: '8px 20px', background: '#faf8f5', borderBottom: '1px solid #e8e0d8' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#8a7a6a', marginBottom: 4 }}>
+                <span>التقدم</span>
+                <span>{progress}%</span>
+              </div>
+              <div style={{ height: 4, background: '#e8e0d8', borderRadius: 2 }}>
+                <div style={{
+                  height: '100%',
+                  width: `${progress}%`,
+                  background: `linear-gradient(90deg, ${brandCyan}, ${brandPurple})`,
+                  borderRadius: 2,
+                  transition: 'width 0.3s',
+                }} />
+              </div>
+            </div>
+
+            {/* Paper Content */}
+            <div style={{
+              padding: '20px',
+              minHeight: 400,
+              maxHeight: '50vh',
+              overflowY: 'auto',
+            }}>
+              {renderStep()}
+            </div>
+
+            {/* Paper Footer - Navigation */}
+            <div style={{
+              padding: '16px 20px',
+              borderTop: '1px solid #d4c8b8',
+              background: '#faf8f5',
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: 12,
+            }}>
+              <button
+                onClick={handlePrev}
+                disabled={currentStep === 1}
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: 6,
+                  border: '1px solid #c4b8a8',
+                  background: currentStep === 1 ? '#e8e0d8' : '#fefcf9',
+                  color: currentStep === 1 ? '#a09080' : '#5a4a3a',
+                  cursor: currentStep === 1 ? 'not-allowed' : 'pointer',
+                  fontSize: 14,
+                  fontWeight: 600,
+                }}
+              >
+                → السابق
+              </button>
+
+              {currentStep < maxStep ? (
+                <button
+                  onClick={handleNext}
+                  style={{
+                    padding: '10px 24px',
+                    borderRadius: 6,
+                    border: 'none',
+                    background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
+                    color: '#fff',
+                    cursor: 'pointer',
+                    fontSize: 14,
+                    fontWeight: 700,
+                    boxShadow: '0 4px 12px rgba(143,211,204,0.3)',
+                  }}
+                >
+                  التالي ←
+                </button>
+              ) : (
+                <button
+                  onClick={handleSubmit}
+                  style={{
+                    padding: '10px 24px',
+                    borderRadius: 6,
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                    color: '#fff',
+                    cursor: 'pointer',
+                    fontSize: 14,
+                    fontWeight: 700,
+                    boxShadow: '0 4px 12px rgba(34,197,94,0.3)',
+                  }}
+                >
+                  📤 إرسال عبر واتساب
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Disclaimer */}
       <div style={{
-        marginTop: 20,
+        marginTop: 24,
         padding: 16,
         background: 'rgba(176,18,112,0.1)',
         borderRadius: 12,
         border: '1px solid rgba(176,18,112,0.2)',
         textAlign: 'center',
       }}>
-        <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.8, fontFamily: 'monospace' }}>
+        <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.8 }}>
           <strong style={{ color: brandPink }}>⚠ تنبيه:</strong> لا يعتبر برنامج Berard AIT علاجاً في حد ذاته،
           وإنما هو إعادة تدريب للدماغ عن طريق السمع لتحسين المعالجة الحسية.
         </p>
@@ -1301,4 +769,4 @@ ${isChild ? `*بيانات ولي الأمر:*
   );
 };
 
-export default IntakeForm;
+export default memo(IntakeForm);

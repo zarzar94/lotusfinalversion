@@ -1,4 +1,4 @@
-import React, { FormEvent, useMemo, useState, useEffect, useCallback, memo } from 'react';
+import React, { FormEvent, useMemo, useState, useEffect, useCallback, memo, useRef } from 'react';
 
 import { CLINIC } from '../data/clinic';
 import { handleWhatsApp } from '../utils/whatsapp';
@@ -101,6 +101,41 @@ const callWaveCss = `
   @keyframes callWave {
     0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.4; }
     100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; }
+  }
+`;
+
+// iOS-style scroll container CSS
+const iosScrollCss = `
+  .ios-scroll-container {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.3) transparent;
+  }
+  .ios-scroll-container::-webkit-scrollbar {
+    width: 4px;
+  }
+  .ios-scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .ios-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 4px;
+  }
+  .ios-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.5);
+  }
+  @keyframes scrollHint {
+    0%, 100% { transform: translateY(0); opacity: 0.6; }
+    50% { transform: translateY(8px); opacity: 1; }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
   }
 `;
 
@@ -333,6 +368,72 @@ const LinkedInIcon = memo(() => (
 ));
 LinkedInIcon.displayName = 'LinkedInIcon';
 
+// Scroll progress indicator
+const ScrollProgressIndicator = memo(({ progress }: { progress: number }) => (
+  <div style={{
+    position: 'absolute',
+    right: 8,
+    top: 70,
+    bottom: 60,
+    width: 3,
+    background: 'rgba(255,255,255,0.1)',
+    borderRadius: 2,
+    overflow: 'hidden',
+    zIndex: 10,
+  }}>
+    <div style={{
+      width: '100%',
+      height: `${Math.max(20, 100 - progress * 0.8)}%`,
+      background: `linear-gradient(180deg, ${brandCyan}, ${brandPurple})`,
+      borderRadius: 2,
+      transform: `translateY(${progress}%)`,
+      transition: 'transform 0.1s ease-out',
+      boxShadow: `0 0 8px ${brandCyan}50`,
+    }} />
+  </div>
+));
+ScrollProgressIndicator.displayName = 'ScrollProgressIndicator';
+
+// Scroll hint arrow
+const ScrollHintArrow = memo(({ show }: { show: boolean }) => {
+  if (!show) return null;
+  return (
+    <div style={{
+      position: 'absolute',
+      bottom: 50,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      animation: 'scrollHint 2s ease-in-out infinite',
+      zIndex: 10,
+      pointerEvents: 'none',
+    }}>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M7 10l5 5 5-5" stroke={brandCyan} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </div>
+  );
+});
+ScrollHintArrow.displayName = 'ScrollHintArrow';
+
+// Form field with animation
+const AnimatedFormField = memo(({
+  children,
+  delay,
+}: {
+  children: React.ReactNode;
+  delay: number;
+}) => (
+  <div style={{
+    animation: `fadeInUp 0.5s ease-out ${delay}s both`,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 6,
+  }}>
+    {children}
+  </div>
+));
+AnimatedFormField.displayName = 'AnimatedFormField';
+
 const ContactForm = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -341,6 +442,9 @@ const ContactForm = () => {
   const [submitted, setSubmitted] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showScrollHint, setShowScrollHint] = useState(true);
+  const scrollRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     const updateTime = () => {
@@ -356,6 +460,27 @@ const ContactForm = () => {
     const interval = setInterval(updateTime, 60000);
     return () => clearInterval(interval);
   }, []);
+
+  // Scroll tracking for progress indicator
+  const handleScroll = useCallback(() => {
+    if (scrollRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      const maxScroll = scrollHeight - clientHeight;
+      const progress = maxScroll > 0 ? (scrollTop / maxScroll) * 100 : 0;
+      setScrollProgress(progress);
+      if (scrollTop > 10) {
+        setShowScrollHint(false);
+      }
+    }
+  }, []);
+
+  // Reset scroll hint when form opens
+  useEffect(() => {
+    if (showForm) {
+      setShowScrollHint(true);
+      setScrollProgress(0);
+    }
+  }, [showForm]);
 
   const requiredValid = useMemo(() =>
     name.trim().length > 1 &&
@@ -493,8 +618,21 @@ const ContactForm = () => {
               </p>
             </div>
           ) : showForm ? (
-            <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100% - 50px)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '60px 16px 16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100% - 50px)', position: 'relative' }}>
+              <style>{iosScrollCss}</style>
+
+              {/* Header with back button */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '60px 16px 16px',
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                background: 'linear-gradient(180deg, rgba(45,45,53,0.95) 0%, rgba(28,28,30,0.95) 100%)',
+                backdropFilter: 'blur(10px)',
+                position: 'relative',
+                zIndex: 5,
+              }}>
                 <button onClick={handleHideForm} style={{ background: 'transparent', border: 'none', color: brandCyan, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                   <BackIcon />رجوع
                 </button>
@@ -502,36 +640,102 @@ const ContactForm = () => {
                 <div style={{ width: 60 }} />
               </div>
 
-              <form onSubmit={onSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: 16, gap: 12, overflowY: 'auto' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {/* Scroll progress indicator */}
+              <ScrollProgressIndicator progress={scrollProgress} />
+
+              {/* Scroll hint */}
+              <ScrollHintArrow show={showScrollHint} />
+
+              {/* Scrollable form */}
+              <form
+                ref={scrollRef}
+                onSubmit={onSubmit}
+                onScroll={handleScroll}
+                className="ios-scroll-container"
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: '20px 16px 16px',
+                  gap: 16,
+                  overflowY: 'auto',
+                  overflowX: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                {/* Top fade gradient */}
+                <div style={{
+                  position: 'sticky',
+                  top: -20,
+                  left: 0,
+                  right: 0,
+                  height: 20,
+                  background: 'linear-gradient(180deg, rgba(28,28,30,1) 0%, transparent 100%)',
+                  marginTop: -20,
+                  marginBottom: 4,
+                  pointerEvents: 'none',
+                  zIndex: 2,
+                }} />
+
+                <AnimatedFormField delay={0}>
                   <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingRight: 4 }}>الاسم الكامل *</label>
                   <IOSInput value={name} onChange={setName} placeholder="أدخل اسمك" maxLength={MAX_NAME_LENGTH} />
-                </div>
+                </AnimatedFormField>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <AnimatedFormField delay={0.1}>
                   <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingRight: 4 }}>رقم WhatsApp *</label>
                   <IOSInput value={phone} onChange={setPhone} placeholder="+971 XX XXX XXXX" type="tel" dir="ltr" />
                   {phone && !isValidPhone(phone) && (
                     <span style={{ fontSize: 12, color: '#FF453A', paddingRight: 4 }}>أدخل رقم صحيح (9–15 رقم)</span>
                   )}
-                </div>
+                </AnimatedFormField>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <AnimatedFormField delay={0.2}>
                   <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingRight: 4 }}>البريد الإلكتروني (اختياري)</label>
                   <IOSInput value={email} onChange={setEmail} placeholder="email@example.com" type="email" dir="ltr" />
-                </div>
+                </AnimatedFormField>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <AnimatedFormField delay={0.3}>
                   <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingRight: 4 }}>الرسالة *</label>
                   <IOSTextarea value={message} onChange={setMessage} placeholder="اكتب نبذة عن الحالة / الهدف / أو طلب عرض للمدرسة" maxLength={MAX_MESSAGE_LENGTH} />
+                </AnimatedFormField>
+
+                {/* Spacer to ensure scrollability */}
+                <div style={{ flex: 1, minHeight: 20 }} />
+
+                {/* Submit button with animation */}
+                <div style={{
+                  animation: 'fadeInUp 0.5s ease-out 0.4s both',
+                  position: 'sticky',
+                  bottom: 0,
+                  background: 'linear-gradient(180deg, transparent 0%, rgba(10,10,14,0.95) 20%)',
+                  paddingTop: 16,
+                  paddingBottom: 8,
+                  marginBottom: -16,
+                }}>
+                  <button
+                    type="submit"
+                    disabled={!requiredValid}
+                    style={{
+                      ...submitButtonStyle,
+                      animation: requiredValid ? 'pulse 2s ease-in-out infinite' : 'none',
+                    }}
+                  >
+                    <WhatsAppIcon size={22} />
+                    إرسال عبر WhatsApp
+                  </button>
+
+                  {/* Progress indicator text */}
+                  <p style={{
+                    textAlign: 'center',
+                    fontSize: 11,
+                    color: 'rgba(255,255,255,0.4)',
+                    marginTop: 8,
+                    marginBottom: 0,
+                  }}>
+                    {requiredValid ? '✓ جاهز للإرسال' : 'أكمل الحقول المطلوبة للمتابعة'}
+                  </p>
                 </div>
-
-                <div style={{ flex: 1 }} />
-
-                <button type="submit" disabled={!requiredValid} style={submitButtonStyle}>
-                  <WhatsAppIcon size={22} />
-                  إرسال عبر WhatsApp
-                </button>
               </form>
             </div>
           ) : (
