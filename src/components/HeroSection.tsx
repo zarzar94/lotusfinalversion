@@ -1,209 +1,239 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { brandCyan, brandPurple, brandPink } from './styles';
-import { assetUrl } from '../utils/asset';
-import { BrainIcon, HeadphonesIcon, SparklesIcon } from './Icons';
 
-// Particle system for cosmic effect
-const CosmicParticle = ({ delay, duration, size, color, startX, startY }: {
-  delay: number;
+// SVG Brain matching the exact design - purple brain with white neural lines and cyan auditory center
+const BrainSVG = ({ size = 400 }: { size?: number }) => (
+  <svg width={size} height={size * 0.75} viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Main brain shape - lavender/purple */}
+    <g id="brain-outline">
+      {/* Left hemisphere */}
+      <path
+        d="M80 150 Q60 100 100 70 Q140 40 180 50 Q200 55 200 55"
+        stroke="#AF84BA"
+        strokeWidth="3"
+        fill="none"
+      />
+      <path
+        d="M80 150 Q50 180 80 220 Q110 260 160 250 Q200 245 200 245"
+        stroke="#AF84BA"
+        strokeWidth="3"
+        fill="none"
+      />
+
+      {/* Right hemisphere */}
+      <path
+        d="M320 150 Q340 100 300 70 Q260 40 220 50 Q200 55 200 55"
+        stroke="#AF84BA"
+        strokeWidth="3"
+        fill="none"
+      />
+      <path
+        d="M320 150 Q350 180 320 220 Q290 260 240 250 Q200 245 200 245"
+        stroke="#AF84BA"
+        strokeWidth="3"
+        fill="none"
+      />
+    </g>
+
+    {/* Brain fill with gradient */}
+    <defs>
+      <radialGradient id="brainGradient" cx="50%" cy="50%" r="60%">
+        <stop offset="0%" stopColor="#C9A8D2" />
+        <stop offset="50%" stopColor="#AF84BA" />
+        <stop offset="100%" stopColor="#9A6FA8" />
+      </radialGradient>
+      <filter id="brainGlow">
+        <feGaussianBlur stdDeviation="3" result="glow"/>
+        <feMerge>
+          <feMergeNode in="glow"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+
+    {/* Main brain shape filled */}
+    <path
+      d="M80 150
+         Q60 100 100 70 Q140 40 180 50 Q200 55 200 55
+         Q200 55 220 50 Q260 40 300 70 Q340 100 320 150
+         Q350 180 320 220 Q290 260 240 250 Q200 245 200 245
+         Q200 245 160 250 Q110 260 80 220 Q50 180 80 150Z"
+      fill="url(#brainGradient)"
+      filter="url(#brainGlow)"
+      opacity="0.95"
+    />
+
+    {/* Neural pathway lines - white/light */}
+    <g stroke="rgba(255,255,255,0.85)" strokeWidth="2" fill="none" strokeLinecap="round">
+      {/* Left hemisphere gyri */}
+      <path d="M90 130 Q100 110 130 100 Q150 95 160 110" />
+      <path d="M85 150 Q110 135 140 140 Q160 142 170 155" />
+      <path d="M90 175 Q115 165 145 175 Q165 180 175 195" />
+      <path d="M100 200 Q130 185 155 195 Q175 202 185 215" />
+      <path d="M120 220 Q145 210 170 220 Q185 228 190 240" />
+      <path d="M95 110 Q115 95 145 90 Q165 88 175 100" />
+      <path d="M75 160 Q90 155 105 160" />
+      <path d="M80 190 Q100 182 115 190" />
+
+      {/* Right hemisphere gyri */}
+      <path d="M310 130 Q300 110 270 100 Q250 95 240 110" />
+      <path d="M315 150 Q290 135 260 140 Q240 142 230 155" />
+      <path d="M310 175 Q285 165 255 175 Q235 180 225 195" />
+      <path d="M300 200 Q270 185 245 195 Q225 202 215 215" />
+      <path d="M280 220 Q255 210 230 220 Q215 228 210 240" />
+      <path d="M305 110 Q285 95 255 90 Q235 88 225 100" />
+      <path d="M325 160 Q310 155 295 160" />
+      <path d="M320 190 Q300 182 285 190" />
+
+      {/* Connecting pathways */}
+      <path d="M170 120 Q200 115 230 120" />
+      <path d="M175 145 Q200 140 225 145" />
+      <path d="M180 220 Q200 215 220 220" />
+    </g>
+
+    {/* Cerebellum (bottom back of brain) */}
+    <ellipse cx="290" cy="235" rx="35" ry="22" fill="#9A6FA8" opacity="0.9" />
+    <g stroke="rgba(255,255,255,0.75)" strokeWidth="1.5" fill="none">
+      <path d="M260 230 Q275 225 290 230 Q305 225 320 230" />
+      <path d="M265 240 Q280 235 290 240 Q300 235 315 240" />
+      <path d="M270 248 Q285 244 290 248 Q295 244 310 248" />
+    </g>
+
+    {/* Auditory center - cyan circle with stem */}
+    <g id="auditory-center">
+      {/* Stem going up */}
+      <rect x="194" y="45" width="12" height="75" rx="6" fill={brandCyan} />
+
+      {/* Main auditory circle */}
+      <circle cx="200" cy="145" r="35" fill={brandCyan} />
+
+      {/* Inner glow */}
+      <circle cx="200" cy="145" r="25" fill="rgba(255,255,255,0.2)" />
+      <circle cx="200" cy="145" r="15" fill="rgba(255,255,255,0.15)" />
+
+      {/* Outer glow ring */}
+      <circle cx="200" cy="145" r="42" stroke={brandCyan} strokeWidth="2" fill="none" opacity="0.4" />
+    </g>
+  </svg>
+);
+
+// Orbiting particle that circles around the brain
+const OrbitingParticle = ({
+  orbitRadius,
+  duration,
+  delay,
+  size,
+  color,
+  reverse = false,
+  offsetY = 0
+}: {
+  orbitRadius: number;
   duration: number;
+  delay: number;
   size: number;
   color: string;
-  startX: number;
-  startY: number;
+  reverse?: boolean;
+  offsetY?: number;
 }) => (
   <div
     style={{
       position: 'absolute',
-      left: `${startX}%`,
-      top: `${startY}%`,
-      width: size,
-      height: size,
-      borderRadius: '50%',
-      background: color,
-      boxShadow: `0 0 ${size * 2}px ${color}, 0 0 ${size * 4}px ${color}50`,
-      animation: `cosmicFloat ${duration}s ease-in-out infinite`,
+      left: '50%',
+      top: `calc(50% + ${offsetY}px)`,
+      width: orbitRadius * 2,
+      height: orbitRadius * 2,
+      marginLeft: -orbitRadius,
+      marginTop: -orbitRadius,
+      animation: `orbit${reverse ? 'Reverse' : ''} ${duration}s linear infinite`,
       animationDelay: `${delay}s`,
-      opacity: 0.6,
+      pointerEvents: 'none',
     }}
-  />
-);
-
-// Interactive hotspot on the brain
-const BrainHotspot = ({ x, y, label, color, delay, onHover }: {
-  x: number;
-  y: number;
-  label: string;
-  color: string;
-  delay: number;
-  onHover: (label: string | null) => void;
-}) => {
-  const [isActive, setIsActive] = useState(false);
-
-  return (
+  >
     <div
-      onMouseEnter={() => { setIsActive(true); onHover(label); }}
-      onMouseLeave={() => { setIsActive(false); onHover(null); }}
-      onClick={() => setIsActive(!isActive)}
       style={{
         position: 'absolute',
-        left: `${x}%`,
-        top: `${y}%`,
-        transform: 'translate(-50%, -50%)',
-        cursor: 'pointer',
-        zIndex: 20,
-      }}
-    >
-      {/* Pulse ring */}
-      <div style={{
-        position: 'absolute',
-        width: isActive ? 60 : 40,
-        height: isActive ? 60 : 40,
-        borderRadius: '50%',
-        border: `2px solid ${color}`,
-        animation: `pulseRing 2s ease-out infinite`,
-        animationDelay: `${delay}s`,
-        opacity: isActive ? 0.8 : 0.4,
-        transform: 'translate(-50%, -50%)',
-        left: '50%',
+        left: 0,
         top: '50%',
-        transition: 'all 0.3s ease',
-      }} />
-
-      {/* Core dot */}
-      <div style={{
-        width: isActive ? 16 : 10,
-        height: isActive ? 16 : 10,
+        transform: 'translateY(-50%)',
+        width: size,
+        height: size,
         borderRadius: '50%',
         background: color,
-        boxShadow: `0 0 20px ${color}, 0 0 40px ${color}80`,
-        transition: 'all 0.3s ease',
-        transform: isActive ? 'scale(1.2)' : 'scale(1)',
-      }} />
-
-      {/* Label tooltip */}
-      {isActive && (
-        <div style={{
-          position: 'absolute',
-          top: '120%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: 'rgba(11,15,28,0.95)',
-          border: `1px solid ${color}50`,
-          borderRadius: 10,
-          padding: '8px 14px',
-          fontSize: 12,
-          fontWeight: 700,
-          color: '#fff',
-          whiteSpace: 'nowrap',
-          backdropFilter: 'blur(10px)',
-          animation: 'fadeInUp 0.3s ease',
-          boxShadow: `0 10px 30px rgba(0,0,0,0.4), 0 0 20px ${color}30`,
-        }}>
-          {label}
-        </div>
-      )}
-    </div>
-  );
-};
+        boxShadow: `0 0 ${size}px ${color}, 0 0 ${size * 2}px ${color}80`,
+      }}
+    />
+  </div>
+);
 
 export default function HeroSection() {
-  const [activeRegion, setActiveRegion] = useState<string | null>(null);
-  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     setIsLoaded(true);
   }, []);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setMousePos({ x, y });
-  }, []);
-
-  // Brain regions with positions
-  const brainRegions = useMemo(() => [
-    { x: 35, y: 35, label: 'المعالجة السمعية', color: brandCyan, delay: 0 },
-    { x: 65, y: 35, label: 'التركيز والانتباه', color: brandPurple, delay: 0.3 },
-    { x: 30, y: 55, label: 'الذاكرة السمعية', color: brandPink, delay: 0.6 },
-    { x: 70, y: 55, label: 'تمييز الأصوات', color: '#22c55e', delay: 0.9 },
-    { x: 50, y: 70, label: 'التكامل الحسي', color: '#f59e0b', delay: 1.2 },
+  // Orbiting particles configuration - they orbit AROUND the brain
+  const orbitingParticles = useMemo(() => [
+    { orbitRadius: 220, duration: 20, delay: 0, size: 8, color: brandCyan, reverse: false, offsetY: 0 },
+    { orbitRadius: 240, duration: 25, delay: 2, size: 6, color: brandPurple, reverse: true, offsetY: 10 },
+    { orbitRadius: 260, duration: 30, delay: 4, size: 10, color: brandPink, reverse: false, offsetY: -15 },
+    { orbitRadius: 200, duration: 18, delay: 6, size: 5, color: brandCyan, reverse: true, offsetY: 20 },
+    { orbitRadius: 280, duration: 35, delay: 8, size: 7, color: '#fff', reverse: false, offsetY: -10 },
+    { orbitRadius: 230, duration: 22, delay: 10, size: 6, color: brandPurple, reverse: true, offsetY: 5 },
+    { orbitRadius: 250, duration: 28, delay: 3, size: 8, color: brandCyan, reverse: false, offsetY: -20 },
+    { orbitRadius: 210, duration: 19, delay: 7, size: 5, color: brandPink, reverse: true, offsetY: 15 },
   ], []);
 
-  // Particles configuration
-  const particles = useMemo(() =>
-    Array.from({ length: 30 }).map((_, i) => ({
-      delay: Math.random() * 5,
-      duration: 4 + Math.random() * 4,
-      size: 2 + Math.random() * 4,
-      color: [brandCyan, brandPurple, brandPink, '#fff'][Math.floor(Math.random() * 4)],
-      startX: Math.random() * 100,
-      startY: Math.random() * 100,
-    })), []);
-
   const css = useMemo(() => `
-    @keyframes cosmicFloat {
+    @keyframes orbit {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes orbitReverse {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+    @keyframes brainPulse {
       0%, 100% {
-        transform: translate(0, 0) scale(1);
-        opacity: 0.3;
-      }
-      25% {
-        transform: translate(${Math.random() * 30 - 15}px, ${Math.random() * 30 - 15}px) scale(1.2);
-        opacity: 0.8;
+        filter: drop-shadow(0 0 30px rgba(143,211,204,0.4)) drop-shadow(0 0 60px rgba(175,132,186,0.3));
+        transform: scale(1);
       }
       50% {
-        transform: translate(${Math.random() * 30 - 15}px, ${Math.random() * 30 - 15}px) scale(0.8);
-        opacity: 0.5;
-      }
-      75% {
-        transform: translate(${Math.random() * 30 - 15}px, ${Math.random() * 30 - 15}px) scale(1.1);
-        opacity: 0.7;
+        filter: drop-shadow(0 0 50px rgba(143,211,204,0.6)) drop-shadow(0 0 80px rgba(175,132,186,0.5));
+        transform: scale(1.02);
       }
     }
-    @keyframes pulseRing {
-      0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
-      100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+    @keyframes auditoryPulse {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
     }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
-      to { opacity: 1; transform: translateX(-50%) translateY(0); }
-    }
-    @keyframes brainGlow {
-      0%, 100% {
-        filter: drop-shadow(0 0 30px rgba(143,211,204,0.5)) drop-shadow(0 0 60px rgba(176,18,112,0.4));
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
       }
-      50% {
-        filter: drop-shadow(0 0 50px rgba(143,211,204,0.7)) drop-shadow(0 0 80px rgba(176,18,112,0.6));
+      to {
+        opacity: 1;
+        transform: scale(1);
       }
     }
-    @keyframes cosmicRotate {
-      0% { transform: translate(-50%, -50%) rotate(0deg); }
-      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    @keyframes scrollHint {
+      0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
+      50% { transform: translateX(-50%) translateY(10px); opacity: 1; }
     }
-    @keyframes heroFadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
+    .brain-container {
+      animation: fadeInScale 1.2s ease-out forwards, brainPulse 4s ease-in-out infinite;
+      animation-delay: 0s, 1.2s;
     }
-    @keyframes scrollBounce {
-      0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
-      40% { transform: translateX(-50%) translateY(-10px); }
-      60% { transform: translateX(-50%) translateY(-5px); }
-    }
-    .cosmic-brain {
-      animation: brainGlow 4s ease-in-out infinite, heroFadeIn 1.5s ease-out;
-      transition: transform 0.3s ease;
-    }
-    .cosmic-brain:hover {
-      transform: scale(1.02);
+    .orbit-trail {
+      opacity: 0.1;
+      animation: orbitReverse 60s linear infinite;
     }
   `, []);
 
   return (
     <section
       id="about"
-      onMouseMove={handleMouseMove}
       style={{
         position: 'relative',
         minHeight: '85vh',
@@ -211,169 +241,66 @@ export default function HeroSection() {
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        background: 'radial-gradient(ellipse at center, rgba(15,22,41,1) 0%, rgba(5,6,13,1) 100%)',
+        background: 'radial-gradient(ellipse at center, rgba(20,26,45,1) 0%, rgba(8,10,18,1) 100%)',
       }}
     >
       <style>{css}</style>
 
-      {/* Cosmic background effects */}
+      {/* Subtle grid background */}
       <div style={{
         position: 'absolute',
         inset: 0,
-        background: `
-          radial-gradient(800px circle at ${mousePos.x}% ${mousePos.y}%, rgba(143,211,204,0.15), transparent 40%),
-          radial-gradient(600px circle at ${100 - mousePos.x}% ${100 - mousePos.y}%, rgba(176,18,112,0.12), transparent 40%)
+        backgroundImage: `
+          linear-gradient(rgba(143,211,204,0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(143,211,204,0.03) 1px, transparent 1px)
         `,
-        transition: 'background 0.3s ease',
+        backgroundSize: '50px 50px',
         pointerEvents: 'none',
       }} />
 
-      {/* Rotating cosmic ring */}
+      {/* Orbit trail rings */}
       <div style={{
         position: 'absolute',
         left: '50%',
         top: '50%',
-        width: '120%',
-        height: '120%',
-        border: '1px solid rgba(143,211,204,0.1)',
+        transform: 'translate(-50%, -50%)',
+        width: 500,
+        height: 500,
         borderRadius: '50%',
-        animation: 'cosmicRotate 60s linear infinite',
+        border: `1px dashed rgba(143,211,204,0.1)`,
         pointerEvents: 'none',
-      }} />
+      }} className="orbit-trail" />
       <div style={{
         position: 'absolute',
         left: '50%',
         top: '50%',
-        width: '140%',
-        height: '140%',
-        border: '1px solid rgba(175,132,186,0.08)',
+        transform: 'translate(-50%, -50%)',
+        width: 560,
+        height: 560,
         borderRadius: '50%',
-        animation: 'cosmicRotate 80s linear infinite reverse',
+        border: `1px dashed rgba(175,132,186,0.08)`,
         pointerEvents: 'none',
+        animation: 'orbit 80s linear infinite',
       }} />
 
-      {/* Floating particles */}
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-        {particles.map((p, i) => (
-          <CosmicParticle key={i} {...p} />
+      {/* Main brain container */}
+      <div
+        className="brain-container"
+        style={{
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: isLoaded ? 1 : 0,
+        }}
+      >
+        {/* The Brain SVG */}
+        <BrainSVG size={450} />
+
+        {/* Orbiting particles - outside the brain */}
+        {orbitingParticles.map((p, i) => (
+          <OrbitingParticle key={i} {...p} />
         ))}
-      </div>
-
-      {/* Main cosmic brain container */}
-      <div style={{
-        position: 'relative',
-        width: '100%',
-        maxWidth: 700,
-        aspectRatio: '16/10',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-        {/* Cosmic Brain Image */}
-        <div
-          className="cosmic-brain"
-          style={{
-            position: 'relative',
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <img
-            src={assetUrl('assets/images/cosmic_brain.jpg')}
-            alt="Cosmic Brain - Berard AIT"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              borderRadius: 20,
-              opacity: isLoaded ? 1 : 0,
-              transition: 'opacity 0.5s ease',
-            }}
-            onLoad={() => setIsLoaded(true)}
-            onError={(e) => {
-              // Fallback to gradient brain if image not found
-              (e.target as HTMLImageElement).style.display = 'none';
-            }}
-          />
-
-          {/* Fallback animated brain if image fails */}
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: `
-              radial-gradient(ellipse at 40% 40%, rgba(143,211,204,0.4) 0%, transparent 50%),
-              radial-gradient(ellipse at 60% 60%, rgba(176,18,112,0.4) 0%, transparent 50%),
-              radial-gradient(ellipse at 50% 50%, rgba(175,132,186,0.3) 0%, transparent 60%)
-            `,
-            borderRadius: 20,
-            animation: 'brainGlow 4s ease-in-out infinite',
-            zIndex: -1,
-          }}>
-            <BrainIcon size={200} color="rgba(143,211,204,0.3)" />
-          </div>
-
-          {/* Interactive hotspots */}
-          {brainRegions.map((region, i) => (
-            <BrainHotspot
-              key={i}
-              {...region}
-              onHover={setActiveRegion}
-            />
-          ))}
-        </div>
-
-        {/* Active region display */}
-        {activeRegion && (
-          <div style={{
-            position: 'absolute',
-            top: 20,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: 'rgba(11,15,28,0.9)',
-            border: '1px solid rgba(143,211,204,0.3)',
-            borderRadius: 14,
-            padding: '12px 24px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            backdropFilter: 'blur(10px)',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
-            animation: 'fadeInUp 0.3s ease',
-            zIndex: 30,
-          }}>
-            <SparklesIcon size={20} color={brandCyan} />
-            <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>
-              {activeRegion}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Brand mark - minimal */}
-      <div style={{
-        position: 'absolute',
-        top: 20,
-        right: 20,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        background: 'rgba(11,15,28,0.7)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(143,211,204,0.2)',
-        borderRadius: 12,
-        padding: '8px 14px',
-      }}>
-        <HeadphonesIcon size={18} color={brandCyan} />
-        <span style={{ fontSize: 13, fontWeight: 800 }}>
-          <span style={{ color: brandPurple }}>Berard</span>{' '}
-          <span style={{ color: brandCyan }}>AIT</span>
-        </span>
       </div>
 
       {/* Scroll indicator */}
@@ -386,7 +313,7 @@ export default function HeroSection() {
         flexDirection: 'column',
         alignItems: 'center',
         gap: 8,
-        animation: 'scrollBounce 2s infinite',
+        animation: 'scrollHint 2s ease-in-out infinite',
         zIndex: 10,
       }}>
         <div style={{
@@ -403,7 +330,6 @@ export default function HeroSection() {
             height: 8,
             background: brandCyan,
             borderRadius: 2,
-            animation: 'cosmicFloat 1.5s ease-in-out infinite',
           }} />
         </div>
       </div>

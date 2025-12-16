@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
-import { assetUrl } from '../utils/asset';
 import { brandPurple, brandCyan, brandPink } from './styles';
 import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon } from './Icons';
+import BrainLogo from './BrainLogo';
 
 const NAV_ITEMS = [
   { label: 'البرنامج', href: '#overview', icon: <HeadphonesIcon size={16} /> },
@@ -109,42 +109,12 @@ const Header = () => {
         transition: 'all 0.3s ease',
       }}>
         {/* Logo Section */}
-        <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
-          <div
-            className="floatingLogo"
-            style={{
-              width: isScrolled ? 45 : 55,
-              height: isScrolled ? 45 : 55,
-              borderRadius: '50%',
-              background: 'rgba(11,15,28,0.6)',
-              border: '2px solid rgba(143,211,204,0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden',
-              transition: 'all 0.3s ease',
-            }}
-          >
-            <img
-              src={assetUrl('assets/images/brain_logo.png')}
-              alt="Berard AIT Brain"
-              style={{
-                width: isScrolled ? 38 : 46,
-                height: isScrolled ? 38 : 46,
-                objectFit: 'contain',
-                mixBlendMode: 'screen',
-              }}
-            />
-          </div>
-          <div style={{
-            fontSize: isScrolled ? 22 : 26,
-            fontWeight: 900,
-            letterSpacing: 1.5,
-            transition: 'all 0.3s ease',
-          }}>
-            <span style={{ color: brandPurple }}>Berard</span>{' '}
-            <span style={{ color: brandCyan }}>AIT</span>
-          </div>
+        <a href="#" className="floatingLogo" style={{ textDecoration: 'none', transition: 'all 0.3s ease' }}>
+          <BrainLogo
+            size={isScrolled ? 45 : 55}
+            textSize={isScrolled ? 20 : 24}
+            showText={true}
+          />
         </a>
 
         {/* Desktop Navigation */}

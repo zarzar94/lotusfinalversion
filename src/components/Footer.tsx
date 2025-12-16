@@ -15,8 +15,8 @@ import {
   SchoolIcon,
   ExternalLinkIcon,
   PhoneIcon,
-  BrainIcon,
 } from './Icons';
+import BrainLogo from './BrainLogo';
 
 type SocialLink = {
   name: string;
@@ -128,33 +128,8 @@ const Footer = () => {
         }}>
           {/* Brand Column */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <div style={{
-                width: 50,
-                height: 50,
-                borderRadius: 14,
-                background: `linear-gradient(135deg, ${brandCyan}20, ${brandPurple}20)`,
-                border: '1px solid rgba(143,211,204,0.2)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <BrainIcon size={28} color={brandCyan} />
-              </div>
-              <div>
-                <div style={{
-                  fontSize: 22,
-                  fontWeight: 900,
-                  background: `linear-gradient(135deg, ${brandPurple}, ${brandCyan})`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}>
-                  Berard AIT
-                </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
-                  Sound Lab
-                </div>
-              </div>
+            <div style={{ marginBottom: 16 }}>
+              <BrainLogo size={50} textSize={20} showText={true} />
             </div>
             <p style={{
               fontSize: 13,
