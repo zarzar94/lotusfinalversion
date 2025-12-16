@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, memo } from 'react';
 
 import { assetUrl } from '../utils/asset';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
@@ -53,19 +53,26 @@ interface FloatingShape {
   floatSpeed: number;
 }
 
-const BackgroundFX = () => {
+const BackgroundFX = memo(() => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [scrollY, setScrollY] = useState(0);
+  const scrollYRef = useRef(0);
 
   const prefersReducedMotion = useMemo(() => {
     if (typeof window === 'undefined') return true;
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }, []);
 
-  // Track scroll for parallax and color shifts
+  // Track scroll for parallax using ref (no re-renders)
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setScrollY(window.scrollY);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          scrollYRef.current = window.scrollY;
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -206,8 +213,8 @@ const BackgroundFX = () => {
     };
 
     const draw = () => {
-      // Get current scroll for parallax
-      const currentScrollY = scrollY;
+      // Get current scroll for parallax (from ref, no re-render)
+      const currentScrollY = scrollYRef.current;
       const scrollDelta = currentScrollY - lastScrollY;
       lastScrollY = currentScrollY;
       const scrollProgress = Math.min(1, currentScrollY / (document.body.scrollHeight - h));
@@ -474,7 +481,7 @@ const BackgroundFX = () => {
       window.removeEventListener('resize', resize);
       if (raf) window.cancelAnimationFrame(raf);
     };
-  }, [prefersReducedMotion, scrollY]);
+  }, [prefersReducedMotion]);
 
   return (
     <>
@@ -697,6 +704,8 @@ const BackgroundFX = () => {
       </div>
     </>
   );
-};
+});
+
+BackgroundFX.displayName = 'BackgroundFX';
 
 export default BackgroundFX;
