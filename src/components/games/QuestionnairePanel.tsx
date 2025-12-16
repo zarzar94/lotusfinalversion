@@ -28,7 +28,7 @@ export default function QuestionnairePanel({
   const [answers, setAnswers] = useState<Answer[]>(Array(questions.length).fill(0));
   const [submitted, setSubmitted] = useState(false);
 
-  const score = useMemo(() => answers.reduce((s, a) => s + a, 0), [answers]);
+  const score = useMemo(() => answers.reduce<number>((s, a) => s + a, 0), [answers]);
 
   const result: GameResult = score <= 4 ? 'high' : score <= 9 ? 'medium' : 'low';
 

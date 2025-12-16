@@ -6,8 +6,6 @@ import { assetUrl } from '../utils/asset';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
 import { brandCyan, brandPink, brandPurpleDark, styles } from './styles';
 
-type Slide = typeof pptxSlides[number];
-
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 const SlideViewer = () => {

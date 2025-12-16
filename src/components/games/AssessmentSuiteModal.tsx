@@ -68,6 +68,7 @@ export default function AssessmentSuiteModal({
   if (!open) return null;
 
   const stepLabel = () => {
+    if (step === 'questionnaire') return 'استبيان';
     const order = ['intro', 'headphone', 'attention', 'frequency', 'sequence', 'summary'];
     const idx = order.indexOf(step);
     return idx >= 0 ? `${idx + 1}/${order.length}` : '';

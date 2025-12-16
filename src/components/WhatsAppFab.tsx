@@ -7,9 +7,7 @@ const WhatsAppFab = () => {
     <button
       type="button"
       onClick={() =>
-        handleWhatsApp({
-          message: `مرحباً، أود الاستفسار عن Berard AIT داخل ${CLINIC.city}.`,
-        })
+        handleWhatsApp(`مرحباً، أود الاستفسار عن Berard AIT داخل ${CLINIC.city}.`)
       }
       aria-label={`WhatsApp ${CLINIC.name}`}
       title="WhatsApp"

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from '../styles';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../../utils/pdf';
-import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise } from './audio';
+import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import { mean } from './stats';
 import type { GameResult, TestOutcome } from './types';
 
@@ -48,7 +48,7 @@ export default function SequencingTestPanel({
   enableExports?: boolean;
 }) {
   const audioRef = useRef<AudioContext | null>(null);
-  const noiseRef = useRef<any>(null);
+  const noiseRef: NoiseRef = useRef(null);
 
   const ROUNDS = 8;
 

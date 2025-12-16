@@ -1,3 +1,4 @@
+import type { jsPDF } from 'jspdf';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../../utils/pdf';
 import { AssessmentSession, TestOutcome, TestKey } from './types';
 
@@ -41,7 +42,7 @@ export const downloadSessionCsv = (session: AssessmentSession) => {
   downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `Berard-AIT-Screening-${Date.now()}.csv`);
 };
 
-const writeMetrics = (doc: any, metrics: TestOutcome['metrics'], yStart: number) => {
+const writeMetrics = (doc: jsPDF, metrics: TestOutcome['metrics'], yStart: number) => {
   let y = yStart;
   doc.setFont('Cairo', 'normal');
   doc.setFontSize(11);
