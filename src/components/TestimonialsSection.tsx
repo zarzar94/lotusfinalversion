@@ -18,6 +18,8 @@ type Testimonial = {
     after: string[];
   };
   duration: string;
+  videoAvailable?: boolean;
+  verifiedDate: string;
 };
 
 const testimonials: Testimonial[] = [
@@ -38,6 +40,8 @@ const testimonials: Testimonial[] = [
       after: ['مشاركة في الفصل', 'حضور المناسبات', 'تواصل طبيعي'],
     },
     duration: '10 أيام',
+    videoAvailable: true,
+    verifiedDate: '2024',
   },
   {
     id: '2',
@@ -56,6 +60,7 @@ const testimonials: Testimonial[] = [
       after: ['قراءة بطلاقة', 'تركيز أفضل', 'حب التعلم'],
     },
     duration: '10 أيام',
+    verifiedDate: '2024',
   },
   {
     id: '3',
@@ -74,6 +79,8 @@ const testimonials: Testimonial[] = [
       after: ['استجابة فورية', 'تحسن اللغة', 'تواصل واضح'],
     },
     duration: '10 أيام',
+    videoAvailable: true,
+    verifiedDate: '2023',
   },
   {
     id: '4',
@@ -92,6 +99,7 @@ const testimonials: Testimonial[] = [
       after: ['هدوء ملحوظ', 'نوم أفضل', 'راحة نفسية'],
     },
     duration: '10 أيام',
+    verifiedDate: '2024',
   },
   {
     id: '5',
@@ -110,88 +118,244 @@ const testimonials: Testimonial[] = [
       after: ['تركيز مستمر', 'تذكر أفضل', 'إنجاز المهام'],
     },
     duration: '10 أيام',
+    videoAvailable: true,
+    verifiedDate: '2024',
   },
 ];
 
-const stats = [
-  { value: '95%', label: 'نسبة الرضا', icon: '😊', color: brandCyan },
-  { value: '500+', label: 'حالة ناجحة', icon: '🏆', color: brandPurple },
-  { value: '10+', label: 'سنوات خبرة', icon: '⏱️', color: brandPink },
-  { value: '4.9', label: 'تقييم عام', icon: '⭐', color: brandPurpleDark },
-];
+const conditionColors: Record<string, string> = {
+  Hyperacusis: brandPink,
+  'Learning Difficulties': brandPurple,
+  'APD/CAPD': brandCyan,
+  Tinnitus: brandPurpleDark,
+  'Attention Issues': '#22c55e',
+};
 
-// Sound wave animation component
-function SoundWave({ color, active }: { color: string; active: boolean }) {
+// Animated brain wave visualization
+function BrainWaveViz({ color, intensity, active }: { color: string; intensity: number; active: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationId: number;
+    let offset = 0;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw multiple wave layers
+      [0.6, 0.8, 1].forEach((opacity, layer) => {
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = active ? opacity * 0.5 : opacity * 0.2;
+        ctx.lineWidth = 2 - layer * 0.5;
+
+        for (let x = 0; x < canvas.width; x++) {
+          const frequency = 0.02 + layer * 0.01;
+          const amplitude = (intensity / 100) * 15 * (active ? 1 : 0.3);
+          const y = canvas.height / 2 +
+            Math.sin(x * frequency + offset + layer) * amplitude +
+            Math.sin(x * frequency * 2 + offset * 1.5) * amplitude * 0.5;
+
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      });
+
+      offset += active ? 0.08 : 0.02;
+      animationId = requestAnimationFrame(draw);
+    };
+
+    draw();
+    return () => cancelAnimationFrame(animationId);
+  }, [color, intensity, active]);
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 2, height: 30 }}>
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div
-          key={i}
-          style={{
-            width: 3,
-            height: active ? '100%' : '30%',
-            background: color,
-            borderRadius: 2,
-            animation: active ? `soundWave 0.6s ease-in-out infinite ${i * 0.1}s` : 'none',
-            opacity: active ? 1 : 0.3,
-            transition: 'opacity 0.3s ease',
-          }}
-        />
-      ))}
+    <canvas
+      ref={canvasRef}
+      width={200}
+      height={50}
+      style={{ display: 'block', borderRadius: 8 }}
+    />
+  );
+}
+
+// Transformation journey visualization
+function TransformationJourney({ before, after, color, isActive }: {
+  before: string[];
+  after: string[];
+  color: string;
+  isActive: boolean;
+}) {
+  const [showAfter, setShowAfter] = useState(false);
+
+  useEffect(() => {
+    if (isActive) {
+      const timer = setTimeout(() => setShowAfter(true), 1000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowAfter(false);
+    }
+  }, [isActive]);
+
+  return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: '1fr auto 1fr',
+      gap: 16,
+      alignItems: 'center',
+      marginTop: 16,
+    }}>
+      {/* Before */}
+      <div style={{
+        padding: 14,
+        background: 'rgba(239,68,68,0.08)',
+        borderRadius: 14,
+        border: '1px solid rgba(239,68,68,0.15)',
+        opacity: showAfter ? 0.5 : 1,
+        transition: 'all 0.5s ease',
+        transform: showAfter ? 'scale(0.95)' : 'scale(1)',
+      }}>
+        <div style={{
+          fontSize: 10,
+          fontWeight: 900,
+          color: '#ef4444',
+          marginBottom: 10,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+        }}>
+          <span style={{
+            width: 20,
+            height: 20,
+            borderRadius: '50%',
+            background: 'rgba(239,68,68,0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>✗</span>
+          قبل العلاج
+        </div>
+        {before.map((item, i) => (
+          <div key={i} style={{
+            fontSize: 11,
+            color: 'rgba(255,255,255,0.7)',
+            marginTop: 6,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            opacity: showAfter ? 0.5 : 1,
+            textDecoration: showAfter ? 'line-through' : 'none',
+            transition: `all 0.3s ease ${i * 0.1}s`,
+          }}>
+            <span style={{
+              width: 4,
+              height: 4,
+              borderRadius: '50%',
+              background: '#ef4444',
+            }} />
+            {item}
+          </div>
+        ))}
+      </div>
+
+      {/* Arrow/Transformation indicator */}
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 6,
+      }}>
+        <div style={{
+          width: 50,
+          height: 50,
+          borderRadius: '50%',
+          background: showAfter
+            ? `linear-gradient(135deg, ${color}, #22c55e)`
+            : 'rgba(255,255,255,0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 20,
+          transition: 'all 0.5s ease',
+          boxShadow: showAfter ? `0 0 30px ${color}44` : 'none',
+        }}>
+          {showAfter ? '✓' : '→'}
+        </div>
+        <div style={{
+          fontSize: 9,
+          color: 'rgba(255,255,255,0.5)',
+          textAlign: 'center',
+        }}>
+          10 أيام
+        </div>
+      </div>
+
+      {/* After */}
+      <div style={{
+        padding: 14,
+        background: showAfter ? 'rgba(34,197,94,0.12)' : 'rgba(34,197,94,0.05)',
+        borderRadius: 14,
+        border: `1px solid ${showAfter ? 'rgba(34,197,94,0.3)' : 'rgba(34,197,94,0.1)'}`,
+        transition: 'all 0.5s ease',
+        transform: showAfter ? 'scale(1.02)' : 'scale(1)',
+        boxShadow: showAfter ? '0 10px 30px rgba(34,197,94,0.15)' : 'none',
+      }}>
+        <div style={{
+          fontSize: 10,
+          fontWeight: 900,
+          color: '#22c55e',
+          marginBottom: 10,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+        }}>
+          <span style={{
+            width: 20,
+            height: 20,
+            borderRadius: '50%',
+            background: showAfter ? '#22c55e' : 'rgba(34,197,94,0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#fff',
+            transition: 'all 0.5s ease',
+          }}>✓</span>
+          بعد العلاج
+        </div>
+        {after.map((item, i) => (
+          <div key={i} style={{
+            fontSize: 11,
+            color: showAfter ? '#22c55e' : 'rgba(255,255,255,0.5)',
+            marginTop: 6,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            opacity: showAfter ? 1 : 0.5,
+            transform: showAfter ? 'translateX(0)' : 'translateX(-10px)',
+            transition: `all 0.4s ease ${0.5 + i * 0.15}s`,
+          }}>
+            <span style={{
+              width: 4,
+              height: 4,
+              borderRadius: '50%',
+              background: '#22c55e',
+            }} />
+            {item}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-// Progress ring component
-function ProgressRing({ percent, color, size = 80 }: { percent: number; color: string; size?: number }) {
-  const strokeWidth = 6;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
-  const offset = circumference - (percent / 100) * circumference;
-
-  return (
-    <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-      {/* Background circle */}
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke="rgba(255,255,255,0.1)"
-        strokeWidth={strokeWidth}
-      />
-      {/* Progress circle */}
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke={color}
-        strokeWidth={strokeWidth}
-        strokeDasharray={circumference}
-        strokeDashoffset={offset}
-        strokeLinecap="round"
-        style={{ transition: 'stroke-dashoffset 1s ease-out' }}
-      />
-      {/* Center text */}
-      <text
-        x={size / 2}
-        y={size / 2}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fill="#fff"
-        fontSize={size / 4}
-        fontWeight="900"
-        style={{ transform: 'rotate(90deg)', transformOrigin: 'center' }}
-      >
-        {percent}%
-      </text>
-    </svg>
-  );
-}
-
-// Testimonial card component
-function TestimonialCard({
+// Case study card - professional medical style
+function CaseStudyCard({
   testimonial,
   isActive,
   onClick,
@@ -202,257 +366,313 @@ function TestimonialCard({
   onClick: () => void;
   index: number;
 }) {
-  const [isHovered, setIsHovered] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
-
-  const conditionColors: Record<string, string> = {
-    Hyperacusis: brandPink,
-    'Learning Difficulties': brandPurple,
-    'APD/CAPD': brandCyan,
-    Tinnitus: brandPurpleDark,
-    'Attention Issues': '#22c55e',
-  };
-
   const accentColor = conditionColors[testimonial.condition] || brandCyan;
 
   return (
     <div
       onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => { setIsHovered(false); setShowDetails(false); }}
       style={{
         background: isActive
-          ? `linear-gradient(145deg, ${accentColor}22, rgba(15,22,41,0.9))`
-          : 'rgba(15,22,41,0.7)',
-        border: `2px solid ${isActive ? accentColor : isHovered ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'}`,
+          ? `linear-gradient(145deg, rgba(15,22,41,0.98), ${accentColor}11)`
+          : 'rgba(15,22,41,0.8)',
+        border: `2px solid ${isActive ? accentColor : 'rgba(255,255,255,0.08)'}`,
         borderRadius: 20,
-        padding: 0,
-        cursor: 'pointer',
-        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-        transform: isActive ? 'scale(1.02)' : isHovered ? 'translateY(-4px)' : 'none',
-        boxShadow: isActive
-          ? `0 20px 60px ${accentColor}33, 0 0 40px ${accentColor}11`
-          : isHovered
-            ? '0 15px 40px rgba(0,0,0,0.4)'
-            : '0 4px 15px rgba(0,0,0,0.2)',
         overflow: 'hidden',
-        position: 'relative',
-        animation: `cardEnter 0.6s ease-out ${index * 0.1}s backwards`,
+        cursor: 'pointer',
+        transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+        transform: isActive ? 'scale(1)' : 'scale(0.98)',
+        opacity: isActive ? 1 : 0.7,
+        animation: `caseEnter 0.6s ease-out ${index * 0.1}s backwards`,
       }}
     >
-      {/* Gradient header */}
+      {/* Case header with medical-style design */}
       <div style={{
-        background: `linear-gradient(135deg, ${accentColor}44, ${accentColor}22)`,
-        padding: '16px 18px',
+        background: `linear-gradient(135deg, ${accentColor}33, ${accentColor}11)`,
+        padding: '16px 20px',
         display: 'flex',
         alignItems: 'center',
-        gap: 14,
-        borderBottom: `1px solid ${accentColor}33`,
+        justifyContent: 'space-between',
+        borderBottom: `1px solid ${accentColor}22`,
       }}>
-        {/* Avatar with ring */}
-        <div style={{
-          position: 'relative',
-          width: 56,
-          height: 56,
-        }}>
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            borderRadius: '50%',
-            background: `conic-gradient(${accentColor} ${testimonial.improvementPercent}%, rgba(255,255,255,0.1) 0)`,
-            animation: isActive ? 'spin 8s linear infinite' : 'none',
-          }} />
-          <div style={{
-            position: 'absolute',
-            inset: 3,
-            borderRadius: '50%',
-            background: 'rgba(15,22,41,0.95)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 26,
-          }}>
-            {testimonial.avatar}
-          </div>
-        </div>
-
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 900, fontSize: 16, color: '#fff', display: 'flex', alignItems: 'center', gap: 8 }}>
-            {testimonial.name}
-            {testimonial.rating === 5 && (
-              <span style={{
-                fontSize: 10,
-                padding: '2px 6px',
-                background: '#FFD70033',
-                borderRadius: 4,
-                color: '#FFD700',
-              }}>
-                ⭐ موصى به
-              </span>
-            )}
-          </div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>
-            {testimonial.role} • طفل عمره {testimonial.age} سنة
-          </div>
-        </div>
-
-        {/* Sound wave indicator */}
-        <SoundWave color={accentColor} active={isActive} />
-      </div>
-
-      {/* Body */}
-      <div style={{ padding: '16px 18px' }}>
-        {/* Condition badge */}
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 6,
-          padding: '5px 12px',
-          background: `${accentColor}22`,
-          border: `1px solid ${accentColor}44`,
-          borderRadius: 20,
-          marginBottom: 12,
-        }}>
-          <span style={{ width: 8, height: 8, borderRadius: '50%', background: accentColor }} />
-          <span style={{ fontSize: 12, fontWeight: 700, color: accentColor }}>
-            {testimonial.conditionAr}
-          </span>
-        </div>
-
-        {/* Quote */}
-        <p style={{
-          margin: 0,
-          fontSize: 14,
-          lineHeight: 1.8,
-          color: 'rgba(255,255,255,0.85)',
-          position: 'relative',
-        }}>
-          <span style={{ fontSize: 24, color: accentColor, opacity: 0.5, position: 'absolute', top: -10, right: -5 }}>"</span>
-          {testimonial.quote}
-        </p>
-
-        {/* Before/After Toggle */}
-        {isHovered && (
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); setShowDetails(!showDetails); }}
-            style={{
-              marginTop: 12,
-              padding: '8px 14px',
-              background: showDetails ? accentColor : 'rgba(255,255,255,0.08)',
-              border: `1px solid ${showDetails ? accentColor : 'rgba(255,255,255,0.15)'}`,
-              borderRadius: 10,
-              color: showDetails ? '#fff' : 'rgba(255,255,255,0.8)',
-              fontSize: 12,
-              fontWeight: 700,
-              cursor: 'pointer',
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          {/* Patient avatar with pulse effect */}
+          <div style={{ position: 'relative' }}>
+            <div style={{
+              width: 52,
+              height: 52,
+              borderRadius: '50%',
+              background: `linear-gradient(135deg, ${accentColor}44, ${accentColor}22)`,
               display: 'flex',
               alignItems: 'center',
-              gap: 6,
-              transition: 'all 0.2s ease',
-            }}
-          >
-            {showDetails ? '✕ إخفاء' : '📊 قبل وبعد'}
-          </button>
-        )}
-
-        {/* Before/After Details */}
-        {showDetails && (
-          <div style={{
-            marginTop: 12,
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: 12,
-            animation: 'slideDown 0.3s ease-out',
-          }}>
-            <div style={{
-              padding: 12,
-              background: 'rgba(239,68,68,0.1)',
-              border: '1px solid rgba(239,68,68,0.2)',
-              borderRadius: 10,
+              justifyContent: 'center',
+              fontSize: 26,
+              border: `2px solid ${accentColor}`,
             }}>
-              <div style={{ fontSize: 11, fontWeight: 900, color: '#ef4444', marginBottom: 8 }}>❌ قبل</div>
-              {testimonial.beforeAfter.before.map((item, i) => (
-                <div key={i} style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>• {item}</div>
-              ))}
+              {testimonial.avatar}
             </div>
+            {isActive && (
+              <div style={{
+                position: 'absolute',
+                inset: -4,
+                borderRadius: '50%',
+                border: `2px solid ${accentColor}`,
+                animation: 'pulseRing 2s ease-out infinite',
+              }} />
+            )}
+            {/* Verified badge */}
             <div style={{
-              padding: 12,
-              background: 'rgba(34,197,94,0.1)',
-              border: '1px solid rgba(34,197,94,0.2)',
-              borderRadius: 10,
-            }}>
-              <div style={{ fontSize: 11, fontWeight: 900, color: '#22c55e', marginBottom: 8 }}>✓ بعد</div>
-              {testimonial.beforeAfter.after.map((item, i) => (
-                <div key={i} style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>• {item}</div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Footer */}
-        <div style={{
-          marginTop: 14,
-          paddingTop: 14,
-          borderTop: '1px solid rgba(255,255,255,0.08)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          {/* Improvement indicator */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{
-              width: 40,
-              height: 40,
+              position: 'absolute',
+              bottom: -2,
+              right: -2,
+              width: 18,
+              height: 18,
               borderRadius: '50%',
-              background: `conic-gradient(${accentColor} ${testimonial.improvementPercent}%, rgba(255,255,255,0.1) 0)`,
+              background: '#22c55e',
+              border: '2px solid rgba(15,22,41,1)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: 10,
-              fontWeight: 900,
-              color: '#fff',
             }}>
-              <div style={{
-                width: 32,
-                height: 32,
-                borderRadius: '50%',
-                background: 'rgba(15,22,41,0.95)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                {testimonial.improvementPercent}%
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#22c55e' }}>{testimonial.improvement}</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>خلال {testimonial.duration}</div>
+              ✓
             </div>
           </div>
 
-          {/* Rating */}
-          <div style={{ display: 'flex', gap: 2 }}>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <span key={i} style={{
-                color: i < testimonial.rating ? '#FFD700' : 'rgba(255,255,255,0.15)',
-                fontSize: 14,
-              }}>★</span>
-            ))}
+          <div>
+            <div style={{
+              fontWeight: 900,
+              fontSize: 16,
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}>
+              {testimonial.name}
+              {testimonial.videoAvailable && (
+                <span style={{
+                  fontSize: 10,
+                  padding: '2px 8px',
+                  background: 'rgba(255,255,255,0.1)',
+                  borderRadius: 10,
+                  color: 'rgba(255,255,255,0.7)',
+                }}>
+                  🎥 فيديو
+                </span>
+              )}
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>
+              {testimonial.role} • {testimonial.age} سنة • {testimonial.verifiedDate}
+            </div>
           </div>
+        </div>
+
+        {/* Brain wave indicator */}
+        <BrainWaveViz color={accentColor} intensity={testimonial.improvementPercent} active={isActive} />
+      </div>
+
+      {/* Condition badge */}
+      <div style={{ padding: '16px 20px 0' }}>
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '8px 14px',
+          background: `${accentColor}15`,
+          border: `1px solid ${accentColor}33`,
+          borderRadius: 30,
+        }}>
+          <span style={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            background: accentColor,
+            boxShadow: isActive ? `0 0 10px ${accentColor}` : 'none',
+          }} />
+          <span style={{ fontSize: 12, fontWeight: 700, color: accentColor }}>
+            {testimonial.conditionAr}
+          </span>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>
+            {testimonial.condition}
+          </span>
         </div>
       </div>
 
-      {/* Active indicator glow */}
+      {/* Quote - only show for active */}
       {isActive && (
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          borderRadius: 20,
-          boxShadow: `inset 0 0 30px ${accentColor}22`,
-          pointerEvents: 'none',
-        }} />
+        <div style={{ padding: '16px 20px' }}>
+          <div style={{
+            position: 'relative',
+            padding: '16px',
+            background: 'rgba(255,255,255,0.03)',
+            borderRadius: 14,
+            borderRight: `3px solid ${accentColor}`,
+          }}>
+            <span style={{
+              position: 'absolute',
+              top: 8,
+              right: 12,
+              fontSize: 40,
+              color: accentColor,
+              opacity: 0.2,
+              fontFamily: 'serif',
+            }}>"</span>
+            <p style={{
+              margin: 0,
+              fontSize: 14,
+              lineHeight: 1.9,
+              color: 'rgba(255,255,255,0.9)',
+            }}>
+              {testimonial.quote}
+            </p>
+          </div>
+        </div>
       )}
+
+      {/* Transformation journey - only show for active */}
+      {isActive && (
+        <div style={{ padding: '0 20px 16px' }}>
+          <TransformationJourney
+            before={testimonial.beforeAfter.before}
+            after={testimonial.beforeAfter.after}
+            color={accentColor}
+            isActive={isActive}
+          />
+        </div>
+      )}
+
+      {/* Footer stats */}
+      <div style={{
+        padding: '14px 20px',
+        background: 'rgba(0,0,0,0.2)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}>
+        {/* Improvement meter */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            width: 100,
+            height: 8,
+            background: 'rgba(255,255,255,0.1)',
+            borderRadius: 4,
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              width: isActive ? `${testimonial.improvementPercent}%` : '0%',
+              height: '100%',
+              background: `linear-gradient(90deg, ${accentColor}, #22c55e)`,
+              borderRadius: 4,
+              transition: 'width 1s ease-out',
+            }} />
+          </div>
+          <span style={{
+            fontSize: 14,
+            fontWeight: 900,
+            color: '#22c55e',
+            fontFamily: 'monospace',
+          }}>
+            {testimonial.improvementPercent}%
+          </span>
+        </div>
+
+        {/* Rating stars */}
+        <div style={{ display: 'flex', gap: 2 }}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <span key={i} style={{
+              color: i < testimonial.rating ? '#FFD700' : 'rgba(255,255,255,0.15)',
+              fontSize: 14,
+              textShadow: i < testimonial.rating ? '0 0 8px rgba(255,215,0,0.5)' : 'none',
+            }}>★</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Aggregate stats component
+function AggregateStats({ isVisible }: { isVisible: boolean }) {
+  const [counts, setCounts] = useState({ satisfaction: 0, cases: 0, years: 0, rating: 0 });
+
+  useEffect(() => {
+    if (!isVisible) return;
+    const targets = { satisfaction: 95, cases: 500, years: 10, rating: 49 };
+    const duration = 2000;
+    const start = Date.now();
+
+    const animate = () => {
+      const elapsed = Date.now() - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+
+      setCounts({
+        satisfaction: Math.floor(targets.satisfaction * eased),
+        cases: Math.floor(targets.cases * eased),
+        years: Math.floor(targets.years * eased),
+        rating: Math.floor(targets.rating * eased),
+      });
+
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+
+    animate();
+  }, [isVisible]);
+
+  const stats = [
+    { value: `${counts.satisfaction}%`, label: 'نسبة الرضا', icon: '😊', color: brandCyan },
+    { value: `${counts.cases}+`, label: 'حالة ناجحة', icon: '🏆', color: brandPurple },
+    { value: `${counts.years}+`, label: 'سنوات خبرة', icon: '⏱️', color: brandPink },
+    { value: (counts.rating / 10).toFixed(1), label: 'تقييم عام', icon: '⭐', color: '#FFD700' },
+  ];
+
+  return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(4, 1fr)',
+      gap: 12,
+      marginBottom: 30,
+    }}>
+      {stats.map((stat, i) => (
+        <div
+          key={i}
+          style={{
+            padding: 20,
+            background: `linear-gradient(145deg, ${stat.color}12, transparent)`,
+            borderRadius: 16,
+            textAlign: 'center',
+            border: `1px solid ${stat.color}25`,
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            fontSize: 80,
+            opacity: 0.05,
+          }}>
+            {stat.icon}
+          </div>
+          <div style={{ fontSize: 24, marginBottom: 8 }}>{stat.icon}</div>
+          <div style={{
+            fontSize: 32,
+            fontWeight: 900,
+            color: stat.color,
+            fontFamily: 'monospace',
+          }}>
+            {stat.value}
+          </div>
+          <div style={{
+            fontSize: 12,
+            color: 'rgba(255,255,255,0.6)',
+            marginTop: 4,
+          }}>
+            {stat.label}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -460,426 +680,221 @@ function TestimonialCard({
 export default function TestimonialsSection() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [animatedStats, setAnimatedStats] = useState<number[]>([0, 0, 0, 0]);
+  const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
-  const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
 
-  // Detect mobile
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Animate stats on scroll into view
+  // Intersection observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          const targetValues = [95, 500, 10, 49]; // 4.9 * 10
-          targetValues.forEach((target, i) => {
-            let current = 0;
-            const increment = target / 50;
-            const interval = setInterval(() => {
-              current += increment;
-              if (current >= target) {
-                current = target;
-                clearInterval(interval);
-              }
-              setAnimatedStats((prev) => {
-                const newStats = [...prev];
-                newStats[i] = Math.floor(current);
-                return newStats;
-              });
-            }, 30);
-          });
-        }
+        if (entry.isIntersecting) setIsVisible(true);
       },
-      { threshold: 0.3 }
+      { threshold: 0.2 }
     );
 
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
-  // Auto-rotate carousel
+  // Auto-rotate
   const nextSlide = useCallback(() => {
     setActiveIndex((prev) => (prev + 1) % testimonials.length);
   }, []);
 
-  const prevSlide = useCallback(() => {
-    setActiveIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-  }, []);
-
   useEffect(() => {
     if (isPaused) return;
-    const interval = setInterval(nextSlide, 8000);
+    const interval = setInterval(nextSlide, 6000);
     return () => clearInterval(interval);
   }, [isPaused, nextSlide]);
-
-  // Swipe gestures
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = () => {
-    const diff = touchStartX.current - touchEndX.current;
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) nextSlide();
-      else prevSlide();
-    }
-  };
-
-  const formatStatValue = (index: number) => {
-    if (index === 0) return `${animatedStats[0]}%`;
-    if (index === 1) return `${animatedStats[1]}+`;
-    if (index === 2) return `${animatedStats[2]}+`;
-    return (animatedStats[3] / 10).toFixed(1);
-  };
 
   return (
     <section ref={sectionRef} id="testimonials" style={styles.sectionCard}>
       <style>{`
-        @keyframes soundWave {
-          0%, 100% { height: 30%; }
-          50% { height: 100%; }
-        }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes cardEnter {
-          from { opacity: 0; transform: translateY(30px) scale(0.95); }
+        @keyframes caseEnter {
+          from { opacity: 0; transform: translateY(30px) scale(0.9); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes slideDown {
-          from { opacity: 0; max-height: 0; }
-          to { opacity: 1; max-height: 200px; }
+        @keyframes pulseRing {
+          0% { transform: scale(1); opacity: 1; }
+          100% { transform: scale(1.5); opacity: 0; }
         }
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
+        @keyframes gradientShift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
         }
         @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-10px) rotate(3deg); }
         }
       `}</style>
 
-      {/* Header */}
-      <div style={styles.sectionHeader}>
-        <div style={styles.sectionHeaderRow}>
-          <h2 style={styles.h2}>⭐ قصص النجاح</h2>
+      {/* Header with animated gradient */}
+      <div style={{
+        textAlign: 'center',
+        marginBottom: 30,
+        position: 'relative',
+      }}>
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 12,
+          padding: '10px 24px',
+          background: 'linear-gradient(135deg, rgba(255,215,0,0.15), rgba(176,18,112,0.15), rgba(143,211,204,0.15))',
+          backgroundSize: '200% 200%',
+          animation: 'gradientShift 5s ease infinite',
+          borderRadius: 40,
+          border: '1px solid rgba(255,215,0,0.25)',
+          marginBottom: 16,
+        }}>
+          <span style={{ fontSize: 28, animation: 'float 3s ease-in-out infinite' }}>⭐</span>
           <span style={{
-            ...styles.chip,
-            background: 'linear-gradient(135deg, rgba(255,215,0,0.2), rgba(176,18,112,0.2))',
-            borderColor: 'rgba(255,215,0,0.4)',
-            animation: 'pulse 2s ease-in-out infinite',
+            fontSize: 14,
+            fontWeight: 800,
+            background: 'linear-gradient(135deg, #FFD700, #fff)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
           }}>
-            ✨ تجارب حقيقية موثقة
+            قصص النجاح الموثقة
+          </span>
+          <span style={{
+            padding: '4px 10px',
+            background: '#22c55e',
+            borderRadius: 20,
+            fontSize: 10,
+            color: '#fff',
+            fontWeight: 900,
+          }}>
+            ✓ موثق
           </span>
         </div>
-        <p style={styles.bodyText}>
-          شهادات من عائلات حقيقية شهدت تحولات ملموسة من خلال برنامج Berard AIT.
+
+        <h2 style={{
+          ...styles.h2,
+          fontSize: 32,
+          marginBottom: 12,
+        }}>
+          تحولات حقيقية من عائلات حقيقية
+        </h2>
+        <p style={{
+          ...styles.bodyText,
+          maxWidth: 600,
+          margin: '0 auto',
+        }}>
+          شهادات موثقة من أولياء أمور ومرضى شهدوا تغييرات ملموسة في حياتهم من خلال برنامج Berard AIT
         </p>
       </div>
 
-      {/* Animated Stats */}
-      <div style={{
-        marginTop: 24,
-        display: 'grid',
-        gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
-        gap: 12,
-      }}>
-        {stats.map((stat, i) => (
-          <div
-            key={i}
-            style={{
-              padding: isMobile ? 16 : 20,
-              background: `linear-gradient(145deg, ${stat.color}15, transparent)`,
-              borderRadius: 16,
-              textAlign: 'center',
-              border: `1px solid ${stat.color}33`,
-              position: 'relative',
-              overflow: 'hidden',
-              transition: 'all 0.4s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
-              e.currentTarget.style.boxShadow = `0 15px 40px ${stat.color}33`;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'none';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
-          >
-            {/* Background icon */}
-            <div style={{
-              position: 'absolute',
-              top: -10,
-              right: -10,
-              fontSize: 60,
-              opacity: 0.08,
-            }}>
-              {stat.icon}
-            </div>
+      {/* Aggregate Stats */}
+      <AggregateStats isVisible={isVisible} />
 
-            <div style={{
-              fontSize: 14,
-              marginBottom: 8,
-            }}>
-              {stat.icon}
-            </div>
-            <div style={{
-              fontSize: isMobile ? 28 : 36,
-              fontWeight: 900,
-              color: stat.color,
-              fontFamily: 'monospace',
-            }}>
-              {formatStatValue(i)}
-            </div>
-            <div style={{
-              fontSize: isMobile ? 11 : 13,
-              color: 'rgba(255,255,255,0.7)',
-              marginTop: 4,
-              fontWeight: 600,
-            }}>
-              {stat.label}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Featured Success Story */}
+      {/* Case Studies Grid */}
       <div
         style={{
-          marginTop: 30,
-          padding: isMobile ? 20 : 30,
-          background: 'linear-gradient(145deg, rgba(143,211,204,0.1), rgba(175,132,186,0.1))',
-          borderRadius: 24,
-          border: '2px solid rgba(143,211,204,0.25)',
-          position: 'relative',
-          overflow: 'hidden',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+          gap: 20,
         }}
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
       >
-        {/* Decorative elements */}
-        <div style={{
-          position: 'absolute',
-          top: 20,
-          left: 20,
-          width: 100,
-          height: 100,
-          background: `radial-gradient(circle, ${brandCyan}22, transparent)`,
-          borderRadius: '50%',
-          filter: 'blur(30px)',
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: 20,
-          right: 20,
-          width: 80,
-          height: 80,
-          background: `radial-gradient(circle, ${brandPurple}22, transparent)`,
-          borderRadius: '50%',
-          filter: 'blur(25px)',
-        }} />
-
-        {/* Section title */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 20,
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-          }}>
-            <span style={{ fontSize: 28, animation: 'float 3s ease-in-out infinite' }}>🌟</span>
-            <div>
-              <div style={{ fontWeight: 900, fontSize: 18, color: '#fff' }}>قصة النجاح المميزة</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Featured Success Story</div>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              type="button"
-              onClick={prevSlide}
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 12,
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: '#fff',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 18,
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = brandCyan + '44'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
-            >
-              ‹
-            </button>
-            <button
-              type="button"
-              onClick={nextSlide}
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 12,
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: '#fff',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 18,
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = brandCyan + '44'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
-            >
-              ›
-            </button>
-          </div>
-        </div>
-
-        {/* Progress bar */}
-        <div style={{
-          height: 3,
-          background: 'rgba(255,255,255,0.1)',
-          borderRadius: 2,
-          marginBottom: 20,
-          overflow: 'hidden',
-        }}>
-          <div style={{
-            height: '100%',
-            background: `linear-gradient(90deg, ${brandCyan}, ${brandPurple})`,
-            width: `${((activeIndex + 1) / testimonials.length) * 100}%`,
-            transition: 'width 0.5s ease',
-            borderRadius: 2,
-          }} />
-        </div>
-
-        {/* Testimonial Card Display */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: 16,
-        }}>
-          {testimonials.map((t, i) => (
-            <div
-              key={t.id}
-              style={{
-                display: isMobile
-                  ? (i === activeIndex ? 'block' : 'none')
-                  : 'block',
-                opacity: !isMobile || i === activeIndex ? 1 : 0,
-                transition: 'opacity 0.5s ease',
-              }}
-            >
-              <TestimonialCard
-                testimonial={t}
-                isActive={i === activeIndex}
-                onClick={() => setActiveIndex(i)}
-                index={i}
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Mobile dots */}
-        {isMobile && (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 8,
-            marginTop: 16,
-          }}>
-            {testimonials.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setActiveIndex(i)}
-                style={{
-                  width: i === activeIndex ? 24 : 8,
-                  height: 8,
-                  borderRadius: 4,
-                  background: i === activeIndex ? brandCyan : 'rgba(255,255,255,0.2)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                }}
-              />
-            ))}
-          </div>
-        )}
+        {testimonials.map((t, i) => (
+          <CaseStudyCard
+            key={t.id}
+            testimonial={t}
+            isActive={i === activeIndex}
+            onClick={() => setActiveIndex(i)}
+            index={i}
+          />
+        ))}
       </div>
 
-      {/* Call to action */}
+      {/* Navigation dots */}
       <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: 8,
         marginTop: 24,
-        padding: 20,
-        background: 'linear-gradient(135deg, rgba(143,211,204,0.15), rgba(176,18,112,0.15))',
-        borderRadius: 16,
+      }}>
+        {testimonials.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => setActiveIndex(i)}
+            style={{
+              width: i === activeIndex ? 32 : 10,
+              height: 10,
+              borderRadius: 5,
+              background: i === activeIndex
+                ? `linear-gradient(90deg, ${brandCyan}, ${brandPurple})`
+                : 'rgba(255,255,255,0.15)',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.4s ease',
+            }}
+          />
+        ))}
+      </div>
+
+      {/* CTA */}
+      <div style={{
+        marginTop: 30,
+        padding: 24,
+        background: 'linear-gradient(135deg, rgba(143,211,204,0.12), rgba(176,18,112,0.12))',
+        borderRadius: 20,
         border: '1px solid rgba(143,211,204,0.2)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: 16,
+        gap: 20,
       }}>
         <div>
-          <div style={{ fontWeight: 900, fontSize: 18, color: '#fff', marginBottom: 4 }}>
-            🎯 هل أنت مستعد لتحول مماثل؟
+          <div style={{
+            fontSize: 20,
+            fontWeight: 900,
+            color: '#fff',
+            marginBottom: 6,
+          }}>
+            🎯 هل ترغب في تجربة مماثلة؟
           </div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>
-            احجز استشارة مجانية لمعرفة إذا كان Berard AIT مناسباً لحالتك
+          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)' }}>
+            احجز استشارتك المجانية اليوم واكتشف كيف يمكن لـ Berard AIT مساعدتك
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 12 }}>
           <a href="#contact" style={{
             ...styles.primaryBtn,
             textDecoration: 'none',
-            padding: '12px 24px',
-            fontSize: 14,
+            padding: '14px 28px',
+            fontSize: 15,
+            borderRadius: 14,
           }}>
-            📞 احجز الآن
+            📞 احجز استشارة مجانية
           </a>
-          <a href="#results" style={{
+          <a href="#checklist" style={{
             ...styles.ghostBtn,
             textDecoration: 'none',
-            padding: '12px 24px',
-            fontSize: 14,
+            padding: '14px 28px',
+            fontSize: 15,
+            borderRadius: 14,
           }}>
-            📊 شاهد الدراسات
+            🔬 جرب الماسح العصبي
           </a>
         </div>
       </div>
 
       {/* Disclaimer */}
-      <p style={{ ...styles.muted, marginTop: 16, textAlign: 'center', fontSize: 11 }}>
-        ⚠️ النتائج تختلف من شخص لآخر. هذه الشهادات للأغراض التوضيحية وليست ضماناً للنتائج. استشر مختصاً للتقييم.
+      <p style={{
+        ...styles.muted,
+        marginTop: 20,
+        textAlign: 'center',
+        fontSize: 11,
+        padding: '12px 20px',
+        background: 'rgba(245,158,11,0.08)',
+        borderRadius: 12,
+        border: '1px solid rgba(245,158,11,0.15)',
+      }}>
+        ⚠️ النتائج تختلف من شخص لآخر. جميع الشهادات حقيقية وموثقة بموافقة أصحابها. هذا ليس ضماناً للنتائج - استشر مختصاً للتقييم الشخصي.
       </p>
     </section>
   );
