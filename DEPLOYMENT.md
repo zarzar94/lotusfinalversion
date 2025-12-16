@@ -25,6 +25,10 @@ npx gh-pages -d dist -b gh-pages
 ```
 Ensure `BASE_PATH` matches the published subpath.
 
+Notes:
+- `dist/assets/_commonjsHelpers-*.js` starts with `_` so you must publish with `.nojekyll` (included via `public/.nojekyll`).
+- In GitHub Pages settings, switch **Build and deployment** to **Deploy from a branch** and select `gh-pages / (root)`.
+
 ## D) Notion embed
 1) Deploy to a public URL (e.g., GitHub Pages).
 2) In Notion: paste the URL and choose **Embed**.
