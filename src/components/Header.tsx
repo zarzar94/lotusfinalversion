@@ -66,24 +66,22 @@ const Header = () => {
             width: 44,
             height: 44,
             borderRadius: 14,
-            background: `linear-gradient(135deg, rgba(119,78,135,0.55), rgba(143,211,204,0.20))`,
-            border: '1px solid rgba(255,255,255,0.12)',
+            background: 'transparent',
             display: 'grid',
             placeItems: 'center',
-            overflow: 'hidden',
+            position: 'relative',
           }}
         >
           <img
             src={assetUrl('assets/images/brain_icon_44.png')}
             alt="Berard AIT"
-            width={44}
-            height={44}
+            width={36}
+            height={36}
             loading="eager"
             style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
               display: 'block',
+              filter: 'drop-shadow(0 0 12px rgba(143,211,204,0.4)) drop-shadow(0 0 24px rgba(175,132,186,0.3))',
+              opacity: 0.95,
             }}
           />
         </div>

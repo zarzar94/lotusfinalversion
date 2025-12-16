@@ -19,6 +19,11 @@ import AchievementNotification from './components/AchievementNotification';
 import ProgressHUD from './components/ProgressHUD';
 import SectionLoader from './components/SectionLoader';
 import FadeIn from './components/FadeIn';
+import CredentialsBanner from './components/CredentialsBanner';
+import TreatmentTimeline from './components/TreatmentTimeline';
+import AudioSpectrumDemo from './components/AudioSpectrumDemo';
+import PartnerLogos from './components/PartnerLogos';
+import ScrollProgressBar from './components/ScrollProgressBar';
 
 const SlideViewer = lazy(() => import('./components/SlideViewer'));
 const Checklist = lazy(() => import('./components/Checklist'));
@@ -53,6 +58,7 @@ function App() {
         <div style={styles.page}>
           <BackgroundFX />
           <Header />
+          <ScrollProgressBar />
 
           {/* Gamification UI */}
           <AchievementNotification />
@@ -60,87 +66,107 @@ function App() {
 
           <main style={styles.container}>
             {/* HERO with 3D Brain */}
-            <FadeIn duration={800}>
+            <FadeIn duration={1000} scale blur blurAmount={8}>
               <HeroSection />
             </FadeIn>
 
+            {/* Credentials Banner */}
+            <FadeIn delay={50} direction="none" scale scaleFrom={0.98}>
+              <CredentialsBanner />
+            </FadeIn>
+
             {/* Interactive Audio Journey */}
-            <FadeIn delay={100}>
+            <FadeIn delay={100} direction="left" distance={40}>
               <Suspense fallback={<SectionLoader label="جارٍ تحميل رحلة الصوت..." height={400} />}>
                 <AudioJourney />
               </Suspense>
             </FadeIn>
 
             {/* Neuroplasticity - Science Section */}
-            <FadeIn delay={50}>
+            <FadeIn delay={50} scale blur blurAmount={5}>
               <NeuroplasticitySection />
             </FadeIn>
 
-            <FadeIn delay={50}>
+            {/* Audio Spectrum Demo */}
+            <FadeIn delay={50} direction="right" distance={40}>
+              <AudioSpectrumDemo />
+            </FadeIn>
+
+            <FadeIn delay={50} scale scaleFrom={0.96}>
               <ProgramOverview />
             </FadeIn>
 
+            {/* Treatment Timeline */}
+            <FadeIn delay={50} direction="left" distance={30} scale>
+              <TreatmentTimeline />
+            </FadeIn>
+
             {/* Remote Protocol */}
-            <FadeIn delay={50}>
+            <FadeIn delay={50} direction="right" distance={30}>
               <Suspense fallback={<SectionLoader label="جارٍ تحميل البرنامج عن بُعد..." height={400} />}>
                 <RemoteProtocolSection />
               </Suspense>
             </FadeIn>
 
-            <FadeIn delay={50}>
+            <FadeIn delay={50} scale scaleFrom={0.97} blur blurAmount={4}>
               <ResultsSection />
             </FadeIn>
 
             {/* Testimonials / Success Stories */}
-            <FadeIn delay={50}>
+            <FadeIn delay={50} direction="left" distance={35}>
               <TestimonialsSection />
             </FadeIn>
 
-            <FadeIn delay={50}>
+            <FadeIn delay={50} scale>
               <Suspense fallback={<SectionLoader label="جارٍ تحميل عارض الشرائح..." height={500} />}>
                 <SlideViewer />
               </Suspense>
             </FadeIn>
 
             {/* Video Section */}
-            <FadeIn delay={50}>
+            <FadeIn delay={50} direction="right" distance={30} scale scaleFrom={0.98}>
               <Suspense fallback={<SectionLoader label="جارٍ تحميل الفيديوهات..." height={400} />}>
                 <VideoSection />
               </Suspense>
             </FadeIn>
 
-            <FadeIn delay={50}>
+            <FadeIn delay={50} blur blurAmount={6} scale>
               <Suspense fallback={<SectionLoader label="جارٍ تحميل قائمة التحقق..." height={400} />}>
                 <Checklist />
               </Suspense>
             </FadeIn>
 
-            <FadeIn delay={50}>
+            <FadeIn delay={50} direction="left" distance={40} scale scaleFrom={0.95}>
               <Suspense fallback={<SectionLoader label="جارٍ تحميل الألعاب..." height={350} />}>
                 <GameSection />
               </Suspense>
             </FadeIn>
 
-            <FadeIn delay={50}>
+            <FadeIn delay={50} scale blur blurAmount={5}>
               <ComparisonSection />
             </FadeIn>
 
-            <FadeIn delay={50}>
+            <FadeIn delay={50} direction="right" distance={25}>
               <SchoolPartnershipSection />
             </FadeIn>
 
+            {/* Partner Logos */}
+            <FadeIn delay={50} direction="none" scale scaleFrom={0.97}>
+              <PartnerLogos />
+            </FadeIn>
+
             {/* FAQ Section */}
-            <FadeIn delay={50}>
+            <FadeIn delay={50} direction="left" distance={30}>
               <FAQSection />
             </FadeIn>
 
-            <FadeIn delay={50}>
+            <FadeIn delay={50} scale blur blurAmount={4}>
               <Suspense fallback={<SectionLoader label="جارٍ تحميل نموذج التواصل..." height={300} />}>
                 <ContactForm />
               </Suspense>
             </FadeIn>
 
-            <FadeIn delay={100}>
+            <FadeIn delay={100} direction="none" scale scaleFrom={0.98}>
               <Footer />
             </FadeIn>
           </main>
