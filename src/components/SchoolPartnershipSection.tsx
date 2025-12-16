@@ -56,7 +56,7 @@ const SchoolPartnershipSection = () => {
           </span>
         </div>
         <p style={styles.bodyText}>
-          صُممت هذه الصفحة لتسهيل تقديم Berard AIT داخل بيئات التعليم في أبوظبي والإمارات — عبر تجربة تفاعلية (محاكاة الصف)
+          صُممت هذه الصفحة لتسهيل تقديم Berard AIT داخل بيئات التعليم في أبوظبي والإمارات — عبر تجربة تفاعلية (محاكاة الصف الدراسي)
           وتقارير توضيحية تساعد الإدارة والمرشدين والأخصائيين على فهم أثر الضوضاء السمعية على الانتباه.
         </p>
         <p style={styles.muted}>
@@ -91,7 +91,7 @@ const SchoolPartnershipSection = () => {
               ادخل إلى قسم الألعاب → اختر "محاكاة الصف الدراسي" → بعد النهاية قم بتنزيل التقرير.
             </p>
             <a href="#games" style={{ ...styles.primaryBtn, textDecoration: 'none', marginTop: 10, display: 'inline-flex' }}>
-              تشغيل محاكاة الصف
+              تشغيل محاكاة الصف الدراسي
             </a>
           </div>
         </div>

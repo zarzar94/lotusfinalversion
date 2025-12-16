@@ -287,6 +287,7 @@ const Footer = () => {
                   rel="noreferrer"
                   className="social-icon"
                   title={s.name}
+                  aria-label={`Follow us on ${s.name}`}
                   style={{
                     width: 44,
                     height: 44,
