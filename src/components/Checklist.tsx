@@ -991,6 +991,44 @@ const Checklist = () => {
           <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7 }}>
             {recommendation.msg}
           </p>
+
+          {/* Action links based on recommendation level */}
+          <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {recommendation.level === 'medium' && (
+              <a href="#games" style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '8px 14px',
+                background: `${brandPurple}22`,
+                border: `1px solid ${brandPurple}44`,
+                borderRadius: 8,
+                color: brandPurple,
+                textDecoration: 'none',
+                fontSize: 12,
+                fontWeight: 700,
+              }}>
+                <GamepadIcon size={16} /> جرّب الاختبارات السمعية
+              </a>
+            )}
+            {recommendation.level === 'high' && (
+              <a href="#contact" style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '8px 14px',
+                background: `${brandPink}22`,
+                border: `1px solid ${brandPink}44`,
+                borderRadius: 8,
+                color: brandPink,
+                textDecoration: 'none',
+                fontSize: 12,
+                fontWeight: 700,
+              }}>
+                احجز تقييم متخصص
+              </a>
+            )}
+          </div>
         </div>
       )}
 

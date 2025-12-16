@@ -1,4 +1,6 @@
-import { styles, brandCyan, brandPink, brandPurpleDark } from './styles';
+import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import { CLINIC } from '../data/clinic';
+import { handleWhatsApp } from '../utils/whatsapp';
 
 type Tier = {
   name: string;
@@ -66,7 +68,7 @@ const SchoolPartnershipSection = () => {
         <div style={styles.section}>
           <h3 style={{ ...styles.h3, marginTop: 0 }}>ما الذي تحصل عليه المدرسة؟</h3>
           <ul style={{ margin: 0, paddingInlineStart: 18, lineHeight: 1.85, opacity: 0.92 }}>
-            <li>Demo تفاعلي: محاكاة صف مع ضوضاء متدرجة + تعليمات.</li>
+            <li>Demo تفاعلي: محاكاة الصف الدراسي مع ضوضاء متدرجة + تعليمات.</li>
             <li>تقرير PDF/CSV تلقائي (للإدارة) يوضح مستوى الانتباه مع الضوضاء.</li>
             <li>Workshop عملي للمعلمين: إدارة الضوضاء + لغة التعليمات + استراتيجيات دعم.</li>
             <li>قوالب جاهزة للتواصل مع أولياء الأمور + إحالات منظمة.</li>
@@ -164,6 +166,57 @@ const SchoolPartnershipSection = () => {
         <p style={{ ...styles.muted, marginTop: 6 }}>
           يمكن تخصيص اللغة والمحتوى (الشعار/اسم المدرسة) داخل التقرير التوضيحي. كما يمكن جعل النتائج مُجمعة على مستوى الصف/المدرسة.
         </p>
+      </div>
+
+      {/* Prominent School CTA */}
+      <div style={{
+        marginTop: 20,
+        padding: 24,
+        background: `linear-gradient(135deg, rgba(143,211,204,0.15), rgba(175,132,186,0.15))`,
+        borderRadius: 16,
+        border: '1px solid rgba(143,211,204,0.3)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 16,
+      }}>
+        <div>
+          <div style={{ fontSize: 20, fontWeight: 900, color: '#fff', marginBottom: 6 }}>
+            🏫 هل أنت من إدارة مدرسة أو جامعة؟
+          </div>
+          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)' }}>
+            تواصل معنا لترتيب عرض تجريبي مجاني داخل مؤسستك
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => handleWhatsApp(`مرحباً، أنا من إدارة مدرسة/جامعة وأود الاستفسار عن شراكة Berard AIT داخل ${CLINIC.city}.`)}
+            style={{
+              ...styles.primaryBtn,
+              background: '#25D366',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              cursor: 'pointer',
+              border: 'none',
+            }}
+          >
+            💬 WhatsApp للمدارس
+          </button>
+          <a
+            href="#contact"
+            style={{
+              ...styles.ghostBtn,
+              textDecoration: 'none',
+              borderColor: brandPurple,
+              color: brandPurple,
+            }}
+          >
+            نموذج التواصل
+          </a>
+        </div>
       </div>
     </section>
   );
