@@ -2,7 +2,8 @@ import { FormEvent, useMemo, useState } from 'react';
 
 import { CLINIC } from '../data/clinic';
 import { handleWhatsApp } from '../utils/whatsapp';
-import { styles } from './styles';
+import { styles, brandCyan } from './styles';
+import { MapPinIcon, CheckCircleIcon } from './Icons';
 
 const normaliseDigits = (value: string) => value.replace(/\D/g, '');
 
@@ -45,7 +46,7 @@ const ContactForm = () => {
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
           <h2 style={styles.h2}>تواصل معنا</h2>
-          <span style={styles.chip}>📍 {CLINIC.city}</span>
+          <span style={{ ...styles.chip, display: 'inline-flex', alignItems: 'center', gap: 6 }}><MapPinIcon size={14} color={brandCyan} /> {CLINIC.city}</span>
         </div>
         <p style={styles.bodyText}>
           جاهزون لاستقبال أولياء الأمور، وكذلك تنسيق عروض تجريبية وشراكات مع المدارس والجامعات.
@@ -58,7 +59,7 @@ const ContactForm = () => {
       {submitted ? (
         <div style={{ marginTop: 14, display: 'grid', gap: 10 }}>
           <div style={{ ...styles.section, marginBottom: 0 }}>
-            <h3 style={styles.h3}>تم تجهيز الرسالة ✅</h3>
+            <h3 style={{ ...styles.h3, display: 'flex', alignItems: 'center', gap: 8 }}>تم تجهيز الرسالة <CheckCircleIcon size={20} color="#22c55e" /></h3>
             <p style={styles.bodyText}>
               إذا لم يُفتح WhatsApp، يمكنك مراسلتنا مباشرة على الرقم: <b dir="ltr">{CLINIC.whatsapp}</b>
             </p>

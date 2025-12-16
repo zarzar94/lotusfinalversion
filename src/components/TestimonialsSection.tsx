@@ -1,6 +1,21 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { assetUrl } from '../utils/asset';
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import {
+  XIcon,
+  CheckIcon,
+  ArrowRightIcon,
+  VideoIcon,
+  StarIcon,
+  SmileIcon,
+  TrophyIcon,
+  ClockIcon,
+  TargetIcon,
+  PhoneIcon,
+  MicroscopeIcon,
+  AlertIcon,
+  ShieldCheckIcon,
+} from './Icons';
 
 type Testimonial = {
   id: string;
@@ -239,7 +254,9 @@ function TransformationJourney({ before, after, color, isActive }: {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-          }}>✗</span>
+          }}>
+            <XIcon size={12} color="#ef4444" />
+          </span>
           قبل العلاج
         </div>
         {before.map((item, i) => (
@@ -286,7 +303,7 @@ function TransformationJourney({ before, after, color, isActive }: {
           transition: 'all 0.5s ease',
           boxShadow: showAfter ? `0 0 30px ${color}44` : 'none',
         }}>
-          {showAfter ? '✓' : '→'}
+          {showAfter ? <CheckIcon size={24} color="#fff" /> : <ArrowRightIcon size={20} color="rgba(255,255,255,0.6)" />}
         </div>
         <div style={{
           fontSize: 9,
@@ -326,7 +343,9 @@ function TransformationJourney({ before, after, color, isActive }: {
             justifyContent: 'center',
             color: '#fff',
             transition: 'all 0.5s ease',
-          }}>✓</span>
+          }}>
+            <CheckIcon size={12} color={showAfter ? '#fff' : '#22c55e'} />
+          </span>
           بعد العلاج
         </div>
         {after.map((item, i) => (
@@ -443,9 +462,8 @@ function CaseStudyCard({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 10,
             }}>
-              ✓
+              <CheckIcon size={10} color="#fff" />
             </div>
           </div>
 
@@ -466,8 +484,11 @@ function CaseStudyCard({
                   background: 'rgba(255,255,255,0.1)',
                   borderRadius: 10,
                   color: 'rgba(255,255,255,0.7)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
                 }}>
-                  🎥 فيديو
+                  <VideoIcon size={12} /> فيديو
                 </span>
               )}
             </div>
@@ -589,11 +610,15 @@ function CaseStudyCard({
         {/* Rating stars */}
         <div style={{ display: 'flex', gap: 2 }}>
           {Array.from({ length: 5 }).map((_, i) => (
-            <span key={i} style={{
-              color: i < testimonial.rating ? '#FFD700' : 'rgba(255,255,255,0.15)',
-              fontSize: 14,
-              textShadow: i < testimonial.rating ? '0 0 8px rgba(255,215,0,0.5)' : 'none',
-            }}>★</span>
+            <StarIcon
+              key={i}
+              size={14}
+              color={i < testimonial.rating ? '#FFD700' : 'rgba(255,255,255,0.15)'}
+              filled={i < testimonial.rating}
+              style={{
+                filter: i < testimonial.rating ? 'drop-shadow(0 0 8px rgba(255,215,0,0.5))' : 'none',
+              }}
+            />
           ))}
         </div>
       </div>
@@ -630,10 +655,10 @@ function AggregateStats({ isVisible }: { isVisible: boolean }) {
   }, [isVisible]);
 
   const stats = [
-    { value: `${counts.satisfaction}%`, label: 'نسبة الرضا', icon: '😊', color: brandCyan },
-    { value: `${counts.cases}+`, label: 'حالة ناجحة', icon: '🏆', color: brandPurple },
-    { value: `${counts.years}+`, label: 'سنوات خبرة', icon: '⏱️', color: brandPink },
-    { value: (counts.rating / 10).toFixed(1), label: 'تقييم عام', icon: '⭐', color: '#FFD700' },
+    { value: `${counts.satisfaction}%`, label: 'نسبة الرضا', icon: <SmileIcon size={24} color={brandCyan} />, color: brandCyan },
+    { value: `${counts.cases}+`, label: 'حالة ناجحة', icon: <TrophyIcon size={24} color={brandPurple} />, color: brandPurple },
+    { value: `${counts.years}+`, label: 'سنوات خبرة', icon: <ClockIcon size={24} color={brandPink} />, color: brandPink },
+    { value: (counts.rating / 10).toFixed(1), label: 'تقييم عام', icon: <StarIcon size={24} color="#FFD700" filled />, color: '#FFD700' },
   ];
 
   return (
@@ -661,12 +686,11 @@ function AggregateStats({ isVisible }: { isVisible: boolean }) {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            fontSize: 80,
-            opacity: 0.05,
+            opacity: 0.08,
           }}>
             {stat.icon}
           </div>
-          <div style={{ fontSize: 24, marginBottom: 8 }}>{stat.icon}</div>
+          <div style={{ marginBottom: 8 }}>{stat.icon}</div>
           <div style={{
             fontSize: 32,
             fontWeight: 900,
@@ -757,7 +781,9 @@ export default function TestimonialsSection() {
           border: '1px solid rgba(255,215,0,0.25)',
           marginBottom: 16,
         }}>
-          <span style={{ fontSize: 28, animation: 'float 3s ease-in-out infinite' }}>⭐</span>
+          <span style={{ animation: 'float 3s ease-in-out infinite', display: 'flex' }}>
+            <StarIcon size={28} color="#FFD700" filled />
+          </span>
           <span style={{
             fontSize: 14,
             fontWeight: 800,
@@ -774,8 +800,11 @@ export default function TestimonialsSection() {
             fontSize: 10,
             color: '#fff',
             fontWeight: 900,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
           }}>
-            ✓ موثق
+            <ShieldCheckIcon size={12} color="#fff" /> موثق
           </span>
         </div>
 
@@ -865,8 +894,11 @@ export default function TestimonialsSection() {
             fontWeight: 900,
             color: '#fff',
             marginBottom: 6,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
           }}>
-            🎯 هل ترغب في تجربة مماثلة؟
+            <TargetIcon size={24} color={brandCyan} /> هل ترغب في تجربة مماثلة؟
           </div>
           <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)' }}>
             احجز استشارتك المجانية اليوم واكتشف كيف يمكن لـ Berard AIT مساعدتك
@@ -879,8 +911,11 @@ export default function TestimonialsSection() {
             padding: '14px 28px',
             fontSize: 15,
             borderRadius: 14,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
           }}>
-            📞 احجز استشارة مجانية
+            <PhoneIcon size={18} /> احجز استشارة مجانية
           </a>
           <a href="#checklist" style={{
             ...styles.ghostBtn,
@@ -888,14 +923,17 @@ export default function TestimonialsSection() {
             padding: '14px 28px',
             fontSize: 15,
             borderRadius: 14,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
           }}>
-            🔬 جرب الماسح العصبي
+            <MicroscopeIcon size={18} /> جرب الماسح العصبي
           </a>
         </div>
       </div>
 
       {/* Disclaimer */}
-      <p style={{
+      <div style={{
         ...styles.muted,
         marginTop: 20,
         textAlign: 'center',
@@ -904,9 +942,14 @@ export default function TestimonialsSection() {
         background: 'rgba(245,158,11,0.08)',
         borderRadius: 12,
         border: '1px solid rgba(245,158,11,0.15)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
       }}>
-        ⚠️ النتائج تختلف من شخص لآخر. جميع الشهادات حقيقية وموثقة بموافقة أصحابها. هذا ليس ضماناً للنتائج - استشر مختصاً للتقييم الشخصي.
-      </p>
+        <AlertIcon size={16} color="#f59e0b" style={{ flexShrink: 0 }} />
+        النتائج تختلف من شخص لآخر. جميع الشهادات حقيقية وموثقة بموافقة أصحابها. هذا ليس ضماناً للنتائج - استشر مختصاً للتقييم الشخصي.
+      </div>
     </section>
   );
 }

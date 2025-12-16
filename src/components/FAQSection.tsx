@@ -1,5 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, ReactNode } from 'react';
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import {
+  HeadphonesIcon,
+  CoinsIcon,
+  UsersIcon,
+  StethoscopeIcon,
+  MusicIcon,
+  HomeIcon,
+  ClipboardIcon,
+  CalendarIcon,
+  HelpIcon,
+  LaptopIcon,
+  CheckCircleIcon,
+  MessageIcon,
+} from './Icons';
 
 // Sound effect for accordion
 const playToggleSound = (open: boolean) => {
@@ -22,49 +36,49 @@ const playToggleSound = (open: boolean) => {
 type FAQItem = {
   question: string;
   answer: string;
-  icon: string;
+  icon: ReactNode;
 };
 
 const faqs: FAQItem[] = [
   {
     question: 'ما هو تدريب التكامل السمعي بيرارد (Berard AIT)؟',
     answer: 'تدخل طوره الدكتور جاي بيرارد لتصحيح أو تحسين الاضطرابات في نظام الدماغ/الجسم التي تتداخل مع قدرة الفرد على معالجة المعلومات بشكل طبيعي. يعالج مشاكل المعالجة السمعية والتناقضات في إدراك الصوت التي قد تسهم في صعوبات التعلم، اضطراب نقص الانتباه، عسر القراءة، التوحد، واضطرابات المعالجة الحسية.',
-    icon: '🎧',
+    icon: <HeadphonesIcon size={24} color={brandCyan} />,
   },
   {
     question: 'ما تكلفة 10 ساعات من Berard AIT؟',
     answer: 'تختلف الأسعار حسب الموقع ونوع البرنامج (حضوري أو عن بُعد). تواصل معنا مباشرة للحصول على تفاصيل التكلفة والباقات المتاحة للأفراد والمدارس.',
-    icon: '💰',
+    icon: <CoinsIcon size={24} color={brandPurple} />,
   },
   {
     question: 'من المرشح المناسب لـ Berard AIT؟',
     answer: 'البرنامج مفيد للأفراد الذين يسعون لتحسين التعلم، تطوير اللغة، المعالجة الحسية، التركيز، المعالجة السمعية، الذاكرة، مهارات القراءة والكتابة، حساسية السمع، والقدرات الموسيقية. كما يُستخدم لتحسين الأداء الأكاديمي، العلاقات الاجتماعية، التحدث أمام الجمهور، والمهارات التنظيمية والرياضية. الحد الأدنى للعمر 3 سنوات بدون حد أقصى.',
-    icon: '👥',
+    icon: <UsersIcon size={24} color={brandPink} />,
   },
   {
     question: 'هل Berard AIT تدخل طبي؟',
     answer: 'لا. طريقة بيرارد ليست تدخلاً طبياً ولا تهدف لعلاج أو شفاء الأمراض. هي برنامج تدريب سمعي يدعم قدرة الدماغ على معالجة المعلومات السمعية.',
-    icon: '⚕️',
+    icon: <StethoscopeIcon size={24} color={brandPurpleDark} />,
   },
   {
     question: 'هل Berard AIT يُعتبر علاجاً بالموسيقى؟',
     answer: 'لا. Berard AIT لا يُعتبر علاجاً بالموسيقى أو شكلاً من أشكاله. الأساليب والأهداف تختلف بشكل كبير عن تدريب العلاج بالموسيقى.',
-    icon: '🎵',
+    icon: <MusicIcon size={24} color={brandCyan} />,
   },
   {
     question: 'هل يمكن إجراء Berard AIT في المنزل؟',
     answer: 'نعم! برنامج Remote Berard AIT متاح الآن عبر التواصل المرئي عبر الإنترنت مع إشراف مباشر من الممارس المعتمد. هذا يتيح للعائلات الحصول على البرنامج من راحة منازلهم.',
-    icon: '🏠',
+    icon: <HomeIcon size={24} color={brandPurple} />,
   },
   {
     question: 'ماذا لو لم يستطع الشخص التعاون في اختبارات السمع؟',
     answer: 'يمكن المتابعة في التدريب بدون اختبارات سمعية للأشخاص غير القادرين على التعاون، وهذا يعني عدم استخدام فلاتر النطاق الضيق. الموسيقى المُعدّلة أثبتت فعاليتها حتى بدون هذه الفلاتر المحددة.',
-    icon: '📋',
+    icon: <ClipboardIcon size={24} color={brandPink} />,
   },
   {
     question: 'كم عدد الجلسات المطلوبة؟',
     answer: 'البرنامج القياسي يتكون من 20 جلسة خلال 10-12 يوماً، بمعدل جلستين يومياً مدة كل منها 30 دقيقة، مع فاصل 3 ساعات بين الجلستين للسماح للدماغ بالتكيف.',
-    icon: '📅',
+    icon: <CalendarIcon size={24} color={brandPurpleDark} />,
   },
 ];
 
@@ -91,9 +105,11 @@ export default function FAQSection() {
     <section id="faq" style={styles.sectionCard}>
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
-          <h2 style={styles.h2}>الأسئلة الشائعة</h2>
-          <span style={{ ...styles.chip, background: 'rgba(143,211,204,0.12)', borderColor: 'rgba(143,211,204,0.25)' }}>
-            ❓ إجابات سريعة
+          <h2 style={{ ...styles.h2, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <HelpIcon size={28} color={brandCyan} /> الأسئلة الشائعة
+          </h2>
+          <span style={{ ...styles.chip, background: 'rgba(143,211,204,0.12)', borderColor: 'rgba(143,211,204,0.25)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <HelpIcon size={14} color={brandCyan} /> إجابات سريعة
           </span>
         </div>
         <p style={styles.bodyText}>
@@ -165,7 +181,9 @@ export default function FAQSection() {
               }}
             >
               <span style={{
-                fontSize: isMobile ? 20 : 24,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 filter: openIndex === index ? 'none' : 'grayscale(0.5)',
                 transition: 'filter 0.3s ease, transform 0.3s ease',
                 transform: openIndex === index ? 'scale(1.1)' : 'scale(1)',
@@ -223,7 +241,7 @@ export default function FAQSection() {
                     fontSize: 12,
                     fontWeight: 700,
                   }}>
-                    💻 اعرف المزيد عن البرنامج عن بُعد
+                    <LaptopIcon size={14} /> اعرف المزيد عن البرنامج عن بُعد
                   </a>
                 )}
                 {index === 2 && ( // Who is it for question
@@ -241,7 +259,7 @@ export default function FAQSection() {
                     fontSize: 12,
                     fontWeight: 700,
                   }}>
-                    ✅ قم بتعبئة قائمة التحقق
+                    <CheckCircleIcon size={14} /> قم بتعبئة قائمة التحقق
                   </a>
                 )}
               </div>
@@ -261,7 +279,7 @@ export default function FAQSection() {
         gap: 14,
         flexWrap: 'wrap',
       }}>
-        <span style={{ fontSize: 28 }}>💬</span>
+        <MessageIcon size={28} color={brandPurple} />
         <div style={{ flex: 1, minWidth: 200 }}>
           <div style={{ fontWeight: 800, color: brandPurple }}>لديك سؤال آخر؟</div>
           <div style={{ ...styles.muted, marginTop: 4 }}>تواصل معنا وسنرد عليك في أقرب وقت</div>

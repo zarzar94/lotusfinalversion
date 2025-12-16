@@ -1,19 +1,36 @@
-import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
+import { useMemo, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 
 import { checklistCategories, checklistItems, type ChecklistItem } from '../data/checklistItems';
 import { assetUrl } from '../utils/asset';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from './styles';
 import { useGamification } from '../context/GamificationContext';
+import {
+  BookIcon,
+  EarIcon,
+  BrainIcon,
+  BalanceIcon,
+  HeartIcon,
+  MicroscopeIcon,
+  CheckCircleIcon,
+  AlertIcon,
+  AlertCircleIcon,
+  RocketIcon,
+  LightbulbIcon,
+  DocumentIcon,
+  TrashIcon,
+  ChartIcon,
+  GamepadIcon,
+} from './Icons';
 
 // Category icons and colors for visual appeal
-const CATEGORY_CONFIG: Record<string, { icon: string; color: string }> = {
-  'صعوبات أكاديمية ولغوية': { icon: '📚', color: brandCyan },
-  'مؤشرات سمعية': { icon: '👂', color: brandPink },
-  'تعلم وتركيز ووظائف تنفيذية': { icon: '🧠', color: brandPurple },
-  'توازن وحركة': { icon: '⚖️', color: '#22c55e' },
-  'سلوك ومزاج وصحة عامة': { icon: '💚', color: '#f59e0b' },
-  'تشخيصات/حالات شائعة مرتبطة بالسمع/التعلم': { icon: '🔬', color: brandPurpleDark },
+const CATEGORY_CONFIG: Record<string, { icon: ReactNode; color: string }> = {
+  'صعوبات أكاديمية ولغوية': { icon: <BookIcon size={20} />, color: brandCyan },
+  'مؤشرات سمعية': { icon: <EarIcon size={20} />, color: brandPink },
+  'تعلم وتركيز ووظائف تنفيذية': { icon: <BrainIcon size={20} />, color: brandPurple },
+  'توازن وحركة': { icon: <BalanceIcon size={20} />, color: '#22c55e' },
+  'سلوك ومزاج وصحة عامة': { icon: <HeartIcon size={20} />, color: '#f59e0b' },
+  'تشخيصات/حالات شائعة مرتبطة بالسمع/التعلم': { icon: <MicroscopeIcon size={20} />, color: brandPurpleDark },
 };
 
 // Sound effects
@@ -443,7 +460,7 @@ function LaunchButton({ onClick, disabled, buttonRef }: LaunchButtonProps) {
         textShadow: '0 2px 4px rgba(0,0,0,0.5)',
         pointerEvents: 'none',
       }}>
-        <span style={{ fontSize: 24, marginBottom: 2 }}>🚀</span>
+        <RocketIcon size={24} color="#fff" style={{ marginBottom: 2 }} />
         <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1 }}>إطلاق</span>
       </div>
 
@@ -468,7 +485,7 @@ interface CategoryTabProps {
   isActive: boolean;
   selectedCount: number;
   onClick: () => void;
-  config: { icon: string; color: string };
+  config: { icon: ReactNode; color: string };
 }
 
 function CategoryTab({ category, isActive, selectedCount, onClick, config }: CategoryTabProps) {
@@ -490,9 +507,10 @@ function CategoryTab({ category, isActive, selectedCount, onClick, config }: Cat
         transition: 'all 0.2s ease',
         minWidth: 140,
         boxShadow: isActive ? `0 4px 20px ${config.color}33` : 'none',
+        color: isActive ? config.color : 'rgba(255,255,255,0.7)',
       }}
     >
-      <span style={{ fontSize: 20 }}>{config.icon}</span>
+      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{config.icon}</span>
       <div style={{ textAlign: 'right', flex: 1 }}>
         <div style={{
           fontSize: 11,
@@ -542,7 +560,7 @@ const Checklist = () => {
   const totalItems = checklistItems.length;
 
   const currentCategory = checklistCategories[currentSection];
-  const currentConfig = CATEGORY_CONFIG[currentCategory?.title] || { icon: '📊', color: brandCyan };
+  const currentConfig = CATEGORY_CONFIG[currentCategory?.title] || { icon: <ChartIcon size={20} />, color: brandCyan };
 
   const categoryStats = useMemo(() => {
     return checklistCategories.map(cat => ({
@@ -553,12 +571,12 @@ const Checklist = () => {
 
   const recommendation = useMemo(() => {
     if (selectedCount <= 4) {
-      return { level: 'low', label: 'مؤشرات قليلة', labelEn: 'Low', color: brandCyan, icon: '✅', msg: 'النتيجة لا تُعد تشخيصاً. إذا كانت هناك مخاوف، استشر مختصاً.' };
+      return { level: 'low', label: 'مؤشرات قليلة', labelEn: 'Low', color: brandCyan, icon: <CheckCircleIcon size={24} color={brandCyan} />, msg: 'النتيجة لا تُعد تشخيصاً. إذا كانت هناك مخاوف، استشر مختصاً.' };
     }
     if (selectedCount <= 10) {
-      return { level: 'medium', label: 'مؤشرات متوسطة', labelEn: 'Moderate', color: brandPurple, icon: '⚠️', msg: 'قد يكون من المفيد إجراء اختبار إضافي أو تجربة الألعاب السمعية.' };
+      return { level: 'medium', label: 'مؤشرات متوسطة', labelEn: 'Moderate', color: brandPurple, icon: <AlertIcon size={24} color={brandPurple} />, msg: 'قد يكون من المفيد إجراء اختبار إضافي أو تجربة الألعاب السمعية.' };
     }
-    return { level: 'high', label: 'مؤشرات مرتفعة', labelEn: 'High', color: brandPink, icon: '🔴', msg: 'ننصح بحجز تقييم متخصص — خاصة إذا كانت الأعراض تؤثر على المدرسة أو السلوك.' };
+    return { level: 'high', label: 'مؤشرات مرتفعة', labelEn: 'High', color: brandPink, icon: <AlertCircleIcon size={24} color={brandPink} />, msg: 'ننصح بحجز تقييم متخصص — خاصة إذا كانت الأعراض تؤثر على المدرسة أو السلوك.' };
   }, [selectedCount]);
 
   // Radar sweep animation
@@ -688,7 +706,9 @@ const Checklist = () => {
       {/* Header */}
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
-          <h2 style={styles.h2}>🔬 الماسح العصبي للتقييم</h2>
+          <h2 style={{ ...styles.h2, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <MicroscopeIcon size={28} color={brandCyan} /> الماسح العصبي للتقييم
+          </h2>
           <span style={{ ...styles.chip, background: `${recommendation.color}22`, borderColor: `${recommendation.color}44`, color: recommendation.color }}>
             {recommendation.icon} {selectedCount}/{totalItems}
           </span>
@@ -705,7 +725,7 @@ const Checklist = () => {
         marginBottom: 16,
       }}>
         {checklistCategories.map((cat, idx) => {
-          const cfg = CATEGORY_CONFIG[cat.title] || { icon: '📊', color: brandCyan };
+          const cfg = CATEGORY_CONFIG[cat.title] || { icon: <ChartIcon size={20} />, color: brandCyan };
           return (
             <CategoryTab
               key={cat.title}
@@ -922,30 +942,34 @@ const Checklist = () => {
           alignItems: 'center',
           gap: 10,
         }}>
-          <span style={{ fontSize: 18 }}>💡</span>
+          <LightbulbIcon size={18} color={currentConfig.color} />
           {currentCategory.note}
         </div>
       )}
 
       {/* Quick Actions */}
       <div style={{ marginTop: 24, display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <a href={assetUrl('downloads/Check list (2).pdf')} target="_blank" rel="noreferrer" style={{ ...styles.ghostBtn, textDecoration: 'none' }}>
-          📄 PDF الرسمي
+        <a href={assetUrl('downloads/Check list (2).pdf')} target="_blank" rel="noreferrer" style={{ ...styles.ghostBtn, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <DocumentIcon size={16} /> PDF الرسمي
         </a>
         {selectedCount > 0 && (
           <>
-            <button type="button" style={styles.dangerBtn} onClick={clearAll}>🗑️ مسح الكل</button>
+            <button type="button" style={{ ...styles.dangerBtn, display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={clearAll}>
+              <TrashIcon size={16} /> مسح الكل
+            </button>
             <button
               type="button"
-              style={exporting ? styles.disabledBtn : styles.primaryBtn}
+              style={{ ...(exporting ? styles.disabledBtn : styles.primaryBtn), display: 'inline-flex', alignItems: 'center', gap: 6 }}
               onClick={exportSelectedPdf}
               disabled={exporting}
             >
-              {exporting ? '⏳ تصدير...' : `📊 تصدير التقرير (${selectedCount})`}
+              <ChartIcon size={16} /> {exporting ? 'تصدير...' : `تصدير التقرير (${selectedCount})`}
             </button>
           </>
         )}
-        <a href="#games" style={{ ...styles.primaryBtn, textDecoration: 'none', background: `linear-gradient(135deg, ${brandPurple}, ${brandPink})` }}>🎮 الألعاب السمعية</a>
+        <a href="#games" style={{ ...styles.primaryBtn, textDecoration: 'none', background: `linear-gradient(135deg, ${brandPurple}, ${brandPink})`, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <GamepadIcon size={16} /> الألعاب السمعية
+        </a>
       </div>
 
       {/* Result Summary */}
@@ -972,7 +996,7 @@ const Checklist = () => {
 
       {/* Disclaimer */}
       <div style={{ marginTop: 20, padding: 14, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 12, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-        <span style={{ fontSize: 22 }}>⚠️</span>
+        <AlertIcon size={24} color="#f59e0b" style={{ flexShrink: 0 }} />
         <div>
           <div style={{ fontWeight: 800, color: '#f59e0b', marginBottom: 4, fontSize: 13 }}>تنبيه</div>
           <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
