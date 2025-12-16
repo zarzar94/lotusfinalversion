@@ -88,14 +88,14 @@ export const writePdfText = (
   const targetX = isArabic ? pageW - x : x;
 
   // Allow a custom line height multiplier without polluting jsPDF TextOptions
-  const { lineHeight: lineHeightMul = 1.35, ...rawOptions } = (options ?? {}) as any;
-  const finalOptions = isArabic ? { ...rtlBaseOptions, ...rawOptions } : (rawOptions as TextOptionsLight);
+  const { lineHeight: lineHeightMul = 1.35, ...rawOptions } = options ?? {};
+  const finalOptions: TextOptionsLight = isArabic ? { ...rtlBaseOptions, ...rawOptions } : rawOptions;
 
   // Wrap lines
   const lines = doc.splitTextToSize(text, maxWidth);
 
-  // Estimate line height (in pt)
-  const fontSize = (doc as any).internal?.getFontSize ? (doc as any).internal.getFontSize() : 12;
+  // Estimate line height (in pt) - getFontSize is available on jsPDF internal
+  const fontSize = doc.getFontSize() ?? 12;
   const lineHeight = Math.max(12, fontSize * lineHeightMul);
 
   let cursorY = y;

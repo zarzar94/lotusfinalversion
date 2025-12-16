@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import type { AssessmentSession, GameResult, TestKey, TestOutcome } from './types';
 import { resultMeta } from './types';
@@ -32,6 +33,7 @@ export default function AssessmentSuiteModal({
 }) {
   const [step, setStep] = useState<'intro' | 'headphone' | 'attention' | 'frequency' | 'sequence' | 'questionnaire' | 'summary'>('intro');
   const [session, setSession] = useState<AssessmentSession>(() => ({ id: genId(), startedAt: Date.now(), outcomes: {} }));
+  const modalRef = useFocusTrap<HTMLDivElement>(open);
 
   useEffect(() => {
     if (!open) return;
@@ -77,7 +79,7 @@ export default function AssessmentSuiteModal({
 
   return (
     <div style={styles.modalBackdrop} onClick={close} role="presentation">
-      <div style={styles.modal} dir="rtl" onClick={(e) => e.stopPropagation()}>
+      <div ref={modalRef} style={styles.modal} dir="rtl" onClick={(e) => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
           <div>
             <div style={{ fontWeight: 900, color: brandCyan }}>🧪 معمل الفحص السمعي — 3 اختبارات موضوعية</div>

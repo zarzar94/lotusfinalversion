@@ -12,6 +12,9 @@ const isValidPhone = (value: string) => {
   return digits.length >= 9 && digits.length <= 15;
 };
 
+const MAX_MESSAGE_LENGTH = 1000;
+const MAX_NAME_LENGTH = 100;
+
 const ContactForm = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -19,7 +22,13 @@ const ContactForm = () => {
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
-  const requiredValid = useMemo(() => name.trim().length > 1 && message.trim().length > 4 && isValidPhone(phone), [name, message, phone]);
+  const requiredValid = useMemo(() =>
+    name.trim().length > 1 &&
+    name.trim().length <= MAX_NAME_LENGTH &&
+    message.trim().length > 4 &&
+    message.length <= MAX_MESSAGE_LENGTH &&
+    isValidPhone(phone),
+  [name, message, phone]);
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -87,9 +96,10 @@ const ContactForm = () => {
               <input
                 style={styles.input}
                 value={name}
-                onChange={(event) => setName(event.target.value)}
+                onChange={(event) => setName(event.target.value.slice(0, MAX_NAME_LENGTH))}
                 placeholder="مثال: محمد أحمد"
                 autoComplete="name"
+                maxLength={MAX_NAME_LENGTH}
                 required
               />
             </label>
@@ -130,11 +140,13 @@ const ContactForm = () => {
             <textarea
               style={styles.textarea}
               value={message}
-              onChange={(event) => setMessage(event.target.value)}
+              onChange={(event) => setMessage(event.target.value.slice(0, MAX_MESSAGE_LENGTH))}
               placeholder="اكتب نبذة عن الحالة / الهدف / أو طلب عرض للمدرسة"
               rows={6}
+              maxLength={MAX_MESSAGE_LENGTH}
               required
             />
+            <span style={styles.muted}>{message.length}/{MAX_MESSAGE_LENGTH}</span>
           </label>
 
           <button type="submit" style={requiredValid ? styles.primaryBtn : styles.disabledBtn} disabled={!requiredValid}>

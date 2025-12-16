@@ -9,6 +9,7 @@ import ComparisonSection from './components/ComparisonSection';
 import SchoolPartnershipSection from './components/SchoolPartnershipSection';
 import Footer from './components/Footer';
 import WhatsAppFab from './components/WhatsAppFab';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const SlideViewer = lazy(() => import('./components/SlideViewer'));
 const Checklist = lazy(() => import('./components/Checklist'));
@@ -35,6 +36,7 @@ function App() {
   }, []);
 
   return (
+    <ErrorBoundary>
     <div style={styles.page}>
       <BackgroundFX />
       <Header />
@@ -101,6 +103,7 @@ function App() {
 
       <WhatsAppFab />
     </div>
+    </ErrorBoundary>
   );
 }
 

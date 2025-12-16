@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
-import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise } from './audio';
+import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import { clamp01, dPrime, mean } from './stats';
 import type { GameResult, TestOutcome } from './types';
 
@@ -57,7 +57,7 @@ export default function AttentionTestPanel({
   onCancel?: () => void;
 }) {
   const audioRef = useRef<AudioContext | null>(null);
-  const noiseRef = useRef<any>(null);
+  const noiseRef: NoiseRef = useRef(null);
 
   const [stage, setStage] = useState<'intro' | 'practice' | 'running' | 'done'>('intro');
   const [trialIndex, setTrialIndex] = useState(0);

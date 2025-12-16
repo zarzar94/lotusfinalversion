@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { useFocusTrap } from '../hooks/useFocusTrap';
 import { pptxSlides } from '../data/pptxSlides';
 import { assetUrl } from '../utils/asset';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
@@ -13,6 +14,7 @@ const SlideViewer = () => {
   const [query, setQuery] = useState('');
   const [activeSlideId, setActiveSlideId] = useState<number | null>(null);
   const [exporting, setExporting] = useState(false);
+  const modalRef = useFocusTrap<HTMLDivElement>(activeSlideId !== null);
 
   const slides = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -188,6 +190,7 @@ const SlideViewer = () => {
           onClick={() => setActiveSlideId(null)}
         >
           <div
+            ref={modalRef}
             style={{ ...styles.modal, padding: 18 }}
             onClick={(e) => e.stopPropagation()}
           >

@@ -8,12 +8,21 @@ export type NoiseHandle = {
 export type AudioRef = React.MutableRefObject<AudioContext | null>;
 export type NoiseRef = React.MutableRefObject<NoiseHandle | null>;
 
+// Extend Window interface for webkit prefix support
+declare global {
+  interface Window {
+    webkitAudioContext?: typeof AudioContext;
+  }
+}
+
 export const ensureAudio = (ref: AudioRef): AudioContext => {
   if (ref.current && ref.current.state === 'closed') {
     ref.current = null;
   }
   if (!ref.current) {
-    ref.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) throw new Error('Web Audio API not supported');
+    ref.current = new AudioCtx();
   }
   return ref.current;
 };
@@ -106,15 +115,15 @@ export const playTone = (audio: AudioContext, opts: ToneOpts): number => {
 
   // stereo pan when supported
   let node: AudioNode = gain;
-  try {
-    const panner = (audio as any).createStereoPanner?.();
-    if (panner) {
+  if (typeof audio.createStereoPanner === 'function') {
+    try {
+      const panner = audio.createStereoPanner();
       panner.pan.value = Math.max(-1, Math.min(1, pan));
       gain.connect(panner);
       node = panner;
+    } catch {
+      // ignore pan errors on older browsers
     }
-  } catch {
-    // ignore pan
   }
 
   osc.connect(gain);
