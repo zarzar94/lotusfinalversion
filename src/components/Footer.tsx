@@ -1,7 +1,9 @@
 import { CLINIC } from '../data/clinic';
 import { styles, brandCyan, brandPurpleDark } from './styles';
+import { MapPinIcon, CompassIcon } from './Icons';
 
 const social = [
+  { name: 'X', href: 'https://x.com/Berardaiteg', icon: '𝕏' },
   { name: 'TikTok', href: 'https://vt.tiktok.com/ZSydLErRH/', icon: '🎵' },
   { name: 'Instagram', href: 'https://www.instagram.com/berard.ait.eg?igsh=MXVjNmFnZng3MHcyMg==', icon: '📷' },
   { name: 'Facebook', href: 'https://www.facebook.com/share/14LfPuhkdVH/', icon: 'f' },
@@ -43,7 +45,7 @@ const Footer = () => {
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 24 }}>📍</span>
+              <MapPinIcon size={24} color={brandCyan} />
               <div>
                 <div style={{ fontWeight: 900, fontSize: 16, color: brandCyan }}>
                   {LOCATION.name}
@@ -68,7 +70,7 @@ const Footer = () => {
               gap: 8,
             }}
           >
-            <span>🧭</span> الحصول على الاتجاهات
+            <CompassIcon size={16} /> الحصول على الاتجاهات
           </a>
         </div>
         <div style={{ position: 'relative', height: 220 }}>
