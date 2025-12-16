@@ -510,8 +510,8 @@ export default function GameSection() {
       },
       {
         mode: 'sequence' as const,
-        title: 'محاكاة صف — ذاكرة سمعية',
-        fullTitle: '🏫 محاكاة صف — تسلسل/ذاكرة سمعية تحت الضوضاء',
+        title: 'محاكاة الصف الدراسي — ذاكرة سمعية',
+        fullTitle: '🏫 محاكاة الصف الدراسي — تسلسل/ذاكرة سمعية تحت الضوضاء',
         desc: 'اتباع سلسلة أوامر صوتية مع ضوضاء متزايدة',
         tag: 'SEQUENCE',
         color: '#F59E0B',
