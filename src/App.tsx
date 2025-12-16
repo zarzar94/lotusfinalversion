@@ -1,28 +1,31 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, memo } from 'react';
 
 import Header from './components/Header';
 import { styles } from './components/styles';
 import BackgroundFX from './components/BackgroundFX';
 import HeroSection from './components/HeroSection';
-import ProgramOverview from './components/ProgramOverview';
-import ResultsSection from './components/ResultsSection';
-import ComparisonSection from './components/ComparisonSection';
-import SchoolPartnershipSection from './components/SchoolPartnershipSection';
-import NeuroplasticitySection from './components/NeuroplasticitySection';
-import FAQSection from './components/FAQSection';
-import TestimonialsSection from './components/TestimonialsSection';
 import Footer from './components/Footer';
 import WhatsAppFab from './components/WhatsAppFab';
 import ErrorBoundary from './components/ErrorBoundary';
 import { GamificationProvider } from './context/GamificationContext';
 import SectionLoader from './components/SectionLoader';
 import FadeIn from './components/FadeIn';
-import CredentialsBanner from './components/CredentialsBanner';
-import TreatmentTimeline from './components/TreatmentTimeline';
-import AudioSpectrumDemo from './components/AudioSpectrumDemo';
-import PartnerLogos from './components/PartnerLogos';
 import ScrollProgressBar from './components/ScrollProgressBar';
 
+// Lazy load all non-critical sections for better initial load
+const ProgramOverview = lazy(() => import('./components/ProgramOverview'));
+const ResultsSection = lazy(() => import('./components/ResultsSection'));
+const ComparisonSection = lazy(() => import('./components/ComparisonSection'));
+const SchoolPartnershipSection = lazy(() => import('./components/SchoolPartnershipSection'));
+const NeuroplasticitySection = lazy(() => import('./components/NeuroplasticitySection'));
+const FAQSection = lazy(() => import('./components/FAQSection'));
+const TestimonialsSection = lazy(() => import('./components/TestimonialsSection'));
+const CredentialsBanner = lazy(() => import('./components/CredentialsBanner'));
+const TreatmentTimeline = lazy(() => import('./components/TreatmentTimeline'));
+const AudioSpectrumDemo = lazy(() => import('./components/AudioSpectrumDemo'));
+const PartnerLogos = lazy(() => import('./components/PartnerLogos'));
+
+// Heavy components - lazy loaded
 const SlideViewer = lazy(() => import('./components/SlideViewer'));
 const Checklist = lazy(() => import('./components/Checklist'));
 const GameSection = lazy(() => import('./components/GameSection'));
@@ -32,6 +35,26 @@ const VideoSection = lazy(() => import('./components/VideoSection'));
 const RemoteProtocolSection = lazy(() => import('./components/RemoteProtocolSection'));
 const IntakeForm = lazy(() => import('./components/IntakeForm'));
 
+// Memoized section wrapper for consistent loading
+const LazySection = memo(({
+  children,
+  label,
+  height = 300,
+  fadeProps = {}
+}: {
+  children: React.ReactNode;
+  label: string;
+  height?: number;
+  fadeProps?: Record<string, unknown>;
+}) => (
+  <FadeIn delay={50} {...fadeProps}>
+    <Suspense fallback={<SectionLoader label={label} height={height} />}>
+      {children}
+    </Suspense>
+  </FadeIn>
+));
+LazySection.displayName = 'LazySection';
+
 function App() {
   useEffect(() => {
     const scrollToHash = () => {
@@ -40,7 +63,6 @@ function App() {
       const id = hash.replace('#', '');
       const el = document.getElementById(id);
       if (!el) return;
-      // Delay helps when loading directly into a section (React mounts after initial HTML parse)
       window.setTimeout(() => {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 50);
@@ -60,113 +82,101 @@ function App() {
           <ScrollProgressBar />
 
           <main style={styles.container}>
-            {/* HERO with 3D Brain */}
+            {/* HERO - Critical, loads immediately */}
             <FadeIn duration={1000} scale blur blurAmount={8}>
               <HeroSection />
             </FadeIn>
 
             {/* Credentials Banner */}
-            <FadeIn delay={50} direction="none" scale scaleFrom={0.98}>
+            <LazySection label="جارٍ تحميل..." height={100} fadeProps={{ direction: 'none', scale: true, scaleFrom: 0.98 }}>
               <CredentialsBanner />
-            </FadeIn>
+            </LazySection>
 
             {/* Interactive Audio Journey */}
-            <FadeIn delay={100} direction="left" distance={40}>
-              <Suspense fallback={<SectionLoader label="جارٍ تحميل رحلة الصوت..." height={400} />}>
-                <AudioJourney />
-              </Suspense>
-            </FadeIn>
+            <LazySection label="جارٍ تحميل رحلة الصوت..." height={400} fadeProps={{ direction: 'left', distance: 40 }}>
+              <AudioJourney />
+            </LazySection>
 
             {/* Neuroplasticity - Science Section */}
-            <FadeIn delay={50} scale blur blurAmount={5}>
+            <LazySection label="جارٍ تحميل..." height={350} fadeProps={{ scale: true, blur: true, blurAmount: 5 }}>
               <NeuroplasticitySection />
-            </FadeIn>
+            </LazySection>
 
             {/* Audio Spectrum Demo */}
-            <FadeIn delay={50} direction="right" distance={40}>
+            <LazySection label="جارٍ تحميل..." height={300} fadeProps={{ direction: 'right', distance: 40 }}>
               <AudioSpectrumDemo />
-            </FadeIn>
+            </LazySection>
 
-            <FadeIn delay={50} scale scaleFrom={0.96}>
+            <LazySection label="جارٍ تحميل..." height={350} fadeProps={{ scale: true, scaleFrom: 0.96 }}>
               <ProgramOverview />
-            </FadeIn>
+            </LazySection>
 
             {/* Treatment Timeline */}
-            <FadeIn delay={50} direction="left" distance={30} scale>
+            <LazySection label="جارٍ تحميل..." height={300} fadeProps={{ direction: 'left', distance: 30, scale: true }}>
               <TreatmentTimeline />
-            </FadeIn>
+            </LazySection>
 
             {/* Remote Protocol */}
-            <FadeIn delay={50} direction="right" distance={30}>
-              <Suspense fallback={<SectionLoader label="جارٍ تحميل البرنامج عن بُعد..." height={400} />}>
-                <RemoteProtocolSection />
-              </Suspense>
-            </FadeIn>
+            <LazySection label="جارٍ تحميل البرنامج عن بُعد..." height={400} fadeProps={{ direction: 'right', distance: 30 }}>
+              <RemoteProtocolSection />
+            </LazySection>
 
-            <FadeIn delay={50} scale scaleFrom={0.97} blur blurAmount={4}>
+            <LazySection label="جارٍ تحميل..." height={350} fadeProps={{ scale: true, scaleFrom: 0.97, blur: true, blurAmount: 4 }}>
               <ResultsSection />
-            </FadeIn>
+            </LazySection>
 
-            {/* Testimonials / Success Stories */}
-            <FadeIn delay={50} direction="left" distance={35}>
+            {/* Testimonials */}
+            <LazySection label="جارٍ تحميل..." height={350} fadeProps={{ direction: 'left', distance: 35 }}>
               <TestimonialsSection />
-            </FadeIn>
+            </LazySection>
 
-            <FadeIn delay={50} scale>
-              <Suspense fallback={<SectionLoader label="جارٍ تحميل عارض الشرائح..." height={500} />}>
-                <SlideViewer />
-              </Suspense>
-            </FadeIn>
+            {/* SlideViewer */}
+            <LazySection label="جارٍ تحميل عارض الشرائح..." height={500} fadeProps={{ scale: true }}>
+              <SlideViewer />
+            </LazySection>
 
             {/* Video Section */}
-            <FadeIn delay={50} direction="right" distance={30} scale scaleFrom={0.98}>
-              <Suspense fallback={<SectionLoader label="جارٍ تحميل الفيديوهات..." height={400} />}>
-                <VideoSection />
-              </Suspense>
-            </FadeIn>
+            <LazySection label="جارٍ تحميل الفيديوهات..." height={400} fadeProps={{ direction: 'right', distance: 30, scale: true, scaleFrom: 0.98 }}>
+              <VideoSection />
+            </LazySection>
 
-            <FadeIn delay={50} blur blurAmount={6} scale>
-              <Suspense fallback={<SectionLoader label="جارٍ تحميل قائمة التحقق..." height={400} />}>
-                <Checklist />
-              </Suspense>
-            </FadeIn>
+            {/* Checklist */}
+            <LazySection label="جارٍ تحميل قائمة التحقق..." height={400} fadeProps={{ blur: true, blurAmount: 6, scale: true }}>
+              <Checklist />
+            </LazySection>
 
-            <FadeIn delay={50} direction="left" distance={40} scale scaleFrom={0.95}>
-              <Suspense fallback={<SectionLoader label="جارٍ تحميل الألعاب..." height={350} />}>
-                <GameSection />
-              </Suspense>
-            </FadeIn>
+            {/* GameSection */}
+            <LazySection label="جارٍ تحميل الألعاب..." height={350} fadeProps={{ direction: 'left', distance: 40, scale: true, scaleFrom: 0.95 }}>
+              <GameSection />
+            </LazySection>
 
-            <FadeIn delay={50} scale blur blurAmount={5}>
+            <LazySection label="جارٍ تحميل..." height={350} fadeProps={{ scale: true, blur: true, blurAmount: 5 }}>
               <ComparisonSection />
-            </FadeIn>
+            </LazySection>
 
-            <FadeIn delay={50} direction="right" distance={25}>
+            <LazySection label="جارٍ تحميل..." height={300} fadeProps={{ direction: 'right', distance: 25 }}>
               <SchoolPartnershipSection />
-            </FadeIn>
+            </LazySection>
 
             {/* Partner Logos */}
-            <FadeIn delay={50} direction="none" scale scaleFrom={0.97}>
+            <LazySection label="جارٍ تحميل..." height={150} fadeProps={{ direction: 'none', scale: true, scaleFrom: 0.97 }}>
               <PartnerLogos />
-            </FadeIn>
+            </LazySection>
 
             {/* FAQ Section */}
-            <FadeIn delay={50} direction="left" distance={30}>
+            <LazySection label="جارٍ تحميل..." height={400} fadeProps={{ direction: 'left', distance: 30 }}>
               <FAQSection />
-            </FadeIn>
+            </LazySection>
 
-            {/* Intake/Registration Form */}
-            <FadeIn delay={50} scale blur blurAmount={4}>
-              <Suspense fallback={<SectionLoader label="جارٍ تحميل استمارة التسجيل..." height={500} />}>
-                <IntakeForm />
-              </Suspense>
-            </FadeIn>
+            {/* Intake Form */}
+            <LazySection label="جارٍ تحميل استمارة التسجيل..." height={500} fadeProps={{ scale: true, blur: true, blurAmount: 4 }}>
+              <IntakeForm />
+            </LazySection>
 
-            <FadeIn delay={50} scale blur blurAmount={4}>
-              <Suspense fallback={<SectionLoader label="جارٍ تحميل نموذج التواصل..." height={300} />}>
-                <ContactForm />
-              </Suspense>
-            </FadeIn>
+            {/* Contact Form */}
+            <LazySection label="جارٍ تحميل نموذج التواصل..." height={700} fadeProps={{ scale: true, blur: true, blurAmount: 4 }}>
+              <ContactForm />
+            </LazySection>
 
             <FadeIn delay={100} direction="none" scale scaleFrom={0.98}>
               <Footer />
@@ -180,4 +190,4 @@ function App() {
   );
 }
 
-export default App;
+export default memo(App);
