@@ -8,6 +8,11 @@ interface FadeInProps {
   distance?: number;
   threshold?: number;
   className?: string;
+  scale?: boolean;
+  scaleFrom?: number;
+  blur?: boolean;
+  blurAmount?: number;
+  easing?: string;
 }
 
 export default function FadeIn({
@@ -18,6 +23,11 @@ export default function FadeIn({
   distance = 30,
   threshold = 0.1,
   className = '',
+  scale = false,
+  scaleFrom = 0.95,
+  blur = false,
+  blurAmount = 10,
+  easing = 'cubic-bezier(0.4, 0, 0.2, 1)',
 }: FadeInProps) {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -41,21 +51,43 @@ export default function FadeIn({
   }, [threshold]);
 
   const getTransform = () => {
-    if (isVisible) return 'translate3d(0, 0, 0)';
+    const transforms: string[] = [];
 
-    switch (direction) {
-      case 'up':
-        return `translate3d(0, ${distance}px, 0)`;
-      case 'down':
-        return `translate3d(0, -${distance}px, 0)`;
-      case 'left':
-        return `translate3d(${distance}px, 0, 0)`;
-      case 'right':
-        return `translate3d(-${distance}px, 0, 0)`;
-      case 'none':
-      default:
-        return 'translate3d(0, 0, 0)';
+    if (!isVisible) {
+      switch (direction) {
+        case 'up':
+          transforms.push(`translateY(${distance}px)`);
+          break;
+        case 'down':
+          transforms.push(`translateY(-${distance}px)`);
+          break;
+        case 'left':
+          transforms.push(`translateX(${distance}px)`);
+          break;
+        case 'right':
+          transforms.push(`translateX(-${distance}px)`);
+          break;
+        case 'none':
+        default:
+          break;
+      }
+
+      if (scale) {
+        transforms.push(`scale(${scaleFrom})`);
+      }
+    } else {
+      transforms.push('translateY(0) translateX(0)');
+      if (scale) {
+        transforms.push('scale(1)');
+      }
     }
+
+    return transforms.join(' ') || 'none';
+  };
+
+  const getFilter = () => {
+    if (!blur) return 'none';
+    return isVisible ? 'blur(0px)' : `blur(${blurAmount}px)`;
   };
 
   return (
@@ -65,8 +97,9 @@ export default function FadeIn({
       style={{
         opacity: isVisible ? 1 : 0,
         transform: getTransform(),
-        transition: `opacity ${duration}ms ease-out ${delay}ms, transform ${duration}ms ease-out ${delay}ms`,
-        willChange: 'opacity, transform',
+        filter: getFilter(),
+        transition: `opacity ${duration}ms ${easing} ${delay}ms, transform ${duration}ms ${easing} ${delay}ms, filter ${duration}ms ${easing} ${delay}ms`,
+        willChange: 'opacity, transform, filter',
       }}
     >
       {children}
