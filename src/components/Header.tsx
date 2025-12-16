@@ -41,6 +41,10 @@ const Header = () => {
         border-color: rgba(143,211,204,0.28);
         background: rgba(143,211,204,0.08);
       }
+      .headerBrainLogo {
+        mix-blend-mode: screen;
+        filter: drop-shadow(0 0 15px rgba(143,211,204,0.5)) drop-shadow(0 0 30px rgba(175,132,186,0.3));
+      }
       .menuPanel {
         position: absolute;
         right: 12px;
@@ -121,17 +125,44 @@ const Header = () => {
         </ul>
       </nav>
 
-      <div style={{ position: 'relative' }}>
-        <button
-          type="button"
-          className="burgerBtn"
-          style={styles.burger}
-          onClick={() => setMenuOpen((prev) => !prev)}
-          aria-label="فتح القائمة"
-          aria-expanded={menuOpen}
+      {/* Brain Logo - Top Right */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: '50%',
+            background: 'rgba(11,15,28,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '2px solid rgba(143,211,204,0.3)',
+            overflow: 'hidden',
+          }}
         >
-          ☰
-        </button>
+          <img
+            src={assetUrl('assets/images/brain_logo.png')}
+            alt="Berard AIT Brain"
+            className="headerBrainLogo"
+            style={{
+              width: 40,
+              height: 40,
+              objectFit: 'contain',
+            }}
+          />
+        </div>
+
+        <div style={{ position: 'relative' }}>
+          <button
+            type="button"
+            className="burgerBtn"
+            style={styles.burger}
+            onClick={() => setMenuOpen((prev) => !prev)}
+            aria-label="فتح القائمة"
+            aria-expanded={menuOpen}
+          >
+            ☰
+          </button>
 
         {menuOpen ? (
           <div className="menuPanel" role="menu" aria-label="قائمة الروابط">
@@ -167,6 +198,7 @@ const Header = () => {
             </div>
           </div>
         ) : null}
+        </div>
       </div>
     </header>
   );
