@@ -6,14 +6,14 @@ import { styles, brandPurple, brandCyan, brandPink, brandPurpleDark } from './st
 const navItems = [
   { href: '#about', label: 'الرئيسية' },
   { href: '#audio-journey', label: '🎧 رحلة الصوت' },
+  { href: '#neuroplasticity', label: '🧠 العلم' },
   { href: '#overview', label: 'البرنامج' },
-  { href: '#results', label: 'النتائج' },
-  { href: '#pptx', label: 'الشرائح' },
-  { href: '#checklist', label: 'قائمة التحقق' },
-  { href: '#games', label: 'الألعاب' },
-  { href: '#comparison', label: 'المقارنة' },
-  { href: '#schools', label: 'المدارس والجامعات' },
-  { href: '#contact', label: 'تواصل' },
+  { href: '#remote', label: '💻 عن بُعد' },
+  { href: '#testimonials', label: '⭐ قصص النجاح' },
+  { href: '#videos', label: '🎥 فيديو' },
+  { href: '#games', label: '🎮 الألعاب' },
+  { href: '#faq', label: '❓ الأسئلة' },
+  { href: '#contact', label: '📞 تواصل' },
 ];
 
 const Header = () => {

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 
 import Header from './components/Header';
 import { styles } from './components/styles';
@@ -8,6 +8,9 @@ import ProgramOverview from './components/ProgramOverview';
 import ResultsSection from './components/ResultsSection';
 import ComparisonSection from './components/ComparisonSection';
 import SchoolPartnershipSection from './components/SchoolPartnershipSection';
+import NeuroplasticitySection from './components/NeuroplasticitySection';
+import FAQSection from './components/FAQSection';
+import TestimonialsSection from './components/TestimonialsSection';
 import Footer from './components/Footer';
 import WhatsAppFab from './components/WhatsAppFab';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -22,6 +25,8 @@ const Checklist = lazy(() => import('./components/Checklist'));
 const GameSection = lazy(() => import('./components/GameSection'));
 const ContactForm = lazy(() => import('./components/ContactForm'));
 const AudioJourney = lazy(() => import('./components/AudioJourney'));
+const VideoSection = lazy(() => import('./components/VideoSection'));
+const RemoteProtocolSection = lazy(() => import('./components/RemoteProtocolSection'));
 
 function App() {
   useEffect(() => {
@@ -66,17 +71,41 @@ function App() {
               </Suspense>
             </FadeIn>
 
+            {/* Neuroplasticity - Science Section */}
+            <FadeIn delay={50}>
+              <NeuroplasticitySection />
+            </FadeIn>
+
             <FadeIn delay={50}>
               <ProgramOverview />
+            </FadeIn>
+
+            {/* Remote Protocol */}
+            <FadeIn delay={50}>
+              <Suspense fallback={<SectionLoader label="جارٍ تحميل البرنامج عن بُعد..." height={400} />}>
+                <RemoteProtocolSection />
+              </Suspense>
             </FadeIn>
 
             <FadeIn delay={50}>
               <ResultsSection />
             </FadeIn>
 
+            {/* Testimonials / Success Stories */}
+            <FadeIn delay={50}>
+              <TestimonialsSection />
+            </FadeIn>
+
             <FadeIn delay={50}>
               <Suspense fallback={<SectionLoader label="جارٍ تحميل عارض الشرائح..." height={500} />}>
                 <SlideViewer />
+              </Suspense>
+            </FadeIn>
+
+            {/* Video Section */}
+            <FadeIn delay={50}>
+              <Suspense fallback={<SectionLoader label="جارٍ تحميل الفيديوهات..." height={400} />}>
+                <VideoSection />
               </Suspense>
             </FadeIn>
 
@@ -98,6 +127,11 @@ function App() {
 
             <FadeIn delay={50}>
               <SchoolPartnershipSection />
+            </FadeIn>
+
+            {/* FAQ Section */}
+            <FadeIn delay={50}>
+              <FAQSection />
             </FadeIn>
 
             <FadeIn delay={50}>
