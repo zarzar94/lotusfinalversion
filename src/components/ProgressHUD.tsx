@@ -12,6 +12,16 @@ const hudContainerStyle: React.CSSProperties = {
   gap: 8,
 };
 
+// Mobile: bottom position
+const hudContainerMobileStyle: React.CSSProperties = {
+  position: 'fixed',
+  bottom: 80,
+  left: 16,
+  right: 16,
+  top: 'auto',
+  zIndex: 15,
+};
+
 const hudButtonStyle: React.CSSProperties = {
   background: 'rgba(11,15,28,0.9)',
   backdropFilter: 'blur(10px)',
@@ -76,6 +86,30 @@ export default function ProgressHUD() {
   const unlockedAchievements = getUnlockedAchievements();
   const nextAchievements = getNextAchievements();
 
+  // Inject mobile styles
+  const mobileStyles = `
+    @media (max-width: 768px) {
+      .progress-hud {
+        top: auto !important;
+        bottom: 80px !important;
+        left: 12px !important;
+        right: auto !important;
+      }
+      .progress-hud-expanded {
+        top: auto !important;
+        bottom: 80px !important;
+        left: 12px !important;
+        right: 12px !important;
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+      .progress-hud-expanded > div {
+        max-width: 100% !important;
+        min-width: auto !important;
+      }
+    }
+  `;
+
   // Calculate level progress
   const levelThresholds = [0, 50, 150, 300, 500, 750];
   const currentLevelPoints = levelThresholds[state.level - 1] || 0;
@@ -84,10 +118,12 @@ export default function ProgressHUD() {
 
   if (!expanded) {
     return (
-      <div style={hudContainerStyle}>
-        <button
-          style={hudButtonStyle}
-          onClick={() => setExpanded(true)}
+      <>
+        <style>{mobileStyles}</style>
+        <div className="progress-hud" style={hudContainerStyle}>
+          <button
+            style={hudButtonStyle}
+            onClick={() => setExpanded(true)}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'scale(1.05)';
             e.currentTarget.style.boxShadow = '0 8px 30px rgba(143,211,204,0.4)';
@@ -121,12 +157,15 @@ export default function ProgressHUD() {
           </div>
         </button>
       </div>
+      </>
     );
   }
 
   return (
-    <div style={hudContainerStyle}>
-      <div style={expandedPanelStyle}>
+    <>
+      <style>{mobileStyles}</style>
+      <div className="progress-hud-expanded" style={hudContainerStyle}>
+        <div style={expandedPanelStyle}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -235,5 +274,6 @@ export default function ProgressHUD() {
         )}
       </div>
     </div>
+    </>
   );
 }
