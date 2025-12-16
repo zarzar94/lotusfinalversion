@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
-import { useGamification } from '../context/GamificationContext';
+import { brandCyan, brandPurple } from './styles';
 
 const Brain3D = lazy(() => import('./Brain3D'));
 
@@ -69,40 +68,6 @@ const featureBadgeStyle: React.CSSProperties = {
   gap: 5,
 };
 
-const ctaContainerStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'center',
-  gap: 12,
-  flexWrap: 'wrap',
-  marginTop: 20,
-  pointerEvents: 'auto',
-};
-
-const primaryCtaStyle: React.CSSProperties = {
-  ...styles.primaryBtn,
-  padding: '12px 24px',
-  fontSize: 14,
-  textDecoration: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  gap: 8,
-  background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
-  boxShadow: '0 10px 35px rgba(143,211,204,0.35)',
-  transition: 'all 0.3s ease',
-};
-
-const secondaryCtaStyle: React.CSSProperties = {
-  ...styles.ghostBtn,
-  padding: '12px 24px',
-  fontSize: 14,
-  textDecoration: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  gap: 8,
-  borderColor: 'rgba(175,132,186,0.4)',
-  transition: 'all 0.3s ease',
-};
-
 const scrollIndicatorStyle: React.CSSProperties = {
   position: 'absolute',
   bottom: 20,
@@ -136,9 +101,6 @@ const Brain3DFallback = () => (
 );
 
 export default function HeroSection() {
-  const { state, brainRegions } = useGamification();
-  const exploredCount = brainRegions.filter(r => r.explored).length;
-
   return (
     <section id="about" style={heroContainerStyle}>
       {/* 3D Brain Background - Full screen with bubbles */}
@@ -177,58 +139,6 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* CTA Buttons */}
-        <div style={ctaContainerStyle}>
-          <a
-            href="#audio-journey"
-            style={primaryCtaStyle}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-3px)';
-              e.currentTarget.style.boxShadow = '0 14px 45px rgba(143,211,204,0.45)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 10px 35px rgba(143,211,204,0.35)';
-            }}
-          >
-            <span>🎧</span> ابدأ رحلة الصوت
-          </a>
-          <a
-            href="#checklist"
-            style={secondaryCtaStyle}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(143,211,204,0.15)';
-              e.currentTarget.style.borderColor = brandCyan;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-              e.currentTarget.style.borderColor = 'rgba(175,132,186,0.4)';
-            }}
-          >
-            <span>✅</span> قائمة التحقق
-          </a>
-        </div>
-
-        {/* Mini Stats Row */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: 24,
-          marginTop: 16,
-        }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 20, fontWeight: 900, color: brandCyan }}>{state.totalPoints}</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>XP</div>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 20, fontWeight: 900, color: brandPurple }}>{exploredCount}/10</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>مناطق</div>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 20, fontWeight: 900, color: brandPink }}>{state.gamesCompleted.length}</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>ألعاب</div>
-          </div>
-        </div>
       </div>
 
       {/* Scroll Indicator */}
