@@ -70,15 +70,21 @@ const Header = () => {
             border: '1px solid rgba(255,255,255,0.12)',
             display: 'grid',
             placeItems: 'center',
+            overflow: 'hidden',
           }}
         >
           <img
             src={assetUrl('assets/images/brain_icon_44.png')}
             alt="Berard AIT"
-            width={28}
-            height={28}
+            width={44}
+            height={44}
             loading="eager"
-            style={{ display: 'block' }}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              display: 'block',
+            }}
           />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
