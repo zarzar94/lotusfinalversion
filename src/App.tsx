@@ -15,8 +15,6 @@ import Footer from './components/Footer';
 import WhatsAppFab from './components/WhatsAppFab';
 import ErrorBoundary from './components/ErrorBoundary';
 import { GamificationProvider } from './context/GamificationContext';
-import AchievementNotification from './components/AchievementNotification';
-import ProgressHUD from './components/ProgressHUD';
 import SectionLoader from './components/SectionLoader';
 import FadeIn from './components/FadeIn';
 import CredentialsBanner from './components/CredentialsBanner';
@@ -59,10 +57,6 @@ function App() {
           <BackgroundFX />
           <Header />
           <ScrollProgressBar />
-
-          {/* Gamification UI */}
-          <AchievementNotification />
-          <ProgressHUD />
 
           <main style={styles.container}>
             {/* HERO with 3D Brain */}
