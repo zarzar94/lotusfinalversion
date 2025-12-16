@@ -4,30 +4,7 @@ import { OrbitControls, Float, Text, Sphere, MeshDistortMaterial, Line } from '@
 import * as THREE from 'three';
 import { useGamification, BRAIN_REGIONS } from '../../context/GamificationContext';
 import { brandCyan, brandPurple, brandPink, brandPurpleDark } from '../styles';
-
-// Audio feedback for region exploration
-const playRegionSound = (frequency: number) => {
-  try {
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(frequency, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(frequency * 1.5, ctx.currentTime + 0.15);
-
-    gain.gain.setValueAtTime(0.12, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.4);
-  } catch {
-    // Audio unavailable
-  }
-};
+import { ensureAudio, safeCloseAudio } from '../games/audio';
 
 // Region frequencies for audio feedback
 const REGION_FREQUENCIES: Record<string, number> = {
@@ -138,22 +115,26 @@ interface BrainRegionNodeProps {
   region: typeof BRAIN_REGIONS[number];
   isExplored: boolean;
   isHovered: boolean;
+  isPulsing: boolean;
   onClick: () => void;
   onHover: (hovered: boolean) => void;
 }
 
-function BrainRegionNode({ position, region, isExplored, isHovered, onClick, onHover }: BrainRegionNodeProps) {
+function BrainRegionNode({ position, region, isExplored, isHovered, isPulsing, onClick, onHover }: BrainRegionNodeProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
     if (meshRef.current) {
-      const scale = isHovered ? 1.3 : isExplored ? 1.1 : 1;
-      meshRef.current.scale.lerp(new THREE.Vector3(scale, scale, scale), 0.1);
+      const baseScale = isHovered ? 1.3 : isExplored ? 1.1 : 1;
+      const pulseScale = isPulsing ? 1 + Math.sin(state.clock.elapsedTime * 12) * 0.12 : 1;
+      const scale = baseScale * pulseScale;
+      meshRef.current.scale.lerp(new THREE.Vector3(scale, scale, scale), 0.12);
     }
     if (glowRef.current) {
       const mat = glowRef.current.material as THREE.MeshBasicMaterial;
-      mat.opacity = 0.3 + Math.sin(state.clock.elapsedTime * 2) * 0.1;
+      const baseOpacity = isPulsing ? 0.45 : 0.3;
+      mat.opacity = baseOpacity + Math.sin(state.clock.elapsedTime * 2) * 0.1;
     }
   });
 
@@ -323,6 +304,56 @@ function BrainScene() {
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
   const [activePathways, setActivePathways] = useState<Set<string>>(new Set());
   const [pulseRegion, setPulseRegion] = useState<string | null>(null);
+  const audioRef = useRef<AudioContext | null>(null);
+  const timeoutsRef = useRef<Array<ReturnType<typeof setTimeout>>>([]);
+
+  useEffect(() => {
+    return () => {
+      for (const timeoutId of timeoutsRef.current) clearTimeout(timeoutId);
+      timeoutsRef.current = [];
+      void safeCloseAudio(audioRef);
+    };
+  }, []);
+
+  const playRegionSound = useCallback((frequency: number) => {
+    try {
+      const audio = ensureAudio(audioRef);
+      if (audio.state === 'suspended') void audio.resume().catch(() => {});
+
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(frequency, audio.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(frequency * 1.5, audio.currentTime + 0.15);
+
+      // Envelope to avoid clicks
+      gain.gain.setValueAtTime(0.0001, audio.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.12, audio.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.01, audio.currentTime + 0.4);
+
+      osc.connect(gain);
+      gain.connect(audio.destination);
+
+      const stopAt = audio.currentTime + 0.4;
+      osc.start(audio.currentTime);
+      osc.stop(stopAt);
+      osc.onended = () => {
+        try {
+          osc.disconnect();
+        } catch {
+          // ignore
+        }
+        try {
+          gain.disconnect();
+        } catch {
+          // ignore
+        }
+      };
+    } catch {
+      // Audio unavailable
+    }
+  }, []);
 
   const handleRegionClick = useCallback((regionId: string) => {
     exploreBrainRegion(regionId);
@@ -332,7 +363,7 @@ function BrainScene() {
 
     // Visual pulse effect
     setPulseRegion(regionId);
-    setTimeout(() => setPulseRegion(null), 500);
+    timeoutsRef.current.push(setTimeout(() => setPulseRegion(null), 500));
 
     // Activate connected pathways
     const connectedPathways = NEURAL_PATHWAYS.filter(
@@ -342,8 +373,8 @@ function BrainScene() {
     setActivePathways(new Set(connectedPathways));
 
     // Deactivate after animation
-    setTimeout(() => setActivePathways(new Set()), 3000);
-  }, [exploreBrainRegion]);
+    timeoutsRef.current.push(setTimeout(() => setActivePathways(new Set()), 3000));
+  }, [exploreBrainRegion, playRegionSound]);
 
   const handleRegionHover = useCallback((regionId: string, hovered: boolean) => {
     setHoveredRegion(hovered ? regionId : null);
@@ -375,6 +406,7 @@ function BrainScene() {
             region={region}
             isExplored={isExplored}
             isHovered={hoveredRegion === region.id}
+            isPulsing={pulseRegion === region.id}
             onClick={() => handleRegionClick(region.id)}
             onHover={(h) => handleRegionHover(region.id, h)}
           />

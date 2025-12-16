@@ -256,13 +256,50 @@ export default function AudioJourney() {
   const containerRef = useRef<HTMLDivElement>(null);
   const oscillatorRef = useRef<OscillatorNode | null>(null);
   const gainRef = useRef<GainNode | null>(null);
+  const advanceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (advanceTimeoutRef.current) clearTimeout(advanceTimeoutRef.current);
+      advanceTimeoutRef.current = null;
+
+      if (oscillatorRef.current) {
+        try {
+          oscillatorRef.current.stop();
+        } catch {
+          // ignore
+        }
+        try {
+          oscillatorRef.current.disconnect();
+        } catch {
+          // ignore
+        }
+        oscillatorRef.current = null;
+      }
+
+      if (gainRef.current) {
+        try {
+          gainRef.current.disconnect();
+        } catch {
+          // ignore
+        }
+        gainRef.current = null;
+      }
+
+      void audioContext?.close().catch(() => {});
+    };
+  }, [audioContext]);
 
   // Initialize audio context on first interaction
-  const initAudio = useCallback(() => {
-    if (!audioContext) {
-      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-      setAudioContext(ctx);
-      return ctx;
+  const initAudio = useCallback((): AudioContext | null => {
+    if (!audioContext || audioContext.state === 'closed') {
+      try {
+        const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+        setAudioContext(ctx);
+        return ctx;
+      } catch {
+        return null;
+      }
     }
     return audioContext;
   }, [audioContext]);
@@ -271,6 +308,7 @@ export default function AudioJourney() {
   const playStageSound = useCallback((frequency: number) => {
     const ctx = initAudio();
     if (!ctx) return;
+    if (ctx.state === 'suspended') void ctx.resume().catch(() => {});
 
     // Stop previous sound
     if (oscillatorRef.current) {
@@ -279,6 +317,20 @@ export default function AudioJourney() {
       } catch {
         // Already stopped
       }
+      try {
+        oscillatorRef.current.disconnect();
+      } catch {
+        // ignore
+      }
+      oscillatorRef.current = null;
+    }
+    if (gainRef.current) {
+      try {
+        gainRef.current.disconnect();
+      } catch {
+        // ignore
+      }
+      gainRef.current = null;
     }
 
     const oscillator = ctx.createOscillator();
@@ -299,6 +351,21 @@ export default function AudioJourney() {
 
     oscillatorRef.current = oscillator;
     gainRef.current = gain;
+
+    oscillator.onended = () => {
+      try {
+        oscillator.disconnect();
+      } catch {
+        // ignore
+      }
+      try {
+        gain.disconnect();
+      } catch {
+        // ignore
+      }
+      if (oscillatorRef.current === oscillator) oscillatorRef.current = null;
+      if (gainRef.current === gain) gainRef.current = null;
+    };
   }, [initAudio]);
 
   const handleStageActivate = useCallback((index: number) => {
@@ -321,18 +388,21 @@ export default function AudioJourney() {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const playAllStages = useCallback(() => {
+    if (advanceTimeoutRef.current) clearTimeout(advanceTimeoutRef.current);
+    advanceTimeoutRef.current = null;
     setIsPlaying(true);
     let currentIndex = 0;
 
     const playNext = () => {
       if (currentIndex >= JOURNEY_STAGES.length) {
         setIsPlaying(false);
+        advanceTimeoutRef.current = null;
         return;
       }
 
       handleStageActivate(currentIndex);
       currentIndex++;
-      setTimeout(playNext, 2000);
+      advanceTimeoutRef.current = setTimeout(playNext, 2000);
     };
 
     playNext();
