@@ -1,80 +1,66 @@
-# Lotus × Berard AIT — Futuristic Sound Lab (React)
+# Lotus / Berard AIT Sound Lab (React + Vite)
 
-هذا مشروع **React (Vite + TypeScript)** مبني على نسخة الموقع النهائية **v5** مع:
-- ✅ **دمج كل ميزات الموقع الحالية** (الألعاب، عارض الشرائح PPTX، قائمة التحقق، مقارنة البدائل، قسم المدارس… إلخ)
-- ✅ **ثيم جديد “Futuristic Sound Lab”**: خلفية Spectrogram متحركة + أيقونات عائمة + لوحة فلترة صوتية تفاعلية
-- ✅ واجهة **Arabic-first** و RTL
-- ✅ جاهز للنشر كـ **Prototype** على GitHub Pages (مع Workflow جاهز)
+Arabic-first, RTL landing/prototype for the Berard Auditory Integration Training (AIT) program. Built with Vite + TypeScript + React; includes an in-browser screening lab, PDF exports, and GitHub Pages deployment.
 
-> ملاحظة مهمة: للحفاظ على **عدم فقدان أي ميزة/تفصيل**، قمنا بدمج محتوى v5 بالكامل داخل React (LegacySite) وتحميل سكربت v5 بعد الرندر.  
-> الخطوة التالية (اختيارية) هي تفكيك الأقسام تدريجيًا إلى React Components 100% بدون Legacy.
+## Highlights
+- 57-slide PPTX viewer with search/filter, modal preview, keyboard navigation, and a slides-summary PDF export. Assets load from `public/assets/pptx_slides` and downloads include `berard-profile.pdf`.
+- Interactive checklist (Arabic + English labels) with recommendation messaging, official PDF download, and "your selections" PDF export (embeds Cairo fonts for RTL text).
+- Screening Lab: attention Go/No-Go, frequency discrimination (adaptive 2IFC), sequencing demo, subjective questionnaire, and a multi-test suite with headphone check plus CSV/PDF export of results.
+- Clinic contact via WhatsApp deep link, optional email link, and floating WhatsApp FAB. Phone defaults to `VITE_CLINIC_PHONE` but can be overridden.
+- RTL-first UI, CSP locked to self-hosted assets (no external scripts), and BASE_URL-aware asset helper for GitHub Pages.
 
----
+## Requirements
+- Node.js 20+
+- npm (ships with Node)
+- Media assets merged (see "Media restore" below)
 
-## التشغيل محليًا
-
-1) ثبّت Node.js (يفضّل Node 20)
-2) داخل مجلد المشروع:
-
+## Quick start
 ```bash
 npm install
 npm run dev
 ```
+Visit the printed localhost URL. The app is RTL by default (`index.html` sets `dir="rtl"`).
 
----
+## Scripts
+- `npm run dev` - start Vite dev server
+- `npm run build` - production build
+- `npm run preview` - preview the production build
+- `npm run qa:assets` - verify required public assets (slides, fonts, PDFs)
 
-## النشر على GitHub Pages (Prototype أثناء التطوير)
+## Environment
+Create `.env` from `.env.example`:
+```
+VITE_CLINIC_PHONE=+9715XXXXXXXX
+VITE_CLINIC_EMAIL=info@example.com   # optional override
+```
+Deployment under a subpath (e.g., GitHub Pages) uses `BASE_PATH` (see `vite.config.ts`). The GitHub Actions workflow already sets it to `/<repo-name>/`.
 
-المشروع يحتوي Workflow جاهز في:
-`.github/workflows/deploy.yml`
+## Media restore
+If assets are missing, merge the provided archives as noted in `README_MERGE_MEDIA.txt`:
+1) Unzip `thenewproject_updated_CORE_v3.zip`
+2) Unzip `thenewproject_updated_MEDIA_v3.zip` into the same folder (allow merge/overwrite)
 
-### الخطوات:
-1) ارفع هذا المشروع إلى GitHub repo (مثلاً: `zarzar94/zazaza`)
-2) من GitHub:
-   - Settings → Pages
-   - **Build and deployment** → اختر **GitHub Actions**
-3) ادفع أي تعديل إلى فرع `main` وسيقوم GitHub Actions بـ:
-   - build
-   - نشر `dist` على Pages
+Key expected files (checked by `npm run qa:assets`):
+- Slides: `public/assets/pptx_slides/slide-01.png` ... `slide-57.png` and thumbs
+- Downloads: `public/downloads/Check list (2).pdf`, `public/downloads/berard-profile.pdf`
+- Fonts for PDF: `public/fonts/Cairo-Regular.ttf`, `public/fonts/Cairo-Bold.ttf`
+- Branding: `public/assets/images/brain_icon_44.png`, `brain_logo.png`
 
-> الـ Workflow يضبط `BASE_PATH` تلقائيًا إلى `/<repo-name>/` حتى تعمل الـ assets والروابط على GitHub Pages.
+## Project map
+- `src/App.tsx` - layout + lazy-loaded sections
+- `src/components/` - UI (SlideViewer, Checklist, GameSection, ComparisonSection, SchoolPartnershipSection, ContactForm, WhatsAppFab, BackgroundFX)
+- `src/components/games/` - screening lab panels, reports, audio helpers
+- `src/utils/pdf.ts` - jsPDF with embedded Cairo fonts + RTL text helper
+- `src/utils/asset.ts` - BASE_URL-aware asset helper for GitHub Pages
+- `src/data/` - clinic config, checklist items, PPTX metadata
+- `.github/workflows/deploy.yml` - GitHub Pages build/publish
 
----
+## Deployment
+See `DEPLOYMENT.md` for GitHub Pages and Notion embed steps. Default Vite base is `./`; set `BASE_PATH` for subpath hosting. The included workflow builds on `main` and publishes `/dist` to Pages.
 
-## إدراج الموقع في Notion
+## QA
+- Automated: `npm run qa:assets`
+- Manual smoke (recommended): slides grid + modal + PDF export; checklist selections + "your selections" PDF; all screening tests (including suite exports); WhatsApp CTA/FAB opens chat; contact form LTR phone input behaves on mobile.
 
-بعد نشر GitHub Pages والحصول على الرابط:
-1) في Notion افتح الصفحة التي تريد
-2) اكتب: `/embed`
-3) الصق رابط GitHub Pages
-4) Done ✅
-
----
-
-## أين المحتوى والملفات؟
-
-- ملفات الموقع (v5) المدمجة: `src/content/legacyBody.ts`
-- سكربت v5: `public/legacy/v5.js`
-- الأصول: `public/assets/...`
-- ملفات تحميل إضافية:
-  - `public/Check list (2).pdf` (لروابط النسخة v5)
-  - `public/downloads/...` (PDF/PPTX إضافية)
-
----
-
-## ملاحظات تقنية
-
-- الخلفية Spectrogram تعمل حتى بدون تفعيل الصوت (محاكاة).  
-- عند الضغط على “تفعيل صوت المختبر” يبدأ WebAudio (بما يوافق سياسات المتصفح).
-- الألعاب والمودالات تعمل عبر سكربت v5 المدمج لضمان تطابق الوظائف بالكامل.
-
----
-
-## التطوير القادم (إذا رغبت)
-
-1) تحويل الأقسام الثقيلة تدريجيًا إلى React:
-   - PPTX Viewer → React كامل
-   - Checklist → React كامل
-   - Games → React كامل (مع WebAudio مشترك)
-2) فصل المحتوى إلى Notion CMS (اختياري) عبر Notion API
-
+## Notion embed
+After deployment, paste the live URL into Notion -> Embed. Ensure your hosting does not set `X-Frame-Options: DENY` or `frame-ancestors 'none'` (the provided CSP allows embedding).

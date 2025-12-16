@@ -1,81 +1,38 @@
-# Deployment — GitHub Pages + Notion Embed
+# Deployment - GitHub Pages + Notion Embed
 
-## A) Deploy to GitHub Pages (Vite + React)
-
-### 1) Install & build
+## A) Build and verify locally
 ```bash
 npm install
+npm run qa:assets   # optional: verify public assets
 npm run build
 ```
+`vite.config.ts` uses `base: process.env.BASE_PATH || './'`, so static hosting works under a root or subpath when `BASE_PATH` is set.
 
-### 2) Verify vite base path
-This project uses `base: './'` in `vite.config.ts` which is suitable for GitHub Pages.
+## B) GitHub Pages (Actions workflow included)
+1) Push to `main` (or trigger `workflow_dispatch`). Workflow: `.github/workflows/deploy.yml`.
+2) The workflow runs `npm ci`, `npm run build`, and uploads `/dist` with `BASE_PATH` set to `/<repo-name>/`.
+3) In GitHub Pages settings, pick **GitHub Actions** for build and deployment. The workflow publishes automatically.
 
-### 3) Typical GitHub Pages deployment options
-#### Option 1: GitHub Actions (recommended)
-- Enable GitHub Actions in your repo
-- Use an Actions workflow to build and publish `/dist` to Pages
+Notes:
+- If you rename the repo or use a custom domain, update `BASE_PATH` accordingly or leave it empty for root hosting.
+- Keep `public/fonts/` bundled so PDFs render Arabic text.
 
-Example workflow: `.github/workflows/deploy.yml`
-```yaml
-name: Deploy to Pages
-on:
-  push:
-    branches: [ main ]
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-      - run: npm ci
-      - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
-```
-
-#### Option 2: gh-pages branch (manual)
-- Use a package like `gh-pages` to publish `dist/` to `gh-pages` branch.
-
-## B) Embed in Notion
-
-### 1) After you deploy
-Copy your GitHub Pages URL, e.g.:
-- `https://<username>.github.io/<repo>/`
-
-### 2) In Notion
-- Paste the URL
-- Choose **Embed**
-
-### 3) Notes
-- GitHub Pages typically allows embedding.
-- If you see a blank frame, check:
-  - Your site does not send `X-Frame-Options: DENY`
-  - Your site does not set CSP `frame-ancestors 'none'`
-
-## C) WhatsApp number configuration
-Set your WhatsApp number as an environment variable for builds:
-
-Create `.env`:
+## C) Manual gh-pages alternative
+If you prefer a `gh-pages` branch:
 ```bash
-VITE_CLINIC_PHONE=9715XXXXXXXX
+npm run build
+npx gh-pages -d dist -b gh-pages
 ```
+Ensure `BASE_PATH` matches the published subpath.
 
-This ensures the WhatsApp CTA opens the correct clinic chat.
+## D) Notion embed
+1) Deploy to a public URL (e.g., GitHub Pages).
+2) In Notion: paste the URL and choose **Embed**.
+3) The provided CSP allows embedding (`frame-ancestors` not locked down). If you add extra headers, avoid `X-Frame-Options: DENY` or `frame-ancestors 'none'`.
+
+## E) WhatsApp configuration
+Set environment variables before building:
+```
+VITE_CLINIC_PHONE=+9715XXXXXXXX   # required for WhatsApp CTA
+VITE_CLINIC_EMAIL=info@example.com   # optional
+```
