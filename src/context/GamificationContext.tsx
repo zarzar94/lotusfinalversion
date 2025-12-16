@@ -19,6 +19,10 @@ export interface BrainRegion {
   name: string;
   nameAr: string;
   explored: boolean;
+  treatmentAreas: string[];
+  treatmentAreasAr: string[];
+  description: string;
+  descriptionAr: string;
 }
 
 export interface GamificationState {
@@ -175,12 +179,66 @@ const INITIAL_ACHIEVEMENTS: Achievement[] = [
 ];
 
 const BRAIN_REGIONS: BrainRegion[] = [
-  { id: 'auditory_cortex', name: 'Auditory Cortex', nameAr: 'القشرة السمعية', explored: false },
-  { id: 'temporal_lobe', name: 'Temporal Lobe', nameAr: 'الفص الصدغي', explored: false },
-  { id: 'brainstem', name: 'Brainstem', nameAr: 'جذع الدماغ', explored: false },
-  { id: 'thalamus', name: 'Thalamus', nameAr: 'المهاد', explored: false },
-  { id: 'prefrontal', name: 'Prefrontal Cortex', nameAr: 'القشرة الجبهية', explored: false },
-  { id: 'cerebellum', name: 'Cerebellum', nameAr: 'المخيخ', explored: false },
+  {
+    id: 'auditory_cortex',
+    name: 'Auditory Cortex',
+    nameAr: 'القشرة السمعية',
+    explored: false,
+    treatmentAreas: ['Auditory Processing', 'Sound Recognition', 'Speech Perception'],
+    treatmentAreasAr: ['المعالجة السمعية', 'التعرف على الأصوات', 'إدراك الكلام'],
+    description: 'Primary area for processing sound and auditory information',
+    descriptionAr: 'المنطقة الرئيسية لمعالجة الصوت والمعلومات السمعية',
+  },
+  {
+    id: 'temporal_lobe',
+    name: 'Temporal Lobe',
+    nameAr: 'الفص الصدغي',
+    explored: false,
+    treatmentAreas: ['Language', 'Memory', 'Music Perception'],
+    treatmentAreasAr: ['اللغة', 'الذاكرة', 'إدراك الموسيقى'],
+    description: 'Processes language comprehension, memory formation, and musical understanding',
+    descriptionAr: 'يعالج فهم اللغة وتكوين الذاكرة وفهم الموسيقى',
+  },
+  {
+    id: 'brainstem',
+    name: 'Brainstem',
+    nameAr: 'جذع الدماغ',
+    explored: false,
+    treatmentAreas: ['Sensory Balance', 'Reflexes', 'Basic Auditory Processing'],
+    treatmentAreasAr: ['التوازن الحسي', 'ردود الفعل', 'المعالجة السمعية الأساسية'],
+    description: 'Controls basic auditory reflexes and sensory-motor integration',
+    descriptionAr: 'يتحكم في ردود الفعل السمعية الأساسية والتكامل الحسي الحركي',
+  },
+  {
+    id: 'thalamus',
+    name: 'Thalamus',
+    nameAr: 'المهاد',
+    explored: false,
+    treatmentAreas: ['Attention', 'Concentration', 'Sensory Relay'],
+    treatmentAreasAr: ['الانتباه', 'التركيز', 'نقل الإحساس'],
+    description: 'Relays sensory information and regulates attention and alertness',
+    descriptionAr: 'ينقل المعلومات الحسية وينظم الانتباه واليقظة',
+  },
+  {
+    id: 'prefrontal',
+    name: 'Prefrontal Cortex',
+    nameAr: 'القشرة الجبهية',
+    explored: false,
+    treatmentAreas: ['Behavior', 'Learning', 'Executive Function'],
+    treatmentAreasAr: ['السلوك', 'التعلم', 'الوظائف التنفيذية'],
+    description: 'Controls higher-order thinking, planning, and behavioral regulation',
+    descriptionAr: 'يتحكم في التفكير العالي والتخطيط وتنظيم السلوك',
+  },
+  {
+    id: 'cerebellum',
+    name: 'Cerebellum',
+    nameAr: 'المخيخ',
+    explored: false,
+    treatmentAreas: ['Well-being', 'Motor Coordination', 'Timing'],
+    treatmentAreasAr: ['الرفاهية', 'التنسيق الحركي', 'التوقيت'],
+    description: 'Coordinates movement timing and contributes to cognitive processing',
+    descriptionAr: 'ينسق توقيت الحركة ويساهم في المعالجة المعرفية',
+  },
 ];
 
 const STORAGE_KEY = 'lotus_gamification_state';

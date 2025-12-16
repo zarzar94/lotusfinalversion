@@ -207,8 +207,37 @@ export default function HeroSection() {
           أبوظبي
         </div>
 
+        {/* Dr. Berard Quote */}
+        <div style={{
+          marginTop: 20,
+          padding: '16px 24px',
+          background: 'rgba(11,15,28,0.8)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: 14,
+          borderRight: `3px solid ${brandCyan}`,
+          maxWidth: 600,
+        }}>
+          <p style={{
+            margin: 0,
+            fontSize: 'clamp(14px, 2vw, 16px)',
+            fontStyle: 'italic',
+            color: 'rgba(255,255,255,0.9)',
+            lineHeight: 1.7,
+          }}>
+            "كل شيء يحدث كما لو أن <span style={{ color: brandCyan, fontWeight: 700 }}>السلوك البشري</span> مشروط إلى حد كبير <span style={{ color: brandPink, fontWeight: 700 }}>بطريقة سمعه</span>"
+          </p>
+          <div style={{
+            marginTop: 8,
+            fontSize: 13,
+            color: brandPurple,
+            fontWeight: 700,
+          }}>
+            — د. جاي بيرارد، مؤسس Berard AIT
+          </div>
+        </div>
+
         {/* Subtitle */}
-        <p style={subtitleStyle}>
+        <p style={{ ...subtitleStyle, marginTop: 20 }}>
           استكشف عالم <span style={{ color: brandCyan }}>السمع</span> و
           <span style={{ color: brandPink }}>معالجة الصوت</span> بطريقة تفاعلية حديثة
           <br />
