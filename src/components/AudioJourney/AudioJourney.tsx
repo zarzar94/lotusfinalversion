@@ -164,6 +164,7 @@ function AudioJourneyStage({ stage, index, active, completed, onActivate }: Audi
     <div
       ref={stageRef}
       onClick={onActivate}
+      className="audio-stage"
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -178,6 +179,7 @@ function AudioJourneyStage({ stage, index, active, completed, onActivate }: Audi
         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
         transform: active ? 'scale(1.02)' : 'scale(1)',
         boxShadow: active ? `0 20px 60px rgba(${stage.color === brandCyan ? '143,211,204' : '175,132,186'},0.2)` : 'none',
+        flexWrap: 'wrap',
       }}
     >
       {/* Stage number */}
@@ -463,6 +465,25 @@ export default function AudioJourney() {
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
+        }
+        @media (max-width: 768px) {
+          .audio-stage {
+            flex-direction: column !important;
+            text-align: center !important;
+            gap: 16px !important;
+            padding: 16px !important;
+          }
+          .audio-stage > div:first-child {
+            margin: 0 auto;
+          }
+          .audio-stage > div:nth-child(2) {
+            order: -1;
+          }
+          .audio-stage canvas {
+            width: 100% !important;
+            max-width: 200px !important;
+            margin: 0 auto;
+          }
         }
       `}</style>
     </section>

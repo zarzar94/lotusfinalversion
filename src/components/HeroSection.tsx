@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense } from 'react';
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
 import { useGamification } from '../context/GamificationContext';
 
@@ -168,7 +168,6 @@ const Brain3DFallback = () => (
 
 export default function HeroSection() {
   const { state, brainRegions } = useGamification();
-  const [brainLoaded, setBrainLoaded] = useState(false);
   const exploredCount = brainRegions.filter(r => r.explored).length;
 
   return (
@@ -331,6 +330,12 @@ export default function HeroSection() {
         @keyframes pulse {
           0%, 100% { transform: scale(1); opacity: 0.5; }
           50% { transform: scale(1.1); opacity: 0.7; }
+        }
+        @media (max-width: 768px) {
+          #about {
+            min-height: 100vh !important;
+            padding: 20px 12px 60px !important;
+          }
         }
       `}</style>
     </section>

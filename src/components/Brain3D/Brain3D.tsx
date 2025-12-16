@@ -1,12 +1,43 @@
 import { useRef, useState, useMemo, useCallback, useEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Float, Text, Sphere, MeshDistortMaterial } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, Float, Text, Sphere, MeshDistortMaterial, Line } from '@react-three/drei';
 import * as THREE from 'three';
 import { useGamification, BRAIN_REGIONS } from '../../context/GamificationContext';
 import { brandCyan, brandPurple, brandPink, brandPurpleDark } from '../styles';
 
-// Convert hex to THREE color
-const hexToVec3 = (hex: string) => new THREE.Color(hex);
+// Audio feedback for region exploration
+const playRegionSound = (frequency: number) => {
+  try {
+    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(frequency * 1.5, ctx.currentTime + 0.15);
+
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.4);
+  } catch {
+    // Audio unavailable
+  }
+};
+
+// Region frequencies for audio feedback
+const REGION_FREQUENCIES: Record<string, number> = {
+  auditory_cortex: 440,
+  temporal_lobe: 523.25,
+  brainstem: 329.63,
+  thalamus: 392,
+  prefrontal: 587.33,
+  cerebellum: 493.88,
+};
 
 // Brain region positions in 3D space (normalized)
 const REGION_POSITIONS: Record<string, [number, number, number]> = {
@@ -256,13 +287,50 @@ function ParticleField({ count = 500 }: ParticleFieldProps) {
   );
 }
 
+// Connection line component
+function ConnectionLine({ from, to, color, active }: { from: [number, number, number]; to: [number, number, number]; color: string; active: boolean }) {
+  const points = useMemo(() => {
+    const curve = new THREE.QuadraticBezierCurve3(
+      new THREE.Vector3(...from),
+      new THREE.Vector3(
+        (from[0] + to[0]) / 2,
+        (from[1] + to[1]) / 2 + 0.3,
+        (from[2] + to[2]) / 2
+      ),
+      new THREE.Vector3(...to)
+    );
+    return curve.getPoints(20);
+  }, [from, to]);
+
+  return (
+    <Line
+      points={points}
+      color={color}
+      lineWidth={active ? 3 : 1}
+      transparent
+      opacity={active ? 0.8 : 0.2}
+      dashed={!active}
+      dashSize={0.1}
+      gapSize={0.05}
+    />
+  );
+}
+
 function BrainScene() {
   const { brainRegions, exploreBrainRegion } = useGamification();
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
   const [activePathways, setActivePathways] = useState<Set<string>>(new Set());
+  const [pulseRegion, setPulseRegion] = useState<string | null>(null);
 
   const handleRegionClick = useCallback((regionId: string) => {
     exploreBrainRegion(regionId);
+
+    // Play audio feedback
+    playRegionSound(REGION_FREQUENCIES[regionId] || 440);
+
+    // Visual pulse effect
+    setPulseRegion(regionId);
+    setTimeout(() => setPulseRegion(null), 500);
 
     // Activate connected pathways
     const connectedPathways = NEURAL_PATHWAYS.filter(
@@ -311,7 +379,18 @@ function BrainScene() {
         );
       })}
 
-      {/* Neural pathways */}
+      {/* Connection lines */}
+      {NEURAL_PATHWAYS.map((pathway) => (
+        <ConnectionLine
+          key={`line-${pathway.from}-${pathway.to}`}
+          from={REGION_POSITIONS[pathway.from]}
+          to={REGION_POSITIONS[pathway.to]}
+          color={pathway.color}
+          active={activePathways.has(`${pathway.from}-${pathway.to}`)}
+        />
+      ))}
+
+      {/* Neural pathways (particles) */}
       {NEURAL_PATHWAYS.map((pathway, idx) => (
         <NeuralPathway
           key={`${pathway.from}-${pathway.to}`}
