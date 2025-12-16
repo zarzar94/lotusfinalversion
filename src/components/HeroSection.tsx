@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { brandCyan, brandPurple } from './styles';
+import { brandCyan, brandPink, brandPurple } from './styles';
 
 const Brain3D = lazy(() => import('./Brain3D'));
 
