@@ -420,53 +420,6 @@ function CaseStudyCard({
             <div style={{
               width: 52,
               height: 52,
-<<<<<<< HEAD
-              borderRadius: '50%',
-              background: `linear-gradient(135deg, rgba(11,15,28,0.9), ${accentColor}22)`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: `2px solid ${accentColor}`,
-              overflow: 'hidden',
-            }}>
-              <img
-                src={assetUrl('assets/images/brain_logo.png')}
-                alt="Berard AIT"
-                style={{
-                  width: 42,
-                  height: 42,
-                  objectFit: 'contain',
-                  mixBlendMode: 'screen',
-                  filter: `drop-shadow(0 0 8px ${accentColor})`,
-                }}
-              />
-            </div>
-            {isActive && (
-              <div style={{
-                position: 'absolute',
-                inset: -4,
-                borderRadius: '50%',
-                border: `2px solid ${accentColor}`,
-                animation: 'pulseRing 2s ease-out infinite',
-              }} />
-            )}
-            {/* Verified badge */}
-            <div style={{
-              position: 'absolute',
-              bottom: -2,
-              right: -2,
-              width: 18,
-              height: 18,
-              borderRadius: '50%',
-              background: '#22c55e',
-              border: '2px solid rgba(15,22,41,1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 10,
-            }}>
-              ✓
-=======
               borderRadius: '50%',
               background: `linear-gradient(135deg, rgba(11,15,28,0.9), ${accentColor}22)`,
               display: 'flex',
@@ -511,7 +464,6 @@ function CaseStudyCard({
               justifyContent: 'center',
             }}>
               <CheckIcon size={10} color="#fff" />
->>>>>>> origin/claude/redesign-ai-website-n4NU9
             </div>
           </div>
 
@@ -532,16 +484,11 @@ function CaseStudyCard({
                   background: 'rgba(255,255,255,0.1)',
                   borderRadius: 10,
                   color: 'rgba(255,255,255,0.7)',
-<<<<<<< HEAD
-                }}>
-                  🎥 فيديو
-=======
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 4,
                 }}>
                   <VideoIcon size={12} /> فيديو
->>>>>>> origin/claude/redesign-ai-website-n4NU9
                 </span>
               )}
             </div>
@@ -663,13 +610,6 @@ function CaseStudyCard({
         {/* Rating stars */}
         <div style={{ display: 'flex', gap: 2 }}>
           {Array.from({ length: 5 }).map((_, i) => (
-<<<<<<< HEAD
-            <span key={i} style={{
-              color: i < testimonial.rating ? '#FFD700' : 'rgba(255,255,255,0.15)',
-              fontSize: 14,
-              textShadow: i < testimonial.rating ? '0 0 8px rgba(255,215,0,0.5)' : 'none',
-            }}>★</span>
-=======
             <StarIcon
               key={i}
               size={14}
@@ -679,7 +619,6 @@ function CaseStudyCard({
                 filter: i < testimonial.rating ? 'drop-shadow(0 0 8px rgba(255,215,0,0.5))' : 'none',
               }}
             />
->>>>>>> origin/claude/redesign-ai-website-n4NU9
           ))}
         </div>
       </div>
@@ -716,17 +655,10 @@ function AggregateStats({ isVisible }: { isVisible: boolean }) {
   }, [isVisible]);
 
   const stats = [
-<<<<<<< HEAD
-    { value: `${counts.satisfaction}%`, label: 'نسبة الرضا', icon: '😊', color: brandCyan },
-    { value: `${counts.cases}+`, label: 'حالة ناجحة', icon: '🏆', color: brandPurple },
-    { value: `${counts.years}+`, label: 'سنوات خبرة', icon: '⏱️', color: brandPink },
-    { value: (counts.rating / 10).toFixed(1), label: 'تقييم عام', icon: '⭐', color: '#FFD700' },
-=======
     { value: `${counts.satisfaction}%`, label: 'نسبة الرضا', icon: <SmileIcon size={24} color={brandCyan} />, color: brandCyan },
     { value: `${counts.cases}+`, label: 'حالة ناجحة', icon: <TrophyIcon size={24} color={brandPurple} />, color: brandPurple },
     { value: `${counts.years}+`, label: 'سنوات خبرة', icon: <ClockIcon size={24} color={brandPink} />, color: brandPink },
     { value: (counts.rating / 10).toFixed(1), label: 'تقييم عام', icon: <StarIcon size={24} color="#FFD700" filled />, color: '#FFD700' },
->>>>>>> origin/claude/redesign-ai-website-n4NU9
   ];
 
   return (
@@ -754,20 +686,11 @@ function AggregateStats({ isVisible }: { isVisible: boolean }) {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-<<<<<<< HEAD
-            fontSize: 80,
-            opacity: 0.05,
-          }}>
-            {stat.icon}
-          </div>
-          <div style={{ fontSize: 24, marginBottom: 8 }}>{stat.icon}</div>
-=======
             opacity: 0.08,
           }}>
             {stat.icon}
           </div>
           <div style={{ marginBottom: 8 }}>{stat.icon}</div>
->>>>>>> origin/claude/redesign-ai-website-n4NU9
           <div style={{
             fontSize: 32,
             fontWeight: 900,
@@ -858,13 +781,9 @@ export default function TestimonialsSection() {
           border: '1px solid rgba(255,215,0,0.25)',
           marginBottom: 16,
         }}>
-<<<<<<< HEAD
-          <span style={{ fontSize: 28, animation: 'float 3s ease-in-out infinite' }}>⭐</span>
-=======
           <span style={{ animation: 'float 3s ease-in-out infinite', display: 'flex' }}>
             <StarIcon size={28} color="#FFD700" filled />
           </span>
->>>>>>> origin/claude/redesign-ai-website-n4NU9
           <span style={{
             fontSize: 14,
             fontWeight: 800,
@@ -881,16 +800,11 @@ export default function TestimonialsSection() {
             fontSize: 10,
             color: '#fff',
             fontWeight: 900,
-<<<<<<< HEAD
-          }}>
-            ✓ موثق
-=======
             display: 'inline-flex',
             alignItems: 'center',
             gap: 4,
           }}>
             <ShieldCheckIcon size={12} color="#fff" /> موثق
->>>>>>> origin/claude/redesign-ai-website-n4NU9
           </span>
         </div>
 
@@ -980,16 +894,11 @@ export default function TestimonialsSection() {
             fontWeight: 900,
             color: '#fff',
             marginBottom: 6,
-<<<<<<< HEAD
-          }}>
-            🎯 هل ترغب في تجربة مماثلة؟
-=======
             display: 'flex',
             alignItems: 'center',
             gap: 10,
           }}>
             <TargetIcon size={24} color={brandCyan} /> هل ترغب في تجربة مماثلة؟
->>>>>>> origin/claude/redesign-ai-website-n4NU9
           </div>
           <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)' }}>
             احجز استشارتك المجانية اليوم واكتشف كيف يمكن لـ Berard AIT مساعدتك
@@ -1002,16 +911,11 @@ export default function TestimonialsSection() {
             padding: '14px 28px',
             fontSize: 15,
             borderRadius: 14,
-<<<<<<< HEAD
-          }}>
-            📞 احجز استشارة مجانية
-=======
             display: 'inline-flex',
             alignItems: 'center',
             gap: 8,
           }}>
             <PhoneIcon size={18} /> احجز استشارة مجانية
->>>>>>> origin/claude/redesign-ai-website-n4NU9
           </a>
           <a href="#checklist" style={{
             ...styles.ghostBtn,
@@ -1019,26 +923,17 @@ export default function TestimonialsSection() {
             padding: '14px 28px',
             fontSize: 15,
             borderRadius: 14,
-<<<<<<< HEAD
-          }}>
-            🔬 جرب الماسح العصبي
-=======
             display: 'inline-flex',
             alignItems: 'center',
             gap: 8,
           }}>
             <MicroscopeIcon size={18} /> جرب الماسح العصبي
->>>>>>> origin/claude/redesign-ai-website-n4NU9
           </a>
         </div>
       </div>
 
       {/* Disclaimer */}
-<<<<<<< HEAD
-      <p style={{
-=======
       <div style={{
->>>>>>> origin/claude/redesign-ai-website-n4NU9
         ...styles.muted,
         marginTop: 20,
         textAlign: 'center',
@@ -1047,11 +942,6 @@ export default function TestimonialsSection() {
         background: 'rgba(245,158,11,0.08)',
         borderRadius: 12,
         border: '1px solid rgba(245,158,11,0.15)',
-<<<<<<< HEAD
-      }}>
-        ⚠️ النتائج تختلف من شخص لآخر. جميع الشهادات حقيقية وموثقة بموافقة أصحابها. هذا ليس ضماناً للنتائج - استشر مختصاً للتقييم الشخصي.
-      </p>
-=======
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -1060,7 +950,6 @@ export default function TestimonialsSection() {
         <AlertIcon size={16} color="#f59e0b" style={{ flexShrink: 0 }} />
         النتائج تختلف من شخص لآخر. جميع الشهادات حقيقية وموثقة بموافقة أصحابها. هذا ليس ضماناً للنتائج - استشر مختصاً للتقييم الشخصي.
       </div>
->>>>>>> origin/claude/redesign-ai-website-n4NU9
     </section>
   );
 }
