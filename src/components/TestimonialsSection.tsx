@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
 
 type Testimonial = {
@@ -80,6 +80,50 @@ const stats = [
 
 export default function TestimonialsSection() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
+  // Detect mobile
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Auto-rotate carousel
+  const nextSlide = useCallback(() => {
+    setActiveIndex((prev) => (prev + 1) % testimonials.length);
+  }, []);
+
+  const prevSlide = useCallback(() => {
+    setActiveIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  }, []);
+
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(nextSlide, 6000);
+    return () => clearInterval(interval);
+  }, [isPaused, nextSlide]);
+
+  // Swipe gestures
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    const diff = touchStartX.current - touchEndX.current;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) nextSlide();
+      else prevSlide();
+    }
+  };
 
   return (
     <section id="testimonials" style={styles.sectionCard}>
@@ -95,77 +139,152 @@ export default function TestimonialsSection() {
         </p>
       </div>
 
-      {/* Stats Row */}
+      {/* Stats Row - Responsive */}
       <div style={{
         marginTop: 20,
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: 12,
+        gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+        gap: isMobile ? 8 : 12,
       }}>
         {stats.map((stat, i) => (
           <div key={i} style={{
-            padding: 16,
+            padding: isMobile ? 12 : 16,
             background: `linear-gradient(135deg, ${[brandCyan, brandPurple, brandPink, brandPurpleDark][i]}15, transparent)`,
             borderRadius: 12,
             textAlign: 'center',
             border: `1px solid ${[brandCyan, brandPurple, brandPink, brandPurpleDark][i]}33`,
-          }}>
+            transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+          }}
+            onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 8px 25px ${[brandCyan, brandPurple, brandPink, brandPurpleDark][i]}22`; }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+          >
             <div style={{
-              fontSize: 28,
+              fontSize: isMobile ? 22 : 28,
               fontWeight: 900,
               color: [brandCyan, brandPurple, brandPink, brandPurpleDark][i],
             }}>
               {stat.value}
             </div>
-            <div style={{ fontSize: 12, opacity: 0.7, marginTop: 4 }}>{stat.label}</div>
+            <div style={{ fontSize: isMobile ? 10 : 12, opacity: 0.7, marginTop: 4 }}>{stat.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Featured Testimonial */}
-      <div style={{
-        marginTop: 24,
-        padding: 24,
-        background: `linear-gradient(135deg, rgba(143,211,204,0.08), rgba(175,132,186,0.08))`,
-        borderRadius: 16,
-        border: '1px solid rgba(143,211,204,0.2)',
-        position: 'relative',
-      }}>
+      {/* Featured Testimonial - With Swipe Support */}
+      <div
+        style={{
+          marginTop: 24,
+          padding: isMobile ? 16 : 24,
+          background: `linear-gradient(135deg, rgba(143,211,204,0.08), rgba(175,132,186,0.08))`,
+          borderRadius: 16,
+          border: '1px solid rgba(143,211,204,0.2)',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {/* Quote Icon */}
         <div style={{
           position: 'absolute',
           top: 16,
           right: 20,
-          fontSize: 48,
+          fontSize: isMobile ? 36 : 48,
           opacity: 0.1,
           color: brandCyan,
         }}>
           "
         </div>
 
-        <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+        {/* Navigation Arrows - Desktop */}
+        {!isMobile && (
+          <>
+            <button
+              type="button"
+              onClick={prevSlide}
+              style={{
+                position: 'absolute',
+                left: 8,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                background: 'rgba(11,15,28,0.8)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: '#fff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 18,
+                opacity: isPaused ? 1 : 0,
+                transition: 'opacity 0.3s ease, background 0.2s',
+                zIndex: 2,
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = brandCyan + '44'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(11,15,28,0.8)'; }}
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              onClick={nextSlide}
+              style={{
+                position: 'absolute',
+                right: 8,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                background: 'rgba(11,15,28,0.8)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: '#fff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 18,
+                opacity: isPaused ? 1 : 0,
+                transition: 'opacity 0.3s ease, background 0.2s',
+                zIndex: 2,
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = brandCyan + '44'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(11,15,28,0.8)'; }}
+            >
+              ›
+            </button>
+          </>
+        )}
+
+        <div style={{ display: 'flex', gap: isMobile ? 12 : 16, alignItems: 'flex-start', flexDirection: isMobile ? 'column' : 'row' }}>
           {/* Avatar */}
           <div style={{
-            width: 60,
-            height: 60,
+            width: isMobile ? 50 : 60,
+            height: isMobile ? 50 : 60,
             borderRadius: '50%',
             background: `linear-gradient(135deg, ${brandCyan}33, ${brandPurple}33)`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 28,
+            fontSize: isMobile ? 24 : 28,
             border: `2px solid ${brandCyan}44`,
             flexShrink: 0,
+            animation: 'pulse 3s ease-in-out infinite',
           }}>
             {testimonials[activeIndex].avatar}
           </div>
 
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, width: '100%' }}>
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
               <div>
-                <div style={{ fontWeight: 800, fontSize: 16 }}>{testimonials[activeIndex].name}</div>
-                <div style={{ fontSize: 13, color: brandPurple, marginTop: 2 }}>
+                <div style={{ fontWeight: 800, fontSize: isMobile ? 14 : 16 }}>{testimonials[activeIndex].name}</div>
+                <div style={{ fontSize: isMobile ? 11 : 13, color: brandPurple, marginTop: 2 }}>
                   {testimonials[activeIndex].conditionAr} • العمر: {testimonials[activeIndex].age}
                 </div>
               </div>
@@ -174,7 +293,8 @@ export default function TestimonialsSection() {
                 {Array.from({ length: 5 }).map((_, i) => (
                   <span key={i} style={{
                     color: i < testimonials[activeIndex].rating ? '#FFD700' : 'rgba(255,255,255,0.2)',
-                    fontSize: 16,
+                    fontSize: isMobile ? 14 : 16,
+                    transition: 'transform 0.2s ease',
                   }}>
                     ★
                   </span>
@@ -184,8 +304,8 @@ export default function TestimonialsSection() {
 
             {/* Quote */}
             <p style={{
-              margin: '16px 0',
-              fontSize: 15,
+              margin: '12px 0',
+              fontSize: isMobile ? 13 : 15,
               lineHeight: 1.8,
               color: 'rgba(255,255,255,0.9)',
             }}>
@@ -197,25 +317,26 @@ export default function TestimonialsSection() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-              padding: '6px 12px',
+              padding: isMobile ? '5px 10px' : '6px 12px',
               background: 'rgba(34,197,94,0.15)',
               border: '1px solid rgba(34,197,94,0.3)',
               borderRadius: 8,
             }}>
               <span style={{ color: '#22c55e' }}>✓</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#22c55e' }}>
+              <span style={{ fontSize: isMobile ? 11 : 13, fontWeight: 700, color: '#22c55e' }}>
                 {testimonials[activeIndex].improvement}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Navigation Dots */}
+        {/* Navigation Dots with Progress */}
         <div style={{
           display: 'flex',
           justifyContent: 'center',
+          alignItems: 'center',
           gap: 8,
-          marginTop: 20,
+          marginTop: 16,
         }}>
           {testimonials.map((_, i) => (
             <button
@@ -230,10 +351,47 @@ export default function TestimonialsSection() {
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
+                position: 'relative',
+                overflow: 'hidden',
               }}
-            />
+            >
+              {activeIndex === i && !isPaused && (
+                <div style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  height: '100%',
+                  background: 'rgba(255,255,255,0.4)',
+                  animation: 'progressFill 6s linear',
+                  borderRadius: 5,
+                }} />
+              )}
+            </button>
           ))}
         </div>
+
+        {/* Swipe hint on mobile */}
+        {isMobile && (
+          <div style={{
+            textAlign: 'center',
+            marginTop: 12,
+            fontSize: 11,
+            color: 'rgba(255,255,255,0.4)',
+          }}>
+            ← اسحب للتنقل →
+          </div>
+        )}
+
+        <style>{`
+          @keyframes progressFill {
+            from { width: 0; }
+            to { width: 100%; }
+          }
+          @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(143,211,204,0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(143,211,204,0); }
+          }
+        `}</style>
       </div>
 
       {/* All Testimonials Grid */}

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import { ensureAudio, safeCloseAudio } from './games/audio';
 
 type FAQItem = {
   question: string;
@@ -51,11 +52,69 @@ const faqs: FAQItem[] = [
 ];
 
 export default function FAQSection() {
+  const audioRef = useRef<AudioContext | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const toggleFAQ = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
+  useEffect(() => {
+    return () => {
+      void safeCloseAudio(audioRef);
+    };
+  }, []);
+
+  // Detect mobile
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const playToggleSound = useCallback((open: boolean) => {
+    try {
+      const audio = ensureAudio(audioRef);
+      if (audio.state === 'suspended') void audio.resume().catch(() => {});
+
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      const now = audio.currentTime;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(open ? 600 : 400, now);
+      osc.frequency.exponentialRampToValueAtTime(open ? 800 : 300, now + 0.08);
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.04, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
+
+      osc.connect(gain);
+      gain.connect(audio.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.13);
+      osc.onended = () => {
+        try {
+          osc.disconnect();
+        } catch {
+          // ignore
+        }
+        try {
+          gain.disconnect();
+        } catch {
+          // ignore
+        }
+      };
+    } catch {
+      // Audio unavailable
+    }
+  }, []);
+
+  const toggleFAQ = useCallback((index: number) => {
+    const isOpening = openIndex !== index;
+    playToggleSound(isOpening);
+    setOpenIndex(isOpening ? index : null);
+  }, [openIndex, playToggleSound]);
 
   return (
     <section id="faq" style={styles.sectionCard}>
@@ -71,74 +130,149 @@ export default function FAQSection() {
         </p>
       </div>
 
-      <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {/* Quick Navigation */}
+      <div style={{
+        marginTop: 16,
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 8,
+        justifyContent: 'center',
+      }}>
+        {faqs.map((faq, index) => (
+          <button
+            key={index}
+            type="button"
+            onClick={() => toggleFAQ(index)}
+            style={{
+              background: openIndex === index ? brandCyan + '22' : 'rgba(255,255,255,0.04)',
+              border: `1px solid ${openIndex === index ? brandCyan + '44' : 'rgba(255,255,255,0.08)'}`,
+              borderRadius: 8,
+              padding: '6px 10px',
+              cursor: 'pointer',
+              fontSize: 16,
+              transition: 'all 0.2s ease',
+            }}
+            title={faq.question}
+          >
+            {faq.icon}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
         {faqs.map((faq, index) => (
           <div
             key={index}
             style={{
               background: openIndex === index
                 ? `linear-gradient(135deg, rgba(143,211,204,0.08), rgba(175,132,186,0.08))`
-                : 'rgba(15,22,41,0.6)',
-              border: `1px solid ${openIndex === index ? 'rgba(143,211,204,0.3)' : 'rgba(255,255,255,0.08)'}`,
-              borderRadius: 16,
+                : hoveredIndex === index
+                  ? 'rgba(15,22,41,0.8)'
+                  : 'rgba(15,22,41,0.6)',
+              border: `1px solid ${openIndex === index ? 'rgba(143,211,204,0.3)' : hoveredIndex === index ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.08)'}`,
+              borderRadius: 14,
               overflow: 'hidden',
               transition: 'all 0.3s ease',
+              transform: hoveredIndex === index && openIndex !== index ? 'translateX(-4px)' : 'translateX(0)',
             }}
+            onMouseEnter={() => setHoveredIndex(index)}
+            onMouseLeave={() => setHoveredIndex(null)}
           >
             <button
               type="button"
               onClick={() => toggleFAQ(index)}
               style={{
                 width: '100%',
-                padding: '16px 20px',
+                padding: isMobile ? '12px 14px' : '14px 18px',
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 14,
+                gap: isMobile ? 10 : 14,
                 textAlign: 'right',
               }}
             >
               <span style={{
-                fontSize: 24,
+                fontSize: isMobile ? 20 : 24,
                 filter: openIndex === index ? 'none' : 'grayscale(0.5)',
-                transition: 'filter 0.3s ease',
+                transition: 'filter 0.3s ease, transform 0.3s ease',
+                transform: openIndex === index ? 'scale(1.1)' : 'scale(1)',
               }}>
                 {faq.icon}
               </span>
               <span style={{
                 flex: 1,
                 fontWeight: 800,
-                fontSize: 15,
+                fontSize: isMobile ? 13 : 15,
                 color: openIndex === index ? brandCyan : '#f7f8fb',
                 transition: 'color 0.3s ease',
+                lineHeight: 1.5,
               }}>
                 {faq.question}
               </span>
               <span style={{
-                fontSize: 20,
+                fontSize: isMobile ? 16 : 20,
                 color: openIndex === index ? brandCyan : 'rgba(255,255,255,0.5)',
                 transform: openIndex === index ? 'rotate(180deg)' : 'rotate(0deg)',
                 transition: 'all 0.3s ease',
+                flexShrink: 0,
               }}>
                 ▼
               </span>
             </button>
 
             <div style={{
-              maxHeight: openIndex === index ? 300 : 0,
+              maxHeight: openIndex === index ? 400 : 0,
               overflow: 'hidden',
               transition: 'max-height 0.4s ease',
             }}>
               <div style={{
-                padding: '0 20px 16px',
-                paddingRight: 58,
+                padding: isMobile ? '0 14px 14px' : '0 20px 16px',
+                paddingRight: isMobile ? 44 : 58,
                 color: 'rgba(255,255,255,0.85)',
                 lineHeight: 1.8,
-                fontSize: 14,
+                fontSize: isMobile ? 13 : 14,
               }}>
                 {faq.answer}
+
+                {/* Related action */}
+                {index === 5 && ( // Remote protocol question
+                  <a href="#remote" style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    marginTop: 12,
+                    padding: '6px 12px',
+                    background: brandPurple + '22',
+                    border: `1px solid ${brandPurple}44`,
+                    borderRadius: 8,
+                    color: brandPurple,
+                    textDecoration: 'none',
+                    fontSize: 12,
+                    fontWeight: 700,
+                  }}>
+                    💻 اعرف المزيد عن البرنامج عن بُعد
+                  </a>
+                )}
+                {index === 2 && ( // Who is it for question
+                  <a href="#checklist" style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    marginTop: 12,
+                    padding: '6px 12px',
+                    background: brandCyan + '22',
+                    border: `1px solid ${brandCyan}44`,
+                    borderRadius: 8,
+                    color: brandCyan,
+                    textDecoration: 'none',
+                    fontSize: 12,
+                    fontWeight: 700,
+                  }}>
+                    ✅ قم بتعبئة قائمة التحقق
+                  </a>
+                )}
               </div>
             </div>
           </div>
