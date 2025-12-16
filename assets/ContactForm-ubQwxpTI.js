@@ -1,4 +1,4 @@
-import{r as a,j as e}from"./vendor-three-DydK_b2Y.js";import{s as t,C as i,h as b}from"./index-ECiYqIoc.js";import"./vendor-react-23TIcR45.js";const v=s=>s.replace(/\D/g,""),m=s=>{const o=v(s);return o.length>=9&&o.length<=15},d=1e3,c=100,S=()=>{const[s,o]=a.useState(""),[p,u]=a.useState(""),[n,x]=a.useState(""),[r,g]=a.useState(""),[y,j]=a.useState(!1),h=a.useMemo(()=>s.trim().length>1&&s.trim().length<=c&&r.trim().length>4&&r.length<=d&&m(n),[s,r,n]),f=l=>{if(l.preventDefault(),!h)return;const X=`الاسم: ${s}
+import{r as a,j as e}from"./vendor-three-DydK_b2Y.js";import{s as t,C as i,h as b}from"./index-CkKHDgld.js";import"./vendor-react-23TIcR45.js";const v=s=>s.replace(/\D/g,""),m=s=>{const o=v(s);return o.length>=9&&o.length<=15},d=1e3,c=100,S=()=>{const[s,o]=a.useState(""),[p,u]=a.useState(""),[n,x]=a.useState(""),[r,g]=a.useState(""),[y,j]=a.useState(!1),h=a.useMemo(()=>s.trim().length>1&&s.trim().length<=c&&r.trim().length>4&&r.length<=d&&m(n),[s,r,n]),f=l=>{if(l.preventDefault(),!h)return;const X=`الاسم: ${s}
 رقم الهاتف: ${n}
 البريد الإلكتروني: ${p||"—"}
 
