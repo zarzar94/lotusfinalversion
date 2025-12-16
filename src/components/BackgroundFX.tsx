@@ -536,6 +536,23 @@ const BackgroundFX = () => {
           <div className="ring ring3" />
         </div>
 
+        {/* Floating Logo Watermarks - roped across background */}
+        <div className="logoWatermark logo1">
+          <img src="/assets/images/brain_logo.png" alt="" />
+        </div>
+        <div className="logoWatermark logo2">
+          <img src="/assets/images/brain_logo.png" alt="" />
+        </div>
+        <div className="logoWatermark logo3">
+          <img src="/assets/images/brain_logo.png" alt="" />
+        </div>
+        <div className="logoWatermark logo4">
+          <img src="/assets/images/brain_logo.png" alt="" />
+        </div>
+        <div className="logoWatermark logo5">
+          <img src="/assets/images/brain_logo.png" alt="" />
+        </div>
+
         <style>{`
           .floatIcon {
             animation: floaty 7s ease-in-out infinite;
@@ -598,9 +615,82 @@ const BackgroundFX = () => {
             }
           }
 
+          /* Logo Watermarks - roped across background */
+          .logoWatermark {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.04;
+            filter: grayscale(20%);
+            animation: logoFloat 20s ease-in-out infinite;
+          }
+          .logoWatermark img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+          }
+          .logo1 {
+            top: 5%;
+            left: 5%;
+            width: 180px;
+            height: 180px;
+            animation-delay: 0s;
+            animation-duration: 25s;
+          }
+          .logo2 {
+            top: 30%;
+            right: 3%;
+            width: 220px;
+            height: 220px;
+            animation-delay: -5s;
+            animation-duration: 30s;
+            opacity: 0.03;
+          }
+          .logo3 {
+            bottom: 40%;
+            left: 8%;
+            width: 150px;
+            height: 150px;
+            animation-delay: -10s;
+            animation-duration: 22s;
+          }
+          .logo4 {
+            bottom: 10%;
+            right: 10%;
+            width: 200px;
+            height: 200px;
+            animation-delay: -15s;
+            animation-duration: 28s;
+            opacity: 0.035;
+          }
+          .logo5 {
+            top: 60%;
+            left: 40%;
+            width: 250px;
+            height: 250px;
+            animation-delay: -8s;
+            animation-duration: 35s;
+            opacity: 0.025;
+          }
+
+          @keyframes logoFloat {
+            0%, 100% {
+              transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            25% {
+              transform: translate(15px, -20px) rotate(5deg) scale(1.05);
+            }
+            50% {
+              transform: translate(-10px, -35px) rotate(-3deg) scale(0.95);
+            }
+            75% {
+              transform: translate(-20px, -15px) rotate(3deg) scale(1.02);
+            }
+          }
+
           @media (prefers-reduced-motion: reduce) {
             .floatIcon { animation: none; }
             .ring { animation: none; opacity: 0.15; transform: scale(1); }
+            .logoWatermark { animation: none; }
           }
         `}</style>
       </div>

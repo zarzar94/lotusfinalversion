@@ -32,6 +32,7 @@ const ContactForm = lazy(() => import('./components/ContactForm'));
 const AudioJourney = lazy(() => import('./components/AudioJourney'));
 const VideoSection = lazy(() => import('./components/VideoSection'));
 const RemoteProtocolSection = lazy(() => import('./components/RemoteProtocolSection'));
+const IntakeForm = lazy(() => import('./components/IntakeForm'));
 
 function App() {
   useEffect(() => {
@@ -158,6 +159,13 @@ function App() {
             {/* FAQ Section */}
             <FadeIn delay={50} direction="left" distance={30}>
               <FAQSection />
+            </FadeIn>
+
+            {/* Intake/Registration Form */}
+            <FadeIn delay={50} scale blur blurAmount={4}>
+              <Suspense fallback={<SectionLoader label="جارٍ تحميل استمارة التسجيل..." height={500} />}>
+                <IntakeForm />
+              </Suspense>
             </FadeIn>
 
             <FadeIn delay={50} scale blur blurAmount={4}>

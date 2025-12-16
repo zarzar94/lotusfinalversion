@@ -2,6 +2,7 @@ import { CLINIC } from '../data/clinic';
 import { styles, brandCyan, brandPurpleDark } from './styles';
 
 const social = [
+  { name: 'X', href: 'https://x.com/Berardaiteg', icon: '𝕏' },
   { name: 'TikTok', href: 'https://vt.tiktok.com/ZSydLErRH/', icon: '🎵' },
   { name: 'Instagram', href: 'https://www.instagram.com/berard.ait.eg?igsh=MXVjNmFnZng3MHcyMg==', icon: '📷' },
   { name: 'Facebook', href: 'https://www.facebook.com/share/14LfPuhkdVH/', icon: 'f' },

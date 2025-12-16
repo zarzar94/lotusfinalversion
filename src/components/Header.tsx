@@ -13,6 +13,7 @@ const navItems = [
   { href: '#videos', label: '🎥 فيديو' },
   { href: '#games', label: '🎮 الألعاب' },
   { href: '#faq', label: '❓ الأسئلة' },
+  { href: '#intake-form', label: '📝 التسجيل' },
   { href: '#contact', label: '📞 تواصل' },
 ];
 
