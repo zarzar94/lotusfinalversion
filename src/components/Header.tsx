@@ -1,38 +1,49 @@
-import { useMemo, useState } from 'react';
-
+import { useMemo, useState, useEffect } from 'react';
 import { assetUrl } from '../utils/asset';
-import { styles, brandPurple, brandCyan, brandPink, brandPurpleDark } from './styles';
+import { brandPurple, brandCyan, brandPink } from './styles';
+import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon } from './Icons';
 
-const navItems = [
-  { href: '#about', label: 'الرئيسية' },
-  { href: '#audio-journey', label: '🎧 رحلة الصوت' },
-  { href: '#neuroplasticity', label: '🧠 العلم' },
-  { href: '#overview', label: 'البرنامج' },
-  { href: '#remote', label: '💻 عن بُعد' },
-  { href: '#testimonials', label: '⭐ قصص النجاح' },
-  { href: '#videos', label: '🎥 فيديو' },
-  { href: '#games', label: '🎮 الألعاب' },
-  { href: '#faq', label: '❓ الأسئلة' },
-  { href: '#contact', label: '📞 تواصل' },
+const NAV_ITEMS = [
+  { label: 'البرنامج', href: '#overview', icon: <HeadphonesIcon size={16} /> },
+  { label: 'الماسح العصبي', href: '#checklist', icon: <BrainIcon size={16} /> },
+  { label: 'الألعاب', href: '#games', icon: <GamepadIcon size={16} /> },
+  { label: 'الأسئلة', href: '#faq', icon: <HelpIcon size={16} /> },
+  { label: 'تواصل', href: '#contact', icon: <PhoneIcon size={16} /> },
 ];
 
 const Header = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+
+    handleScroll();
+    handleResize();
+
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const css = useMemo(
     () => `
-      @media (max-width: 980px) {
-        .topNav {
-          display: none;
-        }
-        .burgerBtn {
-          display: inline-flex;
-        }
+      @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-6px) rotate(2deg); }
       }
-      @media (min-width: 981px) {
-        .burgerBtn {
-          display: none;
-        }
+      @keyframes glow {
+        0%, 100% { filter: drop-shadow(0 0 15px rgba(143,211,204,0.4)) drop-shadow(0 0 30px rgba(175,132,186,0.3)); }
+        50% { filter: drop-shadow(0 0 25px rgba(143,211,204,0.6)) drop-shadow(0 0 50px rgba(175,132,186,0.5)); }
+      }
+      @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
       }
       .brandGlow {
         filter: drop-shadow(0 10px 30px rgba(143,211,204,0.18));
@@ -56,151 +67,219 @@ const Header = () => {
         min-width: 260px;
         box-shadow: 0 20px 70px rgba(0,0,0,0.45);
       }
+      .nav-link {
+        position: relative;
+        transition: all 0.3s ease;
+      }
+      .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, ${brandCyan}, ${brandPurple});
+        transition: width 0.3s ease;
+        border-radius: 2px;
+      }
+      .nav-link:hover::after {
+        width: 80%;
+      }
+      .nav-link:hover {
+        color: ${brandCyan};
+      }
+      .mobile-menu {
+        animation: slideDown 0.3s ease forwards;
+      }
+      .menu-btn {
+        transition: transform 0.3s ease;
+      }
+      .menu-btn:hover {
+        transform: scale(1.1);
+      }
     `,
     [],
   );
 
-  return (
-    <header style={styles.header}>
-      <style>{css}</style>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div
-          className="brandGlow"
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 14,
-            background: `linear-gradient(135deg, rgba(119,78,135,0.55), rgba(143,211,204,0.20))`,
-            border: '1px solid rgba(255,255,255,0.12)',
-            display: 'grid',
-            placeItems: 'center',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          <img
-            src={assetUrl('assets/images/brain_icon_44.png')}
-            alt="Berard AIT"
-            width={44}
-            height={44}
-            loading="eager"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              display: 'block',
-              opacity: 0.95,
-            }}
-          />
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ fontWeight: 900, lineHeight: 1.1 }}>
-            <span style={{ color: brandPurple }}>Berard</span>{' '}
-            <span style={{ color: brandCyan }}>AIT</span>{' '}
-            <span style={{ color: '#f7f8fb' }}>Sound Lab</span>
-          </div>
-          <div style={{ fontSize: 12, opacity: 0.82, lineHeight: 1.2 }}>
-            تكامل سمعي • موسيقى + دماغ • شراكات مدارس وجامعات
-          </div>
-        </div>
-      </div>
+  const handleNavClick = () => {
+    setIsMobileMenuOpen(false);
+  };
 
-      <nav className="topNav" aria-label="القائمة الرئيسية">
-        <ul
-          style={{
-            ...styles.navList,
-            display: 'flex',
-            gap: 10,
-            alignItems: 'center',
-            flexWrap: 'wrap',
-          }}
-        >
-          {navItems.map((item) => (
-            <li key={item.href}>
-              <a className="navPill" href={item.href} style={styles.navLink}>
+  return (
+    <>
+      <style>{css}</style>
+      <header style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        padding: isScrolled ? '10px 20px' : '16px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 16,
+        background: isScrolled
+          ? 'rgba(11,15,28,0.95)'
+          : 'linear-gradient(180deg, rgba(11,15,28,0.95) 0%, rgba(11,15,28,0.8) 70%, transparent 100%)',
+        backdropFilter: 'blur(12px)',
+        borderBottom: isScrolled ? '1px solid rgba(143,211,204,0.15)' : 'none',
+        transition: 'all 0.3s ease',
+      }}>
+        {/* Logo Section */}
+        <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
+          <div
+            className="floatingLogo"
+            style={{
+              width: isScrolled ? 45 : 55,
+              height: isScrolled ? 45 : 55,
+              borderRadius: '50%',
+              background: 'rgba(11,15,28,0.6)',
+              border: '2px solid rgba(143,211,204,0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              transition: 'all 0.3s ease',
+            }}
+          >
+            <img
+              src={assetUrl('assets/images/brain_logo.png')}
+              alt="Berard AIT Brain"
+              style={{
+                width: isScrolled ? 38 : 46,
+                height: isScrolled ? 38 : 46,
+                objectFit: 'contain',
+                mixBlendMode: 'screen',
+              }}
+            />
+          </div>
+          <div style={{
+            fontSize: isScrolled ? 22 : 26,
+            fontWeight: 900,
+            letterSpacing: 1.5,
+            transition: 'all 0.3s ease',
+          }}>
+            <span style={{ color: brandPurple }}>Berard</span>{' '}
+            <span style={{ color: brandCyan }}>AIT</span>
+          </div>
+        </a>
+
+        {/* Desktop Navigation */}
+        {!isMobile && (
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {NAV_ITEMS.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="nav-link"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '8px 14px',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: '#f7f8fb',
+                  textDecoration: 'none',
+                  borderRadius: 10,
+                  background: 'rgba(255,255,255,0.04)',
+                }}
+              >
+                {item.icon}
                 {item.label}
               </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
+            ))}
+          </nav>
+        )}
 
-      {/* Brain Logo - Top Right */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {/* Mobile Menu Button */}
+        {isMobile && (
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="menu-btn"
+            style={{
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: 12,
+              padding: 10,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {isMobileMenuOpen ? (
+              <XIcon size={22} color="#f7f8fb" />
+            ) : (
+              <MenuIcon size={22} color="#f7f8fb" />
+            )}
+          </button>
+        )}
+      </header>
+
+      {/* Mobile Menu Dropdown */}
+      {isMobile && isMobileMenuOpen && (
         <div
+          className="mobile-menu"
           style={{
-            width: 48,
-            height: 48,
-            borderRadius: '50%',
-            background: 'rgba(11,15,28,0.8)',
+            position: 'fixed',
+            top: 75,
+            left: 16,
+            right: 16,
+            zIndex: 99,
+            background: 'rgba(11,15,28,0.98)',
+            border: '1px solid rgba(143,211,204,0.2)',
+            borderRadius: 16,
+            padding: 16,
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: '2px solid rgba(143,211,204,0.3)',
-            overflow: 'hidden',
+            flexDirection: 'column',
+            gap: 8,
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
           }}
         >
-          <img
-            src={assetUrl('assets/images/brain_logo.png')}
-            alt="Berard AIT Brain"
-            className="headerBrainLogo"
-            style={{
-              width: 40,
-              height: 40,
-              objectFit: 'contain',
-            }}
-          />
+          {NAV_ITEMS.map((item, index) => (
+            <a
+              key={item.href}
+              href={item.href}
+              onClick={handleNavClick}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '14px 16px',
+                fontSize: 15,
+                fontWeight: 700,
+                color: '#f7f8fb',
+                textDecoration: 'none',
+                borderRadius: 12,
+                background: `linear-gradient(135deg, rgba(143,211,204,${0.05 + index * 0.02}), rgba(175,132,186,${0.05 + index * 0.02}))`,
+                border: '1px solid rgba(255,255,255,0.08)',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <span style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: `linear-gradient(135deg, ${brandCyan}22, ${brandPurple}22)`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                {item.icon}
+              </span>
+              {item.label}
+            </a>
+          ))}
         </div>
+      )}
 
-        <div style={{ position: 'relative' }}>
-          <button
-            type="button"
-            className="burgerBtn"
-            style={styles.burger}
-            onClick={() => setMenuOpen((prev) => !prev)}
-            aria-label="فتح القائمة"
-            aria-expanded={menuOpen}
-          >
-            ☰
-          </button>
-
-        {menuOpen ? (
-          <div className="menuPanel" role="menu" aria-label="قائمة الروابط">
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
-              <div style={{ fontWeight: 900, color: brandPurpleDark }}>التنقل</div>
-              <button type="button" style={styles.ghostBtn} onClick={() => setMenuOpen(false)}>
-                إغلاق
-              </button>
-            </div>
-            <ul style={{ ...styles.navList, display: 'grid', gap: 8, marginTop: 10 }}>
-              {navItems.map((item) => (
-                <li key={item.href}>
-                  <a
-                    href={item.href}
-                    style={{ ...styles.navLink, width: '100%', textAlign: 'right' }}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <div style={{ marginTop: 12, display: 'grid', gap: 8 }}>
-              <a href="#games" style={{ ...styles.primaryBtn, textAlign: 'center', textDecoration: 'none' }}>
-                ابدأ التجربة التفاعلية
-              </a>
-              <a
-                href="#contact"
-                style={{ ...styles.ghostBtn, textAlign: 'center', textDecoration: 'none' }}
-              >
-                احجز / تواصل الآن
-              </a>
-            </div>
-          </div>
-        ) : null}
-        </div>
-      </div>
-    </header>
+      {/* Spacer for fixed header */}
+      <div style={{ height: isMobile ? 75 : 90 }} />
+    </>
   );
 };
 
