@@ -77,7 +77,7 @@ export default function SectionLoader({ label = 'جارٍ التحميل...', he
           height: 16,
           background: 'linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
           borderRadius: 8,
-          animation: 'shimmer 1.5s ease-in-out infinite',
+          animation: 'skeleton 1.5s ease-in-out infinite',
           backgroundSize: '200% 100%',
         }} />
         <div style={{
@@ -86,7 +86,7 @@ export default function SectionLoader({ label = 'جارٍ التحميل...', he
           margin: '0 auto',
           background: 'linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
           borderRadius: 6,
-          animation: 'shimmer 1.5s ease-in-out infinite 0.2s',
+          animation: 'skeleton 1.5s ease-in-out infinite 0.2s',
           backgroundSize: '200% 100%',
         }} />
         <div style={{
@@ -95,7 +95,7 @@ export default function SectionLoader({ label = 'جارٍ التحميل...', he
           margin: '0 auto',
           background: 'linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
           borderRadius: 6,
-          animation: 'shimmer 1.5s ease-in-out infinite 0.4s',
+          animation: 'skeleton 1.5s ease-in-out infinite 0.4s',
           backgroundSize: '200% 100%',
         }} />
       </div>
@@ -108,10 +108,6 @@ export default function SectionLoader({ label = 'جارٍ التحميل...', he
         @keyframes loaderPulse {
           0%, 100% { transform: scale(0.8); opacity: 0.5; }
           50% { transform: scale(1.1); opacity: 0.8; }
-        }
-        @keyframes shimmer {
-          0% { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
         }
       `}</style>
     </div>

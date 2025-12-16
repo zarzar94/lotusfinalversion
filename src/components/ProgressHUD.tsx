@@ -113,9 +113,11 @@ export default function ProgressHUD() {
   `;
 
   // Calculate level progress
-  const levelThresholds = [0, 50, 150, 300, 500, 750];
+  const levelThresholds = [0, 50, 150, 300, 500];
   const currentLevelPoints = levelThresholds[state.level - 1] || 0;
-  const nextLevelPoints = levelThresholds[state.level] || levelThresholds[levelThresholds.length - 1];
+  const rawNextLevelPoints = levelThresholds[state.level] ?? levelThresholds[levelThresholds.length - 1];
+  const isMaxLevel = state.level >= levelThresholds.length;
+  const nextLevelPoints = isMaxLevel ? state.totalPoints : rawNextLevelPoints;
   const levelRange = nextLevelPoints - currentLevelPoints;
   const rawProgress = levelRange > 0 ? ((state.totalPoints - currentLevelPoints) / levelRange) * 100 : 100;
   const progressToNextLevel = Math.max(0, Math.min(100, rawProgress));
@@ -192,7 +194,7 @@ export default function ProgressHUD() {
             <div>
               <div style={levelBadgeStyle}>المستوى {state.level}</div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
-                {xpToNextLevel} XP للمستوى التالي
+                {isMaxLevel ? 'المستوى الأقصى' : `${xpToNextLevel} XP للمستوى التالي`}
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useGamification, type Achievement } from '../context/GamificationContext';
 import { brandCyan, brandPurple, brandPink } from './styles';
 
@@ -92,18 +92,22 @@ export default function AchievementNotification() {
   const [particles, setParticles] = useState<ReturnType<typeof generateParticles>>([]);
 
   useEffect(() => {
-    if (recentUnlock) {
-      setCurrentAchievement(recentUnlock);
-      setParticles(generateParticles(20));
-      setVisible(true);
+    if (!recentUnlock) return;
 
-      const hideTimer = setTimeout(() => {
-        setVisible(false);
-        setTimeout(clearRecentUnlock, 500);
-      }, 4000);
+    setCurrentAchievement(recentUnlock);
+    setParticles(generateParticles(20));
+    setVisible(true);
 
-      return () => clearTimeout(hideTimer);
-    }
+    let clearTimer: ReturnType<typeof setTimeout> | null = null;
+    const hideTimer = setTimeout(() => {
+      setVisible(false);
+      clearTimer = setTimeout(() => clearRecentUnlock(), 500);
+    }, 4000);
+
+    return () => {
+      clearTimeout(hideTimer);
+      if (clearTimer) clearTimeout(clearTimer);
+    };
   }, [recentUnlock, clearRecentUnlock]);
 
   if (!currentAchievement) return null;
@@ -115,10 +119,6 @@ export default function AchievementNotification() {
           0% { transform: scale(0) rotate(-180deg); }
           50% { transform: scale(1.3) rotate(10deg); }
           100% { transform: scale(1) rotate(0deg); }
-        }
-        @keyframes shimmer {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
         }
         @keyframes confettiFall {
           0% {

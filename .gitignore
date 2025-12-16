@@ -18,6 +18,8 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+nul
+NUL
 
 # Logs
 *.log
@@ -26,3 +28,6 @@ npm-debug.log*
 # Cache
 .cache/
 .vite/
+
+# Deployment worktree
+gh-pages-worktree/
