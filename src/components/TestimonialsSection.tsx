@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { assetUrl } from '../utils/asset';
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
 
 type Testimonial = {
@@ -395,20 +396,30 @@ function CaseStudyCard({
         borderBottom: `1px solid ${accentColor}22`,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          {/* Patient avatar with pulse effect */}
+          {/* Patient avatar with pulse effect - Brain Logo */}
           <div style={{ position: 'relative' }}>
             <div style={{
               width: 52,
               height: 52,
               borderRadius: '50%',
-              background: `linear-gradient(135deg, ${accentColor}44, ${accentColor}22)`,
+              background: `linear-gradient(135deg, rgba(11,15,28,0.9), ${accentColor}22)`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 26,
               border: `2px solid ${accentColor}`,
+              overflow: 'hidden',
             }}>
-              {testimonial.avatar}
+              <img
+                src={assetUrl('assets/images/brain_logo.png')}
+                alt="Berard AIT"
+                style={{
+                  width: 42,
+                  height: 42,
+                  objectFit: 'contain',
+                  mixBlendMode: 'screen',
+                  filter: `drop-shadow(0 0 8px ${accentColor})`,
+                }}
+              />
             </div>
             {isActive && (
               <div style={{
