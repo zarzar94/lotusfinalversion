@@ -7,202 +7,216 @@ interface BrainLogoProps {
   textSize?: number;
 }
 
-// Realistic brain SVG with neurons and electrical signals
+// Half organic brain, half circuit board - AI brain design
 export const BrainLogoSVG = memo(({ size = 50, animated = false }: { size?: number; animated?: boolean }) => {
   const uniqueId = `brain-${Math.random().toString(36).substr(2, 9)}`;
 
   return (
-    <svg width={size} height={size * 0.85} viewBox="0 0 120 102" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        {/* Brain gradient - soft purple/lavender */}
-        <radialGradient id={`${uniqueId}-brainGrad`} cx="50%" cy="40%" r="65%">
-          <stop offset="0%" stopColor="#D4B8DC" />
-          <stop offset="40%" stopColor="#B896C4" />
-          <stop offset="100%" stopColor="#9A72AC" />
-        </radialGradient>
-
-        {/* Glow filter for electrical signals */}
+        {/* Glow filter for circuit nodes */}
         <filter id={`${uniqueId}-glow`} x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
           <feMerge>
             <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
 
-        {/* Electric pulse filter */}
-        <filter id={`${uniqueId}-electric`} x="-100%" y="-100%" width="300%" height="300%">
-          <feGaussianBlur stdDeviation="1.5" result="blur"/>
-          <feMerge>
-            <feMergeNode in="blur"/>
-            <feMergeNode in="blur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
+        {/* Clip path for left hemisphere */}
+        <clipPath id={`${uniqueId}-leftClip`}>
+          <rect x="0" y="0" width="50" height="100" />
+        </clipPath>
+
+        {/* Clip path for right hemisphere */}
+        <clipPath id={`${uniqueId}-rightClip`}>
+          <rect x="50" y="0" width="50" height="100" />
+        </clipPath>
       </defs>
 
-      {/* Brain shadow */}
-      <ellipse cx="60" cy="90" rx="35" ry="6" fill="rgba(0,0,0,0.2)" />
+      {/* ========== LEFT HEMISPHERE - ORGANIC BRAIN ========== */}
+      <g clipPath={`url(#${uniqueId}-leftClip)`}>
+        {/* Brain shape - left side */}
+        <path
+          d="M50 12
+             C42 10 32 12 25 18
+             C18 24 14 32 12 42
+             C10 52 12 62 16 70
+             C20 78 28 84 38 86
+             C44 87 48 86 50 85
+             L50 12Z"
+          fill={brandCyan}
+        />
 
-      {/* Left Hemisphere */}
-      <path
-        d="M58 10
-           C40 8 25 18 20 32
-           C15 46 18 58 22 68
-           C26 78 38 85 50 84
-           C55 84 58 82 58 82
-           L58 10Z"
-        fill={`url(#${uniqueId}-brainGrad)`}
-      />
+        {/* Organic brain folds/gyri */}
+        <g stroke="#0a3d3a" strokeWidth="2" fill="none" strokeLinecap="round">
+          {/* Top lobe curves */}
+          <path d="M18 28 Q28 22 38 26 Q46 28 50 32" />
+          <path d="M16 38 Q26 34 36 36 Q44 38 50 42" />
 
-      {/* Right Hemisphere */}
-      <path
-        d="M62 10
-           C80 8 95 18 100 32
-           C105 46 102 58 98 68
-           C94 78 82 85 70 84
-           C65 84 62 82 62 82
-           L62 10Z"
-        fill={`url(#${uniqueId}-brainGrad)`}
-      />
+          {/* Middle curves */}
+          <path d="M14 50 Q24 46 34 48 Q42 50 50 54" />
+          <path d="M16 62 Q26 58 36 60 Q44 62 50 66" />
 
-      {/* Brain folds/gyri - Left side */}
-      <g stroke="#8B6B9A" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.7">
-        <path d="M25 30 Q35 25 45 28 Q52 30 55 35" />
-        <path d="M22 42 Q32 38 42 40 Q50 42 55 48" />
-        <path d="M23 54 Q33 50 43 52 Q52 54 56 60" />
-        <path d="M28 66 Q38 62 48 65 Q54 68 57 72" />
+          {/* Bottom curves */}
+          <path d="M22 74 Q32 70 42 73 Q47 76 50 78" />
+        </g>
+
+        {/* Detailed fold accents */}
+        <g stroke="#0a3d3a" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.6">
+          <path d="M22 32 Q30 30 38 33" />
+          <path d="M20 44 Q28 42 36 44" />
+          <path d="M18 56 Q26 54 34 56" />
+          <path d="M24 68 Q32 66 40 68" />
+        </g>
+
+        {/* Highlight on organic brain */}
+        <ellipse cx="32" cy="35" rx="10" ry="6" fill="rgba(255,255,255,0.15)" />
       </g>
 
-      {/* Brain folds/gyri - Right side */}
-      <g stroke="#8B6B9A" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.7">
-        <path d="M95 30 Q85 25 75 28 Q68 30 65 35" />
-        <path d="M98 42 Q88 38 78 40 Q70 42 65 48" />
-        <path d="M97 54 Q87 50 77 52 Q68 54 64 60" />
-        <path d="M92 66 Q82 62 72 65 Q66 68 63 72" />
+      {/* ========== RIGHT HEMISPHERE - CIRCUIT BOARD ========== */}
+      <g clipPath={`url(#${uniqueId}-rightClip)`}>
+        {/* Brain shape - right side (slightly darker for contrast) */}
+        <path
+          d="M50 12
+             C58 10 68 12 75 18
+             C82 24 86 32 88 42
+             C90 52 88 62 84 70
+             C80 78 72 84 62 86
+             C56 87 52 86 50 85
+             L50 12Z"
+          fill="#0d4a46"
+        />
+
+        {/* Circuit board grid lines */}
+        <g stroke={brandCyan} strokeWidth="0.5" fill="none" opacity="0.3">
+          {/* Horizontal lines */}
+          <line x1="50" y1="20" x2="85" y2="20" />
+          <line x1="50" y1="30" x2="88" y2="30" />
+          <line x1="50" y1="40" x2="89" y2="40" />
+          <line x1="50" y1="50" x2="90" y2="50" />
+          <line x1="50" y1="60" x2="89" y2="60" />
+          <line x1="50" y1="70" x2="86" y2="70" />
+          <line x1="50" y1="80" x2="78" y2="80" />
+
+          {/* Vertical lines */}
+          <line x1="60" y1="15" x2="60" y2="85" />
+          <line x1="70" y1="18" x2="70" y2="82" />
+          <line x1="80" y1="25" x2="80" y2="75" />
+        </g>
+
+        {/* Main circuit traces */}
+        <g stroke={brandCyan} strokeWidth="1.5" fill="none" strokeLinecap="round">
+          {/* Primary data paths */}
+          <path d="M50 25 L62 25 L62 35 L75 35">
+            {animated && <animate attributeName="stroke-dasharray" values="0,100;50,50;100,0" dur="2s" repeatCount="indefinite" />}
+          </path>
+          <path d="M50 45 L58 45 L58 55 L70 55 L70 45 L82 45">
+            {animated && <animate attributeName="stroke-dasharray" values="0,100;50,50;100,0" dur="2.5s" repeatCount="indefinite" />}
+          </path>
+          <path d="M50 65 L65 65 L65 75 L78 75">
+            {animated && <animate attributeName="stroke-dasharray" values="0,100;50,50;100,0" dur="1.8s" repeatCount="indefinite" />}
+          </path>
+
+          {/* Secondary paths */}
+          <path d="M75 35 L75 50 L85 50" strokeWidth="1">
+            {animated && <animate attributeName="stroke-dasharray" values="0,60;30,30;60,0" dur="1.5s" repeatCount="indefinite" />}
+          </path>
+          <path d="M70 55 L70 68 L58 68" strokeWidth="1">
+            {animated && <animate attributeName="stroke-dasharray" values="0,60;30,30;60,0" dur="1.7s" repeatCount="indefinite" />}
+          </path>
+        </g>
+
+        {/* Circuit nodes/chips with glow */}
+        <g filter={`url(#${uniqueId}-glow)`}>
+          {/* Main processor nodes */}
+          <rect x="72" y="32" width="6" height="6" rx="1" fill={brandCyan}>
+            {animated && <animate attributeName="opacity" values="1;0.5;1" dur="1.2s" repeatCount="indefinite" />}
+          </rect>
+          <rect x="79" y="47" width="8" height="6" rx="1" fill={brandCyan}>
+            {animated && <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite" />}
+          </rect>
+          <rect x="75" y="72" width="6" height="6" rx="1" fill={brandCyan}>
+            {animated && <animate attributeName="opacity" values="1;0.6;1" dur="1.3s" repeatCount="indefinite" />}
+          </rect>
+
+          {/* Junction nodes */}
+          <circle cx="62" cy="25" r="2.5" fill={brandCyan}>
+            {animated && <animate attributeName="r" values="2.5;3;2.5" dur="1s" repeatCount="indefinite" />}
+          </circle>
+          <circle cx="62" cy="35" r="2" fill={brandCyan}>
+            {animated && <animate attributeName="opacity" values="1;0.4;1" dur="0.8s" repeatCount="indefinite" />}
+          </circle>
+          <circle cx="58" cy="45" r="2" fill={brandCyan}>
+            {animated && <animate attributeName="opacity" values="0.4;1;0.4" dur="1.1s" repeatCount="indefinite" />}
+          </circle>
+          <circle cx="70" cy="55" r="2.5" fill={brandCyan}>
+            {animated && <animate attributeName="r" values="2.5;3;2.5" dur="1.2s" repeatCount="indefinite" />}
+          </circle>
+          <circle cx="65" cy="65" r="2" fill={brandCyan}>
+            {animated && <animate attributeName="opacity" values="1;0.5;1" dur="0.9s" repeatCount="indefinite" />}
+          </circle>
+          <circle cx="65" cy="75" r="2" fill={brandCyan}>
+            {animated && <animate attributeName="opacity" values="0.5;1;0.5" dur="1.4s" repeatCount="indefinite" />}
+          </circle>
+        </g>
+
+        {/* Small connector dots */}
+        <g fill={brandCyan} opacity="0.6">
+          <circle cx="55" cy="25" r="1" />
+          <circle cx="68" cy="35" r="1" />
+          <circle cx="82" cy="45" r="1" />
+          <circle cx="55" cy="55" r="1" />
+          <circle cx="75" cy="65" r="1" />
+          <circle cx="58" cy="75" r="1" />
+        </g>
+
+        {/* Data flow pulses */}
+        {animated && (
+          <g fill={brandCyan}>
+            <circle cx="58" cy="25" r="1.5">
+              <animate attributeName="cx" values="50;62;75" dur="2s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="54" cy="45" r="1.5">
+              <animate attributeName="cx" values="50;70;82" dur="2.5s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0;1;0" dur="2.5s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="56" cy="65" r="1.5">
+              <animate attributeName="cx" values="50;65;78" dur="1.8s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0;1;0" dur="1.8s" repeatCount="indefinite" />
+            </circle>
+          </g>
+        )}
       </g>
 
-      {/* Central fissure */}
-      <path
-        d="M60 12 L60 80"
-        stroke="#7A5A8A"
-        strokeWidth="2"
-        strokeLinecap="round"
-        opacity="0.6"
-      />
-
-      {/* Cerebellum (back of brain) */}
-      <ellipse cx="85" cy="75" rx="12" ry="8" fill="#9A72AC" />
-      <g stroke="rgba(255,255,255,0.4)" strokeWidth="1" fill="none">
-        <path d="M75 73 Q80 71 85 73 Q90 71 95 73" />
-        <path d="M76 76 Q81 74 85 76 Q89 74 94 76" />
-        <path d="M77 79 Q82 77 85 79 Q88 77 93 79" />
-      </g>
-
-      {/* Brain stem */}
-      <path
-        d="M55 78 Q60 88 60 95 Q60 88 65 78"
-        fill="#9A72AC"
-        stroke="#8B6B9A"
+      {/* ========== CENTER DIVIDING LINE ========== */}
+      <line
+        x1="50" y1="12" x2="50" y2="85"
+        stroke="rgba(143,211,204,0.4)"
         strokeWidth="1"
       />
 
-      {/* NEURON NETWORK - electrical signals */}
-      <g filter={`url(#${uniqueId}-electric)`}>
-        {/* Left hemisphere neurons */}
-        <g stroke={brandCyan} strokeWidth="1.5" fill="none" opacity="0.9">
-          {/* Neuron paths with electricity */}
-          <path d="M30 35 Q38 32 46 36 L50 40">
-            {animated && <animate attributeName="stroke-dasharray" from="0,100" to="100,0" dur="2s" repeatCount="indefinite" />}
-          </path>
-          <path d="M28 50 Q40 45 48 52 L54 55">
-            {animated && <animate attributeName="stroke-dasharray" from="0,100" to="100,0" dur="1.8s" repeatCount="indefinite" />}
-          </path>
-          <path d="M35 65 Q45 60 52 66 L56 70">
-            {animated && <animate attributeName="stroke-dasharray" from="0,100" to="100,0" dur="2.2s" repeatCount="indefinite" />}
-          </path>
-        </g>
-
-        {/* Right hemisphere neurons */}
-        <g stroke={brandCyan} strokeWidth="1.5" fill="none" opacity="0.9">
-          <path d="M90 35 Q82 32 74 36 L70 40">
-            {animated && <animate attributeName="stroke-dasharray" from="0,100" to="100,0" dur="1.9s" repeatCount="indefinite" />}
-          </path>
-          <path d="M92 50 Q80 45 72 52 L66 55">
-            {animated && <animate attributeName="stroke-dasharray" from="0,100" to="100,0" dur="2.1s" repeatCount="indefinite" />}
-          </path>
-          <path d="M85 65 Q75 60 68 66 L64 70">
-            {animated && <animate attributeName="stroke-dasharray" from="0,100" to="100,0" dur="1.7s" repeatCount="indefinite" />}
-          </path>
-        </g>
-
-        {/* Cross-brain connections */}
-        <path d="M48 42 Q60 38 72 42" stroke={brandCyan} strokeWidth="1.5" fill="none" opacity="0.8">
-          {animated && <animate attributeName="stroke-dasharray" from="0,60" to="60,0" dur="1.5s" repeatCount="indefinite" />}
-        </path>
-        <path d="M52 58 Q60 54 68 58" stroke={brandCyan} strokeWidth="1.5" fill="none" opacity="0.8">
-          {animated && <animate attributeName="stroke-dasharray" from="0,60" to="60,0" dur="1.6s" repeatCount="indefinite" />}
-        </path>
-      </g>
-
-      {/* Neuron nodes (synapses) with electric glow */}
+      {/* Connection points between organic and digital */}
       <g filter={`url(#${uniqueId}-glow)`}>
-        {/* Left side nodes */}
-        <circle cx="30" cy="35" r="3" fill={brandCyan}>
-          {animated && <animate attributeName="opacity" values="1;0.4;1" dur="1.5s" repeatCount="indefinite" />}
+        <circle cx="50" cy="25" r="2.5" fill={brandCyan}>
+          {animated && <animate attributeName="opacity" values="1;0.4;1" dur="1s" repeatCount="indefinite" />}
         </circle>
-        <circle cx="28" cy="50" r="2.5" fill={brandCyan}>
-          {animated && <animate attributeName="opacity" values="0.4;1;0.4" dur="1.8s" repeatCount="indefinite" />}
+        <circle cx="50" cy="45" r="3" fill={brandCyan}>
+          {animated && <animate attributeName="r" values="3;4;3" dur="1.2s" repeatCount="indefinite" />}
         </circle>
-        <circle cx="35" cy="65" r="2" fill={brandCyan}>
-          {animated && <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite" />}
-        </circle>
-
-        {/* Right side nodes */}
-        <circle cx="90" cy="35" r="3" fill={brandCyan}>
-          {animated && <animate attributeName="opacity" values="0.5;1;0.5" dur="1.6s" repeatCount="indefinite" />}
-        </circle>
-        <circle cx="92" cy="50" r="2.5" fill={brandCyan}>
-          {animated && <animate attributeName="opacity" values="1;0.4;1" dur="1.9s" repeatCount="indefinite" />}
-        </circle>
-        <circle cx="85" cy="65" r="2" fill={brandCyan}>
-          {animated && <animate attributeName="opacity" values="0.4;1;0.4" dur="1.7s" repeatCount="indefinite" />}
-        </circle>
-
-        {/* Central auditory processing nodes */}
-        <circle cx="50" cy="40" r="4" fill={brandCyan}>
-          {animated && <animate attributeName="r" values="4;5;4" dur="1s" repeatCount="indefinite" />}
-        </circle>
-        <circle cx="70" cy="40" r="4" fill={brandCyan}>
-          {animated && <animate attributeName="r" values="4;5;4" dur="1.1s" repeatCount="indefinite" />}
-        </circle>
-        <circle cx="60" cy="55" r="5" fill={brandCyan}>
-          {animated && <animate attributeName="r" values="5;6;5" dur="0.9s" repeatCount="indefinite" />}
+        <circle cx="50" cy="65" r="2.5" fill={brandCyan}>
+          {animated && <animate attributeName="opacity" values="0.5;1;0.5" dur="0.9s" repeatCount="indefinite" />}
         </circle>
       </g>
 
-      {/* Electric sparks/pulses */}
-      <g fill={brandCyan} opacity="0.7">
-        <circle cx="42" cy="38" r="1.5">
-          {animated && <animate attributeName="opacity" values="0;1;0" dur="0.8s" repeatCount="indefinite" />}
-        </circle>
-        <circle cx="78" cy="38" r="1.5">
-          {animated && <animate attributeName="opacity" values="0;1;0" dur="0.9s" repeatCount="indefinite" begin="0.3s" />}
-        </circle>
-        <circle cx="55" cy="48" r="1.5">
-          {animated && <animate attributeName="opacity" values="0;1;0" dur="0.7s" repeatCount="indefinite" begin="0.1s" />}
-        </circle>
-        <circle cx="65" cy="48" r="1.5">
-          {animated && <animate attributeName="opacity" values="0;1;0" dur="0.85s" repeatCount="indefinite" begin="0.2s" />}
-        </circle>
-        <circle cx="60" cy="68" r="1.5">
-          {animated && <animate attributeName="opacity" values="0;1;0" dur="0.75s" repeatCount="indefinite" begin="0.4s" />}
-        </circle>
-      </g>
-
-      {/* Highlight on top of brain */}
-      <ellipse cx="45" cy="22" rx="15" ry="8" fill="rgba(255,255,255,0.15)" />
-      <ellipse cx="75" cy="22" rx="15" ry="8" fill="rgba(255,255,255,0.15)" />
+      {/* Brain stem at bottom */}
+      <path
+        d="M44 82 Q50 92 50 96 Q50 92 56 82"
+        fill="#0a3d3a"
+        stroke={brandCyan}
+        strokeWidth="0.5"
+      />
     </svg>
   );
 });
@@ -216,7 +230,7 @@ const BrainLogo = memo(({ size = 50, showText = true, textSize = 22 }: BrainLogo
           width: size,
           height: size,
           borderRadius: 14,
-          background: 'rgba(11,15,28,0.6)',
+          background: 'rgba(11,15,28,0.8)',
           border: '1px solid rgba(143,211,204,0.25)',
           display: 'flex',
           alignItems: 'center',
@@ -225,7 +239,7 @@ const BrainLogo = memo(({ size = 50, showText = true, textSize = 22 }: BrainLogo
           flexShrink: 0,
         }}
       >
-        <BrainLogoSVG size={size * 0.85} animated />
+        <BrainLogoSVG size={size * 0.9} animated />
       </div>
       {showText && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
