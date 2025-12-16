@@ -1,4 +1,5 @@
 import { useRef, useState, useMemo, useCallback, useEffect } from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Float, Text, Sphere, MeshDistortMaterial, Line } from '@react-three/drei';
 import * as THREE from 'three';
@@ -343,6 +344,9 @@ function BrainScene() {
 
     // Deactivate after animation
     setTimeout(() => setActivePathways(new Set()), 3000);
+
+    // Dispatch custom event for info panel
+    window.dispatchEvent(new CustomEvent('brainRegionSelected', { detail: regionId }));
   }, [exploreBrainRegion]);
 
   const handleRegionHover = useCallback((regionId: string, hovered: boolean) => {
@@ -421,45 +425,164 @@ interface Brain3DProps {
   height?: number | string;
 }
 
+interface RegionInfoPanelProps {
+  region: typeof BRAIN_REGIONS[number] | null;
+  onClose: () => void;
+}
+
+function RegionInfoPanel({ region, onClose }: RegionInfoPanelProps) {
+  if (!region) return null;
+
+  return (
+    <div style={{
+      position: 'absolute',
+      bottom: 80,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      background: 'rgba(11,15,28,0.95)',
+      backdropFilter: 'blur(15px)',
+      border: `1px solid ${brandCyan}44`,
+      borderRadius: 16,
+      padding: 20,
+      maxWidth: 340,
+      width: '90%',
+      animation: 'slideUp 0.3s ease-out',
+      boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 30px ${brandCyan}22`,
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
+        <div>
+          <div style={{ fontSize: 18, fontWeight: 900, color: brandCyan }}>{region.nameAr}</div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{region.name}</div>
+        </div>
+        <button
+          onClick={onClose}
+          style={{
+            background: 'rgba(255,255,255,0.1)',
+            border: 'none',
+            borderRadius: 8,
+            width: 28,
+            height: 28,
+            cursor: 'pointer',
+            color: 'rgba(255,255,255,0.6)',
+            fontSize: 16,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >×</button>
+      </div>
+
+      {/* Description */}
+      <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, marginBottom: 14 }}>
+        {region.descriptionAr}
+      </p>
+
+      {/* Treatment Areas */}
+      <div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: brandPurple, marginBottom: 8, letterSpacing: 1 }}>
+          مجالات العلاج
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {region.treatmentAreasAr.map((area, idx) => (
+            <span key={idx} style={{
+              background: `linear-gradient(135deg, ${brandPurple}22, ${brandCyan}22)`,
+              border: `1px solid ${brandPurple}44`,
+              borderRadius: 8,
+              padding: '4px 10px',
+              fontSize: 11,
+              color: '#fff',
+              fontWeight: 600,
+            }}>
+              {area}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* XP Badge */}
+      <div style={{
+        marginTop: 14,
+        padding: '8px 12px',
+        background: `linear-gradient(135deg, ${brandCyan}22, ${brandPurple}22)`,
+        borderRadius: 10,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+      }}>
+        <span style={{ fontSize: 18 }}>✨</span>
+        <span style={{ fontSize: 12, color: brandCyan, fontWeight: 700 }}>+25 XP مكتسب!</span>
+      </div>
+
+      <style>{`
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+          to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 export default function Brain3D({ height = 500 }: Brain3DProps) {
-  const { brainRegions, state } = useGamification();
+  const { brainRegions } = useGamification();
   const exploredCount = brainRegions.filter(r => r.explored).length;
+  const [selectedRegion, setSelectedRegion] = useState<typeof BRAIN_REGIONS[number] | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Listen for region clicks from BrainScene
+  useEffect(() => {
+    const handleRegionSelect = (e: CustomEvent<string>) => {
+      const region = BRAIN_REGIONS.find(r => r.id === e.detail);
+      if (region) setSelectedRegion(region);
+    };
+    window.addEventListener('brainRegionSelected' as never, handleRegionSelect as EventListener);
+    return () => window.removeEventListener('brainRegionSelected' as never, handleRegionSelect as EventListener);
+  }, []);
 
   return (
     <div style={{ position: 'relative', width: '100%', height }}>
       <Canvas
-        camera={{ position: [0, 0, 5], fov: 50 }}
+        camera={{ position: [0, 0, isMobile ? 6 : 5], fov: isMobile ? 55 : 50 }}
         style={{ background: 'transparent' }}
         gl={{ antialias: true, alpha: true }}
       >
         <BrainScene />
       </Canvas>
 
-      {/* Overlay UI */}
+      {/* Overlay UI - Responsive */}
       <div style={{
         position: 'absolute',
-        top: 16,
-        right: 16,
+        top: isMobile ? 8 : 16,
+        right: isMobile ? 8 : 16,
         background: 'rgba(11,15,28,0.85)',
         backdropFilter: 'blur(10px)',
         border: '1px solid rgba(143,211,204,0.3)',
-        borderRadius: 14,
-        padding: '12px 16px',
+        borderRadius: isMobile ? 12 : 14,
+        padding: isMobile ? '8px 12px' : '12px 16px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 8,
+        gap: 6,
       }}>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 800 }}>
-          BRAIN EXPLORER
+        <div style={{ fontSize: isMobile ? 10 : 12, color: 'rgba(255,255,255,0.6)', fontWeight: 800 }}>
+          {isMobile ? '🧠 EXPLORER' : 'BRAIN EXPLORER'}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 24 }}>🧠</span>
+          {!isMobile && <span style={{ fontSize: 24 }}>🧠</span>}
           <div>
-            <div style={{ fontSize: 18, fontWeight: 900, color: brandCyan }}>
+            <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 900, color: brandCyan }}>
               {exploredCount}/{BRAIN_REGIONS.length}
             </div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
-              المناطق المستكشفة
+            <div style={{ fontSize: isMobile ? 9 : 11, color: 'rgba(255,255,255,0.5)' }}>
+              {isMobile ? 'مستكشفة' : 'المناطق المستكشفة'}
             </div>
           </div>
         </div>
@@ -478,25 +601,49 @@ export default function Brain3D({ height = 500 }: Brain3DProps) {
             transition: 'width 0.5s ease',
           }} />
         </div>
+
+        {/* Region dots - Mobile mini map */}
+        {isMobile && (
+          <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
+            {BRAIN_REGIONS.map(region => {
+              const isExplored = brainRegions.find(r => r.id === region.id)?.explored;
+              return (
+                <div key={region.id} style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  background: isExplored ? brandCyan : 'rgba(255,255,255,0.2)',
+                  transition: 'background 0.3s',
+                }} />
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {/* Instructions */}
-      <div style={{
-        position: 'absolute',
-        bottom: 16,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        background: 'rgba(11,15,28,0.75)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: 12,
-        padding: '8px 16px',
-        fontSize: 13,
-        color: 'rgba(255,255,255,0.7)',
-        textAlign: 'center',
-      }}>
-        اسحب للتدوير • انقر على المناطق المضيئة لاستكشافها
-      </div>
+      {/* Region Info Panel */}
+      <RegionInfoPanel region={selectedRegion} onClose={() => setSelectedRegion(null)} />
+
+      {/* Instructions - Responsive */}
+      {!selectedRegion && (
+        <div style={{
+          position: 'absolute',
+          bottom: isMobile ? 12 : 16,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'rgba(11,15,28,0.75)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 12,
+          padding: isMobile ? '6px 12px' : '8px 16px',
+          fontSize: isMobile ? 11 : 13,
+          color: 'rgba(255,255,255,0.7)',
+          textAlign: 'center',
+          maxWidth: '90%',
+        }}>
+          {isMobile ? 'المس للتدوير • انقر النقاط المضيئة' : 'اسحب للتدوير • انقر على المناطق المضيئة لاستكشافها'}
+        </div>
+      )}
     </div>
   );
 }
