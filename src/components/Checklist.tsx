@@ -5,6 +5,7 @@ import { assetUrl } from '../utils/asset';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from './styles';
 import { useGamification } from '../context/GamificationContext';
+import { ensureAudio, safeCloseAudio } from './games/audio';
 
 // Category icons and colors for visual appeal
 const CATEGORY_CONFIG: Record<string, { icon: string; color: string }> = {
@@ -16,71 +17,23 @@ const CATEGORY_CONFIG: Record<string, { icon: string; color: string }> = {
   'تشخيصات/حالات شائعة مرتبطة بالسمع/التعلم': { icon: '🔬', color: brandPurpleDark },
 };
 
-// Sound effects
-const playSelectSound = (selected: boolean) => {
-  try {
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(selected ? 880 : 440, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(selected ? 1200 : 300, ctx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.06, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.12);
-  } catch { /* Audio unavailable */ }
-};
-
-const playLaunchSound = () => {
-  try {
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    // Deep rumble
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-    osc1.type = 'sawtooth';
-    osc1.frequency.setValueAtTime(60, ctx.currentTime);
-    osc1.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.4);
-    gain1.gain.setValueAtTime(0.12, ctx.currentTime);
-    gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-    osc1.connect(gain1);
-    gain1.connect(ctx.destination);
-    osc1.start();
-    osc1.stop(ctx.currentTime + 0.4);
-
-    // High ping
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(1200, ctx.currentTime);
-    osc2.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.2);
-    gain2.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-    osc2.connect(gain2);
-    gain2.connect(ctx.destination);
-    osc2.start();
-    osc2.stop(ctx.currentTime + 0.2);
-  } catch { /* Audio unavailable */ }
-};
-
 interface ItemCardProps {
   item: ChecklistItem;
   isSelected: boolean;
   color: string;
+  onSound: (selected: boolean) => void;
   onToggle: () => void;
   animationDelay: number;
   isExiting: boolean;
 }
 
-function ItemCard({ item, isSelected, color, onToggle, animationDelay, isExiting }: ItemCardProps) {
+function ItemCard({ item, isSelected, color, onSound, onToggle, animationDelay, isExiting }: ItemCardProps) {
   const [hovered, setHovered] = useState(false);
 
   return (
     <button
       type="button"
-      onClick={() => { playSelectSound(!isSelected); onToggle(); }}
+      onClick={() => { onSound(!isSelected); onToggle(); }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -156,18 +109,19 @@ function ItemCard({ item, isSelected, color, onToggle, animationDelay, isExiting
 // Submarine-style missile launch button
 interface LaunchButtonProps {
   onClick: () => void;
+  onSound?: () => void;
   disabled?: boolean;
   isLast?: boolean;
 }
 
-function LaunchButton({ onClick, disabled, isLast }: LaunchButtonProps) {
+function LaunchButton({ onClick, onSound, disabled, isLast }: LaunchButtonProps) {
   const [isPressed, setIsPressed] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleClick = () => {
     if (disabled) return;
     setIsPressed(true);
-    playLaunchSound();
+    onSound?.();
     setTimeout(() => {
       setIsPressed(false);
       onClick();
@@ -336,6 +290,7 @@ function BackButton({ onClick, disabled }: { onClick: () => void; disabled?: boo
 }
 
 const Checklist = () => {
+  const audioRef = useRef<AudioContext | null>(null);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [exporting, setExporting] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
@@ -343,6 +298,114 @@ const Checklist = () => {
   const [transitionDirection, setTransitionDirection] = useState<'next' | 'prev'>('next');
   const { completeChecklist } = useGamification();
   const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    return () => {
+      void safeCloseAudio(audioRef);
+    };
+  }, []);
+
+  const playSelectSound = useCallback((selectedValue: boolean) => {
+    try {
+      const audio = ensureAudio(audioRef);
+      if (audio.state === 'suspended') void audio.resume().catch(() => {});
+
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      const now = audio.currentTime;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(selectedValue ? 880 : 440, now);
+      osc.frequency.exponentialRampToValueAtTime(selectedValue ? 1200 : 300, now + 0.1);
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.06, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+
+      osc.connect(gain);
+      gain.connect(audio.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.15);
+      osc.onended = () => {
+        try {
+          osc.disconnect();
+        } catch {
+          // ignore
+        }
+        try {
+          gain.disconnect();
+        } catch {
+          // ignore
+        }
+      };
+    } catch {
+      // Audio unavailable
+    }
+  }, []);
+
+  const playLaunchSound = useCallback(() => {
+    try {
+      const audio = ensureAudio(audioRef);
+      if (audio.state === 'suspended') void audio.resume().catch(() => {});
+
+      const now = audio.currentTime;
+
+      // Deep rumble
+      const osc1 = audio.createOscillator();
+      const gain1 = audio.createGain();
+      osc1.type = 'sawtooth';
+      osc1.frequency.setValueAtTime(60, now);
+      osc1.frequency.exponentialRampToValueAtTime(30, now + 0.4);
+      gain1.gain.setValueAtTime(0.0001, now);
+      gain1.gain.exponentialRampToValueAtTime(0.12, now + 0.02);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+      osc1.connect(gain1);
+      gain1.connect(audio.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.45);
+      osc1.onended = () => {
+        try {
+          osc1.disconnect();
+        } catch {
+          // ignore
+        }
+        try {
+          gain1.disconnect();
+        } catch {
+          // ignore
+        }
+      };
+
+      // High ping
+      const osc2 = audio.createOscillator();
+      const gain2 = audio.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(1200, now);
+      osc2.frequency.exponentialRampToValueAtTime(800, now + 0.2);
+      gain2.gain.setValueAtTime(0.0001, now);
+      gain2.gain.exponentialRampToValueAtTime(0.08, now + 0.02);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+      osc2.connect(gain2);
+      gain2.connect(audio.destination);
+      osc2.start(now);
+      osc2.stop(now + 0.25);
+      osc2.onended = () => {
+        try {
+          osc2.disconnect();
+        } catch {
+          // ignore
+        }
+        try {
+          gain2.disconnect();
+        } catch {
+          // ignore
+        }
+      };
+    } catch {
+      // Audio unavailable
+    }
+  }, []);
 
   const selectedItems = useMemo(() => checklistItems.filter((item) => selected[item.id]), [selected]);
   const selectedCount = selectedItems.length;
@@ -634,6 +697,7 @@ const Checklist = () => {
               item={item}
               isSelected={!!selected[item.id]}
               color={currentConfig.color}
+              onSound={playSelectSound}
               onToggle={() => toggle(item.id)}
               animationDelay={idx * 0.05}
               isExiting={isTransitioning}
@@ -671,6 +735,7 @@ const Checklist = () => {
 
         <LaunchButton
           onClick={isLastSection ? exportSelectedPdf : goToNext}
+          onSound={playLaunchSound}
           disabled={isTransitioning || (isLastSection && selectedCount === 0)}
           isLast={isLastSection}
         />

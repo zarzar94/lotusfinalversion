@@ -2,7 +2,9 @@ import { useRef, useState, useMemo, useCallback, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Float, Sphere, MeshDistortMaterial } from '@react-three/drei';
 import * as THREE from 'three';
+import { useGamification } from '../../context/GamificationContext';
 import { brandCyan, brandPurple, brandPink, brandPurpleDark } from '../styles';
+import { ensureAudio, safeCloseAudio } from '../games/audio';
 
 // Treatment area bubbles based on the brain map image
 const BRAIN_BUBBLES = [
@@ -18,6 +20,19 @@ const BRAIN_BUBBLES = [
   { id: 'wellbeing', label: 'الرفاهية', labelEn: 'Well-Being', color: '#2563EB', position: [1.5, -0.5, 0.4] as [number, number, number], size: 0.38 },
 ];
 
+const BUBBLE_TO_REGION: Record<string, string> = {
+  auditory: 'auditory_cortex',
+  language: 'temporal_lobe',
+  music: 'temporal_lobe',
+  memory: 'temporal_lobe',
+  attention: 'thalamus',
+  sensory: 'brainstem',
+  balance: 'cerebellum',
+  learning: 'prefrontal',
+  behavior: 'prefrontal',
+  wellbeing: 'cerebellum',
+};
+
 // Neural connections between bubbles
 const NEURAL_CONNECTIONS = [
   { from: 0, to: 3 }, { from: 1, to: 3 }, { from: 2, to: 6 },
@@ -26,24 +41,6 @@ const NEURAL_CONNECTIONS = [
   { from: 0, to: 2 }, { from: 1, to: 4 }, { from: 3, to: 7 },
   { from: 5, to: 9 }, { from: 6, to: 7 }, { from: 4, to: 9 },
 ];
-
-// Sound effect for bubble interaction
-const playBubbleSound = (frequency: number) => {
-  try {
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(frequency, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(frequency * 1.3, ctx.currentTime + 0.2);
-    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.3);
-  } catch { /* Audio unavailable */ }
-};
 
 // Organic brain mesh wireframe
 function BrainMesh() {
@@ -310,7 +307,22 @@ function createLabelTexture(text: string, color: string, isHovered: boolean): HT
   // Background pill
   ctx.fillStyle = isHovered ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.85)';
   ctx.beginPath();
-  ctx.roundRect(8, 8, 240, 64, 32);
+  const maybeRoundRect = (ctx as CanvasRenderingContext2D & { roundRect?: (...args: unknown[]) => void }).roundRect;
+  if (typeof maybeRoundRect === 'function') {
+    maybeRoundRect.call(ctx, 8, 8, 240, 64, 32);
+  } else {
+    const x = 8;
+    const y = 8;
+    const w = 240;
+    const h = 64;
+    const r = 32;
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
   ctx.fill();
 
   // Text
@@ -325,18 +337,70 @@ function createLabelTexture(text: string, color: string, isHovered: boolean): HT
 
 // Main brain scene
 function BrainScene({ onBubbleSelect }: { onBubbleSelect: (bubble: typeof BRAIN_BUBBLES[number] | null) => void }) {
+  const { exploreBrainRegion } = useGamification();
+  const audioRef = useRef<AudioContext | null>(null);
   const [hoveredBubble, setHoveredBubble] = useState<string | null>(null);
   const [selectedBubble, setSelectedBubble] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      void safeCloseAudio(audioRef);
+    };
+  }, []);
+
+  const playBubbleSound = useCallback((frequency: number) => {
+    try {
+      const audio = ensureAudio(audioRef);
+      if (audio.state === 'suspended') void audio.resume().catch(() => {});
+
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      const now = audio.currentTime;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(frequency, now);
+      osc.frequency.exponentialRampToValueAtTime(frequency * 1.3, now + 0.2);
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.08, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+
+      osc.connect(gain);
+      gain.connect(audio.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.33);
+      osc.onended = () => {
+        try {
+          osc.disconnect();
+        } catch {
+          // ignore
+        }
+        try {
+          gain.disconnect();
+        } catch {
+          // ignore
+        }
+      };
+    } catch {
+      // Audio unavailable
+    }
+  }, []);
 
   const handleBubbleClick = useCallback((bubble: typeof BRAIN_BUBBLES[number]) => {
     const isAlreadySelected = selectedBubble === bubble.id;
     setSelectedBubble(isAlreadySelected ? null : bubble.id);
     onBubbleSelect(isAlreadySelected ? null : bubble);
 
+    if (!isAlreadySelected) {
+      const regionId = BUBBLE_TO_REGION[bubble.id];
+      if (regionId) exploreBrainRegion(regionId);
+    }
+
     // Play sound based on bubble position (higher = higher pitch)
     const baseFreq = 300 + (bubble.position[1] + 1.5) * 150;
     playBubbleSound(baseFreq);
-  }, [selectedBubble, onBubbleSelect]);
+  }, [exploreBrainRegion, onBubbleSelect, playBubbleSound, selectedBubble]);
 
   return (
     <>
