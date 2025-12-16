@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 
 import { checklistCategories, checklistItems, type ChecklistItem } from '../data/checklistItems';
 import { assetUrl } from '../utils/asset';
@@ -16,7 +16,7 @@ const CATEGORY_CONFIG: Record<string, { icon: string; color: string }> = {
   'تشخيصات/حالات شائعة مرتبطة بالسمع/التعلم': { icon: '🔬', color: brandPurpleDark },
 };
 
-// Sound effect for selection
+// Sound effects
 const playSelectSound = (selected: boolean) => {
   try {
     const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
@@ -34,14 +34,47 @@ const playSelectSound = (selected: boolean) => {
   } catch { /* Audio unavailable */ }
 };
 
+const playLaunchSound = () => {
+  try {
+    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    // Deep rumble
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = 'sawtooth';
+    osc1.frequency.setValueAtTime(60, ctx.currentTime);
+    osc1.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.4);
+    gain1.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.start();
+    osc1.stop(ctx.currentTime + 0.4);
+
+    // High ping
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(1200, ctx.currentTime);
+    osc2.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.2);
+    gain2.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.start();
+    osc2.stop(ctx.currentTime + 0.2);
+  } catch { /* Audio unavailable */ }
+};
+
 interface ItemCardProps {
   item: ChecklistItem;
   isSelected: boolean;
   color: string;
   onToggle: () => void;
+  animationDelay: number;
+  isExiting: boolean;
 }
 
-function ItemCard({ item, isSelected, color, onToggle }: ItemCardProps) {
+function ItemCard({ item, isSelected, color, onToggle, animationDelay, isExiting }: ItemCardProps) {
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -67,6 +100,9 @@ function ItemCard({ item, isSelected, color, onToggle }: ItemCardProps) {
         boxShadow: isSelected ? `0 4px 20px ${color}33` : 'none',
         position: 'relative',
         overflow: 'hidden',
+        animation: isExiting
+          ? `itemPop 0.4s ease-out ${animationDelay}s forwards`
+          : `itemEnter 0.5s ease-out ${animationDelay}s backwards`,
       }}
     >
       {/* Checkbox indicator */}
@@ -117,15 +153,205 @@ function ItemCard({ item, isSelected, color, onToggle }: ItemCardProps) {
   );
 }
 
+// Submarine-style missile launch button
+interface LaunchButtonProps {
+  onClick: () => void;
+  disabled?: boolean;
+  isLast?: boolean;
+}
+
+function LaunchButton({ onClick, disabled, isLast }: LaunchButtonProps) {
+  const [isPressed, setIsPressed] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleClick = () => {
+    if (disabled) return;
+    setIsPressed(true);
+    playLaunchSound();
+    setTimeout(() => {
+      setIsPressed(false);
+      onClick();
+    }, 300);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      disabled={disabled}
+      style={{
+        position: 'relative',
+        width: 140,
+        height: 140,
+        borderRadius: '50%',
+        border: 'none',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        background: 'transparent',
+        outline: 'none',
+        transform: isPressed ? 'scale(0.95)' : isHovered ? 'scale(1.05)' : 'scale(1)',
+        transition: 'transform 0.15s ease',
+        opacity: disabled ? 0.5 : 1,
+      }}
+    >
+      {/* Outer metallic ring */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        borderRadius: '50%',
+        background: 'linear-gradient(145deg, #3a3a3a 0%, #1a1a1a 50%, #2a2a2a 100%)',
+        boxShadow: `
+          inset 0 2px 4px rgba(255,255,255,0.1),
+          inset 0 -2px 4px rgba(0,0,0,0.3),
+          0 8px 30px rgba(0,0,0,0.5),
+          0 0 60px rgba(220,38,38,${isHovered ? 0.3 : 0.1})
+        `,
+      }} />
+
+      {/* Yellow warning stripe ring */}
+      <div style={{
+        position: 'absolute',
+        inset: 8,
+        borderRadius: '50%',
+        background: `repeating-conic-gradient(
+          from 0deg,
+          #fbbf24 0deg 10deg,
+          #1a1a1a 10deg 20deg
+        )`,
+        opacity: 0.9,
+      }} />
+
+      {/* Inner metallic bezel */}
+      <div style={{
+        position: 'absolute',
+        inset: 16,
+        borderRadius: '50%',
+        background: 'linear-gradient(145deg, #2a2a2a 0%, #1a1a1a 100%)',
+        boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.5)',
+      }} />
+
+      {/* Red button surface */}
+      <div style={{
+        position: 'absolute',
+        inset: 22,
+        borderRadius: '50%',
+        background: isPressed
+          ? 'linear-gradient(145deg, #7f1d1d 0%, #991b1b 50%, #b91c1c 100%)'
+          : 'linear-gradient(145deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%)',
+        boxShadow: isPressed
+          ? 'inset 0 4px 15px rgba(0,0,0,0.5)'
+          : `
+            inset 0 -4px 15px rgba(0,0,0,0.3),
+            inset 0 4px 15px rgba(255,255,255,0.1),
+            0 4px 20px rgba(220,38,38,0.4)
+          `,
+        transition: 'all 0.15s ease',
+      }}>
+        {/* Glass highlight */}
+        <div style={{
+          position: 'absolute',
+          top: '10%',
+          left: '20%',
+          width: '30%',
+          height: '20%',
+          borderRadius: '50%',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.4), transparent)',
+          filter: 'blur(2px)',
+        }} />
+      </div>
+
+      {/* Center icon/text */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#fff',
+        textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+        pointerEvents: 'none',
+      }}>
+        <span style={{ fontSize: 28, marginBottom: 2 }}>{isLast ? '✓' : '▶'}</span>
+        <span style={{
+          fontSize: 12,
+          fontWeight: 900,
+          letterSpacing: 1,
+          textTransform: 'uppercase',
+        }}>
+          {isLast ? 'إنهاء' : 'التالي'}
+        </span>
+      </div>
+
+      {/* Pulsing glow when active */}
+      {!disabled && (
+        <div style={{
+          position: 'absolute',
+          inset: -10,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(220,38,38,0.3), transparent 70%)',
+          animation: 'launchPulse 1.5s ease-in-out infinite',
+          pointerEvents: 'none',
+        }} />
+      )}
+    </button>
+  );
+}
+
+// Back button (smaller, grey)
+function BackButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      disabled={disabled}
+      style={{
+        width: 60,
+        height: 60,
+        borderRadius: '50%',
+        border: 'none',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        background: 'linear-gradient(145deg, #4a4a4a 0%, #2a2a2a 100%)',
+        boxShadow: isHovered
+          ? '0 4px 20px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.1)'
+          : '0 2px 10px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.1)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#fff',
+        fontSize: 20,
+        transition: 'all 0.2s ease',
+        opacity: disabled ? 0.3 : 1,
+        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+      }}
+    >
+      ◀
+    </button>
+  );
+}
+
 const Checklist = () => {
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [exporting, setExporting] = useState(false);
-  const [expandedCat, setExpandedCat] = useState<string | null>(null);
+  const [currentSection, setCurrentSection] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [transitionDirection, setTransitionDirection] = useState<'next' | 'prev'>('next');
   const { completeChecklist } = useGamification();
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   const selectedItems = useMemo(() => checklistItems.filter((item) => selected[item.id]), [selected]);
   const selectedCount = selectedItems.length;
   const totalItems = checklistItems.length;
+  const totalSections = checklistCategories.length;
+
+  const currentCategory = checklistCategories[currentSection];
+  const currentConfig = CATEGORY_CONFIG[currentCategory?.title] || { icon: '📊', color: brandCyan };
+  const currentSelectedCount = currentCategory?.items.filter(item => selected[item.id]).length || 0;
 
   const categoryStats = useMemo(() => {
     return checklistCategories.map(cat => ({
@@ -151,6 +377,29 @@ const Checklist = () => {
       return newSelected;
     });
   }, [completeChecklist]);
+
+  const goToNext = useCallback(() => {
+    if (currentSection >= totalSections - 1 || isTransitioning) return;
+    setTransitionDirection('next');
+    setIsTransitioning(true);
+  }, [currentSection, totalSections, isTransitioning]);
+
+  const goToPrev = useCallback(() => {
+    if (currentSection <= 0 || isTransitioning) return;
+    setTransitionDirection('prev');
+    setIsTransitioning(true);
+  }, [currentSection, isTransitioning]);
+
+  // Handle transition end
+  useEffect(() => {
+    if (isTransitioning) {
+      const timer = setTimeout(() => {
+        setCurrentSection(prev => transitionDirection === 'next' ? prev + 1 : prev - 1);
+        setIsTransitioning(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isTransitioning, transitionDirection]);
 
   const clearAll = () => setSelected({});
 
@@ -187,12 +436,45 @@ const Checklist = () => {
     } finally { setExporting(false); }
   };
 
+  const isLastSection = currentSection === totalSections - 1;
+
   return (
     <section id="checklist" style={styles.sectionCard}>
       <style>{`
         @keyframes scanLine { 0% { transform: translateX(-100%); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateX(100%); opacity: 0; } }
         @keyframes radarSweep { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes launchPulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
+        @keyframes itemEnter {
+          0% { opacity: 0; transform: scale(0.3) translateY(30px); }
+          60% { transform: scale(1.05) translateY(-5px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes itemPop {
+          0% { opacity: 1; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.2); }
+          100% { opacity: 0; transform: scale(0) rotate(15deg); }
+        }
+        @keyframes sectionEnter {
+          0% { opacity: 0; transform: translateX(100px) scale(0.8); }
+          100% { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes sectionExit {
+          0% { opacity: 1; transform: translateX(0) scale(1); }
+          100% { opacity: 0; transform: translateX(-100px) scale(0.8); }
+        }
+        @keyframes sectionEnterPrev {
+          0% { opacity: 0; transform: translateX(-100px) scale(0.8); }
+          100% { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes sectionExitPrev {
+          0% { opacity: 1; transform: translateX(0) scale(1); }
+          100% { opacity: 0; transform: translateX(100px) scale(0.8); }
+        }
+        @keyframes explosionParticle {
+          0% { opacity: 1; transform: translate(0, 0) scale(1); }
+          100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+        }
       `}</style>
 
       {/* Header */}
@@ -206,184 +488,248 @@ const Checklist = () => {
         <p style={styles.bodyText}>حدد المؤشرات التي تلاحظها لبناء تقرير تقييمي أولي. كلما زادت المؤشرات، زادت أهمية التقييم المتخصص.</p>
       </div>
 
-      {/* Scanner Dashboard */}
+      {/* Progress Indicator */}
       <div style={{
         marginTop: 20,
-        padding: 24,
-        background: 'linear-gradient(135deg, rgba(11,15,28,0.95), rgba(25,30,50,0.95))',
-        borderRadius: 20,
-        border: `1px solid ${recommendation.color}33`,
-        position: 'relative',
-        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        justifyContent: 'center',
+        flexWrap: 'wrap',
       }}>
-        {/* Grid background */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: `linear-gradient(rgba(143,211,204,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(143,211,204,0.03) 1px, transparent 1px)`,
-          backgroundSize: '24px 24px',
-        }} />
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24, position: 'relative', zIndex: 1 }}>
-          {/* Radar Visualization */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-            <div style={{ position: 'relative', width: 160, height: 160 }}>
-              {/* Radar rings */}
-              {[100, 70, 40].map((size, i) => (
-                <div key={size} style={{
-                  position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-                  width: `${size}%`, height: `${size}%`, borderRadius: '50%',
-                  border: `1px solid ${recommendation.color}${25 + i * 15}`,
-                }} />
-              ))}
-              {/* Sweep line */}
-              <div style={{
-                position: 'absolute', top: '50%', left: '50%',
-                width: '50%', height: 2,
-                background: `linear-gradient(90deg, ${recommendation.color}, transparent)`,
-                transformOrigin: 'left center',
-                animation: 'radarSweep 3s linear infinite',
-              }} />
-              {/* Center */}
-              <div style={{
-                position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-                width: 50, height: 50, borderRadius: '50%',
-                background: `radial-gradient(circle, ${recommendation.color}44, transparent)`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26,
-              }}>
-                {recommendation.icon}
-              </div>
-              {/* Data points */}
-              {categoryStats.map((cat, idx) => {
-                if (cat.selectedCount === 0) return null;
-                const angle = (idx / categoryStats.length) * Math.PI * 2 - Math.PI / 2;
-                const dist = 25 + (cat.selectedCount / cat.items.length) * 45;
-                const cfg = CATEGORY_CONFIG[cat.title] || { color: brandCyan };
-                return (
-                  <div key={cat.title} style={{
-                    position: 'absolute', top: '50%', left: '50%',
-                    transform: `translate(calc(-50% + ${Math.cos(angle) * dist}px), calc(-50% + ${Math.sin(angle) * dist}px))`,
-                    width: 10, height: 10, borderRadius: '50%',
-                    background: cfg.color, boxShadow: `0 0 8px ${cfg.color}`,
-                    animation: 'pulse 2s ease-in-out infinite', animationDelay: `${idx * 0.15}s`,
-                  }} />
-                );
-              })}
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: recommendation.color }}>{recommendation.label}</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{recommendation.labelEn} Indicators</div>
-            </div>
-          </div>
-
-          {/* Stats Panel */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {/* Progress bar */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6, color: 'rgba(255,255,255,0.6)' }}>
-                <span>مستوى المؤشرات</span>
-                <span style={{ color: recommendation.color, fontWeight: 700 }}>{selectedCount} / {totalItems}</span>
-              </div>
-              <div style={{ height: 10, background: 'rgba(255,255,255,0.1)', borderRadius: 5, overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%', width: `${(selectedCount / totalItems) * 100}%`,
-                  background: `linear-gradient(90deg, ${brandCyan}, ${recommendation.color})`,
-                  transition: 'width 0.4s ease', borderRadius: 5,
-                }} />
-              </div>
-            </div>
-
-            {/* Category mini-bars */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
-              {categoryStats.map(cat => {
-                const cfg = CATEGORY_CONFIG[cat.title] || { icon: '📊', color: brandCyan };
-                return (
-                  <div key={cat.title} style={{
-                    padding: '8px 10px',
-                    background: cat.selectedCount > 0 ? `${cfg.color}11` : 'rgba(255,255,255,0.02)',
-                    borderRadius: 10, border: `1px solid ${cat.selectedCount > 0 ? `${cfg.color}33` : 'rgba(255,255,255,0.05)'}`,
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-                      <span style={{ fontSize: 12 }}>{cfg.icon}</span>
-                      <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {cat.title.length > 12 ? cat.title.slice(0, 12) + '...' : cat.title}
-                      </span>
-                      <span style={{ fontSize: 10, color: cfg.color, fontWeight: 700 }}>{cat.selectedCount}</span>
-                    </div>
-                    <div style={{ height: 3, background: 'rgba(255,255,255,0.1)', borderRadius: 2 }}>
-                      <div style={{ height: '100%', width: `${(cat.selectedCount / cat.items.length) * 100}%`, background: cfg.color, borderRadius: 2, transition: 'width 0.3s' }} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Recommendation */}
-            <div style={{ padding: 12, background: `${recommendation.color}15`, border: `1px solid ${recommendation.color}33`, borderRadius: 10 }}>
-              <p style={{ margin: 0, fontSize: 12, lineHeight: 1.7, color: 'rgba(255,255,255,0.85)' }}>{recommendation.msg}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div style={{ marginTop: 16, display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <a href={assetUrl('downloads/Check list (2).pdf')} target="_blank" rel="noreferrer" style={{ ...styles.ghostBtn, textDecoration: 'none' }}>
-          📄 PDF الرسمي
-        </a>
-        <button type="button" style={exporting || selectedCount === 0 ? styles.disabledBtn : styles.primaryBtn} onClick={exportSelectedPdf} disabled={exporting || selectedCount === 0}>
-          {exporting ? '⏳ تصدير...' : `📊 تصدير التقرير (${selectedCount})`}
-        </button>
-        {selectedCount > 0 && <button type="button" style={styles.dangerBtn} onClick={clearAll}>🗑️ مسح</button>}
-        <a href="#games" style={{ ...styles.primaryBtn, textDecoration: 'none', background: `linear-gradient(135deg, ${brandPurple}, ${brandPink})` }}>🎮 الألعاب السمعية</a>
-      </div>
-
-      {/* Category Accordions */}
-      <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {checklistCategories.map(category => {
-          const cfg = CATEGORY_CONFIG[category.title] || { icon: '📊', color: brandCyan };
-          const isExpanded = expandedCat === category.title || expandedCat === null;
-          const catCount = category.items.filter(item => selected[item.id]).length;
+        {checklistCategories.map((cat, idx) => {
+          const cfg = CATEGORY_CONFIG[cat.title] || { icon: '📊', color: brandCyan };
+          const catSelected = categoryStats[idx]?.selectedCount || 0;
+          const isActive = idx === currentSection;
+          const isPast = idx < currentSection;
 
           return (
-            <div key={category.title} style={{
-              background: `linear-gradient(135deg, ${cfg.color}08, transparent)`,
-              borderRadius: 16, border: `1px solid ${catCount > 0 ? `${cfg.color}44` : 'rgba(255,255,255,0.08)'}`,
-              overflow: 'hidden', transition: 'border-color 0.3s',
-            }}>
-              {/* Category Header */}
-              <button type="button" onClick={() => setExpandedCat(expandedCat === category.title ? null : category.title)}
-                style={{ width: '100%', padding: '14px 18px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'right' }}>
+            <div
+              key={cat.title}
+              onClick={() => !isTransitioning && setCurrentSection(idx)}
+              style={{
+                width: isActive ? 50 : 36,
+                height: isActive ? 50 : 36,
+                borderRadius: '50%',
+                background: isActive
+                  ? `linear-gradient(135deg, ${cfg.color}, ${cfg.color}88)`
+                  : isPast
+                    ? `${cfg.color}44`
+                    : 'rgba(255,255,255,0.08)',
+                border: `2px solid ${isActive ? cfg.color : isPast ? cfg.color : 'rgba(255,255,255,0.15)'}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: isActive ? 22 : 16,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: isActive ? `0 0 25px ${cfg.color}66` : 'none',
+                position: 'relative',
+              }}
+            >
+              {cfg.icon}
+              {catSelected > 0 && (
                 <div style={{
-                  width: 44, height: 44, borderRadius: 12, background: `${cfg.color}22`, border: `2px solid ${cfg.color}44`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0,
-                }}>{cfg.icon}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 800, fontSize: 15, color: '#f7f8fb', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {category.title}
-                    {catCount > 0 && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 8, background: cfg.color, color: '#fff' }}>{catCount}</span>}
-                  </div>
-                  {category.note && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{category.note}</div>}
+                  position: 'absolute',
+                  top: -4,
+                  right: -4,
+                  width: 18,
+                  height: 18,
+                  borderRadius: '50%',
+                  background: cfg.color,
+                  fontSize: 10,
+                  fontWeight: 900,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  border: '2px solid rgba(11,15,28,1)',
+                }}>
+                  {catSelected}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ width: 50, height: 5, background: 'rgba(255,255,255,0.1)', borderRadius: 3 }}>
-                    <div style={{ height: '100%', width: `${(catCount / category.items.length) * 100}%`, background: cfg.color, borderRadius: 3, transition: 'width 0.3s' }} />
-                  </div>
-                  <span style={{ fontSize: 18, color: cfg.color, transform: isExpanded ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.3s' }}>▼</span>
-                </div>
-              </button>
-
-              {/* Items */}
-              <div style={{ maxHeight: isExpanded ? 800 : 0, overflow: 'hidden', transition: 'max-height 0.4s ease' }}>
-                <div style={{ padding: '0 14px 14px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 8 }}>
-                  {category.items.map(item => (
-                    <ItemCard key={item.id} item={item} isSelected={!!selected[item.id]} color={cfg.color} onToggle={() => toggle(item.id)} />
-                  ))}
-                </div>
-              </div>
+              )}
             </div>
           );
         })}
       </div>
+
+      {/* Current Section */}
+      <div
+        ref={sectionRef}
+        style={{
+          marginTop: 24,
+          padding: 24,
+          background: 'linear-gradient(135deg, rgba(11,15,28,0.95), rgba(25,30,50,0.95))',
+          borderRadius: 24,
+          border: `2px solid ${currentConfig.color}44`,
+          position: 'relative',
+          overflow: 'hidden',
+          minHeight: 400,
+          animation: isTransitioning
+            ? (transitionDirection === 'next' ? 'sectionExit 0.5s ease forwards' : 'sectionExitPrev 0.5s ease forwards')
+            : (transitionDirection === 'next' ? 'sectionEnter 0.5s ease' : 'sectionEnterPrev 0.5s ease'),
+        }}
+      >
+        {/* Grid background */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: `linear-gradient(${currentConfig.color}08 1px, transparent 1px), linear-gradient(90deg, ${currentConfig.color}08 1px, transparent 1px)`,
+          backgroundSize: '24px 24px',
+        }} />
+
+        {/* Section Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+          marginBottom: 20,
+          position: 'relative',
+          zIndex: 1,
+        }}>
+          <div style={{
+            width: 64,
+            height: 64,
+            borderRadius: 16,
+            background: `linear-gradient(135deg, ${currentConfig.color}33, ${currentConfig.color}11)`,
+            border: `2px solid ${currentConfig.color}66`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 32,
+            boxShadow: `0 0 30px ${currentConfig.color}33`,
+          }}>
+            {currentConfig.icon}
+          </div>
+          <div style={{ flex: 1 }}>
+            <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: '#fff' }}>
+              {currentCategory?.title}
+            </h3>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+              القسم {currentSection + 1} من {totalSections} • {currentSelectedCount} مؤشر محدد
+            </div>
+          </div>
+          <div style={{
+            padding: '10px 16px',
+            borderRadius: 12,
+            background: `${currentConfig.color}22`,
+            border: `1px solid ${currentConfig.color}44`,
+          }}>
+            <div style={{ fontSize: 24, fontWeight: 900, color: currentConfig.color, textAlign: 'center' }}>
+              {currentSelectedCount}/{currentCategory?.items.length}
+            </div>
+          </div>
+        </div>
+
+        {/* Items Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: 10,
+          position: 'relative',
+          zIndex: 1,
+        }}>
+          {currentCategory?.items.map((item, idx) => (
+            <ItemCard
+              key={item.id}
+              item={item}
+              isSelected={!!selected[item.id]}
+              color={currentConfig.color}
+              onToggle={() => toggle(item.id)}
+              animationDelay={idx * 0.05}
+              isExiting={isTransitioning}
+            />
+          ))}
+        </div>
+
+        {/* Category Note */}
+        {currentCategory?.note && (
+          <div style={{
+            marginTop: 16,
+            padding: '10px 14px',
+            background: 'rgba(255,255,255,0.03)',
+            borderRadius: 10,
+            border: '1px solid rgba(255,255,255,0.08)',
+            fontSize: 12,
+            color: 'rgba(255,255,255,0.6)',
+            position: 'relative',
+            zIndex: 1,
+          }}>
+            💡 {currentCategory.note}
+          </div>
+        )}
+      </div>
+
+      {/* Navigation Controls */}
+      <div style={{
+        marginTop: 30,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 30,
+      }}>
+        <BackButton onClick={goToPrev} disabled={currentSection === 0 || isTransitioning} />
+
+        <LaunchButton
+          onClick={isLastSection ? exportSelectedPdf : goToNext}
+          disabled={isTransitioning || (isLastSection && selectedCount === 0)}
+          isLast={isLastSection}
+        />
+      </div>
+
+      {/* Launch instruction text */}
+      <div style={{
+        marginTop: 16,
+        textAlign: 'center',
+        fontSize: 13,
+        color: 'rgba(255,255,255,0.5)',
+      }}>
+        {isLastSection
+          ? `اضغط الزر لتصدير التقرير • ${selectedCount} مؤشر محدد`
+          : 'اضغط الزر الأحمر للانتقال إلى القسم التالي'}
+      </div>
+
+      {/* Quick Actions */}
+      <div style={{ marginTop: 20, display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <a href={assetUrl('downloads/Check list (2).pdf')} target="_blank" rel="noreferrer" style={{ ...styles.ghostBtn, textDecoration: 'none' }}>
+          📄 PDF الرسمي
+        </a>
+        {selectedCount > 0 && (
+          <>
+            <button type="button" style={styles.dangerBtn} onClick={clearAll}>🗑️ مسح الكل</button>
+            <button
+              type="button"
+              style={exporting ? styles.disabledBtn : styles.primaryBtn}
+              onClick={exportSelectedPdf}
+              disabled={exporting}
+            >
+              {exporting ? '⏳ تصدير...' : `📊 تصدير التقرير`}
+            </button>
+          </>
+        )}
+        <a href="#games" style={{ ...styles.primaryBtn, textDecoration: 'none', background: `linear-gradient(135deg, ${brandPurple}, ${brandPink})` }}>🎮 الألعاب السمعية</a>
+      </div>
+
+      {/* Result Summary (shows when selections exist) */}
+      {selectedCount > 0 && (
+        <div style={{
+          marginTop: 24,
+          padding: 20,
+          background: `linear-gradient(135deg, ${recommendation.color}15, transparent)`,
+          border: `1px solid ${recommendation.color}33`,
+          borderRadius: 16,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <span style={{ fontSize: 32 }}>{recommendation.icon}</span>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: recommendation.color }}>{recommendation.label}</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{recommendation.labelEn} Indicators</div>
+            </div>
+          </div>
+          <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7 }}>
+            {recommendation.msg}
+          </p>
+        </div>
+      )}
 
       {/* Disclaimer */}
       <div style={{ marginTop: 20, padding: 14, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 12, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
