@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, memo } from 'react';
-import { brandCyan, brandPurple, brandPink, brandInk } from './styles';
+import { brandCyan, brandPurple, brandPink } from './styles';
 import { BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -543,16 +543,26 @@ export default function HeroCircuitBrain() {
             {BRAIN_FUNCTIONS.map((node, index) => {
               const isHovered = hoveredNode === node.id;
               const color = node.color;
+
+              const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
+                e.stopPropagation();
+                handleNodeClick(node);
+              };
+
               return (
                 <g
                   key={node.id}
                   className="circuit-node"
-                  onClick={() => handleNodeClick(node)}
+                  onClick={handleClick}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    handleClick(e);
+                    setTimeout(() => setHoveredNode(null), 100);
+                  }}
                   onKeyDown={(e) => handleKeyDown(e, node)}
                   onMouseEnter={() => !isMobile && setHoveredNode(node.id)}
                   onMouseLeave={() => !isMobile && setHoveredNode(null)}
                   onTouchStart={() => setHoveredNode(node.id)}
-                  onTouchEnd={() => setTimeout(() => setHoveredNode(null), 100)}
                   tabIndex={0}
                   role="button"
                   aria-label={`${node.labelEn} - Tap to learn more`}
@@ -560,16 +570,25 @@ export default function HeroCircuitBrain() {
                     animation: reducedMotion ? 'none' : `nodeFloat ${2.5 + index * 0.15}s ease-in-out infinite`,
                   }}
                 >
+                  {/* Hit area - invisible but clickable */}
+                  <circle
+                    cx={node.position.x}
+                    cy={node.position.y}
+                    r={node.position.r + 15}
+                    fill="rgba(0,0,0,0.001)"
+                    stroke="none"
+                    style={{ cursor: 'pointer' }}
+                  />
                   {/* Outer ring */}
                   <circle
                     cx={node.position.x}
                     cy={node.position.y}
                     r={node.position.r + 8}
-                    fill="transparent"
+                    fill="none"
                     stroke={color}
                     strokeWidth={isHovered ? 2 : 1}
                     opacity={isHovered ? 0.7 : 0.3}
-                    style={{ transition: 'all 0.15s ease' }}
+                    style={{ transition: 'all 0.15s ease', pointerEvents: 'none' }}
                   />
                   {/* Main circle */}
                   <circle
