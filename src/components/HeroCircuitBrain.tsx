@@ -1,6 +1,19 @@
 import { useState, useEffect, useMemo, useCallback, memo } from 'react';
-import { brandCyan, brandPurple, brandPink } from './styles';
+import {
+  brandCyan,
+  brandPurple,
+  brandPink,
+  brandPurpleDark,
+  colors,
+  typography,
+  spacing,
+  radius,
+  shadows,
+  transitions,
+  gradients,
+} from './styles';
 import { BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
+import { useLanguage } from '../context/LanguageContext';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -31,18 +44,47 @@ const COLORS = [brandCyan, brandPurple, brandPink];
 const uid = () =>
   globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
 
+// Hero translations
+const heroText = {
+  ar: {
+    title: 'استكشف قدرات دماغك',
+    subtitle: 'اكتشف كيف يمكن لتدريب Berard AIT أن يُحسّن وظائف الدماغ المختلفة',
+    instruction: 'انقر على أي نقطة متوهجة للاستكشاف',
+    instructionMobile: 'اضغط على أي نقطة للاستكشاف',
+    learnMore: 'تعرف على Berard AIT',
+    howItHelps: 'كيف يساعد Berard AIT؟',
+    expectedBenefits: 'الفوائد المتوقعة',
+    getStarted: 'ابدأ رحلتك مع Berard AIT',
+    doYouExperience: 'هل تواجه...',
+  },
+  en: {
+    title: 'Explore Your Brain\'s Potential',
+    subtitle: 'Discover how Berard AIT can help optimize different areas of brain function',
+    instruction: 'Click any glowing node to explore',
+    instructionMobile: 'Tap any node to explore',
+    learnMore: 'Learn About Berard AIT',
+    howItHelps: 'How Berard AIT Helps',
+    expectedBenefits: 'Expected Benefits',
+    getStarted: 'Get Started with Berard AIT',
+    doYouExperience: 'Do you experience...',
+  },
+};
+
 // ═══════════════════════════════════════════════════════════════════════════
-// INFO MODAL COMPONENT
+// INFO MODAL COMPONENT - Matches site design patterns
 // ═══════════════════════════════════════════════════════════════════════════
 
 const InfoModal = memo(({
   node,
   onClose,
+  isArabic,
 }: {
   node: BrainFunction | null;
   onClose: () => void;
+  isArabic: boolean;
 }) => {
-  // Close on escape key
+  const text = isArabic ? heroText.ar : heroText.en;
+
   useEffect(() => {
     if (!node) return;
     const handleEsc = (e: KeyboardEvent) => {
@@ -67,59 +109,60 @@ const InfoModal = memo(({
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(5,6,13,0.85)',
+        background: 'rgba(5,6,13,0.88)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000,
-        padding: 16,
+        padding: spacing[4],
         animation: 'modalFadeIn 0.3s ease-out',
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: 'linear-gradient(165deg, rgba(20,26,45,0.98) 0%, rgba(11,15,28,0.99) 100%)',
-          borderRadius: 24,
-          maxWidth: 640,
+          background: colors.surface.overlay,
+          borderRadius: radius.xl,
+          maxWidth: 680,
           width: '100%',
-          maxHeight: '85vh',
+          maxHeight: '88vh',
           overflow: 'auto',
           position: 'relative',
-          boxShadow: `0 30px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(143,211,204,0.15), inset 0 1px 0 rgba(255,255,255,0.05)`,
+          border: `1px solid ${colors.border.emphasis}`,
+          boxShadow: shadows['2xl'],
           animation: 'modalSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
         }}
       >
-        {/* Glowing header bar */}
+        {/* Gradient top border */}
         <div style={{
-          height: 4,
+          height: 3,
           background: `linear-gradient(90deg, ${node.color}, ${brandPurple}, ${brandPink})`,
-          borderRadius: '24px 24px 0 0',
+          borderRadius: `${radius.xl}px ${radius.xl}px 0 0`,
         }} />
 
         {/* Close button */}
         <button
           onClick={onClose}
-          aria-label="Close dialog"
+          aria-label="Close"
           className="modal-close-btn"
           style={{
             position: 'absolute',
-            top: 16,
-            right: 16,
-            background: 'rgba(255,255,255,0.08)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            fontSize: 20,
+            top: spacing[3],
+            [isArabic ? 'left' : 'right']: spacing[3],
+            background: 'rgba(255,255,255,0.06)',
+            border: `1px solid ${colors.border.subtle}`,
+            fontSize: typography.size.lg,
             cursor: 'pointer',
-            color: 'rgba(255,255,255,0.7)',
+            color: colors.text.muted,
             width: 40,
             height: 40,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            borderRadius: 12,
-            transition: 'all 0.2s ease',
+            borderRadius: radius.md,
+            transition: transitions.fast,
             zIndex: 10,
           }}
         >
@@ -127,26 +170,26 @@ const InfoModal = memo(({
         </button>
 
         {/* Content */}
-        <div style={{ padding: '32px 32px 36px' }}>
-          {/* Header with icon */}
+        <div style={{ padding: `${spacing[6]}px ${spacing[5]}px` }}>
+          {/* Header */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 18,
-            marginBottom: 24,
+            gap: spacing[4],
+            marginBottom: spacing[5],
             animation: 'contentSlideUp 0.4s ease-out 0.1s both',
           }}>
             <div style={{
-              width: 64,
-              height: 64,
-              borderRadius: 16,
-              background: `linear-gradient(135deg, ${node.color}25, ${node.color}10)`,
-              border: `2px solid ${node.color}40`,
+              width: 60,
+              height: 60,
+              borderRadius: radius.lg,
+              background: `linear-gradient(135deg, ${node.color}33, ${node.color}11)`,
+              border: `1px solid ${node.color}44`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 32,
-              boxShadow: `0 8px 32px ${node.color}20`,
+              fontSize: 28,
+              boxShadow: `0 8px 24px ${node.color}22`,
             }}>
               {node.icon}
             </div>
@@ -155,52 +198,64 @@ const InfoModal = memo(({
                 id="modal-title"
                 style={{
                   margin: 0,
-                  fontSize: 24,
-                  fontWeight: 700,
-                  color: '#fff',
-                  fontFamily: 'Cairo, system-ui, sans-serif',
-                  lineHeight: 1.2,
+                  fontSize: typography.size['2xl'],
+                  fontWeight: typography.weight.black,
+                  color: colors.text.primary,
+                  fontFamily: typography.fontFamily,
+                  lineHeight: typography.lineHeight.tight,
                 }}
               >
                 {node.content.title}
               </h2>
               <p style={{
-                margin: '4px 0 0',
-                fontSize: 14,
+                margin: `${spacing[1]}px 0 0`,
+                fontSize: typography.size.sm,
                 color: node.color,
-                fontWeight: 500,
+                fontWeight: typography.weight.semibold,
               }}>
                 {node.content.subtitle}
               </p>
             </div>
           </div>
 
-          {/* Questions section */}
+          {/* Questions - Quote style box */}
           <div style={{
-            marginBottom: 24,
+            marginBottom: spacing[5],
+            padding: spacing[5],
+            background: `linear-gradient(135deg, ${node.color}08, ${brandPurple}05)`,
+            borderRadius: radius.lg,
+            [isArabic ? 'borderRight' : 'borderLeft']: `4px solid ${node.color}`,
+            position: 'relative',
             animation: 'contentSlideUp 0.4s ease-out 0.15s both',
           }}>
-            <h3 style={{
-              margin: '0 0 12px',
-              fontSize: 13,
-              fontWeight: 600,
-              color: 'rgba(255,255,255,0.5)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
+            <div style={{
+              position: 'absolute',
+              top: spacing[2],
+              [isArabic ? 'right' : 'left']: spacing[3],
+              fontSize: 40,
+              opacity: 0.15,
+              color: node.color,
             }}>
-              Do you experience...
-            </h3>
+              "
+            </div>
+            <div style={{
+              fontSize: typography.size.xs,
+              fontWeight: typography.weight.bold,
+              color: colors.text.muted,
+              textTransform: 'uppercase',
+              letterSpacing: 0.5,
+              marginBottom: spacing[3],
+            }}>
+              {text.doYouExperience}
+            </div>
             {node.content.questions.map((q, i) => (
               <p
                 key={i}
                 style={{
-                  margin: '0 0 12px 0',
-                  fontSize: 15,
-                  lineHeight: 1.7,
-                  color: 'rgba(255,255,255,0.8)',
-                  fontFamily: 'system-ui, sans-serif',
-                  paddingLeft: 16,
-                  borderLeft: `2px solid ${node.color}40`,
+                  margin: `0 0 ${spacing[2.5]}px`,
+                  fontSize: typography.size.base,
+                  lineHeight: typography.lineHeight.relaxed,
+                  color: colors.text.secondary,
                 }}
               >
                 {q}
@@ -210,66 +265,67 @@ const InfoModal = memo(({
 
           {/* Explanation box */}
           <div style={{
-            background: 'rgba(143,211,204,0.08)',
-            borderRadius: 16,
-            padding: 20,
-            marginBottom: 24,
-            border: '1px solid rgba(143,211,204,0.15)',
+            background: `linear-gradient(135deg, ${brandCyan}08, ${brandPurple}05)`,
+            borderRadius: radius.lg,
+            padding: spacing[5],
+            marginBottom: spacing[5],
+            border: `1px solid ${brandCyan}22`,
             animation: 'contentSlideUp 0.4s ease-out 0.2s both',
           }}>
             <h3 style={{
-              margin: '0 0 10px',
-              fontSize: 14,
-              fontWeight: 600,
+              margin: `0 0 ${spacing[2.5]}px`,
+              fontSize: typography.size.md,
+              fontWeight: typography.weight.bold,
               color: brandCyan,
               display: 'flex',
               alignItems: 'center',
-              gap: 8,
+              gap: spacing[2],
             }}>
-              <span style={{ fontSize: 18 }}>💡</span> How Berard AIT Helps
+              <span style={{ fontSize: typography.size.lg }}>💡</span>
+              {text.howItHelps}
             </h3>
             <p style={{
               margin: 0,
-              fontSize: 14,
-              lineHeight: 1.8,
-              color: 'rgba(255,255,255,0.75)',
-              fontFamily: 'system-ui, sans-serif',
+              fontSize: typography.size.base,
+              lineHeight: typography.lineHeight.loose,
+              color: colors.text.secondary,
             }}>
               {node.content.explanation}
             </p>
           </div>
 
-          {/* Benefits */}
+          {/* Benefits - Chip style */}
           <div style={{
-            marginBottom: 28,
+            marginBottom: spacing[6],
             animation: 'contentSlideUp 0.4s ease-out 0.25s both',
           }}>
             <h3 style={{
-              margin: '0 0 14px',
-              fontSize: 14,
-              color: '#fff',
-              fontWeight: 600,
+              margin: `0 0 ${spacing[3]}px`,
+              fontSize: typography.size.md,
+              color: colors.text.primary,
+              fontWeight: typography.weight.bold,
               display: 'flex',
               alignItems: 'center',
-              gap: 8,
+              gap: spacing[2],
             }}>
-              <span style={{ fontSize: 16 }}>✨</span> Expected Benefits
+              <span style={{ fontSize: typography.size.md }}>✨</span>
+              {text.expectedBenefits}
             </h3>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2] }}>
               {node.content.benefits.map((benefit, i) => (
                 <span
                   key={i}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: 8,
-                    padding: '10px 16px',
+                    gap: spacing[2],
+                    padding: `${spacing[2]}px ${spacing[3]}px`,
                     background: `linear-gradient(135deg, ${node.color}15, ${node.color}08)`,
                     border: `1px solid ${node.color}30`,
-                    borderRadius: 24,
-                    fontSize: 13,
-                    color: '#fff',
-                    fontWeight: 500,
+                    borderRadius: radius.full,
+                    fontSize: typography.size.sm,
+                    color: colors.text.primary,
+                    fontWeight: typography.weight.semibold,
                     animation: `benefitPop 0.3s ease-out ${0.3 + i * 0.05}s both`,
                   }}
                 >
@@ -279,7 +335,7 @@ const InfoModal = memo(({
             </div>
           </div>
 
-          {/* CTA Button */}
+          {/* CTA Button - Primary style */}
           <div style={{
             textAlign: 'center',
             animation: 'contentSlideUp 0.4s ease-out 0.35s both',
@@ -291,22 +347,22 @@ const InfoModal = memo(({
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 10,
-                padding: '16px 32px',
-                background: `linear-gradient(135deg, ${brandCyan} 0%, ${brandPurple} 100%)`,
-                color: '#fff',
+                gap: spacing[2.5],
+                padding: `${spacing[3.5]}px ${spacing[6]}px`,
+                background: gradients.primary,
+                color: colors.surface.base,
                 textDecoration: 'none',
-                borderRadius: 50,
-                fontSize: 15,
-                fontWeight: 700,
-                fontFamily: 'Cairo, system-ui, sans-serif',
-                boxShadow: `0 8px 30px ${brandCyan}40`,
-                transition: 'all 0.3s ease',
+                borderRadius: radius.lg,
+                fontSize: typography.size.base,
+                fontWeight: typography.weight.black,
+                fontFamily: typography.fontFamily,
+                boxShadow: shadows.glow.cyan,
+                transition: transitions.bounce,
                 border: 'none',
               }}
             >
-              Get Started with Berard AIT
-              <span style={{ fontSize: 18 }}>→</span>
+              {text.getStarted}
+              <span style={{ transform: isArabic ? 'rotate(180deg)' : 'none' }}>→</span>
             </a>
           </div>
         </div>
@@ -320,7 +376,7 @@ const InfoModal = memo(({
         @keyframes modalSlideIn {
           from {
             opacity: 0;
-            transform: scale(0.9) translateY(30px);
+            transform: scale(0.92) translateY(24px);
           }
           to {
             opacity: 1;
@@ -330,7 +386,7 @@ const InfoModal = memo(({
         @keyframes contentSlideUp {
           from {
             opacity: 0;
-            transform: translateY(15px);
+            transform: translateY(12px);
           }
           to {
             opacity: 1;
@@ -340,7 +396,7 @@ const InfoModal = memo(({
         @keyframes benefitPop {
           from {
             opacity: 0;
-            transform: scale(0.8);
+            transform: scale(0.85);
           }
           to {
             opacity: 1;
@@ -348,16 +404,16 @@ const InfoModal = memo(({
           }
         }
         .modal-close-btn:hover {
-          background: rgba(255,255,255,0.15) !important;
-          color: #fff !important;
+          background: rgba(255,255,255,0.12) !important;
+          color: ${colors.text.primary} !important;
           transform: rotate(90deg);
         }
         .modal-cta-btn:hover {
-          transform: translateY(-2px) scale(1.02);
-          box-shadow: 0 12px 40px ${brandCyan}50 !important;
+          transform: translateY(-3px);
+          box-shadow: ${shadows.glow.cyan}, 0 12px 32px rgba(0,0,0,0.3) !important;
         }
         .modal-cta-btn:active {
-          transform: translateY(0) scale(0.98);
+          transform: translateY(-1px) scale(0.98);
         }
       `}</style>
     </div>
@@ -370,6 +426,9 @@ InfoModal.displayName = 'InfoModal';
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function HeroCircuitBrain() {
+  const { isArabic, direction } = useLanguage();
+  const text = isArabic ? heroText.ar : heroText.en;
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeNode, setActiveNode] = useState<BrainFunction | null>(null);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
@@ -378,7 +437,6 @@ export default function HeroCircuitBrain() {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Check for reduced motion and mobile
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     setReducedMotion(mq.matches);
@@ -393,7 +451,6 @@ export default function HeroCircuitBrain() {
     setIsLoaded(true);
   }, []);
 
-  // Burst explosion when clicking a node
   const burstAtNode = useCallback((x: number, y: number) => {
     if (reducedMotion) return;
 
@@ -444,59 +501,48 @@ export default function HeroCircuitBrain() {
     setActiveNode(null);
   }, []);
 
-  // CSS keyframes - memoized
   const css = useMemo(() => `
     @keyframes pathFlow {
       0% { stroke-dashoffset: 100; }
       100% { stroke-dashoffset: 0; }
     }
     @keyframes fadeInScale {
-      from { opacity: 0; transform: scale(0.9); }
+      from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
     }
     @keyframes brainPulse {
-      0%, 100% {
-        filter: drop-shadow(0 0 25px rgba(143,211,204,0.25));
-      }
-      50% {
-        filter: drop-shadow(0 0 40px rgba(143,211,204,0.4));
-      }
+      0%, 100% { filter: drop-shadow(0 0 20px ${brandCyan}40); }
+      50% { filter: drop-shadow(0 0 35px ${brandCyan}60); }
     }
     @keyframes scrollHint {
-      0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
+      0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.5; }
       50% { transform: translateX(-50%) translateY(8px); opacity: 1; }
     }
     @keyframes nodeFloat {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-2px); }
     }
-    @keyframes titleFadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    @keyframes titleEnter {
+      from { opacity: 0; transform: translateY(-16px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    @keyframes pulseGlow {
-      0%, 100% { text-shadow: 0 0 20px rgba(143,211,204,0.3); }
-      50% { text-shadow: 0 0 30px rgba(143,211,204,0.5); }
+    @keyframes hintPulse {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
     }
     .circuit-brain-container {
-      animation: fadeInScale 0.8s ease-out forwards;
+      animation: fadeInScale 0.7s ease-out forwards;
     }
     .circuit-brain-svg {
       animation: ${reducedMotion ? 'none' : 'brainPulse 4s ease-in-out infinite'};
     }
     .circuit-node {
       cursor: pointer;
-      transition: transform 0.15s ease;
+      transition: transform 0.2s ease;
       -webkit-tap-highlight-color: transparent;
     }
     .circuit-node:hover, .circuit-node:focus {
-      transform: scale(1.15);
+      transform: scale(1.12);
     }
     .circuit-node:active {
       transform: scale(0.95);
@@ -519,36 +565,51 @@ export default function HeroCircuitBrain() {
       id="hero"
       style={{
         position: 'relative',
-        minHeight: '80vh',
+        minHeight: '85vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        background: 'radial-gradient(ellipse at center, rgba(20,26,45,1) 0%, rgba(8,10,18,1) 100%)',
-        padding: '40px 16px',
+        background: `radial-gradient(ellipse at center, rgba(20,26,45,1) 0%, ${colors.surface.base} 100%)`,
+        padding: `${spacing[10]}px ${spacing[4]}px`,
+        direction,
       }}
     >
       <style>{css}</style>
 
-      {/* Grid background */}
+      {/* Background grid */}
       <div style={{
         position: 'absolute',
         inset: 0,
         backgroundImage: `
-          linear-gradient(rgba(143,211,204,0.025) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(143,211,204,0.025) 1px, transparent 1px)
+          linear-gradient(${brandCyan}08 1px, transparent 1px),
+          linear-gradient(90deg, ${brandCyan}08 1px, transparent 1px)
         `,
         backgroundSize: '50px 50px',
         pointerEvents: 'none',
       }} />
 
-      {/* Radial glow */}
+      {/* Decorative blurs */}
       <div style={{
         position: 'absolute',
-        width: 600,
-        height: 600,
+        top: '10%',
+        [isArabic ? 'left' : 'right']: '10%',
+        width: 400,
+        height: 400,
         borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(143,211,204,0.1) 0%, transparent 70%)',
+        background: `radial-gradient(circle, ${brandPurple}18, transparent 70%)`,
+        filter: 'blur(60px)',
+        pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'absolute',
+        bottom: '20%',
+        [isArabic ? 'right' : 'left']: '15%',
+        width: 300,
+        height: 300,
+        borderRadius: '50%',
+        background: `radial-gradient(circle, ${brandCyan}15, transparent 70%)`,
+        filter: 'blur(50px)',
         pointerEvents: 'none',
       }} />
 
@@ -562,40 +623,60 @@ export default function HeroCircuitBrain() {
           alignItems: 'center',
           justifyContent: 'center',
           opacity: isLoaded ? 1 : 0,
+          zIndex: 1,
         }}
       >
         {/* Hero Title */}
         <div style={{
           textAlign: 'center',
-          marginBottom: 16,
-          animation: 'titleFadeIn 1s ease-out forwards',
+          marginBottom: spacing[4],
+          animation: 'titleEnter 0.8s ease-out forwards',
         }}>
+          {/* Badge chip */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: spacing[2],
+            padding: `${spacing[1.5]}px ${spacing[4]}px`,
+            background: `${brandCyan}12`,
+            border: `1px solid ${brandCyan}30`,
+            borderRadius: radius.full,
+            marginBottom: spacing[3],
+          }}>
+            <span style={{ fontSize: typography.size.md }}>🧠</span>
+            <span style={{
+              fontSize: typography.size.xs,
+              fontWeight: typography.weight.bold,
+              color: brandCyan,
+            }}>
+              Berard AIT
+            </span>
+          </div>
+
           <h1 style={{
             margin: 0,
-            fontSize: isMobile ? 28 : 38,
-            fontWeight: 800,
-            fontFamily: 'Cairo, system-ui, sans-serif',
-            background: `linear-gradient(135deg, ${brandCyan} 0%, #fff 50%, ${brandPurple} 100%)`,
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            letterSpacing: '-0.5px',
-            lineHeight: 1.2,
+            fontSize: isMobile ? typography.size['2xl'] : typography.size['4xl'],
+            fontWeight: typography.weight.black,
+            fontFamily: typography.fontFamily,
+            color: colors.text.primary,
+            lineHeight: typography.lineHeight.tight,
+            letterSpacing: typography.letterSpacing.tight,
           }}>
-            Explore Your Brain's Potential
+            {text.title}
           </h1>
           <p style={{
-            margin: '8px 0 0',
-            fontSize: isMobile ? 14 : 16,
-            color: 'rgba(255,255,255,0.6)',
-            fontFamily: 'Cairo, system-ui, sans-serif',
-            maxWidth: 400,
-            lineHeight: 1.5,
+            margin: `${spacing[2]}px auto 0`,
+            fontSize: isMobile ? typography.size.base : typography.size.lg,
+            color: colors.text.muted,
+            fontFamily: typography.fontFamily,
+            maxWidth: 480,
+            lineHeight: typography.lineHeight.normal,
           }}>
-            Discover how Berard AIT can help optimize different areas of brain function
+            {text.subtitle}
           </p>
         </div>
 
+        {/* SVG Brain */}
         <svg
           className="circuit-brain-svg"
           width="100%"
@@ -604,17 +685,17 @@ export default function HeroCircuitBrain() {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           role="img"
-          aria-label="Interactive brain circuit - tap nodes to learn more"
-          style={{ maxWidth: 600, touchAction: 'manipulation' }}
+          aria-label="Interactive brain circuit"
+          style={{ maxWidth: 560, touchAction: 'manipulation' }}
         >
           <defs>
             <linearGradient id="brainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={brandCyan} stopOpacity="0.7" />
-              <stop offset="50%" stopColor={brandPurple} stopOpacity="0.5" />
-              <stop offset="100%" stopColor={brandPink} stopOpacity="0.7" />
+              <stop offset="0%" stopColor={brandCyan} stopOpacity="0.6" />
+              <stop offset="50%" stopColor={brandPurple} stopOpacity="0.4" />
+              <stop offset="100%" stopColor={brandPink} stopOpacity="0.6" />
             </linearGradient>
             <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="2.5" result="blur" />
+              <feGaussianBlur stdDeviation="2" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
@@ -637,11 +718,11 @@ export default function HeroCircuitBrain() {
             fill="none"
             stroke="url(#brainGrad)"
             strokeWidth="2"
-            opacity="0.2"
+            opacity="0.15"
           />
 
           {/* Brain folds */}
-          <g stroke={brandCyan} strokeWidth="1" opacity="0.12" fill="none">
+          <g stroke={brandCyan} strokeWidth="1" opacity="0.1" fill="none">
             <path d="M160 180 Q230 155 300 175 Q370 195 430 175" />
             <path d="M150 230 Q220 205 300 225 Q380 245 440 225" />
             <path d="M160 280 Q230 255 300 275 Q370 295 430 275" />
@@ -656,7 +737,7 @@ export default function HeroCircuitBrain() {
           <path id="c5" className="circuit-path" d="M150 280 L150 200 L180 200" fill="none" stroke={brandPurple} strokeWidth="2" strokeLinecap="round" filter="url(#glow)" style={{ animationDelay: '2s' }} />
 
           {/* Secondary traces */}
-          <g stroke={brandCyan} strokeWidth="1" opacity="0.25" strokeDasharray="4 2">
+          <g stroke={brandCyan} strokeWidth="1" opacity="0.2" strokeDasharray="4 2">
             <path d="M270 150 L270 200 L180 200" />
             <path d="M380 120 L380 180 L440 180" />
             <path d="M420 330 L420 260 L450 260" />
@@ -674,22 +755,22 @@ export default function HeroCircuitBrain() {
                 fill="transparent"
                 stroke={r.color}
                 strokeWidth="2"
-                style={{ filter: `drop-shadow(0 0 10px ${r.color})` }}
+                style={{ filter: `drop-shadow(0 0 8px ${r.color})` }}
               >
-                <animate attributeName="r" values="2;45" dur="0.6s" fill="freeze" />
-                <animate attributeName="opacity" values="0.8;0" dur="0.6s" fill="freeze" />
+                <animate attributeName="r" values="2;40" dur="0.6s" fill="freeze" />
+                <animate attributeName="opacity" values="0.7;0" dur="0.6s" fill="freeze" />
               </circle>
             ))}
           </g>
 
           {/* Pulses */}
-          <g opacity="0.85">
+          <g opacity="0.8">
             {pulses.map((p) => (
               <circle
                 key={p.id}
                 r={p.r}
                 fill={p.color}
-                style={{ filter: `drop-shadow(0 0 8px ${p.color})` }}
+                style={{ filter: `drop-shadow(0 0 6px ${p.color})` }}
               >
                 <animate attributeName="opacity" values="0;1;0.2;0" dur={`${p.dur}s`} begin={`${p.begin}s`} fill="freeze" />
                 <animateMotion dur={`${p.dur}s`} begin={`${p.begin}s`} repeatCount="1" fill="freeze">
@@ -704,6 +785,7 @@ export default function HeroCircuitBrain() {
             {BRAIN_FUNCTIONS.map((node, index) => {
               const isHovered = hoveredNode === node.id;
               const color = node.color;
+              const label = isArabic ? node.labelAr : node.labelEn;
 
               const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
                 e.stopPropagation();
@@ -726,16 +808,16 @@ export default function HeroCircuitBrain() {
                   onTouchStart={() => setHoveredNode(node.id)}
                   tabIndex={0}
                   role="button"
-                  aria-label={`${node.labelEn} - Tap to learn more`}
+                  aria-label={`${label} - ${isArabic ? 'اضغط لمعرفة المزيد' : 'Click to learn more'}`}
                   style={{
                     animation: reducedMotion ? 'none' : `nodeFloat ${2.5 + index * 0.15}s ease-in-out infinite`,
                   }}
                 >
-                  {/* Hit area - invisible but clickable */}
+                  {/* Hit area */}
                   <circle
                     cx={node.position.x}
                     cy={node.position.y}
-                    r={node.position.r + 15}
+                    r={node.position.r + 12}
                     fill="rgba(0,0,0,0.001)"
                     stroke="none"
                     style={{ cursor: 'pointer' }}
@@ -744,24 +826,24 @@ export default function HeroCircuitBrain() {
                   <circle
                     cx={node.position.x}
                     cy={node.position.y}
-                    r={node.position.r + 8}
+                    r={node.position.r + 6}
                     fill="none"
                     stroke={color}
                     strokeWidth={isHovered ? 2 : 1}
-                    opacity={isHovered ? 0.7 : 0.3}
-                    style={{ transition: 'all 0.15s ease', pointerEvents: 'none' }}
+                    opacity={isHovered ? 0.6 : 0.25}
+                    style={{ transition: 'all 0.2s ease', pointerEvents: 'none' }}
                   />
                   {/* Main circle */}
                   <circle
                     cx={node.position.x}
                     cy={node.position.y}
                     r={node.position.r}
-                    fill={isHovered ? `${color}50` : `${color}25`}
+                    fill={isHovered ? `${color}40` : `${color}20`}
                     stroke={color}
                     strokeWidth="2"
                     style={{
-                      filter: `drop-shadow(0 0 ${isHovered ? 16 : 10}px ${color})`,
-                      transition: 'all 0.15s ease',
+                      filter: `drop-shadow(0 0 ${isHovered ? 14 : 8}px ${color})`,
+                      transition: 'all 0.2s ease',
                     }}
                   />
                   {/* Inner dot */}
@@ -770,12 +852,12 @@ export default function HeroCircuitBrain() {
                     cy={node.position.y}
                     r={node.position.r * 0.35}
                     fill={color}
-                    opacity="0.9"
+                    opacity="0.85"
                   >
                     {!reducedMotion && (
                       <animate
                         attributeName="r"
-                        values={`${node.position.r * 0.3};${node.position.r * 0.42};${node.position.r * 0.3}`}
+                        values={`${node.position.r * 0.28};${node.position.r * 0.4};${node.position.r * 0.28}`}
                         dur="2s"
                         repeatCount="indefinite"
                       />
@@ -784,83 +866,77 @@ export default function HeroCircuitBrain() {
                   {/* Label */}
                   <text
                     x={node.position.x}
-                    y={node.position.y + node.position.r + 20}
+                    y={node.position.y + node.position.r + 18}
                     fill={color}
                     fontSize="10"
-                    fontWeight="600"
+                    fontWeight="700"
                     textAnchor="middle"
                     style={{
-                      fontFamily: 'Cairo, sans-serif',
+                      fontFamily: typography.fontFamily,
                       pointerEvents: 'none',
-                      opacity: isHovered ? 1 : 0.75,
-                      transition: 'opacity 0.15s',
+                      opacity: isHovered ? 1 : 0.7,
+                      transition: 'opacity 0.2s',
                     }}
                   >
-                    {node.labelEn}
+                    {label}
                   </text>
                 </g>
               );
             })}
           </g>
 
-          {/* Floating particles - reduced for performance */}
+          {/* Floating particles */}
           {!reducedMotion && (
-            <g opacity="0.4">
+            <g opacity="0.35">
               {[0, 1, 2, 3].map((i) => (
                 <circle key={`p-${i}`} r="1.5" fill={COLORS[i % COLORS.length]}>
                   <animate attributeName="cx" values={`${150 + i * 70};${190 + i * 50};${150 + i * 70}`} dur={`${5 + i}s`} repeatCount="indefinite" />
                   <animate attributeName="cy" values={`${120 + i * 50};${170 + i * 40};${120 + i * 50}`} dur={`${6 + i}s`} repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.3;0.6;0.3" dur={`${4 + i}s`} repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.25;0.5;0.25" dur={`${4 + i}s`} repeatCount="indefinite" />
                 </circle>
               ))}
             </g>
           )}
         </svg>
 
-        {/* Instruction */}
+        {/* Instruction hint */}
         <div
           style={{
-            marginTop: 16,
-            display: 'flex',
+            marginTop: spacing[4],
+            display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 8,
-            padding: '10px 20px',
-            background: 'rgba(143,211,204,0.08)',
-            borderRadius: 30,
-            border: '1px solid rgba(143,211,204,0.15)',
+            gap: spacing[2],
+            padding: `${spacing[2.5]}px ${spacing[5]}px`,
+            background: `${brandCyan}10`,
+            borderRadius: radius.full,
+            border: `1px solid ${brandCyan}20`,
           }}
         >
           <span style={{
             display: 'inline-block',
-            animation: reducedMotion ? 'none' : 'bounce 1.5s ease-in-out infinite',
+            animation: reducedMotion ? 'none' : 'hintPulse 1.5s ease-in-out infinite',
           }}>
-            {isMobile ? '👆' : '👆'}
+            👆
           </span>
           <p
             style={{
               margin: 0,
-              color: 'rgba(255,255,255,0.7)',
-              fontSize: 14,
-              fontFamily: 'Cairo, sans-serif',
-              fontWeight: 500,
+              color: colors.text.secondary,
+              fontSize: typography.size.sm,
+              fontFamily: typography.fontFamily,
+              fontWeight: typography.weight.medium,
             }}
           >
-            {isMobile ? 'Tap a glowing node to explore' : 'Click any glowing node to explore'}
+            {isMobile ? text.instructionMobile : text.instruction}
           </p>
         </div>
-        <style>{`
-          @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
-          }
-        `}</style>
       </div>
 
       {/* Scroll indicator */}
       <div style={{
         position: 'absolute',
-        bottom: 24,
+        bottom: spacing[6],
         left: '50%',
         transform: 'translateX(-50%)',
         display: 'flex',
@@ -870,20 +946,20 @@ export default function HeroCircuitBrain() {
         zIndex: 10,
       }}>
         <div style={{
-          width: 22,
-          height: 34,
-          border: '2px solid rgba(143,211,204,0.25)',
-          borderRadius: 11,
+          width: 20,
+          height: 32,
+          border: `2px solid ${brandCyan}30`,
+          borderRadius: 10,
           display: 'flex',
           justifyContent: 'center',
           paddingTop: 6,
         }}>
-          <div style={{ width: 3, height: 7, background: brandCyan, borderRadius: 2, opacity: 0.7 }} />
+          <div style={{ width: 3, height: 6, background: brandCyan, borderRadius: 2, opacity: 0.6 }} />
         </div>
       </div>
 
       {/* Info Modal */}
-      <InfoModal node={activeNode} onClose={closeModal} />
+      <InfoModal node={activeNode} onClose={closeModal} isArabic={isArabic} />
     </section>
   );
 }
