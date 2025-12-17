@@ -13,6 +13,9 @@ import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import SectionLoader from './components/SectionLoader';
 import FadeIn from './components/FadeIn';
 import ScrollProgressBar from './components/ScrollProgressBar';
+import AchievementToast from './components/AchievementToast';
+import ProgressDashboard from './components/ProgressDashboard';
+import ScrollProgressTracker from './components/ScrollProgressTracker';
 
 // Lazy load all non-critical sections for better initial load
 const ProgramOverview = lazy(() => import('./components/ProgramOverview'));
@@ -197,6 +200,11 @@ function App() {
 
             <WhatsAppFab />
             <StickyCTA />
+
+            {/* Gamification UI */}
+            <AchievementToast />
+            <ProgressDashboard />
+            <ScrollProgressTracker />
           </div>
         </GamificationProvider>
       </LanguageProvider>
