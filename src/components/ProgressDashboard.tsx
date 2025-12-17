@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useGamification } from '../context/GamificationContext';
 import { useLanguage } from '../context/LanguageContext';
 import {
@@ -12,12 +12,22 @@ import {
   shadows,
   colors,
 } from './styles';
-import { StarIcon, ChartIcon } from './Icons';
 
 export default function ProgressDashboard() {
   const { state, getUnlockedAchievements, getNextAchievements } = useGamification();
   const { t, isArabic } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showAttention, setShowAttention] = useState(true);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  // Auto-pulse attention for first 10 seconds if user hasn't interacted
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowAttention(false);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const unlockedCount = getUnlockedAchievements().length;
   const totalAchievements = state.achievements.length;
@@ -33,6 +43,8 @@ export default function ProgressDashboard() {
 
   const toggleExpand = useCallback(() => {
     setIsExpanded(prev => !prev);
+    setHasInteracted(true);
+    setShowAttention(false);
   }, []);
 
   const css = useMemo(() => `
@@ -43,11 +55,32 @@ export default function ProgressDashboard() {
     @keyframes progressFill {
       from { width: 0; }
     }
+    @keyframes attentionBounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    @keyframes attentionGlow {
+      0%, 100% {
+        box-shadow: 0 0 20px ${brandCyan}40, ${shadows.lg};
+        border-color: ${brandCyan};
+      }
+      50% {
+        box-shadow: 0 0 40px ${brandCyan}60, ${shadows.lg};
+        border-color: ${brandPurple};
+      }
+    }
+    @keyframes labelSlideIn {
+      from { opacity: 0; transform: translateX(${isArabic ? '10px' : '-10px'}); }
+      to { opacity: 1; transform: translateX(0); }
+    }
     .progress-dashboard {
       transition: ${transitions.bounce};
     }
     .progress-dashboard:hover {
-      transform: scale(1.02);
+      transform: scale(1.05) !important;
+    }
+    .progress-dashboard:active {
+      transform: scale(0.98) !important;
     }
     .progress-bar-fill {
       animation: progressFill 1s ease-out;
@@ -59,7 +92,10 @@ export default function ProgressDashboard() {
       background: rgba(255,255,255,0.1) !important;
       transform: scale(1.05);
     }
-  `, []);
+    .attention-label {
+      animation: labelSlideIn 0.5s ease-out 1s backwards;
+    }
+  `, [isArabic]);
 
   return (
     <>
@@ -70,56 +106,116 @@ export default function ProgressDashboard() {
           position: 'fixed',
           top: spacing[20],
           [isArabic ? 'right' : 'left']: spacing[4],
-          zIndex: 60,
-          background: 'linear-gradient(135deg, rgba(11,15,28,0.95) 0%, rgba(5,6,13,0.95) 100%)',
-          border: `1px solid ${colors.border.emphasis}`,
-          borderRadius: radius.xl,
-          backdropFilter: 'blur(12px)',
-          overflow: 'hidden',
-          width: isExpanded ? 280 : 56,
-          cursor: 'pointer',
-          boxShadow: shadows.lg,
+          zIndex: 70,
+          display: 'flex',
+          alignItems: 'center',
+          gap: spacing[2],
+          flexDirection: isArabic ? 'row-reverse' : 'row',
         }}
-        onClick={toggleExpand}
       >
-        {/* Collapsed view - just icon */}
-        {!isExpanded && (
-          <div style={{
-            width: 56,
-            height: 56,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-          }}>
-            {/* Circular progress */}
-            <svg width={48} height={48} style={{ position: 'absolute' }}>
-              <circle
-                cx={24}
-                cy={24}
-                r={20}
-                fill="none"
-                stroke={colors.border.default}
-                strokeWidth={3}
-              />
-              <circle
-                cx={24}
-                cy={24}
-                r={20}
-                fill="none"
-                stroke={brandCyan}
-                strokeWidth={3}
-                strokeDasharray={`${progressPercent * 1.26} 126`}
-                strokeLinecap="round"
-                transform="rotate(-90 24 24)"
-                style={{ transition: transitions.slow }}
-              />
-            </svg>
-            <span style={{ fontSize: typography.size.lg, zIndex: 1 }}>
-              Lv.{state.level}
-            </span>
-          </div>
-        )}
+        {/* Main Dashboard Button */}
+        <div
+          onClick={toggleExpand}
+          style={{
+            background: 'linear-gradient(135deg, rgba(11,15,28,0.98) 0%, rgba(5,6,13,0.98) 100%)',
+            border: `2px solid ${showAttention && !hasInteracted ? brandCyan : colors.border.emphasis}`,
+            borderRadius: radius.xl,
+            backdropFilter: 'blur(16px)',
+            overflow: 'hidden',
+            width: isExpanded ? 300 : 64,
+            cursor: 'pointer',
+            boxShadow: shadows.lg,
+            animation: showAttention && !hasInteracted ? 'attentionGlow 2s ease-in-out infinite' : undefined,
+            transition: `width 0.3s ${transitions.bounce}, border-color 0.3s ease`,
+          }}
+        >
+          {/* Collapsed view - enhanced */}
+          {!isExpanded && (
+            <div style={{
+              width: 64,
+              height: 64,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              animation: showAttention && !hasInteracted ? 'attentionBounce 2s ease-in-out infinite' : undefined,
+            }}>
+              {/* Circular progress */}
+              <svg width={56} height={56} style={{ position: 'absolute' }}>
+                {/* Background circle */}
+                <circle
+                  cx={28}
+                  cy={28}
+                  r={24}
+                  fill="none"
+                  stroke={colors.border.default}
+                  strokeWidth={3}
+                />
+                {/* Progress circle */}
+                <circle
+                  cx={28}
+                  cy={28}
+                  r={24}
+                  fill="none"
+                  stroke={`url(#progressGradient)`}
+                  strokeWidth={4}
+                  strokeDasharray={`${progressPercent * 1.51} 151`}
+                  strokeLinecap="round"
+                  transform="rotate(-90 28 28)"
+                  style={{ transition: transitions.slow }}
+                />
+                <defs>
+                  <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor={brandCyan} />
+                    <stop offset="100%" stopColor={brandPurple} />
+                  </linearGradient>
+                </defs>
+              </svg>
+              {/* Level badge */}
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                zIndex: 1,
+              }}>
+                <span style={{
+                  fontSize: typography.size.xl,
+                  fontWeight: typography.weight.black,
+                  background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  lineHeight: 1,
+                }}>
+                  {state.level}
+                </span>
+                <span style={{
+                  fontSize: 9,
+                  fontWeight: typography.weight.bold,
+                  color: colors.text.secondary,
+                  textTransform: 'uppercase',
+                  letterSpacing: 1,
+                }}>
+                  LVL
+                </span>
+              </div>
+              {/* XP indicator */}
+              <div style={{
+                position: 'absolute',
+                bottom: 2,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                padding: '2px 8px',
+                background: `${brandCyan}25`,
+                borderRadius: radius.full,
+                fontSize: 9,
+                fontWeight: typography.weight.bold,
+                color: brandCyan,
+              }}>
+                {state.totalPoints}XP
+              </div>
+            </div>
+          )}
 
         {/* Expanded view */}
         {isExpanded && (
@@ -333,6 +429,27 @@ export default function ProgressDashboard() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+        </div>
+
+        {/* Attention Label - shows when collapsed and not interacted */}
+        {!isExpanded && showAttention && !hasInteracted && (
+          <div
+            className="attention-label"
+            style={{
+              padding: `${spacing[2]}px ${spacing[3]}px`,
+              background: 'linear-gradient(135deg, rgba(11,15,28,0.95) 0%, rgba(5,6,13,0.95) 100%)',
+              border: `1px solid ${brandCyan}40`,
+              borderRadius: radius.lg,
+              fontSize: typography.size.xs,
+              fontWeight: typography.weight.bold,
+              color: brandCyan,
+              whiteSpace: 'nowrap',
+              boxShadow: shadows.md,
+            }}
+          >
+            {isArabic ? '👆 انقر لمشاهدة تقدمك' : '👆 Click to see progress'}
           </div>
         )}
       </div>
