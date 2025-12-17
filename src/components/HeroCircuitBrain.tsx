@@ -559,123 +559,339 @@ export default function HeroCircuitBrain() {
     }
   `, [reducedMotion]);
 
+  // Platform feature cards data
+  const platformFeatures = isArabic ? [
+    { icon: '🎧', title: '20 جلسة', desc: 'برنامج مكثف', color: brandCyan },
+    { icon: '📊', title: 'تتبع التقدم', desc: 'نتائج موثقة', color: brandPurple },
+    { icon: '🧠', title: '10 مناطق', desc: 'تحفيز شامل', color: brandPink },
+  ] : [
+    { icon: '🎧', title: '20 Sessions', desc: 'Intensive Program', color: brandCyan },
+    { icon: '📊', title: 'Track Progress', desc: 'Documented Results', color: brandPurple },
+    { icon: '🧠', title: '10 Areas', desc: 'Comprehensive', color: brandPink },
+  ];
+
   return (
     <section
       id="hero"
       style={{
         position: 'relative',
-        minHeight: '85vh',
+        minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        background: `radial-gradient(ellipse at center, rgba(20,26,45,1) 0%, ${colors.surface.base} 100%)`,
-        padding: `${spacing[10]}px ${spacing[4]}px`,
+        background: `linear-gradient(180deg, ${colors.surface.base} 0%, rgba(15,20,35,1) 50%, ${colors.surface.base} 100%)`,
+        padding: `${spacing[16]}px ${spacing[4]}px ${spacing[10]}px`,
         direction,
       }}
     >
       <style>{css}</style>
 
-      {/* Background grid */}
+      {/* Background grid - more subtle for platform feel */}
       <div style={{
         position: 'absolute',
         inset: 0,
         backgroundImage: `
-          linear-gradient(${brandCyan}08 1px, transparent 1px),
-          linear-gradient(90deg, ${brandCyan}08 1px, transparent 1px)
+          linear-gradient(${brandCyan}05 1px, transparent 1px),
+          linear-gradient(90deg, ${brandCyan}05 1px, transparent 1px)
         `,
-        backgroundSize: '50px 50px',
+        backgroundSize: '40px 40px',
         pointerEvents: 'none',
       }} />
 
-      {/* Decorative blurs */}
+      {/* Decorative gradient orbs */}
       <div style={{
         position: 'absolute',
-        top: '10%',
-        [isArabic ? 'left' : 'right']: '10%',
+        top: '5%',
+        [isArabic ? 'left' : 'right']: '5%',
+        width: 500,
+        height: 500,
+        borderRadius: '50%',
+        background: `radial-gradient(circle, ${brandPurple}12, transparent 60%)`,
+        filter: 'blur(80px)',
+        pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'absolute',
+        bottom: '10%',
+        [isArabic ? 'right' : 'left']: '10%',
         width: 400,
         height: 400,
         borderRadius: '50%',
-        background: `radial-gradient(circle, ${brandPurple}18, transparent 70%)`,
+        background: `radial-gradient(circle, ${brandCyan}10, transparent 60%)`,
         filter: 'blur(60px)',
         pointerEvents: 'none',
       }} />
-      <div style={{
-        position: 'absolute',
-        bottom: '20%',
-        [isArabic ? 'right' : 'left']: '15%',
-        width: 300,
-        height: 300,
-        borderRadius: '50%',
-        background: `radial-gradient(circle, ${brandCyan}15, transparent 70%)`,
-        filter: 'blur(50px)',
-        pointerEvents: 'none',
-      }} />
 
-      {/* Main container */}
+      {/* ═══════════════════════════════════════════════════════════════
+          PLATFORM LAYOUT - Two Column Dashboard Style
+          ═══════════════════════════════════════════════════════════════ */}
       <div
         className="circuit-brain-container"
         style={{
           position: 'relative',
-          display: 'flex',
-          flexDirection: 'column',
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+          gap: spacing[8],
+          maxWidth: 1200,
+          width: '100%',
           alignItems: 'center',
-          justifyContent: 'center',
           opacity: isLoaded ? 1 : 0,
           zIndex: 1,
         }}
       >
-        {/* Hero Title */}
+        {/* ═══ LEFT PANEL: Platform Info ═══ */}
         <div style={{
-          textAlign: 'center',
-          marginBottom: spacing[4],
+          order: isArabic && !isMobile ? 2 : 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: spacing[5],
           animation: 'titleEnter 0.8s ease-out forwards',
         }}>
-          {/* Badge chip */}
+          {/* Platform Badge */}
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: spacing[2],
             padding: `${spacing[1.5]}px ${spacing[4]}px`,
-            background: `${brandCyan}12`,
+            background: `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}10)`,
             border: `1px solid ${brandCyan}30`,
             borderRadius: radius.full,
-            marginBottom: spacing[3],
+            width: 'fit-content',
           }}>
-            <span style={{ fontSize: typography.size.md }}>🧠</span>
+            <span style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              background: brandCyan,
+              boxShadow: `0 0 10px ${brandCyan}`,
+              animation: reducedMotion ? 'none' : 'pulse 2s ease-in-out infinite',
+            }} />
             <span style={{
               fontSize: typography.size.xs,
               fontWeight: typography.weight.bold,
               color: brandCyan,
+              textTransform: 'uppercase',
+              letterSpacing: 1,
             }}>
-              Berard AIT
+              {isArabic ? 'منصة التدريب السمعي' : 'Auditory Training Platform'}
             </span>
           </div>
 
-          <h1 style={{
-            margin: 0,
-            fontSize: isMobile ? typography.size['2xl'] : typography.size['4xl'],
-            fontWeight: typography.weight.black,
-            fontFamily: typography.fontFamily,
-            color: colors.text.primary,
-            lineHeight: typography.lineHeight.tight,
-            letterSpacing: typography.letterSpacing.tight,
+          {/* Main Title */}
+          <div>
+            <h1 style={{
+              margin: 0,
+              fontSize: isMobile ? typography.size['3xl'] : typography.size['5xl'],
+              fontWeight: typography.weight.black,
+              fontFamily: typography.fontFamily,
+              color: colors.text.primary,
+              lineHeight: typography.lineHeight.tight,
+              letterSpacing: typography.letterSpacing.tight,
+            }}>
+              {isArabic ? 'Lotus' : 'Lotus'}
+              <span style={{
+                background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>
+                {' '}× Bérard
+              </span>
+              {' '}AIT
+            </h1>
+            <p style={{
+              margin: `${spacing[3]}px 0 0`,
+              fontSize: isMobile ? typography.size.base : typography.size.lg,
+              color: colors.text.secondary,
+              fontFamily: typography.fontFamily,
+              lineHeight: typography.lineHeight.relaxed,
+              maxWidth: 480,
+            }}>
+              {isArabic
+                ? 'منصة متكاملة لتدريب التكامل السمعي. استكشف مناطق الدماغ واكتشف كيف يمكن للبرنامج تحسين المعالجة السمعية.'
+                : 'An integrated platform for auditory integration training. Explore brain regions and discover how the program can improve auditory processing.'}
+            </p>
+          </div>
+
+          {/* Platform Feature Cards */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: spacing[3],
+            marginTop: spacing[2],
           }}>
-            {text.title}
-          </h1>
-          <p style={{
-            margin: `${spacing[2]}px auto 0`,
-            fontSize: isMobile ? typography.size.base : typography.size.lg,
-            color: colors.text.muted,
-            fontFamily: typography.fontFamily,
-            maxWidth: 480,
-            lineHeight: typography.lineHeight.normal,
+            {platformFeatures.map((feature, i) => (
+              <div
+                key={i}
+                style={{
+                  padding: spacing[3],
+                  background: `linear-gradient(135deg, ${feature.color}10, transparent)`,
+                  border: `1px solid ${feature.color}25`,
+                  borderRadius: radius.lg,
+                  textAlign: 'center',
+                  transition: transitions.normal,
+                }}
+              >
+                <div style={{ fontSize: 24, marginBottom: spacing[1.5] }}>{feature.icon}</div>
+                <div style={{
+                  fontSize: typography.size.sm,
+                  fontWeight: typography.weight.bold,
+                  color: feature.color,
+                }}>{feature.title}</div>
+                <div style={{
+                  fontSize: typography.size.xs,
+                  color: colors.text.muted,
+                  marginTop: 2,
+                }}>{feature.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA Buttons */}
+          <div style={{
+            display: 'flex',
+            gap: spacing[3],
+            flexWrap: 'wrap',
+            marginTop: spacing[2],
           }}>
-            {text.subtitle}
-          </p>
+            <a
+              href="#overview"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: spacing[2],
+                padding: `${spacing[3]}px ${spacing[5]}px`,
+                background: gradients.primary,
+                color: colors.surface.base,
+                textDecoration: 'none',
+                borderRadius: radius.lg,
+                fontSize: typography.size.sm,
+                fontWeight: typography.weight.black,
+                fontFamily: typography.fontFamily,
+                boxShadow: shadows.glow.cyan,
+                transition: transitions.bounce,
+              }}
+            >
+              {isArabic ? 'ابدأ الآن' : 'Get Started'}
+              <span style={{ transform: isArabic ? 'rotate(180deg)' : 'none' }}>→</span>
+            </a>
+            <a
+              href="#checklist"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: spacing[2],
+                padding: `${spacing[3]}px ${spacing[5]}px`,
+                background: 'transparent',
+                color: colors.text.primary,
+                textDecoration: 'none',
+                borderRadius: radius.lg,
+                border: `1px solid ${colors.border.emphasis}`,
+                fontSize: typography.size.sm,
+                fontWeight: typography.weight.bold,
+                fontFamily: typography.fontFamily,
+                transition: transitions.normal,
+              }}
+            >
+              {isArabic ? 'قائمة التقييم' : 'Self Assessment'}
+            </a>
+          </div>
+
+          {/* Trust Indicators */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing[4],
+            marginTop: spacing[3],
+            paddingTop: spacing[3],
+            borderTop: `1px solid ${colors.border.subtle}`,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1.5] }}>
+              <span style={{ color: brandCyan }}>✓</span>
+              <span style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
+                {isArabic ? 'معتمد دولياً' : 'Internationally Certified'}
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1.5] }}>
+              <span style={{ color: brandPurple }}>✓</span>
+              <span style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
+                {isArabic ? '+500 حالة ناجحة' : '500+ Success Cases'}
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* SVG Brain */}
+        {/* ═══ RIGHT PANEL: Interactive Brain ═══ */}
+        <div style={{
+          order: isArabic && !isMobile ? 1 : 2,
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}>
+          {/* Brain Container Card */}
+          <div style={{
+            position: 'relative',
+            padding: spacing[4],
+            background: `linear-gradient(135deg, rgba(15,20,35,0.8), rgba(20,26,45,0.6))`,
+            border: `1px solid ${colors.border.default}`,
+            borderRadius: radius['2xl'],
+            backdropFilter: 'blur(10px)',
+          }}>
+            {/* Card Header */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: spacing[3],
+              paddingBottom: spacing[3],
+              borderBottom: `1px solid ${colors.border.subtle}`,
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: spacing[2],
+              }}>
+                <div style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: radius.md,
+                  background: `linear-gradient(135deg, ${brandCyan}20, ${brandPurple}20)`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 16,
+                }}>
+                  🧠
+                </div>
+                <div>
+                  <div style={{
+                    fontSize: typography.size.sm,
+                    fontWeight: typography.weight.bold,
+                    color: colors.text.primary,
+                  }}>
+                    {isArabic ? 'خريطة الدماغ التفاعلية' : 'Interactive Brain Map'}
+                  </div>
+                  <div style={{
+                    fontSize: typography.size.xs,
+                    color: colors.text.muted,
+                  }}>
+                    {isArabic ? '10 مناطق قابلة للاستكشاف' : '10 explorable regions'}
+                  </div>
+                </div>
+              </div>
+              <div style={{
+                display: 'flex',
+                gap: 6,
+              }}>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: brandCyan, opacity: 0.6 }} />
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: brandPurple, opacity: 0.6 }} />
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: brandPink, opacity: 0.6 }} />
+              </div>
+            </div>
+
+            {/* SVG Brain */}
         <svg
           className="circuit-brain-svg"
           width="100%"
@@ -1251,6 +1467,8 @@ export default function HeroCircuitBrain() {
           >
             {isMobile ? text.instructionMobile : text.instruction}
           </p>
+        </div>
+          </div>
         </div>
       </div>
 
