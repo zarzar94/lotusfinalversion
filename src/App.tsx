@@ -17,6 +17,7 @@ import ScrollProgressBar from './components/ScrollProgressBar';
 import AchievementToast from './components/AchievementToast';
 import ProgressDashboard from './components/ProgressDashboard';
 import ScrollProgressTracker from './components/ScrollProgressTracker';
+import ActivityFeed from './components/ActivityFeed';
 
 // Lazy load pages
 const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
@@ -285,6 +286,7 @@ function HomePage() {
       <AchievementToast />
       <ProgressDashboard />
       <ScrollProgressTracker />
+      <ActivityFeed />
     </div>
   );
 }
