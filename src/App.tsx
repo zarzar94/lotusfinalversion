@@ -22,6 +22,8 @@ import ScrollProgressTracker from './components/ScrollProgressTracker';
 const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
 
 // Lazy load all non-critical sections for better initial load
+const PlatformNav = lazy(() => import('./components/PlatformNav'));
+const SectionDivider = lazy(() => import('./components/SectionDivider'));
 const ProgramOverview = lazy(() => import('./components/ProgramOverview'));
 const ResultsSection = lazy(() => import('./components/ResultsSection'));
 const ComparisonSection = lazy(() => import('./components/ComparisonSection'));
@@ -94,31 +96,54 @@ function HomePage() {
       <ScrollProgressBar />
 
       <main style={styles.container}>
-        {/* HERO - Interactive Circuit Brain */}
+        {/* ═══════════════════════════════════════════════════════════════════
+            LANDING SECTION - First Viewport
+            ═══════════════════════════════════════════════════════════════════ */}
+
+        {/* HERO - Interactive Brain Dashboard */}
         <FadeIn duration={1000} scale blur blurAmount={8}>
           <HeroCircuitBrain />
         </FadeIn>
 
-        {/* Credentials Banner */}
+        {/* Credentials Banner - Trust signals */}
         <LazySection labelKey="common.loading" height={100} fadeProps={{ direction: 'none', scale: true, scaleFrom: 0.98 }}>
           <CredentialsBanner />
         </LazySection>
 
-        {/* Interactive Audio Journey */}
-        <LazySection labelKey="common.loadingAudioJourney" height={400} fadeProps={{ direction: 'left', distance: 40 }}>
-          <AudioJourney />
+        {/* Platform Navigation - Medical Dashboard Style */}
+        <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, scaleFrom: 0.97 }}>
+          <PlatformNav />
         </LazySection>
 
-        {/* Neuroplasticity - Science Section */}
-        <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, blur: true, blurAmount: 5 }}>
-          <NeuroplasticitySection />
+        {/* ═══════════════════════════════════════════════════════════════════
+            DIAGNOSTIC TOOLS - Assessment & Interactive
+            ═══════════════════════════════════════════════════════════════════ */}
+
+        {/* Section Divider - Diagnostic */}
+        <Suspense fallback={null}>
+          <SectionDivider category="diagnostic" number={1} />
+        </Suspense>
+
+        {/* Checklist - Self Assessment */}
+        <LazySection labelKey="common.loadingChecklist" height={400} fadeProps={{ blur: true, blurAmount: 6, scale: true }}>
+          <Checklist />
         </LazySection>
 
-        {/* Audio Spectrum Demo */}
-        <LazySection labelKey="common.loading" height={300} fadeProps={{ direction: 'right', distance: 40 }}>
-          <AudioSpectrumDemo />
+        {/* GameSection - Interactive Tools */}
+        <LazySection labelKey="common.loadingGames" height={350} fadeProps={{ direction: 'left', distance: 40, scale: true, scaleFrom: 0.95 }}>
+          <GameSection />
         </LazySection>
 
+        {/* ═══════════════════════════════════════════════════════════════════
+            TREATMENT PROTOCOL - Program Information
+            ═══════════════════════════════════════════════════════════════════ */}
+
+        {/* Section Divider - Protocol */}
+        <Suspense fallback={null}>
+          <SectionDivider category="protocol" number={2} />
+        </Suspense>
+
+        {/* Program Overview */}
         <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, scaleFrom: 0.96 }}>
           <ProgramOverview />
         </LazySection>
@@ -133,6 +158,45 @@ function HomePage() {
           <RemoteProtocolSection />
         </LazySection>
 
+        {/* Comparison */}
+        <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, blur: true, blurAmount: 5 }}>
+          <ComparisonSection />
+        </LazySection>
+
+        {/* ═══════════════════════════════════════════════════════════════════
+            RESEARCH & SCIENCE - Educational Content
+            ═══════════════════════════════════════════════════════════════════ */}
+
+        {/* Section Divider - Science */}
+        <Suspense fallback={null}>
+          <SectionDivider category="science" number={3} />
+        </Suspense>
+
+        {/* Neuroplasticity - Science Section */}
+        <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, blur: true, blurAmount: 5 }}>
+          <NeuroplasticitySection />
+        </LazySection>
+
+        {/* Interactive Audio Journey */}
+        <LazySection labelKey="common.loadingAudioJourney" height={400} fadeProps={{ direction: 'left', distance: 40 }}>
+          <AudioJourney />
+        </LazySection>
+
+        {/* Audio Spectrum Demo */}
+        <LazySection labelKey="common.loading" height={300} fadeProps={{ direction: 'right', distance: 40 }}>
+          <AudioSpectrumDemo />
+        </LazySection>
+
+        {/* ═══════════════════════════════════════════════════════════════════
+            RESULTS & EVIDENCE - Social Proof
+            ═══════════════════════════════════════════════════════════════════ */}
+
+        {/* Section Divider - Evidence */}
+        <Suspense fallback={null}>
+          <SectionDivider category="evidence" number={4} />
+        </Suspense>
+
+        {/* Results Section */}
         <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, scaleFrom: 0.97, blur: true, blurAmount: 4 }}>
           <ResultsSection />
         </LazySection>
@@ -142,12 +206,21 @@ function HomePage() {
           <TestimonialsSection />
         </LazySection>
 
-        {/* Trust Signals - Social Proof */}
+        {/* Trust Signals */}
         <LazySection labelKey="common.loading" height={250} fadeProps={{ direction: 'none', scale: true, scaleFrom: 0.98 }}>
           <TrustSignals />
         </LazySection>
 
-        {/* SlideViewer */}
+        {/* ═══════════════════════════════════════════════════════════════════
+            LEARNING RESOURCES - Educational Materials
+            ═══════════════════════════════════════════════════════════════════ */}
+
+        {/* Section Divider - Resources */}
+        <Suspense fallback={null}>
+          <SectionDivider category="resources" number={5} />
+        </Suspense>
+
+        {/* SlideViewer - Presentations */}
         <LazySection labelKey="common.loadingSlides" height={500} fadeProps={{ scale: true }}>
           <SlideViewer />
         </LazySection>
@@ -157,20 +230,21 @@ function HomePage() {
           <VideoSection />
         </LazySection>
 
-        {/* Checklist */}
-        <LazySection labelKey="common.loadingChecklist" height={400} fadeProps={{ blur: true, blurAmount: 6, scale: true }}>
-          <Checklist />
+        {/* FAQ Section */}
+        <LazySection labelKey="common.loading" height={400} fadeProps={{ direction: 'left', distance: 30 }}>
+          <FAQSection />
         </LazySection>
 
-        {/* GameSection */}
-        <LazySection labelKey="common.loadingGames" height={350} fadeProps={{ direction: 'left', distance: 40, scale: true, scaleFrom: 0.95 }}>
-          <GameSection />
-        </LazySection>
+        {/* ═══════════════════════════════════════════════════════════════════
+            PARTNERSHIPS & NETWORK
+            ═══════════════════════════════════════════════════════════════════ */}
 
-        <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, blur: true, blurAmount: 5 }}>
-          <ComparisonSection />
-        </LazySection>
+        {/* Section Divider - Network */}
+        <Suspense fallback={null}>
+          <SectionDivider category="network" number={6} />
+        </Suspense>
 
+        {/* School Partnership */}
         <LazySection labelKey="common.loading" height={300} fadeProps={{ direction: 'right', distance: 25 }}>
           <SchoolPartnershipSection />
         </LazySection>
@@ -180,10 +254,14 @@ function HomePage() {
           <PartnerLogos />
         </LazySection>
 
-        {/* FAQ Section */}
-        <LazySection labelKey="common.loading" height={400} fadeProps={{ direction: 'left', distance: 30 }}>
-          <FAQSection />
-        </LazySection>
+        {/* ═══════════════════════════════════════════════════════════════════
+            CONNECT & CONVERSION - Contact & Intake
+            ═══════════════════════════════════════════════════════════════════ */}
+
+        {/* Section Divider - Connect */}
+        <Suspense fallback={null}>
+          <SectionDivider category="connect" number={7} />
+        </Suspense>
 
         {/* Intake Form */}
         <LazySection labelKey="common.loadingIntake" height={500} fadeProps={{ scale: true, blur: true, blurAmount: 4 }}>
