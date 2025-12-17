@@ -6,12 +6,16 @@ import BackgroundFX from './components/BackgroundFX';
 import HeroSection from './components/HeroSection';
 import Footer from './components/Footer';
 import WhatsAppFab from './components/WhatsAppFab';
+import StickyCTA from './components/StickyCTA';
 import ErrorBoundary from './components/ErrorBoundary';
 import { GamificationProvider } from './context/GamificationContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import SectionLoader from './components/SectionLoader';
 import FadeIn from './components/FadeIn';
 import ScrollProgressBar from './components/ScrollProgressBar';
+import AchievementToast from './components/AchievementToast';
+import ProgressDashboard from './components/ProgressDashboard';
+import ScrollProgressTracker from './components/ScrollProgressTracker';
 
 // Lazy load all non-critical sections for better initial load
 const ProgramOverview = lazy(() => import('./components/ProgramOverview'));
@@ -21,6 +25,7 @@ const SchoolPartnershipSection = lazy(() => import('./components/SchoolPartnersh
 const NeuroplasticitySection = lazy(() => import('./components/NeuroplasticitySection'));
 const FAQSection = lazy(() => import('./components/FAQSection'));
 const TestimonialsSection = lazy(() => import('./components/TestimonialsSection'));
+const TrustSignals = lazy(() => import('./components/TrustSignals'));
 const CredentialsBanner = lazy(() => import('./components/CredentialsBanner'));
 const TreatmentTimeline = lazy(() => import('./components/TreatmentTimeline'));
 const AudioSpectrumDemo = lazy(() => import('./components/AudioSpectrumDemo'));
@@ -135,6 +140,11 @@ function App() {
                 <TestimonialsSection />
               </LazySection>
 
+              {/* Trust Signals - Social Proof */}
+              <LazySection labelKey="common.loading" height={250} fadeProps={{ direction: 'none', scale: true, scaleFrom: 0.98 }}>
+                <TrustSignals />
+              </LazySection>
+
               {/* SlideViewer */}
               <LazySection labelKey="common.loadingSlides" height={500} fadeProps={{ scale: true }}>
                 <SlideViewer />
@@ -189,6 +199,12 @@ function App() {
             </main>
 
             <WhatsAppFab />
+            <StickyCTA />
+
+            {/* Gamification UI */}
+            <AchievementToast />
+            <ProgressDashboard />
+            <ScrollProgressTracker />
           </div>
         </GamificationProvider>
       </LanguageProvider>

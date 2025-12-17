@@ -1,5 +1,5 @@
 import { useScrollProgress } from '../hooks/useParallax';
-import { brandCyan, brandPurple, brandPink } from './styles';
+import { brandCyan, brandPurple, brandPink, typography, spacing, radius, transitions, colors } from './styles';
 
 export default function ScrollProgressBar() {
   const progress = useScrollProgress();
@@ -29,27 +29,27 @@ export default function ScrollProgressBar() {
       {/* Side progress indicator */}
       <div style={{
         position: 'fixed',
-        right: 20,
+        right: spacing[5],
         top: '50%',
         transform: 'translateY(-50%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing[2],
         zIndex: 9998,
         opacity: progress > 0.05 ? 1 : 0,
-        transition: 'opacity 0.3s ease',
+        transition: transitions.normal,
         pointerEvents: 'none',
       }}>
         {/* Progress percentage */}
         <div style={{
-          fontSize: 10,
-          fontWeight: 700,
+          fontSize: typography.size.xs,
+          fontWeight: typography.weight.bold,
           color: brandCyan,
           fontFamily: 'monospace',
-          padding: '4px 8px',
+          padding: `${spacing[1]}px ${spacing[2]}px`,
           background: 'rgba(11,15,28,0.9)',
-          borderRadius: 6,
+          borderRadius: radius.sm,
           border: `1px solid ${brandCyan}44`,
         }}>
           {Math.round(progress * 100)}%
@@ -57,17 +57,17 @@ export default function ScrollProgressBar() {
 
         {/* Vertical progress bar */}
         <div style={{
-          width: 4,
+          width: spacing[1],
           height: 100,
-          background: 'rgba(255,255,255,0.1)',
-          borderRadius: 2,
+          background: colors.border.default,
+          borderRadius: spacing[0.5],
           overflow: 'hidden',
         }}>
           <div style={{
             width: '100%',
             height: `${progress * 100}%`,
             background: `linear-gradient(180deg, ${brandCyan}, ${brandPurple})`,
-            borderRadius: 2,
+            borderRadius: spacing[0.5],
             transition: 'height 0.1s linear',
           }} />
         </div>
@@ -80,11 +80,11 @@ export default function ScrollProgressBar() {
               position: 'absolute',
               right: -2,
               top: `${52 + point * 100}px`,
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
+              width: spacing[2],
+              height: spacing[2],
+              borderRadius: radius.full,
               background: progress >= point ? brandCyan : 'rgba(255,255,255,0.2)',
-              transition: 'all 0.3s ease',
+              transition: transitions.normal,
               boxShadow: progress >= point ? `0 0 8px ${brandCyan}66` : 'none',
             }}
           />

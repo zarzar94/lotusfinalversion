@@ -36,6 +36,8 @@ export interface GamificationState {
   audioJourneyProgress: number; // 0-100
   sessionStartTime: number;
   totalTimeSpent: number; // in seconds
+  maxScrollProgress: number; // 0-100
+  videosWatched: string[];
 }
 
 const INITIAL_ACHIEVEMENTS: Achievement[] = [
@@ -176,6 +178,62 @@ const INITIAL_ACHIEVEMENTS: Achievement[] = [
     unlocked: false,
     category: 'mastery',
   },
+  // Scroll/section achievements
+  {
+    id: 'curious_explorer',
+    title: 'Curious Explorer',
+    titleAr: 'المستكشف الفضولي',
+    description: 'Scroll past 50% of the page',
+    descriptionAr: 'تصفح أكثر من 50٪ من الصفحة',
+    icon: '📜',
+    points: 15,
+    unlocked: false,
+    category: 'exploration',
+  },
+  {
+    id: 'completionist',
+    title: 'Completionist',
+    titleAr: 'المكمّل',
+    description: 'Reach the bottom of the page',
+    descriptionAr: 'الوصول إلى نهاية الصفحة',
+    icon: '🏁',
+    points: 25,
+    unlocked: false,
+    category: 'exploration',
+  },
+  {
+    id: 'video_watcher',
+    title: 'Video Watcher',
+    titleAr: 'مشاهد الفيديو',
+    description: 'Watch an educational video',
+    descriptionAr: 'شاهد فيديو تعليمي',
+    icon: '🎬',
+    points: 20,
+    unlocked: false,
+    category: 'learning',
+  },
+  {
+    id: 'early_bird',
+    title: 'Early Bird',
+    titleAr: 'الطائر المبكر',
+    description: 'Visit before 9 AM',
+    descriptionAr: 'زيارة قبل الساعة 9 صباحاً',
+    icon: '🌅',
+    points: 15,
+    unlocked: false,
+    category: 'engagement',
+  },
+  {
+    id: 'night_owl',
+    title: 'Night Owl',
+    titleAr: 'بومة الليل',
+    description: 'Visit after 10 PM',
+    descriptionAr: 'زيارة بعد الساعة 10 مساءً',
+    icon: '🦉',
+    points: 15,
+    unlocked: false,
+    category: 'engagement',
+  },
 ];
 
 const BRAIN_REGIONS: BrainRegion[] = [
@@ -256,6 +314,8 @@ const getInitialState = (): GamificationState => {
       audioJourneyProgress: 0,
       sessionStartTime: Date.now(),
       totalTimeSpent: 0,
+      maxScrollProgress: 0,
+      videosWatched: [],
     };
   }
 
@@ -266,6 +326,8 @@ const getInitialState = (): GamificationState => {
       return {
         ...parsed,
         sessionStartTime: Date.now(),
+        maxScrollProgress: parsed.maxScrollProgress || 0,
+        videosWatched: parsed.videosWatched || [],
       };
     } catch {
       // Invalid data, return fresh state
@@ -283,6 +345,8 @@ const getInitialState = (): GamificationState => {
     audioJourneyProgress: 0,
     sessionStartTime: Date.now(),
     totalTimeSpent: 0,
+    maxScrollProgress: 0,
+    videosWatched: [],
   };
 };
 
@@ -295,6 +359,8 @@ interface GamificationContextType {
   completeChecklist: () => void;
   completeGame: (gameId: string) => void;
   updateAudioJourneyProgress: (progress: number) => void;
+  updateScrollProgress: (progress: number) => void;
+  watchVideo: (videoId: string) => void;
   getUnlockedAchievements: () => Achievement[];
   getNextAchievements: () => Achievement[];
   recentUnlock: Achievement | null;
@@ -493,6 +559,33 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     }
   }, [state.audioJourneyProgress, unlockAchievement]);
 
+  const updateScrollProgress = useCallback((progress: number) => {
+    const clampedProgress = Math.min(100, Math.max(0, progress));
+    if (clampedProgress <= state.maxScrollProgress) return;
+
+    setState(prev => ({ ...prev, maxScrollProgress: clampedProgress }));
+
+    // Check scroll achievements
+    if (clampedProgress >= 50 && state.maxScrollProgress < 50) {
+      unlockAchievement('curious_explorer');
+    }
+    if (clampedProgress >= 95) {
+      unlockAchievement('completionist');
+    }
+  }, [state.maxScrollProgress, unlockAchievement]);
+
+  const watchVideo = useCallback((videoId: string) => {
+    if (state.videosWatched.includes(videoId)) return;
+
+    const newWatched = [...state.videosWatched, videoId];
+    setState(prev => ({ ...prev, videosWatched: newWatched }));
+
+    // First video achievement
+    if (newWatched.length === 1) {
+      unlockAchievement('video_watcher');
+    }
+  }, [state.videosWatched, unlockAchievement]);
+
   const getUnlockedAchievements = useCallback(() => {
     return state.achievements.filter(a => a.unlocked);
   }, [state.achievements]);
@@ -510,6 +603,23 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     explored: state.exploredBrainRegions.includes(region.id),
   }));
 
+  // Check time-based achievements on mount
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour < 9) {
+      const earlyBird = state.achievements.find(a => a.id === 'early_bird');
+      if (earlyBird && !earlyBird.unlocked) {
+        setTimeout(() => unlockAchievement('early_bird'), 3000);
+      }
+    }
+    if (hour >= 22) {
+      const nightOwl = state.achievements.find(a => a.id === 'night_owl');
+      if (nightOwl && !nightOwl.unlocked) {
+        setTimeout(() => unlockAchievement('night_owl'), 3000);
+      }
+    }
+  }, []);
+
   return (
     <GamificationContext.Provider
       value={{
@@ -521,6 +631,8 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
         completeChecklist,
         completeGame,
         updateAudioJourneyProgress,
+        updateScrollProgress,
+        watchVideo,
         getUnlockedAchievements,
         getNextAchievements,
         recentUnlock,

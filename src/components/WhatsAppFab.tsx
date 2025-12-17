@@ -1,6 +1,6 @@
 import { CLINIC } from '../data/clinic';
 import { handleWhatsApp } from '../utils/whatsapp';
-import { styles } from './styles';
+import { styles, spacing, radius, gradients, shadows, colors } from './styles';
 
 const WhatsAppFab = () => {
   return (
@@ -11,7 +11,11 @@ const WhatsAppFab = () => {
       }
       aria-label={`WhatsApp ${CLINIC.name}`}
       title="WhatsApp"
-      style={styles.fab}
+      style={{
+        ...styles.fab,
+        // Position above sticky CTA bar
+        bottom: 140,
+      }}
     >
       💬
     </button>

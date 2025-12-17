@@ -1,5 +1,5 @@
 import { useLanguage } from '../context/LanguageContext';
-import { brandCyan, brandPurple } from './styles';
+import { brandCyan, brandPurple, typography, spacing, radius, transitions, gradients, colors } from './styles';
 
 interface LanguageToggleProps {
   compact?: boolean;
@@ -15,16 +15,16 @@ export default function LanguageToggle({ compact = false }: LanguageToggleProps)
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: compact ? 4 : 8,
-        padding: compact ? '6px 10px' : '8px 14px',
-        fontSize: compact ? 12 : 13,
-        fontWeight: 700,
-        color: '#f7f8fb',
+        gap: compact ? spacing[1] : spacing[2],
+        padding: compact ? `${spacing[1.5]}px ${spacing[2.5]}px` : `${spacing[2]}px ${spacing[3.5]}px`,
+        fontSize: compact ? typography.size.xs : typography.size.sm,
+        fontWeight: typography.weight.bold,
+        color: colors.text.primary,
         background: 'rgba(255,255,255,0.06)',
         border: '1px solid rgba(143,211,204,0.2)',
-        borderRadius: compact ? 8 : 10,
+        borderRadius: compact ? radius.sm : radius.md,
         cursor: 'pointer',
-        transition: 'all 0.3s ease',
+        transition: transitions.normal,
         whiteSpace: 'nowrap',
       }}
       onMouseEnter={(e) => {
@@ -56,7 +56,7 @@ export default function LanguageToggle({ compact = false }: LanguageToggleProps)
 
       {/* Language Text */}
       <span style={{
-        background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
+        background: gradients.cyanPurple,
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
         backgroundClip: 'text',
