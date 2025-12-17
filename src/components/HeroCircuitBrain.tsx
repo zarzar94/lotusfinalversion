@@ -1,6 +1,19 @@
 import { useState, useEffect, useMemo, useCallback, memo } from 'react';
-import { brandCyan, brandPurple, brandPink } from './styles';
+import {
+  brandCyan,
+  brandPurple,
+  brandPink,
+  brandPurpleDark,
+  colors,
+  typography,
+  spacing,
+  radius,
+  shadows,
+  transitions,
+  gradients,
+} from './styles';
 import { BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
+import { useLanguage } from '../context/LanguageContext';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -31,18 +44,47 @@ const COLORS = [brandCyan, brandPurple, brandPink];
 const uid = () =>
   globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
 
+// Hero translations
+const heroText = {
+  ar: {
+    title: 'استكشف قدرات دماغك',
+    subtitle: 'اكتشف كيف يمكن لتدريب Berard AIT أن يُحسّن وظائف الدماغ المختلفة',
+    instruction: 'انقر على أي نقطة متوهجة للاستكشاف',
+    instructionMobile: 'اضغط على أي نقطة للاستكشاف',
+    learnMore: 'تعرف على Berard AIT',
+    howItHelps: 'كيف يساعد Berard AIT؟',
+    expectedBenefits: 'الفوائد المتوقعة',
+    getStarted: 'ابدأ رحلتك مع Berard AIT',
+    doYouExperience: 'هل تواجه...',
+  },
+  en: {
+    title: 'Explore Your Brain\'s Potential',
+    subtitle: 'Discover how Berard AIT can help optimize different areas of brain function',
+    instruction: 'Click any glowing node to explore',
+    instructionMobile: 'Tap any node to explore',
+    learnMore: 'Learn About Berard AIT',
+    howItHelps: 'How Berard AIT Helps',
+    expectedBenefits: 'Expected Benefits',
+    getStarted: 'Get Started with Berard AIT',
+    doYouExperience: 'Do you experience...',
+  },
+};
+
 // ═══════════════════════════════════════════════════════════════════════════
-// INFO MODAL COMPONENT
+// INFO MODAL COMPONENT - Matches site design patterns
 // ═══════════════════════════════════════════════════════════════════════════
 
 const InfoModal = memo(({
   node,
   onClose,
+  isArabic,
 }: {
   node: BrainFunction | null;
   onClose: () => void;
+  isArabic: boolean;
 }) => {
-  // Close on escape key
+  const text = isArabic ? heroText.ar : heroText.en;
+
   useEffect(() => {
     if (!node) return;
     const handleEsc = (e: KeyboardEvent) => {
@@ -67,88 +109,153 @@ const InfoModal = memo(({
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(0,0,0,0.75)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
+        background: 'rgba(5,6,13,0.88)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000,
-        padding: 16,
-        animation: 'modalFadeIn 0.25s ease-out',
+        padding: spacing[4],
+        animation: 'modalFadeIn 0.3s ease-out',
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: 'linear-gradient(145deg, #f5ebe0 0%, #ede0d4 100%)',
-          borderRadius: 20,
+          background: colors.surface.overlay,
+          borderRadius: radius.xl,
           maxWidth: 680,
           width: '100%',
-          maxHeight: '85vh',
+          maxHeight: '88vh',
           overflow: 'auto',
           position: 'relative',
-          boxShadow: '0 25px 80px rgba(0,0,0,0.5)',
-          animation: 'modalSlideIn 0.3s ease-out',
+          border: `1px solid ${colors.border.emphasis}`,
+          boxShadow: shadows['2xl'],
+          animation: 'modalSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
         }}
       >
+        {/* Gradient top border */}
+        <div style={{
+          height: 3,
+          background: `linear-gradient(90deg, ${node.color}, ${brandPurple}, ${brandPink})`,
+          borderRadius: `${radius.xl}px ${radius.xl}px 0 0`,
+        }} />
+
         {/* Close button */}
         <button
           onClick={onClose}
-          aria-label="Close dialog"
+          aria-label="Close"
+          className="modal-close-btn"
           style={{
             position: 'absolute',
-            top: 12,
-            right: 12,
-            background: 'rgba(0,0,0,0.08)',
-            border: 'none',
-            fontSize: 24,
+            top: spacing[3],
+            [isArabic ? 'left' : 'right']: spacing[3],
+            background: 'rgba(255,255,255,0.06)',
+            border: `1px solid ${colors.border.subtle}`,
+            fontSize: typography.size.lg,
             cursor: 'pointer',
-            color: '#555',
-            width: 44,
-            height: 44,
+            color: colors.text.muted,
+            width: 40,
+            height: 40,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            borderRadius: 12,
-            transition: 'background 0.2s',
+            borderRadius: radius.md,
+            transition: transitions.fast,
             zIndex: 10,
           }}
         >
-          ×
+          ✕
         </button>
 
         {/* Content */}
-        <div style={{ padding: '28px 28px 32px' }}>
+        <div style={{ padding: `${spacing[6]}px ${spacing[5]}px` }}>
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-            <span style={{ fontSize: 40 }}>{node.icon}</span>
-            <h2
-              id="modal-title"
-              style={{
-                margin: 0,
-                fontSize: 26,
-                fontWeight: 700,
-                color: '#1a5f7a',
-                fontFamily: 'Cairo, system-ui, sans-serif',
-              }}
-            >
-              {node.content.title}
-            </h2>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing[4],
+            marginBottom: spacing[5],
+            animation: 'contentSlideUp 0.4s ease-out 0.1s both',
+          }}>
+            <div style={{
+              width: 60,
+              height: 60,
+              borderRadius: radius.lg,
+              background: `linear-gradient(135deg, ${node.color}33, ${node.color}11)`,
+              border: `1px solid ${node.color}44`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 28,
+              boxShadow: `0 8px 24px ${node.color}22`,
+            }}>
+              {node.icon}
+            </div>
+            <div>
+              <h2
+                id="modal-title"
+                style={{
+                  margin: 0,
+                  fontSize: typography.size['2xl'],
+                  fontWeight: typography.weight.black,
+                  color: colors.text.primary,
+                  fontFamily: typography.fontFamily,
+                  lineHeight: typography.lineHeight.tight,
+                }}
+              >
+                {node.content.title}
+              </h2>
+              <p style={{
+                margin: `${spacing[1]}px 0 0`,
+                fontSize: typography.size.sm,
+                color: node.color,
+                fontWeight: typography.weight.semibold,
+              }}>
+                {node.content.subtitle}
+              </p>
+            </div>
           </div>
 
-          {/* Questions */}
-          <div style={{ marginBottom: 24 }}>
+          {/* Questions - Quote style box */}
+          <div style={{
+            marginBottom: spacing[5],
+            padding: spacing[5],
+            background: `linear-gradient(135deg, ${node.color}08, ${brandPurple}05)`,
+            borderRadius: radius.lg,
+            [isArabic ? 'borderRight' : 'borderLeft']: `4px solid ${node.color}`,
+            position: 'relative',
+            animation: 'contentSlideUp 0.4s ease-out 0.15s both',
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: spacing[2],
+              [isArabic ? 'right' : 'left']: spacing[3],
+              fontSize: 40,
+              opacity: 0.15,
+              color: node.color,
+            }}>
+              "
+            </div>
+            <div style={{
+              fontSize: typography.size.xs,
+              fontWeight: typography.weight.bold,
+              color: colors.text.muted,
+              textTransform: 'uppercase',
+              letterSpacing: 0.5,
+              marginBottom: spacing[3],
+            }}>
+              {text.doYouExperience}
+            </div>
             {node.content.questions.map((q, i) => (
               <p
                 key={i}
                 style={{
-                  margin: '0 0 14px 0',
-                  fontSize: 15,
-                  lineHeight: 1.7,
-                  color: '#333',
-                  fontFamily: 'system-ui, sans-serif',
-                  paddingRight: 8,
+                  margin: `0 0 ${spacing[2.5]}px`,
+                  fontSize: typography.size.base,
+                  lineHeight: typography.lineHeight.relaxed,
+                  color: colors.text.secondary,
                 }}
               >
                 {q}
@@ -156,74 +263,106 @@ const InfoModal = memo(({
             ))}
           </div>
 
-          {/* Explanation */}
+          {/* Explanation box */}
           <div style={{
-            background: 'rgba(26,95,122,0.08)',
-            borderRadius: 12,
-            padding: 20,
-            marginBottom: 24,
-            borderLeft: '4px solid #1a5f7a',
+            background: `linear-gradient(135deg, ${brandCyan}08, ${brandPurple}05)`,
+            borderRadius: radius.lg,
+            padding: spacing[5],
+            marginBottom: spacing[5],
+            border: `1px solid ${brandCyan}22`,
+            animation: 'contentSlideUp 0.4s ease-out 0.2s both',
           }}>
-            <p
-              style={{
-                margin: 0,
-                fontSize: 15,
-                lineHeight: 1.8,
-                color: '#444',
-                fontFamily: 'system-ui, sans-serif',
-              }}
-            >
+            <h3 style={{
+              margin: `0 0 ${spacing[2.5]}px`,
+              fontSize: typography.size.md,
+              fontWeight: typography.weight.bold,
+              color: brandCyan,
+              display: 'flex',
+              alignItems: 'center',
+              gap: spacing[2],
+            }}>
+              <span style={{ fontSize: typography.size.lg }}>💡</span>
+              {text.howItHelps}
+            </h3>
+            <p style={{
+              margin: 0,
+              fontSize: typography.size.base,
+              lineHeight: typography.lineHeight.loose,
+              color: colors.text.secondary,
+            }}>
               {node.content.explanation}
             </p>
           </div>
 
-          {/* Benefits */}
-          <div style={{ marginBottom: 24 }}>
-            <h3 style={{ margin: '0 0 12px', fontSize: 16, color: '#1a5f7a', fontWeight: 600 }}>
-              Expected Benefits:
+          {/* Benefits - Chip style */}
+          <div style={{
+            marginBottom: spacing[6],
+            animation: 'contentSlideUp 0.4s ease-out 0.25s both',
+          }}>
+            <h3 style={{
+              margin: `0 0 ${spacing[3]}px`,
+              fontSize: typography.size.md,
+              color: colors.text.primary,
+              fontWeight: typography.weight.bold,
+              display: 'flex',
+              alignItems: 'center',
+              gap: spacing[2],
+            }}>
+              <span style={{ fontSize: typography.size.md }}>✨</span>
+              {text.expectedBenefits}
             </h3>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2] }}>
               {node.content.benefits.map((benefit, i) => (
                 <span
                   key={i}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: 6,
-                    padding: '8px 14px',
-                    background: 'rgba(26,95,122,0.1)',
-                    borderRadius: 20,
-                    fontSize: 13,
-                    color: '#1a5f7a',
-                    fontWeight: 500,
+                    gap: spacing[2],
+                    padding: `${spacing[2]}px ${spacing[3]}px`,
+                    background: `linear-gradient(135deg, ${node.color}15, ${node.color}08)`,
+                    border: `1px solid ${node.color}30`,
+                    borderRadius: radius.full,
+                    fontSize: typography.size.sm,
+                    color: colors.text.primary,
+                    fontWeight: typography.weight.semibold,
+                    animation: `benefitPop 0.3s ease-out ${0.3 + i * 0.05}s both`,
                   }}
                 >
-                  ✓ {benefit}
+                  <span style={{ color: node.color }}>✓</span> {benefit}
                 </span>
               ))}
             </div>
           </div>
 
-          {/* CTA Button */}
-          <div style={{ textAlign: 'center' }}>
+          {/* CTA Button - Primary style */}
+          <div style={{
+            textAlign: 'center',
+            animation: 'contentSlideUp 0.4s ease-out 0.35s both',
+          }}>
             <a
               href="#contact"
               onClick={onClose}
+              className="modal-cta-btn"
               style={{
-                display: 'inline-block',
-                padding: '14px 36px',
-                background: 'linear-gradient(135deg, #1a5f7a 0%, #2a7f9a 100%)',
-                color: '#fff',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: spacing[2.5],
+                padding: `${spacing[3.5]}px ${spacing[6]}px`,
+                background: gradients.primary,
+                color: colors.surface.base,
                 textDecoration: 'none',
-                borderRadius: 30,
-                fontSize: 15,
-                fontWeight: 600,
-                fontFamily: 'Cairo, system-ui, sans-serif',
-                boxShadow: '0 4px 20px rgba(26,95,122,0.35)',
-                transition: 'transform 0.2s, box-shadow 0.2s',
+                borderRadius: radius.lg,
+                fontSize: typography.size.base,
+                fontWeight: typography.weight.black,
+                fontFamily: typography.fontFamily,
+                boxShadow: shadows.glow.cyan,
+                transition: transitions.bounce,
+                border: 'none',
               }}
             >
-              Learn About Berard AIT Protocol
+              {text.getStarted}
+              <span style={{ transform: isArabic ? 'rotate(180deg)' : 'none' }}>→</span>
             </a>
           </div>
         </div>
@@ -237,12 +376,44 @@ const InfoModal = memo(({
         @keyframes modalSlideIn {
           from {
             opacity: 0;
-            transform: scale(0.92) translateY(20px);
+            transform: scale(0.92) translateY(24px);
           }
           to {
             opacity: 1;
             transform: scale(1) translateY(0);
           }
+        }
+        @keyframes contentSlideUp {
+          from {
+            opacity: 0;
+            transform: translateY(12px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes benefitPop {
+          from {
+            opacity: 0;
+            transform: scale(0.85);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .modal-close-btn:hover {
+          background: rgba(255,255,255,0.12) !important;
+          color: ${colors.text.primary} !important;
+          transform: rotate(90deg);
+        }
+        .modal-cta-btn:hover {
+          transform: translateY(-3px);
+          box-shadow: ${shadows.glow.cyan}, 0 12px 32px rgba(0,0,0,0.3) !important;
+        }
+        .modal-cta-btn:active {
+          transform: translateY(-1px) scale(0.98);
         }
       `}</style>
     </div>
@@ -255,6 +426,9 @@ InfoModal.displayName = 'InfoModal';
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function HeroCircuitBrain() {
+  const { isArabic, direction } = useLanguage();
+  const text = isArabic ? heroText.ar : heroText.en;
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeNode, setActiveNode] = useState<BrainFunction | null>(null);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
@@ -263,7 +437,6 @@ export default function HeroCircuitBrain() {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Check for reduced motion and mobile
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     setReducedMotion(mq.matches);
@@ -278,7 +451,6 @@ export default function HeroCircuitBrain() {
     setIsLoaded(true);
   }, []);
 
-  // Burst explosion when clicking a node
   const burstAtNode = useCallback((x: number, y: number) => {
     if (reducedMotion) return;
 
@@ -329,48 +501,54 @@ export default function HeroCircuitBrain() {
     setActiveNode(null);
   }, []);
 
-  // CSS keyframes - memoized
   const css = useMemo(() => `
-    @keyframes pathFlow {
-      0% { stroke-dashoffset: 100; }
-      100% { stroke-dashoffset: 0; }
-    }
     @keyframes fadeInScale {
-      from { opacity: 0; transform: scale(0.9); }
+      from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
     }
     @keyframes brainPulse {
-      0%, 100% {
-        filter: drop-shadow(0 0 25px rgba(143,211,204,0.25));
-      }
-      50% {
-        filter: drop-shadow(0 0 40px rgba(143,211,204,0.4));
-      }
+      0%, 100% { filter: drop-shadow(0 0 25px ${brandCyan}35); }
+      50% { filter: drop-shadow(0 0 40px ${brandCyan}50); }
+    }
+    @keyframes veinPulse {
+      0%, 100% { stroke-opacity: 0.5; }
+      50% { stroke-opacity: 0.9; }
     }
     @keyframes scrollHint {
-      0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
+      0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.5; }
       50% { transform: translateX(-50%) translateY(8px); opacity: 1; }
     }
     @keyframes nodeFloat {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-2px); }
+      50% { transform: translateY(-3px); }
+    }
+    @keyframes titleEnter {
+      from { opacity: 0; transform: translateY(-16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes hintPulse {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
     }
     .circuit-brain-container {
-      animation: fadeInScale 0.8s ease-out forwards;
+      animation: fadeInScale 0.7s ease-out forwards;
     }
     .circuit-brain-svg {
-      animation: ${reducedMotion ? 'none' : 'brainPulse 4s ease-in-out infinite'};
+      animation: ${reducedMotion ? 'none' : 'brainPulse 5s ease-in-out infinite'};
+    }
+    .neural-vein {
+      animation: ${reducedMotion ? 'none' : 'veinPulse 3s ease-in-out infinite'};
     }
     .circuit-node {
       cursor: pointer;
-      transition: transform 0.15s ease;
+      transition: transform 0.2s ease;
       -webkit-tap-highlight-color: transparent;
     }
     .circuit-node:hover, .circuit-node:focus {
       transform: scale(1.15);
     }
     .circuit-node:active {
-      transform: scale(0.95);
+      transform: scale(0.92);
     }
     .circuit-node:focus {
       outline: none;
@@ -379,81 +557,389 @@ export default function HeroCircuitBrain() {
       outline: 2px solid ${brandCyan};
       outline-offset: 4px;
     }
-    .circuit-path {
-      stroke-dasharray: 8 4;
-      animation: ${reducedMotion ? 'none' : 'pathFlow 3s linear infinite'};
-    }
   `, [reducedMotion]);
+
+  // Platform feature cards data
+  const platformFeatures = isArabic ? [
+    { icon: '🎧', title: '20 جلسة', desc: 'برنامج مكثف', color: brandCyan },
+    { icon: '📊', title: 'تتبع التقدم', desc: 'نتائج موثقة', color: brandPurple },
+    { icon: '🧠', title: '10 مناطق', desc: 'تحفيز شامل', color: brandPink },
+  ] : [
+    { icon: '🎧', title: '20 Sessions', desc: 'Intensive Program', color: brandCyan },
+    { icon: '📊', title: 'Track Progress', desc: 'Documented Results', color: brandPurple },
+    { icon: '🧠', title: '10 Areas', desc: 'Comprehensive', color: brandPink },
+  ];
 
   return (
     <section
       id="hero"
       style={{
         position: 'relative',
-        minHeight: '80vh',
+        minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        background: 'radial-gradient(ellipse at center, rgba(20,26,45,1) 0%, rgba(8,10,18,1) 100%)',
-        padding: '40px 16px',
+        background: `linear-gradient(180deg, ${colors.surface.base} 0%, rgba(15,20,35,1) 50%, ${colors.surface.base} 100%)`,
+        padding: `${spacing[16]}px ${spacing[4]}px ${spacing[10]}px`,
+        direction,
       }}
     >
       <style>{css}</style>
 
-      {/* Grid background */}
+      {/* Background grid - more subtle for platform feel */}
       <div style={{
         position: 'absolute',
         inset: 0,
         backgroundImage: `
-          linear-gradient(rgba(143,211,204,0.025) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(143,211,204,0.025) 1px, transparent 1px)
+          linear-gradient(${brandCyan}05 1px, transparent 1px),
+          linear-gradient(90deg, ${brandCyan}05 1px, transparent 1px)
         `,
-        backgroundSize: '50px 50px',
+        backgroundSize: '40px 40px',
         pointerEvents: 'none',
       }} />
 
-      {/* Radial glow */}
+      {/* Decorative gradient orbs */}
       <div style={{
         position: 'absolute',
-        width: 600,
-        height: 600,
+        top: '5%',
+        [isArabic ? 'left' : 'right']: '5%',
+        width: 500,
+        height: 500,
         borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(143,211,204,0.1) 0%, transparent 70%)',
+        background: `radial-gradient(circle, ${brandPurple}12, transparent 60%)`,
+        filter: 'blur(80px)',
+        pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'absolute',
+        bottom: '10%',
+        [isArabic ? 'right' : 'left']: '10%',
+        width: 400,
+        height: 400,
+        borderRadius: '50%',
+        background: `radial-gradient(circle, ${brandCyan}10, transparent 60%)`,
+        filter: 'blur(60px)',
         pointerEvents: 'none',
       }} />
 
-      {/* Main container */}
+      {/* ═══════════════════════════════════════════════════════════════
+          PLATFORM LAYOUT - Two Column Dashboard Style
+          ═══════════════════════════════════════════════════════════════ */}
       <div
         className="circuit-brain-container"
         style={{
           position: 'relative',
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+          gap: spacing[8],
+          maxWidth: 1200,
+          width: '100%',
+          alignItems: 'center',
+          opacity: isLoaded ? 1 : 0,
+          zIndex: 1,
+        }}
+      >
+        {/* ═══ LEFT PANEL: Platform Info ═══ */}
+        <div style={{
+          order: isArabic && !isMobile ? 2 : 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: spacing[5],
+          animation: 'titleEnter 0.8s ease-out forwards',
+        }}>
+          {/* Platform Badge */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: spacing[2],
+            padding: `${spacing[1.5]}px ${spacing[4]}px`,
+            background: `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}10)`,
+            border: `1px solid ${brandCyan}30`,
+            borderRadius: radius.full,
+            width: 'fit-content',
+          }}>
+            <span style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              background: brandCyan,
+              boxShadow: `0 0 10px ${brandCyan}`,
+              animation: reducedMotion ? 'none' : 'pulse 2s ease-in-out infinite',
+            }} />
+            <span style={{
+              fontSize: typography.size.xs,
+              fontWeight: typography.weight.bold,
+              color: brandCyan,
+              textTransform: 'uppercase',
+              letterSpacing: 1,
+            }}>
+              {isArabic ? 'منصة التدريب السمعي' : 'Auditory Training Platform'}
+            </span>
+          </div>
+
+          {/* Main Title */}
+          <div>
+            <h1 style={{
+              margin: 0,
+              fontSize: isMobile ? typography.size['3xl'] : typography.size['5xl'],
+              fontWeight: typography.weight.black,
+              fontFamily: typography.fontFamily,
+              color: colors.text.primary,
+              lineHeight: typography.lineHeight.tight,
+              letterSpacing: typography.letterSpacing.tight,
+            }}>
+              {isArabic ? 'Lotus' : 'Lotus'}
+              <span style={{
+                background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>
+                {' '}× Bérard
+              </span>
+              {' '}AIT
+            </h1>
+            <p style={{
+              margin: `${spacing[3]}px 0 0`,
+              fontSize: isMobile ? typography.size.base : typography.size.lg,
+              color: colors.text.secondary,
+              fontFamily: typography.fontFamily,
+              lineHeight: typography.lineHeight.relaxed,
+              maxWidth: 480,
+            }}>
+              {isArabic
+                ? 'منصة متكاملة لتدريب التكامل السمعي. استكشف مناطق الدماغ واكتشف كيف يمكن للبرنامج تحسين المعالجة السمعية.'
+                : 'An integrated platform for auditory integration training. Explore brain regions and discover how the program can improve auditory processing.'}
+            </p>
+          </div>
+
+          {/* Platform Feature Cards */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: spacing[3],
+            marginTop: spacing[2],
+          }}>
+            {platformFeatures.map((feature, i) => (
+              <div
+                key={i}
+                style={{
+                  padding: spacing[3],
+                  background: `linear-gradient(135deg, ${feature.color}10, transparent)`,
+                  border: `1px solid ${feature.color}25`,
+                  borderRadius: radius.lg,
+                  textAlign: 'center',
+                  transition: transitions.normal,
+                }}
+              >
+                <div style={{ fontSize: 24, marginBottom: spacing[1.5] }}>{feature.icon}</div>
+                <div style={{
+                  fontSize: typography.size.sm,
+                  fontWeight: typography.weight.bold,
+                  color: feature.color,
+                }}>{feature.title}</div>
+                <div style={{
+                  fontSize: typography.size.xs,
+                  color: colors.text.muted,
+                  marginTop: 2,
+                }}>{feature.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA Buttons */}
+          <div style={{
+            display: 'flex',
+            gap: spacing[3],
+            flexWrap: 'wrap',
+            marginTop: spacing[2],
+          }}>
+            <a
+              href="#overview"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: spacing[2],
+                padding: `${spacing[3]}px ${spacing[5]}px`,
+                background: gradients.primary,
+                color: colors.surface.base,
+                textDecoration: 'none',
+                borderRadius: radius.lg,
+                fontSize: typography.size.sm,
+                fontWeight: typography.weight.black,
+                fontFamily: typography.fontFamily,
+                boxShadow: shadows.glow.cyan,
+                transition: transitions.bounce,
+              }}
+            >
+              {isArabic ? 'ابدأ الآن' : 'Get Started'}
+              <span style={{ transform: isArabic ? 'rotate(180deg)' : 'none' }}>→</span>
+            </a>
+            <a
+              href="#checklist"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: spacing[2],
+                padding: `${spacing[3]}px ${spacing[5]}px`,
+                background: 'transparent',
+                color: colors.text.primary,
+                textDecoration: 'none',
+                borderRadius: radius.lg,
+                border: `1px solid ${colors.border.emphasis}`,
+                fontSize: typography.size.sm,
+                fontWeight: typography.weight.bold,
+                fontFamily: typography.fontFamily,
+                transition: transitions.normal,
+              }}
+            >
+              {isArabic ? 'قائمة التقييم' : 'Self Assessment'}
+            </a>
+          </div>
+
+          {/* Trust Indicators */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing[4],
+            marginTop: spacing[3],
+            paddingTop: spacing[3],
+            borderTop: `1px solid ${colors.border.subtle}`,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1.5] }}>
+              <span style={{ color: brandCyan }}>✓</span>
+              <span style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
+                {isArabic ? 'معتمد دولياً' : 'Internationally Certified'}
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1.5] }}>
+              <span style={{ color: brandPurple }}>✓</span>
+              <span style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
+                {isArabic ? '+500 حالة ناجحة' : '500+ Success Cases'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* ═══ RIGHT PANEL: Interactive Brain ═══ */}
+        <div style={{
+          order: isArabic && !isMobile ? 1 : 2,
+          position: 'relative',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
-          opacity: isLoaded ? 1 : 0,
-        }}
-      >
+        }}>
+          {/* Brain Container Card */}
+          <div style={{
+            position: 'relative',
+            padding: spacing[4],
+            background: `linear-gradient(135deg, rgba(15,20,35,0.8), rgba(20,26,45,0.6))`,
+            border: `1px solid ${colors.border.default}`,
+            borderRadius: radius['2xl'],
+            backdropFilter: 'blur(10px)',
+          }}>
+            {/* Card Header */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: spacing[3],
+              paddingBottom: spacing[3],
+              borderBottom: `1px solid ${colors.border.subtle}`,
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: spacing[2],
+              }}>
+                <div style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: radius.md,
+                  background: `linear-gradient(135deg, ${brandCyan}20, ${brandPurple}20)`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 16,
+                }}>
+                  🧠
+                </div>
+                <div>
+                  <div style={{
+                    fontSize: typography.size.sm,
+                    fontWeight: typography.weight.bold,
+                    color: colors.text.primary,
+                  }}>
+                    {isArabic ? 'خريطة الدماغ التفاعلية' : 'Interactive Brain Map'}
+                  </div>
+                  <div style={{
+                    fontSize: typography.size.xs,
+                    color: colors.text.muted,
+                  }}>
+                    {isArabic ? '10 مناطق قابلة للاستكشاف' : '10 explorable regions'}
+                  </div>
+                </div>
+              </div>
+              <div style={{
+                display: 'flex',
+                gap: 6,
+              }}>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: brandCyan, opacity: 0.6 }} />
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: brandPurple, opacity: 0.6 }} />
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: brandPink, opacity: 0.6 }} />
+              </div>
+            </div>
+
+            {/* SVG Brain */}
         <svg
           className="circuit-brain-svg"
           width="100%"
           height="auto"
-          viewBox="100 70 400 340"
+          viewBox="100 50 400 380"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           role="img"
-          aria-label="Interactive brain circuit - tap nodes to learn more"
-          style={{ maxWidth: 600, touchAction: 'manipulation' }}
+          aria-label="Interactive brain circuit"
+          style={{ maxWidth: 580, touchAction: 'manipulation' }}
         >
           <defs>
+            {/* Gradients */}
             <linearGradient id="brainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor={brandCyan} stopOpacity="0.7" />
               <stop offset="50%" stopColor={brandPurple} stopOpacity="0.5" />
               <stop offset="100%" stopColor={brandPink} stopOpacity="0.7" />
             </linearGradient>
+            <linearGradient id="veinGradCyan" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={brandCyan} stopOpacity="0.3" />
+              <stop offset="50%" stopColor={brandCyan} stopOpacity="0.8" />
+              <stop offset="100%" stopColor={brandCyan} stopOpacity="0.3" />
+            </linearGradient>
+            <linearGradient id="veinGradPurple" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={brandPurple} stopOpacity="0.3" />
+              <stop offset="50%" stopColor={brandPurple} stopOpacity="0.8" />
+              <stop offset="100%" stopColor={brandPurple} stopOpacity="0.3" />
+            </linearGradient>
+            <linearGradient id="veinGradPink" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={brandPink} stopOpacity="0.3" />
+              <stop offset="50%" stopColor={brandPink} stopOpacity="0.8" />
+              <stop offset="100%" stopColor={brandPink} stopOpacity="0.3" />
+            </linearGradient>
+            <radialGradient id="brainFill" cx="50%" cy="40%" r="60%">
+              <stop offset="0%" stopColor={brandPurple} stopOpacity="0.08" />
+              <stop offset="100%" stopColor={brandCyan} stopOpacity="0.02" />
+            </radialGradient>
+
+            {/* Filters */}
             <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="2.5" result="blur" />
+              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <filter id="veinGlow" x="-100%" y="-100%" width="300%" height="300%">
+              <feGaussianBlur stdDeviation="1.5" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
@@ -468,38 +954,311 @@ export default function HeroCircuitBrain() {
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
+            <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
           </defs>
 
-          {/* Brain outline */}
+          {/* Anatomical Brain Shape - Left Hemisphere */}
           <path
-            d="M300 90 C210 90 140 140 130 210 C120 280 145 350 195 385 C245 420 280 420 300 420 C320 420 355 420 405 385 C455 350 480 280 470 210 C460 140 390 90 300 90Z"
-            fill="none"
+            d="M295 80
+               C240 75 190 95 160 130
+               C130 165 120 200 125 240
+               C115 260 110 290 120 320
+               C130 360 160 390 200 400
+               C240 410 280 405 295 400"
+            fill="url(#brainFill)"
             stroke="url(#brainGrad)"
             strokeWidth="2"
-            opacity="0.2"
+            opacity="0.6"
+            filter="url(#softGlow)"
           />
 
-          {/* Brain folds */}
-          <g stroke={brandCyan} strokeWidth="1" opacity="0.12" fill="none">
-            <path d="M160 180 Q230 155 300 175 Q370 195 430 175" />
-            <path d="M150 230 Q220 205 300 225 Q380 245 440 225" />
-            <path d="M160 280 Q230 255 300 275 Q370 295 430 275" />
-            <path d="M180 330 Q250 305 300 325 Q350 345 400 325" />
+          {/* Anatomical Brain Shape - Right Hemisphere */}
+          <path
+            d="M305 80
+               C360 75 410 95 440 130
+               C470 165 480 200 475 240
+               C485 260 490 290 480 320
+               C470 360 440 390 400 400
+               C360 410 320 405 305 400"
+            fill="url(#brainFill)"
+            stroke="url(#brainGrad)"
+            strokeWidth="2"
+            opacity="0.6"
+            filter="url(#softGlow)"
+          />
+
+          {/* Central fissure */}
+          <path
+            d="M300 85 Q298 200 300 300 Q302 380 300 395"
+            stroke={brandPurple}
+            strokeWidth="1.5"
+            opacity="0.25"
+            fill="none"
+          />
+
+          {/* Brain Folds (Sulci) - Left */}
+          <g stroke={brandCyan} strokeWidth="1" opacity="0.15" fill="none">
+            <path d="M145 180 Q180 160 220 170 Q260 180 290 175" />
+            <path d="M130 230 Q170 210 220 220 Q260 235 295 225" />
+            <path d="M135 280 Q175 260 220 270 Q260 285 295 275" />
+            <path d="M155 330 Q190 315 230 325 Q270 340 295 330" />
           </g>
 
-          {/* Circuit paths */}
-          <path id="c1" className="circuit-path" d="M160 130 L220 130 L220 150 L270 150" fill="none" stroke={brandCyan} strokeWidth="2" strokeLinecap="round" filter="url(#glow)" />
-          <path id="c2" className="circuit-path" d="M270 150 L330 150 L330 120 L380 120" fill="none" stroke={brandPurple} strokeWidth="2" strokeLinecap="round" filter="url(#glow)" style={{ animationDelay: '0.5s' }} />
-          <path id="c3" className="circuit-path" d="M380 120 L420 120 L420 180 L440 180 L440 260 L450 260" fill="none" stroke={brandPink} strokeWidth="2" strokeLinecap="round" filter="url(#glow)" style={{ animationDelay: '1s' }} />
-          <path id="c4" className="circuit-path" d="M450 260 L450 330 L420 330 L320 350 L220 340 L150 280" fill="none" stroke={brandCyan} strokeWidth="2" strokeLinecap="round" filter="url(#glow)" style={{ animationDelay: '1.5s' }} />
-          <path id="c5" className="circuit-path" d="M150 280 L150 200 L180 200" fill="none" stroke={brandPurple} strokeWidth="2" strokeLinecap="round" filter="url(#glow)" style={{ animationDelay: '2s' }} />
+          {/* Brain Folds (Sulci) - Right */}
+          <g stroke={brandCyan} strokeWidth="1" opacity="0.15" fill="none">
+            <path d="M305 175 Q340 180 380 170 Q420 160 455 180" />
+            <path d="M305 225 Q340 235 380 220 Q430 210 470 230" />
+            <path d="M305 275 Q340 285 380 270 Q425 260 465 280" />
+            <path d="M305 330 Q330 340 370 325 Q410 315 445 330" />
+          </g>
 
-          {/* Secondary traces */}
-          <g stroke={brandCyan} strokeWidth="1" opacity="0.25" strokeDasharray="4 2">
-            <path d="M270 150 L270 200 L180 200" />
-            <path d="M380 120 L380 180 L440 180" />
-            <path d="M420 330 L420 260 L450 260" />
-            <path d="M220 340 L220 280 L150 280" />
+          {/* ═══════════════════════════════════════════════════════════════
+              NEURAL VEIN PATHWAYS - Wire-like connections to nodes
+              ═══════════════════════════════════════════════════════════════ */}
+
+          {/* Main Brain Stem / Central Artery */}
+          <path
+            id="stem"
+            d="M300 395 Q300 350 300 300 Q300 250 300 200 Q300 150 300 100"
+            stroke={brandPurple}
+            strokeWidth="3"
+            opacity="0.4"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* === LEFT HEMISPHERE VEINS === */}
+
+          {/* Vein to Auditory (x:160, y:130) */}
+          <path
+            id="c1"
+            className="neural-vein"
+            d="M300 120 Q280 115 250 115 Q220 115 190 120 Q175 125 160 130"
+            stroke={brandCyan}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Attention (x:180, y:200) */}
+          <path
+            id="c2"
+            className="neural-vein"
+            d="M300 200 Q270 195 240 195 Q210 195 180 200"
+            stroke={brandPurple}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Sensory (x:150, y:280) */}
+          <path
+            id="c3"
+            className="neural-vein"
+            d="M300 280 Q260 275 220 275 Q185 275 150 280"
+            stroke={brandCyan}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Learning (x:220, y:340) */}
+          <path
+            id="c4"
+            className="neural-vein"
+            d="M300 340 Q280 342 260 340 Q240 338 220 340"
+            stroke={brandPurple}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* === RIGHT HEMISPHERE VEINS === */}
+
+          {/* Vein to Language (x:270, y:150) - branches from stem */}
+          <path
+            id="c5"
+            className="neural-vein"
+            d="M300 150 Q285 150 270 150"
+            stroke={brandPurple}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Balance (x:380, y:120) */}
+          <path
+            id="c6"
+            className="neural-vein"
+            d="M300 120 Q320 115 350 115 Q365 115 380 120"
+            stroke={brandPink}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Well Being (x:440, y:180) */}
+          <path
+            id="c7"
+            className="neural-vein"
+            d="M300 180 Q340 175 380 175 Q410 175 440 180"
+            stroke={brandCyan}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Music (x:450, y:260) */}
+          <path
+            id="c8"
+            className="neural-vein"
+            d="M300 260 Q350 255 400 255 Q425 255 450 260"
+            stroke={brandPurple}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Memory (x:420, y:330) */}
+          <path
+            id="c9"
+            className="neural-vein"
+            d="M300 330 Q340 325 380 325 Q400 325 420 330"
+            stroke={brandPink}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Behavior (x:320, y:350) */}
+          <path
+            id="c10"
+            className="neural-vein"
+            d="M300 350 Q310 350 320 350"
+            stroke={brandCyan}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* === SECONDARY CAPILLARY NETWORKS === */}
+          <g className="capillaries" opacity="0.25" strokeWidth="1" fill="none" strokeDasharray="3 2">
+            {/* Left side micro-vessels */}
+            <path d="M160 130 Q150 160 155 190" stroke={brandCyan} />
+            <path d="M180 200 Q165 230 155 260" stroke={brandPurple} />
+            <path d="M150 280 Q160 310 180 330" stroke={brandCyan} />
+            <path d="M220 340 Q200 360 185 375" stroke={brandPurple} />
+
+            {/* Right side micro-vessels */}
+            <path d="M380 120 Q400 140 420 155" stroke={brandPink} />
+            <path d="M440 180 Q455 210 460 240" stroke={brandCyan} />
+            <path d="M450 260 Q455 290 445 310" stroke={brandPurple} />
+            <path d="M420 330 Q400 355 375 370" stroke={brandPink} />
+
+            {/* Cross-connections */}
+            <path d="M270 150 Q250 180 235 200" stroke={brandPurple} />
+            <path d="M380 120 Q350 145 320 155" stroke={brandPink} />
+            <path d="M220 340 Q260 355 300 360" stroke={brandCyan} />
+          </g>
+
+          {/* === PULSING ENERGY ALONG VEINS === */}
+          <g className="vein-pulses" opacity="0.6">
+            {/* Continuous pulse particles traveling along veins */}
+            {!reducedMotion && (
+              <>
+                {/* Pulse on c1 - to Auditory */}
+                <circle r="3" fill={brandCyan} filter="url(#glow)">
+                  <animateMotion dur="2.5s" repeatCount="indefinite">
+                    <mpath href="#c1" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" repeatCount="indefinite" />
+                </circle>
+
+                {/* Pulse on c2 - to Attention */}
+                <circle r="2.5" fill={brandPurple} filter="url(#glow)">
+                  <animateMotion dur="2s" repeatCount="indefinite" begin="0.3s">
+                    <mpath href="#c2" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" begin="0.3s" />
+                </circle>
+
+                {/* Pulse on c3 - to Sensory */}
+                <circle r="3" fill={brandCyan} filter="url(#glow)">
+                  <animateMotion dur="2.8s" repeatCount="indefinite" begin="0.6s">
+                    <mpath href="#c3" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.3;1;0.3" dur="2.8s" repeatCount="indefinite" begin="0.6s" />
+                </circle>
+
+                {/* Pulse on c6 - to Balance */}
+                <circle r="2.5" fill={brandPink} filter="url(#glow)">
+                  <animateMotion dur="2.2s" repeatCount="indefinite" begin="0.9s">
+                    <mpath href="#c6" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.3;1;0.3" dur="2.2s" repeatCount="indefinite" begin="0.9s" />
+                </circle>
+
+                {/* Pulse on c7 - to Well Being */}
+                <circle r="3" fill={brandCyan} filter="url(#glow)">
+                  <animateMotion dur="3s" repeatCount="indefinite" begin="1.2s">
+                    <mpath href="#c7" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite" begin="1.2s" />
+                </circle>
+
+                {/* Pulse on c8 - to Music */}
+                <circle r="2.5" fill={brandPurple} filter="url(#glow)">
+                  <animateMotion dur="2.6s" repeatCount="indefinite" begin="1.5s">
+                    <mpath href="#c8" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.3;1;0.3" dur="2.6s" repeatCount="indefinite" begin="1.5s" />
+                </circle>
+
+                {/* Pulse on c9 - to Memory */}
+                <circle r="3" fill={brandPink} filter="url(#glow)">
+                  <animateMotion dur="2.4s" repeatCount="indefinite" begin="1.8s">
+                    <mpath href="#c9" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.3;1;0.3" dur="2.4s" repeatCount="indefinite" begin="1.8s" />
+                </circle>
+
+                {/* Central stem pulse */}
+                <circle r="4" fill={brandPurple} filter="url(#glow)">
+                  <animateMotion dur="4s" repeatCount="indefinite">
+                    <mpath href="#stem" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.2;0.8;0.2" dur="4s" repeatCount="indefinite" />
+                  <animate attributeName="r" values="3;5;3" dur="4s" repeatCount="indefinite" />
+                </circle>
+              </>
+            )}
           </g>
 
           {/* Ripples */}
@@ -513,22 +1272,22 @@ export default function HeroCircuitBrain() {
                 fill="transparent"
                 stroke={r.color}
                 strokeWidth="2"
-                style={{ filter: `drop-shadow(0 0 10px ${r.color})` }}
+                style={{ filter: `drop-shadow(0 0 8px ${r.color})` }}
               >
-                <animate attributeName="r" values="2;45" dur="0.6s" fill="freeze" />
-                <animate attributeName="opacity" values="0.8;0" dur="0.6s" fill="freeze" />
+                <animate attributeName="r" values="2;40" dur="0.6s" fill="freeze" />
+                <animate attributeName="opacity" values="0.7;0" dur="0.6s" fill="freeze" />
               </circle>
             ))}
           </g>
 
           {/* Pulses */}
-          <g opacity="0.85">
+          <g opacity="0.8">
             {pulses.map((p) => (
               <circle
                 key={p.id}
                 r={p.r}
                 fill={p.color}
-                style={{ filter: `drop-shadow(0 0 8px ${p.color})` }}
+                style={{ filter: `drop-shadow(0 0 6px ${p.color})` }}
               >
                 <animate attributeName="opacity" values="0;1;0.2;0" dur={`${p.dur}s`} begin={`${p.begin}s`} fill="freeze" />
                 <animateMotion dur={`${p.dur}s`} begin={`${p.begin}s`} repeatCount="1" fill="freeze">
@@ -543,6 +1302,7 @@ export default function HeroCircuitBrain() {
             {BRAIN_FUNCTIONS.map((node, index) => {
               const isHovered = hoveredNode === node.id;
               const color = node.color;
+              const label = isArabic ? node.labelAr : node.labelEn;
 
               const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
                 e.stopPropagation();
@@ -565,16 +1325,16 @@ export default function HeroCircuitBrain() {
                   onTouchStart={() => setHoveredNode(node.id)}
                   tabIndex={0}
                   role="button"
-                  aria-label={`${node.labelEn} - Tap to learn more`}
+                  aria-label={`${label} - ${isArabic ? 'اضغط لمعرفة المزيد' : 'Click to learn more'}`}
                   style={{
                     animation: reducedMotion ? 'none' : `nodeFloat ${2.5 + index * 0.15}s ease-in-out infinite`,
                   }}
                 >
-                  {/* Hit area - invisible but clickable */}
+                  {/* Hit area */}
                   <circle
                     cx={node.position.x}
                     cy={node.position.y}
-                    r={node.position.r + 15}
+                    r={node.position.r + 12}
                     fill="rgba(0,0,0,0.001)"
                     stroke="none"
                     style={{ cursor: 'pointer' }}
@@ -583,24 +1343,24 @@ export default function HeroCircuitBrain() {
                   <circle
                     cx={node.position.x}
                     cy={node.position.y}
-                    r={node.position.r + 8}
+                    r={node.position.r + 6}
                     fill="none"
                     stroke={color}
                     strokeWidth={isHovered ? 2 : 1}
-                    opacity={isHovered ? 0.7 : 0.3}
-                    style={{ transition: 'all 0.15s ease', pointerEvents: 'none' }}
+                    opacity={isHovered ? 0.6 : 0.25}
+                    style={{ transition: 'all 0.2s ease', pointerEvents: 'none' }}
                   />
                   {/* Main circle */}
                   <circle
                     cx={node.position.x}
                     cy={node.position.y}
                     r={node.position.r}
-                    fill={isHovered ? `${color}50` : `${color}25`}
+                    fill={isHovered ? `${color}40` : `${color}20`}
                     stroke={color}
                     strokeWidth="2"
                     style={{
-                      filter: `drop-shadow(0 0 ${isHovered ? 16 : 10}px ${color})`,
-                      transition: 'all 0.15s ease',
+                      filter: `drop-shadow(0 0 ${isHovered ? 14 : 8}px ${color})`,
+                      transition: 'all 0.2s ease',
                     }}
                   />
                   {/* Inner dot */}
@@ -609,12 +1369,12 @@ export default function HeroCircuitBrain() {
                     cy={node.position.y}
                     r={node.position.r * 0.35}
                     fill={color}
-                    opacity="0.9"
+                    opacity="0.85"
                   >
                     {!reducedMotion && (
                       <animate
                         attributeName="r"
-                        values={`${node.position.r * 0.3};${node.position.r * 0.42};${node.position.r * 0.3}`}
+                        values={`${node.position.r * 0.28};${node.position.r * 0.4};${node.position.r * 0.28}`}
                         dur="2s"
                         repeatCount="indefinite"
                       />
@@ -623,57 +1383,99 @@ export default function HeroCircuitBrain() {
                   {/* Label */}
                   <text
                     x={node.position.x}
-                    y={node.position.y + node.position.r + 20}
+                    y={node.position.y + node.position.r + 18}
                     fill={color}
                     fontSize="10"
-                    fontWeight="600"
+                    fontWeight="700"
                     textAnchor="middle"
                     style={{
-                      fontFamily: 'Cairo, sans-serif',
+                      fontFamily: typography.fontFamily,
                       pointerEvents: 'none',
-                      opacity: isHovered ? 1 : 0.75,
-                      transition: 'opacity 0.15s',
+                      opacity: isHovered ? 1 : 0.7,
+                      transition: 'opacity 0.2s',
                     }}
                   >
-                    {node.labelEn}
+                    {label}
                   </text>
                 </g>
               );
             })}
           </g>
 
-          {/* Floating particles - reduced for performance */}
+          {/* Floating neural particles */}
           {!reducedMotion && (
-            <g opacity="0.4">
-              {[0, 1, 2, 3].map((i) => (
-                <circle key={`p-${i}`} r="1.5" fill={COLORS[i % COLORS.length]}>
-                  <animate attributeName="cx" values={`${150 + i * 70};${190 + i * 50};${150 + i * 70}`} dur={`${5 + i}s`} repeatCount="indefinite" />
-                  <animate attributeName="cy" values={`${120 + i * 50};${170 + i * 40};${120 + i * 50}`} dur={`${6 + i}s`} repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.3;0.6;0.3" dur={`${4 + i}s`} repeatCount="indefinite" />
+            <g opacity="0.3">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <circle
+                  key={`neural-p-${i}`}
+                  r={1 + (i % 2)}
+                  fill={COLORS[i % COLORS.length]}
+                  filter="url(#glow)"
+                >
+                  <animate
+                    attributeName="cx"
+                    values={`${180 + i * 45};${220 + i * 35};${180 + i * 45}`}
+                    dur={`${6 + i * 0.5}s`}
+                    repeatCount="indefinite"
+                  />
+                  <animate
+                    attributeName="cy"
+                    values={`${130 + i * 45};${180 + i * 35};${130 + i * 45}`}
+                    dur={`${7 + i * 0.4}s`}
+                    repeatCount="indefinite"
+                  />
+                  <animate
+                    attributeName="opacity"
+                    values="0.2;0.6;0.2"
+                    dur={`${4 + i * 0.3}s`}
+                    repeatCount="indefinite"
+                  />
                 </circle>
               ))}
             </g>
           )}
         </svg>
 
-        {/* Instruction */}
-        <p
+        {/* Instruction hint */}
+        <div
           style={{
-            marginTop: 20,
-            color: 'rgba(255,255,255,0.55)',
-            fontSize: 14,
-            fontFamily: 'Cairo, sans-serif',
-            textAlign: 'center',
+            marginTop: spacing[4],
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: spacing[2],
+            padding: `${spacing[2.5]}px ${spacing[5]}px`,
+            background: `${brandCyan}10`,
+            borderRadius: radius.full,
+            border: `1px solid ${brandCyan}20`,
           }}
         >
-          {isMobile ? 'Tap on a node to learn more' : 'Click on a node to learn more'}
-        </p>
+          <span style={{
+            display: 'inline-block',
+            animation: reducedMotion ? 'none' : 'hintPulse 1.5s ease-in-out infinite',
+          }}>
+            👆
+          </span>
+          <p
+            style={{
+              margin: 0,
+              color: colors.text.secondary,
+              fontSize: typography.size.sm,
+              fontFamily: typography.fontFamily,
+              fontWeight: typography.weight.medium,
+            }}
+          >
+            {isMobile ? text.instructionMobile : text.instruction}
+          </p>
+        </div>
+          </div>
+        </div>
       </div>
 
       {/* Scroll indicator */}
       <div style={{
         position: 'absolute',
-        bottom: 24,
+        bottom: spacing[6],
         left: '50%',
         transform: 'translateX(-50%)',
         display: 'flex',
@@ -683,20 +1485,20 @@ export default function HeroCircuitBrain() {
         zIndex: 10,
       }}>
         <div style={{
-          width: 22,
-          height: 34,
-          border: '2px solid rgba(143,211,204,0.25)',
-          borderRadius: 11,
+          width: 20,
+          height: 32,
+          border: `2px solid ${brandCyan}30`,
+          borderRadius: 10,
           display: 'flex',
           justifyContent: 'center',
           paddingTop: 6,
         }}>
-          <div style={{ width: 3, height: 7, background: brandCyan, borderRadius: 2, opacity: 0.7 }} />
+          <div style={{ width: 3, height: 6, background: brandCyan, borderRadius: 2, opacity: 0.6 }} />
         </div>
       </div>
 
       {/* Info Modal */}
-      <InfoModal node={activeNode} onClose={closeModal} />
+      <InfoModal node={activeNode} onClose={closeModal} isArabic={isArabic} />
     </section>
   );
 }
