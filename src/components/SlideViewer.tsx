@@ -9,6 +9,118 @@ import { MicroscopeIcon, FlaskIcon, SearchIcon, DownloadIcon, XIcon, ChevronLeft
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
+type SlideIdQuery =
+  | { kind: 'ids'; ids: number[] }
+  | { kind: 'range'; from: number; to: number };
+
+const normalizeQueryDigits = (value: string): string =>
+  value
+    .replace(/[\u0660-\u0669]/g, (digit) => String(digit.charCodeAt(0) - 0x0660))
+    .replace(/[\u06F0-\u06F9]/g, (digit) => String(digit.charCodeAt(0) - 0x06F0));
+
+const parseSlideIdQuery = (raw: string): SlideIdQuery | null => {
+  const q = normalizeQueryDigits(raw).trim();
+  if (!q) return null;
+
+  const single = q.match(/^#?\s*(\d{1,4})\s*$/);
+  if (single) {
+    return { kind: 'ids', ids: [Number(single[1])] };
+  }
+
+  const range = q.match(/^#?\s*(\d{1,4})\s*[-–—]\s*#?\s*(\d{1,4})\s*$/);
+  if (range) {
+    const a = Number(range[1]);
+    const b = Number(range[2]);
+    return { kind: 'range', from: Math.min(a, b), to: Math.max(a, b) };
+  }
+
+  const list = q.match(/^\s*#?\s*\d+(?:\s*[,،]\s*#?\s*\d+)+\s*$/);
+  if (list) {
+    const ids = q
+      .split(/[,،]/)
+      .map((part) => part.replace(/[^\d]/g, ''))
+      .map((part) => Number(part))
+      .filter((n) => Number.isFinite(n));
+    if (ids.length) return { kind: 'ids', ids };
+  }
+
+  const spaceList = q.match(/^\s*#?\s*\d+(?:\s+#?\s*\d+)+\s*$/);
+  if (spaceList) {
+    const ids = q
+      .split(/\s+/)
+      .map((part) => part.replace(/[^\d]/g, ''))
+      .map((part) => Number(part))
+      .filter((n) => Number.isFinite(n));
+    if (ids.length) return { kind: 'ids', ids };
+  }
+
+  return null;
+};
+
+const normalizeForSearch = (value: string): string =>
+  normalizeQueryDigits(value)
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '') // strip Latin combining marks
+    .replace(/[\u0640\u064B-\u065F\u0670\u06D6-\u06ED]/g, '') // strip Arabic diacritics + tatweel
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const tokenizeQuery = (raw: string): string[] => {
+  const tokens: string[] = [];
+  const re = /"([^"]+)"|'([^']+)'|(\S+)/g;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(raw)) !== null) {
+    const token = match[1] ?? match[2] ?? match[3] ?? '';
+    if (!token) continue;
+
+    // Allow OR groups using pipes: apd|hyperacusis
+    if (token.includes('|')) {
+      const parts = token.split('|');
+      parts.forEach((part, idx) => {
+        if (part) tokens.push(part);
+        if (idx < parts.length - 1) tokens.push('|');
+      });
+      continue;
+    }
+
+    tokens.push(token);
+  }
+  return tokens;
+};
+
+const parseSearchGroups = (raw: string): string[][] => {
+  const rawTokens = tokenizeQuery(raw);
+  const groups: string[][] = [];
+  let current: string[] = [];
+
+  for (const token of rawTokens) {
+    if (token === '|') {
+      if (current.length) groups.push(current);
+      current = [];
+      continue;
+    }
+
+    const normalized = normalizeForSearch(token.replace(/^#+/, ''));
+    if (normalized) current.push(normalized);
+  }
+
+  if (current.length) groups.push(current);
+  return groups;
+};
+
+const matchesAllTokens = (haystack: string, tokens: string[]) =>
+  tokens.every((token) => haystack.includes(token));
+
+const loadImageElement = (src: string): Promise<HTMLImageElement> => new Promise((resolve, reject) => {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => resolve(img);
+  img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+  img.src = src;
+});
+
 // Flask/Test Tube Slide Card - like a sample being viewed
 const FlaskSlideCard = ({
   slide,
@@ -500,16 +612,71 @@ const SlideViewer = () => {
   const [query, setQuery] = useState('');
   const [activeSlideId, setActiveSlideId] = useState<number | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState<{ mode: 'summary' | 'slides'; current: number; total: number } | null>(null);
   const modalRef = useFocusTrap<HTMLDivElement>(activeSlideId !== null);
 
-  const slides = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return pptxSlides;
-    return pptxSlides.filter((slide) => {
-      const haystack = `${slide.id} ${slide.title} ${slide.body}`.toLowerCase();
-      return haystack.includes(q);
+  const slideIndex = useMemo(() => {
+    return pptxSlides.map((slide) => {
+      const idStr = String(slide.id);
+      const paddedId = slide.id.toString().padStart(2, '0');
+      const normTitle = normalizeForSearch(slide.title || '');
+      const normBody = normalizeForSearch(slide.body || '');
+      const normAll = normalizeForSearch(`${idStr} ${paddedId} ${slide.title || ''} ${slide.body || ''}`);
+      return { slide, idStr, paddedId, normTitle, normBody, normAll };
     });
-  }, [query]);
+  }, []);
+
+  const scoreGroup = useCallback((entry: typeof slideIndex[number], tokens: string[]): number => {
+    let score = 0;
+
+    for (const token of tokens) {
+      if (!token) continue;
+
+      if (token === entry.idStr || token === entry.paddedId) {
+        score += 600;
+        continue;
+      }
+
+      const inTitle = entry.normTitle.includes(token);
+      const inBody = entry.normBody.includes(token);
+
+      if (inTitle) score += 60;
+      else if (inBody) score += 25;
+      else score += 10;
+
+      if (inTitle && entry.normTitle.startsWith(token)) score += 15;
+    }
+
+    return score;
+  }, [slideIndex]);
+
+  const slides = useMemo(() => {
+    const raw = query.trim();
+    if (!raw) return pptxSlides;
+
+    const idQuery = parseSlideIdQuery(raw);
+    if (idQuery) {
+      if (idQuery.kind === 'range') {
+        return pptxSlides.filter((slide) => slide.id >= idQuery.from && slide.id <= idQuery.to);
+      }
+      const wanted = new Set(idQuery.ids);
+      return pptxSlides.filter((slide) => wanted.has(slide.id));
+    }
+
+    const groups = parseSearchGroups(raw);
+    if (!groups.length) return pptxSlides;
+
+    return slideIndex
+      .map((entry) => {
+        const matchingGroups = groups.filter((tokens) => matchesAllTokens(entry.normAll, tokens));
+        if (!matchingGroups.length) return null;
+        const bestScore = Math.max(...matchingGroups.map((tokens) => scoreGroup(entry, tokens)));
+        return { slide: entry.slide, score: bestScore };
+      })
+      .filter((value): value is { slide: typeof pptxSlides[0]; score: number } => value !== null)
+      .sort((a, b) => b.score - a.score || a.slide.id - b.slide.id)
+      .map((r) => r.slide);
+  }, [query, slideIndex, scoreGroup]);
 
   const activeIndex = useMemo(() => {
     if (!activeSlideId) return -1;
@@ -542,7 +709,9 @@ const SlideViewer = () => {
 
   const exportSlidesPdf = async () => {
     if (exporting) return;
+    const slidesToExport = slides;
     setExporting(true);
+    setExportProgress({ mode: 'summary', current: 0, total: slidesToExport.length });
     try {
       const doc = await createPdfDoc();
       let y = 56;
@@ -550,10 +719,17 @@ const SlideViewer = () => {
       writePdfText(doc, 'ملخص عينات مختبر بيرارد للتكامل السمعي', PDF_MARGIN_X, y);
       y += 22;
       doc.setFont('Cairo', 'normal');
-      writePdfText(doc, `عدد العينات: ${pptxSlides.length} — تم التصدير من مختبر Berard AIT`, PDF_MARGIN_X, y);
+      writePdfText(doc, `عدد العينات: ${slidesToExport.length} — تم التصدير من مختبر Berard AIT`, PDF_MARGIN_X, y);
       y += 22;
 
-      for (const slide of pptxSlides) {
+      if (slidesToExport.length === 0) {
+        writePdfText(doc, 'لا توجد عينات تطابق البحث الحالي.', PDF_MARGIN_X, y);
+        doc.save('Berard-AIT-Lab-Samples.pdf');
+        return;
+      }
+
+      for (let i = 0; i < slidesToExport.length; i++) {
+        const slide = slidesToExport[i];
         const lineTitle = `عينة ${slide.id}: ${slide.title}`;
         const bodyPreview = (slide.body || '').split('\n').map((s) => s.trim()).filter(Boolean).slice(0, 3).join(' • ');
 
@@ -577,11 +753,80 @@ const SlideViewer = () => {
           }
         }
         y += 10;
+
+        setExportProgress({ mode: 'summary', current: i + 1, total: slidesToExport.length });
       }
 
       doc.save('Berard-AIT-Lab-Samples.pdf');
     } finally {
       setExporting(false);
+      setExportProgress(null);
+    }
+  };
+
+  const exportSlidesImagesPdf = async () => {
+    if (exporting) return;
+    const slidesToExport = slides;
+    setExporting(true);
+    setExportProgress({ mode: 'slides', current: 0, total: slidesToExport.length });
+    try {
+      const doc = await createPdfDoc({ orientation: 'l' });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+
+      if (slidesToExport.length === 0) {
+        let y = 72;
+        doc.setFont('Cairo', 'bold');
+        doc.setFontSize(18);
+        y = writePdfText(doc, 'PDF الشرائح — لا توجد نتائج', PDF_MARGIN_X, y, { maxWidth: pageW - PDF_MARGIN_X * 2, lineHeight: 22 });
+        doc.setFont('Cairo', 'normal');
+        doc.setFontSize(12);
+        writePdfText(doc, 'لا توجد عينات تطابق البحث الحالي.', PDF_MARGIN_X, y + 10, { maxWidth: pageW - PDF_MARGIN_X * 2, lineHeight: 16 });
+        doc.save('Berard-AIT-Lab-Slides.pdf');
+        return;
+      }
+
+      for (let i = 0; i < slidesToExport.length; i++) {
+        const slide = slidesToExport[i];
+        if (i > 0) doc.addPage();
+
+        let y = 56;
+        doc.setFont('Cairo', 'bold');
+        doc.setFontSize(16);
+        y = writePdfText(doc, `عينة ${slide.id.toString().padStart(2, '0')}: ${slide.title}`, PDF_MARGIN_X, y, {
+          maxWidth: pageW - PDF_MARGIN_X * 2,
+          lineHeight: 20,
+        });
+        y += 14;
+
+        try {
+          const img = await loadImageElement(assetUrl(slide.image));
+          const maxW = pageW - PDF_MARGIN_X * 2;
+          const maxH = pageH - y - 36;
+
+          const scale = Math.min(
+            maxW / Math.max(1, img.naturalWidth),
+            maxH / Math.max(1, img.naturalHeight),
+          );
+
+          const w = img.naturalWidth * scale;
+          const h = img.naturalHeight * scale;
+          const x = (pageW - w) / 2;
+
+          doc.addImage(img, 'PNG', x, y, w, h);
+        } catch {
+          doc.setFont('Cairo', 'normal');
+          doc.setFontSize(12);
+          writePdfText(doc, 'تعذر تحميل صورة الشريحة لهذه العينة.', PDF_MARGIN_X, y + 10, { maxWidth: pageW - PDF_MARGIN_X * 2, lineHeight: 16 });
+        }
+
+        setExportProgress({ mode: 'slides', current: i + 1, total: slidesToExport.length });
+      }
+
+      doc.save('Berard-AIT-Lab-Slides.pdf');
+    } finally {
+      setExporting(false);
+      setExportProgress(null);
     }
   };
 
@@ -644,7 +889,20 @@ const SlideViewer = () => {
                 disabled={exporting}
               >
                 <DownloadIcon size={16} />
-                {exporting ? 'جارٍ التصدير…' : 'تقرير PDF'}
+                {exporting && exportProgress?.mode === 'summary'
+                  ? (exportProgress.total > 0 ? `جارٍ التصدير… (${exportProgress.current}/${exportProgress.total})` : 'جارٍ التصدير…')
+                  : 'تقرير PDF'}
+              </button>
+              <button
+                type="button"
+                style={exporting ? styles.disabledBtn : styles.ghostBtn}
+                onClick={exportSlidesImagesPdf}
+                disabled={exporting}
+              >
+                <DownloadIcon size={16} />
+                {exporting && exportProgress?.mode === 'slides'
+                  ? `جارٍ تصدير الشرائح… (${exportProgress.current}/${exportProgress.total})`
+                  : 'PDF الشرائح'}
               </button>
             </div>
           </div>
@@ -684,7 +942,7 @@ const SlideViewer = () => {
                 }}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="ابحث في العينات (مثال: APD, حساسية سمعية...)"
+                placeholder={'ابحث في العينات (مثال: APD، "auditory processing"، #12، 5-10، 12 15، apd|hyperacusis...)'}
               />
             </div>
             <a
@@ -703,6 +961,10 @@ const SlideViewer = () => {
               ملف المختبر
             </a>
           </div>
+
+          <p style={{ ...styles.muted, fontSize: 12, opacity: 0.75 }}>
+            تلميح البحث: <b>#12</b> أو <b>5-10</b> أو <b>12, 15, 18</b> أو <b>12 15 18</b> أو <b>"auditory processing"</b> أو <b>apd|hyperacusis</b>
+          </p>
         </div>
 
         {/* Flask Grid */}
