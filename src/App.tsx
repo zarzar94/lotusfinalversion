@@ -8,6 +8,7 @@ import Footer from './components/Footer';
 import WhatsAppFab from './components/WhatsAppFab';
 import ErrorBoundary from './components/ErrorBoundary';
 import { GamificationProvider } from './context/GamificationContext';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import SectionLoader from './components/SectionLoader';
 import FadeIn from './components/FadeIn';
 import ScrollProgressBar from './components/ScrollProgressBar';
@@ -38,21 +39,24 @@ const IntakeForm = lazy(() => import('./components/IntakeForm'));
 // Memoized section wrapper for consistent loading
 const LazySection = memo(({
   children,
-  label,
+  labelKey,
   height = 300,
   fadeProps = {}
 }: {
   children: React.ReactNode;
-  label: string;
+  labelKey: string;
   height?: number;
   fadeProps?: Record<string, unknown>;
-}) => (
-  <FadeIn delay={50} {...fadeProps}>
-    <Suspense fallback={<SectionLoader label={label} height={height} />}>
-      {children}
-    </Suspense>
-  </FadeIn>
-));
+}) => {
+  const { t } = useLanguage();
+  return (
+    <FadeIn delay={50} {...fadeProps}>
+      <Suspense fallback={<SectionLoader label={t(labelKey)} height={height} />}>
+        {children}
+      </Suspense>
+    </FadeIn>
+  );
+});
 LazySection.displayName = 'LazySection';
 
 function App() {
@@ -75,117 +79,119 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <GamificationProvider>
-        <div style={styles.page}>
-          <BackgroundFX />
-          <Header />
-          <ScrollProgressBar />
+      <LanguageProvider>
+        <GamificationProvider>
+          <div style={styles.page}>
+            <BackgroundFX />
+            <Header />
+            <ScrollProgressBar />
 
-          <main style={styles.container}>
-            {/* HERO - Critical, loads immediately */}
-            <FadeIn duration={1000} scale blur blurAmount={8}>
-              <HeroSection />
-            </FadeIn>
+            <main style={styles.container}>
+              {/* HERO - Critical, loads immediately */}
+              <FadeIn duration={1000} scale blur blurAmount={8}>
+                <HeroSection />
+              </FadeIn>
 
-            {/* Credentials Banner */}
-            <LazySection label="جارٍ تحميل..." height={100} fadeProps={{ direction: 'none', scale: true, scaleFrom: 0.98 }}>
-              <CredentialsBanner />
-            </LazySection>
+              {/* Credentials Banner */}
+              <LazySection labelKey="common.loading" height={100} fadeProps={{ direction: 'none', scale: true, scaleFrom: 0.98 }}>
+                <CredentialsBanner />
+              </LazySection>
 
-            {/* Interactive Audio Journey */}
-            <LazySection label="جارٍ تحميل رحلة الصوت..." height={400} fadeProps={{ direction: 'left', distance: 40 }}>
-              <AudioJourney />
-            </LazySection>
+              {/* Interactive Audio Journey */}
+              <LazySection labelKey="common.loadingAudioJourney" height={400} fadeProps={{ direction: 'left', distance: 40 }}>
+                <AudioJourney />
+              </LazySection>
 
-            {/* Neuroplasticity - Science Section */}
-            <LazySection label="جارٍ تحميل..." height={350} fadeProps={{ scale: true, blur: true, blurAmount: 5 }}>
-              <NeuroplasticitySection />
-            </LazySection>
+              {/* Neuroplasticity - Science Section */}
+              <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, blur: true, blurAmount: 5 }}>
+                <NeuroplasticitySection />
+              </LazySection>
 
-            {/* Audio Spectrum Demo */}
-            <LazySection label="جارٍ تحميل..." height={300} fadeProps={{ direction: 'right', distance: 40 }}>
-              <AudioSpectrumDemo />
-            </LazySection>
+              {/* Audio Spectrum Demo */}
+              <LazySection labelKey="common.loading" height={300} fadeProps={{ direction: 'right', distance: 40 }}>
+                <AudioSpectrumDemo />
+              </LazySection>
 
-            <LazySection label="جارٍ تحميل..." height={350} fadeProps={{ scale: true, scaleFrom: 0.96 }}>
-              <ProgramOverview />
-            </LazySection>
+              <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, scaleFrom: 0.96 }}>
+                <ProgramOverview />
+              </LazySection>
 
-            {/* Treatment Timeline */}
-            <LazySection label="جارٍ تحميل..." height={300} fadeProps={{ direction: 'left', distance: 30, scale: true }}>
-              <TreatmentTimeline />
-            </LazySection>
+              {/* Treatment Timeline */}
+              <LazySection labelKey="common.loading" height={300} fadeProps={{ direction: 'left', distance: 30, scale: true }}>
+                <TreatmentTimeline />
+              </LazySection>
 
-            {/* Remote Protocol */}
-            <LazySection label="جارٍ تحميل البرنامج عن بُعد..." height={400} fadeProps={{ direction: 'right', distance: 30 }}>
-              <RemoteProtocolSection />
-            </LazySection>
+              {/* Remote Protocol */}
+              <LazySection labelKey="common.loadingRemote" height={400} fadeProps={{ direction: 'right', distance: 30 }}>
+                <RemoteProtocolSection />
+              </LazySection>
 
-            <LazySection label="جارٍ تحميل..." height={350} fadeProps={{ scale: true, scaleFrom: 0.97, blur: true, blurAmount: 4 }}>
-              <ResultsSection />
-            </LazySection>
+              <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, scaleFrom: 0.97, blur: true, blurAmount: 4 }}>
+                <ResultsSection />
+              </LazySection>
 
-            {/* Testimonials */}
-            <LazySection label="جارٍ تحميل..." height={350} fadeProps={{ direction: 'left', distance: 35 }}>
-              <TestimonialsSection />
-            </LazySection>
+              {/* Testimonials */}
+              <LazySection labelKey="common.loading" height={350} fadeProps={{ direction: 'left', distance: 35 }}>
+                <TestimonialsSection />
+              </LazySection>
 
-            {/* SlideViewer */}
-            <LazySection label="جارٍ تحميل عارض الشرائح..." height={500} fadeProps={{ scale: true }}>
-              <SlideViewer />
-            </LazySection>
+              {/* SlideViewer */}
+              <LazySection labelKey="common.loadingSlides" height={500} fadeProps={{ scale: true }}>
+                <SlideViewer />
+              </LazySection>
 
-            {/* Video Section */}
-            <LazySection label="جارٍ تحميل الفيديوهات..." height={400} fadeProps={{ direction: 'right', distance: 30, scale: true, scaleFrom: 0.98 }}>
-              <VideoSection />
-            </LazySection>
+              {/* Video Section */}
+              <LazySection labelKey="common.loadingVideos" height={400} fadeProps={{ direction: 'right', distance: 30, scale: true, scaleFrom: 0.98 }}>
+                <VideoSection />
+              </LazySection>
 
-            {/* Checklist */}
-            <LazySection label="جارٍ تحميل قائمة التحقق..." height={400} fadeProps={{ blur: true, blurAmount: 6, scale: true }}>
-              <Checklist />
-            </LazySection>
+              {/* Checklist */}
+              <LazySection labelKey="common.loadingChecklist" height={400} fadeProps={{ blur: true, blurAmount: 6, scale: true }}>
+                <Checklist />
+              </LazySection>
 
-            {/* GameSection */}
-            <LazySection label="جارٍ تحميل الألعاب..." height={350} fadeProps={{ direction: 'left', distance: 40, scale: true, scaleFrom: 0.95 }}>
-              <GameSection />
-            </LazySection>
+              {/* GameSection */}
+              <LazySection labelKey="common.loadingGames" height={350} fadeProps={{ direction: 'left', distance: 40, scale: true, scaleFrom: 0.95 }}>
+                <GameSection />
+              </LazySection>
 
-            <LazySection label="جارٍ تحميل..." height={350} fadeProps={{ scale: true, blur: true, blurAmount: 5 }}>
-              <ComparisonSection />
-            </LazySection>
+              <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, blur: true, blurAmount: 5 }}>
+                <ComparisonSection />
+              </LazySection>
 
-            <LazySection label="جارٍ تحميل..." height={300} fadeProps={{ direction: 'right', distance: 25 }}>
-              <SchoolPartnershipSection />
-            </LazySection>
+              <LazySection labelKey="common.loading" height={300} fadeProps={{ direction: 'right', distance: 25 }}>
+                <SchoolPartnershipSection />
+              </LazySection>
 
-            {/* Partner Logos */}
-            <LazySection label="جارٍ تحميل..." height={150} fadeProps={{ direction: 'none', scale: true, scaleFrom: 0.97 }}>
-              <PartnerLogos />
-            </LazySection>
+              {/* Partner Logos */}
+              <LazySection labelKey="common.loading" height={150} fadeProps={{ direction: 'none', scale: true, scaleFrom: 0.97 }}>
+                <PartnerLogos />
+              </LazySection>
 
-            {/* FAQ Section */}
-            <LazySection label="جارٍ تحميل..." height={400} fadeProps={{ direction: 'left', distance: 30 }}>
-              <FAQSection />
-            </LazySection>
+              {/* FAQ Section */}
+              <LazySection labelKey="common.loading" height={400} fadeProps={{ direction: 'left', distance: 30 }}>
+                <FAQSection />
+              </LazySection>
 
-            {/* Intake Form */}
-            <LazySection label="جارٍ تحميل استمارة التسجيل..." height={500} fadeProps={{ scale: true, blur: true, blurAmount: 4 }}>
-              <IntakeForm />
-            </LazySection>
+              {/* Intake Form */}
+              <LazySection labelKey="common.loadingIntake" height={500} fadeProps={{ scale: true, blur: true, blurAmount: 4 }}>
+                <IntakeForm />
+              </LazySection>
 
-            {/* Contact Form */}
-            <LazySection label="جارٍ تحميل نموذج التواصل..." height={700} fadeProps={{ scale: true, blur: true, blurAmount: 4 }}>
-              <ContactForm />
-            </LazySection>
+              {/* Contact Form */}
+              <LazySection labelKey="common.loadingContact" height={700} fadeProps={{ scale: true, blur: true, blurAmount: 4 }}>
+                <ContactForm />
+              </LazySection>
 
-            <FadeIn delay={100} direction="none" scale scaleFrom={0.98}>
-              <Footer />
-            </FadeIn>
-          </main>
+              <FadeIn delay={100} direction="none" scale scaleFrom={0.98}>
+                <Footer />
+              </FadeIn>
+            </main>
 
-          <WhatsAppFab />
-        </div>
-      </GamificationProvider>
+            <WhatsAppFab />
+          </div>
+        </GamificationProvider>
+      </LanguageProvider>
     </ErrorBoundary>
   );
 }
