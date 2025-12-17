@@ -236,6 +236,61 @@ const ModuleCard = memo(({
 ModuleCard.displayName = 'ModuleCard';
 
 // ═══════════════════════════════════════════════════════════════════════════
+// PLATFORM METRICS - Dashboard stats
+// ═══════════════════════════════════════════════════════════════════════════
+
+type PlatformMetric = {
+  id: string;
+  valueAr: string;
+  valueEn: string;
+  labelAr: string;
+  labelEn: string;
+  icon: string;
+  color: string;
+  trend?: 'up' | 'down' | 'stable';
+};
+
+const PLATFORM_METRICS: PlatformMetric[] = [
+  {
+    id: 'sessions',
+    valueAr: '20',
+    valueEn: '20',
+    labelAr: 'جلسة علاجية',
+    labelEn: 'Sessions',
+    icon: '🎧',
+    color: brandCyan,
+  },
+  {
+    id: 'success',
+    valueAr: '92%',
+    valueEn: '92%',
+    labelAr: 'نسبة التحسن',
+    labelEn: 'Success Rate',
+    icon: '📈',
+    color: '#22c55e',
+    trend: 'up',
+  },
+  {
+    id: 'cases',
+    valueAr: '+500',
+    valueEn: '500+',
+    labelAr: 'حالة ناجحة',
+    labelEn: 'Cases',
+    icon: '✓',
+    color: brandPurple,
+  },
+  {
+    id: 'experience',
+    valueAr: '+10',
+    valueEn: '10+',
+    labelAr: 'سنوات خبرة',
+    labelEn: 'Years Exp.',
+    icon: '⭐',
+    color: brandPink,
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -266,12 +321,21 @@ export default function PlatformNav() {
           0%, 100% { opacity: 0.4; }
           50% { opacity: 0.7; }
         }
+        @keyframes countUp {
+          from { opacity: 0; transform: scale(0.8); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes dataFlow {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
       `}</style>
 
       {/* Section header */}
       <div style={{
         textAlign: 'center',
-        marginBottom: spacing[8],
+        marginBottom: spacing[6],
       }}>
         {/* Medical-tech badge */}
         <div style={{
@@ -325,6 +389,117 @@ export default function PlatformNav() {
             ? 'اختر القسم الذي يناسب احتياجاتك للوصول السريع'
             : 'Select a module that fits your needs for quick access'}
         </p>
+      </div>
+
+      {/* ═══ METRICS ROW - Clinical Dashboard Stats ═══ */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        flexWrap: 'wrap',
+        gap: spacing[3],
+        maxWidth: 800,
+        margin: `0 auto ${spacing[8]}px`,
+        padding: spacing[4],
+        background: `linear-gradient(135deg, rgba(11,15,28,0.8), rgba(20,26,45,0.6))`,
+        border: `1px solid ${colors.border.default}`,
+        borderRadius: radius.xl,
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* Animated data flow line */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          background: `linear-gradient(90deg, transparent, ${brandCyan}60, ${brandPurple}60, ${brandPink}60, transparent)`,
+          backgroundSize: '200% 100%',
+          animation: 'dataFlow 4s ease-in-out infinite',
+        }} />
+
+        {PLATFORM_METRICS.map((metric, index) => (
+          <div
+            key={metric.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: spacing[2.5],
+              padding: `${spacing[2.5]}px ${spacing[4]}px`,
+              background: `linear-gradient(135deg, ${metric.color}08, transparent)`,
+              border: `1px solid ${metric.color}20`,
+              borderRadius: radius.lg,
+              animation: `countUp 0.5s ease-out ${index * 0.1}s both`,
+              minWidth: 140,
+            }}
+          >
+            {/* Icon */}
+            <div style={{
+              width: 36,
+              height: 36,
+              borderRadius: radius.md,
+              background: `linear-gradient(135deg, ${metric.color}20, ${metric.color}08)`,
+              border: `1px solid ${metric.color}30`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 16,
+            }}>
+              {metric.icon}
+            </div>
+
+            {/* Value and label */}
+            <div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: spacing[1],
+              }}>
+                <span style={{
+                  fontSize: typography.size.xl,
+                  fontWeight: typography.weight.black,
+                  color: metric.color,
+                  fontFamily: 'monospace',
+                  letterSpacing: -1,
+                }}>
+                  {isArabic ? metric.valueAr : metric.valueEn}
+                </span>
+                {metric.trend === 'up' && (
+                  <span style={{ color: '#22c55e', fontSize: 12 }}>↑</span>
+                )}
+              </div>
+              <div style={{
+                fontSize: typography.size.xs,
+                color: colors.text.muted,
+                marginTop: 2,
+              }}>
+                {isArabic ? metric.labelAr : metric.labelEn}
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {/* System status indicator */}
+        <div style={{
+          position: 'absolute',
+          bottom: spacing[2],
+          [isArabic ? 'left' : 'right']: spacing[3],
+          display: 'flex',
+          alignItems: 'center',
+          gap: spacing[1.5],
+          fontSize: typography.size.xs,
+          color: colors.text.muted,
+        }}>
+          <span style={{
+            width: 6,
+            height: 6,
+            borderRadius: '50%',
+            background: '#22c55e',
+            boxShadow: '0 0 8px #22c55e',
+            animation: 'pulseGlow 2s ease-in-out infinite',
+          }} />
+          <span>{isArabic ? 'النظام متصل' : 'System Online'}</span>
+        </div>
       </div>
 
       {/* Module grid */}
