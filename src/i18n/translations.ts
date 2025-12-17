@@ -439,6 +439,32 @@ export const translations = {
       toggle: 'English',
       current: 'العربية',
     },
+
+    // Sticky CTA
+    cta: {
+      headline: 'ابدأ رحلة طفلك السمعية اليوم',
+      subheadline: 'استشارة مجانية مع خبرائنا المعتمدين',
+      slotsRemaining: 'أماكن متبقية هذا الأسبوع',
+      bookConsultation: 'احجز استشارة',
+      contactNow: 'تواصل الآن',
+      whatsappMessage: 'مرحباً، أود حجز استشارة مجانية للتعرف على برنامج Berard AIT.',
+      trust1: 'استشارة مجانية',
+      trust2: 'بدون التزام',
+      trust3: 'رد خلال 24 ساعة',
+    },
+
+    // Trust Signals
+    trustSignals: {
+      title: 'لماذا يثق بنا الآباء والمدارس',
+      subtitle: 'سنوات من الخبرة في تحسين المعالجة السمعية',
+      clientsHelped: 'عميل استفاد من خدماتنا',
+      certified: 'معتمدون دولياً',
+      rating: 'تقييم العملاء',
+      schoolPartners: 'شريك تعليمي',
+      guarantee1: 'ضمان الجودة',
+      guarantee2: 'دعم مستمر',
+      guarantee3: 'نتائج موثقة',
+    },
   },
 
   en: {
@@ -880,6 +906,32 @@ export const translations = {
     language: {
       toggle: 'العربية',
       current: 'English',
+    },
+
+    // Sticky CTA
+    cta: {
+      headline: 'Start Your Child\'s Auditory Journey Today',
+      subheadline: 'Free consultation with our certified experts',
+      slotsRemaining: 'slots remaining this week',
+      bookConsultation: 'Book Consultation',
+      contactNow: 'Contact Now',
+      whatsappMessage: 'Hello, I would like to book a free consultation to learn about the Berard AIT program.',
+      trust1: 'Free Consultation',
+      trust2: 'No Commitment',
+      trust3: 'Response in 24h',
+    },
+
+    // Trust Signals
+    trustSignals: {
+      title: 'Why Parents & Schools Trust Us',
+      subtitle: 'Years of experience improving auditory processing',
+      clientsHelped: 'Clients Helped',
+      certified: 'Internationally Certified',
+      rating: 'Client Rating',
+      schoolPartners: 'School Partners',
+      guarantee1: 'Quality Guarantee',
+      guarantee2: 'Ongoing Support',
+      guarantee3: 'Documented Results',
     },
   },
 } as const;
