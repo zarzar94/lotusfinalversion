@@ -258,17 +258,105 @@ export const translations = {
 
     // School Partnership
     schools: {
-      title: 'شراكات المدارس',
+      title: 'شراكات المدارس والجامعات',
       subtitle: 'برامج متخصصة للمؤسسات التعليمية',
-      description: 'نقدم برامج مخصصة للمدارس تشمل التقييم الجماعي والتدريب للمعلمين والتقارير التفصيلية.',
-      service1: 'ورش عمل للمعلمين',
-      service1Desc: 'تدريب المعلمين على التعرف على علامات صعوبات المعالجة السمعية',
-      service2: 'تقييم جماعي',
-      service2Desc: 'فحص مبدئي للطلاب لتحديد من قد يستفيد من التقييم الشامل',
-      service3: 'تقارير تعليمية',
-      service3Desc: 'تقارير توضيحية تساعد في بناء خطط الدعم الفردية',
-      service4: 'جلسات توعية',
-      service4Desc: 'ندوات لأولياء الأمور حول المعالجة السمعية وأهميتها',
+      badge: 'UAE Education Focus',
+      description: 'صُممت هذه الصفحة لتسهيل تقديم Berard AIT داخل بيئات التعليم في أبوظبي والإمارات — عبر تجربة تفاعلية (محاكاة الصف الدراسي) وتقارير توضيحية تساعد الإدارة والمرشدين والأخصائيين على فهم أثر الضوضاء السمعية على الانتباه.',
+      disclaimer: 'التقارير المستخدمة في الديمو تُصدر بدون أسماء وبصيغة مناسبة للعرض التقديمي.',
+      // Stats
+      stats: {
+        schools: 'مدرسة شريكة',
+        students: 'طالب مستفيد',
+        teachers: 'معلم مُدرَّب',
+        satisfaction: 'نسبة الرضا',
+      },
+      // Process Steps
+      processTitle: 'كيف تبدأ الشراكة؟',
+      process: {
+        step1Title: 'التواصل الأولي',
+        step1Desc: 'تواصل معنا لمناقشة احتياجات مؤسستك وأهدافها',
+        step2Title: 'عرض تجريبي',
+        step2Desc: 'نقدم عرضاً توضيحياً مجانياً داخل المدرسة',
+        step3Title: 'التقييم والتقارير',
+        step3Desc: 'إعداد تقارير توضيحية شاملة للإدارة',
+        step4Title: 'تنفيذ البرنامج',
+        step4Desc: 'بدء الورش والجلسات حسب الباقة المختارة',
+      },
+      // Benefits section
+      whatYouGet: 'ما الذي تحصل عليه المدرسة؟',
+      benefits: {
+        demo: 'Demo تفاعلي: محاكاة الصف الدراسي مع ضوضاء متدرجة + تعليمات.',
+        report: 'تقرير PDF/CSV تلقائي (للإدارة) يوضح مستوى الانتباه مع الضوضاء.',
+        workshop: 'Workshop عملي للمعلمين: إدارة الضوضاء + لغة التعليمات + استراتيجيات دعم.',
+        templates: 'قوالب جاهزة للتواصل مع أولياء الأمور + إحالات منظمة.',
+      },
+      // Suitable for
+      suitableFor: 'مناسب لـ',
+      audiences: {
+        schools: 'المدارس',
+        universities: 'الجامعات',
+        supportCenters: 'مراكز الدعم التعليمي',
+      },
+      // Demo
+      tryDemoNow: 'جرّب الديمو الآن',
+      demoInstructions: 'ادخل إلى قسم الألعاب → اختر "محاكاة الصف الدراسي" → بعد النهاية قم بتنزيل التقرير.',
+      runSimulation: 'تشغيل محاكاة الصف الدراسي',
+      // Why Advanced
+      whyAdvanced: 'لماذا هذا "متقدم"؟',
+      advantages: {
+        interactive: 'تجربة سمعية/تفاعلية تحاكي الواقع بدلاً من نصوص نظرية.',
+        instantReport: 'تقرير فوري جاهز للعرض على الإدارة/الآباء.',
+        clearOptions: 'ربط النتائج بخيارات واضحة: تقييم فردي أو شراكة مدرسة.',
+        arabicFirst: 'تصميم عربي أولاً + مناسب للجوال.',
+      },
+      // Tiers
+      packagesTitle: 'باقات الشراكة',
+      mostPopular: 'الأكثر شيوعاً',
+      tiers: {
+        pilot: {
+          name: 'باقة Pilot',
+          subtitle: 'مناسبة للتجربة داخل المدرسة',
+          bullet1: 'عرض توعوي للطاقم + تعريف سريع بـ AIT',
+          bullet2: 'تجربة "محاكاة الصف الدراسي" كديمو',
+          bullet3: 'تقرير PDF/CSV تجريبي — بدون بيانات شخصية',
+          bullet4: 'خلاصة توصيات صفية عملية (Sound Hygiene)',
+        },
+        partner: {
+          name: 'باقة School Partnership',
+          subtitle: 'الأكثر شيوعاً للمدارس',
+          bullet1: 'يوم Demo داخل المدرسة + تدريب مُختصر للمعلمين',
+          bullet2: 'تقارير توضيحية للمدرسة + قوالب تواصل',
+          bullet3: 'مقابلات/توجيه لحالات مختارة (غير تشخيصي)',
+          bullet4: 'تجهيز صفحة هبوط للمدرسة داخل الموقع',
+        },
+        enterprise: {
+          name: 'باقة Enterprise',
+          subtitle: 'للشبكات التعليمية والجامعات',
+          bullet1: 'برنامج متعدد المدارس + لوحة متابعة Dashboard',
+          bullet2: 'تدريب متقدم + ورش للمرشدين والأخصائيين',
+          bullet3: 'Integration Kit: سياسات صفية + بروتوكولات دعم',
+          bullet4: 'خطة محتوى وتسويق مشتركة + تقارير شهرية',
+        },
+      },
+      requestQuote: 'اطلب عرض سعر',
+      comparePrograms: 'مقارنة البرامج',
+      // Important Note
+      importantNote: 'ملاحظة مهمة للمدارس',
+      importantNoteText: 'يمكن تخصيص اللغة والمحتوى (الشعار/اسم المدرسة) داخل التقرير التوضيحي. كما يمكن جعل النتائج مُجمعة على مستوى الصف/المدرسة.',
+      // Testimonial
+      testimonial: {
+        quote: 'ساعدنا برنامج Berard AIT في فهم تحديات طلابنا السمعية بشكل أفضل. التقارير التوضيحية كانت أداة قيّمة للتواصل مع أولياء الأمور وبناء خطط دعم فعالة.',
+        author: 'منى الشامسي',
+        role: 'مديرة الدعم التعليمي - مدرسة خاصة في أبوظبي',
+      },
+      // CTA
+      cta: {
+        title: 'هل أنت من إدارة مدرسة أو جامعة؟',
+        subtitle: 'تواصل معنا لترتيب عرض تجريبي مجاني داخل مؤسستك',
+        whatsappButton: 'WhatsApp للمدارس',
+        whatsappMessage: 'مرحباً، أنا من إدارة مدرسة/جامعة وأود الاستفسار عن شراكة Berard AIT.',
+        contactForm: 'نموذج التواصل',
+      },
       requestDemo: 'اطلب عرضاً تجريبياً',
       contactSchool: 'تواصل لشراكة المدارس',
     },
@@ -612,17 +700,105 @@ export const translations = {
 
     // School Partnership
     schools: {
-      title: 'School Partnerships',
+      title: 'School & University Partnerships',
       subtitle: 'Specialized programs for educational institutions',
-      description: 'We offer customized programs for schools including group assessment, teacher training, and detailed reports.',
-      service1: 'Teacher Workshops',
-      service1Desc: 'Train teachers to recognize signs of auditory processing difficulties',
-      service2: 'Group Assessment',
-      service2Desc: 'Initial screening for students to identify those who may benefit from comprehensive evaluation',
-      service3: 'Educational Reports',
-      service3Desc: 'Explanatory reports to help build individual support plans',
-      service4: 'Awareness Sessions',
-      service4Desc: 'Seminars for parents about auditory processing and its importance',
+      badge: 'UAE Education Focus',
+      description: 'This section is designed to facilitate introducing Berard AIT within educational environments in Abu Dhabi and the UAE — through interactive experiences (Classroom Simulation) and explanatory reports that help administration, counselors, and specialists understand the impact of auditory noise on attention.',
+      disclaimer: 'Demo reports are generated without names and in a format suitable for presentations.',
+      // Stats
+      stats: {
+        schools: 'Partner Schools',
+        students: 'Students Reached',
+        teachers: 'Teachers Trained',
+        satisfaction: 'Satisfaction Rate',
+      },
+      // Process Steps
+      processTitle: 'How to Start a Partnership?',
+      process: {
+        step1Title: 'Initial Contact',
+        step1Desc: 'Contact us to discuss your institution\'s needs and goals',
+        step2Title: 'Demo Presentation',
+        step2Desc: 'We provide a free demo presentation at your school',
+        step3Title: 'Assessment & Reports',
+        step3Desc: 'Prepare comprehensive explanatory reports for administration',
+        step4Title: 'Program Implementation',
+        step4Desc: 'Begin workshops and sessions according to chosen package',
+      },
+      // Benefits section
+      whatYouGet: 'What Does Your School Get?',
+      benefits: {
+        demo: 'Interactive Demo: Classroom simulation with gradual noise + instructions.',
+        report: 'Automatic PDF/CSV report (for administration) showing attention levels with noise.',
+        workshop: 'Practical teacher workshop: Noise management + instruction language + support strategies.',
+        templates: 'Ready templates for parent communication + organized referrals.',
+      },
+      // Suitable for
+      suitableFor: 'Suitable For',
+      audiences: {
+        schools: 'Schools',
+        universities: 'Universities',
+        supportCenters: 'Learning Support Centers',
+      },
+      // Demo
+      tryDemoNow: 'Try the Demo Now',
+      demoInstructions: 'Go to Games section → Select "Classroom Simulation" → Download the report when finished.',
+      runSimulation: 'Run Classroom Simulation',
+      // Why Advanced
+      whyAdvanced: 'Why is This "Advanced"?',
+      advantages: {
+        interactive: 'Audio/interactive experience that simulates reality instead of theoretical text.',
+        instantReport: 'Instant report ready for presentation to administration/parents.',
+        clearOptions: 'Link results to clear options: individual assessment or school partnership.',
+        arabicFirst: 'Arabic-first design + mobile-friendly.',
+      },
+      // Tiers
+      packagesTitle: 'Partnership Packages',
+      mostPopular: 'Most Popular',
+      tiers: {
+        pilot: {
+          name: 'Pilot Package',
+          subtitle: 'Suitable for in-school trial',
+          bullet1: 'Staff awareness presentation + quick AIT introduction',
+          bullet2: '"Classroom Simulation" experience as demo',
+          bullet3: 'Trial PDF/CSV report — without personal data',
+          bullet4: 'Practical classroom recommendations summary (Sound Hygiene)',
+        },
+        partner: {
+          name: 'School Partnership Package',
+          subtitle: 'Most popular for schools',
+          bullet1: 'Demo day at school + brief teacher training',
+          bullet2: 'Explanatory reports for school + communication templates',
+          bullet3: 'Interviews/guidance for selected cases (non-diagnostic)',
+          bullet4: 'Set up school landing page within the site',
+        },
+        enterprise: {
+          name: 'Enterprise Package',
+          subtitle: 'For educational networks and universities',
+          bullet1: 'Multi-school program + Dashboard with aggregated data',
+          bullet2: 'Advanced training + workshops for counselors and specialists',
+          bullet3: 'Integration Kit: classroom policies + auditory support protocols',
+          bullet4: 'Joint content and marketing plan + monthly reports',
+        },
+      },
+      requestQuote: 'Request a Quote',
+      comparePrograms: 'Compare Programs',
+      // Important Note
+      importantNote: 'Important Note for Schools',
+      importantNoteText: 'Language and content (logo/school name) can be customized in the explanatory report. Results can also be aggregated at class/school level.',
+      // Testimonial
+      testimonial: {
+        quote: 'The Berard AIT program helped us better understand our students\' auditory challenges. The explanatory reports were a valuable tool for communicating with parents and building effective support plans.',
+        author: 'Mona Al Shamsi',
+        role: 'Learning Support Director - Private School in Abu Dhabi',
+      },
+      // CTA
+      cta: {
+        title: 'Are you from a school or university administration?',
+        subtitle: 'Contact us to arrange a free demo presentation at your institution',
+        whatsappButton: 'WhatsApp for Schools',
+        whatsappMessage: 'Hello, I am from a school/university administration and would like to inquire about Berard AIT partnership.',
+        contactForm: 'Contact Form',
+      },
       requestDemo: 'Request a Demo',
       contactSchool: 'Contact for School Partnership',
     },
