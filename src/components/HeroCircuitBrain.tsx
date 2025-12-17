@@ -502,17 +502,17 @@ export default function HeroCircuitBrain() {
   }, []);
 
   const css = useMemo(() => `
-    @keyframes pathFlow {
-      0% { stroke-dashoffset: 100; }
-      100% { stroke-dashoffset: 0; }
-    }
     @keyframes fadeInScale {
       from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
     }
     @keyframes brainPulse {
-      0%, 100% { filter: drop-shadow(0 0 20px ${brandCyan}40); }
-      50% { filter: drop-shadow(0 0 35px ${brandCyan}60); }
+      0%, 100% { filter: drop-shadow(0 0 25px ${brandCyan}35); }
+      50% { filter: drop-shadow(0 0 40px ${brandCyan}50); }
+    }
+    @keyframes veinPulse {
+      0%, 100% { stroke-opacity: 0.5; }
+      50% { stroke-opacity: 0.9; }
     }
     @keyframes scrollHint {
       0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.5; }
@@ -520,7 +520,7 @@ export default function HeroCircuitBrain() {
     }
     @keyframes nodeFloat {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-2px); }
+      50% { transform: translateY(-3px); }
     }
     @keyframes titleEnter {
       from { opacity: 0; transform: translateY(-16px); }
@@ -534,7 +534,10 @@ export default function HeroCircuitBrain() {
       animation: fadeInScale 0.7s ease-out forwards;
     }
     .circuit-brain-svg {
-      animation: ${reducedMotion ? 'none' : 'brainPulse 4s ease-in-out infinite'};
+      animation: ${reducedMotion ? 'none' : 'brainPulse 5s ease-in-out infinite'};
+    }
+    .neural-vein {
+      animation: ${reducedMotion ? 'none' : 'veinPulse 3s ease-in-out infinite'};
     }
     .circuit-node {
       cursor: pointer;
@@ -542,10 +545,10 @@ export default function HeroCircuitBrain() {
       -webkit-tap-highlight-color: transparent;
     }
     .circuit-node:hover, .circuit-node:focus {
-      transform: scale(1.12);
+      transform: scale(1.15);
     }
     .circuit-node:active {
-      transform: scale(0.95);
+      transform: scale(0.92);
     }
     .circuit-node:focus {
       outline: none;
@@ -553,10 +556,6 @@ export default function HeroCircuitBrain() {
     .circuit-node:focus-visible {
       outline: 2px solid ${brandCyan};
       outline-offset: 4px;
-    }
-    .circuit-path {
-      stroke-dasharray: 8 4;
-      animation: ${reducedMotion ? 'none' : 'pathFlow 3s linear infinite'};
     }
   `, [reducedMotion]);
 
@@ -681,21 +680,50 @@ export default function HeroCircuitBrain() {
           className="circuit-brain-svg"
           width="100%"
           height="auto"
-          viewBox="100 70 400 340"
+          viewBox="100 50 400 380"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           role="img"
           aria-label="Interactive brain circuit"
-          style={{ maxWidth: 560, touchAction: 'manipulation' }}
+          style={{ maxWidth: 580, touchAction: 'manipulation' }}
         >
           <defs>
+            {/* Gradients */}
             <linearGradient id="brainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={brandCyan} stopOpacity="0.6" />
-              <stop offset="50%" stopColor={brandPurple} stopOpacity="0.4" />
-              <stop offset="100%" stopColor={brandPink} stopOpacity="0.6" />
+              <stop offset="0%" stopColor={brandCyan} stopOpacity="0.7" />
+              <stop offset="50%" stopColor={brandPurple} stopOpacity="0.5" />
+              <stop offset="100%" stopColor={brandPink} stopOpacity="0.7" />
             </linearGradient>
+            <linearGradient id="veinGradCyan" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={brandCyan} stopOpacity="0.3" />
+              <stop offset="50%" stopColor={brandCyan} stopOpacity="0.8" />
+              <stop offset="100%" stopColor={brandCyan} stopOpacity="0.3" />
+            </linearGradient>
+            <linearGradient id="veinGradPurple" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={brandPurple} stopOpacity="0.3" />
+              <stop offset="50%" stopColor={brandPurple} stopOpacity="0.8" />
+              <stop offset="100%" stopColor={brandPurple} stopOpacity="0.3" />
+            </linearGradient>
+            <linearGradient id="veinGradPink" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={brandPink} stopOpacity="0.3" />
+              <stop offset="50%" stopColor={brandPink} stopOpacity="0.8" />
+              <stop offset="100%" stopColor={brandPink} stopOpacity="0.3" />
+            </linearGradient>
+            <radialGradient id="brainFill" cx="50%" cy="40%" r="60%">
+              <stop offset="0%" stopColor={brandPurple} stopOpacity="0.08" />
+              <stop offset="100%" stopColor={brandCyan} stopOpacity="0.02" />
+            </radialGradient>
+
+            {/* Filters */}
             <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur stdDeviation="2" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <filter id="veinGlow" x="-100%" y="-100%" width="300%" height="300%">
+              <feGaussianBlur stdDeviation="1.5" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
@@ -710,38 +738,311 @@ export default function HeroCircuitBrain() {
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
+            <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
           </defs>
 
-          {/* Brain outline */}
+          {/* Anatomical Brain Shape - Left Hemisphere */}
           <path
-            d="M300 90 C210 90 140 140 130 210 C120 280 145 350 195 385 C245 420 280 420 300 420 C320 420 355 420 405 385 C455 350 480 280 470 210 C460 140 390 90 300 90Z"
-            fill="none"
+            d="M295 80
+               C240 75 190 95 160 130
+               C130 165 120 200 125 240
+               C115 260 110 290 120 320
+               C130 360 160 390 200 400
+               C240 410 280 405 295 400"
+            fill="url(#brainFill)"
             stroke="url(#brainGrad)"
             strokeWidth="2"
-            opacity="0.15"
+            opacity="0.6"
+            filter="url(#softGlow)"
           />
 
-          {/* Brain folds */}
-          <g stroke={brandCyan} strokeWidth="1" opacity="0.1" fill="none">
-            <path d="M160 180 Q230 155 300 175 Q370 195 430 175" />
-            <path d="M150 230 Q220 205 300 225 Q380 245 440 225" />
-            <path d="M160 280 Q230 255 300 275 Q370 295 430 275" />
-            <path d="M180 330 Q250 305 300 325 Q350 345 400 325" />
+          {/* Anatomical Brain Shape - Right Hemisphere */}
+          <path
+            d="M305 80
+               C360 75 410 95 440 130
+               C470 165 480 200 475 240
+               C485 260 490 290 480 320
+               C470 360 440 390 400 400
+               C360 410 320 405 305 400"
+            fill="url(#brainFill)"
+            stroke="url(#brainGrad)"
+            strokeWidth="2"
+            opacity="0.6"
+            filter="url(#softGlow)"
+          />
+
+          {/* Central fissure */}
+          <path
+            d="M300 85 Q298 200 300 300 Q302 380 300 395"
+            stroke={brandPurple}
+            strokeWidth="1.5"
+            opacity="0.25"
+            fill="none"
+          />
+
+          {/* Brain Folds (Sulci) - Left */}
+          <g stroke={brandCyan} strokeWidth="1" opacity="0.15" fill="none">
+            <path d="M145 180 Q180 160 220 170 Q260 180 290 175" />
+            <path d="M130 230 Q170 210 220 220 Q260 235 295 225" />
+            <path d="M135 280 Q175 260 220 270 Q260 285 295 275" />
+            <path d="M155 330 Q190 315 230 325 Q270 340 295 330" />
           </g>
 
-          {/* Circuit paths */}
-          <path id="c1" className="circuit-path" d="M160 130 L220 130 L220 150 L270 150" fill="none" stroke={brandCyan} strokeWidth="2" strokeLinecap="round" filter="url(#glow)" />
-          <path id="c2" className="circuit-path" d="M270 150 L330 150 L330 120 L380 120" fill="none" stroke={brandPurple} strokeWidth="2" strokeLinecap="round" filter="url(#glow)" style={{ animationDelay: '0.5s' }} />
-          <path id="c3" className="circuit-path" d="M380 120 L420 120 L420 180 L440 180 L440 260 L450 260" fill="none" stroke={brandPink} strokeWidth="2" strokeLinecap="round" filter="url(#glow)" style={{ animationDelay: '1s' }} />
-          <path id="c4" className="circuit-path" d="M450 260 L450 330 L420 330 L320 350 L220 340 L150 280" fill="none" stroke={brandCyan} strokeWidth="2" strokeLinecap="round" filter="url(#glow)" style={{ animationDelay: '1.5s' }} />
-          <path id="c5" className="circuit-path" d="M150 280 L150 200 L180 200" fill="none" stroke={brandPurple} strokeWidth="2" strokeLinecap="round" filter="url(#glow)" style={{ animationDelay: '2s' }} />
+          {/* Brain Folds (Sulci) - Right */}
+          <g stroke={brandCyan} strokeWidth="1" opacity="0.15" fill="none">
+            <path d="M305 175 Q340 180 380 170 Q420 160 455 180" />
+            <path d="M305 225 Q340 235 380 220 Q430 210 470 230" />
+            <path d="M305 275 Q340 285 380 270 Q425 260 465 280" />
+            <path d="M305 330 Q330 340 370 325 Q410 315 445 330" />
+          </g>
 
-          {/* Secondary traces */}
-          <g stroke={brandCyan} strokeWidth="1" opacity="0.2" strokeDasharray="4 2">
-            <path d="M270 150 L270 200 L180 200" />
-            <path d="M380 120 L380 180 L440 180" />
-            <path d="M420 330 L420 260 L450 260" />
-            <path d="M220 340 L220 280 L150 280" />
+          {/* ═══════════════════════════════════════════════════════════════
+              NEURAL VEIN PATHWAYS - Wire-like connections to nodes
+              ═══════════════════════════════════════════════════════════════ */}
+
+          {/* Main Brain Stem / Central Artery */}
+          <path
+            id="stem"
+            d="M300 395 Q300 350 300 300 Q300 250 300 200 Q300 150 300 100"
+            stroke={brandPurple}
+            strokeWidth="3"
+            opacity="0.4"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* === LEFT HEMISPHERE VEINS === */}
+
+          {/* Vein to Auditory (x:160, y:130) */}
+          <path
+            id="c1"
+            className="neural-vein"
+            d="M300 120 Q280 115 250 115 Q220 115 190 120 Q175 125 160 130"
+            stroke={brandCyan}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Attention (x:180, y:200) */}
+          <path
+            id="c2"
+            className="neural-vein"
+            d="M300 200 Q270 195 240 195 Q210 195 180 200"
+            stroke={brandPurple}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Sensory (x:150, y:280) */}
+          <path
+            id="c3"
+            className="neural-vein"
+            d="M300 280 Q260 275 220 275 Q185 275 150 280"
+            stroke={brandCyan}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Learning (x:220, y:340) */}
+          <path
+            id="c4"
+            className="neural-vein"
+            d="M300 340 Q280 342 260 340 Q240 338 220 340"
+            stroke={brandPurple}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* === RIGHT HEMISPHERE VEINS === */}
+
+          {/* Vein to Language (x:270, y:150) - branches from stem */}
+          <path
+            id="c5"
+            className="neural-vein"
+            d="M300 150 Q285 150 270 150"
+            stroke={brandPurple}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Balance (x:380, y:120) */}
+          <path
+            id="c6"
+            className="neural-vein"
+            d="M300 120 Q320 115 350 115 Q365 115 380 120"
+            stroke={brandPink}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Well Being (x:440, y:180) */}
+          <path
+            id="c7"
+            className="neural-vein"
+            d="M300 180 Q340 175 380 175 Q410 175 440 180"
+            stroke={brandCyan}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Music (x:450, y:260) */}
+          <path
+            id="c8"
+            className="neural-vein"
+            d="M300 260 Q350 255 400 255 Q425 255 450 260"
+            stroke={brandPurple}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Memory (x:420, y:330) */}
+          <path
+            id="c9"
+            className="neural-vein"
+            d="M300 330 Q340 325 380 325 Q400 325 420 330"
+            stroke={brandPink}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* Vein to Behavior (x:320, y:350) */}
+          <path
+            id="c10"
+            className="neural-vein"
+            d="M300 350 Q310 350 320 350"
+            stroke={brandCyan}
+            strokeWidth="2"
+            opacity="0.7"
+            fill="none"
+            strokeLinecap="round"
+            filter="url(#veinGlow)"
+          />
+
+          {/* === SECONDARY CAPILLARY NETWORKS === */}
+          <g className="capillaries" opacity="0.25" strokeWidth="1" fill="none" strokeDasharray="3 2">
+            {/* Left side micro-vessels */}
+            <path d="M160 130 Q150 160 155 190" stroke={brandCyan} />
+            <path d="M180 200 Q165 230 155 260" stroke={brandPurple} />
+            <path d="M150 280 Q160 310 180 330" stroke={brandCyan} />
+            <path d="M220 340 Q200 360 185 375" stroke={brandPurple} />
+
+            {/* Right side micro-vessels */}
+            <path d="M380 120 Q400 140 420 155" stroke={brandPink} />
+            <path d="M440 180 Q455 210 460 240" stroke={brandCyan} />
+            <path d="M450 260 Q455 290 445 310" stroke={brandPurple} />
+            <path d="M420 330 Q400 355 375 370" stroke={brandPink} />
+
+            {/* Cross-connections */}
+            <path d="M270 150 Q250 180 235 200" stroke={brandPurple} />
+            <path d="M380 120 Q350 145 320 155" stroke={brandPink} />
+            <path d="M220 340 Q260 355 300 360" stroke={brandCyan} />
+          </g>
+
+          {/* === PULSING ENERGY ALONG VEINS === */}
+          <g className="vein-pulses" opacity="0.6">
+            {/* Continuous pulse particles traveling along veins */}
+            {!reducedMotion && (
+              <>
+                {/* Pulse on c1 - to Auditory */}
+                <circle r="3" fill={brandCyan} filter="url(#glow)">
+                  <animateMotion dur="2.5s" repeatCount="indefinite">
+                    <mpath href="#c1" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" repeatCount="indefinite" />
+                </circle>
+
+                {/* Pulse on c2 - to Attention */}
+                <circle r="2.5" fill={brandPurple} filter="url(#glow)">
+                  <animateMotion dur="2s" repeatCount="indefinite" begin="0.3s">
+                    <mpath href="#c2" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" begin="0.3s" />
+                </circle>
+
+                {/* Pulse on c3 - to Sensory */}
+                <circle r="3" fill={brandCyan} filter="url(#glow)">
+                  <animateMotion dur="2.8s" repeatCount="indefinite" begin="0.6s">
+                    <mpath href="#c3" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.3;1;0.3" dur="2.8s" repeatCount="indefinite" begin="0.6s" />
+                </circle>
+
+                {/* Pulse on c6 - to Balance */}
+                <circle r="2.5" fill={brandPink} filter="url(#glow)">
+                  <animateMotion dur="2.2s" repeatCount="indefinite" begin="0.9s">
+                    <mpath href="#c6" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.3;1;0.3" dur="2.2s" repeatCount="indefinite" begin="0.9s" />
+                </circle>
+
+                {/* Pulse on c7 - to Well Being */}
+                <circle r="3" fill={brandCyan} filter="url(#glow)">
+                  <animateMotion dur="3s" repeatCount="indefinite" begin="1.2s">
+                    <mpath href="#c7" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite" begin="1.2s" />
+                </circle>
+
+                {/* Pulse on c8 - to Music */}
+                <circle r="2.5" fill={brandPurple} filter="url(#glow)">
+                  <animateMotion dur="2.6s" repeatCount="indefinite" begin="1.5s">
+                    <mpath href="#c8" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.3;1;0.3" dur="2.6s" repeatCount="indefinite" begin="1.5s" />
+                </circle>
+
+                {/* Pulse on c9 - to Memory */}
+                <circle r="3" fill={brandPink} filter="url(#glow)">
+                  <animateMotion dur="2.4s" repeatCount="indefinite" begin="1.8s">
+                    <mpath href="#c9" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.3;1;0.3" dur="2.4s" repeatCount="indefinite" begin="1.8s" />
+                </circle>
+
+                {/* Central stem pulse */}
+                <circle r="4" fill={brandPurple} filter="url(#glow)">
+                  <animateMotion dur="4s" repeatCount="indefinite">
+                    <mpath href="#stem" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0.2;0.8;0.2" dur="4s" repeatCount="indefinite" />
+                  <animate attributeName="r" values="3;5;3" dur="4s" repeatCount="indefinite" />
+                </circle>
+              </>
+            )}
           </g>
 
           {/* Ripples */}
@@ -885,14 +1186,34 @@ export default function HeroCircuitBrain() {
             })}
           </g>
 
-          {/* Floating particles */}
+          {/* Floating neural particles */}
           {!reducedMotion && (
-            <g opacity="0.35">
-              {[0, 1, 2, 3].map((i) => (
-                <circle key={`p-${i}`} r="1.5" fill={COLORS[i % COLORS.length]}>
-                  <animate attributeName="cx" values={`${150 + i * 70};${190 + i * 50};${150 + i * 70}`} dur={`${5 + i}s`} repeatCount="indefinite" />
-                  <animate attributeName="cy" values={`${120 + i * 50};${170 + i * 40};${120 + i * 50}`} dur={`${6 + i}s`} repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.25;0.5;0.25" dur={`${4 + i}s`} repeatCount="indefinite" />
+            <g opacity="0.3">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <circle
+                  key={`neural-p-${i}`}
+                  r={1 + (i % 2)}
+                  fill={COLORS[i % COLORS.length]}
+                  filter="url(#glow)"
+                >
+                  <animate
+                    attributeName="cx"
+                    values={`${180 + i * 45};${220 + i * 35};${180 + i * 45}`}
+                    dur={`${6 + i * 0.5}s`}
+                    repeatCount="indefinite"
+                  />
+                  <animate
+                    attributeName="cy"
+                    values={`${130 + i * 45};${180 + i * 35};${130 + i * 45}`}
+                    dur={`${7 + i * 0.4}s`}
+                    repeatCount="indefinite"
+                  />
+                  <animate
+                    attributeName="opacity"
+                    values="0.2;0.6;0.2"
+                    dur={`${4 + i * 0.3}s`}
+                    repeatCount="indefinite"
+                  />
                 </circle>
               ))}
             </g>
