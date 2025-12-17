@@ -17,6 +17,7 @@ import {
   PhoneIcon,
 } from './Icons';
 import BrainLogo from './BrainLogo';
+import { useLanguage } from '../context/LanguageContext';
 
 type SocialLink = {
   name: string;
@@ -33,23 +34,23 @@ const social: SocialLink[] = [
   { name: 'LinkedIn', href: 'https://www.linkedin.com/company/lotus-holistic-centre/', icon: <LinkedInIcon size={18} />, color: '#0A66C2' },
 ];
 
-const quickLinks = [
-  { label: 'البرنامج', href: '#overview', icon: <HeadphonesIcon size={16} /> },
-  { label: 'النتائج', href: '#results', icon: <ChartIcon size={16} /> },
-  { label: 'الألعاب', href: '#games', icon: <GamepadIcon size={16} /> },
-  { label: 'المدارس', href: '#schools', icon: <SchoolIcon size={16} /> },
+const getQuickLinks = (t: (key: string) => string) => [
+  { label: t('nav.program'), href: '#overview', icon: <HeadphonesIcon size={16} /> },
+  { label: t('nav.results'), href: '#results', icon: <ChartIcon size={16} /> },
+  { label: t('nav.games'), href: '#games', icon: <GamepadIcon size={16} /> },
+  { label: t('nav.schools'), href: '#schools', icon: <SchoolIcon size={16} /> },
 ];
 
 // Lotus Holistic Centre Abu Dhabi location
 const LOCATION = {
   name: 'Lotus Holistic Centre',
-  address: 'أبوظبي، الإمارات العربية المتحدة',
-  addressEn: 'Abu Dhabi, UAE',
   directionsUrl: 'https://maps.google.com/?q=Lotus+Holistic+Centre+Abu+Dhabi+UAE',
 };
 
 const Footer = () => {
+  const { t, isArabic, direction } = useLanguage();
   const year = new Date().getFullYear();
+  const quickLinks = useMemo(() => getQuickLinks(t), [t]);
 
   const css = useMemo(() => `
     @keyframes footerGlow {
@@ -138,7 +139,7 @@ const Footer = () => {
               margin: 0,
               maxWidth: 280,
             }}>
-              تدريب التكامل السمعي المعتمد لتحسين المعالجة السمعية والتركيز والتعلم
+              {t('footer.description')}
             </p>
           </div>
 
@@ -177,7 +178,7 @@ const Footer = () => {
                 {LOCATION.name}
               </div>
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
-                {LOCATION.address}
+                {t('footer.location')}
               </div>
             </div>
             <div style={{
@@ -192,7 +193,7 @@ const Footer = () => {
               color: brandCyan,
             }}>
               <CompassIcon size={14} />
-              الخريطة
+              {t('common.map')}
               <ExternalLinkIcon size={12} style={{ opacity: 0.7 }} />
             </div>
           </a>
@@ -205,7 +206,7 @@ const Footer = () => {
             borderRadius: 16,
           }}>
             <div style={{ fontWeight: 800, fontSize: 14, color: brandPink, marginBottom: 12 }}>
-              تواصل معنا
+              {t('common.contactUs')}
             </div>
             <a
               href={`https://wa.me/${CLINIC.whatsapp.replace(/[^0-9]/g, '')}`}
@@ -244,7 +245,7 @@ const Footer = () => {
           {/* Quick Links */}
           <div>
             <div style={{ fontWeight: 800, fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 14, letterSpacing: 1 }}>
-              روابط سريعة
+              {t('common.quickLinks')}
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {quickLinks.map((link) => (
@@ -276,7 +277,7 @@ const Footer = () => {
           {/* Social Icons */}
           <div>
             <div style={{ fontWeight: 800, fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 14, letterSpacing: 1 }}>
-              تابعنا
+              {t('common.followUs')}
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
               {social.map((s) => (
@@ -320,7 +321,7 @@ const Footer = () => {
           gap: 16,
         }}>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
-            © {year} {CLINIC.name}. جميع الحقوق محفوظة
+            © {year} {CLINIC.name}. {t('footer.copyright')}
           </div>
           <div style={{
             fontSize: 11,

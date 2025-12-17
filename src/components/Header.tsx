@@ -2,19 +2,24 @@ import { useMemo, useState, useEffect } from 'react';
 import { brandPurple, brandCyan, brandPink } from './styles';
 import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon } from './Icons';
 import BrainLogo from './BrainLogo';
+import LanguageToggle from './LanguageToggle';
+import { useLanguage } from '../context/LanguageContext';
 
-const NAV_ITEMS = [
-  { label: 'البرنامج', href: '#overview', icon: <HeadphonesIcon size={16} /> },
-  { label: 'الماسح العصبي', href: '#checklist', icon: <BrainIcon size={16} /> },
-  { label: 'الألعاب', href: '#games', icon: <GamepadIcon size={16} /> },
-  { label: 'الأسئلة', href: '#faq', icon: <HelpIcon size={16} /> },
-  { label: 'تواصل', href: '#contact', icon: <PhoneIcon size={16} /> },
+const getNavItems = (t: (key: string) => string) => [
+  { label: t('nav.program'), href: '#overview', icon: <HeadphonesIcon size={16} /> },
+  { label: t('nav.neuralScanner'), href: '#checklist', icon: <BrainIcon size={16} /> },
+  { label: t('nav.games'), href: '#games', icon: <GamepadIcon size={16} /> },
+  { label: t('nav.faq'), href: '#faq', icon: <HelpIcon size={16} /> },
+  { label: t('nav.contact'), href: '#contact', icon: <PhoneIcon size={16} /> },
 ];
 
 const Header = () => {
+  const { t, direction } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  const NAV_ITEMS = useMemo(() => getNavItems(t), [t]);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -161,6 +166,8 @@ const Header = () => {
                 {item.label}
               </a>
             ))}
+            {/* Language Toggle */}
+            <LanguageToggle />
           </nav>
         )}
 
@@ -244,6 +251,16 @@ const Header = () => {
               {item.label}
             </a>
           ))}
+          {/* Language Toggle in Mobile Menu */}
+          <div style={{
+            marginTop: 8,
+            paddingTop: 12,
+            borderTop: '1px solid rgba(255,255,255,0.08)',
+            display: 'flex',
+            justifyContent: 'center',
+          }}>
+            <LanguageToggle />
+          </div>
         </div>
       )}
 
