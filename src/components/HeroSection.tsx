@@ -1,120 +1,18 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { brandCyan, brandPurple, brandPink } from './styles';
 
-// SVG Brain matching the exact design - purple brain with white neural lines and cyan auditory center
-const BrainSVG = ({ size = 400 }: { size?: number }) => (
-  <svg width={size} height={size * 0.75} viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Main brain shape - lavender/purple */}
-    <g id="brain-outline">
-      {/* Left hemisphere */}
-      <path
-        d="M80 150 Q60 100 100 70 Q140 40 180 50 Q200 55 200 55"
-        stroke="#AF84BA"
-        strokeWidth="3"
-        fill="none"
-      />
-      <path
-        d="M80 150 Q50 180 80 220 Q110 260 160 250 Q200 245 200 245"
-        stroke="#AF84BA"
-        strokeWidth="3"
-        fill="none"
-      />
-
-      {/* Right hemisphere */}
-      <path
-        d="M320 150 Q340 100 300 70 Q260 40 220 50 Q200 55 200 55"
-        stroke="#AF84BA"
-        strokeWidth="3"
-        fill="none"
-      />
-      <path
-        d="M320 150 Q350 180 320 220 Q290 260 240 250 Q200 245 200 245"
-        stroke="#AF84BA"
-        strokeWidth="3"
-        fill="none"
-      />
-    </g>
-
-    {/* Brain fill with gradient */}
-    <defs>
-      <radialGradient id="brainGradient" cx="50%" cy="50%" r="60%">
-        <stop offset="0%" stopColor="#C9A8D2" />
-        <stop offset="50%" stopColor="#AF84BA" />
-        <stop offset="100%" stopColor="#9A6FA8" />
-      </radialGradient>
-      <filter id="brainGlow">
-        <feGaussianBlur stdDeviation="3" result="glow"/>
-        <feMerge>
-          <feMergeNode in="glow"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-    </defs>
-
-    {/* Main brain shape filled */}
-    <path
-      d="M80 150
-         Q60 100 100 70 Q140 40 180 50 Q200 55 200 55
-         Q200 55 220 50 Q260 40 300 70 Q340 100 320 150
-         Q350 180 320 220 Q290 260 240 250 Q200 245 200 245
-         Q200 245 160 250 Q110 260 80 220 Q50 180 80 150Z"
-      fill="url(#brainGradient)"
-      filter="url(#brainGlow)"
-      opacity="0.95"
-    />
-
-    {/* Neural pathway lines - white/light */}
-    <g stroke="rgba(255,255,255,0.85)" strokeWidth="2" fill="none" strokeLinecap="round">
-      {/* Left hemisphere gyri */}
-      <path d="M90 130 Q100 110 130 100 Q150 95 160 110" />
-      <path d="M85 150 Q110 135 140 140 Q160 142 170 155" />
-      <path d="M90 175 Q115 165 145 175 Q165 180 175 195" />
-      <path d="M100 200 Q130 185 155 195 Q175 202 185 215" />
-      <path d="M120 220 Q145 210 170 220 Q185 228 190 240" />
-      <path d="M95 110 Q115 95 145 90 Q165 88 175 100" />
-      <path d="M75 160 Q90 155 105 160" />
-      <path d="M80 190 Q100 182 115 190" />
-
-      {/* Right hemisphere gyri */}
-      <path d="M310 130 Q300 110 270 100 Q250 95 240 110" />
-      <path d="M315 150 Q290 135 260 140 Q240 142 230 155" />
-      <path d="M310 175 Q285 165 255 175 Q235 180 225 195" />
-      <path d="M300 200 Q270 185 245 195 Q225 202 215 215" />
-      <path d="M280 220 Q255 210 230 220 Q215 228 210 240" />
-      <path d="M305 110 Q285 95 255 90 Q235 88 225 100" />
-      <path d="M325 160 Q310 155 295 160" />
-      <path d="M320 190 Q300 182 285 190" />
-
-      {/* Connecting pathways */}
-      <path d="M170 120 Q200 115 230 120" />
-      <path d="M175 145 Q200 140 225 145" />
-      <path d="M180 220 Q200 215 220 220" />
-    </g>
-
-    {/* Cerebellum (bottom back of brain) */}
-    <ellipse cx="290" cy="235" rx="35" ry="22" fill="#9A6FA8" opacity="0.9" />
-    <g stroke="rgba(255,255,255,0.75)" strokeWidth="1.5" fill="none">
-      <path d="M260 230 Q275 225 290 230 Q305 225 320 230" />
-      <path d="M265 240 Q280 235 290 240 Q300 235 315 240" />
-      <path d="M270 248 Q285 244 290 248 Q295 244 310 248" />
-    </g>
-
-    {/* Auditory center - cyan circle with stem */}
-    <g id="auditory-center">
-      {/* Stem going up */}
-      <rect x="194" y="45" width="12" height="75" rx="6" fill={brandCyan} />
-
-      {/* Main auditory circle */}
-      <circle cx="200" cy="145" r="35" fill={brandCyan} />
-
-      {/* Inner glow */}
-      <circle cx="200" cy="145" r="25" fill="rgba(255,255,255,0.2)" />
-      <circle cx="200" cy="145" r="15" fill="rgba(255,255,255,0.15)" />
-
-      {/* Outer glow ring */}
-      <circle cx="200" cy="145" r="42" stroke={brandCyan} strokeWidth="2" fill="none" opacity="0.4" />
-    </g>
-  </svg>
+// Brain image component using the detailed PNG
+const BrainImage = ({ size = 400 }: { size?: number }) => (
+  <img
+    src="/assets/images/brain_logo.png"
+    alt="Brain with auditory center highlighted"
+    width={size}
+    height={size * 0.85}
+    style={{
+      objectFit: 'contain',
+      filter: 'drop-shadow(0 0 30px rgba(143,211,204,0.4)) drop-shadow(0 0 60px rgba(175,132,186,0.3))',
+    }}
+  />
 );
 
 // Orbiting particle that circles around the brain
@@ -294,8 +192,8 @@ export default function HeroSection() {
           opacity: isLoaded ? 1 : 0,
         }}
       >
-        {/* The Brain SVG */}
-        <BrainSVG size={450} />
+        {/* The Brain Image */}
+        <BrainImage size={450} />
 
         {/* Orbiting particles - outside the brain */}
         {orbitingParticles.map((p, i) => (
