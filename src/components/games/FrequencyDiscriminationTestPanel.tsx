@@ -4,6 +4,7 @@ import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import { mean, median, stdDev } from './stats';
 import type { GameResult, TestOutcome } from './types';
+import { FREQUENCY_POINTS, getStarRating, getStarEmoji } from './scoring';
 
 type TrialRow = {
   i: number;
@@ -37,15 +38,36 @@ export default function FrequencyDiscriminationTestPanel({
   const [order, setOrder] = useState<'ref-first' | 'hi-first'>(() => (Math.random() < 0.5 ? 'ref-first' : 'hi-first'));
   const [played, setPlayed] = useState(false);
 
+  // Enhanced gamification state
+  const [points, setPoints] = useState(0);
+  const [lastFeedback, setLastFeedback] = useState<'correct' | 'incorrect' | null>(null);
+  const [feedbackPoints, setFeedbackPoints] = useState(0);
+
   const deltasRef = useRef<number[]>([]);
   const rowsRef = useRef<TrialRow[]>([]);
   const trialStartRef = useRef<number>(0);
+  const feedbackTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
+      if (feedbackTimerRef.current) {
+        window.clearTimeout(feedbackTimerRef.current);
+      }
       safeCloseAudio(audioRef);
     };
   }, []);
+
+  const showFeedback = (type: 'correct' | 'incorrect', pointChange: number) => {
+    if (feedbackTimerRef.current) {
+      window.clearTimeout(feedbackTimerRef.current);
+    }
+    setLastFeedback(type);
+    setFeedbackPoints(pointChange);
+    feedbackTimerRef.current = window.setTimeout(() => {
+      setLastFeedback(null);
+      setFeedbackPoints(0);
+    }, 600);
+  };
 
   const playExample = (hz: number) => {
     const audio = ensure();
@@ -93,6 +115,22 @@ export default function FrequencyDiscriminationTestPanel({
     rowsRef.current.push({ i, deltaHz: delta, order, correct, answer: choice, rtMs: rt });
     deltasRef.current.push(delta);
 
+    // Calculate points
+    let pointChange = 0;
+    if (correct) {
+      pointChange = FREQUENCY_POINTS.correct;
+      // Bonus for hard difficulty (small delta)
+      if (delta < 30) {
+        pointChange += FREQUENCY_POINTS.hardDifficultyBonus;
+      }
+      setPoints((p) => p + pointChange);
+      showFeedback('correct', pointChange);
+    } else {
+      pointChange = FREQUENCY_POINTS.incorrect;
+      setPoints((p) => Math.max(0, p + pointChange));
+      showFeedback('incorrect', pointChange);
+    }
+
     // 2-down 1-up staircase: decrease after 2 correct in a row, increase after any wrong
     let nextDelta = delta;
     let nextStreak = correct ? correctStreak + 1 : 0;
@@ -134,6 +172,13 @@ export default function FrequencyDiscriminationTestPanel({
     const avgRt = Math.round(mean(rows.map((r) => r.rtMs)));
 
     const result: GameResult = thresholdHz <= 20 ? 'high' : thresholdHz <= 50 ? 'medium' : 'low';
+    const starRating = getStarRating(result);
+
+    // Add consistency bonus to final points
+    let finalPoints = points;
+    if (consistency < 15) {
+      finalPoints += FREQUENCY_POINTS.consistencyBonus;
+    }
 
     const message =
       result === 'high'
@@ -146,7 +191,7 @@ export default function FrequencyDiscriminationTestPanel({
       key: 'frequency',
       title: 'اختبار تمييز التردد (2IFC Adaptive)',
       result,
-      scoreLabel: `Threshold≈${thresholdHz}Hz (${thresholdPct}%) • ${accuracy}% • RT≈${avgRt}ms`,
+      scoreLabel: `${getStarEmoji(starRating)} Threshold≈${thresholdHz}Hz • ${accuracy}% • ${finalPoints}pts`,
       message,
       metrics: {
         referenceHz: REF,
@@ -156,6 +201,8 @@ export default function FrequencyDiscriminationTestPanel({
         thresholdPercent: thresholdPct,
         consistencyStdHz: consistency,
         avgReactionMs: avgRt,
+        gamePoints: finalPoints,
+        starRating,
         note: 'Threshold here is a rough estimate (no normative calibration).',
       },
       trials: rows,
@@ -207,6 +254,8 @@ export default function FrequencyDiscriminationTestPanel({
                 setCorrectStreak(0);
                 setOrder(nextOrder());
                 setPlayed(false);
+                setPoints(0);
+                setLastFeedback(null);
                 setStage('running');
               }}
               style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}
@@ -225,10 +274,50 @@ export default function FrequencyDiscriminationTestPanel({
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
             <div>
               <div style={{ fontWeight: 900 }}>Trial {i}/{TRIALS}</div>
-              <div style={styles.muted}>Delta الحالي: {delta} Hz</div>
+              <div style={styles.muted}>Delta الحالي: {delta} Hz {delta < 30 && '🎯'}</div>
             </div>
-            <span style={styles.chip}>2IFC • Adaptive</span>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+              <span style={{
+                ...styles.chip,
+                background: 'rgba(143,211,204,0.15)',
+                borderColor: 'rgba(143,211,204,0.4)',
+              }}>
+                {points} pts
+              </span>
+              <span style={styles.chip}>2IFC • Adaptive</span>
+            </div>
           </div>
+
+          {/* Difficulty indicator */}
+          <div style={{
+            marginTop: 12,
+            padding: '8px 12px',
+            borderRadius: 8,
+            background: delta < 30 ? 'rgba(143,211,204,0.15)' : delta < 60 ? 'rgba(175,132,186,0.15)' : 'rgba(255,255,255,0.05)',
+            border: `1px solid ${delta < 30 ? 'rgba(143,211,204,0.3)' : delta < 60 ? 'rgba(175,132,186,0.3)' : 'rgba(255,255,255,0.1)'}`,
+            textAlign: 'center',
+          }}>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>
+              Difficulty: {delta < 30 ? '🔥 Hard' : delta < 60 ? '⚡ Medium' : '📊 Easy'} ({delta}Hz difference)
+            </span>
+          </div>
+
+          {/* Real-time feedback */}
+          {lastFeedback && (
+            <div style={{
+              marginTop: 12,
+              textAlign: 'center',
+              padding: '10px 16px',
+              borderRadius: 12,
+              fontWeight: 900,
+              fontSize: 18,
+              animation: 'feedbackPop 0.3s ease-out',
+              background: lastFeedback === 'correct' ? 'rgba(143,211,204,0.2)' : 'rgba(176,18,112,0.2)',
+              color: lastFeedback === 'correct' ? brandCyan : brandPink,
+            }}>
+              {lastFeedback === 'correct' ? `✓ Correct! +${feedbackPoints}` : `✗ Wrong ${feedbackPoints}`}
+            </div>
+          )}
 
           <div style={{ marginTop: 12, ...styles.section }}>
             <div style={{ fontWeight: 900, color: brandPurpleDark }}>الخطوة 1</div>
@@ -255,6 +344,14 @@ export default function FrequencyDiscriminationTestPanel({
             </div>
             <div style={{ marginTop: 10, ...styles.muted }}>لا تظهر الإجابة الصحيحة أثناء الاختبار لتقليل التحيّز.</div>
           </div>
+
+          <style>{`
+            @keyframes feedbackPop {
+              0% { transform: scale(0.8); opacity: 0; }
+              50% { transform: scale(1.1); }
+              100% { transform: scale(1); opacity: 1; }
+            }
+          `}</style>
         </div>
       ) : null}
 

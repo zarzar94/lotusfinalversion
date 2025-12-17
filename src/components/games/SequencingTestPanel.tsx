@@ -5,6 +5,7 @@ import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../../utils/pdf';
 import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import { mean } from './stats';
 import type { GameResult, TestOutcome } from './types';
+import { SEQUENCE_POINTS, getStarRating, getStarEmoji } from './scoring';
 
 type ShapeId = 'circle' | 'square' | 'triangle';
 
@@ -62,13 +63,34 @@ export default function SequencingTestPanel({
   const [maxSpan, setMaxSpan] = useState(0);
   const [noiseLevel, setNoiseLevelState] = useState(0.03);
 
+  // Enhanced gamification state
+  const [gamePoints, setGamePoints] = useState(0);
+  const [lastFeedback, setLastFeedback] = useState<'correct' | 'incorrect' | null>(null);
+  const [feedbackPoints, setFeedbackPoints] = useState(0);
+
   const rowsRef = useRef<RoundRow[]>([]);
   const clickTimesRef = useRef<number[]>([]);
+  const feedbackTimerRef = useRef<number | null>(null);
 
   const ensure = () => ensureAudio(audioRef);
 
+  const showFeedback = (type: 'correct' | 'incorrect', pts: number) => {
+    if (feedbackTimerRef.current) {
+      window.clearTimeout(feedbackTimerRef.current);
+    }
+    setLastFeedback(type);
+    setFeedbackPoints(pts);
+    feedbackTimerRef.current = window.setTimeout(() => {
+      setLastFeedback(null);
+      setFeedbackPoints(0);
+    }, 800);
+  };
+
   const cleanup = useCallback(() => {
     stopNoise(noiseRef);
+    if (feedbackTimerRef.current) {
+      window.clearTimeout(feedbackTimerRef.current);
+    }
   }, []);
 
   useEffect(() => {
@@ -128,6 +150,8 @@ export default function SequencingTestPanel({
     setLength(2);
     setScore(0);
     setMaxSpan(0);
+    setGamePoints(0);
+    setLastFeedback(null);
     await startRound(1, 2);
   };
 
@@ -173,9 +197,31 @@ export default function SequencingTestPanel({
     });
 
     const nextScore = correct ? score + 1 : score;
+
+    // Calculate points
+    let pointChange = 0;
     if (correct) {
       setScore(nextScore);
       setMaxSpan((m) => Math.max(m, length));
+
+      pointChange = SEQUENCE_POINTS.correctSequence;
+
+      // Bonus for no replay
+      if (replays === 0) {
+        pointChange += SEQUENCE_POINTS.noReplayBonus;
+      }
+
+      // Bonus for long span
+      if (length >= 4) {
+        pointChange += SEQUENCE_POINTS.longSpanBonus;
+      }
+
+      setGamePoints((p) => p + pointChange);
+      showFeedback('correct', pointChange);
+    } else {
+      pointChange = SEQUENCE_POINTS.wrongSequence;
+      setGamePoints((p) => Math.max(0, p + pointChange));
+      showFeedback('incorrect', pointChange);
     }
 
     const nextLen = correct ? Math.min(5, length + 1) : Math.max(2, length - 1);
@@ -205,6 +251,10 @@ export default function SequencingTestPanel({
     const avgRt = Math.round(mean(allRts));
 
     const result: GameResult = span >= 4 && accuracy >= 75 ? 'high' : span >= 3 && accuracy >= 55 ? 'medium' : 'low';
+    const starRating = getStarRating(result);
+
+    // Perfect accuracy bonus
+    const finalPoints = accuracy === 100 ? gamePoints + SEQUENCE_POINTS.perfectRoundBonus : gamePoints;
 
     const message =
       result === 'high'
@@ -217,7 +267,7 @@ export default function SequencingTestPanel({
       key: 'sequence',
       title: 'اختبار التسلسل/الذاكرة السمعية تحت الضوضاء (Classroom Sequencing)',
       result,
-      scoreLabel: `Span=${span} • ${accuracy}% • RT≈${avgRt}ms`,
+      scoreLabel: `${getStarEmoji(starRating)} Span=${span} • ${accuracy}% • ${finalPoints}pts`,
       message,
       metrics: {
         rounds: ROUNDS,
@@ -227,6 +277,9 @@ export default function SequencingTestPanel({
         avgReactionMs: avgRt,
         maxNoiseLevel: Math.max(...rows.map((r) => r.noiseLevel)).toFixed(2),
         replayPolicy: 'one replay max per round',
+        gamePoints: finalPoints,
+        starRating,
+        workingMemorySpan: span,
       },
       trials: rows,
     };
@@ -348,12 +401,38 @@ export default function SequencingTestPanel({
               <div style={styles.muted}>أدخل التسلسل: {chosen.length}/{target.length} • Noise: {noiseLevel.toFixed(2)}</div>
             </div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-              <span style={styles.chip}>✅ {score}</span>
+              <span style={{
+                ...styles.chip,
+                background: 'rgba(143,211,204,0.15)',
+                borderColor: 'rgba(143,211,204,0.4)',
+              }}>
+                {gamePoints} pts
+              </span>
+              <span style={styles.chip}>✅ {score}/{round - 1}</span>
               <button onClick={replay} disabled={replays >= 1} style={replays >= 1 ? styles.disabledBtn : styles.ghostBtn}>
                 🔁 إعادة تشغيل (مرة واحدة)
               </button>
             </div>
           </div>
+
+          {/* Real-time feedback */}
+          {lastFeedback && (
+            <div style={{
+              marginTop: 12,
+              textAlign: 'center',
+              padding: '10px 16px',
+              borderRadius: 12,
+              fontWeight: 900,
+              fontSize: 18,
+              animation: 'feedbackPop 0.3s ease-out',
+              background: lastFeedback === 'correct' ? 'rgba(143,211,204,0.2)' : 'rgba(176,18,112,0.2)',
+              color: lastFeedback === 'correct' ? brandCyan : brandPink,
+            }}>
+              {lastFeedback === 'correct'
+                ? `✓ Correct! +${feedbackPoints}${replays === 0 ? ' (No Replay Bonus!)' : ''}`
+                : `✗ Wrong sequence ${feedbackPoints}`}
+            </div>
+          )}
 
           <div style={{ marginTop: 12, display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
             {shapes.map((s) => (
@@ -418,6 +497,14 @@ export default function SequencingTestPanel({
           </div>
         </div>
       ) : null}
+
+      <style>{`
+        @keyframes feedbackPop {
+          0% { transform: scale(0.8); opacity: 0; }
+          50% { transform: scale(1.1); }
+          100% { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }

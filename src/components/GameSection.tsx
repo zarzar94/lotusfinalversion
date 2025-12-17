@@ -7,8 +7,10 @@ import AttentionTestPanel from './games/AttentionTestPanel';
 import FrequencyDiscriminationTestPanel from './games/FrequencyDiscriminationTestPanel';
 import SequencingTestPanel from './games/SequencingTestPanel';
 import QuestionnairePanel from './games/QuestionnairePanel';
+import GamePortal from './games/GamePortal';
 import type { GameResult, TestOutcome } from './games/types';
 import { resultMeta } from './games/types';
+import { saveSession, type StoredSession } from './games/scoring';
 
 type GameMode = 'suite' | 'attention' | 'frequency' | 'sequence' | 'questionnaire';
 
@@ -473,11 +475,38 @@ export default function GameSection() {
   const [lastOutcome, setLastOutcome] = useState<TestOutcome | null>(null);
   const [modalOutcome, setModalOutcome] = useState<TestOutcome | null>(null);
   const [isTestActive, setIsTestActive] = useState(false);
+  const [showPortal, setShowPortal] = useState(true);
+  const sessionIdRef = useRef<string>(Date.now().toString(36) + Math.random().toString(36).slice(2));
+  const outcomesRef = useRef<Partial<Record<string, TestOutcome>>>({});
 
   useEffect(() => {
     setModalOutcome(null);
     setIsTestActive(false);
   }, [mode]);
+
+  // Save session when outcome changes
+  const handleOutcome = useCallback((outcome: TestOutcome) => {
+    setLastOutcome(outcome);
+    setModalOutcome(outcome);
+    setIsTestActive(false);
+
+    // Track outcomes for this session
+    outcomesRef.current[outcome.key] = outcome;
+
+    // Calculate total points from all outcomes
+    const totalPoints = Object.values(outcomesRef.current)
+      .reduce((sum, o) => sum + (typeof o?.metrics?.gamePoints === 'number' ? o.metrics.gamePoints : 0), 0);
+
+    // Save session to localStorage
+    const session: StoredSession = {
+      id: sessionIdRef.current,
+      date: Date.now(),
+      outcomes: outcomesRef.current,
+      compositeResult: outcome.result,
+      totalPoints,
+    };
+    saveSession(session);
+  }, []);
 
   const cards = useMemo(
     () => [
@@ -559,13 +588,33 @@ export default function GameSection() {
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
           <h2 style={styles.h2}>🏥 معمل الفحص السمعي</h2>
-          <span style={{
-            ...styles.chip,
-            background: 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(59,130,246,0.2))',
-            borderColor: 'rgba(34,197,94,0.4)',
-          }}>
-            SCREENING LAB
-          </span>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <button
+              onClick={() => setShowPortal(!showPortal)}
+              style={{
+                padding: '6px 14px',
+                borderRadius: 8,
+                background: showPortal
+                  ? `linear-gradient(135deg, ${brandCyan}22, ${brandPink}22)`
+                  : 'rgba(255,255,255,0.08)',
+                border: `1px solid ${showPortal ? brandCyan : 'rgba(255,255,255,0.2)'}`,
+                color: showPortal ? brandCyan : 'rgba(255,255,255,0.7)',
+                fontSize: 11,
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+              }}
+            >
+              {showPortal ? '🎮 Portal' : '📟 Classic'}
+            </button>
+            <span style={{
+              ...styles.chip,
+              background: 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(59,130,246,0.2))',
+              borderColor: 'rgba(34,197,94,0.4)',
+            }}>
+              SCREENING LAB
+            </span>
+          </div>
         </div>
         <p style={styles.lead}>
           هذه <b style={{ color: brandCyan }}>اختبارات تفاعلية منظمة</b> تعطي مؤشرات قابلة للقياس.{' '}
@@ -573,7 +622,18 @@ export default function GameSection() {
         </p>
       </div>
 
-      {/* Medical Monitor Visual Header */}
+      {/* Game Portal - Special Delivery Design */}
+      {showPortal && (
+        <div style={{ marginTop: 20 }}>
+          <GamePortal
+            onSelectMode={(m) => setMode(m as GameMode)}
+            lastOutcome={lastOutcome}
+          />
+        </div>
+      )}
+
+      {/* Medical Monitor Visual Header - Classic View */}
+      {!showPortal && (
       <div style={{
         marginTop: 20,
         padding: 20,
@@ -721,6 +781,7 @@ export default function GameSection() {
           ))}
         </div>
       </div>
+      )}
 
       {/* Last Result Display */}
       {lastOutcome && lastMeta && lastNext ? (
@@ -799,11 +860,7 @@ export default function GameSection() {
         isActive={isTestActive}
       >
         <AttentionTestPanel
-          onDone={(o) => {
-            setLastOutcome(o);
-            setModalOutcome(o);
-            setIsTestActive(false);
-          }}
+          onDone={handleOutcome}
         />
         {modalOutcome ? (
           <div style={{
@@ -833,11 +890,7 @@ export default function GameSection() {
         isActive={isTestActive}
       >
         <FrequencyDiscriminationTestPanel
-          onDone={(o) => {
-            setLastOutcome(o);
-            setModalOutcome(o);
-            setIsTestActive(false);
-          }}
+          onDone={handleOutcome}
         />
         {modalOutcome ? (
           <div style={{
@@ -867,11 +920,7 @@ export default function GameSection() {
         isActive={isTestActive}
       >
         <SequencingTestPanel
-          onDone={(o) => {
-            setLastOutcome(o);
-            setModalOutcome(o);
-            setIsTestActive(false);
-          }}
+          onDone={handleOutcome}
         />
         {modalOutcome ? (
           <div style={{
@@ -901,11 +950,7 @@ export default function GameSection() {
         isActive={isTestActive}
       >
         <QuestionnairePanel
-          onDone={(o) => {
-            setLastOutcome(o);
-            setModalOutcome(o);
-            setIsTestActive(false);
-          }}
+          onDone={handleOutcome}
         />
         {modalOutcome ? (
           <div style={{

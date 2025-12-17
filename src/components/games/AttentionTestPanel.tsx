@@ -4,6 +4,15 @@ import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import { clamp01, dPrime, mean } from './stats';
 import type { GameResult, TestOutcome } from './types';
+import {
+  ATTENTION_POINTS,
+  type ComboState,
+  createComboState,
+  updateCombo,
+  calculateFatigueIndex,
+  getStarRating,
+  getStarEmoji,
+} from './scoring';
 
 type Trial = {
   i: number;
@@ -14,6 +23,8 @@ type Trial = {
   responseType?: 'hit' | 'fa' | 'miss' | 'cr';
   rtMs?: number;
 };
+
+type FeedbackType = 'hit' | 'miss' | 'fa' | 'combo' | null;
 
 const TARGET_FREQ = 880;
 const NON_TARGET_FREQS = [440, 520, 600, 660, 720];
@@ -65,10 +76,17 @@ export default function AttentionTestPanel({
   const [falseAlarms, setFalseAlarms] = useState(0);
   const [msg, setMsg] = useState<string | null>(null);
 
+  // Enhanced gamification state
+  const [points, setPoints] = useState(0);
+  const [combo, setCombo] = useState<ComboState>(createComboState);
+  const [feedback, setFeedback] = useState<FeedbackType>(null);
+  const [lastPointChange, setLastPointChange] = useState(0);
+
   const trialsRef = useRef<Trial[]>([]);
   const currentRef = useRef<{ idx: number; onset: number } | null>(null);
   const rtsRef = useRef<number[]>([]);
   const timerRef = useRef<number | null>(null);
+  const feedbackTimerRef = useRef<number | null>(null);
 
   const TOTAL = 36;
   const TARGETS = 9;
@@ -78,10 +96,26 @@ export default function AttentionTestPanel({
 
   const ensure = () => ensureAudio(audioRef);
 
+  const showFeedback = useCallback((type: FeedbackType, pointChange: number) => {
+    if (feedbackTimerRef.current) {
+      window.clearTimeout(feedbackTimerRef.current);
+    }
+    setFeedback(type);
+    setLastPointChange(pointChange);
+    feedbackTimerRef.current = window.setTimeout(() => {
+      setFeedback(null);
+      setLastPointChange(0);
+    }, 400);
+  }, []);
+
   const cleanup = useCallback(() => {
     if (timerRef.current) {
       window.clearTimeout(timerRef.current);
       timerRef.current = null;
+    }
+    if (feedbackTimerRef.current) {
+      window.clearTimeout(feedbackTimerRef.current);
+      feedbackTimerRef.current = null;
     }
     stopNoise(noiseRef);
     currentRef.current = null;
@@ -114,6 +148,10 @@ export default function AttentionTestPanel({
     setFalseAlarms(0);
     setMsg(null);
     setTrialIndex(0);
+    setPoints(0);
+    setCombo(createComboState());
+    setFeedback(null);
+    setLastPointChange(0);
     setStage('running');
 
     cleanup();
@@ -158,8 +196,12 @@ export default function AttentionTestPanel({
     const now = performance.now();
 
     if (!cur || !trials[cur.idx]) {
-      // no active trial
+      // no active trial - false alarm
       setFalseAlarms((x) => x + 1);
+      const newCombo = updateCombo(combo, 'fa');
+      setCombo(newCombo);
+      setPoints((p) => Math.max(0, p + ATTENTION_POINTS.falseAlarm));
+      showFeedback('fa', ATTENTION_POINTS.falseAlarm);
       return;
     }
 
@@ -169,12 +211,20 @@ export default function AttentionTestPanel({
     // Too early/late => treat as false alarm
     if (dt < RESPONSE_MIN || dt > RESPONSE_MAX) {
       setFalseAlarms((x) => x + 1);
+      const newCombo = updateCombo(combo, 'fa');
+      setCombo(newCombo);
+      setPoints((p) => Math.max(0, p + ATTENTION_POINTS.falseAlarm));
+      showFeedback('fa', ATTENTION_POINTS.falseAlarm);
       return;
     }
 
     if (t.responded) {
       // double tap within same trial -> impulsive false alarm
       setFalseAlarms((x) => x + 1);
+      const newCombo = updateCombo(combo, 'fa');
+      setCombo(newCombo);
+      setPoints((p) => Math.max(0, p + ATTENTION_POINTS.falseAlarm));
+      showFeedback('fa', ATTENTION_POINTS.falseAlarm);
       return;
     }
 
@@ -185,9 +235,34 @@ export default function AttentionTestPanel({
       t.responseType = 'hit';
       setHits((h) => h + 1);
       rtsRef.current.push(dt);
+
+      // Points calculation with combo bonus
+      const newCombo = updateCombo(combo, 'hit');
+      setCombo(newCombo);
+
+      let pointsGained = Math.round(ATTENTION_POINTS.hit * newCombo.multiplier);
+
+      // Speed bonus for fast responses (under 500ms)
+      if (dt < 500) {
+        pointsGained += ATTENTION_POINTS.speedBonus;
+      }
+
+      // Combo milestone bonus (every 5 streak)
+      if (newCombo.streak > 0 && newCombo.streak % 5 === 0) {
+        pointsGained += ATTENTION_POINTS.comboBonus * (newCombo.streak / 5);
+        showFeedback('combo', pointsGained);
+      } else {
+        showFeedback('hit', pointsGained);
+      }
+
+      setPoints((p) => p + pointsGained);
     } else {
       t.responseType = 'fa';
       setFalseAlarms((f) => f + 1);
+      const newCombo = updateCombo(combo, 'fa');
+      setCombo(newCombo);
+      setPoints((p) => Math.max(0, p + ATTENTION_POINTS.falseAlarm));
+      showFeedback('fa', ATTENTION_POINTS.falseAlarm);
     }
   };
 
@@ -211,20 +286,33 @@ export default function AttentionTestPanel({
     const dpClamped = Math.max(0, Math.min(3, dp));
     const score100 = Math.round((dpClamped / 3) * 100);
 
+    // Calculate Auditory Fatigue Index
+    const fatigueAnalysis = calculateFatigueIndex(trials);
+
     const result: GameResult = dp >= 1.2 && hitRate >= 0.7 && faRate <= 0.25 ? 'high' : dp >= 0.65 ? 'medium' : 'low';
 
-    const message =
+    // Enhanced message including fatigue insight
+    let message =
       result === 'high'
         ? 'استجابة قوية للمثيرات السمعية المستهدفة مع ضوضاء متزايدة (انتباه انتقائي جيد ضمن هذا الفحص).'
         : result === 'medium'
           ? 'ظهرت بعض الأخطاء/الاندفاعية تحت الضوضاء. من المفيد تجربة اختبار التردد + التسلسل السمعي للحصول على صورة أدق.'
           : 'ظهرت صعوبة واضحة في تمييز المثير المستهدف أو ضبط الاستجابة تحت الضوضاء. إذا كان هذا ينعكس على الأداء الدراسي/السلوكي، ننصح بتقييم متخصص.';
 
+    // Add fatigue note if relevant
+    if (fatigueAnalysis.fatigueIndex === 'high') {
+      message += ' ⚠️ لوحظ انخفاض في الأداء نحو نهاية الاختبار، مما قد يشير إلى إرهاق سمعي.';
+    } else if (fatigueAnalysis.fatigueIndex === 'moderate') {
+      message += ' تراجع طفيف في الأداء نحو النهاية.';
+    }
+
+    const starRating = getStarRating(result);
+
     const outcome: TestOutcome = {
       key: 'attention',
       title: 'اختبار الانتباه السمعي تحت الضوضاء (Go/No-Go)',
       result,
-      scoreLabel: `${score100}/100 • d'=${dp.toFixed(2)} • RT≈${avgRt}ms`,
+      scoreLabel: `${getStarEmoji(starRating)} ${score100}/100 • d'=${dp.toFixed(2)} • RT≈${avgRt}ms • ${points}pts`,
       message,
       metrics: {
         trials: trials.length,
@@ -236,6 +324,18 @@ export default function AttentionTestPanel({
         dPrime: dp.toFixed(2),
         avgReactionMs: avgRt,
         maxNoiseLevel: Math.max(...trials.map((t) => t.noise)).toFixed(2),
+        // Enhanced gamification metrics
+        gamePoints: points,
+        maxComboStreak: combo.maxStreak,
+        starRating,
+        // Fatigue analysis metrics
+        fatigueIndex: fatigueAnalysis.fatigueIndex,
+        fatigueScore: fatigueAnalysis.fatigueScore,
+        earlyHitRate: fatigueAnalysis.earlyPerformance.hitRate.toFixed(2),
+        lateHitRate: fatigueAnalysis.latePerformance.hitRate.toFixed(2),
+        earlyAvgRt: Math.round(fatigueAnalysis.earlyPerformance.avgRt),
+        lateAvgRt: Math.round(fatigueAnalysis.latePerformance.avgRt),
+        rtIncreasePercent: fatigueAnalysis.rtIncrease,
       },
       trials: trials.map((t) => ({
         i: t.i,
@@ -334,6 +434,7 @@ export default function AttentionTestPanel({
 
       {stage === 'running' ? (
         <div style={{ marginTop: 12 }}>
+          {/* Progress and Stats Row */}
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
             <div>
               <div style={{ fontWeight: 900 }}>التقدم: {trialIndex}/{TOTAL} ({progressPct}%)</div>
@@ -341,10 +442,71 @@ export default function AttentionTestPanel({
             </div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
               <span style={styles.chip}>Hits ✅ {hits}</span>
-              <span style={{ ...styles.chip, background: 'rgba(176,18,112,0.14)', borderColor: 'rgba(176,18,112,0.25)' }}>False Alarms ✖ {falseAlarms}</span>
+              <span style={{ ...styles.chip, background: 'rgba(176,18,112,0.14)', borderColor: 'rgba(176,18,112,0.25)' }}>FA ✖ {falseAlarms}</span>
             </div>
           </div>
 
+          {/* Points and Combo Display */}
+          <div style={{
+            marginTop: 12,
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 16,
+            flexWrap: 'wrap',
+          }}>
+            <div style={{
+              ...styles.section,
+              padding: '12px 20px',
+              textAlign: 'center',
+              minWidth: 120,
+              background: 'rgba(143,211,204,0.1)',
+              borderColor: 'rgba(143,211,204,0.3)',
+            }}>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }}>POINTS</div>
+              <div style={{ fontSize: 24, fontWeight: 900, color: brandCyan }}>{points}</div>
+            </div>
+            <div style={{
+              ...styles.section,
+              padding: '12px 20px',
+              textAlign: 'center',
+              minWidth: 120,
+              background: combo.streak >= 5 ? 'rgba(175,132,186,0.2)' : 'rgba(175,132,186,0.1)',
+              borderColor: combo.streak >= 5 ? 'rgba(175,132,186,0.5)' : 'rgba(175,132,186,0.3)',
+              transition: 'all 0.2s ease',
+            }}>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }}>COMBO</div>
+              <div style={{ fontSize: 24, fontWeight: 900, color: brandPurpleDark }}>
+                {combo.streak}🔥
+                {combo.multiplier > 1 && <span style={{ fontSize: 14, marginLeft: 4 }}>×{combo.multiplier.toFixed(1)}</span>}
+              </div>
+            </div>
+          </div>
+
+          {/* Real-time Feedback Indicator */}
+          {feedback && (
+            <div style={{
+              marginTop: 12,
+              textAlign: 'center',
+              padding: '8px 16px',
+              borderRadius: 12,
+              fontWeight: 900,
+              fontSize: 18,
+              animation: 'feedbackPop 0.3s ease-out',
+              background: feedback === 'hit' ? 'rgba(143,211,204,0.2)'
+                : feedback === 'combo' ? 'rgba(255,215,0,0.2)'
+                : 'rgba(176,18,112,0.2)',
+              color: feedback === 'hit' ? brandCyan
+                : feedback === 'combo' ? '#FFD700'
+                : brandPink,
+            }}>
+              {feedback === 'hit' && `✓ +${lastPointChange}`}
+              {feedback === 'combo' && `🔥 COMBO! +${lastPointChange}`}
+              {feedback === 'fa' && `✗ ${lastPointChange}`}
+              {feedback === 'miss' && `⊘ Missed`}
+            </div>
+          )}
+
+          {/* Response Button */}
           <div style={{ marginTop: 12, padding: 18, borderRadius: 16, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(0,0,0,0.18)' }}>
             <div style={{ fontWeight: 900, marginBottom: 10 }}>زر الاستجابة</div>
             <button
@@ -354,7 +516,12 @@ export default function AttentionTestPanel({
                 width: '100%',
                 padding: '18px 16px',
                 fontSize: 18,
-                background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})`,
+                background: feedback === 'hit' || feedback === 'combo'
+                  ? `linear-gradient(135deg, ${brandCyan}, #4ECCA3)`
+                  : feedback === 'fa'
+                    ? `linear-gradient(135deg, ${brandPink}, #8B1538)`
+                    : `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})`,
+                transition: 'background 0.2s ease',
               }}
             >
               👆 اضغط عند سماع Target
@@ -365,6 +532,14 @@ export default function AttentionTestPanel({
           </div>
 
           {msg ? <div style={{ marginTop: 10, ...styles.muted }}>{msg}</div> : null}
+
+          <style>{`
+            @keyframes feedbackPop {
+              0% { transform: scale(0.8); opacity: 0; }
+              50% { transform: scale(1.1); }
+              100% { transform: scale(1); opacity: 1; }
+            }
+          `}</style>
         </div>
       ) : null}
 
