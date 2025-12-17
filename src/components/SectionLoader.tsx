@@ -1,4 +1,4 @@
-import { brandCyan, brandPurple, brandPink } from './styles';
+import { brandCyan, brandPurple, brandPink, typography, spacing, radius, colors } from './styles';
 
 interface SectionLoaderProps {
   label?: string;
@@ -10,15 +10,15 @@ export default function SectionLoader({ label = 'جارٍ التحميل...', he
     <div style={{
       background: 'rgba(11,15,28,0.7)',
       backdropFilter: 'blur(12px)',
-      borderRadius: 24,
-      border: '1px solid rgba(255,255,255,0.08)',
-      padding: 32,
+      borderRadius: radius['2xl'],
+      border: `1px solid ${colors.border.subtle}`,
+      padding: spacing[8],
       minHeight: height,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 20,
+      gap: spacing[5],
     }}>
       {/* Animated loader */}
       <div style={{
@@ -30,15 +30,15 @@ export default function SectionLoader({ label = 'جارٍ التحميل...', he
         <div style={{
           position: 'absolute',
           inset: 0,
-          borderRadius: '50%',
-          border: '3px solid rgba(255,255,255,0.1)',
+          borderRadius: radius.full,
+          border: `3px solid ${colors.border.default}`,
         }} />
 
         {/* Spinning gradient ring */}
         <div style={{
           position: 'absolute',
           inset: 0,
-          borderRadius: '50%',
+          borderRadius: radius.full,
           border: '3px solid transparent',
           borderTopColor: brandCyan,
           borderRightColor: brandPurple,
@@ -48,8 +48,8 @@ export default function SectionLoader({ label = 'جارٍ التحميل...', he
         {/* Inner pulse */}
         <div style={{
           position: 'absolute',
-          inset: 12,
-          borderRadius: '50%',
+          inset: spacing[3],
+          borderRadius: radius.full,
           background: `radial-gradient(circle, ${brandPink}33, transparent)`,
           animation: 'loaderPulse 1.5s ease-in-out infinite',
         }} />
@@ -57,10 +57,10 @@ export default function SectionLoader({ label = 'جارٍ التحميل...', he
 
       {/* Loading text */}
       <div style={{
-        fontSize: 14,
-        fontWeight: 700,
-        color: 'rgba(255,255,255,0.6)',
-        letterSpacing: 0.5,
+        fontSize: typography.size.sm,
+        fontWeight: typography.weight.bold,
+        color: colors.text.secondary,
+        letterSpacing: typography.letterSpacing.wide,
       }}>
         {label}
       </div>
@@ -69,32 +69,32 @@ export default function SectionLoader({ label = 'جارٍ التحميل...', he
       <div style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 12,
+        gap: spacing[3],
         width: '100%',
         maxWidth: 400,
       }}>
         <div style={{
-          height: 16,
+          height: spacing[4],
           background: 'linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-          borderRadius: 8,
+          borderRadius: radius.sm,
           animation: 'skeleton 1.5s ease-in-out infinite',
           backgroundSize: '200% 100%',
         }} />
         <div style={{
-          height: 12,
+          height: spacing[3],
           width: '70%',
           margin: '0 auto',
           background: 'linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
-          borderRadius: 6,
+          borderRadius: radius.sm,
           animation: 'skeleton 1.5s ease-in-out infinite 0.2s',
           backgroundSize: '200% 100%',
         }} />
         <div style={{
-          height: 12,
+          height: spacing[3],
           width: '50%',
           margin: '0 auto',
           background: 'linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
-          borderRadius: 6,
+          borderRadius: radius.sm,
           animation: 'skeleton 1.5s ease-in-out infinite 0.4s',
           backgroundSize: '200% 100%',
         }} />
