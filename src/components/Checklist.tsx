@@ -3,6 +3,12 @@ import { useMemo, useState, useCallback, useEffect, useRef, ReactNode } from 're
 import { checklistCategories, checklistItems, type ChecklistItem } from '../data/checklistItems';
 import { assetUrl } from '../utils/asset';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
+import {
+  playSelectSound,
+  playRadarPing,
+  playLaunchSound,
+  playExplosionSound,
+} from '../utils/audio';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from './styles';
 import { useGamification } from '../context/GamificationContext';
 import {
@@ -31,96 +37,6 @@ const CATEGORY_CONFIG: Record<string, { icon: ReactNode; color: string }> = {
   'توازن وحركة': { icon: <BalanceIcon size={20} />, color: '#22c55e' },
   'سلوك ومزاج وصحة عامة': { icon: <HeartIcon size={20} />, color: '#f59e0b' },
   'تشخيصات/حالات شائعة مرتبطة بالسمع/التعلم': { icon: <MicroscopeIcon size={20} />, color: brandPurpleDark },
-};
-
-// Sound effects
-const playSelectSound = (selected: boolean) => {
-  try {
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(selected ? 880 : 440, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(selected ? 1200 : 300, ctx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.06, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.12);
-  } catch { /* Audio unavailable */ }
-};
-
-const playRadarPing = () => {
-  try {
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(1800, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.15);
-    gain.gain.setValueAtTime(0.04, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.2);
-  } catch { /* Audio unavailable */ }
-};
-
-const playLaunchSound = () => {
-  try {
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-    osc1.type = 'sawtooth';
-    osc1.frequency.setValueAtTime(60, ctx.currentTime);
-    osc1.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.4);
-    gain1.gain.setValueAtTime(0.12, ctx.currentTime);
-    gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-    osc1.connect(gain1);
-    gain1.connect(ctx.destination);
-    osc1.start();
-    osc1.stop(ctx.currentTime + 0.4);
-
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(1200, ctx.currentTime);
-    osc2.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.2);
-    gain2.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-    osc2.connect(gain2);
-    gain2.connect(ctx.destination);
-    osc2.start();
-    osc2.stop(ctx.currentTime + 0.2);
-  } catch { /* Audio unavailable */ }
-};
-
-const playExplosionSound = () => {
-  try {
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    const bufferSize = ctx.sampleRate * 0.4;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
-    }
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(2000, ctx.currentTime);
-    filter.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.3);
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-    noise.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-    noise.start();
-    noise.stop(ctx.currentTime + 0.4);
-  } catch { /* Audio unavailable */ }
 };
 
 // Radar blip item on the radar display

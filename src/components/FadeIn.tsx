@@ -30,6 +30,7 @@ export default function FadeIn({
   easing = 'cubic-bezier(0.4, 0, 0.2, 1)',
 }: FadeInProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const [animationComplete, setAnimationComplete] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -49,6 +50,16 @@ export default function FadeIn({
 
     return () => observer.disconnect();
   }, [threshold]);
+
+  // Clean up willChange after animation completes to free compositor memory
+  useEffect(() => {
+    if (isVisible && !animationComplete) {
+      const timeout = setTimeout(() => {
+        setAnimationComplete(true);
+      }, duration + delay + 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [isVisible, duration, delay, animationComplete]);
 
   const getTransform = () => {
     const transforms: string[] = [];
@@ -99,7 +110,8 @@ export default function FadeIn({
         transform: getTransform(),
         filter: getFilter(),
         transition: `opacity ${duration}ms ${easing} ${delay}ms, transform ${duration}ms ${easing} ${delay}ms, filter ${duration}ms ${easing} ${delay}ms`,
-        willChange: 'opacity, transform, filter',
+        // Only use willChange during animation, then remove to free compositor memory
+        willChange: animationComplete ? 'auto' : 'opacity, transform, filter',
       }}
     >
       {children}

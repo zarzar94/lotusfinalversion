@@ -56,10 +56,27 @@ interface FloatingShape {
 const BackgroundFX = memo(() => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const scrollYRef = useRef(0);
+  const isVisibleRef = useRef(true);
+  const isTabActiveRef = useRef(true);
 
   const prefersReducedMotion = useMemo(() => {
     if (typeof window === 'undefined') return true;
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }, []);
+
+  // Detect mobile for reduced particle count
+  const isMobile = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768 || /Mobi|Android/i.test(navigator.userAgent);
+  }, []);
+
+  // Track tab visibility to pause animation when tab is inactive
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      isTabActiveRef.current = document.visibilityState === 'visible';
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   // Track scroll for parallax using ref (no re-renders)
@@ -111,9 +128,12 @@ const BackgroundFX = memo(() => {
       white: '#FFFFFF',
     };
 
-    // Initialize particles
-    const particleCount = Math.min(80, Math.floor(w / 25));
+    // Initialize particles - reduced count on mobile for performance
+    const particleCount = isMobile
+      ? Math.min(30, Math.floor(w / 35))
+      : Math.min(60, Math.floor(w / 30));
     const particles: Particle[] = [];
+    let frameCount = 0; // For throttling expensive operations
 
     for (let i = 0; i < particleCount; i++) {
       const layer = Math.random() < 0.3 ? 0 : Math.random() < 0.6 ? 1 : 2;
@@ -213,6 +233,14 @@ const BackgroundFX = memo(() => {
     };
 
     const draw = () => {
+      // Skip rendering when tab is inactive to save CPU/GPU
+      if (!isTabActiveRef.current) {
+        raf = window.requestAnimationFrame(draw);
+        return;
+      }
+
+      frameCount++;
+
       // Get current scroll for parallax (from ref, no re-render)
       const currentScrollY = scrollYRef.current;
       const scrollDelta = currentScrollY - lastScrollY;
@@ -366,24 +394,32 @@ const BackgroundFX = memo(() => {
           ctx.arc(p.x, drawY, p.size * pulseScale * 2, 0, Math.PI * 2);
           ctx.fill();
 
-          // Draw connections to nearby neurons
-          particles.forEach((p2, j) => {
-            if (i !== j && p2.type === 'neuron') {
-              const dx = p.x - p2.x;
-              const dy = drawY - ((p2.y - offsetY % h + h) % h);
-              const dist = Math.sqrt(dx * dx + dy * dy);
-              if (dist < 150) {
-                ctx.strokeStyle = p.color;
-                ctx.globalAlpha = (p.alpha * 0.3) * (1 - dist / 150);
-                ctx.lineWidth = 0.5;
-                ctx.beginPath();
-                ctx.moveTo(p.x, drawY);
-                ctx.lineTo(p2.x, (p2.y - offsetY % h + h) % h);
-                ctx.stroke();
-                ctx.globalAlpha = p.alpha;
+          // Draw connections to nearby neurons (throttled to every 3rd frame for performance)
+          if (frameCount % 3 === 0) {
+            const maxConnections = isMobile ? 2 : 4; // Limit connections per particle
+            let connectionCount = 0;
+            for (let j = i + 1; j < particles.length && connectionCount < maxConnections; j++) {
+              const p2 = particles[j];
+              if (p2.type === 'neuron') {
+                const dx = p.x - p2.x;
+                const dy = drawY - ((p2.y - offsetY % h + h) % h);
+                const distSq = dx * dx + dy * dy;
+                // Use squared distance to avoid sqrt (22500 = 150^2)
+                if (distSq < 22500) {
+                  const dist = Math.sqrt(distSq);
+                  ctx.strokeStyle = p.color;
+                  ctx.globalAlpha = (p.alpha * 0.3) * (1 - dist / 150);
+                  ctx.lineWidth = 0.5;
+                  ctx.beginPath();
+                  ctx.moveTo(p.x, drawY);
+                  ctx.lineTo(p2.x, (p2.y - offsetY % h + h) % h);
+                  ctx.stroke();
+                  ctx.globalAlpha = p.alpha;
+                  connectionCount++;
+                }
               }
             }
-          });
+          }
         } else if (p.type === 'sound') {
           // Sound particle - sine wave trail
           ctx.strokeStyle = p.color;
@@ -481,7 +517,7 @@ const BackgroundFX = memo(() => {
       window.removeEventListener('resize', resize);
       if (raf) window.cancelAnimationFrame(raf);
     };
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, isMobile]);
 
   return (
     <>
