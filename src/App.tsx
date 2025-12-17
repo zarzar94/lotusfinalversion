@@ -3,7 +3,7 @@ import { lazy, Suspense, useEffect, memo } from 'react';
 import Header from './components/Header';
 import { styles } from './components/styles';
 import BackgroundFX from './components/BackgroundFX';
-import HeroSection from './components/HeroSection';
+import HeroCircuitBrain from './components/HeroCircuitBrain';
 import Footer from './components/Footer';
 import WhatsAppFab from './components/WhatsAppFab';
 import StickyCTA from './components/StickyCTA';
@@ -92,9 +92,9 @@ function App() {
             <ScrollProgressBar />
 
             <main style={styles.container}>
-              {/* HERO - Critical, loads immediately */}
+              {/* HERO - Interactive Circuit Brain */}
               <FadeIn duration={1000} scale blur blurAmount={8}>
-                <HeroSection />
+                <HeroCircuitBrain />
               </FadeIn>
 
               {/* Credentials Banner */}
