@@ -67,88 +67,140 @@ const InfoModal = memo(({
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(0,0,0,0.75)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
+        background: 'rgba(5,6,13,0.85)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000,
         padding: 16,
-        animation: 'modalFadeIn 0.25s ease-out',
+        animation: 'modalFadeIn 0.3s ease-out',
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: 'linear-gradient(145deg, #f5ebe0 0%, #ede0d4 100%)',
-          borderRadius: 20,
-          maxWidth: 680,
+          background: 'linear-gradient(165deg, rgba(20,26,45,0.98) 0%, rgba(11,15,28,0.99) 100%)',
+          borderRadius: 24,
+          maxWidth: 640,
           width: '100%',
           maxHeight: '85vh',
           overflow: 'auto',
           position: 'relative',
-          boxShadow: '0 25px 80px rgba(0,0,0,0.5)',
-          animation: 'modalSlideIn 0.3s ease-out',
+          boxShadow: `0 30px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(143,211,204,0.15), inset 0 1px 0 rgba(255,255,255,0.05)`,
+          animation: 'modalSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
         }}
       >
+        {/* Glowing header bar */}
+        <div style={{
+          height: 4,
+          background: `linear-gradient(90deg, ${node.color}, ${brandPurple}, ${brandPink})`,
+          borderRadius: '24px 24px 0 0',
+        }} />
+
         {/* Close button */}
         <button
           onClick={onClose}
           aria-label="Close dialog"
+          className="modal-close-btn"
           style={{
             position: 'absolute',
-            top: 12,
-            right: 12,
-            background: 'rgba(0,0,0,0.08)',
-            border: 'none',
-            fontSize: 24,
+            top: 16,
+            right: 16,
+            background: 'rgba(255,255,255,0.08)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            fontSize: 20,
             cursor: 'pointer',
-            color: '#555',
-            width: 44,
-            height: 44,
+            color: 'rgba(255,255,255,0.7)',
+            width: 40,
+            height: 40,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             borderRadius: 12,
-            transition: 'background 0.2s',
+            transition: 'all 0.2s ease',
             zIndex: 10,
           }}
         >
-          ×
+          ✕
         </button>
 
         {/* Content */}
-        <div style={{ padding: '28px 28px 32px' }}>
-          {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-            <span style={{ fontSize: 40 }}>{node.icon}</span>
-            <h2
-              id="modal-title"
-              style={{
-                margin: 0,
-                fontSize: 26,
-                fontWeight: 700,
-                color: '#1a5f7a',
-                fontFamily: 'Cairo, system-ui, sans-serif',
-              }}
-            >
-              {node.content.title}
-            </h2>
+        <div style={{ padding: '32px 32px 36px' }}>
+          {/* Header with icon */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 18,
+            marginBottom: 24,
+            animation: 'contentSlideUp 0.4s ease-out 0.1s both',
+          }}>
+            <div style={{
+              width: 64,
+              height: 64,
+              borderRadius: 16,
+              background: `linear-gradient(135deg, ${node.color}25, ${node.color}10)`,
+              border: `2px solid ${node.color}40`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 32,
+              boxShadow: `0 8px 32px ${node.color}20`,
+            }}>
+              {node.icon}
+            </div>
+            <div>
+              <h2
+                id="modal-title"
+                style={{
+                  margin: 0,
+                  fontSize: 24,
+                  fontWeight: 700,
+                  color: '#fff',
+                  fontFamily: 'Cairo, system-ui, sans-serif',
+                  lineHeight: 1.2,
+                }}
+              >
+                {node.content.title}
+              </h2>
+              <p style={{
+                margin: '4px 0 0',
+                fontSize: 14,
+                color: node.color,
+                fontWeight: 500,
+              }}>
+                {node.content.subtitle}
+              </p>
+            </div>
           </div>
 
-          {/* Questions */}
-          <div style={{ marginBottom: 24 }}>
+          {/* Questions section */}
+          <div style={{
+            marginBottom: 24,
+            animation: 'contentSlideUp 0.4s ease-out 0.15s both',
+          }}>
+            <h3 style={{
+              margin: '0 0 12px',
+              fontSize: 13,
+              fontWeight: 600,
+              color: 'rgba(255,255,255,0.5)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}>
+              Do you experience...
+            </h3>
             {node.content.questions.map((q, i) => (
               <p
                 key={i}
                 style={{
-                  margin: '0 0 14px 0',
+                  margin: '0 0 12px 0',
                   fontSize: 15,
                   lineHeight: 1.7,
-                  color: '#333',
+                  color: 'rgba(255,255,255,0.8)',
                   fontFamily: 'system-ui, sans-serif',
-                  paddingRight: 8,
+                  paddingLeft: 16,
+                  borderLeft: `2px solid ${node.color}40`,
                 }}
               >
                 {q}
@@ -156,74 +208,105 @@ const InfoModal = memo(({
             ))}
           </div>
 
-          {/* Explanation */}
+          {/* Explanation box */}
           <div style={{
-            background: 'rgba(26,95,122,0.08)',
-            borderRadius: 12,
+            background: 'rgba(143,211,204,0.08)',
+            borderRadius: 16,
             padding: 20,
             marginBottom: 24,
-            borderLeft: '4px solid #1a5f7a',
+            border: '1px solid rgba(143,211,204,0.15)',
+            animation: 'contentSlideUp 0.4s ease-out 0.2s both',
           }}>
-            <p
-              style={{
-                margin: 0,
-                fontSize: 15,
-                lineHeight: 1.8,
-                color: '#444',
-                fontFamily: 'system-ui, sans-serif',
-              }}
-            >
+            <h3 style={{
+              margin: '0 0 10px',
+              fontSize: 14,
+              fontWeight: 600,
+              color: brandCyan,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}>
+              <span style={{ fontSize: 18 }}>💡</span> How Berard AIT Helps
+            </h3>
+            <p style={{
+              margin: 0,
+              fontSize: 14,
+              lineHeight: 1.8,
+              color: 'rgba(255,255,255,0.75)',
+              fontFamily: 'system-ui, sans-serif',
+            }}>
               {node.content.explanation}
             </p>
           </div>
 
           {/* Benefits */}
-          <div style={{ marginBottom: 24 }}>
-            <h3 style={{ margin: '0 0 12px', fontSize: 16, color: '#1a5f7a', fontWeight: 600 }}>
-              Expected Benefits:
+          <div style={{
+            marginBottom: 28,
+            animation: 'contentSlideUp 0.4s ease-out 0.25s both',
+          }}>
+            <h3 style={{
+              margin: '0 0 14px',
+              fontSize: 14,
+              color: '#fff',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}>
+              <span style={{ fontSize: 16 }}>✨</span> Expected Benefits
             </h3>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
               {node.content.benefits.map((benefit, i) => (
                 <span
                   key={i}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: 6,
-                    padding: '8px 14px',
-                    background: 'rgba(26,95,122,0.1)',
-                    borderRadius: 20,
+                    gap: 8,
+                    padding: '10px 16px',
+                    background: `linear-gradient(135deg, ${node.color}15, ${node.color}08)`,
+                    border: `1px solid ${node.color}30`,
+                    borderRadius: 24,
                     fontSize: 13,
-                    color: '#1a5f7a',
+                    color: '#fff',
                     fontWeight: 500,
+                    animation: `benefitPop 0.3s ease-out ${0.3 + i * 0.05}s both`,
                   }}
                 >
-                  ✓ {benefit}
+                  <span style={{ color: node.color }}>✓</span> {benefit}
                 </span>
               ))}
             </div>
           </div>
 
           {/* CTA Button */}
-          <div style={{ textAlign: 'center' }}>
+          <div style={{
+            textAlign: 'center',
+            animation: 'contentSlideUp 0.4s ease-out 0.35s both',
+          }}>
             <a
               href="#contact"
               onClick={onClose}
+              className="modal-cta-btn"
               style={{
-                display: 'inline-block',
-                padding: '14px 36px',
-                background: 'linear-gradient(135deg, #1a5f7a 0%, #2a7f9a 100%)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '16px 32px',
+                background: `linear-gradient(135deg, ${brandCyan} 0%, ${brandPurple} 100%)`,
                 color: '#fff',
                 textDecoration: 'none',
-                borderRadius: 30,
+                borderRadius: 50,
                 fontSize: 15,
-                fontWeight: 600,
+                fontWeight: 700,
                 fontFamily: 'Cairo, system-ui, sans-serif',
-                boxShadow: '0 4px 20px rgba(26,95,122,0.35)',
-                transition: 'transform 0.2s, box-shadow 0.2s',
+                boxShadow: `0 8px 30px ${brandCyan}40`,
+                transition: 'all 0.3s ease',
+                border: 'none',
               }}
             >
-              Learn About Berard AIT Protocol
+              Get Started with Berard AIT
+              <span style={{ fontSize: 18 }}>→</span>
             </a>
           </div>
         </div>
@@ -237,12 +320,44 @@ const InfoModal = memo(({
         @keyframes modalSlideIn {
           from {
             opacity: 0;
-            transform: scale(0.92) translateY(20px);
+            transform: scale(0.9) translateY(30px);
           }
           to {
             opacity: 1;
             transform: scale(1) translateY(0);
           }
+        }
+        @keyframes contentSlideUp {
+          from {
+            opacity: 0;
+            transform: translateY(15px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes benefitPop {
+          from {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .modal-close-btn:hover {
+          background: rgba(255,255,255,0.15) !important;
+          color: #fff !important;
+          transform: rotate(90deg);
+        }
+        .modal-cta-btn:hover {
+          transform: translateY(-2px) scale(1.02);
+          box-shadow: 0 12px 40px ${brandCyan}50 !important;
+        }
+        .modal-cta-btn:active {
+          transform: translateY(0) scale(0.98);
         }
       `}</style>
     </div>
@@ -355,6 +470,20 @@ export default function HeroCircuitBrain() {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-2px); }
     }
+    @keyframes titleFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { text-shadow: 0 0 20px rgba(143,211,204,0.3); }
+      50% { text-shadow: 0 0 30px rgba(143,211,204,0.5); }
+    }
     .circuit-brain-container {
       animation: fadeInScale 0.8s ease-out forwards;
     }
@@ -435,6 +564,38 @@ export default function HeroCircuitBrain() {
           opacity: isLoaded ? 1 : 0,
         }}
       >
+        {/* Hero Title */}
+        <div style={{
+          textAlign: 'center',
+          marginBottom: 16,
+          animation: 'titleFadeIn 1s ease-out forwards',
+        }}>
+          <h1 style={{
+            margin: 0,
+            fontSize: isMobile ? 28 : 38,
+            fontWeight: 800,
+            fontFamily: 'Cairo, system-ui, sans-serif',
+            background: `linear-gradient(135deg, ${brandCyan} 0%, #fff 50%, ${brandPurple} 100%)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            letterSpacing: '-0.5px',
+            lineHeight: 1.2,
+          }}>
+            Explore Your Brain's Potential
+          </h1>
+          <p style={{
+            margin: '8px 0 0',
+            fontSize: isMobile ? 14 : 16,
+            color: 'rgba(255,255,255,0.6)',
+            fontFamily: 'Cairo, system-ui, sans-serif',
+            maxWidth: 400,
+            lineHeight: 1.5,
+          }}>
+            Discover how Berard AIT can help optimize different areas of brain function
+          </p>
+        </div>
+
         <svg
           className="circuit-brain-svg"
           width="100%"
@@ -657,17 +818,43 @@ export default function HeroCircuitBrain() {
         </svg>
 
         {/* Instruction */}
-        <p
+        <div
           style={{
-            marginTop: 20,
-            color: 'rgba(255,255,255,0.55)',
-            fontSize: 14,
-            fontFamily: 'Cairo, sans-serif',
-            textAlign: 'center',
+            marginTop: 16,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            padding: '10px 20px',
+            background: 'rgba(143,211,204,0.08)',
+            borderRadius: 30,
+            border: '1px solid rgba(143,211,204,0.15)',
           }}
         >
-          {isMobile ? 'Tap on a node to learn more' : 'Click on a node to learn more'}
-        </p>
+          <span style={{
+            display: 'inline-block',
+            animation: reducedMotion ? 'none' : 'bounce 1.5s ease-in-out infinite',
+          }}>
+            {isMobile ? '👆' : '👆'}
+          </span>
+          <p
+            style={{
+              margin: 0,
+              color: 'rgba(255,255,255,0.7)',
+              fontSize: 14,
+              fontFamily: 'Cairo, sans-serif',
+              fontWeight: 500,
+            }}
+          >
+            {isMobile ? 'Tap a glowing node to explore' : 'Click any glowing node to explore'}
+          </p>
+        </div>
+        <style>{`
+          @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+          }
+        `}</style>
       </div>
 
       {/* Scroll indicator */}
