@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useGamification } from '../context/GamificationContext';
 import { useLanguage } from '../context/LanguageContext';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import {
   brandCyan,
   brandPurple,
@@ -16,6 +17,7 @@ import {
 export default function ProgressDashboard() {
   const { state, getUnlockedAchievements, getNextAchievements } = useGamification();
   const { t, isArabic } = useLanguage();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAttention, setShowAttention] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -95,6 +97,18 @@ export default function ProgressDashboard() {
     .attention-label {
       animation: labelSlideIn 0.5s ease-out 1s backwards;
     }
+    @media (prefers-reduced-motion: reduce) {
+      .progress-dashboard,
+      .progress-dashboard * {
+        animation: none !important;
+        transition: none !important;
+      }
+      .progress-dashboard:hover,
+      .progress-dashboard:active,
+      .achievement-preview:hover {
+        transform: none !important;
+      }
+    }
   `, [isArabic]);
 
   return (
@@ -125,8 +139,13 @@ export default function ProgressDashboard() {
             width: isExpanded ? 300 : 64,
             cursor: 'pointer',
             boxShadow: shadows.lg,
-            animation: showAttention && !hasInteracted ? 'attentionGlow 2s ease-in-out infinite' : undefined,
-            transition: `width 0.3s ${transitions.bounce}, border-color 0.3s ease`,
+            animation:
+              showAttention && !hasInteracted && !prefersReducedMotion
+                ? 'attentionGlow 2s ease-in-out infinite'
+                : undefined,
+            transition: prefersReducedMotion
+              ? 'none'
+              : `width 0.3s ${transitions.bounce}, border-color 0.3s ease`,
           }}
         >
           {/* Collapsed view - enhanced */}
@@ -138,7 +157,10 @@ export default function ProgressDashboard() {
               alignItems: 'center',
               justifyContent: 'center',
               position: 'relative',
-              animation: showAttention && !hasInteracted ? 'attentionBounce 2s ease-in-out infinite' : undefined,
+              animation:
+                showAttention && !hasInteracted && !prefersReducedMotion
+                  ? 'attentionBounce 2s ease-in-out infinite'
+                  : undefined,
             }}>
               {/* Circular progress */}
               <svg width={56} height={56} style={{ position: 'absolute' }}>
@@ -162,7 +184,7 @@ export default function ProgressDashboard() {
                   strokeDasharray={`${progressPercent * 1.51} 151`}
                   strokeLinecap="round"
                   transform="rotate(-90 28 28)"
-                  style={{ transition: transitions.slow }}
+                  style={{ transition: prefersReducedMotion ? 'none' : transitions.slow }}
                 />
                 <defs>
                   <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
