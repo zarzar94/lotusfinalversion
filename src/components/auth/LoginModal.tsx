@@ -62,6 +62,29 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
     }
   }, [isOpen]);
 
+  // Lock body scroll and scroll to top when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      // Store current scroll position
+      const scrollY = window.scrollY;
+      // Lock body scroll
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+
+      return () => {
+        // Restore body scroll
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        // Restore scroll position
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [isOpen]);
+
   // Handle escape key
   useEffect(() => {
     if (!isOpen) return;
@@ -137,6 +160,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
         zIndex: 1000,
         padding: spacing[4],
         animation: 'modalFadeIn 0.3s ease-out',
+        overflowY: 'auto',
       }}
     >
       <div
@@ -147,6 +171,8 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
           borderRadius: radius.xl,
           maxWidth: 420,
           width: '100%',
+          maxHeight: 'calc(100vh - 32px)',
+          overflowY: 'auto',
           position: 'relative',
           border: `1px solid ${colors.border.emphasis}`,
           boxShadow: shadows['2xl'],
