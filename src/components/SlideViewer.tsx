@@ -4,9 +4,30 @@ import { useFocusTrap } from '../hooks/useFocusTrap';
 import { pptxSlides } from '../data/pptxSlides';
 import { assetUrl } from '../utils/asset';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
-import { brandCyan, brandPink, brandPurple, styles, transitions } from './styles';
+import { brandCyan, brandPink, brandPurple, styles, transitions, colors, radius, spacing, typography } from './styles';
 import { MicroscopeIcon, FlaskIcon, SearchIcon, DownloadIcon, XIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon } from './Icons';
 import { useLanguage } from '../context/LanguageContext';
+import { useVisitorMode, type VisitorMode } from '../context/VisitorModeContext';
+
+// Define slide categories based on visitor mode relevance
+type SlideCategory = 'all' | 'school' | 'parent' | 'clinician' | 'science';
+
+interface SlideCategoryConfig {
+  id: SlideCategory;
+  labelEn: string;
+  labelAr: string;
+  icon: string;
+  color: string;
+  slideIds: number[]; // Slides particularly relevant to this category
+}
+
+const SLIDE_CATEGORIES: SlideCategoryConfig[] = [
+  { id: 'all', labelEn: 'All Samples', labelAr: 'جميع العينات', icon: '🧪', color: brandCyan, slideIds: [] },
+  { id: 'school', labelEn: 'School Focus', labelAr: 'تركيز مدرسي', icon: '🏫', color: '#f59e0b', slideIds: [1, 2, 5, 10, 15, 20, 25, 30, 35] },
+  { id: 'parent', labelEn: 'Parent Guide', labelAr: 'دليل الأهل', icon: '👨‍👩‍👧', color: '#22c55e', slideIds: [3, 7, 12, 18, 22, 28, 33, 38, 42, 43, 44, 45, 46] },
+  { id: 'clinician', labelEn: 'Clinical Data', labelAr: 'بيانات سريرية', icon: '🔬', color: brandPurple, slideIds: [4, 8, 13, 17, 21, 26, 31, 36, 40] },
+  { id: 'science', labelEn: 'Research', labelAr: 'أبحاث', icon: '📊', color: brandPink, slideIds: [6, 9, 14, 16, 19, 23, 27, 32, 37, 39] },
+];
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
@@ -613,12 +634,24 @@ const MicroscopeModal = ({
   );
 };
 
+// Map visitor mode to default category
+const getDefaultCategory = (mode: VisitorMode): SlideCategory => {
+  switch (mode) {
+    case 'school': return 'school';
+    case 'parent': return 'parent';
+    case 'clinician': return 'clinician';
+    default: return 'all';
+  }
+};
+
 const SlideViewer = () => {
   const { isArabic } = useLanguage();
+  const { mode: visitorMode, config: visitorConfig } = useVisitorMode();
   const [query, setQuery] = useState('');
   const [activeSlideId, setActiveSlideId] = useState<number | null>(null);
   const [exporting, setExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState<{ mode: 'summary' | 'slides'; current: number; total: number } | null>(null);
+  const [activeCategory, setActiveCategory] = useState<SlideCategory>('all');
   const modalRef = useFocusTrap<HTMLDivElement>(activeSlideId !== null);
 
   const slideIndex = useMemo(() => {
@@ -656,23 +689,36 @@ const SlideViewer = () => {
     return score;
   }, [slideIndex]);
 
+  // Default category based on visitor mode
+  useEffect(() => {
+    setActiveCategory(getDefaultCategory(visitorMode));
+  }, [visitorMode]);
+
   const slides = useMemo(() => {
+    const categoryConfig = SLIDE_CATEGORIES.find((category) => category.id === activeCategory);
+    const allowedIds =
+      activeCategory !== 'all' && categoryConfig && categoryConfig.slideIds.length > 0
+        ? new Set(categoryConfig.slideIds)
+        : null;
+
     const raw = query.trim();
-    if (!raw) return pptxSlides;
+    if (!raw) return allowedIds ? pptxSlides.filter((slide) => allowedIds.has(slide.id)) : pptxSlides;
 
     const idQuery = parseSlideIdQuery(raw);
     if (idQuery) {
       if (idQuery.kind === 'range') {
-        return pptxSlides.filter((slide) => slide.id >= idQuery.from && slide.id <= idQuery.to);
+        const ranged = pptxSlides.filter((slide) => slide.id >= idQuery.from && slide.id <= idQuery.to);
+        return allowedIds ? ranged.filter((slide) => allowedIds.has(slide.id)) : ranged;
       }
       const wanted = new Set(idQuery.ids);
-      return pptxSlides.filter((slide) => wanted.has(slide.id));
+      const selected = pptxSlides.filter((slide) => wanted.has(slide.id));
+      return allowedIds ? selected.filter((slide) => allowedIds.has(slide.id)) : selected;
     }
 
     const groups = parseSearchGroups(raw);
-    if (!groups.length) return pptxSlides;
+    if (!groups.length) return allowedIds ? pptxSlides.filter((slide) => allowedIds.has(slide.id)) : pptxSlides;
 
-    return slideIndex
+    const results = slideIndex
       .map((entry) => {
         const matchingGroups = groups.filter((tokens) => matchesAllTokens(entry.normAll, tokens));
         if (!matchingGroups.length) return null;
@@ -682,7 +728,9 @@ const SlideViewer = () => {
       .filter((value): value is { slide: typeof pptxSlides[0]; score: number } => value !== null)
       .sort((a, b) => b.score - a.score || a.slide.id - b.slide.id)
       .map((r) => r.slide);
-  }, [query, slideIndex, scoreGroup]);
+
+    return allowedIds ? results.filter((slide) => allowedIds.has(slide.id)) : results;
+  }, [query, slideIndex, scoreGroup, activeCategory]);
 
   const activeIndex = useMemo(() => {
     if (!activeSlideId) return -1;
@@ -841,16 +889,39 @@ const SlideViewer = () => {
       0%, 100% { transform: translateY(0); opacity: 0.5; }
       50% { transform: translateY(-10px); opacity: 1; }
     }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.7; }
+    }
     .flask-card {
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .flask-card:hover {
       transform: translateY(-8px);
     }
+    .category-filters {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(143,211,204,0.3) transparent;
+    }
+    .category-filters::-webkit-scrollbar {
+      height: 4px;
+    }
+    .category-filters::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .category-filters::-webkit-scrollbar-thumb {
+      background: rgba(143,211,204,0.3);
+      border-radius: 4px;
+    }
     @media (max-width: 640px) {
       .slides-grid {
         grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
         gap: 12px !important;
+      }
+      .category-filters {
+        overflow-x: auto;
+        flex-wrap: nowrap !important;
+        padding-bottom: 8px;
       }
     }
     @media (min-width: 768px) and (max-width: 1023px) {
@@ -989,6 +1060,132 @@ const SlideViewer = () => {
           <p style={{ ...styles.muted, fontSize: 12, opacity: 0.75 }}>
             تلميح البحث: <b>#12</b> أو <b>5-10</b> أو <b>12, 15, 18</b> أو <b>12 15 18</b> أو <b>"auditory processing"</b> أو <b>apd|hyperacusis</b>
           </p>
+
+          {/* Category Filter Tabs - Visitor Mode Aware */}
+          <div className="category-filters" style={{
+            marginTop: 16,
+            display: 'flex',
+            gap: 8,
+            flexWrap: 'wrap',
+            alignItems: 'center',
+          }}>
+            <span style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: 'rgba(255,255,255,0.5)',
+              marginLeft: 8,
+            }}>
+              {isArabic ? 'تصنيف:' : 'Filter:'}
+            </span>
+            {SLIDE_CATEGORIES.map((category) => {
+              const isActive = activeCategory === category.id;
+              const isRecommended = category.id === getDefaultCategory(visitorMode) && category.id !== 'all';
+              const slideCount = category.id === 'all'
+                ? pptxSlides.length
+                : category.slideIds.length;
+
+              return (
+                <button
+                  key={category.id}
+                  type="button"
+                  onClick={() => setActiveCategory(category.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '8px 14px',
+                    borderRadius: 10,
+                    border: `2px solid ${isActive ? category.color : 'rgba(255,255,255,0.1)'}`,
+                    background: isActive
+                      ? `${category.color}20`
+                      : 'rgba(255,255,255,0.03)',
+                    color: isActive ? category.color : 'rgba(255,255,255,0.6)',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    position: 'relative',
+                  }}
+                  aria-pressed={isActive}
+                  aria-label={isArabic ? category.labelAr : category.labelEn}
+                >
+                  <span style={{ fontSize: 14 }}>{category.icon}</span>
+                  <span>{isArabic ? category.labelAr : category.labelEn}</span>
+                  <span style={{
+                    padding: '2px 6px',
+                    borderRadius: 6,
+                    background: isActive ? category.color + '30' : 'rgba(255,255,255,0.08)',
+                    fontSize: 10,
+                    fontFamily: 'monospace',
+                  }}>
+                    {slideCount}
+                  </span>
+                  {isRecommended && !isActive && (
+                    <span style={{
+                      position: 'absolute',
+                      top: -6,
+                      right: -6,
+                      width: 12,
+                      height: 12,
+                      borderRadius: '50%',
+                      background: visitorConfig.color,
+                      border: '2px solid #1a1f2e',
+                      animation: 'pulse 2s infinite',
+                    }} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Visitor Mode Context Banner */}
+          {activeCategory !== 'all' && (
+            <div style={{
+              marginTop: 12,
+              padding: '10px 14px',
+              borderRadius: 10,
+              background: `${SLIDE_CATEGORIES.find(c => c.id === activeCategory)?.color || brandCyan}15`,
+              border: `1px solid ${SLIDE_CATEGORIES.find(c => c.id === activeCategory)?.color || brandCyan}30`,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              fontSize: 12,
+            }}>
+              <span style={{ fontSize: 16 }}>
+                {SLIDE_CATEGORIES.find(c => c.id === activeCategory)?.icon}
+              </span>
+              <span style={{ color: 'rgba(255,255,255,0.7)' }}>
+                {activeCategory === 'school' && (isArabic
+                  ? 'عرض العينات المتعلقة بالبيئة التعليمية وصعوبات التعلم'
+                  : 'Showing samples related to educational environment and learning difficulties')}
+                {activeCategory === 'parent' && (isArabic
+                  ? 'عرض العينات المهمة لفهم الأهل لحالة الطفل والنتائج'
+                  : 'Showing samples important for parents to understand child condition and results')}
+                {activeCategory === 'clinician' && (isArabic
+                  ? 'عرض البيانات السريرية والتقنية للمختصين'
+                  : 'Showing clinical and technical data for specialists')}
+                {activeCategory === 'science' && (isArabic
+                  ? 'عرض الأبحاث والدراسات العلمية الداعمة'
+                  : 'Showing supporting research and scientific studies')}
+              </span>
+              <button
+                type="button"
+                onClick={() => setActiveCategory('all')}
+                style={{
+                  marginRight: 'auto',
+                  padding: '4px 10px',
+                  borderRadius: 6,
+                  border: 'none',
+                  background: 'rgba(255,255,255,0.1)',
+                  color: 'rgba(255,255,255,0.6)',
+                  fontSize: 11,
+                  cursor: 'pointer',
+                }}
+              >
+                {isArabic ? 'عرض الكل' : 'Show All'}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Flask Grid */}
