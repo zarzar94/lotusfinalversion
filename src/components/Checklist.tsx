@@ -555,6 +555,17 @@ const VISITOR_RECOMMENDATIONS = {
   },
 };
 
+type RecommendationLevel = keyof typeof VISITOR_RECOMMENDATIONS.school;
+
+type ChecklistRecommendation = {
+  level: RecommendationLevel;
+  label: string;
+  labelEn: string;
+  color: string;
+  icon: ReactNode;
+  msg: string;
+};
+
 const Checklist = () => {
   const { mode: visitorMode, config: visitorConfig, isSchool, isParent, isClinician } = useVisitorMode();
   const { isArabic } = useLanguage();
@@ -583,7 +594,7 @@ const Checklist = () => {
     }));
   }, [selected]);
 
-  const recommendation = useMemo(() => {
+  const recommendation = useMemo<ChecklistRecommendation>(() => {
     if (selectedCount <= 4) {
       return { level: 'low', label: 'مؤشرات قليلة', labelEn: 'Low', color: brandCyan, icon: <CheckCircleIcon size={24} color={brandCyan} />, msg: 'النتيجة لا تُعد تشخيصاً. إذا كانت هناك مخاوف، استشر مختصاً.' };
     }
