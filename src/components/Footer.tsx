@@ -13,7 +13,6 @@ import {
   HeadphonesIcon,
   ChartIcon,
   GamepadIcon,
-  SchoolIcon,
   ExternalLinkIcon,
   PhoneIcon,
   BrainIcon,

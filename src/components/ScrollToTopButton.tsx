@@ -5,7 +5,7 @@
 
 import { memo, useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { brandCyan, brandPurple, radius, shadows } from './styles';
+import { brandCyan, brandPurple, radius } from './styles';
 
 interface ScrollToTopButtonProps {
   threshold?: number;
