@@ -245,10 +245,12 @@ export default function NotificationCenter() {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   // Add notification helper
-  const addNotification = useCallback((notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
+  const addNotification = useCallback((
+    notification: Omit<Notification, 'id' | 'timestamp' | 'read'> & { id?: string },
+  ) => {
     const newNotification: Notification = {
       ...notification,
-      id: `notif_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+      id: notification.id ?? `notif_${Date.now()}_${Math.random().toString(36).slice(2)}`,
       timestamp: Date.now(),
       read: false,
     };
@@ -316,11 +318,12 @@ export default function NotificationCenter() {
 
     // Remind if no activity in 20+ hours
     if (hoursSinceActivity >= 20 && hoursSinceActivity < 48) {
-      const reminderKey = `reminder_${new Date().toDateString()}`;
-      const existingReminder = notifications.find((n) => n.id.includes(reminderKey));
+      const reminderId = `reminder_${new Date().toISOString().slice(0, 10)}`;
+      const existingReminder = notifications.find((n) => n.id === reminderId);
 
       if (!existingReminder) {
         addNotification({
+          id: reminderId,
           type: 'reminder',
           title: 'Daily Session Reminder',
           titleAr: 'تذكير الجلسة اليومية',

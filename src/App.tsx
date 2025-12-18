@@ -47,6 +47,10 @@ const TreatmentTimeline = lazy(() => import('./components/TreatmentTimeline'));
 const AudioSpectrumDemo = lazy(() => import('./components/AudioSpectrumDemo'));
 const PartnerLogos = lazy(() => import('./components/PartnerLogos'));
 
+// Respect Vite base for subpath deployments (e.g., GitHub Pages)
+const rawBase = import.meta.env.BASE_URL ?? '/';
+const appBase = (rawBase === './' ? '/' : rawBase).replace(/\/+$/, '') || '/';
+
 // Heavy components - lazy loaded
 const SlideViewer = lazy(() => import('./components/SlideViewer'));
 const Checklist = lazy(() => import('./components/Checklist'));
@@ -381,11 +385,9 @@ function App() {
     };
   }, []);
 
-  const routerBasename = import.meta.env.BASE_URL === './' ? '/' : import.meta.env.BASE_URL;
-
   return (
     <ErrorBoundary>
-      <BrowserRouter basename={routerBasename}>
+      <BrowserRouter basename={appBase}>
         <LanguageProvider>
           <UserProvider>
             <GamificationProvider>
