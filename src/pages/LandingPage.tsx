@@ -284,13 +284,25 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
       0%, 100% { opacity: 0.3; }
       50% { opacity: 0.5; }
     }
+    @media (max-width: 640px) {
+      .nav-section {
+        padding: ${spacing[6]}px ${spacing[3]}px !important;
+      }
+      .nav-section-title {
+        font-size: ${typography.size['2xl']}px !important;
+      }
+      .nav-cards-grid {
+        gap: ${spacing[3]}px !important;
+      }
+    }
   `;
 
   return (
     <section
       id="navigate"
+      className="nav-section"
       style={{
-        padding: `${spacing[12]}px ${spacing[4]}px`,
+        padding: `${spacing[10]}px ${spacing[4]}px`,
         maxWidth: 1200,
         margin: '0 auto',
         position: 'relative',
@@ -331,6 +343,7 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
         </div>
 
         <h2
+          className="nav-section-title"
           style={{
             fontSize: typography.size['3xl'],
             fontWeight: typography.weight.black,
@@ -361,9 +374,10 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
 
       {/* Cards grid */}
       <div
+        className="nav-cards-grid"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
           gap: spacing[5],
         }}
       >
