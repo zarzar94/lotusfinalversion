@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from 'react';
 
 // Achievement definitions
 export interface Achievement {
@@ -374,9 +374,12 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<GamificationState>(getInitialState);
   const [recentUnlock, setRecentUnlock] = useState<Achievement | null>(null);
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
+  const saveTimeoutRef = useRef<number | null>(null);
 
   // Initialize audio context on first interaction
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const initAudio = () => {
       if (!audioContext) {
         const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
@@ -390,32 +393,32 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
 
   // Save state to localStorage
   useEffect(() => {
-    const toSave = {
-      ...state,
-      totalTimeSpent: state.totalTimeSpent + Math.floor((Date.now() - state.sessionStartTime) / 1000),
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
-  }, [state]);
+    if (typeof window === 'undefined') return;
 
-  // Track time spent
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const timeSpent = Math.floor((Date.now() - state.sessionStartTime) / 1000);
-      if (timeSpent >= 300 && !state.achievements.find(a => a.id === 'dedicated_learner')?.unlocked) {
-        unlockAchievement('dedicated_learner');
-      }
-    }, 30000); // Check every 30 seconds
-
-    return () => clearInterval(interval);
-  }, [state.sessionStartTime, state.achievements]);
-
-  // Unlock first_steps on mount if not already unlocked
-  useEffect(() => {
-    const firstSteps = state.achievements.find(a => a.id === 'first_steps');
-    if (firstSteps && !firstSteps.unlocked) {
-      setTimeout(() => unlockAchievement('first_steps'), 2000);
+    if (saveTimeoutRef.current !== null) {
+      window.clearTimeout(saveTimeoutRef.current);
     }
-  }, []);
+
+    const snapshot = state;
+    saveTimeoutRef.current = window.setTimeout(() => {
+      try {
+        const toSave = {
+          ...snapshot,
+          totalTimeSpent: snapshot.totalTimeSpent + Math.floor((Date.now() - snapshot.sessionStartTime) / 1000),
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+      } catch {
+        // Ignore quota/availability errors
+      }
+    }, 750);
+
+    return () => {
+      if (saveTimeoutRef.current !== null) {
+        window.clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
+    };
+  }, [state]);
 
   const playUnlockSound = useCallback(() => {
     if (!audioContext) return;
@@ -465,160 +468,222 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   };
 
   const unlockAchievement = useCallback((id: string): boolean => {
-    const achievement = state.achievements.find(a => a.id === id);
-    if (!achievement || achievement.unlocked) return false;
+    let didUnlock = false;
+    let unlocked: Achievement | null = null;
+    let shouldScheduleSoundScientist = false;
 
-    const newAchievements = state.achievements.map(a =>
-      a.id === id ? { ...a, unlocked: true, unlockedAt: Date.now() } : a
-    );
-    const newPoints = state.totalPoints + achievement.points;
+    setState((prev) => {
+      const achievement = prev.achievements.find(a => a.id === id);
+      if (!achievement || achievement.unlocked) return prev;
 
-    setState(prev => ({
-      ...prev,
-      achievements: newAchievements,
-      totalPoints: newPoints,
-      level: calculateLevel(newPoints),
-    }));
+      const unlockedAt = Date.now();
+      didUnlock = true;
+      unlocked = { ...achievement, unlocked: true, unlockedAt };
 
-    setRecentUnlock({ ...achievement, unlocked: true, unlockedAt: Date.now() });
+      const achievements = prev.achievements.map(a =>
+        a.id === id ? { ...a, unlocked: true, unlockedAt } : a
+      );
+      const totalPoints = prev.totalPoints + achievement.points;
+
+      shouldScheduleSoundScientist =
+        id !== 'sound_scientist' &&
+        totalPoints >= 300 &&
+        !prev.achievements.find(a => a.id === 'sound_scientist')?.unlocked;
+
+      return {
+        ...prev,
+        achievements,
+        totalPoints,
+        level: calculateLevel(totalPoints),
+      };
+    });
+
+    if (!didUnlock || !unlocked) return false;
+
+    setRecentUnlock(unlocked);
     playUnlockSound();
 
-    // Check for sound_scientist achievement
-    if (newPoints >= 300) {
-      setTimeout(() => {
-        const soundScientist = state.achievements.find(a => a.id === 'sound_scientist');
-        if (soundScientist && !soundScientist.unlocked) {
-          unlockAchievement('sound_scientist');
-        }
+    if (shouldScheduleSoundScientist) {
+      window.setTimeout(() => {
+        unlockAchievement('sound_scientist');
       }, 1500);
     }
 
     return true;
-  }, [state.achievements, state.totalPoints, playUnlockSound]);
+  }, [playUnlockSound]);
 
   const exploreBrainRegion = useCallback((id: string) => {
-    if (state.exploredBrainRegions.includes(id)) return;
+    let exploredCount: number | null = null;
+    let exploredAll = false;
 
-    const newExplored = [...state.exploredBrainRegions, id];
-    setState(prev => ({ ...prev, exploredBrainRegions: newExplored }));
+    setState((prev) => {
+      if (prev.exploredBrainRegions.includes(id)) return prev;
+      const exploredBrainRegions = [...prev.exploredBrainRegions, id];
+      exploredCount = exploredBrainRegions.length;
+      exploredAll = exploredBrainRegions.length === BRAIN_REGIONS.length;
+      return { ...prev, exploredBrainRegions };
+    });
 
-    // Check achievements
-    if (newExplored.length === 3) {
-      unlockAchievement('brain_explorer');
-    }
-    if (newExplored.length === BRAIN_REGIONS.length) {
-      unlockAchievement('neural_master');
-    }
-  }, [state.exploredBrainRegions, unlockAchievement]);
+    if (exploredCount === 3) unlockAchievement('brain_explorer');
+    if (exploredAll) unlockAchievement('neural_master');
+  }, [unlockAchievement]);
 
   const viewSlide = useCallback((slideId: number) => {
-    if (state.slidesViewed.includes(slideId)) return;
+    let viewedCount: number | null = null;
 
-    const newViewed = [...state.slidesViewed, slideId];
-    setState(prev => ({ ...prev, slidesViewed: newViewed }));
+    setState((prev) => {
+      if (prev.slidesViewed.includes(slideId)) return prev;
+      const slidesViewed = [...prev.slidesViewed, slideId];
+      viewedCount = slidesViewed.length;
+      return { ...prev, slidesViewed };
+    });
 
-    if (newViewed.length === 10) {
-      unlockAchievement('slide_scholar');
-    }
-    if (newViewed.length === 30) {
-      unlockAchievement('data_detective');
-    }
-  }, [state.slidesViewed, unlockAchievement]);
+    if (viewedCount === 10) unlockAchievement('slide_scholar');
+    if (viewedCount === 30) unlockAchievement('data_detective');
+  }, [unlockAchievement]);
 
   const completeChecklist = useCallback(() => {
-    if (state.checklistCompleted) return;
-    setState(prev => ({ ...prev, checklistCompleted: true }));
+    let shouldUnlock = false;
+    setState((prev) => {
+      if (prev.checklistCompleted) return prev;
+      shouldUnlock = true;
+      return { ...prev, checklistCompleted: true };
+    });
+    if (!shouldUnlock) return;
     unlockAchievement('self_aware');
-  }, [state.checklistCompleted, unlockAchievement]);
+  }, [unlockAchievement]);
 
   const completeGame = useCallback((gameId: string) => {
-    if (state.gamesCompleted.includes(gameId)) return;
+    let completedCount: number | null = null;
 
-    const newCompleted = [...state.gamesCompleted, gameId];
-    setState(prev => ({ ...prev, gamesCompleted: newCompleted }));
+    setState((prev) => {
+      if (prev.gamesCompleted.includes(gameId)) return prev;
+      const gamesCompleted = [...prev.gamesCompleted, gameId];
+      completedCount = gamesCompleted.length;
+      return { ...prev, gamesCompleted };
+    });
 
-    if (newCompleted.length === 1) {
-      unlockAchievement('game_starter');
-    }
-    if (newCompleted.length >= 5) {
-      unlockAchievement('lab_explorer');
-    }
-  }, [state.gamesCompleted, unlockAchievement]);
+    if (completedCount === 1) unlockAchievement('game_starter');
+    if (typeof completedCount === 'number' && completedCount >= 5) unlockAchievement('lab_explorer');
+  }, [unlockAchievement]);
 
   const updateAudioJourneyProgress = useCallback((progress: number) => {
     const clampedProgress = Math.min(100, Math.max(0, progress));
-    if (clampedProgress <= state.audioJourneyProgress) return;
+    let previous = 0;
+    let didUpdate = false;
 
-    setState(prev => ({ ...prev, audioJourneyProgress: clampedProgress }));
+    setState((prev) => {
+      if (clampedProgress <= prev.audioJourneyProgress) return prev;
+      previous = prev.audioJourneyProgress;
+      didUpdate = true;
+      return { ...prev, audioJourneyProgress: clampedProgress };
+    });
 
-    if (clampedProgress >= 50 && state.audioJourneyProgress < 50) {
+    if (!didUpdate) return;
+
+    if (clampedProgress >= 50 && previous < 50) {
       unlockAchievement('sound_traveler');
     }
     if (clampedProgress >= 100) {
       unlockAchievement('audio_master');
     }
-  }, [state.audioJourneyProgress, unlockAchievement]);
+  }, [unlockAchievement]);
 
   const updateScrollProgress = useCallback((progress: number) => {
     const clampedProgress = Math.min(100, Math.max(0, progress));
-    if (clampedProgress <= state.maxScrollProgress) return;
+    let previous = 0;
+    let didUpdate = false;
 
-    setState(prev => ({ ...prev, maxScrollProgress: clampedProgress }));
+    setState((prev) => {
+      if (clampedProgress <= prev.maxScrollProgress) return prev;
+      previous = prev.maxScrollProgress;
+      didUpdate = true;
+      return { ...prev, maxScrollProgress: clampedProgress };
+    });
+
+    if (!didUpdate) return;
 
     // Check scroll achievements
-    if (clampedProgress >= 50 && state.maxScrollProgress < 50) {
+    if (clampedProgress >= 50 && previous < 50) {
       unlockAchievement('curious_explorer');
     }
     if (clampedProgress >= 95) {
       unlockAchievement('completionist');
     }
-  }, [state.maxScrollProgress, unlockAchievement]);
+  }, [unlockAchievement]);
 
   const watchVideo = useCallback((videoId: string) => {
-    if (state.videosWatched.includes(videoId)) return;
+    let watchedCount: number | null = null;
 
-    const newWatched = [...state.videosWatched, videoId];
-    setState(prev => ({ ...prev, videosWatched: newWatched }));
+    setState((prev) => {
+      if (prev.videosWatched.includes(videoId)) return prev;
+      const videosWatched = [...prev.videosWatched, videoId];
+      watchedCount = videosWatched.length;
+      return { ...prev, videosWatched };
+    });
 
-    // First video achievement
-    if (newWatched.length === 1) {
-      unlockAchievement('video_watcher');
-    }
-  }, [state.videosWatched, unlockAchievement]);
+    if (watchedCount === 1) unlockAchievement('video_watcher');
+  }, [unlockAchievement]);
 
-  const getUnlockedAchievements = useCallback(() => {
+  const unlockedAchievements = useMemo(() => {
     return state.achievements.filter(a => a.unlocked);
   }, [state.achievements]);
 
-  const getNextAchievements = useCallback(() => {
+  const nextAchievements = useMemo(() => {
     return state.achievements.filter(a => !a.unlocked).slice(0, 3);
   }, [state.achievements]);
+
+  const getUnlockedAchievements = useCallback(() => unlockedAchievements, [unlockedAchievements]);
+  const getNextAchievements = useCallback(() => nextAchievements, [nextAchievements]);
 
   const clearRecentUnlock = useCallback(() => {
     setRecentUnlock(null);
   }, []);
 
-  const brainRegions = BRAIN_REGIONS.map(region => ({
-    ...region,
-    explored: state.exploredBrainRegions.includes(region.id),
-  }));
+  const brainRegions = useMemo(() => {
+    const exploredSet = new Set(state.exploredBrainRegions);
+    return BRAIN_REGIONS.map(region => ({
+      ...region,
+      explored: exploredSet.has(region.id),
+    }));
+  }, [state.exploredBrainRegions]);
+
+  // Track time spent
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const interval = window.setInterval(() => {
+      const timeSpent = Math.floor((Date.now() - state.sessionStartTime) / 1000);
+      if (timeSpent < 300) return;
+      unlockAchievement('dedicated_learner');
+    }, 30000); // Check every 30 seconds
+
+    return () => window.clearInterval(interval);
+  }, [state.sessionStartTime, unlockAchievement]);
+
+  // Unlock first_steps shortly after mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const timer = window.setTimeout(() => {
+      unlockAchievement('first_steps');
+    }, 2000);
+    return () => window.clearTimeout(timer);
+  }, [unlockAchievement]);
 
   // Check time-based achievements on mount
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const hour = new Date().getHours();
     if (hour < 9) {
-      const earlyBird = state.achievements.find(a => a.id === 'early_bird');
-      if (earlyBird && !earlyBird.unlocked) {
-        setTimeout(() => unlockAchievement('early_bird'), 3000);
-      }
+      const timer = window.setTimeout(() => unlockAchievement('early_bird'), 3000);
+      return () => window.clearTimeout(timer);
     }
     if (hour >= 22) {
-      const nightOwl = state.achievements.find(a => a.id === 'night_owl');
-      if (nightOwl && !nightOwl.unlocked) {
-        setTimeout(() => unlockAchievement('night_owl'), 3000);
-      }
+      const timer = window.setTimeout(() => unlockAchievement('night_owl'), 3000);
+      return () => window.clearTimeout(timer);
     }
-  }, []);
+  }, [unlockAchievement]);
 
   return (
     <GamificationContext.Provider
