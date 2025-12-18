@@ -65,6 +65,8 @@ function RadarBlip({ item, isSelected, angle, distance, color, onToggle, isHit, 
     <button
       type="button"
       onClick={() => { playSelectSound(!isSelected); onToggle(); }}
+      aria-label={item.text}
+      aria-pressed={isSelected}
       style={{
         position: 'absolute',
         left: `calc(50% + ${x}px)`,
