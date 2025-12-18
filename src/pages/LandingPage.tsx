@@ -12,10 +12,12 @@ import HeroCircuitBrain from '../components/HeroCircuitBrain';
 import CircuitDecoration from '../components/CircuitDecoration';
 import Footer from '../components/Footer';
 import WhatsAppFab from '../components/WhatsAppFab';
+import ScrollToTopButton from '../components/ScrollToTopButton';
 import SectionLoader from '../components/SectionLoader';
 import FadeIn from '../components/FadeIn';
 import { useLanguage } from '../context/LanguageContext';
 import { useClinicalSync } from '../hooks/useClinicalSync';
+import { usePageTitle } from '../hooks/usePageTitle';
 import {
   brandCyan,
   brandPurple,
@@ -407,6 +409,7 @@ PageNavigationCards.displayName = 'PageNavigationCards';
 function LandingPage() {
   const { isArabic } = useLanguage();
   useClinicalSync();
+  usePageTitle();
 
   return (
     <div style={styles.page}>
@@ -435,6 +438,7 @@ function LandingPage() {
       </main>
 
       <WhatsAppFab />
+      <ScrollToTopButton />
     </div>
   );
 }

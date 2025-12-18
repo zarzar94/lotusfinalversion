@@ -9,10 +9,12 @@ import { styles } from '../components/styles';
 import BackgroundFX from '../components/BackgroundFX';
 import Footer from '../components/Footer';
 import WhatsAppFab from '../components/WhatsAppFab';
+import ScrollToTopButton from '../components/ScrollToTopButton';
 import SectionLoader from '../components/SectionLoader';
 import FadeIn from '../components/FadeIn';
 import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
+import { usePageTitle } from '../hooks/usePageTitle';
 import {
   colors,
   typography,
@@ -89,6 +91,7 @@ PageHeader.displayName = 'PageHeader';
 
 function ResourcesPage() {
   const { isArabic, t } = useLanguage();
+  usePageTitle();
 
   return (
     <div style={styles.page}>
@@ -130,6 +133,7 @@ function ResourcesPage() {
       </main>
 
       <WhatsAppFab />
+      <ScrollToTopButton />
     </div>
   );
 }
