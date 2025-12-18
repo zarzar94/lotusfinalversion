@@ -4,10 +4,12 @@ import { brandPurple, brandCyan, brandPink, colors, radius, spacing, typography,
 import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon } from './Icons';
 import BrainLogo from './BrainLogo';
 import LanguageToggle from './LanguageToggle';
+import ModeSwitcher from './ModeSwitcher';
 import ProfileMenu from './auth/ProfileMenu';
 import LoginModal from './auth/LoginModal';
 import { useLanguage } from '../context/LanguageContext';
 import { useUser } from '../context/UserContext';
+import { useVisitorMode, type VisitorMode } from '../context/VisitorModeContext';
 import { useBreakpoints } from '../hooks';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -21,26 +23,96 @@ interface NavItem {
   path: string;
   icon: React.ReactNode;
   color?: string;
+  priority?: Record<VisitorMode, number>; // Priority per visitor mode (lower = higher priority)
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'assessment', label: 'Assessment', labelAr: 'التقييم', path: '/assessment', icon: <BrainIcon size={16} />, color: brandCyan },
-  { id: 'program', label: 'Program', labelAr: 'البرنامج', path: '/program', icon: <HeadphonesIcon size={16} />, color: brandPurple },
-  { id: 'science', label: 'Science', labelAr: 'العلوم', path: '/science', icon: '🧠', color: brandPink },
-  { id: 'results', label: 'Results', labelAr: 'النتائج', path: '/results', icon: '📊', color: '#22c55e' },
-  { id: 'resources', label: 'Resources', labelAr: 'الموارد', path: '/resources', icon: <HelpIcon size={16} />, color: '#f59e0b' },
-  { id: 'about', label: 'About', labelAr: 'من نحن', path: '/about', icon: '🏛️', color: brandPurple },
-  { id: 'contact', label: 'Contact', labelAr: 'تواصل', path: '/contact', icon: <PhoneIcon size={16} />, color: brandCyan },
+  {
+    id: 'assessment',
+    label: 'Assessment',
+    labelAr: 'التقييم',
+    path: '/assessment',
+    icon: <BrainIcon size={16} />,
+    color: brandCyan,
+    priority: { school: 1, parent: 2, clinician: 2 }, // Schools: assessment first
+  },
+  {
+    id: 'program',
+    label: 'Program',
+    labelAr: 'البرنامج',
+    path: '/program',
+    icon: <HeadphonesIcon size={16} />,
+    color: brandPurple,
+    priority: { school: 3, parent: 1, clinician: 3 }, // Parents: learn about program first
+  },
+  {
+    id: 'science',
+    label: 'Science',
+    labelAr: 'العلوم',
+    path: '/science',
+    icon: '🧠',
+    color: brandPink,
+    priority: { school: 5, parent: 5, clinician: 1 }, // Clinicians: science/evidence first
+  },
+  {
+    id: 'results',
+    label: 'Results',
+    labelAr: 'النتائج',
+    path: '/results',
+    icon: '📊',
+    color: '#22c55e',
+    priority: { school: 2, parent: 3, clinician: 4 }, // Schools & Parents: want to see results
+  },
+  {
+    id: 'resources',
+    label: 'Resources',
+    labelAr: 'الموارد',
+    path: '/resources',
+    icon: <HelpIcon size={16} />,
+    color: '#f59e0b',
+    priority: { school: 4, parent: 4, clinician: 5 },
+  },
+  {
+    id: 'about',
+    label: 'About',
+    labelAr: 'من نحن',
+    path: '/about',
+    icon: '🏛️',
+    color: brandPurple,
+    priority: { school: 6, parent: 6, clinician: 6 },
+  },
+  {
+    id: 'contact',
+    label: 'Contact',
+    labelAr: 'تواصل',
+    path: '/contact',
+    icon: <PhoneIcon size={16} />,
+    color: brandCyan,
+    priority: { school: 7, parent: 7, clinician: 7 }, // Contact always last
+  },
 ];
+
+// Function to get sorted nav items based on visitor mode
+const getSortedNavItems = (mode: VisitorMode): NavItem[] => {
+  return [...NAV_ITEMS].sort((a, b) => {
+    const priorityA = a.priority?.[mode] ?? 99;
+    const priorityB = b.priority?.[mode] ?? 99;
+    return priorityA - priorityB;
+  });
+};
 
 const Header = memo(function Header() {
   const { t, direction, isArabic } = useLanguage();
   const { user, isAuthenticated, hasPermission } = useUser();
+  const { mode: visitorMode, config: visitorConfig } = useVisitorMode();
   const { isMobile, isTablet } = useBreakpoints();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  // Get sorted nav items based on visitor mode
+  const sortedNavItems = useMemo(() => getSortedNavItems(visitorMode), [visitorMode]);
 
   // Check if current path matches nav item
   const isActivePath = useCallback((path: string) => {
@@ -267,8 +339,10 @@ const Header = memo(function Header() {
               alignItems: 'center',
               gap: 6,
               padding: '4px 10px',
-              marginRight: 4,
-              borderRight: '1px solid rgba(143,211,204,0.15)',
+              marginRight: isArabic ? undefined : 4,
+              marginLeft: isArabic ? 4 : undefined,
+              borderRight: isArabic ? undefined : '1px solid rgba(143,211,204,0.15)',
+              borderLeft: isArabic ? '1px solid rgba(143,211,204,0.15)' : undefined,
             }}>
               <div style={{
                 width: 6,
@@ -284,34 +358,56 @@ const Header = memo(function Header() {
                 color: brandCyan,
                 letterSpacing: 1,
                 textTransform: 'uppercase',
-              }}>LAB</span>
+              }}>{isArabic ? 'مختبر' : 'LAB'}</span>
             </div>
-            {NAV_ITEMS.map((item) => {
+            {sortedNavItems.map((item) => {
               const isActive = isActivePath(item.path);
+              const isPriority = item.priority?.[visitorMode] === 1; // Top priority for current mode
               return (
                 <Link
                   key={item.id}
                   to={item.path}
                   className={`nav-link ${isActive ? 'active' : ''}`}
                   style={{
+                    position: 'relative',
                     display: 'flex',
                     alignItems: 'center',
                     gap: 6,
                     padding: '8px 12px',
                     fontSize: 13,
                     fontWeight: 700,
-                    color: isActive ? brandCyan : '#f7f8fb',
+                    color: isActive ? brandCyan : isPriority ? visitorConfig.color : '#f7f8fb',
                     textDecoration: 'none',
                     borderRadius: 10,
                     background: isActive
                       ? `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}10)`
-                      : 'rgba(255,255,255,0.03)',
-                    border: isActive ? `1px solid ${brandCyan}35` : '1px solid transparent',
+                      : isPriority
+                        ? `${visitorConfig.color}10`
+                        : 'rgba(255,255,255,0.04)',
+                    border: isActive
+                      ? `1px solid ${brandCyan}35`
+                      : isPriority
+                        ? `1px solid ${visitorConfig.color}30`
+                        : '1px solid transparent',
                     boxShadow: isActive ? `0 0 12px ${brandCyan}15` : 'none',
                   }}
                 >
-                  <span style={{ fontSize: 14, opacity: isActive ? 1 : 0.7 }}>
-                    {typeof item.icon === 'string' ? item.icon : item.icon}
+                  {/* Priority indicator dot */}
+                  {isPriority && !isActive && (
+                    <span style={{
+                      position: 'absolute',
+                      top: -3,
+                      right: isArabic ? 'auto' : -3,
+                      left: isArabic ? -3 : 'auto',
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: visitorConfig.color,
+                      border: '2px solid rgba(11,15,28,0.9)',
+                    }} />
+                  )}
+                  <span style={{ fontSize: 14, opacity: isActive ? 1 : isPriority ? 0.9 : 0.7 }}>
+                    {item.icon}
                   </span>
                   {isArabic ? item.labelAr : item.label}
                 </Link>
@@ -342,6 +438,9 @@ const Header = memo(function Header() {
               </Link>
             )}
 
+            {/* Mode Switcher */}
+            <ModeSwitcher />
+
             {/* Language Toggle */}
             <LanguageToggle />
 
@@ -370,7 +469,8 @@ const Header = memo(function Header() {
               boxShadow: '0 0 6px #22c55e',
               animation: 'statusPulse 2s ease-in-out infinite',
             }} />
-            <LanguageToggle compact />
+            <ModeSwitcher />
+            <LanguageToggle compact={isMobile} />
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="menu-btn"
@@ -503,51 +603,77 @@ const Header = memo(function Header() {
             {isArabic ? 'الرئيسية' : 'Home'}
           </Link>
 
-          {/* Nav Items */}
-          {NAV_ITEMS.map((item, index) => {
+          {/* Nav Items - Sorted by visitor mode priority */}
+          {sortedNavItems.map((item, index) => {
             const isActive = isActivePath(item.path);
+            const isPriority = item.priority?.[visitorMode] === 1;
             return (
               <Link
                 key={item.id}
                 to={item.path}
                 style={{
+                  position: 'relative',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 12,
                   padding: '14px 16px',
                   fontSize: 15,
                   fontWeight: 700,
-                  color: isActive ? brandCyan : '#f7f8fb',
+                  color: isActive ? brandCyan : isPriority ? visitorConfig.color : '#f7f8fb',
                   textDecoration: 'none',
                   borderRadius: 12,
                   background: isActive
                     ? `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}10)`
-                    : `linear-gradient(135deg, rgba(143,211,204,${0.05 + index * 0.01}), rgba(175,132,186,${0.05 + index * 0.01}))`,
+                    : isPriority
+                      ? `linear-gradient(135deg, ${visitorConfig.color}15, ${visitorConfig.color}08)`
+                      : `linear-gradient(135deg, rgba(143,211,204,${0.05 + index * 0.01}), rgba(175,132,186,${0.05 + index * 0.01}))`,
                   border: isActive
                     ? `1px solid ${brandCyan}40`
-                    : '1px solid rgba(255,255,255,0.08)',
+                    : isPriority
+                      ? `1px solid ${visitorConfig.color}40`
+                      : '1px solid rgba(255,255,255,0.08)',
                   transition: 'all 0.2s ease',
                 }}
               >
+                {/* Priority badge */}
+                {isPriority && !isActive && (
+                  <span style={{
+                    position: 'absolute',
+                    top: 6,
+                    right: isArabic ? 'auto' : 6,
+                    left: isArabic ? 6 : 'auto',
+                    padding: '2px 6px',
+                    fontSize: 9,
+                    fontWeight: 800,
+                    background: visitorConfig.color,
+                    color: '#fff',
+                    borderRadius: 4,
+                  }}>
+                    {isArabic ? 'موصى' : 'Top'}
+                  </span>
+                )}
                 <span style={{
                   width: 36,
                   height: 36,
                   borderRadius: 10,
                   background: isActive
                     ? `linear-gradient(135deg, ${item.color || brandCyan}30, ${brandPurple}25)`
-                    : `linear-gradient(135deg, ${brandCyan}22, ${brandPurple}22)`,
+                    : isPriority
+                      ? `linear-gradient(135deg, ${visitorConfig.color}30, ${visitorConfig.color}20)`
+                      : `linear-gradient(135deg, ${brandCyan}22, ${brandPurple}22)`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: typeof item.icon === 'string' ? 18 : 16,
-                  color: isActive ? item.color : undefined,
+                  color: isActive ? item.color : isPriority ? visitorConfig.color : undefined,
                 }}>
                   {item.icon}
                 </span>
                 {isArabic ? item.labelAr : item.label}
                 {isActive && (
                   <span style={{
-                    marginLeft: 'auto',
+                    marginRight: isArabic ? 'auto' : 0,
+                    marginLeft: isArabic ? 0 : 'auto',
                     width: 8,
                     height: 8,
                     borderRadius: '50%',

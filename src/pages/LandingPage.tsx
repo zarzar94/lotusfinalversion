@@ -6,7 +6,6 @@
 import { lazy, Suspense, memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
-import { styles } from '../components/styles';
 import BackgroundFX from '../components/BackgroundFX';
 import HeroCircuitBrain from '../components/HeroCircuitBrain';
 import CircuitDecoration from '../components/CircuitDecoration';
@@ -18,6 +17,7 @@ import FadeIn from '../components/FadeIn';
 import { useLanguage } from '../context/LanguageContext';
 import { useClinicalSync } from '../hooks/useClinicalSync';
 import { usePageTitle } from '../hooks/usePageTitle';
+import ExperienceJourney from '../components/ExperienceJourney';
 import {
   brandCyan,
   brandPurple,
@@ -26,6 +26,7 @@ import {
   typography,
   spacing,
   radius,
+  styles,
 } from '../components/styles';
 
 // Lazy load credentials
@@ -449,6 +450,11 @@ function LandingPage() {
           <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={100} />}>
             <CredentialsBanner />
           </Suspense>
+        </FadeIn>
+
+        {/* Guided journey section */}
+        <FadeIn delay={200} direction="none" scale>
+          <ExperienceJourney isArabic={isArabic} />
         </FadeIn>
 
         {/* Page Navigation Cards */}

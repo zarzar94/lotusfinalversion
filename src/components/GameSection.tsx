@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useRef, useCallback, memo } from 'react';
 
-import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from './styles';
+import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, radius, spacing, typography, transitions } from './styles';
 
 import AssessmentSuiteModal from './games/AssessmentSuiteModal';
 import AttentionTestPanel from './games/AttentionTestPanel';
@@ -8,9 +8,14 @@ import FrequencyDiscriminationTestPanel from './games/FrequencyDiscriminationTes
 import SequencingTestPanel from './games/SequencingTestPanel';
 import QuestionnairePanel from './games/QuestionnairePanel';
 import GamePortal from './games/GamePortal';
+import PreTestBriefing from './games/PreTestBriefing';
+import PostTestSummary from './games/PostTestSummary';
+import ScreeningDashboard from './games/ScreeningDashboard';
 import type { GameResult, TestOutcome } from './games/types';
 import { resultMeta } from './games/types';
 import { saveSession, type StoredSession } from './games/scoring';
+import { useVisitorMode } from '../context/VisitorModeContext';
+import { useLanguage } from '../context/LanguageContext';
 
 type GameMode = 'suite' | 'attention' | 'frequency' | 'sequence' | 'questionnaire';
 
@@ -541,9 +546,14 @@ function TestCard({
 }
 
 const GameSection = memo(function GameSection() {
+  const { mode: visitorMode, config: visitorConfig, isSchool, isParent, isClinician } = useVisitorMode();
+  const { isArabic } = useLanguage();
+
   const [mode, setMode] = useState<GameMode | null>(null);
+  const [briefingMode, setBriefingMode] = useState<GameMode | null>(null);
   const [lastOutcome, setLastOutcome] = useState<TestOutcome | null>(null);
   const [modalOutcome, setModalOutcome] = useState<TestOutcome | null>(null);
+  const [showSummary, setShowSummary] = useState(false);
   const [isTestActive, setIsTestActive] = useState(false);
   const [showPortal, setShowPortal] = useState(false); // Default to Screening Station view
   const sessionIdRef = useRef<string>(Date.now().toString(36) + Math.random().toString(36).slice(2));
@@ -552,13 +562,33 @@ const GameSection = memo(function GameSection() {
   useEffect(() => {
     setModalOutcome(null);
     setIsTestActive(false);
+    setShowSummary(false);
   }, [mode]);
+
+  // Handle mode selection - show briefing first
+  const handleModeSelect = useCallback((selectedMode: GameMode) => {
+    setBriefingMode(selectedMode);
+  }, []);
+
+  // Start test after briefing
+  const handleBriefingStart = useCallback(() => {
+    if (briefingMode) {
+      setMode(briefingMode);
+      setBriefingMode(null);
+    }
+  }, [briefingMode]);
+
+  // Close briefing
+  const handleBriefingClose = useCallback(() => {
+    setBriefingMode(null);
+  }, []);
 
   // Save session when outcome changes
   const handleOutcome = useCallback((outcome: TestOutcome) => {
     setLastOutcome(outcome);
     setModalOutcome(outcome);
     setIsTestActive(false);
+    setShowSummary(true);
 
     // Track outcomes for this session
     outcomesRef.current[outcome.key] = outcome;
@@ -576,6 +606,19 @@ const GameSection = memo(function GameSection() {
       totalPoints,
     };
     saveSession(session);
+  }, []);
+
+  // Handle retry from summary
+  const handleRetry = useCallback(() => {
+    setShowSummary(false);
+    setModalOutcome(null);
+  }, []);
+
+  // Handle close summary and test modal
+  const handleCloseSummary = useCallback(() => {
+    setShowSummary(false);
+    setMode(null);
+    setModalOutcome(null);
   }, []);
 
   const cards = useMemo(
@@ -652,6 +695,24 @@ const GameSection = memo(function GameSection() {
           0% { transform: translateY(-100%); }
           100% { transform: translateY(100%); }
         }
+        @media (max-width: 640px) {
+          .test-cards-grid {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .test-cards-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 16px !important;
+          }
+        }
+        @media (min-width: 1280px) {
+          .test-cards-grid {
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 20px !important;
+          }
+        }
       `}</style>
 
       {/* Section Header */}
@@ -697,7 +758,7 @@ const GameSection = memo(function GameSection() {
       {showPortal && (
         <div style={{ marginTop: 20 }}>
           <GamePortal
-            onSelectMode={(m) => setMode(m as GameMode)}
+            onSelectMode={(m) => handleModeSelect(m as GameMode)}
             lastOutcome={lastOutcome}
           />
         </div>
@@ -905,7 +966,7 @@ const GameSection = memo(function GameSection() {
                 tag={c.tag}
                 waveformColor={c.color}
                 waveformType={c.waveType}
-                onClick={() => setMode(c.mode)}
+                onClick={() => handleModeSelect(c.mode)}
                 index={i}
               />
             ))}
@@ -950,7 +1011,7 @@ const GameSection = memo(function GameSection() {
               <button
                 key={i}
                 type="button"
-                onClick={() => setMode(cards[i].mode)}
+                onClick={() => handleModeSelect(cards[i].mode)}
                 aria-label={`Start ${btn.label} test`}
                 style={{
                   padding: '8px 16px',
@@ -986,6 +1047,11 @@ const GameSection = memo(function GameSection() {
         </div>
       </div>
       )}
+
+      {/* Screening Results Dashboard */}
+      <div style={{ marginTop: spacing[5] }}>
+        <ScreeningDashboard />
+      </div>
 
       {/* Last Result Display - Lab Tech Style */}
       {lastOutcome && lastMeta && lastNext ? (
@@ -1107,7 +1173,13 @@ const GameSection = memo(function GameSection() {
         <AttentionTestPanel
           onDone={handleOutcome}
         />
-        {modalOutcome ? (
+        {modalOutcome && showSummary ? (
+          <PostTestSummary
+            outcome={modalOutcome}
+            onClose={handleCloseSummary}
+            onRetry={handleRetry}
+          />
+        ) : modalOutcome ? (
           <div style={{
             marginTop: 16,
             padding: 12,
@@ -1137,7 +1209,13 @@ const GameSection = memo(function GameSection() {
         <FrequencyDiscriminationTestPanel
           onDone={handleOutcome}
         />
-        {modalOutcome ? (
+        {modalOutcome && showSummary ? (
+          <PostTestSummary
+            outcome={modalOutcome}
+            onClose={handleCloseSummary}
+            onRetry={handleRetry}
+          />
+        ) : modalOutcome ? (
           <div style={{
             marginTop: 16,
             padding: 12,
@@ -1167,7 +1245,13 @@ const GameSection = memo(function GameSection() {
         <SequencingTestPanel
           onDone={handleOutcome}
         />
-        {modalOutcome ? (
+        {modalOutcome && showSummary ? (
+          <PostTestSummary
+            outcome={modalOutcome}
+            onClose={handleCloseSummary}
+            onRetry={handleRetry}
+          />
+        ) : modalOutcome ? (
           <div style={{
             marginTop: 16,
             padding: 12,
@@ -1197,7 +1281,13 @@ const GameSection = memo(function GameSection() {
         <QuestionnairePanel
           onDone={handleOutcome}
         />
-        {modalOutcome ? (
+        {modalOutcome && showSummary ? (
+          <PostTestSummary
+            outcome={modalOutcome}
+            onClose={handleCloseSummary}
+            onRetry={handleRetry}
+          />
+        ) : modalOutcome ? (
           <div style={{
             marginTop: 16,
             padding: 12,
@@ -1214,6 +1304,77 @@ const GameSection = memo(function GameSection() {
           </div>
         ) : null}
       </MedicalMonitor>
+
+      {/* Pre-Test Briefing Modal */}
+      {briefingMode && (
+        <PreTestBriefing
+          testType={briefingMode}
+          open={!!briefingMode}
+          onClose={handleBriefingClose}
+          onStart={handleBriefingStart}
+        />
+      )}
+
+      {/* Visitor Mode Indicator */}
+      <div style={{
+        marginTop: spacing[4],
+        padding: spacing[4],
+        background: `${visitorConfig.color}08`,
+        border: `1px solid ${visitorConfig.color}20`,
+        borderRadius: radius.xl,
+        display: 'flex',
+        alignItems: 'center',
+        gap: spacing[4],
+      }}>
+        <div style={{
+          width: 48,
+          height: 48,
+          borderRadius: radius.lg,
+          background: `${visitorConfig.color}15`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 24,
+        }}>
+          {visitorConfig.icon}
+        </div>
+        <div style={{ flex: 1, direction: isArabic ? 'rtl' : 'ltr' }}>
+          <div style={{
+            fontSize: typography.size.sm,
+            fontWeight: typography.weight.bold,
+            color: visitorConfig.color,
+            marginBottom: spacing[1],
+          }}>
+            {isArabic
+              ? `أنت تستعرض كـ${visitorConfig.labelAr}`
+              : `Viewing as ${visitorConfig.label}`}
+          </div>
+          <div style={{
+            fontSize: typography.size.xs,
+            color: colors.text.muted,
+          }}>
+            {isArabic
+              ? 'النتائج والتوصيات مخصصة لاحتياجاتك'
+              : 'Results and recommendations personalized for your needs'}
+          </div>
+        </div>
+        <a
+          href={visitorConfig.ctaPath}
+          style={{
+            padding: `${spacing[2]}px ${spacing[4]}px`,
+            background: `${visitorConfig.color}15`,
+            border: `1px solid ${visitorConfig.color}40`,
+            borderRadius: radius.lg,
+            fontSize: typography.size.xs,
+            fontWeight: typography.weight.bold,
+            color: visitorConfig.color,
+            textDecoration: 'none',
+            transition: transitions.fast,
+          }}
+        >
+          {isArabic ? visitorConfig.ctaLabelAr : visitorConfig.ctaLabel}
+        </a>
+      </div>
     </section>
   );
 });

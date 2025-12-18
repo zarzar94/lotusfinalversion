@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, memo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getBrainFunctionBySlug, BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
 import { brandCyan, brandPurple, brandPink, brandInk } from '../components/styles';
@@ -123,7 +123,7 @@ function RelatedFunctions({ currentSlug }: { currentSlug: string }) {
   );
 }
 
-export default function BrainFunctionPage() {
+const BrainFunctionPage = memo(function BrainFunctionPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [brainFunction, setBrainFunction] = useState<BrainFunction | null>(null);
@@ -526,4 +526,6 @@ export default function BrainFunctionPage() {
       </div>
     </div>
   );
-}
+});
+
+export default BrainFunctionPage;

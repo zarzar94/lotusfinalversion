@@ -4,6 +4,53 @@ import { CLINIC } from '../data/clinic';
 import { handleWhatsApp } from '../utils/whatsapp';
 import { brandCyan, brandPurple, brandPurpleDark, brandColors, transitions } from './styles';
 import { BrainLogoSVG } from './BrainLogo';
+import { useVisitorMode, type VisitorMode } from '../context/VisitorModeContext';
+import { useLanguage } from '../context/LanguageContext';
+
+// Role-specific contact configurations
+interface RoleContactConfig {
+  quickMessageEn: string;
+  quickMessageAr: string;
+  placeholderEn: string;
+  placeholderAr: string;
+  badgesEn: string[];
+  badgesAr: string[];
+  headerSubtitleEn: string;
+  headerSubtitleAr: string;
+}
+
+const ROLE_CONTACT_CONFIG: Record<VisitorMode, RoleContactConfig> = {
+  school: {
+    quickMessageEn: 'Hello, I would like to inquire about school partnership and screening programs for Berard AIT',
+    quickMessageAr: 'مرحباً، أود الاستفسار عن شراكة المدارس وبرامج الفحص لـ Berard AIT',
+    placeholderEn: 'Write about partnership inquiry, demo request, or screening program for students...',
+    placeholderAr: 'اكتب عن طلب شراكة، عرض تجريبي، أو برنامج فحص للطلاب...',
+    badgesEn: ['School Partnership', 'Group Screening'],
+    badgesAr: ['شراكة مدرسية', 'فحص جماعي'],
+    headerSubtitleEn: 'Ready for school partnerships and group screening coordination',
+    headerSubtitleAr: 'جاهزون لشراكات المدارس وتنسيق برامج الفحص الجماعي',
+  },
+  parent: {
+    quickMessageEn: 'Hello, I would like to book a screening for my child for Berard AIT program',
+    quickMessageAr: 'مرحباً، أود حجز موعد فحص لطفلي لبرنامج Berard AIT',
+    placeholderEn: 'Write about your child\'s condition, goals, or questions...',
+    placeholderAr: 'اكتب نبذة عن حالة طفلك، الأهداف، أو استفساراتك...',
+    badgesEn: ['Free Consultation', 'Child Assessment'],
+    badgesAr: ['استشارة مجانية', 'تقييم الطفل'],
+    headerSubtitleEn: 'Ready to support families with personalized care',
+    headerSubtitleAr: 'جاهزون لدعم العائلات برعاية شخصية',
+  },
+  clinician: {
+    quickMessageEn: 'Hello, I am a healthcare professional interested in Berard AIT protocols and referral partnership',
+    quickMessageAr: 'مرحباً، أنا متخصص في الرعاية الصحية ومهتم ببروتوكولات Berard AIT وشراكة الإحالة',
+    placeholderEn: 'Write about professional inquiry, referral process, or clinical collaboration...',
+    placeholderAr: 'اكتب عن استفسار مهني، عملية الإحالة، أو التعاون السريري...',
+    badgesEn: ['Professional Network', 'Clinical Referrals'],
+    badgesAr: ['شبكة مهنية', 'إحالات سريرية'],
+    headerSubtitleEn: 'Professional collaboration and clinical referrals',
+    headerSubtitleAr: 'تعاون مهني وإحالات سريرية',
+  },
+};
 
 const normaliseDigits = (value: string) => value.replace(/\D/g, '');
 
@@ -162,6 +209,24 @@ const iosScrollCss = `
     }
     .iphone-screen {
       border-radius: 32px !important;
+    }
+  }
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .iphone-frame {
+      max-width: 360px !important;
+      min-height: 700px !important;
+    }
+  }
+  @media (min-width: 1280px) {
+    .iphone-frame {
+      max-width: 420px !important;
+      min-height: 780px !important;
+    }
+    .contact-header-text {
+      font-size: 28px !important;
+    }
+    .contact-subtext {
+      font-size: 16px !important;
     }
   }
 `;
@@ -462,6 +527,8 @@ const AnimatedFormField = memo(({
 AnimatedFormField.displayName = 'AnimatedFormField';
 
 const ContactForm = () => {
+  const { mode: visitorMode, config: visitorConfig } = useVisitorMode();
+  const { isArabic } = useLanguage();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -472,6 +539,9 @@ const ContactForm = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showScrollHint, setShowScrollHint] = useState(true);
   const scrollRef = useRef<HTMLFormElement>(null);
+
+  // Get role-specific contact config
+  const roleConfig = ROLE_CONTACT_CONFIG[visitorMode];
 
   useEffect(() => {
     const updateTime = () => {
@@ -526,9 +596,10 @@ const ContactForm = () => {
   }, [requiredValid, name, phone, email, message]);
 
   const handleQuickWhatsApp = useCallback(() => {
-    handleWhatsApp('مرحباً، أود الاستفسار عن برنامج Berard AIT');
+    const quickMessage = isArabic ? roleConfig.quickMessageAr : roleConfig.quickMessageEn;
+    handleWhatsApp(quickMessage);
     setSubmitted(true);
-  }, []);
+  }, [isArabic, roleConfig]);
 
   const handleEmailClick = useCallback(() => {
     window.open(`mailto:${CLINIC.email}`);
@@ -604,9 +675,24 @@ const ContactForm = () => {
     <section id="contact" style={sectionStyle}>
       <style>{iosScrollCss}</style>
       <div style={{ textAlign: 'center', maxWidth: 500, padding: '0 16px' }}>
-        <h2 className="contact-header-text" style={headerStyle}>تواصل معنا</h2>
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '4px 12px',
+          background: `${visitorConfig.color}15`,
+          border: `1px solid ${visitorConfig.color}30`,
+          borderRadius: 20,
+          marginBottom: 12,
+          fontSize: 11,
+          fontWeight: 700,
+          color: visitorConfig.color,
+        }}>
+          {visitorConfig.icon} {isArabic ? visitorConfig.labelAr : visitorConfig.label}
+        </div>
+        <h2 className="contact-header-text" style={headerStyle}>{isArabic ? 'تواصل معنا' : 'Contact Us'}</h2>
         <p className="contact-subtext" style={{ margin: 0, opacity: 0.7, fontSize: 14, lineHeight: 1.6 }}>
-          جاهزون لاستقبال أولياء الأمور، وكذلك تنسيق عروض تجريبية وشراكات مع المدارس والجامعات.
+          {isArabic ? roleConfig.headerSubtitleAr : roleConfig.headerSubtitleEn}
         </p>
       </div>
 
@@ -723,8 +809,8 @@ const ContactForm = () => {
                 </AnimatedFormField>
 
                 <AnimatedFormField delay={0.3}>
-                  <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingRight: 4 }}>الرسالة *</label>
-                  <IOSTextarea value={message} onChange={setMessage} placeholder="اكتب نبذة عن الحالة / الهدف / أو طلب عرض للمدرسة" maxLength={MAX_MESSAGE_LENGTH} />
+                  <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingRight: 4 }}>{isArabic ? 'الرسالة *' : 'Message *'}</label>
+                  <IOSTextarea value={message} onChange={setMessage} placeholder={isArabic ? roleConfig.placeholderAr : roleConfig.placeholderEn} maxLength={MAX_MESSAGE_LENGTH} />
                 </AnimatedFormField>
 
                 {/* Spacer to ensure scrollability */}
@@ -776,8 +862,17 @@ const ContactForm = () => {
                   <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>Sound Lab • {CLINIC.city}</p>
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  <span style={{ background: brandColors.whatsappLight, color: brandColors.whatsapp, padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>WhatsApp متاح</span>
-                  <span style={{ background: 'rgba(143,211,204,0.15)', color: brandCyan, padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>استشارة مجانية</span>
+                  <span style={{ background: brandColors.whatsappLight, color: brandColors.whatsapp, padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>WhatsApp {isArabic ? 'متاح' : 'Available'}</span>
+                  {(isArabic ? roleConfig.badgesAr : roleConfig.badgesEn).map((badge, idx) => (
+                    <span key={idx} style={{
+                      background: `${visitorConfig.color}15`,
+                      color: visitorConfig.color,
+                      padding: '6px 12px',
+                      borderRadius: 20,
+                      fontSize: 12,
+                      fontWeight: 600,
+                    }}>{badge}</span>
+                  ))}
                 </div>
               </div>
 
