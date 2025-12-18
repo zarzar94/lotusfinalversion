@@ -9,8 +9,10 @@ import {
   playLaunchSound,
   playExplosionSound,
 } from '../utils/audio';
-import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from './styles';
+import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, radius, spacing, typography, transitions } from './styles';
 import { useGamification } from '../context/GamificationContext';
+import { useVisitorMode } from '../context/VisitorModeContext';
+import { useLanguage } from '../context/LanguageContext';
 import {
   BookIcon,
   EarIcon,
@@ -462,7 +464,101 @@ function CategoryTab({ category, isActive, selectedCount, onClick, config }: Cat
   );
 }
 
+// Visitor-mode specific recommendations
+const VISITOR_RECOMMENDATIONS = {
+  school: {
+    low: {
+      titleEn: 'Screening Complete',
+      titleAr: 'اكتمل الفحص',
+      messageEn: 'This student shows typical auditory processing indicators. Consider periodic rescreening.',
+      messageAr: 'يُظهر هذا الطالب مؤشرات معالجة سمعية نموذجية. فكر في إعادة الفحص الدوري.',
+      actionEn: 'Continue to Sound Lab',
+      actionAr: 'تابع إلى معمل الصوت',
+      actionPath: '#games',
+    },
+    medium: {
+      titleEn: 'Monitor Recommended',
+      titleAr: 'يُوصى بالمتابعة',
+      messageEn: 'Consider classroom accommodations and follow-up screening in 3-6 months.',
+      messageAr: 'فكر في تعديلات الفصل ومتابعة الفحص خلال 3-6 أشهر.',
+      actionEn: 'View Accommodations Guide',
+      actionAr: 'عرض دليل التعديلات',
+      actionPath: '/resources#accommodations',
+    },
+    high: {
+      titleEn: 'Professional Evaluation Advised',
+      titleAr: 'يُنصح بتقييم مهني',
+      messageEn: 'Results suggest this student may benefit from professional auditory processing evaluation.',
+      messageAr: 'النتائج تشير إلى أن هذا الطالب قد يستفيد من تقييم مهني للمعالجة السمعية.',
+      actionEn: 'Request School Demo',
+      actionAr: 'اطلب عرض مدرسي',
+      actionPath: '/contact?mode=school',
+    },
+  },
+  parent: {
+    low: {
+      titleEn: 'Good Indicators',
+      titleAr: 'مؤشرات جيدة',
+      messageEn: 'Your child shows typical auditory processing patterns. Continue with the interactive games for more insights.',
+      messageAr: 'طفلك يُظهر أنماط معالجة سمعية نموذجية. تابع مع الألعاب التفاعلية لمزيد من الرؤى.',
+      actionEn: 'Try Screening Games',
+      actionAr: 'جرب ألعاب الفحص',
+      actionPath: '#games',
+    },
+    medium: {
+      titleEn: 'Further Screening Suggested',
+      titleAr: 'يُقترح مزيد من الفحص',
+      messageEn: 'These indicators suggest completing the interactive screening tests would be beneficial.',
+      messageAr: 'هذه المؤشرات تشير إلى أن إكمال اختبارات الفحص التفاعلية سيكون مفيداً.',
+      actionEn: 'Start Full Assessment',
+      actionAr: 'ابدأ التقييم الكامل',
+      actionPath: '#games',
+    },
+    high: {
+      titleEn: 'Book Professional Screening',
+      titleAr: 'احجز فحصاً مهنياً',
+      messageEn: 'Based on these indicators, we recommend booking a professional screening with our team.',
+      messageAr: 'بناءً على هذه المؤشرات، نوصي بحجز فحص مهني مع فريقنا.',
+      actionEn: 'Book Screening',
+      actionAr: 'احجز فحصاً',
+      actionPath: '/contact?mode=parent',
+    },
+  },
+  clinician: {
+    low: {
+      titleEn: 'WNL - Screening Indicators',
+      titleAr: 'ضمن الحدود الطبيعية - مؤشرات الفحص',
+      messageEn: 'Few behavioral indicators noted. Consider contextual factors before final determination.',
+      messageAr: 'مؤشرات سلوكية قليلة ملحوظة. ضع في الاعتبار العوامل السياقية قبل التحديد النهائي.',
+      actionEn: 'Proceed to Objective Tests',
+      actionAr: 'تابع للاختبارات الموضوعية',
+      actionPath: '#games',
+    },
+    medium: {
+      titleEn: 'Borderline - Further Evaluation',
+      titleAr: 'حدودي - تقييم إضافي',
+      messageEn: 'Moderate behavioral indicators. Objective testing recommended to clarify auditory processing status.',
+      messageAr: 'مؤشرات سلوكية متوسطة. يُوصى بالاختبار الموضوعي لتوضيح حالة المعالجة السمعية.',
+      actionEn: 'View Clinical Protocol',
+      actionAr: 'عرض البروتوكول السريري',
+      actionPath: '/clinician-dashboard',
+    },
+    high: {
+      titleEn: 'Significant Indicators - Comprehensive Eval',
+      titleAr: 'مؤشرات مهمة - تقييم شامل',
+      messageEn: 'Multiple behavioral markers present. Full audiological and APD battery recommended.',
+      messageAr: 'وجود علامات سلوكية متعددة. يُوصى ببطارية سمعية كاملة و APD.',
+      actionEn: 'Access Clinical Tools',
+      actionAr: 'الوصول للأدوات السريرية',
+      actionPath: '/clinician-dashboard',
+    },
+  },
+};
+
 const Checklist = () => {
+  const { mode: visitorMode, config: visitorConfig, isSchool, isParent, isClinician } = useVisitorMode();
+  const { isArabic } = useLanguage();
+
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [exporting, setExporting] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
@@ -580,6 +676,21 @@ const Checklist = () => {
       y += 18;
       writePdfText(doc, `مستوى التقييم: ${recommendation.label}`, PDF_MARGIN_X, y);
       y += 18;
+
+      // Add visitor mode context
+      const modeLabel = isSchool ? 'فحص مدرسي' : isParent ? 'فحص أسري' : isClinician ? 'تقييم سريري' : 'فحص عام';
+      writePdfText(doc, `نوع الفحص: ${modeLabel}`, PDF_MARGIN_X, y);
+      y += 18;
+
+      // Add visitor-specific recommendation
+      const visitorRec = VISITOR_RECOMMENDATIONS[visitorMode]?.[recommendation.level];
+      if (visitorRec) {
+        writePdfText(doc, `التوصية: ${visitorRec.titleAr}`, PDF_MARGIN_X, y);
+        y += 16;
+        writePdfText(doc, visitorRec.messageAr, PDF_MARGIN_X, y);
+        y += 18;
+      }
+
       writePdfText(doc, `ملاحظة: هذه القائمة مؤشر أولي وليست تشخيصاً.`, PDF_MARGIN_X, y);
       y += 26;
 
@@ -902,7 +1013,7 @@ const Checklist = () => {
         </a>
       </div>
 
-      {/* Result Summary */}
+      {/* Result Summary with Visitor Mode Integration */}
       {selectedCount > 0 && (
         <div style={{
           marginTop: 24,
@@ -922,9 +1033,79 @@ const Checklist = () => {
             {recommendation.msg}
           </p>
 
-          {/* Action links based on recommendation level */}
+          {/* Visitor-Specific Recommendation */}
+          {(() => {
+            const visitorRec = VISITOR_RECOMMENDATIONS[visitorMode]?.[recommendation.level];
+            if (!visitorRec) return null;
+            return (
+              <div style={{
+                marginTop: 16,
+                padding: spacing[4],
+                background: `${visitorConfig.color}10`,
+                border: `1px solid ${visitorConfig.color}25`,
+                borderRadius: radius.xl,
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: spacing[3],
+                }}>
+                  <div style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: radius.lg,
+                    background: `${visitorConfig.color}20`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 20,
+                    flexShrink: 0,
+                  }}>
+                    {visitorConfig.icon}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      fontSize: typography.size.sm,
+                      fontWeight: typography.weight.bold,
+                      color: visitorConfig.color,
+                      marginBottom: spacing[1],
+                    }}>
+                      {isArabic ? visitorRec.titleAr : visitorRec.titleEn}
+                    </div>
+                    <p style={{
+                      margin: 0,
+                      fontSize: typography.size.sm,
+                      color: colors.text.secondary,
+                      lineHeight: typography.lineHeight.relaxed,
+                    }}>
+                      {isArabic ? visitorRec.messageAr : visitorRec.messageEn}
+                    </p>
+                  </div>
+                  <a
+                    href={visitorRec.actionPath}
+                    style={{
+                      padding: `${spacing[2]}px ${spacing[4]}px`,
+                      background: `${visitorConfig.color}20`,
+                      border: `1px solid ${visitorConfig.color}40`,
+                      borderRadius: radius.lg,
+                      fontSize: typography.size.xs,
+                      fontWeight: typography.weight.bold,
+                      color: visitorConfig.color,
+                      textDecoration: 'none',
+                      whiteSpace: 'nowrap',
+                      transition: transitions.fast,
+                    }}
+                  >
+                    {isArabic ? visitorRec.actionAr : visitorRec.actionEn}
+                  </a>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Legacy Action links (fallback) */}
           <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            {recommendation.level === 'medium' && (
+            {recommendation.level === 'medium' && !VISITOR_RECOMMENDATIONS[visitorMode] && (
               <a href="#games" style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -941,7 +1122,7 @@ const Checklist = () => {
                 <GamepadIcon size={16} /> جرّب الاختبارات السمعية
               </a>
             )}
-            {recommendation.level === 'high' && (
+            {recommendation.level === 'high' && !VISITOR_RECOMMENDATIONS[visitorMode] && (
               <a href="#contact" style={{
                 display: 'inline-flex',
                 alignItems: 'center',
