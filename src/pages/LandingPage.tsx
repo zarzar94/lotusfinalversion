@@ -254,6 +254,16 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
       path: '/resources',
     },
     {
+      id: 'about',
+      title: 'About Us',
+      titleAr: 'من نحن',
+      description: 'Meet our specialist and learn about the centre',
+      descriptionAr: 'تعرف على الأخصائي والمركز',
+      icon: '🏛️',
+      color: brandPurple,
+      path: '/about',
+    },
+    {
       id: 'contact',
       title: 'Get Started',
       titleAr: 'ابدأ الآن',

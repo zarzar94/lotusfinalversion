@@ -29,6 +29,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'science', label: 'Science', labelAr: 'العلوم', path: '/science', icon: '🧠', color: brandPink },
   { id: 'results', label: 'Results', labelAr: 'النتائج', path: '/results', icon: '📊', color: '#22c55e' },
   { id: 'resources', label: 'Resources', labelAr: 'الموارد', path: '/resources', icon: <HelpIcon size={16} />, color: '#f59e0b' },
+  { id: 'about', label: 'About', labelAr: 'من نحن', path: '/about', icon: '🏛️', color: brandPurple },
   { id: 'contact', label: 'Contact', labelAr: 'تواصل', path: '/contact', icon: <PhoneIcon size={16} />, color: brandCyan },
 ];
 
