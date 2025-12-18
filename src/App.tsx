@@ -328,7 +328,7 @@ function PageLoader() {
 function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <LanguageProvider>
           <GamificationProvider>
             <Routes>
