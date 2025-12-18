@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useGamification } from '../context/GamificationContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useUser } from '../context/UserContext';
 import {
   brandCyan,
   brandPurple,
@@ -14,8 +15,9 @@ import {
 } from './styles';
 
 export default function ProgressDashboard() {
-  const { state, getUnlockedAchievements, getNextAchievements } = useGamification();
+  const { state, getUnlockedAchievements, getNextAchievements, getClinicalAchievements } = useGamification();
   const { t, isArabic } = useLanguage();
+  const { user, isPatient } = useUser();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAttention, setShowAttention] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -427,6 +429,148 @@ export default function ProgressDashboard() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Clinical Progress - shown for patients */}
+            {(isPatient || state.clinicalSessionsCompleted > 0) && (
+              <div style={{
+                marginTop: spacing[3],
+                padding: spacing[3],
+                background: `linear-gradient(135deg, ${brandPink}10, ${brandPurple}10)`,
+                borderRadius: radius.lg,
+                border: `1px solid ${brandPink}30`,
+              }}>
+                <div style={{
+                  fontSize: typography.size.xs,
+                  fontWeight: typography.weight.bold,
+                  color: brandPink,
+                  marginBottom: spacing[2],
+                  textTransform: 'uppercase',
+                  letterSpacing: typography.letterSpacing.wide,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing[1],
+                }}>
+                  🏥 {isArabic ? 'تقدم العلاج' : 'Treatment Progress'}
+                </div>
+
+                {/* Sessions Progress Bar */}
+                <div style={{ marginBottom: spacing[2] }}>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    fontSize: 10,
+                    color: colors.text.secondary,
+                    marginBottom: spacing[1],
+                  }}>
+                    <span>{isArabic ? 'الجلسات' : 'Sessions'}</span>
+                    <span>{state.clinicalSessionsCompleted}/20</span>
+                  </div>
+                  <div style={{
+                    height: 6,
+                    background: colors.border.default,
+                    borderRadius: radius.full,
+                    overflow: 'hidden',
+                  }}>
+                    <div style={{
+                      height: '100%',
+                      width: `${(state.clinicalSessionsCompleted / 20) * 100}%`,
+                      background: `linear-gradient(90deg, ${brandPink}, ${brandPurple})`,
+                      borderRadius: radius.full,
+                      transition: transitions.slow,
+                    }} />
+                  </div>
+                </div>
+
+                {/* Streak & Phase */}
+                <div style={{
+                  display: 'flex',
+                  gap: spacing[2],
+                }}>
+                  {/* Streak */}
+                  <div style={{
+                    flex: 1,
+                    padding: spacing[2],
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: radius.md,
+                    textAlign: 'center',
+                  }}>
+                    <div style={{
+                      fontSize: typography.size.lg,
+                      fontWeight: typography.weight.black,
+                      color: state.clinicalStreak >= 3 ? brandCyan : colors.text.primary,
+                    }}>
+                      {state.clinicalStreak}🔥
+                    </div>
+                    <div style={{
+                      fontSize: 9,
+                      color: colors.text.muted,
+                      textTransform: 'uppercase',
+                    }}>
+                      {isArabic ? 'الاستمرارية' : 'Streak'}
+                    </div>
+                  </div>
+
+                  {/* Treatment Phase */}
+                  <div style={{
+                    flex: 1,
+                    padding: spacing[2],
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: radius.md,
+                    textAlign: 'center',
+                  }}>
+                    <div style={{
+                      fontSize: typography.size.sm,
+                      fontWeight: typography.weight.bold,
+                      color: brandPurple,
+                    }}>
+                      {state.treatmentPhase === 'assessment' && (isArabic ? 'تقييم' : 'Assess')}
+                      {state.treatmentPhase === 'active' && (isArabic ? 'نشط' : 'Active')}
+                      {state.treatmentPhase === 'maintenance' && (isArabic ? 'صيانة' : 'Maint.')}
+                      {state.treatmentPhase === 'completed' && (isArabic ? '✓ مكتمل' : '✓ Done')}
+                    </div>
+                    <div style={{
+                      fontSize: 9,
+                      color: colors.text.muted,
+                      textTransform: 'uppercase',
+                    }}>
+                      {isArabic ? 'المرحلة' : 'Phase'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Clinical Achievements Preview */}
+                {getClinicalAchievements().filter(a => a.unlocked).length > 0 && (
+                  <div style={{
+                    marginTop: spacing[2],
+                    display: 'flex',
+                    gap: spacing[1],
+                    flexWrap: 'wrap',
+                  }}>
+                    {getClinicalAchievements()
+                      .filter(a => a.unlocked)
+                      .slice(0, 4)
+                      .map(achievement => (
+                        <div
+                          key={achievement.id}
+                          style={{
+                            width: 24,
+                            height: 24,
+                            borderRadius: radius.sm,
+                            background: `${brandPink}20`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 12,
+                          }}
+                          title={isArabic ? achievement.titleAr : achievement.title}
+                        >
+                          {achievement.icon}
+                        </div>
+                      ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
