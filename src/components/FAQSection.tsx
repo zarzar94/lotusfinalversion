@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, memo, type ReactNode } from 'react';
 
 import { ensureAudio, safeCloseAudio } from './games/audio';
 import {
@@ -15,7 +15,17 @@ import {
   StethoscopeIcon,
   UsersIcon,
 } from './Icons';
-import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import {
+  styles,
+  brandCyan,
+  brandPink,
+  brandPurple,
+  brandPurpleDark,
+  spacing,
+  radius,
+  typography,
+  colors,
+} from './styles';
 
 type FAQItem = {
   question: string;
@@ -66,7 +76,222 @@ const faqs: FAQItem[] = [
   },
 ];
 
-export default function FAQSection() {
+// Memoized FAQ Item component
+const FAQItemComponent = memo(function FAQItemComponent({
+  faq,
+  index,
+  isOpen,
+  isHovered,
+  isMobile,
+  onToggle,
+  onMouseEnter,
+  onMouseLeave,
+}: {
+  faq: FAQItem;
+  index: number;
+  isOpen: boolean;
+  isHovered: boolean;
+  isMobile: boolean;
+  onToggle: () => void;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+}) {
+  const panelId = `faq-panel-${index}`;
+  const headerId = `faq-header-${index}`;
+
+  // Handle keyboard interaction
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onToggle();
+      }
+    },
+    [onToggle]
+  );
+
+  return (
+    <div
+      style={{
+        background: isOpen
+          ? `linear-gradient(135deg, ${brandCyan}12, ${brandPurple}12)`
+          : isHovered
+            ? colors.surface.input
+            : colors.surface.overlay,
+        border: `1px solid ${isOpen ? `${brandCyan}45` : isHovered ? colors.border.emphasis : colors.border.subtle}`,
+        borderRadius: radius.xl,
+        overflow: 'hidden',
+        transition: 'all 0.3s ease',
+        transform: isHovered && !isOpen ? 'translateX(-4px)' : 'translateX(0)',
+      }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <button
+        id={headerId}
+        type="button"
+        onClick={onToggle}
+        onKeyDown={handleKeyDown}
+        aria-expanded={isOpen}
+        aria-controls={panelId}
+        style={{
+          width: '100%',
+          padding: isMobile ? `${spacing[3]}px ${spacing[3.5]}px` : `${spacing[3.5]}px ${spacing[4.5]}px`,
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: isMobile ? spacing[2.5] : spacing[3.5],
+          textAlign: 'right',
+        }}
+      >
+        <span
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            filter: isOpen ? 'none' : 'grayscale(0.5)',
+            transition: 'filter 0.3s ease, transform 0.3s ease',
+            transform: isOpen ? 'scale(1.1)' : 'scale(1)',
+          }}
+          aria-hidden="true"
+        >
+          {faq.icon}
+        </span>
+        <span
+          style={{
+            flex: 1,
+            fontWeight: typography.weight.extrabold,
+            fontSize: isMobile ? typography.size.sm : typography.size.base,
+            color: isOpen ? brandCyan : colors.text.primary,
+            transition: 'color 0.3s ease',
+            lineHeight: typography.lineHeight.normal,
+          }}
+        >
+          {faq.question}
+        </span>
+        <span
+          style={{
+            fontSize: isMobile ? typography.size.md : typography.size.xl,
+            color: isOpen ? brandCyan : colors.text.muted,
+            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'all 0.3s ease',
+            flexShrink: 0,
+          }}
+          aria-hidden="true"
+        >
+          ▼
+        </span>
+      </button>
+
+      <div
+        id={panelId}
+        role="region"
+        aria-labelledby={headerId}
+        hidden={!isOpen}
+        style={{
+          maxHeight: isOpen ? 400 : 0,
+          overflow: 'hidden',
+          transition: 'max-height 0.4s ease',
+        }}
+      >
+        <div
+          style={{
+            padding: isMobile ? `0 ${spacing[3.5]}px ${spacing[3.5]}px` : `0 ${spacing[5]}px ${spacing[4]}px`,
+            paddingRight: isMobile ? spacing[11] : spacing[14.5],
+            color: colors.text.secondary,
+            lineHeight: typography.lineHeight.loose,
+            fontSize: isMobile ? typography.size.sm : typography.size.sm,
+          }}
+        >
+          {faq.answer}
+
+          {/* Related action */}
+          {index === 5 && (
+            <a
+              href="#remote"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: spacing[1.5],
+                marginTop: spacing[3],
+                padding: `${spacing[1.5]}px ${spacing[3]}px`,
+                background: `${brandPurple}22`,
+                border: `1px solid ${brandPurple}44`,
+                borderRadius: radius.md,
+                color: brandPurple,
+                textDecoration: 'none',
+                fontSize: typography.size.sm,
+                fontWeight: typography.weight.bold,
+              }}
+            >
+              <LaptopIcon size={14} /> اعرف المزيد عن البرنامج عن بُعد
+            </a>
+          )}
+          {index === 2 && (
+            <a
+              href="#checklist"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: spacing[1.5],
+                marginTop: spacing[3],
+                padding: `${spacing[1.5]}px ${spacing[3]}px`,
+                background: `${brandCyan}22`,
+                border: `1px solid ${brandCyan}44`,
+                borderRadius: radius.md,
+                color: brandCyan,
+                textDecoration: 'none',
+                fontSize: typography.size.sm,
+                fontWeight: typography.weight.bold,
+              }}
+            >
+              <CheckCircleIcon size={14} /> قم بتعبئة قائمة التحقق
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+FAQItemComponent.displayName = 'FAQItemComponent';
+
+// Memoized quick navigation button
+const QuickNavButton = memo(function QuickNavButton({
+  icon,
+  isActive,
+  title,
+  onClick,
+}: {
+  icon: ReactNode;
+  isActive: boolean;
+  title: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={isActive}
+      title={title}
+      style={{
+        background: isActive ? `${brandCyan}22` : 'rgba(255,255,255,0.04)',
+        border: `1px solid ${isActive ? `${brandCyan}44` : colors.border.subtle}`,
+        borderRadius: radius.md,
+        padding: `${spacing[1.5]}px ${spacing[2.5]}px`,
+        cursor: 'pointer',
+        fontSize: typography.size.md,
+        transition: 'all 0.2s ease',
+      }}
+    >
+      {icon}
+    </button>
+  );
+});
+QuickNavButton.displayName = 'QuickNavButton';
+
+const FAQSection = memo(function FAQSection() {
   const audioRef = useRef<AudioContext | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -125,20 +350,39 @@ export default function FAQSection() {
     }
   }, []);
 
-  const toggleFAQ = useCallback((index: number) => {
-    const isOpening = openIndex !== index;
-    playToggleSound(isOpening);
-    setOpenIndex(isOpening ? index : null);
-  }, [openIndex, playToggleSound]);
+  const toggleFAQ = useCallback(
+    (index: number) => {
+      const isOpening = openIndex !== index;
+      playToggleSound(isOpening);
+      setOpenIndex(isOpening ? index : null);
+    },
+    [openIndex, playToggleSound]
+  );
+
+  // Memoized handlers for each item
+  const handleMouseEnter = useCallback((index: number) => setHoveredIndex(index), []);
+  const handleMouseLeave = useCallback(() => setHoveredIndex(null), []);
 
   return (
-    <section id="faq" style={styles.sectionCard}>
+    <section id="faq" style={styles.sectionCard} aria-labelledby="faq-title">
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
-          <h2 style={{ ...styles.h2, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <h2
+            id="faq-title"
+            style={{ ...styles.h2, display: 'flex', alignItems: 'center', gap: spacing[2.5] }}
+          >
             <HelpIcon size={28} color={brandCyan} /> الأسئلة الشائعة
           </h2>
-          <span style={{ ...styles.chip, background: 'rgba(143,211,204,0.12)', borderColor: 'rgba(143,211,204,0.25)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <span
+            style={{
+              ...styles.chip,
+              background: `${brandCyan}18`,
+              borderColor: `${brandCyan}35`,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: spacing[1.5],
+            }}
+          >
             <HelpIcon size={14} color={brandCyan} /> إجابات سريعة
           </span>
         </div>
@@ -148,171 +392,72 @@ export default function FAQSection() {
       </div>
 
       {/* Quick Navigation */}
-      <div style={{
-        marginTop: 16,
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 8,
-        justifyContent: 'center',
-      }}>
+      <div
+        style={{
+          marginTop: spacing[4],
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: spacing[2],
+          justifyContent: 'center',
+        }}
+        role="tablist"
+        aria-label="Quick navigation to FAQ items"
+      >
         {faqs.map((faq, index) => (
-          <button
+          <QuickNavButton
             key={index}
-            type="button"
-            onClick={() => toggleFAQ(index)}
-            style={{
-              background: openIndex === index ? brandCyan + '22' : 'rgba(255,255,255,0.04)',
-              border: `1px solid ${openIndex === index ? brandCyan + '44' : 'rgba(255,255,255,0.08)'}`,
-              borderRadius: 8,
-              padding: '6px 10px',
-              cursor: 'pointer',
-              fontSize: 16,
-              transition: 'all 0.2s ease',
-            }}
+            icon={faq.icon}
+            isActive={openIndex === index}
             title={faq.question}
-          >
-            {faq.icon}
-          </button>
+            onClick={() => toggleFAQ(index)}
+          />
         ))}
       </div>
 
-      <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div
+        style={{
+          marginTop: spacing[4],
+          display: 'flex',
+          flexDirection: 'column',
+          gap: spacing[2.5],
+        }}
+      >
         {faqs.map((faq, index) => (
-          <div
+          <FAQItemComponent
             key={index}
-            style={{
-              background: openIndex === index
-                ? `linear-gradient(135deg, rgba(143,211,204,0.08), rgba(175,132,186,0.08))`
-                : hoveredIndex === index
-                  ? 'rgba(15,22,41,0.8)'
-                  : 'rgba(15,22,41,0.6)',
-              border: `1px solid ${openIndex === index ? 'rgba(143,211,204,0.3)' : hoveredIndex === index ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.08)'}`,
-              borderRadius: 14,
-              overflow: 'hidden',
-              transition: 'all 0.3s ease',
-              transform: hoveredIndex === index && openIndex !== index ? 'translateX(-4px)' : 'translateX(0)',
-            }}
-            onMouseEnter={() => setHoveredIndex(index)}
-            onMouseLeave={() => setHoveredIndex(null)}
-          >
-            <button
-              type="button"
-              onClick={() => toggleFAQ(index)}
-              style={{
-                width: '100%',
-                padding: isMobile ? '12px 14px' : '14px 18px',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: isMobile ? 10 : 14,
-                textAlign: 'right',
-              }}
-            >
-              <span style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                filter: openIndex === index ? 'none' : 'grayscale(0.5)',
-                transition: 'filter 0.3s ease, transform 0.3s ease',
-                transform: openIndex === index ? 'scale(1.1)' : 'scale(1)',
-              }}>
-                {faq.icon}
-              </span>
-              <span style={{
-                flex: 1,
-                fontWeight: 800,
-                fontSize: isMobile ? 13 : 15,
-                color: openIndex === index ? brandCyan : '#f7f8fb',
-                transition: 'color 0.3s ease',
-                lineHeight: 1.5,
-              }}>
-                {faq.question}
-              </span>
-              <span style={{
-                fontSize: isMobile ? 16 : 20,
-                color: openIndex === index ? brandCyan : 'rgba(255,255,255,0.5)',
-                transform: openIndex === index ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'all 0.3s ease',
-                flexShrink: 0,
-              }}>
-                ▼
-              </span>
-            </button>
-
-            <div style={{
-              maxHeight: openIndex === index ? 400 : 0,
-              overflow: 'hidden',
-              transition: 'max-height 0.4s ease',
-            }}>
-              <div style={{
-                padding: isMobile ? '0 14px 14px' : '0 20px 16px',
-                paddingRight: isMobile ? 44 : 58,
-                color: 'rgba(255,255,255,0.85)',
-                lineHeight: 1.8,
-                fontSize: isMobile ? 13 : 14,
-              }}>
-                {faq.answer}
-
-                {/* Related action */}
-                {index === 5 && ( // Remote protocol question
-                  <a href="#remote" style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    marginTop: 12,
-                    padding: '6px 12px',
-                    background: brandPurple + '22',
-                    border: `1px solid ${brandPurple}44`,
-                    borderRadius: 8,
-                    color: brandPurple,
-                    textDecoration: 'none',
-                    fontSize: 12,
-                    fontWeight: 700,
-                  }}>
-                    <LaptopIcon size={14} /> اعرف المزيد عن البرنامج عن بُعد
-                  </a>
-                )}
-                {index === 2 && ( // Who is it for question
-                  <a href="#checklist" style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    marginTop: 12,
-                    padding: '6px 12px',
-                    background: brandCyan + '22',
-                    border: `1px solid ${brandCyan}44`,
-                    borderRadius: 8,
-                    color: brandCyan,
-                    textDecoration: 'none',
-                    fontSize: 12,
-                    fontWeight: 700,
-                  }}>
-                    <CheckCircleIcon size={14} /> قم بتعبئة قائمة التحقق
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
+            faq={faq}
+            index={index}
+            isOpen={openIndex === index}
+            isHovered={hoveredIndex === index}
+            isMobile={isMobile}
+            onToggle={() => toggleFAQ(index)}
+            onMouseEnter={() => handleMouseEnter(index)}
+            onMouseLeave={handleMouseLeave}
+          />
         ))}
       </div>
 
-      <div style={{
-        marginTop: 20,
-        padding: 16,
-        background: `linear-gradient(135deg, rgba(175,132,186,0.1), rgba(176,18,112,0.1))`,
-        border: '1px solid rgba(175,132,186,0.2)',
-        borderRadius: 14,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 14,
-        flexWrap: 'wrap',
-      }}>
+      <div
+        style={{
+          marginTop: spacing[5],
+          padding: spacing[4],
+          background: `linear-gradient(135deg, ${brandPurple}15, ${brandPink}15)`,
+          border: `1px solid ${brandPurple}30`,
+          borderRadius: radius.xl,
+          display: 'flex',
+          alignItems: 'center',
+          gap: spacing[3.5],
+          flexWrap: 'wrap',
+        }}
+      >
         <MessageIcon size={28} color={brandPurple} />
         <div style={{ flex: 1, minWidth: 200 }}>
-          <div style={{ fontWeight: 800, color: brandPurple }}>لديك سؤال آخر؟</div>
-          <div style={{ ...styles.muted, marginTop: 4 }}>تواصل معنا وسنرد عليك في أقرب وقت</div>
+          <div style={{ fontWeight: typography.weight.extrabold, color: brandPurple }}>
+            لديك سؤال آخر؟
+          </div>
+          <div style={{ ...styles.muted, marginTop: spacing[1] }}>
+            تواصل معنا وسنرد عليك في أقرب وقت
+          </div>
         </div>
         <a href="#contact" style={{ ...styles.primaryBtn, textDecoration: 'none' }}>
           تواصل معنا
@@ -320,4 +465,7 @@ export default function FAQSection() {
       </div>
     </section>
   );
-}
+});
+FAQSection.displayName = 'FAQSection';
+
+export default FAQSection;
