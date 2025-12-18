@@ -12,6 +12,12 @@ import {
   LineChart,
 } from '../shared';
 import {
+  Leaderboard,
+  GoalSummary,
+  MOCK_LEADERBOARD,
+  MOCK_GOALS,
+} from '../gamification';
+import {
   brandCyan,
   brandPurple,
   brandPink,
@@ -701,6 +707,33 @@ export default function SchoolDashboard() {
           />
         </div>
       )}
+
+      {/* Student Performance & Goals */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: spacing[4],
+          marginTop: spacing[6],
+        }}
+      >
+        {/* Student Leaderboard */}
+        <Leaderboard
+          entries={MOCK_LEADERBOARD.slice(0, 5)}
+          isArabic={isArabic}
+          variant="mini"
+          title="Top Students"
+          titleAr="أفضل الطلاب"
+          showPoints
+          maxDisplay={5}
+        />
+
+        {/* School Goals Summary */}
+        <GoalSummary
+          goals={MOCK_GOALS}
+          isArabic={isArabic}
+        />
+      </div>
 
       {/* Section Navigation */}
       <div

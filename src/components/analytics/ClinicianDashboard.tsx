@@ -13,6 +13,14 @@ import {
   TreatmentPhaseIndicator,
 } from '../shared';
 import {
+  Leaderboard,
+  GoalList,
+  QuickSessionStats,
+  MOCK_LEADERBOARD,
+  MOCK_GOALS,
+  MOCK_SESSION_RESULT,
+} from '../gamification';
+import {
   brandCyan,
   brandPurple,
   brandPink,
@@ -1155,6 +1163,50 @@ export default function ClinicianDashboard() {
           />
         </div>
       )}
+
+      {/* Gamification Overview Row */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: spacing[4],
+          marginTop: spacing[6],
+        }}
+      >
+        {/* Patient Leaderboard */}
+        <Leaderboard
+          entries={MOCK_LEADERBOARD.slice(0, 5)}
+          isArabic={isArabic}
+          variant="compact"
+          title="Top Performers"
+          titleAr="أفضل المتدربين"
+          showPoints
+          showStreak
+          maxDisplay={5}
+        />
+
+        {/* Recent Session & Goals */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: spacing[4],
+          }}
+        >
+          <QuickSessionStats
+            session={MOCK_SESSION_RESULT}
+            isArabic={isArabic}
+          />
+          <GoalList
+            goals={MOCK_GOALS.filter(g => g.createdBy === 'clinician').slice(0, 2)}
+            isArabic={isArabic}
+            variant="compact"
+            showCompleted={false}
+            title="Clinical Goals"
+            titleAr="الأهداف العلاجية"
+          />
+        </div>
+      </div>
 
       {/* Section Navigation */}
       <div

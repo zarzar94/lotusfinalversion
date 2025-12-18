@@ -13,6 +13,15 @@ import {
 } from '../shared';
 import type { Milestone } from '../shared';
 import {
+  NarrativeCard,
+  StoryMotivation,
+  GoalList,
+  GoalSummary,
+  getUnlockedChapters,
+  getCurrentChapter,
+  MOCK_GOALS,
+} from '../gamification';
+import {
   brandCyan,
   brandPurple,
   brandPink,
@@ -683,6 +692,75 @@ export default function ParentDashboard() {
             />
           ))}
         </div>
+      </div>
+
+      {/* Gamification Section */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: spacing[4],
+          marginTop: spacing[6],
+        }}
+      >
+        {/* Story Progress - First child */}
+        {children.length > 0 && (() => {
+          const firstChild = children[0];
+          const chapters = getUnlockedChapters(
+            firstChild.sessionsCompleted,
+            firstChild.streak,
+            firstChild.attentionScore
+          );
+          const currentIndex = getCurrentChapter(chapters);
+          const currentChapter = chapters[currentIndex];
+          const nextChapter = chapters[currentIndex + 1];
+
+          return (
+            <NarrativeCard
+              currentChapter={currentChapter}
+              nextChapter={nextChapter}
+              totalChapters={chapters.length}
+              isArabic={isArabic}
+            />
+          );
+        })()}
+
+        {/* Goals Summary */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: spacing[4],
+          }}
+        >
+          <GoalSummary goals={MOCK_GOALS} isArabic={isArabic} />
+          <StoryMotivation
+            sessionsCompleted={children[0]?.sessionsCompleted || 0}
+            currentStreak={children[0]?.streak || 0}
+            attentionScore={children[0]?.attentionScore || 0}
+            isArabic={isArabic}
+          />
+        </div>
+      </div>
+
+      {/* Active Goals */}
+      <div
+        style={{
+          marginTop: spacing[6],
+          padding: spacing[5],
+          background: colors.surface.card,
+          border: `1px solid ${colors.border.default}`,
+          borderRadius: radius.xl,
+        }}
+      >
+        <GoalList
+          goals={MOCK_GOALS.slice(0, 3)}
+          isArabic={isArabic}
+          showCompleted={false}
+          variant="compact"
+          title="Active Goals"
+          titleAr="الأهداف النشطة"
+        />
       </div>
 
       {/* Tips Section - Using shared TipsCard */}
