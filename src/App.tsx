@@ -11,6 +11,7 @@ import StickyCTA from './components/StickyCTA';
 import ErrorBoundary from './components/ErrorBoundary';
 import { GamificationProvider } from './context/GamificationContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { UserProvider } from './context/UserContext';
 import SectionLoader from './components/SectionLoader';
 import FadeIn from './components/FadeIn';
 import ScrollProgressBar from './components/ScrollProgressBar';
@@ -21,6 +22,7 @@ import ActivityFeed from './components/ActivityFeed';
 
 // Lazy load pages
 const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
+const SchoolDashboard = lazy(() => import('./components/analytics/SchoolDashboard'));
 
 // Lazy load all non-critical sections for better initial load
 const PlatformNav = lazy(() => import('./components/PlatformNav'));
@@ -330,19 +332,29 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <LanguageProvider>
-          <GamificationProvider>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route
-                path="/function/:slug"
-                element={
-                  <Suspense fallback={<PageLoader />}>
-                    <BrainFunctionPage />
-                  </Suspense>
-                }
-              />
-            </Routes>
-          </GamificationProvider>
+          <UserProvider>
+            <GamificationProvider>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route
+                  path="/function/:slug"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <BrainFunctionPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/school-dashboard"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <SchoolDashboard />
+                    </Suspense>
+                  }
+                />
+              </Routes>
+            </GamificationProvider>
+          </UserProvider>
         </LanguageProvider>
       </BrowserRouter>
     </ErrorBoundary>
