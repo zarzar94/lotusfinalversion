@@ -381,9 +381,11 @@ function App() {
     };
   }, []);
 
+  const routerBasename = import.meta.env.BASE_URL === './' ? '/' : import.meta.env.BASE_URL;
+
   return (
     <ErrorBoundary>
-      <BrowserRouter basename={import.meta.env.BASE_URL}>
+      <BrowserRouter basename={routerBasename}>
         <LanguageProvider>
           <UserProvider>
             <GamificationProvider>
