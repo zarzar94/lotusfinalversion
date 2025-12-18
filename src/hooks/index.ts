@@ -13,3 +13,4 @@ export {
 // UI hooks
 export { default as useFocusTrap } from './useFocusTrap';
 export { useParallax } from './useParallax';
+export { usePageTitle } from './usePageTitle';
