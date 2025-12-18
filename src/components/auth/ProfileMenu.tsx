@@ -94,6 +94,9 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
       {/* Profile Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        aria-label={isArabic ? 'قائمة الملف الشخصي' : 'Profile menu'}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -162,11 +165,15 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
       {/* Dropdown Menu */}
       {isOpen && (
         <div
+          role="menu"
+          aria-label={isArabic ? 'قائمة الملف الشخصي' : 'Profile menu'}
+          className="profile-dropdown"
           style={{
             position: 'absolute',
             top: 'calc(100% + 8px)',
             [isArabic ? 'left' : 'right']: 0,
             minWidth: 240,
+            maxWidth: 'calc(100vw - 32px)',
             background: colors.surface.overlay,
             border: `1px solid ${colors.border.emphasis}`,
             borderRadius: radius.lg,
@@ -363,6 +370,16 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             transform: translateY(0);
           }
         }
+        .profile-dropdown button:focus-visible {
+          outline: 2px solid ${brandCyan};
+          outline-offset: -2px;
+        }
+        @media (max-width: 480px) {
+          .profile-dropdown {
+            min-width: 200px !important;
+            ${isArabic ? 'left' : 'right'}: -8px !important;
+          }
+        }
       `}</style>
     </div>
   );
@@ -385,6 +402,7 @@ const MenuItem = memo(({
 }) => (
   <button
     onClick={onClick}
+    role="menuitem"
     style={{
       width: '100%',
       display: 'flex',
