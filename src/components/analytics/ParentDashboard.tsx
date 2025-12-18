@@ -7,11 +7,11 @@ import {
   ResponsiveStyles,
   StatCard,
   PageTransition,
-  StaggerChildren,
   MilestoneTracker,
-  TreatmentPhaseIndicator,
+  TipsCard,
   InfoCard,
 } from '../shared';
+import type { Milestone } from '../shared';
 import {
   brandCyan,
   brandPurple,
@@ -20,7 +20,6 @@ import {
   typography,
   spacing,
   radius,
-  shadows,
   transitions,
 } from '../styles';
 
@@ -44,14 +43,7 @@ interface ChildData {
   weeklyProgress: number[];
 }
 
-interface Milestone {
-  id: string;
-  title: string;
-  titleAr: string;
-  achieved: boolean;
-  achievedAt?: number;
-  icon: string;
-}
+// Milestone type is imported from shared
 
 // ═══════════════════════════════════════════════════════════════════════════
 // MOCK DATA
@@ -98,6 +90,8 @@ const getMilestones = (sessions: number): Milestone[] => [
     achieved: sessions >= 1,
     achievedAt: sessions >= 1 ? Date.now() - 86400000 * 10 : undefined,
     icon: '🎯',
+    category: 'clinical',
+    points: 50,
   },
   {
     id: 'week_one',
@@ -106,6 +100,8 @@ const getMilestones = (sessions: number): Milestone[] => [
     achieved: sessions >= 5,
     achievedAt: sessions >= 5 ? Date.now() - 86400000 * 7 : undefined,
     icon: '📅',
+    category: 'clinical',
+    points: 100,
   },
   {
     id: 'halfway',
@@ -114,6 +110,8 @@ const getMilestones = (sessions: number): Milestone[] => [
     achieved: sessions >= 10,
     achievedAt: sessions >= 10 ? Date.now() - 86400000 * 3 : undefined,
     icon: '⭐',
+    category: 'clinical',
+    points: 150,
   },
   {
     id: 'almost_done',
@@ -121,6 +119,8 @@ const getMilestones = (sessions: number): Milestone[] => [
     titleAr: '15 جلسة',
     achieved: sessions >= 15,
     icon: '🚀',
+    category: 'mastery',
+    points: 200,
   },
   {
     id: 'graduate',
@@ -128,6 +128,8 @@ const getMilestones = (sessions: number): Milestone[] => [
     titleAr: 'خريج البرنامج',
     achieved: sessions >= 20,
     icon: '🎓',
+    category: 'mastery',
+    points: 300,
   },
 ];
 
@@ -394,48 +396,15 @@ const ChildProgressCard = memo(({
             />
           </div>
 
-          {/* Milestones */}
+          {/* Milestones - Using shared MilestoneTracker */}
           <div style={{ marginBottom: spacing[4] }}>
-            <h4
-              style={{
-                margin: `0 0 ${spacing[3]}px`,
-                fontSize: typography.size.sm,
-                fontWeight: typography.weight.bold,
-                color: colors.text.primary,
-              }}
-            >
-              {isArabic ? 'الإنجازات' : 'Milestones'}
-            </h4>
-            <div style={{ display: 'flex', gap: spacing[2], flexWrap: 'wrap' }}>
-              {milestones.map((milestone) => (
-                <div
-                  key={milestone.id}
-                  style={{
-                    padding: `${spacing[2]}px ${spacing[3]}px`,
-                    background: milestone.achieved
-                      ? `${brandCyan}15`
-                      : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${milestone.achieved ? brandCyan : colors.border.subtle}30`,
-                    borderRadius: radius.full,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: spacing[1.5],
-                    opacity: milestone.achieved ? 1 : 0.5,
-                  }}
-                >
-                  <span style={{ fontSize: 14 }}>{milestone.icon}</span>
-                  <span
-                    style={{
-                      fontSize: typography.size.xs,
-                      fontWeight: typography.weight.semibold,
-                      color: milestone.achieved ? brandCyan : colors.text.muted,
-                    }}
-                  >
-                    {isArabic ? milestone.titleAr : milestone.title}
-                  </span>
-                </div>
-              ))}
-            </div>
+            <MilestoneTracker
+              milestones={milestones}
+              isArabic={isArabic}
+              variant="horizontal"
+              title="Milestones"
+              titleAr="الإنجازات"
+            />
           </div>
 
           {/* Weekly Progress Chart */}
@@ -716,56 +685,50 @@ export default function ParentDashboard() {
         </div>
       </div>
 
-      {/* Tips Section */}
-      <div
-        style={{
-          marginTop: spacing[8],
-          padding: spacing[5],
-          background: `linear-gradient(135deg, ${brandCyan}08, ${brandPurple}05)`,
-          border: `1px solid ${brandCyan}20`,
-          borderRadius: radius.xl,
-        }}
-      >
-        <h3
-          style={{
-            margin: `0 0 ${spacing[3]}px`,
-            fontSize: typography.size.lg,
-            fontWeight: typography.weight.bold,
-            color: brandCyan,
-            display: 'flex',
-            alignItems: 'center',
-            gap: spacing[2],
-          }}
-        >
-          <span>💡</span>
-          {isArabic ? 'نصائح للآباء' : 'Tips for Parents'}
-        </h3>
-        <ul
-          style={{
-            margin: 0,
-            padding: `0 ${spacing[5]}px`,
-            color: colors.text.secondary,
-            fontSize: typography.size.sm,
-            lineHeight: typography.lineHeight.relaxed,
-          }}
-        >
-          <li style={{ marginBottom: spacing[2] }}>
-            {isArabic
-              ? 'شجع طفلك على إكمال الجلسات اليومية للحفاظ على الاستمرارية'
-              : 'Encourage your child to complete daily sessions to maintain streaks'}
-          </li>
-          <li style={{ marginBottom: spacing[2] }}>
-            {isArabic
-              ? 'راقب درجات الانتباه والمعالجة لمتابعة التحسن'
-              : 'Monitor attention and processing scores to track improvement'}
-          </li>
-          <li>
-            {isArabic
-              ? 'تواصل مع الطبيب المعالج إذا لاحظت أي تراجع'
-              : 'Contact the clinician if you notice any regression'}
-          </li>
-        </ul>
-      </div>
+      {/* Tips Section - Using shared TipsCard */}
+      <TipsCard
+        title="Tips for Parents"
+        titleAr="نصائح للآباء"
+        icon="💡"
+        color={brandCyan}
+        isArabic={isArabic}
+        tips={[
+          {
+            id: '1',
+            content: 'Encourage your child to complete daily sessions to maintain streaks',
+            contentAr: 'شجع طفلك على إكمال الجلسات اليومية للحفاظ على الاستمرارية',
+          },
+          {
+            id: '2',
+            content: 'Monitor attention and processing scores to track improvement',
+            contentAr: 'راقب درجات الانتباه والمعالجة لمتابعة التحسن',
+          },
+          {
+            id: '3',
+            content: 'Contact the clinician if you notice any regression',
+            contentAr: 'تواصل مع الطبيب المعالج إذا لاحظت أي تراجع',
+          },
+          {
+            id: '4',
+            content: 'Celebrate milestones with your child to keep them motivated',
+            contentAr: 'احتفل بالإنجازات مع طفلك للحفاظ على حماسه',
+          },
+        ]}
+      />
+
+      {/* Inactivity Alert */}
+      {children.some(c => c.streak === 0 && c.treatmentPhase === 'active') && (
+        <div style={{ marginTop: spacing[4] }}>
+          <InfoCard
+            title={isArabic ? 'تنبيه: نشاط منخفض' : 'Alert: Low Activity'}
+            titleAr="تنبيه: نشاط منخفض"
+            content={`${children.filter(c => c.streak === 0).length} ${isArabic ? 'أطفال لم يمارسوا مؤخراً' : 'children haven\'t practiced recently'}`}
+            contentAr={`${children.filter(c => c.streak === 0).length} أطفال لم يمارسوا مؤخراً`}
+            variant="warning"
+            isArabic={isArabic}
+          />
+        </div>
+      )}
 
       {/* Section Navigation */}
       <div

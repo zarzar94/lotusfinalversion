@@ -7,6 +7,9 @@ import {
   ResponsiveStyles,
   StatCard,
   PageTransition,
+  TipsCard,
+  InfoCard,
+  LineChart,
 } from '../shared';
 import {
   brandCyan,
@@ -609,6 +612,95 @@ export default function SchoolDashboard() {
 
         <StudentTable students={filteredStudents} isArabic={isArabic} />
       </div>
+
+      {/* Insights Row */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: spacing[4],
+          marginTop: spacing[6],
+        }}
+      >
+        {/* Score Trend Chart */}
+        <div
+          style={{
+            padding: spacing[5],
+            background: colors.surface.card,
+            border: `1px solid ${colors.border.default}`,
+            borderRadius: radius.xl,
+          }}
+        >
+          <LineChart
+            title={isArabic ? 'اتجاه الدرجات الأسبوعي' : 'Weekly Score Trend'}
+            titleAr="اتجاه الدرجات الأسبوعي"
+            data={MOCK_WEEKLY.map(w => ({
+              label: w.week.replace('Week ', 'W'),
+              labelAr: w.weekAr.replace('الأسبوع ', 'أ'),
+              value: w.averageScore,
+            }))}
+            isArabic={isArabic}
+            height={160}
+            showValues
+            unit="%"
+            gradientColors={[brandCyan, brandPurple]}
+          />
+        </div>
+
+        {/* Tips Card */}
+        <TipsCard
+          title="School Admin Tips"
+          titleAr="نصائح للمشرف"
+          icon="🏫"
+          color={brandPurple}
+          isArabic={isArabic}
+          tips={[
+            {
+              id: '1',
+              title: 'Monitor At-Risk Students',
+              titleAr: 'راقب الطلاب المعرضين',
+              content: 'Students inactive for 5+ days need immediate follow-up with parents.',
+              contentAr: 'الطلاب غير النشطين لأكثر من 5 أيام يحتاجون متابعة فورية مع الأهل.',
+            },
+            {
+              id: '2',
+              title: 'Weekly Reports',
+              titleAr: 'التقارير الأسبوعية',
+              content: 'Share weekly progress reports with teachers to coordinate classroom support.',
+              contentAr: 'شارك تقارير التقدم الأسبوعية مع المعلمين لتنسيق الدعم في الفصل.',
+            },
+            {
+              id: '3',
+              title: 'Celebrate Success',
+              titleAr: 'احتفل بالنجاح',
+              content: 'Recognize students who complete the program in school assemblies.',
+              contentAr: 'كرّم الطلاب الذين يكملون البرنامج في الطابور الصباحي.',
+            },
+          ]}
+          variant="carousel"
+        />
+      </div>
+
+      {/* At-Risk Alert */}
+      {metrics.atRisk > 0 && (
+        <div style={{ marginTop: spacing[4] }}>
+          <InfoCard
+            title={isArabic ? 'تنبيه: طلاب معرضون للخطر' : 'Alert: At-Risk Students'}
+            titleAr="تنبيه: طلاب معرضون للخطر"
+            content={`${metrics.atRisk} ${isArabic ? 'طلاب يحتاجون تدخلاً فورياً. تواصل مع أولياء أمورهم.' : 'students need immediate intervention. Contact their parents.'}`}
+            contentAr={`${metrics.atRisk} طلاب يحتاجون تدخلاً فورياً. تواصل مع أولياء أمورهم.`}
+            variant="warning"
+            isArabic={isArabic}
+            actions={[
+              {
+                label: 'View At-Risk',
+                labelAr: 'عرض المعرضين',
+                onClick: () => setFilter('at_risk'),
+              },
+            ]}
+          />
+        </div>
+      )}
 
       {/* Section Navigation */}
       <div

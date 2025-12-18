@@ -10,8 +10,8 @@ import {
   TipsCard,
   BarChart,
   InfoCard,
+  TreatmentPhaseIndicator,
 } from '../shared';
-import type { Tip } from '../shared';
 import {
   brandCyan,
   brandPurple,
@@ -548,6 +548,26 @@ const PatientDetailModal = memo(({
               baseline={patient.auditoryBaseline}
               current={patient.auditoryDiscrimination}
               color={brandPink}
+            />
+          </div>
+
+          {/* Treatment Phase Indicator */}
+          <div style={{ marginBottom: spacing[5] }}>
+            <h3
+              style={{
+                margin: `0 0 ${spacing[3]}px`,
+                fontSize: typography.size.md,
+                fontWeight: typography.weight.bold,
+                color: colors.text.primary,
+              }}
+            >
+              {isArabic ? 'مرحلة العلاج' : 'Treatment Phase'}
+            </h3>
+            <TreatmentPhaseIndicator
+              phase={patient.treatmentPhase}
+              sessionsCompleted={patient.sessionsCompleted}
+              totalSessions={patient.totalSessions}
+              isArabic={isArabic}
             />
           </div>
 
