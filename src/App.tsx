@@ -19,6 +19,7 @@ import AchievementToast from './components/AchievementToast';
 import ProgressDashboard from './components/ProgressDashboard';
 import ScrollProgressTracker from './components/ScrollProgressTracker';
 import ActivityFeed from './components/ActivityFeed';
+import { useClinicalSync } from './hooks/useClinicalSync';
 
 // Lazy load pages
 const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
@@ -75,6 +76,9 @@ LazySection.displayName = 'LazySection';
 
 // Home page content
 function HomePage() {
+  // Sync clinical progress when patient logs in
+  useClinicalSync();
+
   useEffect(() => {
     const scrollToHash = () => {
       const hash = window.location.hash;
