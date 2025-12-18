@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useGamification } from '../context/GamificationContext';
 import { useLanguage } from '../context/LanguageContext';
-import { useUser } from '../context/UserContext';
+import { useUser, useIsPatient } from '../context/UserContext';
 import {
   brandCyan,
   brandPurple,
@@ -17,7 +17,8 @@ import {
 export default function ProgressDashboard() {
   const { state, getUnlockedAchievements, getNextAchievements, getClinicalAchievements } = useGamification();
   const { t, isArabic } = useLanguage();
-  const { user, isPatient } = useUser();
+  const { user } = useUser();
+  const isPatient = useIsPatient();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAttention, setShowAttention] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
