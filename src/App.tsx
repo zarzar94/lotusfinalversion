@@ -6,12 +6,14 @@ import ScrollToTop from './components/ScrollToTop';
 import { GamificationProvider } from './context/GamificationContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { UserProvider } from './context/UserContext';
+import { VisitorModeProvider } from './context/VisitorModeContext';
 import AchievementToast from './components/AchievementToast';
 import ProgressDashboard from './components/ProgressDashboard';
 import ScrollProgressTracker from './components/ScrollProgressTracker';
 import ActivityFeed from './components/ActivityFeed';
 import NotificationCenter from './components/NotificationCenter';
 import { ProgressExportButton } from './components/ProgressExport';
+import StickySmartCTA from './components/StickySmartCTA';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LAZY LOADED PAGES
@@ -254,10 +256,11 @@ function App() {
         <ScrollToTop />
         <PageTransitionStyles />
         <LanguageProvider>
-          <UserProvider>
-            <GamificationProvider>
-              <div className="page-transition-wrapper">
-              <Routes>
+          <VisitorModeProvider>
+            <UserProvider>
+              <GamificationProvider>
+                <div className="page-transition-wrapper">
+                <Routes>
                 {/* ═══════════════════════════════════════════════════════
                     MAIN 6 PAGES
                     ═══════════════════════════════════════════════════════ */}
@@ -404,13 +407,17 @@ function App() {
                     </Suspense>
                   }
                 />
-              </Routes>
-              </div>
+                </Routes>
+                </div>
 
-              {/* Gamification UI (always visible) */}
-              <GamificationUI />
-            </GamificationProvider>
-          </UserProvider>
+                {/* Gamification UI (always visible) */}
+                <GamificationUI />
+
+                {/* Sticky Smart CTA (mode-aware) */}
+                <StickySmartCTA />
+              </GamificationProvider>
+            </UserProvider>
+          </VisitorModeProvider>
         </LanguageProvider>
       </BrowserRouter>
     </ErrorBoundary>
