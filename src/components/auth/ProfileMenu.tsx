@@ -271,12 +271,28 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
 
           {/* Menu Items */}
           <div style={{ padding: spacing[2] }}>
-            {/* View Profile */}
+            {/* View Profile / Settings */}
             <MenuItem
               icon="👤"
               label={isArabic ? 'الملف الشخصي' : 'My Profile'}
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                window.location.href = '/settings';
+              }}
             />
+
+            {/* Patient Progress (if patient) */}
+            {user?.role === 'patient' && (
+              <MenuItem
+                icon="📈"
+                label={isArabic ? 'تقدمي' : 'My Progress'}
+                onClick={() => {
+                  setIsOpen(false);
+                  // Navigate to the games/checklist section for progress
+                  window.location.href = '/#checklist';
+                }}
+              />
+            )}
 
             {/* Parent Dashboard (if parent) */}
             {hasPermission('view_child_reports') && (
@@ -285,7 +301,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                 label={isArabic ? 'تقدم الأطفال' : 'Children Progress'}
                 onClick={() => {
                   setIsOpen(false);
-                  window.location.hash = '#parent-dashboard';
+                  window.location.href = '/parent-dashboard';
                 }}
               />
             )}
@@ -297,21 +313,51 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                 label={isArabic ? 'لوحة المرضى' : 'Patients Dashboard'}
                 onClick={() => {
                   setIsOpen(false);
-                  window.location.hash = '#clinician-dashboard';
+                  window.location.href = '/clinician-dashboard';
                 }}
               />
             )}
 
             {/* School Analytics (if permitted) */}
-            {hasPermission('school_analytics') && (
+            {hasPermission('school_analytics') && !hasPermission('global_analytics') && (
               <MenuItem
                 icon="📊"
                 label={isArabic ? 'تحليلات المدرسة' : 'School Analytics'}
                 onClick={() => {
                   setIsOpen(false);
-                  window.location.hash = '#school-dashboard';
+                  window.location.href = '/school-dashboard';
                 }}
               />
+            )}
+
+            {/* Super Admin - All Dashboards Access */}
+            {hasPermission('global_analytics') && (
+              <>
+                <MenuItem
+                  icon="🏥"
+                  label={isArabic ? 'لوحة الأطباء' : 'Clinician Dashboard'}
+                  onClick={() => {
+                    setIsOpen(false);
+                    window.location.href = '/clinician-dashboard';
+                  }}
+                />
+                <MenuItem
+                  icon="🏫"
+                  label={isArabic ? 'لوحة المدرسة' : 'School Dashboard'}
+                  onClick={() => {
+                    setIsOpen(false);
+                    window.location.href = '/school-dashboard';
+                  }}
+                />
+                <MenuItem
+                  icon="👨‍👩‍👧"
+                  label={isArabic ? 'لوحة الأولياء' : 'Parent Dashboard'}
+                  onClick={() => {
+                    setIsOpen(false);
+                    window.location.href = '/parent-dashboard';
+                  }}
+                />
+              </>
             )}
 
             {/* Settings */}
