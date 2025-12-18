@@ -271,11 +271,35 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
               onClick={() => setIsOpen(false)}
             />
 
-            {/* Analytics (if permitted) */}
+            {/* Parent Dashboard (if parent) */}
+            {hasPermission('view_child_reports') && (
+              <MenuItem
+                icon="👨‍👩‍👧"
+                label={isArabic ? 'تقدم الأطفال' : 'Children Progress'}
+                onClick={() => {
+                  setIsOpen(false);
+                  window.location.hash = '#parent-dashboard';
+                }}
+              />
+            )}
+
+            {/* Clinician Dashboard (if clinician) */}
+            {hasPermission('view_patient_reports') && (
+              <MenuItem
+                icon="🏥"
+                label={isArabic ? 'لوحة المرضى' : 'Patients Dashboard'}
+                onClick={() => {
+                  setIsOpen(false);
+                  window.location.hash = '#clinician-dashboard';
+                }}
+              />
+            )}
+
+            {/* School Analytics (if permitted) */}
             {hasPermission('school_analytics') && (
               <MenuItem
                 icon="📊"
-                label={isArabic ? 'لوحة التحليلات' : 'Analytics Dashboard'}
+                label={isArabic ? 'تحليلات المدرسة' : 'School Analytics'}
                 onClick={() => {
                   setIsOpen(false);
                   window.location.hash = '#school-dashboard';

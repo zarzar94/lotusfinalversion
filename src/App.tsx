@@ -24,6 +24,8 @@ import { useClinicalSync } from './hooks/useClinicalSync';
 // Lazy load pages
 const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
 const SchoolDashboard = lazy(() => import('./components/analytics/SchoolDashboard'));
+const ParentDashboard = lazy(() => import('./components/analytics/ParentDashboard'));
+const ClinicianDashboard = lazy(() => import('./components/analytics/ClinicianDashboard'));
 
 // Lazy load all non-critical sections for better initial load
 const PlatformNav = lazy(() => import('./components/PlatformNav'));
@@ -353,6 +355,22 @@ function App() {
                   element={
                     <Suspense fallback={<PageLoader />}>
                       <SchoolDashboard />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/parent-dashboard"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ParentDashboard />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/clinician-dashboard"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ClinicianDashboard />
                     </Suspense>
                   }
                 />

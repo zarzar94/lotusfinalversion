@@ -217,6 +217,19 @@ const MOCK_USERS: Record<string, { user: User; password: string }> = {
       lastLogin: Date.now(),
     },
   },
+  'demo@parent.com': {
+    password: 'demo123',
+    user: {
+      id: 'demo_parent_1',
+      email: 'demo@parent.com',
+      name: 'Demo Parent',
+      nameAr: 'ولي أمر تجريبي',
+      role: 'parent',
+      children: ['child_1', 'child_2'],
+      createdAt: Date.now() - 86400000 * 45,
+      lastLogin: Date.now(),
+    },
+  },
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -489,4 +502,19 @@ export function useRole(): UserRole {
 export function useClinicalProgress() {
   const { clinicalProgress, updateClinicalProgress } = useUser();
   return { progress: clinicalProgress, update: updateClinicalProgress };
+}
+
+export function useIsPatient(): boolean {
+  const { user } = useUser();
+  return user?.role === 'patient';
+}
+
+export function useIsParent(): boolean {
+  const { user } = useUser();
+  return user?.role === 'parent';
+}
+
+export function useIsClinician(): boolean {
+  const { user } = useUser();
+  return user?.role === 'clinician';
 }

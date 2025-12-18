@@ -30,9 +30,9 @@ type AuthMode = 'login' | 'register' | 'demo';
 
 const DEMO_ACCOUNTS: { role: UserRole; email: string; label: string; labelAr: string; icon: string; color: string }[] = [
   { role: 'patient', email: 'demo@patient.com', label: 'Patient', labelAr: 'مريض', icon: '👤', color: brandCyan },
-  { role: 'clinician', email: 'demo@clinician.com', label: 'Clinician', labelAr: 'طبيب', icon: '👨‍⚕️', color: brandPurple },
-  { role: 'school_admin', email: 'demo@school.com', label: 'School Admin', labelAr: 'مدير مدرسة', icon: '🏫', color: brandPink },
-  { role: 'super_admin', email: 'demo@admin.com', label: 'Super Admin', labelAr: 'مشرف عام', icon: '⚙️', color: '#f59e0b' },
+  { role: 'parent', email: 'demo@parent.com', label: 'Parent', labelAr: 'ولي أمر', icon: '👨‍👩‍👧', color: brandPurple },
+  { role: 'clinician', email: 'demo@clinician.com', label: 'Clinician', labelAr: 'طبيب', icon: '👨‍⚕️', color: brandPink },
+  { role: 'school_admin', email: 'demo@school.com', label: 'School Admin', labelAr: 'مدير مدرسة', icon: '🏫', color: '#f59e0b' },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
