@@ -7,6 +7,7 @@ import ProfileMenu from './auth/ProfileMenu';
 import LoginModal from './auth/LoginModal';
 import { useLanguage } from '../context/LanguageContext';
 import { useUser } from '../context/UserContext';
+import { useBreakpoints } from '../hooks';
 
 const getNavItems = (t: (key: string) => string) => [
   { label: t('nav.program'), href: '#overview', icon: <HeadphonesIcon size={16} /> },
@@ -19,9 +20,9 @@ const getNavItems = (t: (key: string) => string) => [
 const Header = () => {
   const { t, direction, isArabic } = useLanguage();
   const { user, isAuthenticated, hasPermission } = useUser();
+  const { isMobile } = useBreakpoints();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const NAV_ITEMS = useMemo(() => getNavItems(t), [t]);
@@ -44,19 +45,17 @@ const Header = () => {
   const openLoginModal = useCallback(() => setIsLoginModalOpen(true), []);
   const closeLoginModal = useCallback(() => setIsLoginModalOpen(false), []);
 
+  // Close mobile menu when switching to desktop
+  useEffect(() => {
+    if (!isMobile) setIsMobileMenuOpen(false);
+  }, [isMobile]);
+
+  // Scroll listener for header background
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-
     handleScroll();
-    handleResize();
-
     window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const css = useMemo(

@@ -1,7 +1,14 @@
 import { useState, useMemo, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
-import { BackNavigation, SectionNav, ResponsiveStyles } from '../shared';
+import {
+  BackNavigation,
+  SectionNav,
+  ResponsiveStyles,
+  StatCard,
+  PageTransition,
+  StaggerChildren,
+} from '../shared';
 import {
   brandCyan,
   brandPurple,
@@ -648,32 +655,38 @@ export default function ParentDashboard() {
       </div>
 
       {/* Quick Stats */}
-      <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
-        <StatCard
-          label={isArabic ? 'إجمالي الجلسات' : 'Total Sessions'}
-          value={overallStats.totalSessions}
-          icon="📊"
-          color={brandCyan}
-        />
-        <StatCard
-          label={isArabic ? 'متوسط التقدم' : 'Avg Progress'}
-          value={`${overallStats.avgProgress}%`}
-          icon="📈"
-          color={brandPurple}
-        />
-        <StatCard
-          label={isArabic ? 'أطفال نشطون' : 'Active Children'}
-          value={overallStats.activeChildren}
-          icon="👶"
-          color={brandPink}
-        />
-        <StatCard
-          label={isArabic ? 'إجمالي الاستمرارية' : 'Total Streaks'}
-          value={overallStats.totalStreak}
-          icon="🔥"
-          color="#f59e0b"
-        />
-      </div>
+      <PageTransition animation="fade-in-up" delay={100}>
+        <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
+          <StatCard
+            variant="centered"
+            label={isArabic ? 'إجمالي الجلسات' : 'Total Sessions'}
+            value={overallStats.totalSessions}
+            icon="📊"
+            color={brandCyan}
+          />
+          <StatCard
+            variant="centered"
+            label={isArabic ? 'متوسط التقدم' : 'Avg Progress'}
+            value={`${overallStats.avgProgress}%`}
+            icon="📈"
+            color={brandPurple}
+          />
+          <StatCard
+            variant="centered"
+            label={isArabic ? 'أطفال نشطون' : 'Active Children'}
+            value={overallStats.activeChildren}
+            icon="👶"
+            color={brandPink}
+          />
+          <StatCard
+            variant="centered"
+            label={isArabic ? 'إجمالي الاستمرارية' : 'Total Streaks'}
+            value={overallStats.totalStreak}
+            icon="🔥"
+            color="#f59e0b"
+          />
+        </div>
+      </PageTransition>
 
       {/* Children List */}
       <div>
@@ -772,49 +785,4 @@ export default function ParentDashboard() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// STAT CARD COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
-
-const StatCard = memo(({
-  label,
-  value,
-  icon,
-  color,
-}: {
-  label: string;
-  value: string | number;
-  icon: string;
-  color: string;
-}) => (
-  <div
-    style={{
-      padding: spacing[4],
-      background: `linear-gradient(135deg, ${color}10, transparent)`,
-      border: `1px solid ${color}25`,
-      borderRadius: radius.lg,
-      textAlign: 'center',
-    }}
-  >
-    <div style={{ fontSize: 24, marginBottom: spacing[2] }}>{icon}</div>
-    <div
-      style={{
-        fontSize: typography.size['2xl'],
-        fontWeight: typography.weight.black,
-        color: colors.text.primary,
-      }}
-    >
-      {value}
-    </div>
-    <div
-      style={{
-        fontSize: typography.size.xs,
-        color: colors.text.muted,
-        marginTop: spacing[1],
-      }}
-    >
-      {label}
-    </div>
-  </div>
-));
-StatCard.displayName = 'StatCard';
+// StatCard is now imported from ../shared

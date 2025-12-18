@@ -1,7 +1,13 @@
 import { useState, useMemo, useCallback, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
-import { BackNavigation, SectionNav, ResponsiveStyles } from '../shared';
+import {
+  BackNavigation,
+  SectionNav,
+  ResponsiveStyles,
+  StatCard,
+  PageTransition,
+} from '../shared';
 import {
   brandCyan,
   brandPurple,
@@ -810,32 +816,38 @@ export default function ClinicianDashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
-        <StatCard
-          label={isArabic ? 'إجمالي المرضى' : 'Total Patients'}
-          value={stats.total}
-          icon="👥"
-          color={brandCyan}
-        />
-        <StatCard
-          label={isArabic ? 'علاج نشط' : 'Active Treatment'}
-          value={stats.active}
-          icon="🏥"
-          color={brandPurple}
-        />
-        <StatCard
-          label={isArabic ? 'أكملوا البرنامج' : 'Completed'}
-          value={stats.completed}
-          icon="✅"
-          color="#22c55e"
-        />
-        <StatCard
-          label={isArabic ? 'متوسط التحسن' : 'Avg Improvement'}
-          value={`+${stats.avgImprovement}%`}
-          icon="📈"
-          color="#f59e0b"
-        />
-      </div>
+      <PageTransition animation="fade-in-up" delay={100}>
+        <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
+          <StatCard
+            variant="horizontal"
+            label={isArabic ? 'إجمالي المرضى' : 'Total Patients'}
+            value={stats.total}
+            icon="👥"
+            color={brandCyan}
+          />
+          <StatCard
+            variant="horizontal"
+            label={isArabic ? 'علاج نشط' : 'Active Treatment'}
+            value={stats.active}
+            icon="🏥"
+            color={brandPurple}
+          />
+          <StatCard
+            variant="horizontal"
+            label={isArabic ? 'أكملوا البرنامج' : 'Completed'}
+            value={stats.completed}
+            icon="✅"
+            color="#22c55e"
+          />
+          <StatCard
+            variant="horizontal"
+            label={isArabic ? 'متوسط التحسن' : 'Avg Improvement'}
+            value={`+${stats.avgImprovement}%`}
+            icon="📈"
+            color="#f59e0b"
+          />
+        </div>
+      </PageTransition>
 
       {/* Filters */}
       <div
@@ -1052,66 +1064,4 @@ export default function ClinicianDashboard() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// STAT CARD
-// ═══════════════════════════════════════════════════════════════════════════
-
-const StatCard = memo(({
-  label,
-  value,
-  icon,
-  color,
-}: {
-  label: string;
-  value: string | number;
-  icon: string;
-  color: string;
-}) => (
-  <div
-    style={{
-      padding: spacing[4],
-      background: `linear-gradient(135deg, ${color}10, transparent)`,
-      border: `1px solid ${color}25`,
-      borderRadius: radius.lg,
-    }}
-  >
-    <div style={{ display: 'flex', alignItems: 'center', gap: spacing[3] }}>
-      <div
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: radius.md,
-          background: `${color}20`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 22,
-        }}
-      >
-        {icon}
-      </div>
-      <div>
-        <div
-          style={{
-            fontSize: typography.size['2xl'],
-            fontWeight: typography.weight.black,
-            color: colors.text.primary,
-            lineHeight: 1,
-          }}
-        >
-          {value}
-        </div>
-        <div
-          style={{
-            fontSize: typography.size.xs,
-            color: colors.text.muted,
-            marginTop: 2,
-          }}
-        >
-          {label}
-        </div>
-      </div>
-    </div>
-  </div>
-));
-StatCard.displayName = 'StatCard';
+// StatCard is now imported from ../shared

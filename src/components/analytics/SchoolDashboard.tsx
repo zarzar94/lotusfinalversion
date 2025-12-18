@@ -1,7 +1,13 @@
 import { useState, useMemo, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
-import { BackNavigation, SectionNav, ResponsiveStyles } from '../shared';
+import {
+  BackNavigation,
+  SectionNav,
+  ResponsiveStyles,
+  StatCard,
+  PageTransition,
+} from '../shared';
 import {
   brandCyan,
   brandPurple,
@@ -78,121 +84,7 @@ const MOCK_GRADES: GradeDistribution[] = [
   { grade: 'Grade 5', gradeAr: 'الصف الخامس', count: 2, averageProgress: 87, color: '#22c55e' },
 ];
 
-// ═══════════════════════════════════════════════════════════════════════════
-// METRIC CARD COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
-
-const MetricCard = memo(({
-  title,
-  value,
-  subtitle,
-  icon,
-  color,
-  trend,
-}: {
-  title: string;
-  value: string | number;
-  subtitle?: string;
-  icon: string;
-  color: string;
-  trend?: { value: number; isPositive: boolean };
-}) => (
-  <div
-    style={{
-      padding: spacing[5],
-      background: `linear-gradient(135deg, ${color}08, transparent)`,
-      border: `1px solid ${color}25`,
-      borderRadius: radius.xl,
-      position: 'relative',
-      overflow: 'hidden',
-    }}
-  >
-    {/* Decorative gradient */}
-    <div
-      style={{
-        position: 'absolute',
-        top: -30,
-        right: -30,
-        width: 100,
-        height: 100,
-        borderRadius: '50%',
-        background: `radial-gradient(circle, ${color}15, transparent 70%)`,
-        pointerEvents: 'none',
-      }}
-    />
-
-    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-      <div>
-        <div
-          style={{
-            fontSize: typography.size.xs,
-            fontWeight: typography.weight.bold,
-            color: colors.text.muted,
-            textTransform: 'uppercase',
-            letterSpacing: 0.5,
-            marginBottom: spacing[2],
-          }}
-        >
-          {title}
-        </div>
-        <div
-          style={{
-            fontSize: typography.size['3xl'],
-            fontWeight: typography.weight.black,
-            color: colors.text.primary,
-            lineHeight: 1,
-          }}
-        >
-          {value}
-        </div>
-        {subtitle && (
-          <div
-            style={{
-              fontSize: typography.size.sm,
-              color: colors.text.secondary,
-              marginTop: spacing[1],
-            }}
-          >
-            {subtitle}
-          </div>
-        )}
-        {trend && (
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: spacing[1],
-              marginTop: spacing[2],
-              padding: `${spacing[1]}px ${spacing[2]}px`,
-              background: trend.isPositive ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
-              borderRadius: radius.full,
-              fontSize: typography.size.xs,
-              fontWeight: typography.weight.bold,
-              color: trend.isPositive ? '#22c55e' : '#ef4444',
-            }}
-          >
-            {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
-          </div>
-        )}
-      </div>
-      <div
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: radius.lg,
-          background: `${color}20`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 24,
-        }}
-      >
-        {icon}
-      </div>
-    </div>
-  </div>
-));
-MetricCard.displayName = 'MetricCard';
+// MetricCard replaced with StatCard from ../shared
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PROGRESS BAR CHART
@@ -521,37 +413,39 @@ export default function SchoolDashboard() {
       </div>
 
       {/* Metric Cards */}
-      <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
-        <MetricCard
-          title={isArabic ? 'إجمالي الطلاب' : 'Total Students'}
-          value={metrics.totalStudents}
-          subtitle={isArabic ? 'مسجلين في البرنامج' : 'Enrolled in program'}
-          icon="👥"
-          color={brandCyan}
-        />
-        <MetricCard
-          title={isArabic ? 'متوسط التقدم' : 'Avg. Progress'}
-          value={`${metrics.avgProgress}%`}
-          subtitle={isArabic ? 'من الجلسات المكتملة' : 'Sessions completed'}
-          icon="📈"
-          color={brandPurple}
-          trend={{ value: 12, isPositive: true }}
-        />
-        <MetricCard
-          title={isArabic ? 'مكتملون' : 'Completed'}
-          value={metrics.completed}
-          subtitle={isArabic ? 'أنهوا البرنامج' : 'Finished program'}
-          icon="✅"
-          color="#22c55e"
-        />
-        <MetricCard
-          title={isArabic ? 'يحتاجون انتباه' : 'Need Attention'}
-          value={metrics.atRisk}
-          subtitle={isArabic ? 'طلاب معرضون للخطر' : 'At-risk students'}
-          icon="⚠️"
-          color="#ef4444"
-        />
-      </div>
+      <PageTransition animation="fade-in-up" delay={100}>
+        <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
+          <StatCard
+            label={isArabic ? 'إجمالي الطلاب' : 'Total Students'}
+            value={metrics.totalStudents}
+            subtitle={isArabic ? 'مسجلين في البرنامج' : 'Enrolled in program'}
+            icon="👥"
+            color={brandCyan}
+          />
+          <StatCard
+            label={isArabic ? 'متوسط التقدم' : 'Avg. Progress'}
+            value={`${metrics.avgProgress}%`}
+            subtitle={isArabic ? 'من الجلسات المكتملة' : 'Sessions completed'}
+            icon="📈"
+            color={brandPurple}
+            trend={{ value: 12, isPositive: true }}
+          />
+          <StatCard
+            label={isArabic ? 'مكتملون' : 'Completed'}
+            value={metrics.completed}
+            subtitle={isArabic ? 'أنهوا البرنامج' : 'Finished program'}
+            icon="✅"
+            color="#22c55e"
+          />
+          <StatCard
+            label={isArabic ? 'يحتاجون انتباه' : 'Need Attention'}
+            value={metrics.atRisk}
+            subtitle={isArabic ? 'طلاب معرضون للخطر' : 'At-risk students'}
+            icon="⚠️"
+            color="#ef4444"
+          />
+        </div>
+      </PageTransition>
 
       {/* Charts Row */}
       <div className="panels-grid" style={{ marginBottom: spacing[8] }}>
