@@ -43,13 +43,16 @@ User reported that "chat and progress" features had disappeared following commit
 
 **Search performed:**
 ```bash
-grep -r "chat|Chat|conversation" src/
+# Note: `grep` treats `|` literally unless you use `-E`
+grep -R -E "(chat|Chat|conversation)" src/
+# Alternative (ripgrep):
+# rg -n "\\b(chat|Chat|conversation)\\b" src/
 ```
 
-**Result:** No chat component found in:
-- Current codebase
-- Git history for GamePortal
-- Any component directory
+**Result:** No in-app chat UI/component found (no `Chat` component or chat route). Chat-related references were limited to:
+- `src/utils/whatsapp.ts` (opens WhatsApp chat with the clinic)
+- `src/components/Icons.tsx` (message/chat icon)
+- Some “conversation” text in content/data
 
 **Conclusion:** User may have expected a feature that was planned but never implemented, or confused with a different project/feature.
 
