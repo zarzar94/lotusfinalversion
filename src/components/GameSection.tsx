@@ -590,6 +590,24 @@ const GameSection = memo(function GameSection() {
           0% { transform: translateY(-100%); }
           100% { transform: translateY(100%); }
         }
+        @media (max-width: 640px) {
+          .test-cards-grid {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .test-cards-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 16px !important;
+          }
+        }
+        @media (min-width: 1280px) {
+          .test-cards-grid {
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 20px !important;
+          }
+        }
       `}</style>
 
       {/* Section Header */}

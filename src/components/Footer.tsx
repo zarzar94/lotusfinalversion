@@ -127,6 +127,39 @@ const Footer = () => {
         gap: 12px !important;
       }
     }
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .footer-top-grid {
+        grid-template-columns: 1fr 1fr !important;
+      }
+      .footer-middle-section {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+      }
+      .quick-links-container {
+        max-width: 400px;
+      }
+    }
+    @media (min-width: 1280px) {
+      .footer-main {
+        padding: 48px 32px 28px !important;
+      }
+      .footer-top-grid {
+        grid-template-columns: 1.2fr 1fr 1fr !important;
+        gap: 40px !important;
+      }
+      .footer-middle-section {
+        gap: 48px !important;
+        padding-top: 32px !important;
+      }
+      .quick-link-item {
+        padding: 12px 20px !important;
+        font-size: 14px !important;
+      }
+      .social-icon {
+        width: 48px !important;
+        height: 48px !important;
+      }
+    }
   `, []);
 
   return (

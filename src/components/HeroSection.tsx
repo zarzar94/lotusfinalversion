@@ -152,6 +152,30 @@ const HeroSection = memo(function HeroSection() {
         height: 260px !important;
       }
     }
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .brain-container img {
+        width: 360px !important;
+      }
+      .orbit-trail {
+        width: 440px !important;
+        height: 440px !important;
+      }
+      .hero-section {
+        min-height: 75vh !important;
+      }
+    }
+    @media (min-width: 1280px) {
+      .brain-container img {
+        width: 500px !important;
+      }
+      .orbit-trail {
+        width: 600px !important;
+        height: 600px !important;
+      }
+      .hero-section {
+        min-height: 90vh !important;
+      }
+    }
   `, []);
 
   return (

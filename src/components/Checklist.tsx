@@ -619,6 +619,18 @@ const Checklist = () => {
         }
         @keyframes launchPulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
         @keyframes scanLine { 0% { transform: translateY(-100%); opacity: 0; } 50% { opacity: 0.5; } 100% { transform: translateY(100%); opacity: 0; } }
+        @media (max-width: 640px) {
+          .radar-container { transform: scale(0.75) !important; }
+          .category-tabs { gap: 6px !important; }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .radar-container { transform: scale(0.9) !important; }
+          .category-tabs { gap: 8px !important; }
+        }
+        @media (min-width: 1280px) {
+          .radar-container { transform: scale(1.1) !important; }
+          .category-tabs { gap: 12px !important; }
+        }
       `}</style>
 
       {/* Header */}
