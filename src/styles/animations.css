@@ -694,7 +694,7 @@ select:focus-visible,
   }
 }
 
-/* Reduced motion preference */
+/* Reduced motion preference - comprehensive accessibility support */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -702,5 +702,50 @@ select:focus-visible,
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable specific animations */
+  .animate-pulse,
+  .animate-float,
+  .animate-glow,
+  .animate-wave,
+  .animate-morph,
+  .animate-particle,
+  .shimmer-border::before,
+  .animated-border::after {
+    animation: none !important;
+  }
+
+  /* Keep content visible but without motion */
+  .animate-slide-up,
+  .animate-scale-in,
+  .animate-slide-left,
+  .animate-slide-right,
+  .animate-rotate-in,
+  .animate-text-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Print styles - disable animations and optimize for print */
+@media print {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .hover-lift,
+  .hover-glow,
+  .card-tilt {
+    transform: none !important;
+    box-shadow: none !important;
   }
 }

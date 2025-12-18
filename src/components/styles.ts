@@ -18,14 +18,35 @@ export const brandPink = '#B01270';            // Magenta accent (slides)
 export const brandInk = '#05060d';             // Background
 export const brandPanel = '#0b0f1c';           // Surface
 
+// Extended brand colors for consistency across components
+export const brandColors = {
+  // Primary brand colors
+  cyan: brandCyan,
+  purple: brandPurple,
+  purpleDark: brandPurpleDark,
+  pink: brandPink,
+  // Functional colors (consistent across the app)
+  whatsapp: '#25D366',
+  whatsappLight: 'rgba(37, 211, 102, 0.12)',
+  linkedin: '#0077B5',
+  linkedinLight: 'rgba(0, 119, 181, 0.12)',
+  // Status colors
+  success: '#22c55e',
+  warning: '#f59e0b',
+  error: '#ef4444',
+  info: '#3b82f6',
+};
+
 // Semantic colors
 export const colors = {
-  success: '#22c55e',
+  success: brandColors.success,
   successLight: 'rgba(34, 197, 94, 0.12)',
-  warning: '#f59e0b',
+  warning: brandColors.warning,
   warningLight: 'rgba(245, 158, 11, 0.12)',
-  error: '#ef4444',
+  error: brandColors.error,
   errorLight: 'rgba(239, 68, 68, 0.12)',
+  info: brandColors.info,
+  infoLight: 'rgba(59, 130, 246, 0.12)',
   text: {
     primary: '#f7f8fb',
     secondary: 'rgba(255, 255, 255, 0.75)',
