@@ -5,7 +5,7 @@
 
 import { memo, useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { brandCyan, brandPurple, radius } from './styles';
+import { brandCyan, brandPurple, radius, transitions } from './styles';
 
 interface ScrollToTopButtonProps {
   threshold?: number;
@@ -37,13 +37,17 @@ function ScrollToTopButton({ threshold = 400, bottom = 220 }: ScrollToTopButtonP
 
   if (!isVisible) return null;
 
+  const label = isArabic ? 'العودة للأعلى' : 'Scroll to top';
+
   return (
     <button
       onClick={scrollToTop}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      aria-label={isArabic ? 'العودة للأعلى' : 'Scroll to top'}
-      title={isArabic ? 'العودة للأعلى' : 'Back to top'}
+      onFocus={() => setIsHovered(true)}
+      onBlur={() => setIsHovered(false)}
+      aria-label={label}
+      title={label}
       style={{
         position: 'fixed',
         bottom,
@@ -66,7 +70,7 @@ function ScrollToTopButton({ threshold = 400, bottom = 220 }: ScrollToTopButtonP
         boxShadow: isHovered
           ? `0 8px 30px ${brandCyan}40`
           : '0 4px 20px rgba(0,0,0,0.3)',
-        transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        transition: transitions.spring,
         transform: isHovered ? 'translateY(-4px) scale(1.05)' : 'translateY(0) scale(1)',
         zIndex: 90,
         backdropFilter: 'blur(10px)',
@@ -82,8 +86,9 @@ function ScrollToTopButton({ threshold = 400, bottom = 220 }: ScrollToTopButtonP
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        aria-hidden="true"
         style={{
-          transition: 'transform 0.3s ease',
+          transition: transitions.normal,
           transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
         }}
       >
@@ -99,6 +104,14 @@ function ScrollToTopButton({ threshold = 400, bottom = 220 }: ScrollToTopButtonP
           to {
             opacity: 1;
             transform: translateY(0);
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          @keyframes fadeInUp {
+            from, to {
+              opacity: 1;
+              transform: none;
+            }
           }
         }
       `}</style>
