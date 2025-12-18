@@ -145,6 +145,7 @@ export default function ActivityFeed() {
   const [hasNewActivity, setHasNewActivity] = useState(false);
   const lastStateRef = useRef(state);
   const tipIndexRef = useRef(0);
+  const newActivityTimeoutRef = useRef<number | null>(null);
 
   // Add a new activity
   const addActivity = useCallback((activity: Omit<Activity, 'id' | 'timestamp'>) => {
@@ -155,7 +156,27 @@ export default function ActivityFeed() {
     };
     setActivities(prev => [newActivity, ...prev].slice(0, 20)); // Keep last 20
     setHasNewActivity(true);
-    setTimeout(() => setHasNewActivity(false), 3000);
+
+    if (typeof window === 'undefined') return;
+
+    if (newActivityTimeoutRef.current !== null) {
+      window.clearTimeout(newActivityTimeoutRef.current);
+    }
+
+    newActivityTimeoutRef.current = window.setTimeout(() => {
+      newActivityTimeoutRef.current = null;
+      setHasNewActivity(false);
+    }, 3000);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window === 'undefined') return;
+      if (newActivityTimeoutRef.current !== null) {
+        window.clearTimeout(newActivityTimeoutRef.current);
+        newActivityTimeoutRef.current = null;
+      }
+    };
   }, []);
 
   // Track state changes and generate activities

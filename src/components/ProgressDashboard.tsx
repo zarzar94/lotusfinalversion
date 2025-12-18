@@ -145,7 +145,7 @@ export default function ProgressDashboard() {
                 : undefined,
             transition: prefersReducedMotion
               ? 'none'
-              : `width 0.3s ${transitions.bounce}, border-color 0.3s ease`,
+              : `width ${transitions.bounce}, border-color 0.3s ease`,
           }}
         >
           {/* Collapsed view - enhanced */}
