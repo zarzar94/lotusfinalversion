@@ -847,6 +847,24 @@ const SlideViewer = () => {
     .flask-card:hover {
       transform: translateY(-8px);
     }
+    @media (max-width: 640px) {
+      .slides-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+        gap: 12px !important;
+      }
+    }
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .slides-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 20px !important;
+      }
+    }
+    @media (min-width: 1280px) {
+      .slides-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 24px !important;
+      }
+    }
   `, []);
 
   return (
@@ -974,7 +992,7 @@ const SlideViewer = () => {
         </div>
 
         {/* Flask Grid */}
-        <div style={{
+        <div className="slides-grid" style={{
           marginTop: 24,
           display: 'grid',
           gap: 20,

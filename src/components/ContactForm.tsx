@@ -164,6 +164,24 @@ const iosScrollCss = `
       border-radius: 32px !important;
     }
   }
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .iphone-frame {
+      max-width: 360px !important;
+      min-height: 700px !important;
+    }
+  }
+  @media (min-width: 1280px) {
+    .iphone-frame {
+      max-width: 420px !important;
+      min-height: 780px !important;
+    }
+    .contact-header-text {
+      font-size: 28px !important;
+    }
+    .contact-subtext {
+      font-size: 16px !important;
+    }
+  }
 `;
 
 // Memoized sub-components
