@@ -106,7 +106,7 @@ function Waveform({ color, type, active }: { color: string; type: 'ecg' | 'spo2'
   );
 }
 
-// Medical monitor frame component
+// Lab tech modal frame component
 function MedicalMonitor({
   title,
   children,
@@ -145,8 +145,8 @@ function MedicalMonitor({
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(0,0,0,0.85)',
-        backdropFilter: 'blur(10px)',
+        background: 'rgba(5,6,13,0.92)',
+        backdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -155,175 +155,205 @@ function MedicalMonitor({
       }}
       onClick={onClose}
     >
-      {/* Monitor Frame */}
+      {/* Lab Modal Frame */}
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
           width: '100%',
-          maxWidth: 900,
-          background: 'linear-gradient(180deg, #E8E4DC 0%, #D4CFC5 50%, #C8C3B9 100%)',
-          borderRadius: 20,
-          padding: 20,
-          boxShadow: '0 30px 80px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.5)',
+          maxWidth: 920,
+          background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+          borderRadius: 24,
+          padding: 0,
+          boxShadow: `0 40px 100px rgba(0,0,0,0.6), 0 0 80px ${waveformColor}15`,
           position: 'relative',
+          overflow: 'hidden',
+          border: `1px solid ${waveformColor}22`,
         }}
       >
-        {/* Monitor bezel top */}
+        {/* Top glow bar */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          background: `linear-gradient(90deg, transparent, ${waveformColor}, ${brandCyan}, transparent)`,
+          opacity: 0.7,
+        }} />
+
+        {/* Modal header */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 10,
-          padding: '0 10px',
+          padding: '16px 24px',
+          background: 'rgba(0,0,0,0.3)',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
         }}>
-          <div style={{ fontSize: 12, color: '#666', fontWeight: 600 }}>BERARD AIT SCREENING</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 11, color: '#666' }}>MENU</span>
-            <span style={{ fontSize: 11, color: '#666' }}>{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
-            <div style={{ width: 30, height: 12, background: '#4a4', borderRadius: 2, border: '1px solid #383' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{
+              width: 40,
+              height: 40,
+              borderRadius: 12,
+              background: `linear-gradient(135deg, ${waveformColor}22, ${waveformColor}11)`,
+              border: `1px solid ${waveformColor}44`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 20,
+            }}>
+              🔬
+            </div>
+            <div>
+              <div style={{ fontSize: 14, color: waveformColor, fontWeight: 800 }}>
+                LOTUS SCREENING STATION
+              </div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.5px' }}>
+                {title} • NON-DIAGNOSTIC
+              </div>
+            </div>
           </div>
-        </div>
-
-        {/* Monitor Screen */}
-        <div style={{
-          background: 'linear-gradient(180deg, #2A2F3A 0%, #1E232C 100%)',
-          borderRadius: 8,
-          overflow: 'hidden',
-          border: '3px solid #1a1a1a',
-          boxShadow: 'inset 0 0 30px rgba(0,0,0,0.5)',
-        }}>
-          {/* Screen header with waveform */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 180px',
-            borderBottom: '1px solid rgba(255,255,255,0.1)',
-          }}>
-            {/* Left side - Waveform display */}
-            <div style={{ padding: 15, borderRight: '1px solid rgba(255,255,255,0.1)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '6px 12px',
+              background: isActive ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.05)',
+              border: `1px solid ${isActive ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.1)'}`,
+              borderRadius: 8,
+            }}>
               <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: 8,
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: isActive ? '#22c55e' : 'rgba(255,255,255,0.3)',
+                boxShadow: isActive ? '0 0 8px #22c55e' : 'none',
+                animation: isActive ? 'blink 1s ease-in-out infinite' : 'none',
+              }} />
+              <span style={{
+                fontSize: 10,
+                color: isActive ? '#22c55e' : 'rgba(255,255,255,0.5)',
+                fontWeight: 700,
               }}>
-                <span style={{ color: waveformColor, fontSize: 14, fontWeight: 700 }}>{title}</span>
-                <span style={{
-                  fontSize: 10,
-                  padding: '2px 8px',
-                  background: isActive ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.1)',
-                  borderRadius: 4,
-                  color: isActive ? '#22c55e' : 'rgba(255,255,255,0.5)',
-                }}>
-                  {isActive ? '● ACTIVE' : '○ STANDBY'}
-                </span>
-              </div>
-              <Waveform color={waveformColor} type={waveformType} active={isActive} />
+                {statusText}
+              </span>
             </div>
-
-            {/* Right side - Stats */}
-            <div style={{ padding: 15, background: 'rgba(0,0,0,0.2)' }}>
-              <div style={{ marginBottom: 15 }}>
-                <div style={{ fontSize: 10, color: waveformColor, marginBottom: 2 }}>STATUS</div>
-                <div style={{ fontSize: 28, fontWeight: 900, color: '#22c55e', fontFamily: 'monospace' }}>
-                  {statusText}
-                </div>
-              </div>
-              <div style={{ marginBottom: 15 }}>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>MODE</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>SCREENING</div>
-              </div>
-              <div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>TYPE</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: waveformColor }}>NON-DIAGNOSTIC</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Main content area */}
-          <div style={{
-            padding: 20,
-            maxHeight: '50vh',
-            overflowY: 'auto',
-            direction: 'rtl',
-          }}>
-            {children}
-          </div>
-        </div>
-
-        {/* Monitor buttons */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginTop: 15,
-          padding: '0 10px',
-        }}>
-          {/* Left buttons */}
-          <div style={{ display: 'flex', gap: 8 }}>
-            {/* Orange button */}
-            <button
-              type="button"
-              style={{
-                width: 50,
-                height: 20,
-                borderRadius: 4,
-                background: 'linear-gradient(180deg, #F59E0B, #D97706)',
-                border: '1px solid #B45309',
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-              }}
-            />
-            {/* Blue buttons */}
-            {[1, 2, 3, 4].map((i) => (
-              <button
-                key={i}
-                type="button"
-                style={{
-                  width: 50,
-                  height: 20,
-                  borderRadius: 4,
-                  background: 'linear-gradient(180deg, #3B82F6, #2563EB)',
-                  border: '1px solid #1D4ED8',
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                }}
-              />
-            ))}
-            {/* Red close button */}
             <button
               type="button"
               onClick={onClose}
+              aria-label="Close modal"
               style={{
-                width: 50,
-                height: 20,
-                borderRadius: 4,
-                background: 'linear-gradient(180deg, #EF4444, #DC2626)',
-                border: '1px solid #B91C1C',
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: 'rgba(239,68,68,0.12)',
+                border: '1px solid rgba(239,68,68,0.3)',
                 cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ef4444',
+                fontSize: 16,
+                transition: 'all 0.2s ease',
               }}
-            />
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        {/* Signal display area */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 200px',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+        }}>
+          {/* Waveform display */}
+          <div style={{ padding: 20, borderRight: '1px solid rgba(255,255,255,0.05)' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 10,
+            }}>
+              <span style={{ color: waveformColor, fontSize: 12, fontWeight: 700 }}>
+                {title} SIGNAL
+              </span>
+              <span style={{
+                fontSize: 10,
+                color: 'rgba(255,255,255,0.4)',
+                fontWeight: 600,
+              }}>
+                LIVE PREVIEW
+              </span>
+            </div>
+            <Waveform color={waveformColor} type={waveformType} active={isActive} />
           </div>
 
-          {/* Dial */}
-          <div style={{
-            width: 40,
-            height: 40,
-            borderRadius: '50%',
-            background: 'linear-gradient(145deg, #5a5a5a, #3a3a3a)',
-            border: '2px solid #2a2a2a',
-            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-            <div style={{
-              width: 6,
-              height: 15,
-              background: '#888',
-              borderRadius: 2,
-              transform: 'rotate(-30deg)',
-            }} />
+          {/* Stats panel */}
+          <div style={{ padding: 20, background: 'rgba(0,0,0,0.2)' }}>
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 9, color: waveformColor, marginBottom: 3, letterSpacing: '0.5px' }}>STATUS</div>
+              <div style={{
+                fontSize: 26,
+                fontWeight: 900,
+                color: '#22c55e',
+                fontFamily: 'system-ui',
+              }}>
+                {statusText}
+              </div>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginBottom: 3, letterSpacing: '0.5px' }}>MODE</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>SCREENING</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginBottom: 3, letterSpacing: '0.5px' }}>TYPE</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: waveformColor }}>NON-DIAGNOSTIC</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main content area */}
+        <div style={{
+          padding: 24,
+          maxHeight: '50vh',
+          overflowY: 'auto',
+          direction: 'rtl',
+          background: 'linear-gradient(180deg, rgba(26,31,46,0.5) 0%, rgba(13,17,23,0.5) 100%)',
+        }}>
+          {children}
+        </div>
+
+        {/* Bottom status bar */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '12px 24px',
+          background: 'rgba(0,0,0,0.3)',
+          borderTop: '1px solid rgba(255,255,255,0.05)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
+              LOTUS SOUND LAB
+            </span>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>•</span>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>
+              {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {[waveformColor, brandCyan, brandPurple, brandPink].map((color, i) => (
+              <div key={i} style={{
+                width: 20,
+                height: 3,
+                borderRadius: 2,
+                background: color,
+                opacity: 0.6,
+              }} />
+            ))}
           </div>
         </div>
       </div>
@@ -331,7 +361,7 @@ function MedicalMonitor({
   );
 }
 
-// Test card styled as monitor display
+// Test card styled as advanced lab module
 function TestCard({
   title,
   description,
@@ -352,69 +382,95 @@ function TestCard({
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div
+    <button
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      aria-label={`Start ${title} test`}
       style={{
-        background: 'linear-gradient(180deg, #E8E4DC 0%, #D4CFC5 100%)',
+        background: 'linear-gradient(180deg, rgba(26,31,46,0.95) 0%, rgba(13,17,23,0.98) 100%)',
         borderRadius: 16,
-        padding: 12,
+        padding: 0,
         cursor: 'pointer',
         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
         transform: isHovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0)',
         boxShadow: isHovered
-          ? `0 25px 50px rgba(0,0,0,0.4), 0 0 40px ${waveformColor}22`
-          : '0 8px 25px rgba(0,0,0,0.3)',
+          ? `0 25px 50px rgba(0,0,0,0.5), 0 0 50px ${waveformColor}22, inset 0 1px 0 rgba(255,255,255,0.05)`
+          : '0 8px 25px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03)',
         animation: `monitorEnter 0.6s ease-out ${index * 0.1}s backwards`,
+        border: `1px solid ${isHovered ? `${waveformColor}44` : 'rgba(255,255,255,0.06)'}`,
+        overflow: 'hidden',
+        position: 'relative',
       }}
     >
-      {/* Mini monitor header */}
+      {/* Top glow bar */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 2,
+        background: isHovered
+          ? `linear-gradient(90deg, transparent, ${waveformColor}, transparent)`
+          : 'transparent',
+        transition: 'all 0.3s ease',
+      }} />
+
+      {/* Module header */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 8,
-        fontSize: 9,
-        color: '#666',
+        padding: '10px 14px',
+        background: 'rgba(0,0,0,0.3)',
+        borderBottom: '1px solid rgba(255,255,255,0.04)',
       }}>
-        <span>BERARD SCREENING</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <span style={{
+          fontSize: 9,
+          color: waveformColor,
+          fontWeight: 700,
+          letterSpacing: '0.5px',
+        }}>MODULE: {tag}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{
             width: 6,
             height: 6,
             borderRadius: '50%',
-            background: isHovered ? '#22c55e' : '#888',
+            background: isHovered ? '#22c55e' : 'rgba(255,255,255,0.3)',
+            boxShadow: isHovered ? '0 0 8px #22c55e' : 'none',
             animation: isHovered ? 'blink 1s ease-in-out infinite' : 'none',
           }} />
-          <span>{isHovered ? 'READY' : 'STANDBY'}</span>
+          <span style={{
+            fontSize: 9,
+            color: isHovered ? '#22c55e' : 'rgba(255,255,255,0.4)',
+            fontWeight: 600,
+          }}>{isHovered ? 'READY' : 'STANDBY'}</span>
         </div>
       </div>
 
-      {/* Mini screen */}
-      <div style={{
-        background: 'linear-gradient(180deg, #2A2F3A 0%, #1E232C 100%)',
-        borderRadius: 8,
-        padding: 12,
-        border: '2px solid #1a1a1a',
-        boxShadow: 'inset 0 0 20px rgba(0,0,0,0.5)',
-      }}>
+      {/* Content area */}
+      <div style={{ padding: 14 }}>
         {/* Waveform display */}
-        <div style={{ marginBottom: 10 }}>
+        <div style={{ marginBottom: 12 }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: 6,
+            marginBottom: 8,
           }}>
-            <span style={{ color: waveformColor, fontSize: 11, fontWeight: 700 }}>{tag}</span>
             <span style={{
-              fontSize: 16,
+              fontSize: 10,
+              color: 'rgba(255,255,255,0.5)',
+              fontWeight: 600,
+            }}>SIGNAL PREVIEW</span>
+            <span style={{
+              fontSize: 14,
               fontWeight: 900,
-              color: '#22c55e',
-              fontFamily: 'monospace',
+              color: isHovered ? '#22c55e' : 'rgba(255,255,255,0.3)',
+              fontFamily: 'system-ui',
+              transition: 'color 0.3s ease',
             }}>
-              {isHovered ? 'START' : '--'}
+              {isHovered ? '▶ START' : '○ IDLE'}
             </span>
           </div>
           <Waveform color={waveformColor} type={waveformType} active={isHovered} />
@@ -424,7 +480,7 @@ function TestCard({
         <div style={{ direction: 'rtl', textAlign: 'right' }}>
           <div style={{
             fontWeight: 800,
-            fontSize: 13,
+            fontSize: 14,
             color: '#fff',
             marginBottom: 6,
             lineHeight: 1.4,
@@ -433,48 +489,54 @@ function TestCard({
           </div>
           <div style={{
             fontSize: 11,
-            color: 'rgba(255,255,255,0.6)',
-            lineHeight: 1.5,
+            color: 'rgba(255,255,255,0.55)',
+            lineHeight: 1.6,
           }}>
             {description}
           </div>
         </div>
 
-        {/* Start indicator */}
+        {/* Start button */}
         <div style={{
-          marginTop: 12,
-          padding: '8px 12px',
+          marginTop: 14,
+          padding: '10px 14px',
           background: isHovered
-            ? `linear-gradient(135deg, ${waveformColor}33, ${waveformColor}11)`
-            : 'rgba(255,255,255,0.05)',
-          border: `1px solid ${isHovered ? waveformColor : 'rgba(255,255,255,0.1)'}`,
-          borderRadius: 8,
+            ? `linear-gradient(135deg, ${waveformColor}25, ${waveformColor}10)`
+            : 'rgba(255,255,255,0.03)',
+          border: `1px solid ${isHovered ? `${waveformColor}55` : 'rgba(255,255,255,0.06)'}`,
+          borderRadius: 10,
           textAlign: 'center',
           transition: 'all 0.3s ease',
         }}>
           <span style={{
             fontSize: 12,
             fontWeight: 700,
-            color: isHovered ? waveformColor : 'rgba(255,255,255,0.5)',
+            color: isHovered ? waveformColor : 'rgba(255,255,255,0.45)',
           }}>
-            {isHovered ? '▶ اضغط للبدء' : '○ متاح'}
+            {isHovered ? '🔬 ابدأ الفحص' : '○ متاح'}
           </span>
         </div>
       </div>
 
-      {/* Mini buttons */}
+      {/* Status bar */}
       <div style={{
         display: 'flex',
-        gap: 4,
-        marginTop: 8,
+        gap: 3,
+        padding: '6px 14px 10px',
         justifyContent: 'center',
       }}>
-        <div style={{ width: 20, height: 8, borderRadius: 2, background: '#F59E0B' }} />
-        <div style={{ width: 20, height: 8, borderRadius: 2, background: '#3B82F6' }} />
-        <div style={{ width: 20, height: 8, borderRadius: 2, background: '#3B82F6' }} />
-        <div style={{ width: 20, height: 8, borderRadius: 2, background: '#EF4444' }} />
+        {[waveformColor, brandCyan, brandPurple].map((color, i) => (
+          <div key={i} style={{
+            width: 24,
+            height: 3,
+            borderRadius: 2,
+            background: isHovered ? color : 'rgba(255,255,255,0.15)',
+            transition: 'all 0.3s ease',
+            opacity: isHovered ? 0.8 : 0.4,
+          }} />
+        ))}
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -483,7 +545,7 @@ const GameSection = memo(function GameSection() {
   const [lastOutcome, setLastOutcome] = useState<TestOutcome | null>(null);
   const [modalOutcome, setModalOutcome] = useState<TestOutcome | null>(null);
   const [isTestActive, setIsTestActive] = useState(false);
-  const [showPortal, setShowPortal] = useState(true);
+  const [showPortal, setShowPortal] = useState(false); // Default to Screening Station view
   const sessionIdRef = useRef<string>(Date.now().toString(36) + Math.random().toString(36).slice(2));
   const outcomesRef = useRef<Partial<Record<string, TestOutcome>>>({});
 
@@ -599,21 +661,22 @@ const GameSection = memo(function GameSection() {
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             <button
               onClick={() => setShowPortal(!showPortal)}
+              aria-label={showPortal ? 'Switch to Screening Station view' : 'Switch to Portal view'}
               style={{
                 padding: '6px 14px',
                 borderRadius: 8,
-                background: showPortal
+                background: !showPortal
                   ? `linear-gradient(135deg, ${brandCyan}22, ${brandPink}22)`
                   : 'rgba(255,255,255,0.08)',
-                border: `1px solid ${showPortal ? brandCyan : 'rgba(255,255,255,0.2)'}`,
-                color: showPortal ? brandCyan : 'rgba(255,255,255,0.7)',
+                border: `1px solid ${!showPortal ? brandCyan : 'rgba(255,255,255,0.2)'}`,
+                color: !showPortal ? brandCyan : 'rgba(255,255,255,0.7)',
                 fontSize: 11,
                 fontWeight: 700,
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
               }}
             >
-              {showPortal ? '🎮 Portal' : '📟 Classic'}
+              {showPortal ? '🔬 Screening Station' : '🎮 Portal View'}
             </button>
             <span style={{
               ...styles.chip,
@@ -640,93 +703,190 @@ const GameSection = memo(function GameSection() {
         </div>
       )}
 
-      {/* Medical Monitor Visual Header - Classic View */}
+      {/* Screening Station - Advanced Lab Tech View */}
       {!showPortal && (
       <div style={{
         marginTop: 20,
         padding: 20,
-        background: 'linear-gradient(180deg, #E8E4DC 0%, #D4CFC5 100%)',
+        background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
         borderRadius: 20,
-        boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
+        boxShadow: '0 15px 40px rgba(0,0,0,0.4), 0 0 60px rgba(143,211,204,0.08)',
+        border: '1px solid rgba(143,211,204,0.15)',
+        position: 'relative',
+        overflow: 'hidden',
       }}>
+        {/* Lab tech glow effect */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          background: `linear-gradient(90deg, transparent, ${brandCyan}, ${brandPink}, ${brandPurple}, transparent)`,
+          opacity: 0.6,
+        }} />
+
         {/* Monitor top bar */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 12,
-          padding: '0 10px',
+          marginBottom: 16,
+          padding: '8px 16px',
+          background: 'rgba(0,0,0,0.3)',
+          borderRadius: 12,
+          border: '1px solid rgba(255,255,255,0.05)',
         }}>
-          <div style={{ fontSize: 11, color: '#666', fontWeight: 600 }}>
-            BERARD AIT SOUND LAB — SCREENING STATION
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 10, color: '#666' }}>5 TESTS AVAILABLE</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: '#22c55e',
-              animation: 'blink 2s ease-in-out infinite',
-            }} />
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: `linear-gradient(135deg, ${brandCyan}22, ${brandPink}22)`,
+              border: `1px solid ${brandCyan}44`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 18,
+            }}>
+              🔬
+            </div>
+            <div>
+              <div style={{ fontSize: 13, color: brandCyan, fontWeight: 800, letterSpacing: '0.5px' }}>
+                LOTUS SCREENING STATION
+              </div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '1px' }}>
+                BERARD AIT SOUND LAB • PROFESSIONAL GRADE
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '6px 12px',
+              background: 'rgba(34,197,94,0.12)',
+              border: '1px solid rgba(34,197,94,0.3)',
+              borderRadius: 8,
+            }}>
+              <div style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: '#22c55e',
+                animation: 'blink 2s ease-in-out infinite',
+                boxShadow: '0 0 8px #22c55e',
+              }} />
+              <span style={{ fontSize: 10, color: '#22c55e', fontWeight: 700 }}>SYSTEM READY</span>
+            </div>
+            <div style={{
+              padding: '6px 12px',
+              background: 'rgba(143,211,204,0.08)',
+              border: '1px solid rgba(143,211,204,0.2)',
+              borderRadius: 8,
+              fontSize: 10,
+              color: brandCyan,
+              fontWeight: 700,
+            }}>
+              5 MODULES
+            </div>
           </div>
         </div>
 
         {/* Main monitor display */}
         <div style={{
-          background: 'linear-gradient(180deg, #2A2F3A 0%, #1E232C 100%)',
-          borderRadius: 12,
-          padding: 20,
-          border: '3px solid #1a1a1a',
-          boxShadow: 'inset 0 0 40px rgba(0,0,0,0.5)',
+          background: 'linear-gradient(180deg, rgba(26,31,46,0.9) 0%, rgba(13,17,23,0.95) 100%)',
+          borderRadius: 16,
+          padding: 24,
+          border: '1px solid rgba(143,211,204,0.1)',
+          boxShadow: 'inset 0 0 60px rgba(0,0,0,0.4)',
           position: 'relative',
           overflow: 'hidden',
         }}>
-          {/* Scanline effect */}
+          {/* Grid pattern overlay */}
           <div style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(transparent 50%, rgba(0,0,0,0.1) 50%)',
-            backgroundSize: '100% 4px',
+            backgroundImage: `
+              linear-gradient(rgba(143,211,204,0.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(143,211,204,0.03) 1px, transparent 1px)
+            `,
+            backgroundSize: '40px 40px',
             pointerEvents: 'none',
-            opacity: 0.3,
+            opacity: 0.5,
           }} />
 
-          {/* Best experience notice */}
+          {/* Best experience notice - Lab Tech Style */}
           <div style={{
-            marginBottom: 20,
-            padding: 12,
-            background: 'rgba(143,211,204,0.1)',
-            border: '1px solid rgba(143,211,204,0.3)',
-            borderRadius: 8,
+            marginBottom: 24,
+            padding: 16,
+            background: 'linear-gradient(135deg, rgba(143,211,204,0.08), rgba(175,132,186,0.05))',
+            border: '1px solid rgba(143,211,204,0.2)',
+            borderRadius: 14,
             display: 'flex',
             alignItems: 'center',
-            gap: 12,
+            gap: 16,
+            position: 'relative',
+            overflow: 'hidden',
           }}>
-            <span style={{ fontSize: 24 }}>🎧</span>
+            {/* Animated border glow */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 1,
+              background: `linear-gradient(90deg, transparent, ${brandCyan}66, transparent)`,
+            }} />
+            <div style={{
+              width: 48,
+              height: 48,
+              borderRadius: 12,
+              background: `linear-gradient(135deg, ${brandCyan}22, ${brandPurple}22)`,
+              border: `1px solid ${brandCyan}33`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 24,
+            }}>
+              🎧
+            </div>
             <div style={{ flex: 1, direction: 'rtl', textAlign: 'right' }}>
-              <div style={{ fontWeight: 800, fontSize: 13, color: brandCyan }}>أفضل تجربة</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>
-                استخدم سماعات + ارفع الصوت لمستوى مريح + مكان هادئ
+              <div style={{ fontWeight: 800, fontSize: 14, color: brandCyan, marginBottom: 4 }}>
+                بيئة الفحص المثالية
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>
+                سماعات عالية الجودة • مستوى صوت مريح • مكان هادئ
               </div>
             </div>
             <div style={{
               display: 'flex',
-              gap: 4,
+              gap: 8,
             }}>
-              {['🔊', '🎧', '🤫'].map((emoji, i) => (
-                <span key={i} style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 8,
-                  background: 'rgba(255,255,255,0.1)',
+              {[
+                { emoji: '🔊', label: 'صوت' },
+                { emoji: '🎧', label: 'سماعات' },
+                { emoji: '🤫', label: 'هدوء' },
+              ].map((item, i) => (
+                <div key={i} style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 10,
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.08)',
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 14,
+                  gap: 2,
+                  transition: 'all 0.2s ease',
                 }}>
-                  {emoji}
-                </span>
+                  <span style={{ fontSize: 16 }}>{item.emoji}</span>
+                  <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
+                    {item.label}
+                  </span>
+                </div>
               ))}
             </div>
           </div>
@@ -752,104 +912,181 @@ const GameSection = memo(function GameSection() {
           </div>
         </div>
 
-        {/* Monitor bottom buttons */}
+        {/* Quick Access Bar */}
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginTop: 15,
-          gap: 8,
+          marginTop: 20,
+          padding: 16,
+          background: 'rgba(0,0,0,0.3)',
+          borderRadius: 14,
+          border: '1px solid rgba(255,255,255,0.05)',
         }}>
-          {[
-            { color: '#F59E0B', label: 'SUITE' },
-            { color: '#3B82F6', label: 'ATTENTION' },
-            { color: '#8B5CF6', label: 'FREQ' },
-            { color: '#F59E0B', label: 'SEQ' },
-            { color: brandPink, label: 'SURVEY' },
-          ].map((btn, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => setMode(cards[i].mode)}
-              style={{
-                padding: '6px 16px',
-                borderRadius: 4,
-                background: `linear-gradient(180deg, ${btn.color}, ${btn.color}cc)`,
-                border: `1px solid ${btn.color}88`,
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                fontSize: 10,
-                fontWeight: 700,
-                color: '#fff',
-                textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-              }}
-            >
-              {btn.label}
-            </button>
-          ))}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 12,
+          }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600, letterSpacing: '0.5px' }}>
+              QUICK ACCESS
+            </span>
+            <span style={{ fontSize: 10, color: brandCyan, fontWeight: 600 }}>
+              5 MODULES AVAILABLE
+            </span>
+          </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 10,
+            flexWrap: 'wrap',
+          }}>
+            {[
+              { color: '#22c55e', label: 'FULL SUITE', icon: '🧪' },
+              { color: '#3B82F6', label: 'ATTENTION', icon: '🎯' },
+              { color: '#8B5CF6', label: 'FREQUENCY', icon: '🎚️' },
+              { color: '#F59E0B', label: 'SEQUENCE', icon: '🏫' },
+              { color: brandPink, label: 'SURVEY', icon: '📝' },
+            ].map((btn, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setMode(cards[i].mode)}
+                aria-label={`Start ${btn.label} test`}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 10,
+                  background: 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${btn.color}44`,
+                  cursor: 'pointer',
+                  boxShadow: 'none',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: btn.color,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = `${btn.color}18`;
+                  e.currentTarget.style.borderColor = btn.color;
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                  e.currentTarget.style.borderColor = `${btn.color}44`;
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <span>{btn.icon}</span>
+                <span>{btn.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
       )}
 
-      {/* Last Result Display */}
+      {/* Last Result Display - Lab Tech Style */}
       {lastOutcome && lastMeta && lastNext ? (
         <div style={{
-          marginTop: 20,
-          padding: 16,
-          background: 'linear-gradient(180deg, #E8E4DC 0%, #D4CFC5 100%)',
-          borderRadius: 16,
-          boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
+          marginTop: 24,
+          padding: 20,
+          background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+          borderRadius: 18,
+          boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
+          border: '1px solid rgba(143,211,204,0.12)',
+          position: 'relative',
+          overflow: 'hidden',
         }}>
+          {/* Top glow */}
           <div style={{
-            background: 'linear-gradient(180deg, #2A2F3A 0%, #1E232C 100%)',
-            borderRadius: 8,
-            padding: 16,
-            border: '2px solid #1a1a1a',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 2,
+            background: `linear-gradient(90deg, transparent, ${lastMeta.color}, transparent)`,
+            opacity: 0.6,
+          }} />
+
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            gap: 20,
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            direction: 'rtl',
           }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: 16,
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              direction: 'rtl',
-            }}>
-              <div>
+            <div style={{ flex: 1 }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                marginBottom: 12,
+              }}>
                 <div style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
+                  background: `${lastMeta.color}18`,
+                  border: `1px solid ${lastMeta.color}44`,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 8,
+                  justifyContent: 'center',
                 }}>
                   <span style={{
-                    width: 12,
-                    height: 12,
+                    width: 14,
+                    height: 14,
                     borderRadius: '50%',
                     background: lastMeta.color,
                     animation: 'blink 1.5s ease-in-out infinite',
+                    boxShadow: `0 0 12px ${lastMeta.color}`,
                   }} />
-                  <span style={{ fontWeight: 900, color: lastMeta.color, fontSize: 16 }}>
-                    آخر نتيجة: {lastOutcome.title}
+                </div>
+                <div>
+                  <div style={{
+                    fontSize: 10,
+                    color: 'rgba(255,255,255,0.4)',
+                    fontWeight: 600,
+                    letterSpacing: '0.5px',
+                    marginBottom: 2,
+                  }}>
+                    LAST RESULT
+                  </div>
+                  <span style={{ fontWeight: 900, color: lastMeta.color, fontSize: 18 }}>
+                    {lastOutcome.title}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 6 }}>
+              </div>
+              <div style={{
+                padding: '12px 16px',
+                background: 'rgba(0,0,0,0.3)',
+                borderRadius: 10,
+                border: '1px solid rgba(255,255,255,0.05)',
+              }}>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
                   {lastOutcome.scoreLabel}
                 </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4, lineHeight: 1.5 }}>
                   {lastOutcome.message}
                 </div>
               </div>
-              <a
-                href={lastNext.hash}
-                style={{
-                  ...styles.primaryBtn,
-                  textDecoration: 'none',
-                  background: `linear-gradient(135deg, ${brandPurpleDark}, ${lastNext.tone})`,
-                  boxShadow: `0 4px 15px ${lastNext.tone}44`,
-                }}
-              >
-                {lastNext.label}
-              </a>
             </div>
+            <a
+              href={lastNext.hash}
+              style={{
+                ...styles.primaryBtn,
+                textDecoration: 'none',
+                background: `linear-gradient(135deg, ${brandPurpleDark}, ${lastNext.tone})`,
+                boxShadow: `0 8px 24px ${lastNext.tone}33`,
+                padding: '14px 24px',
+                fontSize: 14,
+                borderRadius: 12,
+              }}
+            >
+              {lastNext.label}
+            </a>
           </div>
         </div>
       ) : null}
