@@ -10,6 +10,7 @@ import QuestionnairePanel from './games/QuestionnairePanel';
 import GamePortal from './games/GamePortal';
 import PreTestBriefing from './games/PreTestBriefing';
 import PostTestSummary from './games/PostTestSummary';
+import ScreeningDashboard from './games/ScreeningDashboard';
 import type { GameResult, TestOutcome } from './games/types';
 import { resultMeta } from './games/types';
 import { saveSession, type StoredSession } from './games/scoring';
@@ -850,6 +851,11 @@ const GameSection = memo(function GameSection() {
         </div>
       </div>
       )}
+
+      {/* Screening Results Dashboard */}
+      <div style={{ marginTop: spacing[5] }}>
+        <ScreeningDashboard />
+      </div>
 
       {/* Last Result Display */}
       {lastOutcome && lastMeta && lastNext ? (
