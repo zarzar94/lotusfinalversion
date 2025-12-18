@@ -50,6 +50,7 @@ const QUICK_LINKS: QuickLink[] = [
   { label: 'Results', labelAr: 'النتائج', to: '/results', icon: <ChartIcon size={16} /> },
   { label: 'Science', labelAr: 'العلوم', to: '/science', icon: <BrainIcon size={16} /> },
   { label: 'Resources', labelAr: 'الموارد', to: '/resources', icon: <HelpIcon size={16} /> },
+  { label: 'About', labelAr: 'من نحن', to: '/about', icon: '🏛️' },
   { label: 'Contact', labelAr: 'تواصل', to: '/contact', icon: <PhoneIcon size={16} /> },
 ];
 

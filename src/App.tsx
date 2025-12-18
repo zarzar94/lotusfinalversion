@@ -17,7 +17,7 @@ import { ProgressExportButton } from './components/ProgressExport';
 // LAZY LOADED PAGES
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Main 6 Pages
+// Main 7 Pages
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const AssessmentPage = lazy(() => import('./pages/AssessmentPage'));
 const ProgramPage = lazy(() => import('./pages/ProgramPage'));
@@ -25,6 +25,7 @@ const SciencePage = lazy(() => import('./pages/SciencePage'));
 const ResultsPage = lazy(() => import('./pages/ResultsPage'));
 const ResourcesPage = lazy(() => import('./pages/ResourcesPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
 
 // Special Pages
 const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
@@ -327,6 +328,16 @@ function App() {
                   element={
                     <Suspense fallback={<PageLoader />}>
                       <ContactPage />
+                    </Suspense>
+                  }
+                />
+
+                {/* 7. About Page - Centre & Specialist Info */}
+                <Route
+                  path="/about"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <AboutPage />
                     </Suspense>
                   }
                 />
