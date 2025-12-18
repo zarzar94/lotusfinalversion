@@ -19,6 +19,8 @@ import AchievementToast from './components/AchievementToast';
 import ProgressDashboard from './components/ProgressDashboard';
 import ScrollProgressTracker from './components/ScrollProgressTracker';
 import ActivityFeed from './components/ActivityFeed';
+import NotificationCenter from './components/NotificationCenter';
+import { ProgressExportButton } from './components/ProgressExport';
 import { useClinicalSync } from './hooks/useClinicalSync';
 
 // Lazy load pages
@@ -26,6 +28,7 @@ const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
 const SchoolDashboard = lazy(() => import('./components/analytics/SchoolDashboard'));
 const ParentDashboard = lazy(() => import('./components/analytics/ParentDashboard'));
 const ClinicianDashboard = lazy(() => import('./components/analytics/ClinicianDashboard'));
+const SettingsPage = lazy(() => import('./components/SettingsPage'));
 
 // Lazy load all non-critical sections for better initial load
 const PlatformNav = lazy(() => import('./components/PlatformNav'));
@@ -295,6 +298,11 @@ function HomePage() {
       <ProgressDashboard />
       <ScrollProgressTracker />
       <ActivityFeed />
+      <NotificationCenter />
+      {/* Hidden export button that listens for export-progress event */}
+      <div style={{ position: 'fixed', bottom: -100, left: -100, opacity: 0, pointerEvents: 'none' }}>
+        <ProgressExportButton />
+      </div>
     </div>
   );
 }
@@ -371,6 +379,14 @@ function App() {
                   element={
                     <Suspense fallback={<PageLoader />}>
                       <ClinicianDashboard />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/settings"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <SettingsPage />
                     </Suspense>
                   }
                 />

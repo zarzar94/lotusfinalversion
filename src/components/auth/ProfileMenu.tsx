@@ -311,8 +311,24 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             <MenuItem
               icon="⚙️"
               label={isArabic ? 'الإعدادات' : 'Settings'}
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                window.location.href = '/settings';
+              }}
             />
+
+            {/* Export Progress (for patients) */}
+            {user?.role === 'patient' && (
+              <MenuItem
+                icon="📄"
+                label={isArabic ? 'تصدير التقرير' : 'Export Report'}
+                onClick={() => {
+                  setIsOpen(false);
+                  // Trigger export from ProgressExport component
+                  window.dispatchEvent(new CustomEvent('export-progress'));
+                }}
+              />
+            )}
 
             {/* Divider */}
             <div
