@@ -1,11 +1,12 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import { brandPurple, brandCyan, brandPink } from './styles';
+import { brandPurple, brandCyan, brandPink, colors, radius, spacing, typography, transitions } from './styles';
 import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon } from './Icons';
 import BrainLogo from './BrainLogo';
 import LanguageToggle from './LanguageToggle';
 import ProfileMenu from './auth/ProfileMenu';
 import LoginModal from './auth/LoginModal';
 import { useLanguage } from '../context/LanguageContext';
+import { useUser } from '../context/UserContext';
 
 const getNavItems = (t: (key: string) => string) => [
   { label: t('nav.program'), href: '#overview', icon: <HeadphonesIcon size={16} /> },
@@ -16,13 +17,29 @@ const getNavItems = (t: (key: string) => string) => [
 ];
 
 const Header = () => {
-  const { t, direction } = useLanguage();
+  const { t, direction, isArabic } = useLanguage();
+  const { user, isAuthenticated, hasPermission } = useUser();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const NAV_ITEMS = useMemo(() => getNavItems(t), [t]);
+
+  // Role-based dashboard link
+  const dashboardLink = useMemo(() => {
+    if (!isAuthenticated || !user) return null;
+    if (hasPermission('view_child_reports')) {
+      return { href: '/parent-dashboard', label: isArabic ? 'لوحة الأطفال' : 'Children', icon: '👨‍👩‍👧' };
+    }
+    if (hasPermission('view_patient_reports')) {
+      return { href: '/clinician-dashboard', label: isArabic ? 'المرضى' : 'Patients', icon: '🏥' };
+    }
+    if (hasPermission('school_analytics')) {
+      return { href: '/school-dashboard', label: isArabic ? 'المدرسة' : 'School', icon: '📊' };
+    }
+    return null;
+  }, [isAuthenticated, user, hasPermission, isArabic]);
 
   const openLoginModal = useCallback(() => setIsLoginModalOpen(true), []);
   const closeLoginModal = useCallback(() => setIsLoginModalOpen(false), []);
@@ -172,6 +189,29 @@ const Header = () => {
                 {item.label}
               </a>
             ))}
+            {/* Role-based Dashboard Link */}
+            {dashboardLink && (
+              <a
+                href={dashboardLink.href}
+                className="nav-link"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '8px 14px',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: brandCyan,
+                  textDecoration: 'none',
+                  borderRadius: 10,
+                  background: `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}10)`,
+                  border: `1px solid ${brandCyan}30`,
+                }}
+              >
+                <span>{dashboardLink.icon}</span>
+                {dashboardLink.label}
+              </a>
+            )}
             {/* Language Toggle */}
             <LanguageToggle />
             {/* Profile Menu */}
@@ -259,6 +299,41 @@ const Header = () => {
               {item.label}
             </a>
           ))}
+          {/* Role-based Dashboard Link (Mobile) */}
+          {dashboardLink && (
+            <a
+              href={dashboardLink.href}
+              onClick={handleNavClick}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '14px 16px',
+                fontSize: 15,
+                fontWeight: 700,
+                color: brandCyan,
+                textDecoration: 'none',
+                borderRadius: 12,
+                background: `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}10)`,
+                border: `1px solid ${brandCyan}30`,
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <span style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: `linear-gradient(135deg, ${brandCyan}30, ${brandPurple}25)`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 18,
+              }}>
+                {dashboardLink.icon}
+              </span>
+              {dashboardLink.label}
+            </a>
+          )}
           {/* Language Toggle & Profile in Mobile Menu */}
           <div style={{
             marginTop: 8,
