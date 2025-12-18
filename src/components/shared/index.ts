@@ -4,6 +4,7 @@
 
 // Navigation & Layout
 export { default as BackNavigation } from './BackNavigation';
+export { default as Breadcrumb } from './Breadcrumb';
 export { default as SectionNav } from './SectionNav';
 export { default as ResponsiveStyles, responsiveCSS } from './ResponsiveStyles';
 

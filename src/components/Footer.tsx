@@ -1,4 +1,5 @@
 import { ReactNode, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { CLINIC } from '../data/clinic';
 import { styles, brandCyan, brandPurple, brandPink } from './styles';
 import {
@@ -15,6 +16,8 @@ import {
   SchoolIcon,
   ExternalLinkIcon,
   PhoneIcon,
+  BrainIcon,
+  HelpIcon,
 } from './Icons';
 import BrainLogo from './BrainLogo';
 import { useLanguage } from '../context/LanguageContext';
@@ -34,11 +37,21 @@ const social: SocialLink[] = [
   { name: 'LinkedIn', href: 'https://www.linkedin.com/company/lotus-holistic-centre/', icon: <LinkedInIcon size={18} />, color: '#0A66C2' },
 ];
 
-const getQuickLinks = (t: (key: string) => string) => [
-  { label: t('nav.program'), href: '#overview', icon: <HeadphonesIcon size={16} /> },
-  { label: t('nav.results'), href: '#results', icon: <ChartIcon size={16} /> },
-  { label: t('nav.games'), href: '#games', icon: <GamepadIcon size={16} /> },
-  { label: t('nav.schools'), href: '#schools', icon: <SchoolIcon size={16} /> },
+// Quick links with proper page routes
+type QuickLink = {
+  label: string;
+  labelAr: string;
+  to: string;
+  icon: ReactNode;
+};
+
+const QUICK_LINKS: QuickLink[] = [
+  { label: 'Program', labelAr: 'البرنامج', to: '/program', icon: <HeadphonesIcon size={16} /> },
+  { label: 'Assessment', labelAr: 'التقييم', to: '/assessment', icon: <GamepadIcon size={16} /> },
+  { label: 'Results', labelAr: 'النتائج', to: '/results', icon: <ChartIcon size={16} /> },
+  { label: 'Science', labelAr: 'العلوم', to: '/science', icon: <BrainIcon size={16} /> },
+  { label: 'Resources', labelAr: 'الموارد', to: '/resources', icon: <HelpIcon size={16} /> },
+  { label: 'Contact', labelAr: 'تواصل', to: '/contact', icon: <PhoneIcon size={16} /> },
 ];
 
 // Lotus Holistic Centre Abu Dhabi location
@@ -50,7 +63,6 @@ const LOCATION = {
 const Footer = () => {
   const { t, isArabic, direction } = useLanguage();
   const year = new Date().getFullYear();
-  const quickLinks = useMemo(() => getQuickLinks(t), [t]);
 
   const css = useMemo(() => `
     @keyframes footerGlow {
@@ -248,10 +260,10 @@ const Footer = () => {
               {t('common.quickLinks')}
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {quickLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
+              {QUICK_LINKS.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
                   className="quick-link-item"
                   style={{
                     display: 'flex',
@@ -268,8 +280,8 @@ const Footer = () => {
                   }}
                 >
                   {link.icon}
-                  {link.label}
-                </a>
+                  {isArabic ? link.labelAr : link.label}
+                </Link>
               ))}
             </div>
           </div>
