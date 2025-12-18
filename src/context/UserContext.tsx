@@ -412,7 +412,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   // Dev mode: Switch role for testing
   const switchRole = useCallback((role: UserRole) => {
-    if (process.env.NODE_ENV !== 'production') {
+    if (!import.meta.env.PROD) {
       setState(prev => ({
         ...prev,
         user: prev.user
