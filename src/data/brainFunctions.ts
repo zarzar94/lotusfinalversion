@@ -21,7 +21,7 @@ export const BRAIN_FUNCTIONS: BrainFunction[] = [
   {
     id: 'auditory',
     slug: 'auditory',
-    labelAr: 'السمع',
+    labelAr: 'المعالجة السمعية',
     labelEn: 'Auditory',
     color: brandCyan,
     icon: '👂',
@@ -46,7 +46,7 @@ export const BRAIN_FUNCTIONS: BrainFunction[] = [
   {
     id: 'language',
     slug: 'language',
-    labelAr: 'اللغة',
+    labelAr: 'تطوير اللغة',
     labelEn: 'Language',
     color: brandPurple,
     icon: '💬',
@@ -73,7 +73,7 @@ export const BRAIN_FUNCTIONS: BrainFunction[] = [
   {
     id: 'balance',
     slug: 'balance',
-    labelAr: 'التوازن',
+    labelAr: 'التوازن والتنسيق',
     labelEn: 'Balance',
     color: brandPink,
     icon: '⚖️',
@@ -100,7 +100,7 @@ export const BRAIN_FUNCTIONS: BrainFunction[] = [
   {
     id: 'wellbeing',
     slug: 'wellbeing',
-    labelAr: 'الرفاهية',
+    labelAr: 'الرفاهية النفسية',
     labelEn: 'Well Being',
     color: brandCyan,
     icon: '✨',
@@ -126,7 +126,7 @@ export const BRAIN_FUNCTIONS: BrainFunction[] = [
   {
     id: 'music',
     slug: 'music',
-    labelAr: 'الموسيقى',
+    labelAr: 'إدراك الموسيقى',
     labelEn: 'Music',
     color: brandPurple,
     icon: '🎵',
@@ -152,7 +152,7 @@ export const BRAIN_FUNCTIONS: BrainFunction[] = [
   {
     id: 'memory',
     slug: 'memory',
-    labelAr: 'الذاكرة',
+    labelAr: 'تعزيز الذاكرة',
     labelEn: 'Memory',
     color: brandPink,
     icon: '🧠',
@@ -178,7 +178,7 @@ export const BRAIN_FUNCTIONS: BrainFunction[] = [
   {
     id: 'behavior',
     slug: 'behavior',
-    labelAr: 'السلوك',
+    labelAr: 'تنظيم السلوك',
     labelEn: 'Behavior',
     color: brandCyan,
     icon: '🎯',
@@ -202,7 +202,7 @@ export const BRAIN_FUNCTIONS: BrainFunction[] = [
   {
     id: 'learning',
     slug: 'learning',
-    labelAr: 'التعلم',
+    labelAr: 'تعزيز التعلم',
     labelEn: 'Learning',
     color: brandPurple,
     icon: '📚',
@@ -228,7 +228,7 @@ export const BRAIN_FUNCTIONS: BrainFunction[] = [
   {
     id: 'sensory',
     slug: 'sensory',
-    labelAr: 'الحسي',
+    labelAr: 'المعالجة الحسية',
     labelEn: 'Sensory',
     color: brandPink,
     icon: '🌟',
@@ -253,7 +253,7 @@ export const BRAIN_FUNCTIONS: BrainFunction[] = [
   {
     id: 'attention',
     slug: 'attention',
-    labelAr: 'الانتباه',
+    labelAr: 'الانتباه والتركيز',
     labelEn: 'Attention',
     color: brandCyan,
     icon: '🎯',

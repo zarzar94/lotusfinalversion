@@ -218,8 +218,22 @@ const InfoModal = memo(({
               >
                 {node.content.title}
               </h2>
+              {isArabic && (
+                <div
+                  style={{
+                    margin: `${spacing[1]}px 0 0`,
+                    fontSize: typography.size.base,
+                    color: colors.text.secondary,
+                    fontWeight: typography.weight.bold,
+                    direction: 'rtl',
+                    unicodeBidi: 'plaintext',
+                  }}
+                >
+                  {node.labelAr}
+                </div>
+              )}
               <p style={{
-                margin: `${spacing[1]}px 0 0`,
+                margin: `${isArabic ? spacing[0.5] : spacing[1]}px 0 0`,
                 fontSize: typography.size.sm,
                 color: node.color,
                 fontWeight: typography.weight.semibold,
@@ -1478,7 +1492,8 @@ export default function HeroCircuitBrain() {
             {BRAIN_FUNCTIONS.map((node, index) => {
               const isHovered = hoveredNode === node.id;
               const color = node.color;
-              const label = isArabic ? node.labelAr : node.labelEn;
+              const labelPrimary = node.labelEn;
+              const labelSecondary = node.labelAr;
 
               const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
                 e.stopPropagation();
@@ -1511,7 +1526,11 @@ export default function HeroCircuitBrain() {
                   onTouchStart={() => setHoveredNode(node.id)}
                   tabIndex={0}
                   role="button"
-                  aria-label={`${label} - ${isArabic ? 'اضغط لمعرفة المزيد' : 'Click to learn more'}`}
+                  aria-label={
+                    isArabic
+                      ? `${labelPrimary} (${labelSecondary}) - اضغط لمعرفة المزيد`
+                      : `${labelPrimary} - Click to learn more`
+                  }
                   style={{
                     animation: reducedMotion ? 'none' : `nodeFloat ${2.5 + index * 0.15}s ease-in-out infinite`,
                   }}
@@ -1581,7 +1600,7 @@ export default function HeroCircuitBrain() {
                       transition: 'opacity 0.2s',
                     }}
                   >
-                    {label}
+                    {labelPrimary}
                   </text>
                 </g>
               );
@@ -1664,13 +1683,28 @@ export default function HeroCircuitBrain() {
               marginBottom: spacing[2],
             }}>
               <span style={{ fontSize: 20 }}>{tooltipNode.icon}</span>
-              <span style={{
-                fontSize: typography.size.sm,
-                fontWeight: typography.weight.bold,
-                color: tooltipNode.color,
-              }}>
-                {isArabic ? tooltipNode.labelAr : tooltipNode.labelEn}
-              </span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <span style={{
+                  fontSize: typography.size.sm,
+                  fontWeight: typography.weight.bold,
+                  color: tooltipNode.color,
+                }}>
+                  {tooltipNode.labelEn}
+                </span>
+                {isArabic && (
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: colors.text.muted,
+                      fontWeight: typography.weight.semibold,
+                      direction: 'rtl',
+                      unicodeBidi: 'plaintext',
+                    }}
+                  >
+                    {tooltipNode.labelAr}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Description preview */}
