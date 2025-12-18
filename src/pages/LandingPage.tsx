@@ -26,8 +26,6 @@ import {
   typography,
   spacing,
   radius,
-  transitions,
-  shadows,
 } from '../components/styles';
 
 // Lazy load credentials
@@ -424,7 +422,7 @@ function LandingPage() {
 
         {/* Credentials Banner - Trust signals */}
         <FadeIn delay={200} direction="none" scale scaleFrom={0.98}>
-          <Suspense fallback={<SectionLoader label="Loading..." height={100} />}>
+          <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={100} />}>
             <CredentialsBanner />
           </Suspense>
         </FadeIn>

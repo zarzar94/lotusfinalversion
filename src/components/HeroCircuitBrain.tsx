@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   brandCyan,
   brandPurple,
   brandPink,
-  brandPurpleDark,
   colors,
   typography,
   spacing,
@@ -94,6 +94,7 @@ const InfoModal = memo(({
   onClose: () => void;
   isArabic: boolean;
 }) => {
+  const navigate = useNavigate();
   const text = isArabic ? heroText.ar : heroText.en;
 
   useEffect(() => {
@@ -365,9 +366,11 @@ const InfoModal = memo(({
             textAlign: 'center',
             animation: 'contentSlideUp 0.4s ease-out 0.35s both',
           }}>
-            <a
-              href="#contact"
-              onClick={onClose}
+            <button
+              onClick={() => {
+                onClose();
+                navigate('/contact');
+              }}
               className="modal-cta-btn"
               style={{
                 display: 'inline-flex',
@@ -376,7 +379,6 @@ const InfoModal = memo(({
                 padding: `${spacing[3.5]}px ${spacing[6]}px`,
                 background: gradients.primary,
                 color: colors.surface.base,
-                textDecoration: 'none',
                 borderRadius: radius.lg,
                 fontSize: typography.size.base,
                 fontWeight: typography.weight.black,
@@ -384,11 +386,12 @@ const InfoModal = memo(({
                 boxShadow: shadows.glow.cyan,
                 transition: transitions.bounce,
                 border: 'none',
+                cursor: 'pointer',
               }}
             >
               {text.getStarted}
               <span style={{ transform: isArabic ? 'rotate(180deg)' : 'none' }}>→</span>
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -452,6 +455,7 @@ InfoModal.displayName = 'InfoModal';
 
 export default function HeroCircuitBrain() {
   const { isArabic, direction } = useLanguage();
+  const navigate = useNavigate();
   const text = isArabic ? heroText.ar : heroText.en;
 
   const [isLoaded, setIsLoaded] = useState(false);
@@ -840,8 +844,8 @@ export default function HeroCircuitBrain() {
             flexWrap: 'wrap',
             marginTop: spacing[2],
           }}>
-            <a
-              href="#overview"
+            <button
+              onClick={() => navigate('/contact')}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -849,20 +853,21 @@ export default function HeroCircuitBrain() {
                 padding: `${spacing[3]}px ${spacing[5]}px`,
                 background: gradients.primary,
                 color: colors.surface.base,
-                textDecoration: 'none',
                 borderRadius: radius.lg,
                 fontSize: typography.size.sm,
                 fontWeight: typography.weight.black,
                 fontFamily: typography.fontFamily,
                 boxShadow: shadows.glow.cyan,
                 transition: transitions.bounce,
+                border: 'none',
+                cursor: 'pointer',
               }}
             >
               {isArabic ? 'ابدأ الآن' : 'Get Started'}
               <span style={{ transform: isArabic ? 'rotate(180deg)' : 'none' }}>→</span>
-            </a>
-            <a
-              href="#checklist"
+            </button>
+            <button
+              onClick={() => navigate('/assessment')}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -870,17 +875,17 @@ export default function HeroCircuitBrain() {
                 padding: `${spacing[3]}px ${spacing[5]}px`,
                 background: 'transparent',
                 color: colors.text.primary,
-                textDecoration: 'none',
                 borderRadius: radius.lg,
                 border: `1px solid ${colors.border.emphasis}`,
                 fontSize: typography.size.sm,
                 fontWeight: typography.weight.bold,
                 fontFamily: typography.fontFamily,
                 transition: transitions.normal,
+                cursor: 'pointer',
               }}
             >
               {isArabic ? 'قائمة التقييم' : 'Self Assessment'}
-            </a>
+            </button>
           </div>
 
           {/* Trust Indicators */}
