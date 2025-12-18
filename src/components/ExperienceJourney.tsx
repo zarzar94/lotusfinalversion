@@ -292,9 +292,20 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
           {steps.map((step, index) => {
             const isActive = step.id === activeId;
             return (
-              <button
+              <div
                 key={step.id}
                 onClick={() => setActiveId(step.id)}
+                onMouseEnter={() => setActiveId(step.id)}
+                onFocus={() => setActiveId(step.id)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    setActiveId(step.id);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-pressed={isActive}
                 style={{
                   textAlign: isArabic ? 'right' : 'left',
                   background: isActive
@@ -416,6 +427,7 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
                     }}
                   >
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(step.path);
@@ -436,7 +448,7 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
                     </button>
                   </div>
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
