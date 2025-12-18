@@ -173,6 +173,31 @@ export const transitions = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// RESPONSIVE BREAKPOINTS
+// Mobile-first breakpoint system
+// ─────────────────────────────────────────────────────────────────────────────
+export const breakpoints = {
+  xs: 320,    // Small phones
+  sm: 480,    // Large phones
+  md: 768,    // Tablets (iPad mini, portrait)
+  lg: 1024,   // Tablets landscape, small laptops
+  xl: 1280,   // Laptops, desktops
+  '2xl': 1536, // Large desktops
+};
+
+// Media query helpers (for use in CSS-in-JS)
+export const mediaQueries = {
+  phone: `@media (max-width: ${breakpoints.sm - 1}px)`,
+  tablet: `@media (min-width: ${breakpoints.sm}px) and (max-width: ${breakpoints.lg - 1}px)`,
+  desktop: `@media (min-width: ${breakpoints.lg}px)`,
+  // Specific device queries
+  phoneOnly: `@media (max-width: ${breakpoints.md - 1}px)`,
+  tabletUp: `@media (min-width: ${breakpoints.md}px)`,
+  tabletOnly: `@media (min-width: ${breakpoints.md}px) and (max-width: ${breakpoints.lg - 1}px)`,
+  desktopUp: `@media (min-width: ${breakpoints.lg}px)`,
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // GRADIENTS
 // Reusable gradient definitions
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1,20 +1,11 @@
-import { lazy, Suspense, useEffect, memo } from 'react';
+import { lazy, Suspense, memo, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import Header from './components/Header';
-import { styles } from './components/styles';
-import BackgroundFX from './components/BackgroundFX';
-import HeroCircuitBrain from './components/HeroCircuitBrain';
-import Footer from './components/Footer';
-import WhatsAppFab from './components/WhatsAppFab';
-import StickyCTA from './components/StickyCTA';
 import ErrorBoundary from './components/ErrorBoundary';
+import ScrollToTop from './components/ScrollToTop';
 import { GamificationProvider } from './context/GamificationContext';
-import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { LanguageProvider } from './context/LanguageContext';
 import { UserProvider } from './context/UserContext';
-import SectionLoader from './components/SectionLoader';
-import FadeIn from './components/FadeIn';
-import ScrollProgressBar from './components/ScrollProgressBar';
 import AchievementToast from './components/AchievementToast';
 import ProgressDashboard from './components/ProgressDashboard';
 import ScrollProgressTracker from './components/ScrollProgressTracker';
@@ -22,323 +13,172 @@ import ActivityFeed from './components/ActivityFeed';
 import NotificationCenter from './components/NotificationCenter';
 import { ProgressExportButton } from './components/ProgressExport';
 import { useClinicalSync } from './hooks/useClinicalSync';
-import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
-
-// Lazy load pages
-const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
-const SchoolDashboard = lazy(() => import('./components/analytics/SchoolDashboard'));
-const ParentDashboard = lazy(() => import('./components/analytics/ParentDashboard'));
-const ClinicianDashboard = lazy(() => import('./components/analytics/ClinicianDashboard'));
-const SettingsPage = lazy(() => import('./components/SettingsPage'));
-
-// Lazy load all non-critical sections for better initial load
-const PlatformNav = lazy(() => import('./components/PlatformNav'));
-const SectionDivider = lazy(() => import('./components/SectionDivider'));
-const ProgramOverview = lazy(() => import('./components/ProgramOverview'));
-const ResultsSection = lazy(() => import('./components/ResultsSection'));
-const ComparisonSection = lazy(() => import('./components/ComparisonSection'));
-const SchoolPartnershipSection = lazy(() => import('./components/SchoolPartnershipSection'));
-const NeuroplasticitySection = lazy(() => import('./components/NeuroplasticitySection'));
-const FAQSection = lazy(() => import('./components/FAQSection'));
-const TestimonialsSection = lazy(() => import('./components/TestimonialsSection'));
-const TrustSignals = lazy(() => import('./components/TrustSignals'));
-const CredentialsBanner = lazy(() => import('./components/CredentialsBanner'));
-const TreatmentTimeline = lazy(() => import('./components/TreatmentTimeline'));
-const AudioSpectrumDemo = lazy(() => import('./components/AudioSpectrumDemo'));
-const PartnerLogos = lazy(() => import('./components/PartnerLogos'));
 
 // Respect Vite base for subpath deployments (e.g., GitHub Pages)
 const rawBase = import.meta.env.BASE_URL ?? '/';
 const appBase = (rawBase === './' ? '/' : rawBase).replace(/\/+$/, '') || '/';
 
-// Heavy components - lazy loaded
-const SlideViewer = lazy(() => import('./components/SlideViewer'));
-const Checklist = lazy(() => import('./components/Checklist'));
-const GameSection = lazy(() => import('./components/GameSection'));
-const ContactForm = lazy(() => import('./components/ContactForm'));
-const AudioJourney = lazy(() => import('./components/AudioJourney'));
-const VideoSection = lazy(() => import('./components/VideoSection'));
-const RemoteProtocolSection = lazy(() => import('./components/RemoteProtocolSection'));
-const IntakeForm = lazy(() => import('./components/IntakeForm'));
+// ═══════════════════════════════════════════════════════════════════════════
+// LAZY LOADED PAGES
+// ═══════════════════════════════════════════════════════════════════════════
 
-// Memoized section wrapper for consistent loading
-const LazySection = memo(({
-  children,
-  labelKey,
-  height = 300,
-  fadeProps = {}
-}: {
-  children: React.ReactNode;
-  labelKey: string;
-  height?: number;
-  fadeProps?: Record<string, unknown>;
-}) => {
-  const { t } = useLanguage();
-  return (
-    <FadeIn delay={50} {...fadeProps}>
-      <Suspense fallback={<SectionLoader label={t(labelKey)} height={height} />}>
-        {children}
-      </Suspense>
-    </FadeIn>
-  );
-});
-LazySection.displayName = 'LazySection';
+// Main 6 Pages
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const AssessmentPage = lazy(() => import('./pages/AssessmentPage'));
+const ProgramPage = lazy(() => import('./pages/ProgramPage'));
+const SciencePage = lazy(() => import('./pages/SciencePage'));
+const ResultsPage = lazy(() => import('./pages/ResultsPage'));
+const ResourcesPage = lazy(() => import('./pages/ResourcesPage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
 
-// Home page content
-function HomePage() {
-  // Sync clinical progress when patient logs in
-  useClinicalSync();
-  const prefersReducedMotion = usePrefersReducedMotion();
+// Special Pages
+const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
-  useEffect(() => {
-    const scrollToHash = () => {
-      const hash = window.location.hash;
-      if (!hash) return;
-      const id = hash.replace('#', '');
-      const el = document.getElementById(id);
-      if (!el) return;
-      window.setTimeout(() => {
-        el.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
-      }, 50);
-    };
+// Dashboard Pages
+const SchoolDashboard = lazy(() => import('./components/analytics/SchoolDashboard'));
+const ParentDashboard = lazy(() => import('./components/analytics/ParentDashboard'));
+const ClinicianDashboard = lazy(() => import('./components/analytics/ClinicianDashboard'));
+const SettingsPage = lazy(() => import('./components/SettingsPage'));
 
-    scrollToHash();
-    window.addEventListener('hashchange', scrollToHash);
-    return () => window.removeEventListener('hashchange', scrollToHash);
-  }, [prefersReducedMotion]);
+// ═══════════════════════════════════════════════════════════════════════════
+// PAGE LOADER - Enhanced with brain-themed animation
+// ═══════════════════════════════════════════════════════════════════════════
 
-  return (
-    <div style={styles.page}>
-      <BackgroundFX />
-      <Header />
-      <ScrollProgressBar />
-
-      <main style={styles.container}>
-        {/* ═══════════════════════════════════════════════════════════════════
-            LANDING SECTION - First Viewport
-            ═══════════════════════════════════════════════════════════════════ */}
-
-        {/* HERO - Interactive Brain Dashboard */}
-        <FadeIn duration={1000} scale blur blurAmount={8}>
-          <HeroCircuitBrain />
-        </FadeIn>
-
-        {/* Credentials Banner - Trust signals */}
-        <LazySection labelKey="common.loading" height={100} fadeProps={{ direction: 'none', scale: true, scaleFrom: 0.98 }}>
-          <CredentialsBanner />
-        </LazySection>
-
-        {/* Platform Navigation - Medical Dashboard Style */}
-        <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, scaleFrom: 0.97 }}>
-          <PlatformNav />
-        </LazySection>
-
-        {/* ═══════════════════════════════════════════════════════════════════
-            DIAGNOSTIC TOOLS - Assessment & Interactive
-            ═══════════════════════════════════════════════════════════════════ */}
-
-        {/* Section Divider - Diagnostic */}
-        <Suspense fallback={null}>
-          <SectionDivider category="diagnostic" number={1} />
-        </Suspense>
-
-        {/* Checklist - Self Assessment */}
-        <LazySection labelKey="common.loadingChecklist" height={400} fadeProps={{ blur: true, blurAmount: 6, scale: true }}>
-          <Checklist />
-        </LazySection>
-
-        {/* GameSection - Interactive Tools */}
-        <LazySection labelKey="common.loadingGames" height={350} fadeProps={{ direction: 'left', distance: 40, scale: true, scaleFrom: 0.95 }}>
-          <GameSection />
-        </LazySection>
-
-        {/* ═══════════════════════════════════════════════════════════════════
-            TREATMENT PROTOCOL - Program Information
-            ═══════════════════════════════════════════════════════════════════ */}
-
-        {/* Section Divider - Protocol */}
-        <Suspense fallback={null}>
-          <SectionDivider category="protocol" number={2} />
-        </Suspense>
-
-        {/* Program Overview */}
-        <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, scaleFrom: 0.96 }}>
-          <ProgramOverview />
-        </LazySection>
-
-        {/* Treatment Timeline */}
-        <LazySection labelKey="common.loading" height={300} fadeProps={{ direction: 'left', distance: 30, scale: true }}>
-          <TreatmentTimeline />
-        </LazySection>
-
-        {/* Remote Protocol */}
-        <LazySection labelKey="common.loadingRemote" height={400} fadeProps={{ direction: 'right', distance: 30 }}>
-          <RemoteProtocolSection />
-        </LazySection>
-
-        {/* Comparison */}
-        <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, blur: true, blurAmount: 5 }}>
-          <ComparisonSection />
-        </LazySection>
-
-        {/* ═══════════════════════════════════════════════════════════════════
-            RESEARCH & SCIENCE - Educational Content
-            ═══════════════════════════════════════════════════════════════════ */}
-
-        {/* Section Divider - Science */}
-        <Suspense fallback={null}>
-          <SectionDivider category="science" number={3} />
-        </Suspense>
-
-        {/* Neuroplasticity - Science Section */}
-        <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, blur: true, blurAmount: 5 }}>
-          <NeuroplasticitySection />
-        </LazySection>
-
-        {/* Interactive Audio Journey */}
-        <LazySection labelKey="common.loadingAudioJourney" height={400} fadeProps={{ direction: 'left', distance: 40 }}>
-          <AudioJourney />
-        </LazySection>
-
-        {/* Audio Spectrum Demo */}
-        <LazySection labelKey="common.loading" height={300} fadeProps={{ direction: 'right', distance: 40 }}>
-          <AudioSpectrumDemo />
-        </LazySection>
-
-        {/* ═══════════════════════════════════════════════════════════════════
-            RESULTS & EVIDENCE - Social Proof
-            ═══════════════════════════════════════════════════════════════════ */}
-
-        {/* Section Divider - Evidence */}
-        <Suspense fallback={null}>
-          <SectionDivider category="evidence" number={4} />
-        </Suspense>
-
-        {/* Results Section */}
-        <LazySection labelKey="common.loading" height={350} fadeProps={{ scale: true, scaleFrom: 0.97, blur: true, blurAmount: 4 }}>
-          <ResultsSection />
-        </LazySection>
-
-        {/* Testimonials */}
-        <LazySection labelKey="common.loading" height={350} fadeProps={{ direction: 'left', distance: 35 }}>
-          <TestimonialsSection />
-        </LazySection>
-
-        {/* Trust Signals */}
-        <LazySection labelKey="common.loading" height={250} fadeProps={{ direction: 'none', scale: true, scaleFrom: 0.98 }}>
-          <TrustSignals />
-        </LazySection>
-
-        {/* ═══════════════════════════════════════════════════════════════════
-            LEARNING RESOURCES - Educational Materials
-            ═══════════════════════════════════════════════════════════════════ */}
-
-        {/* Section Divider - Resources */}
-        <Suspense fallback={null}>
-          <SectionDivider category="resources" number={5} />
-        </Suspense>
-
-        {/* SlideViewer - Presentations */}
-        <LazySection labelKey="common.loadingSlides" height={500} fadeProps={{ scale: true }}>
-          <SlideViewer />
-        </LazySection>
-
-        {/* Video Section */}
-        <LazySection labelKey="common.loadingVideos" height={400} fadeProps={{ direction: 'right', distance: 30, scale: true, scaleFrom: 0.98 }}>
-          <VideoSection />
-        </LazySection>
-
-        {/* FAQ Section */}
-        <LazySection labelKey="common.loading" height={400} fadeProps={{ direction: 'left', distance: 30 }}>
-          <FAQSection />
-        </LazySection>
-
-        {/* ═══════════════════════════════════════════════════════════════════
-            PARTNERSHIPS & NETWORK
-            ═══════════════════════════════════════════════════════════════════ */}
-
-        {/* Section Divider - Network */}
-        <Suspense fallback={null}>
-          <SectionDivider category="network" number={6} />
-        </Suspense>
-
-        {/* School Partnership */}
-        <LazySection labelKey="common.loading" height={300} fadeProps={{ direction: 'right', distance: 25 }}>
-          <SchoolPartnershipSection />
-        </LazySection>
-
-        {/* Partner Logos */}
-        <LazySection labelKey="common.loading" height={150} fadeProps={{ direction: 'none', scale: true, scaleFrom: 0.97 }}>
-          <PartnerLogos />
-        </LazySection>
-
-        {/* ═══════════════════════════════════════════════════════════════════
-            CONNECT & CONVERSION - Contact & Intake
-            ═══════════════════════════════════════════════════════════════════ */}
-
-        {/* Section Divider - Connect */}
-        <Suspense fallback={null}>
-          <SectionDivider category="connect" number={7} />
-        </Suspense>
-
-        {/* Intake Form */}
-        <LazySection labelKey="common.loadingIntake" height={500} fadeProps={{ scale: true, blur: true, blurAmount: 4 }}>
-          <IntakeForm />
-        </LazySection>
-
-        {/* Contact Form */}
-        <LazySection labelKey="common.loadingContact" height={700} fadeProps={{ scale: true, blur: true, blurAmount: 4 }}>
-          <ContactForm />
-        </LazySection>
-
-        <FadeIn delay={100} direction="none" scale scaleFrom={0.98}>
-          <Footer />
-        </FadeIn>
-      </main>
-
-      <WhatsAppFab />
-      <StickyCTA />
-
-      {/* Gamification UI */}
-      <AchievementToast />
-      <ProgressDashboard />
-      <ScrollProgressTracker />
-      <ActivityFeed />
-      <NotificationCenter />
-      {/* Hidden export button that listens for export-progress event */}
-      <div style={{ position: 'fixed', bottom: -100, left: -100, opacity: 0, pointerEvents: 'none' }}>
-        <ProgressExportButton />
-      </div>
-    </div>
-  );
-}
-
-// Page loading fallback
 function PageLoader() {
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: '#05060d',
-      color: '#8FD3CC',
-      fontSize: 18,
-      fontFamily: 'Cairo, sans-serif',
-    }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{
-          width: 50,
-          height: 50,
-          border: '3px solid rgba(143,211,204,0.2)',
-          borderTopColor: '#8FD3CC',
-          borderRadius: '50%',
-          margin: '0 auto 16px',
-          animation: 'spin 1s linear infinite',
-        }} />
-        Loading...
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#05060d',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Background pulse effect */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'radial-gradient(ellipse at center, rgba(143,211,204,0.05) 0%, transparent 60%)',
+          animation: 'bgPulse 2s ease-in-out infinite',
+        }}
+      />
+
+      <div style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+        {/* Neural network loader */}
+        <div
+          style={{
+            position: 'relative',
+            width: 80,
+            height: 80,
+            margin: '0 auto 20px',
+          }}
+        >
+          {/* Outer ring */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              border: '2px solid rgba(143,211,204,0.15)',
+              borderRadius: '50%',
+            }}
+          />
+          {/* Spinning ring */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              border: '3px solid transparent',
+              borderTopColor: '#8FD3CC',
+              borderRightColor: '#AF84BA',
+              borderRadius: '50%',
+              animation: 'spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite',
+            }}
+          />
+          {/* Inner pulse */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 15,
+              background: 'linear-gradient(135deg, rgba(143,211,204,0.2), rgba(175,132,186,0.2))',
+              borderRadius: '50%',
+              animation: 'innerPulse 1.5s ease-in-out infinite',
+            }}
+          />
+          {/* Center dot */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 12,
+              height: 12,
+              background: '#8FD3CC',
+              borderRadius: '50%',
+              boxShadow: '0 0 20px rgba(143,211,204,0.6)',
+            }}
+          />
+          {/* Orbiting dots */}
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                inset: -4,
+                animation: `orbitDot ${1.5 + i * 0.3}s linear infinite`,
+                animationDelay: `${i * 0.3}s`,
+              }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: 6,
+                  height: 6,
+                  background: ['#8FD3CC', '#AF84BA', '#B01270'][i],
+                  borderRadius: '50%',
+                  boxShadow: `0 0 10px ${['#8FD3CC', '#AF84BA', '#B01270'][i]}`,
+                }}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Text */}
+        <div
+          style={{
+            color: '#8FD3CC',
+            fontSize: 16,
+            fontFamily: 'Cairo, sans-serif',
+            fontWeight: 600,
+            letterSpacing: 1,
+            opacity: 0.9,
+          }}
+        >
+          Loading...
+        </div>
+
         <style>{`
           @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+          @keyframes bgPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+          }
+          @keyframes innerPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+          }
+          @keyframes orbitDot {
+            from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
           }
         `}</style>
@@ -346,6 +186,88 @@ function PageLoader() {
     </div>
   );
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PAGE TRANSITION WRAPPER - Smooth animations between pages
+// ═══════════════════════════════════════════════════════════════════════════
+
+const PageTransitionStyles = memo(() => (
+  <style>{`
+    @keyframes pageEnterFade {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .page-transition-wrapper {
+      animation: pageEnterFade 0.4s ease-out forwards;
+    }
+
+    /* Smooth scroll behavior */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    html[data-reduced-motion="true"] {
+      scroll-behavior: auto;
+    }
+
+    html[data-reduced-motion="true"] .page-transition-wrapper {
+      animation: none;
+    }
+
+    /* Global focus styles for accessibility */
+    *:focus-visible {
+      outline: 2px solid #8FD3CC;
+      outline-offset: 2px;
+    }
+
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+      .page-transition-wrapper {
+        animation: none;
+      }
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  `}</style>
+));
+PageTransitionStyles.displayName = 'PageTransitionStyles';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GAMIFICATION UI WRAPPER
+// ═══════════════════════════════════════════════════════════════════════════
+
+const GamificationUI = memo(() => (
+  <>
+    <AchievementToast />
+    <ProgressDashboard />
+    <ScrollProgressTracker />
+    <ActivityFeed />
+    <NotificationCenter />
+    {/* Hidden export button that listens for export-progress event */}
+    <div style={{ position: 'fixed', bottom: -100, left: -100, opacity: 0, pointerEvents: 'none' }}>
+      <ProgressExportButton />
+    </div>
+  </>
+));
+GamificationUI.displayName = 'GamificationUI';
+
+const ClinicalSync = memo(() => {
+  useClinicalSync();
+  return null;
+});
+ClinicalSync.displayName = 'ClinicalSync';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MAIN APP
+// ═══════════════════════════════════════════════════════════════════════════
 
 function App() {
   useEffect(() => {
@@ -388,52 +310,156 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter basename={appBase}>
+        <ScrollToTop />
+        <PageTransitionStyles />
         <LanguageProvider>
           <UserProvider>
             <GamificationProvider>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route
-                  path="/function/:slug"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <BrainFunctionPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/school-dashboard"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <SchoolDashboard />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/parent-dashboard"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <ParentDashboard />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/clinician-dashboard"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <ClinicianDashboard />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/settings"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <SettingsPage />
-                    </Suspense>
-                  }
-                />
-              </Routes>
+              <ClinicalSync />
+
+              <div className="page-transition-wrapper">
+                <Routes>
+                  {/* ═══════════════════════════════════════════════════════
+                      MAIN 6 PAGES
+                      ═══════════════════════════════════════════════════════ */}
+
+                  {/* 1. Landing Page - Hero + Credentials */}
+                  <Route
+                    path="/"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <LandingPage />
+                      </Suspense>
+                    }
+                  />
+
+                  {/* 2. Assessment Page - Diagnostic Tools */}
+                  <Route
+                    path="/assessment"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <AssessmentPage />
+                      </Suspense>
+                    }
+                  />
+
+                  {/* 3. Program Page - Treatment Protocol */}
+                  <Route
+                    path="/program"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <ProgramPage />
+                      </Suspense>
+                    }
+                  />
+
+                  {/* 4. Science Page - Research & Neuroplasticity */}
+                  <Route
+                    path="/science"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <SciencePage />
+                      </Suspense>
+                    }
+                  />
+
+                  {/* 5. Results Page - Evidence & Testimonials */}
+                  <Route
+                    path="/results"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <ResultsPage />
+                      </Suspense>
+                    }
+                  />
+
+                  {/* 6. Resources Page - Videos, Slides, FAQ */}
+                  <Route
+                    path="/resources"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <ResourcesPage />
+                      </Suspense>
+                    }
+                  />
+
+                  {/* Contact/Get Started Page */}
+                  <Route
+                    path="/contact"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <ContactPage />
+                      </Suspense>
+                    }
+                  />
+
+                  {/* ═════════════════════════════════════════════════════==
+                      SPECIAL PAGES
+                      ═══════════════════════════════════════════════════════ */}
+
+                  {/* Brain Function Detail Page */}
+                  <Route
+                    path="/function/:slug"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <BrainFunctionPage />
+                      </Suspense>
+                    }
+                  />
+
+                  {/* ═════════════════════════════════════════════════════==
+                      DASHBOARD PAGES
+                      ═══════════════════════════════════════════════════════ */}
+
+                  <Route
+                    path="/school-dashboard"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <SchoolDashboard />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/parent-dashboard"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <ParentDashboard />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/clinician-dashboard"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <ClinicianDashboard />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/settings"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <SettingsPage />
+                      </Suspense>
+                    }
+                  />
+
+                  {/* ═════════════════════════════════════════════════════==
+                      404 NOT FOUND - Catch-all route (must be last)
+                      ═══════════════════════════════════════════════════════ */}
+                  <Route
+                    path="*"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <NotFoundPage />
+                      </Suspense>
+                    }
+                  />
+                </Routes>
+              </div>
+
+              {/* Gamification UI (always visible) */}
+              <GamificationUI />
             </GamificationProvider>
           </UserProvider>
         </LanguageProvider>
@@ -443,3 +469,4 @@ function App() {
 }
 
 export default memo(App);
+

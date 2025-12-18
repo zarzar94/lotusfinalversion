@@ -1,45 +1,85 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import { brandPurple, brandCyan, brandPink } from './styles';
+import { Link, useLocation } from 'react-router-dom';
+import { brandPurple, brandCyan, brandPink, colors, radius, spacing, typography, transitions } from './styles';
 import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon } from './Icons';
 import BrainLogo from './BrainLogo';
 import LanguageToggle from './LanguageToggle';
 import ProfileMenu from './auth/ProfileMenu';
 import LoginModal from './auth/LoginModal';
 import { useLanguage } from '../context/LanguageContext';
+import { useUser } from '../context/UserContext';
+import { useBreakpoints } from '../hooks';
 
-const getNavItems = (t: (key: string) => string) => [
-  { label: t('nav.program'), href: '#overview', icon: <HeadphonesIcon size={16} /> },
-  { label: t('nav.neuralScanner'), href: '#checklist', icon: <BrainIcon size={16} /> },
-  { label: t('nav.games'), href: '#games', icon: <GamepadIcon size={16} /> },
-  { label: t('nav.faq'), href: '#faq', icon: <HelpIcon size={16} /> },
-  { label: t('nav.contact'), href: '#contact', icon: <PhoneIcon size={16} /> },
+// ═══════════════════════════════════════════════════════════════════════════
+// NAVIGATION ITEMS - Multi-page structure
+// ═══════════════════════════════════════════════════════════════════════════
+
+interface NavItem {
+  id: string;
+  label: string;
+  labelAr: string;
+  path: string;
+  icon: React.ReactNode;
+  color?: string;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { id: 'assessment', label: 'Assessment', labelAr: 'التقييم', path: '/assessment', icon: <BrainIcon size={16} />, color: brandCyan },
+  { id: 'program', label: 'Program', labelAr: 'البرنامج', path: '/program', icon: <HeadphonesIcon size={16} />, color: brandPurple },
+  { id: 'science', label: 'Science', labelAr: 'العلوم', path: '/science', icon: '🧠', color: brandPink },
+  { id: 'results', label: 'Results', labelAr: 'النتائج', path: '/results', icon: '📊', color: '#22c55e' },
+  { id: 'resources', label: 'Resources', labelAr: 'الموارد', path: '/resources', icon: <HelpIcon size={16} />, color: '#f59e0b' },
+  { id: 'contact', label: 'Contact', labelAr: 'تواصل', path: '/contact', icon: <PhoneIcon size={16} />, color: brandCyan },
 ];
 
 const Header = () => {
-  const { t, direction } = useLanguage();
+  const { t, direction, isArabic } = useLanguage();
+  const { user, isAuthenticated, hasPermission } = useUser();
+  const { isMobile, isTablet } = useBreakpoints();
+  const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  const NAV_ITEMS = useMemo(() => getNavItems(t), [t]);
+  // Check if current path matches nav item
+  const isActivePath = useCallback((path: string) => {
+    if (path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(path);
+  }, [location.pathname]);
+
+  // Role-based dashboard link
+  const dashboardLink = useMemo(() => {
+    if (!isAuthenticated || !user) return null;
+    if (hasPermission('view_child_reports')) {
+      return { path: '/parent-dashboard', label: isArabic ? 'لوحة الأطفال' : 'Children', icon: '👨‍👩‍👧' };
+    }
+    if (hasPermission('view_patient_reports')) {
+      return { path: '/clinician-dashboard', label: isArabic ? 'المرضى' : 'Patients', icon: '🏥' };
+    }
+    if (hasPermission('school_analytics')) {
+      return { path: '/school-dashboard', label: isArabic ? 'المدرسة' : 'School', icon: '📊' };
+    }
+    return null;
+  }, [isAuthenticated, user, hasPermission, isArabic]);
 
   const openLoginModal = useCallback(() => setIsLoginModalOpen(true), []);
   const closeLoginModal = useCallback(() => setIsLoginModalOpen(false), []);
 
+  // Close mobile menu when switching to desktop or route changes
+  useEffect(() => {
+    if (!isMobile) setIsMobileMenuOpen(false);
+  }, [isMobile]);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Scroll listener for header background
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-
     handleScroll();
-    handleResize();
-
     window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const css = useMemo(
@@ -55,6 +95,10 @@ const Header = () => {
       @keyframes slideDown {
         from { opacity: 0; transform: translateY(-20px); }
         to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes activePulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(143,211,204,0.3); }
+        50% { box-shadow: 0 0 8px 2px rgba(143,211,204,0.2); }
       }
       .brandGlow {
         filter: drop-shadow(0 10px 30px rgba(143,211,204,0.18));
@@ -100,6 +144,13 @@ const Header = () => {
       .nav-link:hover {
         color: ${brandCyan};
       }
+      .nav-link.active::after {
+        width: 80%;
+      }
+      .nav-link.active {
+        color: ${brandCyan};
+        background: rgba(143,211,204,0.1);
+      }
       .mobile-menu {
         animation: slideDown 0.3s ease forwards;
       }
@@ -113,9 +164,7 @@ const Header = () => {
     [],
   );
 
-  const handleNavClick = () => {
-    setIsMobileMenuOpen(false);
-  };
+  const showCompactNav = isMobile || isTablet;
 
   return (
     <>
@@ -139,73 +188,108 @@ const Header = () => {
         transition: 'all 0.3s ease',
       }}>
         {/* Logo Section */}
-        <a href="#" className="floatingLogo" style={{ textDecoration: 'none', transition: 'all 0.3s ease' }}>
+        <Link to="/" style={{ textDecoration: 'none', transition: 'all 0.3s ease' }}>
           <BrainLogo
             size={isScrolled ? 45 : 55}
             textSize={isScrolled ? 20 : 24}
-            showText={true}
+            showText={!showCompactNav}
           />
-        </a>
+        </Link>
 
         {/* Desktop Navigation */}
-        {!isMobile && (
-          <nav style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {NAV_ITEMS.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="nav-link"
+        {!showCompactNav && (
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {NAV_ITEMS.map((item) => {
+              const isActive = isActivePath(item.path);
+              return (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  className={`nav-link ${isActive ? 'active' : ''}`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '8px 12px',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: isActive ? brandCyan : '#f7f8fb',
+                    textDecoration: 'none',
+                    borderRadius: 10,
+                    background: isActive ? 'rgba(143,211,204,0.1)' : 'rgba(255,255,255,0.04)',
+                    border: isActive ? `1px solid ${brandCyan}30` : '1px solid transparent',
+                  }}
+                >
+                  <span style={{ fontSize: 14 }}>
+                    {typeof item.icon === 'string' ? item.icon : item.icon}
+                  </span>
+                  {isArabic ? item.labelAr : item.label}
+                </Link>
+              );
+            })}
+
+            {/* Role-based Dashboard Link */}
+            {dashboardLink && (
+              <Link
+                to={dashboardLink.path}
+                className={`nav-link ${isActivePath(dashboardLink.path) ? 'active' : ''}`}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: 6,
-                  padding: '8px 14px',
-                  fontSize: 14,
+                  padding: '8px 12px',
+                  fontSize: 13,
                   fontWeight: 700,
-                  color: '#f7f8fb',
+                  color: brandCyan,
                   textDecoration: 'none',
                   borderRadius: 10,
-                  background: 'rgba(255,255,255,0.04)',
+                  background: `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}10)`,
+                  border: `1px solid ${brandCyan}30`,
                 }}
               >
-                {item.icon}
-                {item.label}
-              </a>
-            ))}
+                <span>{dashboardLink.icon}</span>
+                {dashboardLink.label}
+              </Link>
+            )}
+
             {/* Language Toggle */}
             <LanguageToggle />
+
             {/* Profile Menu */}
             <ProfileMenu onLoginClick={openLoginModal} />
           </nav>
         )}
 
-        {/* Mobile Menu Button */}
-        {isMobile && (
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="menu-btn"
-            style={{
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.15)',
-              borderRadius: 12,
-              padding: 10,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {isMobileMenuOpen ? (
-              <XIcon size={22} color="#f7f8fb" />
-            ) : (
-              <MenuIcon size={22} color="#f7f8fb" />
-            )}
-          </button>
+        {/* Mobile/Tablet Menu Button */}
+        {showCompactNav && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <LanguageToggle />
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="menu-btn"
+              style={{
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: 12,
+                padding: 10,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {isMobileMenuOpen ? (
+                <XIcon size={22} color="#f7f8fb" />
+              ) : (
+                <MenuIcon size={22} color="#f7f8fb" />
+              )}
+            </button>
+          </div>
         )}
       </header>
 
       {/* Mobile Menu Dropdown */}
-      {isMobile && isMobileMenuOpen && (
+      {showCompactNav && isMobileMenuOpen && (
         <div
           className="mobile-menu"
           style={{
@@ -223,13 +307,106 @@ const Header = () => {
             gap: 8,
             backdropFilter: 'blur(20px)',
             boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+            maxHeight: 'calc(100vh - 100px)',
+            overflowY: 'auto',
           }}
         >
-          {NAV_ITEMS.map((item, index) => (
-            <a
-              key={item.href}
-              href={item.href}
-              onClick={handleNavClick}
+          {/* Home Link */}
+          <Link
+            to="/"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              padding: '14px 16px',
+              fontSize: 15,
+              fontWeight: 700,
+              color: isActivePath('/') && location.pathname === '/' ? brandCyan : '#f7f8fb',
+              textDecoration: 'none',
+              borderRadius: 12,
+              background: isActivePath('/') && location.pathname === '/'
+                ? `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}10)`
+                : 'linear-gradient(135deg, rgba(143,211,204,0.05), rgba(175,132,186,0.05))',
+              border: isActivePath('/') && location.pathname === '/'
+                ? `1px solid ${brandCyan}40`
+                : '1px solid rgba(255,255,255,0.08)',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: `linear-gradient(135deg, ${brandCyan}22, ${brandPurple}22)`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 18,
+            }}>
+              🏠
+            </span>
+            {isArabic ? 'الرئيسية' : 'Home'}
+          </Link>
+
+          {/* Nav Items */}
+          {NAV_ITEMS.map((item, index) => {
+            const isActive = isActivePath(item.path);
+            return (
+              <Link
+                key={item.id}
+                to={item.path}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '14px 16px',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: isActive ? brandCyan : '#f7f8fb',
+                  textDecoration: 'none',
+                  borderRadius: 12,
+                  background: isActive
+                    ? `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}10)`
+                    : `linear-gradient(135deg, rgba(143,211,204,${0.05 + index * 0.01}), rgba(175,132,186,${0.05 + index * 0.01}))`,
+                  border: isActive
+                    ? `1px solid ${brandCyan}40`
+                    : '1px solid rgba(255,255,255,0.08)',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <span style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  background: isActive
+                    ? `linear-gradient(135deg, ${item.color || brandCyan}30, ${brandPurple}25)`
+                    : `linear-gradient(135deg, ${brandCyan}22, ${brandPurple}22)`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: typeof item.icon === 'string' ? 18 : 16,
+                  color: isActive ? item.color : undefined,
+                }}>
+                  {item.icon}
+                </span>
+                {isArabic ? item.labelAr : item.label}
+                {isActive && (
+                  <span style={{
+                    marginLeft: 'auto',
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    background: brandCyan,
+                  }} />
+                )}
+              </Link>
+            );
+          })}
+
+          {/* Role-based Dashboard Link (Mobile) */}
+          {dashboardLink && (
+            <Link
+              to={dashboardLink.path}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -237,11 +414,11 @@ const Header = () => {
                 padding: '14px 16px',
                 fontSize: 15,
                 fontWeight: 700,
-                color: '#f7f8fb',
+                color: brandCyan,
                 textDecoration: 'none',
                 borderRadius: 12,
-                background: `linear-gradient(135deg, rgba(143,211,204,${0.05 + index * 0.02}), rgba(175,132,186,${0.05 + index * 0.02}))`,
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}10)`,
+                border: `1px solid ${brandCyan}30`,
                 transition: 'all 0.2s ease',
               }}
             >
@@ -249,17 +426,19 @@ const Header = () => {
                 width: 36,
                 height: 36,
                 borderRadius: 10,
-                background: `linear-gradient(135deg, ${brandCyan}22, ${brandPurple}22)`,
+                background: `linear-gradient(135deg, ${brandCyan}30, ${brandPurple}25)`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                fontSize: 18,
               }}>
-                {item.icon}
+                {dashboardLink.icon}
               </span>
-              {item.label}
-            </a>
-          ))}
-          {/* Language Toggle & Profile in Mobile Menu */}
+              {dashboardLink.label}
+            </Link>
+          )}
+
+          {/* Profile in Mobile Menu */}
           <div style={{
             marginTop: 8,
             paddingTop: 12,
@@ -269,7 +448,6 @@ const Header = () => {
             alignItems: 'center',
             gap: 12,
           }}>
-            <LanguageToggle />
             <ProfileMenu onLoginClick={() => {
               setIsMobileMenuOpen(false);
               openLoginModal();
@@ -279,7 +457,7 @@ const Header = () => {
       )}
 
       {/* Spacer for fixed header */}
-      <div style={{ height: isMobile ? 75 : 90 }} />
+      <div style={{ height: showCompactNav ? 75 : 90 }} />
 
       {/* Login Modal */}
       <LoginModal isOpen={isLoginModalOpen} onClose={closeLoginModal} />

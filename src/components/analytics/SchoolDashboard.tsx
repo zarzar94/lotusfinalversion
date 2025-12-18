@@ -2,6 +2,22 @@ import { useState, useMemo, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
 import {
+  BackNavigation,
+  SectionNav,
+  ResponsiveStyles,
+  StatCard,
+  PageTransition,
+  TipsCard,
+  InfoCard,
+  LineChart,
+} from '../shared';
+import {
+  Leaderboard,
+  GoalSummary,
+  MOCK_LEADERBOARD,
+  MOCK_GOALS,
+} from '../gamification';
+import {
   brandCyan,
   brandPurple,
   brandPink,
@@ -77,121 +93,7 @@ const MOCK_GRADES: GradeDistribution[] = [
   { grade: 'Grade 5', gradeAr: 'الصف الخامس', count: 2, averageProgress: 87, color: '#22c55e' },
 ];
 
-// ═══════════════════════════════════════════════════════════════════════════
-// METRIC CARD COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
-
-const MetricCard = memo(({
-  title,
-  value,
-  subtitle,
-  icon,
-  color,
-  trend,
-}: {
-  title: string;
-  value: string | number;
-  subtitle?: string;
-  icon: string;
-  color: string;
-  trend?: { value: number; isPositive: boolean };
-}) => (
-  <div
-    style={{
-      padding: spacing[5],
-      background: `linear-gradient(135deg, ${color}08, transparent)`,
-      border: `1px solid ${color}25`,
-      borderRadius: radius.xl,
-      position: 'relative',
-      overflow: 'hidden',
-    }}
-  >
-    {/* Decorative gradient */}
-    <div
-      style={{
-        position: 'absolute',
-        top: -30,
-        right: -30,
-        width: 100,
-        height: 100,
-        borderRadius: '50%',
-        background: `radial-gradient(circle, ${color}15, transparent 70%)`,
-        pointerEvents: 'none',
-      }}
-    />
-
-    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-      <div>
-        <div
-          style={{
-            fontSize: typography.size.xs,
-            fontWeight: typography.weight.bold,
-            color: colors.text.muted,
-            textTransform: 'uppercase',
-            letterSpacing: 0.5,
-            marginBottom: spacing[2],
-          }}
-        >
-          {title}
-        </div>
-        <div
-          style={{
-            fontSize: typography.size['3xl'],
-            fontWeight: typography.weight.black,
-            color: colors.text.primary,
-            lineHeight: 1,
-          }}
-        >
-          {value}
-        </div>
-        {subtitle && (
-          <div
-            style={{
-              fontSize: typography.size.sm,
-              color: colors.text.secondary,
-              marginTop: spacing[1],
-            }}
-          >
-            {subtitle}
-          </div>
-        )}
-        {trend && (
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: spacing[1],
-              marginTop: spacing[2],
-              padding: `${spacing[1]}px ${spacing[2]}px`,
-              background: trend.isPositive ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
-              borderRadius: radius.full,
-              fontSize: typography.size.xs,
-              fontWeight: typography.weight.bold,
-              color: trend.isPositive ? '#22c55e' : '#ef4444',
-            }}
-          >
-            {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
-          </div>
-        )}
-      </div>
-      <div
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: radius.lg,
-          background: `${color}20`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 24,
-        }}
-      >
-        {icon}
-      </div>
-    </div>
-  </div>
-));
-MetricCard.displayName = 'MetricCard';
+// MetricCard replaced with StatCard from ../shared
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PROGRESS BAR CHART
@@ -467,13 +369,15 @@ export default function SchoolDashboard() {
   return (
     <section
       id="school-dashboard"
+      className="page-container"
       style={{
-        padding: `${spacing[10]}px ${spacing[4]}px`,
-        maxWidth: 1200,
-        margin: '0 auto',
         direction,
       }}
     >
+      <ResponsiveStyles />
+      {/* Back Navigation */}
+      <BackNavigation />
+
       {/* Header */}
       <div style={{ marginBottom: spacing[8] }}>
         <div
@@ -518,58 +422,46 @@ export default function SchoolDashboard() {
       </div>
 
       {/* Metric Cards */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: spacing[4],
-          marginBottom: spacing[8],
-        }}
-      >
-        <MetricCard
-          title={isArabic ? 'إجمالي الطلاب' : 'Total Students'}
-          value={metrics.totalStudents}
-          subtitle={isArabic ? 'مسجلين في البرنامج' : 'Enrolled in program'}
-          icon="👥"
-          color={brandCyan}
-        />
-        <MetricCard
-          title={isArabic ? 'متوسط التقدم' : 'Avg. Progress'}
-          value={`${metrics.avgProgress}%`}
-          subtitle={isArabic ? 'من الجلسات المكتملة' : 'Sessions completed'}
-          icon="📈"
-          color={brandPurple}
-          trend={{ value: 12, isPositive: true }}
-        />
-        <MetricCard
-          title={isArabic ? 'مكتملون' : 'Completed'}
-          value={metrics.completed}
-          subtitle={isArabic ? 'أنهوا البرنامج' : 'Finished program'}
-          icon="✅"
-          color="#22c55e"
-        />
-        <MetricCard
-          title={isArabic ? 'يحتاجون انتباه' : 'Need Attention'}
-          value={metrics.atRisk}
-          subtitle={isArabic ? 'طلاب معرضون للخطر' : 'At-risk students'}
-          icon="⚠️"
-          color="#ef4444"
-        />
-      </div>
+      <PageTransition animation="fade-in-up" delay={100}>
+        <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
+          <StatCard
+            label={isArabic ? 'إجمالي الطلاب' : 'Total Students'}
+            value={metrics.totalStudents}
+            subtitle={isArabic ? 'مسجلين في البرنامج' : 'Enrolled in program'}
+            icon="👥"
+            color={brandCyan}
+          />
+          <StatCard
+            label={isArabic ? 'متوسط التقدم' : 'Avg. Progress'}
+            value={`${metrics.avgProgress}%`}
+            subtitle={isArabic ? 'من الجلسات المكتملة' : 'Sessions completed'}
+            icon="📈"
+            color={brandPurple}
+            trend={{ value: 12, isPositive: true }}
+          />
+          <StatCard
+            label={isArabic ? 'مكتملون' : 'Completed'}
+            value={metrics.completed}
+            subtitle={isArabic ? 'أنهوا البرنامج' : 'Finished program'}
+            icon="✅"
+            color="#22c55e"
+          />
+          <StatCard
+            label={isArabic ? 'يحتاجون انتباه' : 'Need Attention'}
+            value={metrics.atRisk}
+            subtitle={isArabic ? 'طلاب معرضون للخطر' : 'At-risk students'}
+            icon="⚠️"
+            color="#ef4444"
+          />
+        </div>
+      </PageTransition>
 
       {/* Charts Row */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-          gap: spacing[6],
-          marginBottom: spacing[8],
-        }}
-      >
+      <div className="panels-grid" style={{ marginBottom: spacing[8] }}>
         {/* Weekly Progress Chart */}
         <div
+          className="card"
           style={{
-            padding: spacing[5],
             background: colors.surface.card,
             border: `1px solid ${colors.border.default}`,
             borderRadius: radius.xl,
@@ -590,8 +482,8 @@ export default function SchoolDashboard() {
 
         {/* Grade Distribution */}
         <div
+          className="card"
           style={{
-            padding: spacing[5],
             background: colors.surface.card,
             border: `1px solid ${colors.border.default}`,
             borderRadius: radius.xl,
@@ -725,6 +617,140 @@ export default function SchoolDashboard() {
         </div>
 
         <StudentTable students={filteredStudents} isArabic={isArabic} />
+      </div>
+
+      {/* Insights Row */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: spacing[4],
+          marginTop: spacing[6],
+        }}
+      >
+        {/* Score Trend Chart */}
+        <div
+          style={{
+            padding: spacing[5],
+            background: colors.surface.card,
+            border: `1px solid ${colors.border.default}`,
+            borderRadius: radius.xl,
+          }}
+        >
+          <LineChart
+            title={isArabic ? 'اتجاه الدرجات الأسبوعي' : 'Weekly Score Trend'}
+            titleAr="اتجاه الدرجات الأسبوعي"
+            data={MOCK_WEEKLY.map(w => ({
+              label: w.week.replace('Week ', 'W'),
+              labelAr: w.weekAr.replace('الأسبوع ', 'أ'),
+              value: w.averageScore,
+            }))}
+            isArabic={isArabic}
+            height={160}
+            showValues
+            unit="%"
+            gradientColors={[brandCyan, brandPurple]}
+          />
+        </div>
+
+        {/* Tips Card */}
+        <TipsCard
+          title="School Admin Tips"
+          titleAr="نصائح للمشرف"
+          icon="🏫"
+          color={brandPurple}
+          isArabic={isArabic}
+          tips={[
+            {
+              id: '1',
+              title: 'Monitor At-Risk Students',
+              titleAr: 'راقب الطلاب المعرضين',
+              content: 'Students inactive for 5+ days need immediate follow-up with parents.',
+              contentAr: 'الطلاب غير النشطين لأكثر من 5 أيام يحتاجون متابعة فورية مع الأهل.',
+            },
+            {
+              id: '2',
+              title: 'Weekly Reports',
+              titleAr: 'التقارير الأسبوعية',
+              content: 'Share weekly progress reports with teachers to coordinate classroom support.',
+              contentAr: 'شارك تقارير التقدم الأسبوعية مع المعلمين لتنسيق الدعم في الفصل.',
+            },
+            {
+              id: '3',
+              title: 'Celebrate Success',
+              titleAr: 'احتفل بالنجاح',
+              content: 'Recognize students who complete the program in school assemblies.',
+              contentAr: 'كرّم الطلاب الذين يكملون البرنامج في الطابور الصباحي.',
+            },
+          ]}
+          variant="carousel"
+        />
+      </div>
+
+      {/* At-Risk Alert */}
+      {metrics.atRisk > 0 && (
+        <div style={{ marginTop: spacing[4] }}>
+          <InfoCard
+            title={isArabic ? 'تنبيه: طلاب معرضون للخطر' : 'Alert: At-Risk Students'}
+            titleAr="تنبيه: طلاب معرضون للخطر"
+            content={`${metrics.atRisk} ${isArabic ? 'طلاب يحتاجون تدخلاً فورياً. تواصل مع أولياء أمورهم.' : 'students need immediate intervention. Contact their parents.'}`}
+            contentAr={`${metrics.atRisk} طلاب يحتاجون تدخلاً فورياً. تواصل مع أولياء أمورهم.`}
+            variant="warning"
+            isArabic={isArabic}
+            actions={[
+              {
+                label: 'View At-Risk',
+                labelAr: 'عرض المعرضين',
+                onClick: () => setFilter('at_risk'),
+              },
+            ]}
+          />
+        </div>
+      )}
+
+      {/* Student Performance & Goals */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: spacing[4],
+          marginTop: spacing[6],
+        }}
+      >
+        {/* Student Leaderboard */}
+        <Leaderboard
+          entries={MOCK_LEADERBOARD.slice(0, 5)}
+          isArabic={isArabic}
+          variant="mini"
+          title="Top Students"
+          titleAr="أفضل الطلاب"
+          showPoints
+          maxDisplay={5}
+        />
+
+        {/* School Goals Summary */}
+        <GoalSummary
+          goals={MOCK_GOALS}
+          isArabic={isArabic}
+        />
+      </div>
+
+      {/* Section Navigation */}
+      <div
+        style={{
+          marginTop: spacing[8],
+          padding: spacing[5],
+          background: colors.surface.card,
+          border: `1px solid ${colors.border.default}`,
+          borderRadius: radius.xl,
+        }}
+      >
+        <SectionNav
+          variant="grid"
+          showDescriptions={true}
+          title="Explore Platform"
+          titleAr="استكشف المنصة"
+        />
       </div>
     </section>
   );

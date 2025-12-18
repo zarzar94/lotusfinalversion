@@ -2,6 +2,25 @@ import { useState, useMemo, useCallback, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
 import {
+  BackNavigation,
+  SectionNav,
+  ResponsiveStyles,
+  StatCard,
+  PageTransition,
+  TipsCard,
+  BarChart,
+  InfoCard,
+  TreatmentPhaseIndicator,
+} from '../shared';
+import {
+  Leaderboard,
+  GoalList,
+  QuickSessionStats,
+  MOCK_LEADERBOARD,
+  MOCK_GOALS,
+  MOCK_SESSION_RESULT,
+} from '../gamification';
+import {
   brandCyan,
   brandPurple,
   brandPink,
@@ -540,6 +559,26 @@ const PatientDetailModal = memo(({
             />
           </div>
 
+          {/* Treatment Phase Indicator */}
+          <div style={{ marginBottom: spacing[5] }}>
+            <h3
+              style={{
+                margin: `0 0 ${spacing[3]}px`,
+                fontSize: typography.size.md,
+                fontWeight: typography.weight.bold,
+                color: colors.text.primary,
+              }}
+            >
+              {isArabic ? 'مرحلة العلاج' : 'Treatment Phase'}
+            </h3>
+            <TreatmentPhaseIndicator
+              phase={patient.treatmentPhase}
+              sessionsCompleted={patient.sessionsCompleted}
+              totalSessions={patient.totalSessions}
+              isArabic={isArabic}
+            />
+          </div>
+
           {/* Clinical Notes */}
           {patient.notes.length > 0 && (
             <div style={{ marginBottom: spacing[5] }}>
@@ -756,13 +795,15 @@ export default function ClinicianDashboard() {
   return (
     <section
       id="clinician-dashboard"
+      className="page-container"
       style={{
-        padding: `${spacing[10]}px ${spacing[4]}px`,
-        maxWidth: 1200,
-        margin: '0 auto',
         direction,
       }}
     >
+      <ResponsiveStyles />
+      {/* Back Navigation */}
+      <BackNavigation />
+
       {/* Header */}
       <div style={{ marginBottom: spacing[8] }}>
         <div
@@ -807,39 +848,38 @@ export default function ClinicianDashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: spacing[4],
-          marginBottom: spacing[8],
-        }}
-      >
-        <StatCard
-          label={isArabic ? 'إجمالي المرضى' : 'Total Patients'}
-          value={stats.total}
-          icon="👥"
-          color={brandCyan}
-        />
-        <StatCard
-          label={isArabic ? 'علاج نشط' : 'Active Treatment'}
-          value={stats.active}
-          icon="🏥"
-          color={brandPurple}
-        />
-        <StatCard
-          label={isArabic ? 'أكملوا البرنامج' : 'Completed'}
-          value={stats.completed}
-          icon="✅"
-          color="#22c55e"
-        />
-        <StatCard
-          label={isArabic ? 'متوسط التحسن' : 'Avg Improvement'}
-          value={`+${stats.avgImprovement}%`}
-          icon="📈"
-          color="#f59e0b"
-        />
-      </div>
+      <PageTransition animation="fade-in-up" delay={100}>
+        <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
+          <StatCard
+            variant="horizontal"
+            label={isArabic ? 'إجمالي المرضى' : 'Total Patients'}
+            value={stats.total}
+            icon="👥"
+            color={brandCyan}
+          />
+          <StatCard
+            variant="horizontal"
+            label={isArabic ? 'علاج نشط' : 'Active Treatment'}
+            value={stats.active}
+            icon="🏥"
+            color={brandPurple}
+          />
+          <StatCard
+            variant="horizontal"
+            label={isArabic ? 'أكملوا البرنامج' : 'Completed'}
+            value={stats.completed}
+            icon="✅"
+            color="#22c55e"
+          />
+          <StatCard
+            variant="horizontal"
+            label={isArabic ? 'متوسط التحسن' : 'Avg Improvement'}
+            value={`+${stats.avgImprovement}%`}
+            icon="📈"
+            color="#f59e0b"
+          />
+        </div>
+      </PageTransition>
 
       {/* Filters */}
       <div
@@ -1035,70 +1075,157 @@ export default function ClinicianDashboard() {
           onClose={() => setSelectedPatient(null)}
         />
       )}
+
+      {/* Insights Row */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: spacing[4],
+          marginTop: spacing[6],
+        }}
+      >
+        {/* Score Distribution Chart */}
+        <div
+          style={{
+            padding: spacing[5],
+            background: colors.surface.card,
+            border: `1px solid ${colors.border.default}`,
+            borderRadius: radius.xl,
+          }}
+        >
+          <BarChart
+            title={isArabic ? 'توزيع درجات الانتباه' : 'Attention Score Distribution'}
+            titleAr="توزيع درجات الانتباه"
+            data={[
+              { label: '<50', labelAr: '<٥٠', value: MOCK_PATIENTS.filter(p => p.attentionScore < 50).length * 25, color: '#ef4444' },
+              { label: '50-69', labelAr: '٥٠-٦٩', value: MOCK_PATIENTS.filter(p => p.attentionScore >= 50 && p.attentionScore < 70).length * 25, color: '#f59e0b' },
+              { label: '70-84', labelAr: '٧٠-٨٤', value: MOCK_PATIENTS.filter(p => p.attentionScore >= 70 && p.attentionScore < 85).length * 25, color: brandCyan },
+              { label: '85+', labelAr: '٨٥+', value: MOCK_PATIENTS.filter(p => p.attentionScore >= 85).length * 25, color: '#22c55e' },
+            ]}
+            isArabic={isArabic}
+            height={140}
+            maxValue={100}
+          />
+        </div>
+
+        {/* Tips Card */}
+        <TipsCard
+          title="Clinical Tips"
+          titleAr="نصائح سريرية"
+          icon="🩺"
+          color={brandPurple}
+          isArabic={isArabic}
+          tips={[
+            {
+              id: '1',
+              title: 'Monitor Streaks',
+              titleAr: 'راقب الاستمرارية',
+              content: 'Patients with consistent daily practice show 40% better outcomes. Follow up with patients whose streaks have broken.',
+              contentAr: 'المرضى الذين يمارسون بانتظام يومياً يظهرون نتائج أفضل بنسبة 40٪. تابع مع المرضى الذين انقطعت استمراريتهم.',
+            },
+            {
+              id: '2',
+              title: 'Weekly Check-ins',
+              titleAr: 'متابعة أسبوعية',
+              content: 'Schedule brief check-ins during weeks 2 and 3 when patients commonly experience plateaus.',
+              contentAr: 'جدولة متابعات قصيرة خلال الأسبوعين الثاني والثالث عندما يعاني المرضى عادة من الثبات.',
+            },
+            {
+              id: '3',
+              title: 'Parent Communication',
+              titleAr: 'التواصل مع الأهل',
+              content: 'Share progress reports with parents weekly to maintain engagement and support at home.',
+              contentAr: 'شارك تقارير التقدم مع الأهل أسبوعياً للحفاظ على المشاركة والدعم في المنزل.',
+            },
+          ]}
+          variant="carousel"
+        />
+      </div>
+
+      {/* Alerts Section */}
+      {MOCK_PATIENTS.some(p => p.streak === 0 && p.treatmentPhase === 'active') && (
+        <div style={{ marginTop: spacing[4] }}>
+          <InfoCard
+            title={isArabic ? 'تنبيه: مرضى غير نشطين' : 'Alert: Inactive Patients'}
+            titleAr="تنبيه: مرضى غير نشطين"
+            content={`${MOCK_PATIENTS.filter(p => p.streak === 0 && p.treatmentPhase === 'active').length} ${isArabic ? 'مرضى في العلاج النشط لم يمارسوا منذ أكثر من يومين' : 'patients in active treatment haven\'t practiced in over 2 days'}`}
+            contentAr={`${MOCK_PATIENTS.filter(p => p.streak === 0 && p.treatmentPhase === 'active').length} مرضى في العلاج النشط لم يمارسوا منذ أكثر من يومين`}
+            variant="warning"
+            isArabic={isArabic}
+            actions={[
+              {
+                label: 'View Details',
+                labelAr: 'عرض التفاصيل',
+                onClick: () => setFilterPhase('active'),
+              },
+            ]}
+          />
+        </div>
+      )}
+
+      {/* Gamification Overview Row */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: spacing[4],
+          marginTop: spacing[6],
+        }}
+      >
+        {/* Patient Leaderboard */}
+        <Leaderboard
+          entries={MOCK_LEADERBOARD.slice(0, 5)}
+          isArabic={isArabic}
+          variant="compact"
+          title="Top Performers"
+          titleAr="أفضل المتدربين"
+          showPoints
+          showStreak
+          maxDisplay={5}
+        />
+
+        {/* Recent Session & Goals */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: spacing[4],
+          }}
+        >
+          <QuickSessionStats
+            session={MOCK_SESSION_RESULT}
+            isArabic={isArabic}
+          />
+          <GoalList
+            goals={MOCK_GOALS.filter(g => g.createdBy === 'clinician').slice(0, 2)}
+            isArabic={isArabic}
+            variant="compact"
+            showCompleted={false}
+            title="Clinical Goals"
+            titleAr="الأهداف العلاجية"
+          />
+        </div>
+      </div>
+
+      {/* Section Navigation */}
+      <div
+        style={{
+          marginTop: spacing[8],
+          padding: spacing[5],
+          background: colors.surface.card,
+          border: `1px solid ${colors.border.default}`,
+          borderRadius: radius.xl,
+        }}
+      >
+        <SectionNav
+          variant="pills"
+          title="Quick Access"
+          titleAr="وصول سريع"
+        />
+      </div>
     </section>
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// STAT CARD
-// ═══════════════════════════════════════════════════════════════════════════
-
-const StatCard = memo(({
-  label,
-  value,
-  icon,
-  color,
-}: {
-  label: string;
-  value: string | number;
-  icon: string;
-  color: string;
-}) => (
-  <div
-    style={{
-      padding: spacing[4],
-      background: `linear-gradient(135deg, ${color}10, transparent)`,
-      border: `1px solid ${color}25`,
-      borderRadius: radius.lg,
-    }}
-  >
-    <div style={{ display: 'flex', alignItems: 'center', gap: spacing[3] }}>
-      <div
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: radius.md,
-          background: `${color}20`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 22,
-        }}
-      >
-        {icon}
-      </div>
-      <div>
-        <div
-          style={{
-            fontSize: typography.size['2xl'],
-            fontWeight: typography.weight.black,
-            color: colors.text.primary,
-            lineHeight: 1,
-          }}
-        >
-          {value}
-        </div>
-        <div
-          style={{
-            fontSize: typography.size.xs,
-            color: colors.text.muted,
-            marginTop: 2,
-          }}
-        >
-          {label}
-        </div>
-      </div>
-    </div>
-  </div>
-));
-StatCard.displayName = 'StatCard';
+// StatCard is now imported from ../shared

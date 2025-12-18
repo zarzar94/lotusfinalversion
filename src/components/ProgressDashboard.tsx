@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useGamification } from '../context/GamificationContext';
 import { useLanguage } from '../context/LanguageContext';
-import { useUser } from '../context/UserContext';
+import { useIsPatient } from '../context/UserContext';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import {
   brandCyan,
@@ -18,12 +18,11 @@ import {
 export default function ProgressDashboard() {
   const { state, getUnlockedAchievements, getNextAchievements, getClinicalAchievements } = useGamification();
   const { t, isArabic } = useLanguage();
-  const { user } = useUser();
+  const isPatient = useIsPatient();
   const prefersReducedMotion = usePrefersReducedMotion();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAttention, setShowAttention] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const isPatient = user?.role === 'patient';
 
   // Auto-pulse attention for first 10 seconds if user hasn't interacted
   useEffect(() => {

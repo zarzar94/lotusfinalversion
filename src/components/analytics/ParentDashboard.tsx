@@ -2,6 +2,26 @@ import { useState, useMemo, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
 import {
+  BackNavigation,
+  SectionNav,
+  ResponsiveStyles,
+  StatCard,
+  PageTransition,
+  MilestoneTracker,
+  TipsCard,
+  InfoCard,
+} from '../shared';
+import type { Milestone } from '../shared';
+import {
+  NarrativeCard,
+  StoryMotivation,
+  GoalList,
+  GoalSummary,
+  getUnlockedChapters,
+  getCurrentChapter,
+  MOCK_GOALS,
+} from '../gamification';
+import {
   brandCyan,
   brandPurple,
   brandPink,
@@ -9,7 +29,6 @@ import {
   typography,
   spacing,
   radius,
-  shadows,
   transitions,
 } from '../styles';
 
@@ -33,14 +52,7 @@ interface ChildData {
   weeklyProgress: number[];
 }
 
-interface Milestone {
-  id: string;
-  title: string;
-  titleAr: string;
-  achieved: boolean;
-  achievedAt?: number;
-  icon: string;
-}
+// Milestone type is imported from shared
 
 // ═══════════════════════════════════════════════════════════════════════════
 // MOCK DATA
@@ -87,6 +99,8 @@ const getMilestones = (sessions: number): Milestone[] => [
     achieved: sessions >= 1,
     achievedAt: sessions >= 1 ? Date.now() - 86400000 * 10 : undefined,
     icon: '🎯',
+    category: 'clinical',
+    points: 50,
   },
   {
     id: 'week_one',
@@ -95,6 +109,8 @@ const getMilestones = (sessions: number): Milestone[] => [
     achieved: sessions >= 5,
     achievedAt: sessions >= 5 ? Date.now() - 86400000 * 7 : undefined,
     icon: '📅',
+    category: 'clinical',
+    points: 100,
   },
   {
     id: 'halfway',
@@ -103,6 +119,8 @@ const getMilestones = (sessions: number): Milestone[] => [
     achieved: sessions >= 10,
     achievedAt: sessions >= 10 ? Date.now() - 86400000 * 3 : undefined,
     icon: '⭐',
+    category: 'clinical',
+    points: 150,
   },
   {
     id: 'almost_done',
@@ -110,6 +128,8 @@ const getMilestones = (sessions: number): Milestone[] => [
     titleAr: '15 جلسة',
     achieved: sessions >= 15,
     icon: '🚀',
+    category: 'mastery',
+    points: 200,
   },
   {
     id: 'graduate',
@@ -117,6 +137,8 @@ const getMilestones = (sessions: number): Milestone[] => [
     titleAr: 'خريج البرنامج',
     achieved: sessions >= 20,
     icon: '🎓',
+    category: 'mastery',
+    points: 300,
   },
 ];
 
@@ -383,48 +405,15 @@ const ChildProgressCard = memo(({
             />
           </div>
 
-          {/* Milestones */}
+          {/* Milestones - Using shared MilestoneTracker */}
           <div style={{ marginBottom: spacing[4] }}>
-            <h4
-              style={{
-                margin: `0 0 ${spacing[3]}px`,
-                fontSize: typography.size.sm,
-                fontWeight: typography.weight.bold,
-                color: colors.text.primary,
-              }}
-            >
-              {isArabic ? 'الإنجازات' : 'Milestones'}
-            </h4>
-            <div style={{ display: 'flex', gap: spacing[2], flexWrap: 'wrap' }}>
-              {milestones.map((milestone) => (
-                <div
-                  key={milestone.id}
-                  style={{
-                    padding: `${spacing[2]}px ${spacing[3]}px`,
-                    background: milestone.achieved
-                      ? `${brandCyan}15`
-                      : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${milestone.achieved ? brandCyan : colors.border.subtle}30`,
-                    borderRadius: radius.full,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: spacing[1.5],
-                    opacity: milestone.achieved ? 1 : 0.5,
-                  }}
-                >
-                  <span style={{ fontSize: 14 }}>{milestone.icon}</span>
-                  <span
-                    style={{
-                      fontSize: typography.size.xs,
-                      fontWeight: typography.weight.semibold,
-                      color: milestone.achieved ? brandCyan : colors.text.muted,
-                    }}
-                  >
-                    {isArabic ? milestone.titleAr : milestone.title}
-                  </span>
-                </div>
-              ))}
-            </div>
+            <MilestoneTracker
+              milestones={milestones}
+              isArabic={isArabic}
+              variant="horizontal"
+              title="Milestones"
+              titleAr="الإنجازات"
+            />
           </div>
 
           {/* Weekly Progress Chart */}
@@ -591,13 +580,16 @@ export default function ParentDashboard() {
   return (
     <section
       id="parent-dashboard"
+      className="page-container"
       style={{
-        padding: `${spacing[10]}px ${spacing[4]}px`,
         maxWidth: 900,
-        margin: '0 auto',
         direction,
       }}
     >
+      <ResponsiveStyles />
+      {/* Back Navigation */}
+      <BackNavigation />
+
       {/* Header */}
       <div style={{ marginBottom: spacing[8] }}>
         <div
@@ -644,39 +636,38 @@ export default function ParentDashboard() {
       </div>
 
       {/* Quick Stats */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: spacing[4],
-          marginBottom: spacing[8],
-        }}
-      >
-        <StatCard
-          label={isArabic ? 'إجمالي الجلسات' : 'Total Sessions'}
-          value={overallStats.totalSessions}
-          icon="📊"
-          color={brandCyan}
-        />
-        <StatCard
-          label={isArabic ? 'متوسط التقدم' : 'Avg Progress'}
-          value={`${overallStats.avgProgress}%`}
-          icon="📈"
-          color={brandPurple}
-        />
-        <StatCard
-          label={isArabic ? 'أطفال نشطون' : 'Active Children'}
-          value={overallStats.activeChildren}
-          icon="👶"
-          color={brandPink}
-        />
-        <StatCard
-          label={isArabic ? 'إجمالي الاستمرارية' : 'Total Streaks'}
-          value={overallStats.totalStreak}
-          icon="🔥"
-          color="#f59e0b"
-        />
-      </div>
+      <PageTransition animation="fade-in-up" delay={100}>
+        <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
+          <StatCard
+            variant="centered"
+            label={isArabic ? 'إجمالي الجلسات' : 'Total Sessions'}
+            value={overallStats.totalSessions}
+            icon="📊"
+            color={brandCyan}
+          />
+          <StatCard
+            variant="centered"
+            label={isArabic ? 'متوسط التقدم' : 'Avg Progress'}
+            value={`${overallStats.avgProgress}%`}
+            icon="📈"
+            color={brandPurple}
+          />
+          <StatCard
+            variant="centered"
+            label={isArabic ? 'أطفال نشطون' : 'Active Children'}
+            value={overallStats.activeChildren}
+            icon="👶"
+            color={brandPink}
+          />
+          <StatCard
+            variant="centered"
+            label={isArabic ? 'إجمالي الاستمرارية' : 'Total Streaks'}
+            value={overallStats.totalStreak}
+            icon="🔥"
+            color="#f59e0b"
+          />
+        </div>
+      </PageTransition>
 
       {/* Children List */}
       <div>
@@ -703,103 +694,139 @@ export default function ParentDashboard() {
         </div>
       </div>
 
-      {/* Tips Section */}
+      {/* Gamification Section */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: spacing[4],
+          marginTop: spacing[6],
+        }}
+      >
+        {/* Story Progress - First child */}
+        {children.length > 0 && (() => {
+          const firstChild = children[0];
+          const chapters = getUnlockedChapters(
+            firstChild.sessionsCompleted,
+            firstChild.streak,
+            firstChild.attentionScore
+          );
+          const currentIndex = getCurrentChapter(chapters);
+          const currentChapter = chapters[currentIndex];
+          const nextChapter = chapters[currentIndex + 1];
+
+          return (
+            <NarrativeCard
+              currentChapter={currentChapter}
+              nextChapter={nextChapter}
+              totalChapters={chapters.length}
+              isArabic={isArabic}
+            />
+          );
+        })()}
+
+        {/* Goals Summary */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: spacing[4],
+          }}
+        >
+          <GoalSummary goals={MOCK_GOALS} isArabic={isArabic} />
+          <StoryMotivation
+            sessionsCompleted={children[0]?.sessionsCompleted || 0}
+            currentStreak={children[0]?.streak || 0}
+            attentionScore={children[0]?.attentionScore || 0}
+            isArabic={isArabic}
+          />
+        </div>
+      </div>
+
+      {/* Active Goals */}
+      <div
+        style={{
+          marginTop: spacing[6],
+          padding: spacing[5],
+          background: colors.surface.card,
+          border: `1px solid ${colors.border.default}`,
+          borderRadius: radius.xl,
+        }}
+      >
+        <GoalList
+          goals={MOCK_GOALS.slice(0, 3)}
+          isArabic={isArabic}
+          showCompleted={false}
+          variant="compact"
+          title="Active Goals"
+          titleAr="الأهداف النشطة"
+        />
+      </div>
+
+      {/* Tips Section - Using shared TipsCard */}
+      <TipsCard
+        title="Tips for Parents"
+        titleAr="نصائح للآباء"
+        icon="💡"
+        color={brandCyan}
+        isArabic={isArabic}
+        tips={[
+          {
+            id: '1',
+            content: 'Encourage your child to complete daily sessions to maintain streaks',
+            contentAr: 'شجع طفلك على إكمال الجلسات اليومية للحفاظ على الاستمرارية',
+          },
+          {
+            id: '2',
+            content: 'Monitor attention and processing scores to track improvement',
+            contentAr: 'راقب درجات الانتباه والمعالجة لمتابعة التحسن',
+          },
+          {
+            id: '3',
+            content: 'Contact the clinician if you notice any regression',
+            contentAr: 'تواصل مع الطبيب المعالج إذا لاحظت أي تراجع',
+          },
+          {
+            id: '4',
+            content: 'Celebrate milestones with your child to keep them motivated',
+            contentAr: 'احتفل بالإنجازات مع طفلك للحفاظ على حماسه',
+          },
+        ]}
+      />
+
+      {/* Inactivity Alert */}
+      {children.some(c => c.streak === 0 && c.treatmentPhase === 'active') && (
+        <div style={{ marginTop: spacing[4] }}>
+          <InfoCard
+            title={isArabic ? 'تنبيه: نشاط منخفض' : 'Alert: Low Activity'}
+            titleAr="تنبيه: نشاط منخفض"
+            content={`${children.filter(c => c.streak === 0).length} ${isArabic ? 'أطفال لم يمارسوا مؤخراً' : 'children haven\'t practiced recently'}`}
+            contentAr={`${children.filter(c => c.streak === 0).length} أطفال لم يمارسوا مؤخراً`}
+            variant="warning"
+            isArabic={isArabic}
+          />
+        </div>
+      )}
+
+      {/* Section Navigation */}
       <div
         style={{
           marginTop: spacing[8],
           padding: spacing[5],
-          background: `linear-gradient(135deg, ${brandCyan}08, ${brandPurple}05)`,
-          border: `1px solid ${brandCyan}20`,
+          background: colors.surface.card,
+          border: `1px solid ${colors.border.default}`,
           borderRadius: radius.xl,
         }}
       >
-        <h3
-          style={{
-            margin: `0 0 ${spacing[3]}px`,
-            fontSize: typography.size.lg,
-            fontWeight: typography.weight.bold,
-            color: brandCyan,
-            display: 'flex',
-            alignItems: 'center',
-            gap: spacing[2],
-          }}
-        >
-          <span>💡</span>
-          {isArabic ? 'نصائح للآباء' : 'Tips for Parents'}
-        </h3>
-        <ul
-          style={{
-            margin: 0,
-            padding: `0 ${spacing[5]}px`,
-            color: colors.text.secondary,
-            fontSize: typography.size.sm,
-            lineHeight: typography.lineHeight.relaxed,
-          }}
-        >
-          <li style={{ marginBottom: spacing[2] }}>
-            {isArabic
-              ? 'شجع طفلك على إكمال الجلسات اليومية للحفاظ على الاستمرارية'
-              : 'Encourage your child to complete daily sessions to maintain streaks'}
-          </li>
-          <li style={{ marginBottom: spacing[2] }}>
-            {isArabic
-              ? 'راقب درجات الانتباه والمعالجة لمتابعة التحسن'
-              : 'Monitor attention and processing scores to track improvement'}
-          </li>
-          <li>
-            {isArabic
-              ? 'تواصل مع الطبيب المعالج إذا لاحظت أي تراجع'
-              : 'Contact the clinician if you notice any regression'}
-          </li>
-        </ul>
+        <SectionNav
+          variant="grid"
+          showDescriptions={true}
+          title="Explore Platform"
+          titleAr="استكشف المنصة"
+        />
       </div>
     </section>
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// STAT CARD COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
-
-const StatCard = memo(({
-  label,
-  value,
-  icon,
-  color,
-}: {
-  label: string;
-  value: string | number;
-  icon: string;
-  color: string;
-}) => (
-  <div
-    style={{
-      padding: spacing[4],
-      background: `linear-gradient(135deg, ${color}10, transparent)`,
-      border: `1px solid ${color}25`,
-      borderRadius: radius.lg,
-      textAlign: 'center',
-    }}
-  >
-    <div style={{ fontSize: 24, marginBottom: spacing[2] }}>{icon}</div>
-    <div
-      style={{
-        fontSize: typography.size['2xl'],
-        fontWeight: typography.weight.black,
-        color: colors.text.primary,
-      }}
-    >
-      {value}
-    </div>
-    <div
-      style={{
-        fontSize: typography.size.xs,
-        color: colors.text.muted,
-        marginTop: spacing[1],
-      }}
-    >
-      {label}
-    </div>
-  </div>
-));
-StatCard.displayName = 'StatCard';
+// StatCard is now imported from ../shared
