@@ -262,10 +262,10 @@ const PortalHeader = memo(function PortalHeader({
     <div
       style={{
         position: 'relative',
-        padding: '32px 28px',
-        background: 'linear-gradient(135deg, rgba(30,35,45,0.98) 0%, rgba(50,40,65,0.98) 100%)',
+        padding: '28px 24px',
+        background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
         borderRadius: '24px 24px 0 0',
-        borderBottom: '1px solid rgba(143,211,204,0.15)',
+        borderBottom: '1px solid rgba(143,211,204,0.12)',
         overflow: 'hidden',
       }}
     >
@@ -956,14 +956,29 @@ export default function GamePortal({
   return (
     <div
       style={{
-        background: 'linear-gradient(180deg, #1E232C 0%, #252A35 50%, #2A2F3A 100%)',
-        borderRadius: 26,
+        background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+        borderRadius: 24,
         overflow: 'hidden',
-        boxShadow: '0 30px 70px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)',
+        boxShadow: '0 30px 70px rgba(0,0,0,0.45), 0 0 60px rgba(143,211,204,0.06)',
         border: '1px solid rgba(143,211,204,0.12)',
         transition: 'all 0.3s ease',
+        position: 'relative',
       }}
     >
+      {/* Top glow bar */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          background: `linear-gradient(90deg, transparent, ${brandCyan}, ${brandPink}, transparent)`,
+          opacity: 0.6,
+          zIndex: 10,
+        }}
+      />
+
       <style>{KEYFRAMES}</style>
 
       {/* Portal Header */}
