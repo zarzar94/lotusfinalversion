@@ -141,6 +141,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
+        className="login-modal-container"
         style={{
           background: colors.surface.overlay,
           borderRadius: radius.xl,
@@ -163,6 +164,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
         {/* Close button */}
         <button
           onClick={onClose}
+          aria-label={isArabic ? 'إغلاق' : 'Close'}
           style={{
             position: 'absolute',
             top: spacing[3],
@@ -184,9 +186,9 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
           ✕
         </button>
 
-        <div style={{ padding: spacing[6] }}>
+        <div className="login-modal-content" style={{ padding: spacing[6] }}>
           {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: spacing[5] }}>
+          <div className="login-modal-header" style={{ textAlign: 'center', marginBottom: spacing[5] }}>
             <div
               style={{
                 width: 56,
@@ -499,12 +501,35 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
             transform: scale(1) translateY(0);
           }
         }
-        input:focus {
+        .login-modal-content input {
+          box-sizing: border-box;
+        }
+        .login-modal-content input:focus {
           border-color: ${brandCyan} !important;
           box-shadow: 0 0 0 3px ${brandCyan}20;
         }
-        button:hover:not(:disabled) {
+        .login-modal-content button:hover:not(:disabled) {
           transform: translateY(-1px);
+        }
+        .login-modal-content button:focus-visible {
+          outline: 2px solid ${brandCyan};
+          outline-offset: 2px;
+        }
+        @media (max-width: 480px) {
+          .login-modal-container {
+            max-width: 100% !important;
+            margin: 0 ${spacing[2]}px;
+            border-radius: ${radius.lg}px !important;
+          }
+          .login-modal-content {
+            padding: ${spacing[4]}px !important;
+          }
+          .login-modal-header {
+            margin-bottom: ${spacing[4]}px !important;
+          }
+          .login-modal-header h2 {
+            font-size: ${typography.size.xl}px !important;
+          }
         }
       `}</style>
     </div>
