@@ -21,6 +21,7 @@ import {
   brandCyan,
   brandPurple,
   brandPink,
+  brandColors,
   colors,
   typography,
   spacing,
@@ -164,42 +165,69 @@ const SpecialistProfile = memo(({ isArabic }: { isArabic: boolean }) => {
             gap: spacing[4],
           }}
         >
-          {/* Profile Image */}
+          {/* Profile Image with Lavender Background Circle */}
           <div
             style={{
-              width: 200,
-              height: 200,
-              borderRadius: radius.xl,
-              overflow: 'hidden',
-              border: `3px solid ${brandCyan}30`,
-              boxShadow: `0 8px 30px ${brandCyan}20`,
-              background: `linear-gradient(135deg, ${brandCyan}10, ${brandPurple}10)`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              position: 'relative',
+              width: 220,
+              height: 220,
             }}
           >
-            {!imageError ? (
-              <img
-                src={specialist.image}
-                alt={isArabic ? specialist.nameAr : specialist.nameEn}
-                onError={() => setImageError(true)}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  fontSize: 80,
-                  opacity: 0.5,
-                }}
-              >
-                👤
-              </div>
-            )}
+            {/* Lavender background circle */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                width: 180,
+                height: 180,
+                borderRadius: '50%',
+                background: `linear-gradient(135deg, ${brandPurple}30, ${brandPink}25)`,
+                zIndex: 0,
+              }}
+            />
+            {/* Profile image container */}
+            <div
+              style={{
+                position: 'relative',
+                width: 200,
+                height: 220,
+                borderRadius: `${radius.xl}px ${radius.xl}px ${radius['2xl']}px ${radius['2xl']}px`,
+                overflow: 'hidden',
+                boxShadow: `0 12px 40px ${brandPurple}25, 0 4px 16px rgba(0,0,0,0.15)`,
+                background: colors.surface.card,
+                zIndex: 1,
+              }}
+            >
+              {!imageError ? (
+                <img
+                  src={specialist.image}
+                  alt={isArabic ? specialist.nameAr : specialist.nameEn}
+                  onError={() => setImageError(true)}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center top',
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: `linear-gradient(180deg, ${brandPurple}15, ${brandCyan}10)`,
+                    fontSize: 80,
+                    opacity: 0.6,
+                  }}
+                >
+                  👤
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Name & Title */}
@@ -716,16 +744,16 @@ const ConnectSection = memo(({ isArabic }: { isArabic: boolean }) => {
             alignItems: 'center',
             gap: spacing[2],
             padding: `${spacing[4]}px ${spacing[6]}px`,
-            background: isHovered === 'linkedin' ? '#0077B5' : `#0077B515`,
-            border: `1px solid ${isHovered === 'linkedin' ? '#0077B5' : '#0077B530'}`,
+            background: isHovered === 'linkedin' ? brandColors.linkedin : brandColors.linkedinLight,
+            border: `1px solid ${isHovered === 'linkedin' ? brandColors.linkedin : `${brandColors.linkedin}30`}`,
             borderRadius: radius.xl,
             textDecoration: 'none',
-            color: isHovered === 'linkedin' ? '#fff' : '#0077B5',
+            color: isHovered === 'linkedin' ? '#fff' : brandColors.linkedin,
             fontWeight: typography.weight.bold,
             fontSize: typography.size.md,
             transition: 'all 0.3s ease',
             transform: isHovered === 'linkedin' ? 'translateY(-3px)' : 'translateY(0)',
-            boxShadow: isHovered === 'linkedin' ? '0 10px 30px rgba(0,119,181,0.3)' : 'none',
+            boxShadow: isHovered === 'linkedin' ? `0 10px 30px ${brandColors.linkedin}50` : 'none',
           }}
         >
           <svg
