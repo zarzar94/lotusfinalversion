@@ -42,7 +42,7 @@ function getRouteName(pathname: string): string {
 }
 
 export default function ScrollToTop({
-  behavior = 'instant',
+  behavior = 'auto',
   enableLogging = import.meta.env.DEV,
 }: ScrollToTopProps) {
   const { pathname, search, hash } = useLocation();

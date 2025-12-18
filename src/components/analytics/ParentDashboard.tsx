@@ -773,21 +773,29 @@ export default function ParentDashboard() {
         tips={[
           {
             id: '1',
+            title: 'Daily Sessions',
+            titleAr: 'الجلسات اليومية',
             content: 'Encourage your child to complete daily sessions to maintain streaks',
             contentAr: 'شجع طفلك على إكمال الجلسات اليومية للحفاظ على الاستمرارية',
           },
           {
             id: '2',
+            title: 'Track Improvements',
+            titleAr: 'متابعة التحسن',
             content: 'Monitor attention and processing scores to track improvement',
             contentAr: 'راقب درجات الانتباه والمعالجة لمتابعة التحسن',
           },
           {
             id: '3',
+            title: 'Reach Out Early',
+            titleAr: 'تواصل مبكراً',
             content: 'Contact the clinician if you notice any regression',
             contentAr: 'تواصل مع الطبيب المعالج إذا لاحظت أي تراجع',
           },
           {
             id: '4',
+            title: 'Celebrate Milestones',
+            titleAr: 'الاحتفال بالإنجازات',
             content: 'Celebrate milestones with your child to keep them motivated',
             contentAr: 'احتفل بالإنجازات مع طفلك للحفاظ على حماسه',
           },
