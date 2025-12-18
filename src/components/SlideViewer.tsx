@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback, memo } from 'react';
 
 import { useFocusTrap } from '../hooks/useFocusTrap';
 import { pptxSlides } from '../data/pptxSlides';
 import { assetUrl } from '../utils/asset';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
-import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from './styles';
+import { brandCyan, brandPink, brandPurple, styles, transitions } from './styles';
 import { MicroscopeIcon, FlaskIcon, SearchIcon, DownloadIcon, XIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon } from './Icons';
+import { useLanguage } from '../context/LanguageContext';
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
@@ -121,17 +122,19 @@ const loadImageElement = (src: string): Promise<HTMLImageElement> => new Promise
   img.src = src;
 });
 
-// Flask/Test Tube Slide Card - like a sample being viewed
-const FlaskSlideCard = ({
+// Flask/Test Tube Slide Card - like a sample being viewed (memoized for performance)
+const FlaskSlideCard = memo(({
   slide,
   index,
   isActive,
   onClick,
+  isArabic,
 }: {
   slide: typeof pptxSlides[0];
   index: number;
   isActive: boolean;
   onClick: () => void;
+  isArabic: boolean;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -140,14 +143,15 @@ const FlaskSlideCard = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
       role="button"
       tabIndex={0}
-      aria-label={`فتح العينة رقم ${slide.id}`}
+      aria-label={isArabic ? `فتح العينة رقم ${slide.id}` : `Open sample #${slide.id}`}
+      aria-pressed={isActive}
       style={{
         position: 'relative',
         cursor: 'pointer',
-        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: transitions.bounce,
         transform: isHovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
       }}
     >
@@ -301,9 +305,10 @@ const FlaskSlideCard = ({
       }} />
     </article>
   );
-};
+});
+FlaskSlideCard.displayName = 'FlaskSlideCard';
 
-// Microscope Modal View
+// Microscope Modal View (memoized)
 const MicroscopeModal = ({
   slide,
   slides,
@@ -609,6 +614,7 @@ const MicroscopeModal = ({
 };
 
 const SlideViewer = () => {
+  const { isArabic } = useLanguage();
   const [query, setQuery] = useState('');
   const [activeSlideId, setActiveSlideId] = useState<number | null>(null);
   const [exporting, setExporting] = useState(false);
@@ -981,6 +987,7 @@ const SlideViewer = () => {
               index={index}
               isActive={activeSlideId === slide.id}
               onClick={() => setActiveSlideId(slide.id)}
+              isArabic={isArabic}
             />
           ))}
         </div>

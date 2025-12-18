@@ -268,6 +268,9 @@ const Header = () => {
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="menu-btn"
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-nav-menu"
+              aria-label={isArabic ? (isMobileMenuOpen ? 'إغلاق القائمة' : 'فتح القائمة') : (isMobileMenuOpen ? 'Close menu' : 'Open menu')}
               style={{
                 background: 'rgba(255,255,255,0.08)',
                 border: '1px solid rgba(255,255,255,0.15)',
@@ -291,8 +294,11 @@ const Header = () => {
 
       {/* Mobile Menu Dropdown */}
       {showCompactNav && isMobileMenuOpen && (
-        <div
+        <nav
+          id="mobile-nav-menu"
           className="mobile-menu"
+          role="navigation"
+          aria-label={isArabic ? 'القائمة الرئيسية' : 'Main navigation'}
           style={{
             position: 'fixed',
             top: 75,
@@ -454,7 +460,7 @@ const Header = () => {
               openLoginModal();
             }} />
           </div>
-        </div>
+        </nav>
       )}
 
       {/* Spacer for fixed header */}
