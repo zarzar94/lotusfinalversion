@@ -1,23 +1,33 @@
 /**
  * BackNavigation - Reusable back navigation link
+ * Uses react-router Link for proper SPA navigation
  */
 
 import { memo } from 'react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
-import { colors, typography, spacing, radius, transitions } from '../styles';
+import { colors, typography, spacing, radius, transitions, brandCyan } from '../styles';
 
 interface BackNavigationProps {
-  href?: string;
+  to?: string;
   label?: string;
+  // Legacy support for old props
+  href?: string;
   labelAr?: string;
 }
 
-function BackNavigation({ href = '/', label = 'Back to Home', labelAr = 'العودة للرئيسية' }: BackNavigationProps) {
+function BackNavigation({ to, label, href, labelAr }: BackNavigationProps) {
   const { isArabic } = useLanguage();
 
+  // Support both new (to) and legacy (href) props
+  const destination = to || href || '/';
+
+  // Use provided label, or fall back to Arabic version if available, or defaults
+  const displayLabel = label || (isArabic ? (labelAr || 'العودة للرئيسية') : 'Back to Home');
+
   return (
-    <a
-      href={href}
+    <Link
+      to={destination}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -33,10 +43,20 @@ function BackNavigation({ href = '/', label = 'Back to Home', labelAr = 'الع�
         fontWeight: typography.weight.semibold,
         transition: transitions.fast,
       }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = 'rgba(143,211,204,0.08)';
+        e.currentTarget.style.borderColor = `${brandCyan}40`;
+        e.currentTarget.style.color = brandCyan;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+        e.currentTarget.style.borderColor = colors.border.default;
+        e.currentTarget.style.color = colors.text.secondary;
+      }}
     >
       <span style={{ transform: isArabic ? 'rotate(180deg)' : 'none', display: 'inline-block' }}>←</span>
-      {isArabic ? labelAr : label}
-    </a>
+      {displayLabel}
+    </Link>
   );
 }
 

@@ -28,6 +28,7 @@ const ContactPage = lazy(() => import('./pages/ContactPage'));
 
 // Special Pages
 const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // Dashboard Pages
 const SchoolDashboard = lazy(() => import('./components/analytics/SchoolDashboard'));
@@ -363,6 +364,18 @@ function App() {
                   element={
                     <Suspense fallback={<PageLoader />}>
                       <SettingsPage />
+                    </Suspense>
+                  }
+                />
+
+                {/* ═══════════════════════════════════════════════════════
+                    404 NOT FOUND - Catch-all route (must be last)
+                    ═══════════════════════════════════════════════════════ */}
+                <Route
+                  path="*"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <NotFoundPage />
                     </Suspense>
                   }
                 />

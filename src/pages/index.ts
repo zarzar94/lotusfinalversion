@@ -10,3 +10,4 @@ export { default as ResultsPage } from './ResultsPage';
 export { default as ResourcesPage } from './ResourcesPage';
 export { default as ContactPage } from './ContactPage';
 export { default as BrainFunctionPage } from './BrainFunctionPage';
+export { default as NotFoundPage } from './NotFoundPage';
