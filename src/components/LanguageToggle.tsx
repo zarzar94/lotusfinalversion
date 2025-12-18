@@ -1,12 +1,26 @@
+import { memo, useCallback } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { brandCyan, brandPurple, typography, spacing, radius, transitions, gradients, colors } from './styles';
+import { brandCyan, typography, spacing, radius, transitions, gradients, colors } from './styles';
 
 interface LanguageToggleProps {
   compact?: boolean;
 }
 
-export default function LanguageToggle({ compact = false }: LanguageToggleProps) {
+// Memoized language toggle for performance in Header/Footer
+const LanguageToggle = memo(function LanguageToggle({ compact = false }: LanguageToggleProps) {
   const { language, toggleLanguage, t } = useLanguage();
+
+  const handleMouseEnter = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.style.background = `${brandCyan}18`;
+    e.currentTarget.style.borderColor = `${brandCyan}55`;
+    e.currentTarget.style.transform = 'translateY(-1px)';
+  }, []);
+
+  const handleMouseLeave = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+    e.currentTarget.style.borderColor = `${brandCyan}33`;
+    e.currentTarget.style.transform = 'translateY(0)';
+  }, []);
 
   return (
     <button
@@ -21,22 +35,14 @@ export default function LanguageToggle({ compact = false }: LanguageToggleProps)
         fontWeight: typography.weight.bold,
         color: colors.text.primary,
         background: 'rgba(255,255,255,0.06)',
-        border: '1px solid rgba(143,211,204,0.2)',
+        border: `1px solid ${brandCyan}33`,
         borderRadius: compact ? radius.sm : radius.md,
         cursor: 'pointer',
         transition: transitions.normal,
         whiteSpace: 'nowrap',
       }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'rgba(143,211,204,0.12)';
-        e.currentTarget.style.borderColor = 'rgba(143,211,204,0.35)';
-        e.currentTarget.style.transform = 'translateY(-1px)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
-        e.currentTarget.style.borderColor = 'rgba(143,211,204,0.2)';
-        e.currentTarget.style.transform = 'translateY(0)';
-      }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Globe Icon */}
       <svg
@@ -48,6 +54,7 @@ export default function LanguageToggle({ compact = false }: LanguageToggleProps)
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
+        aria-hidden="true"
       >
         <circle cx="12" cy="12" r="10" />
         <line x1="2" y1="12" x2="22" y2="12" />
@@ -65,4 +72,6 @@ export default function LanguageToggle({ compact = false }: LanguageToggleProps)
       </span>
     </button>
   );
-}
+});
+
+export default LanguageToggle;

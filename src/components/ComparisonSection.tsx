@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import { useState, useCallback, memo } from 'react';
+import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, brandColors, spacing, radius, typography, colors } from './styles';
 
 type Program = {
   id: string;
@@ -58,7 +58,7 @@ const programs: Program[] = [
     format: 'جلسات استماع مُقسمة مع إرشادات تنظيمية',
     duration: 'أيام - أسابيع',
     notes: 'يُطبق وفق تدريب/اعتماد مُحدد. مناسب لبعض الأهداف وليس لكل الحالات.',
-    color: '#22c55e',
+    color: brandColors.success,
   },
   {
     id: 'generic',
@@ -80,17 +80,46 @@ const questions = [
   { icon: '👨‍⚕️', text: 'هل يوجد مختص يقود الخطة (Clinical Director) ويتابع الجودة؟' },
 ];
 
-function ProgramCard({ program, isExpanded, onToggle }: { program: Program; isExpanded: boolean; onToggle: () => void }) {
+// Memoized ProgramCard with accessibility improvements
+const ProgramCard = memo(function ProgramCard({
+  program,
+  isExpanded,
+  onToggle,
+}: {
+  program: Program;
+  isExpanded: boolean;
+  onToggle: () => void;
+}) {
+  // Handle keyboard interaction
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onToggle();
+      }
+    },
+    [onToggle]
+  );
+
+  const panelId = `program-panel-${program.id}`;
+  const headerId = `program-header-${program.id}`;
+
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-expanded={isExpanded}
+      aria-controls={panelId}
+      id={headerId}
       onClick={onToggle}
+      onKeyDown={handleKeyDown}
       style={{
         background: program.highlight
           ? `linear-gradient(135deg, ${program.color}15, ${program.color}08)`
-          : 'rgba(11,15,28,0.6)',
-        border: `2px solid ${program.highlight ? program.color : 'rgba(255,255,255,0.08)'}`,
-        borderRadius: 16,
-        padding: isExpanded ? 20 : 16,
+          : colors.surface.overlay,
+        border: `2px solid ${program.highlight ? program.color : colors.border.subtle}`,
+        borderRadius: radius.xl,
+        padding: isExpanded ? spacing[5] : spacing[4],
         cursor: 'pointer',
         transition: 'all 0.3s ease',
         position: 'relative',
@@ -99,129 +128,207 @@ function ProgramCard({ program, isExpanded, onToggle }: { program: Program; isEx
     >
       {/* Highlight badge */}
       {program.highlight && (
-        <div style={{
-          position: 'absolute',
-          top: 12,
-          left: 12,
-          background: program.color,
-          color: '#000',
-          fontSize: 10,
-          fontWeight: 900,
-          padding: '4px 10px',
-          borderRadius: 20,
-        }}>
+        <div
+          style={{
+            position: 'absolute',
+            top: spacing[3],
+            left: spacing[3],
+            background: program.color,
+            color: '#000',
+            fontSize: typography.size.xs,
+            fontWeight: typography.weight.black,
+            padding: `${spacing[1]}px ${spacing[2.5]}px`,
+            borderRadius: radius.full,
+          }}
+        >
           اختيارنا
         </div>
       )}
 
       {/* Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        marginBottom: isExpanded ? 16 : 0,
-      }}>
-        <div style={{
-          width: 48,
-          height: 48,
-          borderRadius: 12,
-          background: `${program.color}20`,
-          border: `1px solid ${program.color}40`,
+      <div
+        style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 24,
-        }}>
+          gap: spacing[3],
+          marginBottom: isExpanded ? spacing[4] : 0,
+        }}
+      >
+        <div
+          style={{
+            width: spacing[12],
+            height: spacing[12],
+            borderRadius: radius.lg,
+            background: `${program.color}20`,
+            border: `1px solid ${program.color}40`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: typography.size['2xl'],
+          }}
+        >
           {program.icon}
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{
-            fontSize: 18,
-            fontWeight: 900,
-            color: program.highlight ? program.color : '#fff',
-          }}>
+          <div
+            style={{
+              fontSize: typography.size.lg,
+              fontWeight: typography.weight.black,
+              color: program.highlight ? program.color : colors.text.primary,
+            }}
+          >
             {program.name}
           </div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
+          <div style={{ fontSize: typography.size.sm, color: colors.text.muted }}>
             {program.nameAr}
           </div>
         </div>
-        <div style={{
-          width: 28,
-          height: 28,
-          borderRadius: '50%',
-          background: 'rgba(255,255,255,0.05)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'rgba(255,255,255,0.5)',
-          fontSize: 14,
-          transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-          transition: 'transform 0.3s ease',
-        }}>
+        <div
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: '50%',
+            background: 'rgba(255,255,255,0.05)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: colors.text.muted,
+            fontSize: typography.size.sm,
+            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.3s ease',
+          }}
+          aria-hidden="true"
+        >
           ▼
         </div>
       </div>
 
       {/* Expanded content */}
       {isExpanded && (
-        <div style={{ animation: 'fadeIn 0.3s ease' }}>
-          <div style={{
-            display: 'grid',
-            gap: 12,
-            marginTop: 8,
-          }}>
-            <div style={{
-              background: 'rgba(255,255,255,0.03)',
-              borderRadius: 10,
-              padding: 12,
-            }}>
-              <div style={{ fontSize: 11, color: program.color, fontWeight: 700, marginBottom: 4 }}>
+        <div
+          id={panelId}
+          role="region"
+          aria-labelledby={headerId}
+          style={{ animation: 'fadeIn 0.3s ease' }}
+        >
+          <div
+            style={{
+              display: 'grid',
+              gap: spacing[3],
+              marginTop: spacing[2],
+            }}
+          >
+            <div
+              style={{
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius: radius.lg,
+                padding: spacing[3],
+              }}
+            >
+              <div
+                style={{
+                  fontSize: typography.size.xs,
+                  color: program.color,
+                  fontWeight: typography.weight.bold,
+                  marginBottom: spacing[1],
+                }}
+              >
                 🎯 الهدف
               </div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 1.6 }}>
+              <div
+                style={{
+                  fontSize: typography.size.sm,
+                  color: colors.text.secondary,
+                  lineHeight: typography.lineHeight.relaxed,
+                }}
+              >
                 {program.goal}
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <div style={{
-                background: 'rgba(255,255,255,0.03)',
-                borderRadius: 10,
-                padding: 12,
-              }}>
-                <div style={{ fontSize: 11, color: program.color, fontWeight: 700, marginBottom: 4 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: spacing[2.5] }}>
+              <div
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: radius.lg,
+                  padding: spacing[3],
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: typography.size.xs,
+                    color: program.color,
+                    fontWeight: typography.weight.bold,
+                    marginBottom: spacing[1],
+                  }}
+                >
                   ⚙️ التطبيق
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
+                <div
+                  style={{
+                    fontSize: typography.size.sm,
+                    color: colors.text.secondary,
+                    lineHeight: typography.lineHeight.normal,
+                  }}
+                >
                   {program.format}
                 </div>
               </div>
 
-              <div style={{
-                background: 'rgba(255,255,255,0.03)',
-                borderRadius: 10,
-                padding: 12,
-              }}>
-                <div style={{ fontSize: 11, color: program.color, fontWeight: 700, marginBottom: 4 }}>
+              <div
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: radius.lg,
+                  padding: spacing[3],
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: typography.size.xs,
+                    color: program.color,
+                    fontWeight: typography.weight.bold,
+                    marginBottom: spacing[1],
+                  }}
+                >
                   ⏱️ المدة
                 </div>
-                <div style={{ fontSize: 14, color: '#fff', fontWeight: 700 }}>
+                <div
+                  style={{
+                    fontSize: typography.size.sm,
+                    color: colors.text.primary,
+                    fontWeight: typography.weight.bold,
+                  }}
+                >
                   {program.duration}
                 </div>
               </div>
             </div>
 
-            <div style={{
-              background: `${program.color}10`,
-              border: `1px solid ${program.color}30`,
-              borderRadius: 10,
-              padding: 12,
-            }}>
-              <div style={{ fontSize: 11, color: program.color, fontWeight: 700, marginBottom: 4 }}>
+            <div
+              style={{
+                background: `${program.color}10`,
+                border: `1px solid ${program.color}30`,
+                borderRadius: radius.lg,
+                padding: spacing[3],
+              }}
+            >
+              <div
+                style={{
+                  fontSize: typography.size.xs,
+                  color: program.color,
+                  fontWeight: typography.weight.bold,
+                  marginBottom: spacing[1],
+                }}
+              >
                 💡 ملاحظات
               </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', lineHeight: 1.6 }}>
+              <div
+                style={{
+                  fontSize: typography.size.sm,
+                  color: colors.text.secondary,
+                  lineHeight: typography.lineHeight.relaxed,
+                }}
+              >
                 {program.notes}
               </div>
             </div>
@@ -237,139 +344,191 @@ function ProgramCard({ program, isExpanded, onToggle }: { program: Program; isEx
       `}</style>
     </div>
   );
-}
+});
+ProgramCard.displayName = 'ProgramCard';
 
-const ComparisonSection = () => {
+// Memoized question item
+const QuestionItem = memo(function QuestionItem({ icon, text }: { icon: string; text: string }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: spacing[2.5],
+        padding: spacing[3],
+        background: colors.surface.overlay,
+        borderRadius: radius.lg,
+        border: `1px solid ${colors.border.subtle}`,
+      }}
+    >
+      <span style={{ fontSize: typography.size.lg }} aria-hidden="true">
+        {icon}
+      </span>
+      <span
+        style={{
+          fontSize: typography.size.sm,
+          color: colors.text.secondary,
+          lineHeight: typography.lineHeight.relaxed,
+        }}
+      >
+        {text}
+      </span>
+    </div>
+  );
+});
+QuestionItem.displayName = 'QuestionItem';
+
+const ComparisonSection = memo(function ComparisonSection() {
   const [expandedProgram, setExpandedProgram] = useState<string>('berard');
 
+  // Memoized toggle handler
+  const handleToggle = useCallback((programId: string) => {
+    setExpandedProgram((prev) => (prev === programId ? '' : programId));
+  }, []);
+
   return (
-    <section id="comparison" style={styles.sectionCard}>
+    <section id="comparison" style={styles.sectionCard} aria-labelledby="comparison-title">
       {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 10,
-          padding: '10px 20px',
-          background: `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}15)`,
-          borderRadius: 30,
-          marginBottom: 16,
-        }}>
-          <span style={{ fontSize: 24 }}>🧭</span>
-          <span style={{ fontWeight: 700, color: brandCyan }}>اختيار النهج المناسب</span>
+      <div style={{ textAlign: 'center', marginBottom: spacing[8] }}>
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: spacing[2.5],
+            padding: `${spacing[2.5]}px ${spacing[5]}px`,
+            background: `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}15)`,
+            borderRadius: radius.full,
+            marginBottom: spacing[4],
+          }}
+        >
+          <span style={{ fontSize: typography.size['2xl'] }} aria-hidden="true">
+            🧭
+          </span>
+          <span style={{ fontWeight: typography.weight.bold, color: brandCyan }}>
+            اختيار النهج المناسب
+          </span>
         </div>
 
-        <h2 style={{
-          ...styles.h2,
-          background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-        }}>
+        <h2
+          id="comparison-title"
+          style={{
+            ...styles.h2,
+            background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
           مقارنة برامج الاستماع العلاجي
         </h2>
 
-        <p style={{ ...styles.bodyText, maxWidth: 600, margin: '12px auto 0' }}>
+        <p style={{ ...styles.bodyText, maxWidth: 600, margin: `${spacing[3]}px auto 0` }}>
           مقارنة توعوية بين أشهر البرامج المستخدمة عالمياً لمساعدتك على طرح الأسئلة الصحيحة
         </p>
       </div>
 
       {/* Programs Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: 16,
-        marginBottom: 32,
-      }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: spacing[4],
+          marginBottom: spacing[8],
+        }}
+      >
         {programs.map((program) => (
           <ProgramCard
             key={program.id}
             program={program}
             isExpanded={expandedProgram === program.id}
-            onToggle={() => setExpandedProgram(expandedProgram === program.id ? '' : program.id)}
+            onToggle={() => handleToggle(program.id)}
           />
         ))}
       </div>
 
       {/* Questions to Ask */}
-      <div style={{
-        background: `linear-gradient(135deg, ${brandPurpleDark}15, ${brandPink}10)`,
-        border: `1px solid ${brandPurpleDark}30`,
-        borderRadius: 20,
-        padding: 24,
-        marginBottom: 24,
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          marginBottom: 16,
-        }}>
-          <span style={{ fontSize: 24 }}>❓</span>
-          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: brandPurpleDark }}>
+      <div
+        style={{
+          background: `linear-gradient(135deg, ${brandPurpleDark}15, ${brandPink}10)`,
+          border: `1px solid ${brandPurpleDark}30`,
+          borderRadius: radius['2xl'],
+          padding: spacing[6],
+          marginBottom: spacing[6],
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing[2.5],
+            marginBottom: spacing[4],
+          }}
+        >
+          <span style={{ fontSize: typography.size['2xl'] }} aria-hidden="true">
+            ❓
+          </span>
+          <h3
+            style={{
+              margin: 0,
+              fontSize: typography.size.lg,
+              fontWeight: typography.weight.black,
+              color: brandPurpleDark,
+            }}
+          >
             أسئلة مهمة قبل اختيار أي برنامج
           </h3>
         </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: 12,
-        }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: spacing[3],
+          }}
+        >
           {questions.map((q, i) => (
-            <div
-              key={i}
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 10,
-                padding: 12,
-                background: 'rgba(11,15,28,0.4)',
-                borderRadius: 12,
-                border: '1px solid rgba(255,255,255,0.06)',
-              }}
-            >
-              <span style={{ fontSize: 18 }}>{q.icon}</span>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 1.6 }}>
-                {q.text}
-              </span>
-            </div>
+            <QuestionItem key={i} icon={q.icon} text={q.text} />
           ))}
         </div>
       </div>
 
       {/* Warning */}
-      <div style={{
-        background: 'rgba(251,191,36,0.1)',
-        border: '1px solid rgba(251,191,36,0.3)',
-        borderRadius: 12,
-        padding: 16,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        marginBottom: 24,
-      }}>
-        <span style={{ fontSize: 24 }}>⚠️</span>
-        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)' }}>
+      <div
+        role="alert"
+        style={{
+          background: `${brandColors.warning}15`,
+          border: `1px solid ${brandColors.warning}40`,
+          borderRadius: radius.lg,
+          padding: spacing[4],
+          display: 'flex',
+          alignItems: 'center',
+          gap: spacing[3],
+          marginBottom: spacing[6],
+        }}
+      >
+        <span style={{ fontSize: typography.size['2xl'] }} aria-hidden="true">
+          ⚠️
+        </span>
+        <span style={{ fontSize: typography.size.sm, color: colors.text.secondary }}>
           هذه ليست توصية طبية. استشر مختصاً مؤهلاً لتحديد ما يلائم الحالة.
         </span>
       </div>
 
       {/* CTA */}
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', gap: spacing[3], flexWrap: 'wrap', justifyContent: 'center' }}>
         <a
           href="#pptx"
           style={{
             ...styles.primaryBtn,
             textDecoration: 'none',
             background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
-            padding: '14px 28px',
+            padding: `${spacing[3.5]}px ${spacing[7]}px`,
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 8,
+            gap: spacing[2],
           }}
         >
-          <span>📊</span> شاهد التفاصيل في الشرائح
+          <span aria-hidden="true">📊</span> شاهد التفاصيل في الشرائح
         </a>
         <a
           href="#contact"
@@ -378,17 +537,18 @@ const ComparisonSection = () => {
             textDecoration: 'none',
             borderColor: brandCyan,
             color: brandCyan,
-            padding: '14px 28px',
+            padding: `${spacing[3.5]}px ${spacing[7]}px`,
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 8,
+            gap: spacing[2],
           }}
         >
-          <span>💬</span> اطلب استشارة
+          <span aria-hidden="true">💬</span> اطلب استشارة
         </a>
       </div>
     </section>
   );
-};
+});
+ComparisonSection.displayName = 'ComparisonSection';
 
 export default ComparisonSection;
