@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback, memo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { brandPurple, brandCyan, brandPink, colors, radius, spacing, typography, transitions } from './styles';
 import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon } from './Icons';
@@ -33,7 +33,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'contact', label: 'Contact', labelAr: 'تواصل', path: '/contact', icon: <PhoneIcon size={16} />, color: brandCyan },
 ];
 
-const Header = () => {
+const Header = memo(function Header() {
   const { t, direction, isArabic } = useLanguage();
   const { user, isAuthenticated, hasPermission } = useUser();
   const { isMobile, isTablet } = useBreakpoints();
@@ -470,6 +470,6 @@ const Header = () => {
       <LoginModal isOpen={isLoginModalOpen} onClose={closeLoginModal} />
     </>
   );
-};
+});
 
 export default Header;

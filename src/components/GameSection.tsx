@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef, useCallback } from 'react';
+import { useEffect, useMemo, useState, useRef, useCallback, memo } from 'react';
 
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from './styles';
 
@@ -94,6 +94,8 @@ function Waveform({ color, type, active }: { color: string; type: 'ecg' | 'spo2'
       ref={canvasRef}
       width={200}
       height={60}
+      aria-label={`${type} waveform visualization`}
+      role="img"
       style={{
         width: '100%',
         height: 60,
@@ -136,17 +138,23 @@ function MedicalMonitor({
   if (!open) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      background: 'rgba(0,0,0,0.85)',
-      backdropFilter: 'blur(10px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 20,
-      zIndex: 1000,
-    }} onClick={onClose}>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.85)',
+        backdropFilter: 'blur(10px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+        zIndex: 1000,
+      }}
+      onClick={onClose}
+    >
       {/* Monitor Frame */}
       <div
         onClick={(e) => e.stopPropagation()}
@@ -470,7 +478,7 @@ function TestCard({
   );
 }
 
-export default function GameSection() {
+const GameSection = memo(function GameSection() {
   const [mode, setMode] = useState<GameMode | null>(null);
   const [lastOutcome, setLastOutcome] = useState<TestOutcome | null>(null);
   const [modalOutcome, setModalOutcome] = useState<TestOutcome | null>(null);
@@ -724,9 +732,9 @@ export default function GameSection() {
           </div>
 
           {/* Test Cards Grid */}
-          <div style={{
+          <div className="test-cards-grid" style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))',
             gap: 16,
           }}>
             {cards.map((c, i) => (
@@ -971,4 +979,6 @@ export default function GameSection() {
       </MedicalMonitor>
     </section>
   );
-}
+});
+
+export default GameSection;

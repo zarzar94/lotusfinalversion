@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
 import { brandCyan, brandPurple, brandPink } from './styles';
 
 // Brain image component using the detailed PNG
@@ -63,7 +63,7 @@ const OrbitingParticle = ({
   </div>
 );
 
-export default function HeroSection() {
+const HeroSection = memo(function HeroSection() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -127,11 +127,37 @@ export default function HeroSection() {
       opacity: 0.1;
       animation: orbitReverse 60s linear infinite;
     }
+    @media (max-width: 640px) {
+      .brain-container img {
+        width: 280px !important;
+        height: auto !important;
+      }
+      .orbit-trail {
+        width: 320px !important;
+        height: 320px !important;
+      }
+      .hero-section {
+        min-height: 70vh !important;
+      }
+      .scroll-indicator {
+        bottom: 20px !important;
+      }
+    }
+    @media (max-width: 480px) {
+      .brain-container img {
+        width: 220px !important;
+      }
+      .orbit-trail {
+        width: 260px !important;
+        height: 260px !important;
+      }
+    }
   `, []);
 
   return (
     <section
       id="about"
+      className="hero-section"
       style={{
         position: 'relative',
         minHeight: '85vh',
@@ -202,7 +228,7 @@ export default function HeroSection() {
       </div>
 
       {/* Scroll indicator */}
-      <div style={{
+      <div className="scroll-indicator" style={{
         position: 'absolute',
         bottom: 30,
         left: '50%',
@@ -233,4 +259,6 @@ export default function HeroSection() {
       </div>
     </section>
   );
-}
+});
+
+export default HeroSection;

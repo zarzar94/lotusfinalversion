@@ -453,7 +453,7 @@ InfoModal.displayName = 'InfoModal';
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════
 
-export default function HeroCircuitBrain() {
+const HeroCircuitBrain = memo(function HeroCircuitBrain() {
   const { isArabic, direction } = useLanguage();
   const navigate = useNavigate();
   const text = isArabic ? heroText.ar : heroText.en;
@@ -1808,4 +1808,6 @@ export default function HeroCircuitBrain() {
       <InfoModal node={activeNode} onClose={closeModal} isArabic={isArabic} />
     </section>
   );
-}
+});
+
+export default HeroCircuitBrain;
