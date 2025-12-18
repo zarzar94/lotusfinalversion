@@ -34,9 +34,10 @@ import {
 
 const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
   <div
+    className="about-page-header"
     style={{
       textAlign: 'center',
-      padding: `${spacing[12]}px ${spacing[4]}px ${spacing[8]}px`,
+      padding: `${spacing[10]}px ${spacing[4]}px ${spacing[6]}px`,
       maxWidth: 800,
       margin: '0 auto',
       position: 'relative',
@@ -131,9 +132,10 @@ const SpecialistProfile = memo(({ isArabic }: { isArabic: boolean }) => {
 
       {/* Profile Card */}
       <div
+        className="specialist-profile-card"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'minmax(280px, 350px) 1fr',
+          gridTemplateColumns: 'minmax(240px, 320px) 1fr',
           gap: spacing[8],
           alignItems: 'start',
           background: colors.surface.card,
@@ -167,6 +169,7 @@ const SpecialistProfile = memo(({ isArabic }: { isArabic: boolean }) => {
         >
           {/* Profile Image with Lavender Background Circle */}
           <div
+            className="specialist-image-container"
             style={{
               position: 'relative',
               width: 220,
@@ -175,6 +178,7 @@ const SpecialistProfile = memo(({ isArabic }: { isArabic: boolean }) => {
           >
             {/* Lavender background circle */}
             <div
+              className="specialist-bg-circle"
               style={{
                 position: 'absolute',
                 top: 0,
@@ -188,6 +192,7 @@ const SpecialistProfile = memo(({ isArabic }: { isArabic: boolean }) => {
             />
             {/* Profile image container */}
             <div
+              className="specialist-image-inner"
               style={{
                 position: 'relative',
                 width: 200,
@@ -323,9 +328,10 @@ const SpecialistProfile = memo(({ isArabic }: { isArabic: boolean }) => {
             </h4>
 
             <div
+              className="credentials-grid"
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))',
                 gap: spacing[3],
               }}
             >
@@ -429,8 +435,28 @@ const SpecialistProfile = memo(({ isArabic }: { isArabic: boolean }) => {
 
       {/* Responsive styles */}
       <style>{`
-        @media (max-width: 768px) {
-          section > div:last-child {
+        @media (max-width: 640px) {
+          .specialist-profile-card {
+            grid-template-columns: 1fr !important;
+            padding: ${spacing[4]}px !important;
+            gap: ${spacing[5]}px !important;
+          }
+          .specialist-profile-card > div:first-child {
+            align-items: center !important;
+          }
+          .specialist-image-container {
+            width: 180px !important;
+            height: 180px !important;
+          }
+          .specialist-image-inner {
+            width: 160px !important;
+            height: 180px !important;
+          }
+          .specialist-bg-circle {
+            width: 140px !important;
+            height: 140px !important;
+          }
+          .credentials-grid {
             grid-template-columns: 1fr !important;
           }
         }
@@ -883,6 +909,21 @@ function AboutPage() {
 
       <WhatsAppFab />
       <ScrollToTopButton />
+
+      {/* Global responsive styles */}
+      <style>{`
+        @media (max-width: 480px) {
+          .about-page-header {
+            padding: ${spacing[6]}px ${spacing[3]}px ${spacing[4]}px !important;
+          }
+          .about-page-header h1 {
+            font-size: ${typography.size['2xl']}px !important;
+          }
+          .about-page-header p {
+            font-size: ${typography.size.sm}px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

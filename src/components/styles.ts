@@ -455,7 +455,8 @@ export const styles: Record<string, CSSProperties> = {
     borderRadius: radius.md,
     padding: `${spacing[2.5]}px ${spacing[3]}px`,
     fontSize: typography.size.base,
-    minWidth: 200,
+    width: '100%',
+    minWidth: 0, // Allow shrinking on mobile
     transition: transitions.fast,
   },
   textarea: {
@@ -475,7 +476,7 @@ export const styles: Record<string, CSSProperties> = {
   slideGrid: {
     display: 'grid',
     gap: spacing[3],
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))',
   },
   slideItem: {
     borderRadius: radius.lg,
