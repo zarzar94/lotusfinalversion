@@ -4,6 +4,7 @@ import { brandPurple, brandCyan, brandPink, colors, radius, spacing, typography,
 import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon } from './Icons';
 import BrainLogo from './BrainLogo';
 import LanguageToggle from './LanguageToggle';
+import ModeSwitcher from './ModeSwitcher';
 import ProfileMenu from './auth/ProfileMenu';
 import LoginModal from './auth/LoginModal';
 import { useLanguage } from '../context/LanguageContext';
@@ -253,6 +254,9 @@ const Header = memo(function Header() {
               </Link>
             )}
 
+            {/* Mode Switcher */}
+            <ModeSwitcher />
+
             {/* Language Toggle */}
             <LanguageToggle />
 
@@ -264,6 +268,7 @@ const Header = memo(function Header() {
         {/* Mobile/Tablet Menu Button */}
         {showCompactNav && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <ModeSwitcher />
             <LanguageToggle />
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

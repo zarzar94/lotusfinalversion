@@ -6,6 +6,7 @@ import ScrollToTop from './components/ScrollToTop';
 import { GamificationProvider } from './context/GamificationContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { UserProvider } from './context/UserContext';
+import { VisitorModeProvider } from './context/VisitorModeContext';
 import AchievementToast from './components/AchievementToast';
 import ProgressDashboard from './components/ProgressDashboard';
 import ScrollProgressTracker from './components/ScrollProgressTracker';
@@ -13,6 +14,7 @@ import ActivityFeed from './components/ActivityFeed';
 import NotificationCenter from './components/NotificationCenter';
 import { ProgressExportButton } from './components/ProgressExport';
 import { useClinicalSync } from './hooks/useClinicalSync';
+import StickySmartCTA from './components/StickySmartCTA';
 
 // Respect Vite base for subpath deployments (e.g., GitHub Pages)
 const rawBase = import.meta.env.BASE_URL ?? '/';
@@ -328,168 +330,173 @@ function App() {
         <ScrollToTop />
         <PageTransitionStyles />
         <LanguageProvider>
-          <UserProvider>
-            <GamificationProvider>
-              <ClinicalSync />
+          <VisitorModeProvider>
+            <UserProvider>
+              <GamificationProvider>
+                <ClinicalSync />
 
-              <div className="page-transition-wrapper">
-                <Routes>
-                  {/* ═══════════════════════════════════════════════════════
-                      MAIN 6 PAGES
-                      ═══════════════════════════════════════════════════════ */}
+                <div className="page-transition-wrapper">
+                  <Routes>
+                    {/* ═══════════════════════════════════════════════════════
+                        MAIN 6 PAGES
+                        ═══════════════════════════════════════════════════════ */}
 
-                  {/* 1. Landing Page - Hero + Credentials */}
-                  <Route
-                    path="/"
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <LandingPage />
-                      </Suspense>
-                    }
-                  />
+                    {/* 1. Landing Page - Hero + Credentials */}
+                    <Route
+                      path="/"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <LandingPage />
+                        </Suspense>
+                      }
+                    />
 
-                  {/* 2. Assessment Page - Diagnostic Tools */}
-                  <Route
-                    path="/assessment"
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <AssessmentPage />
-                      </Suspense>
-                    }
-                  />
+                    {/* 2. Assessment Page - Diagnostic Tools */}
+                    <Route
+                      path="/assessment"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <AssessmentPage />
+                        </Suspense>
+                      }
+                    />
 
-                  {/* 3. Program Page - Treatment Protocol */}
-                  <Route
-                    path="/program"
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <ProgramPage />
-                      </Suspense>
-                    }
-                  />
+                    {/* 3. Program Page - Treatment Protocol */}
+                    <Route
+                      path="/program"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ProgramPage />
+                        </Suspense>
+                      }
+                    />
 
-                  {/* 4. Science Page - Research & Neuroplasticity */}
-                  <Route
-                    path="/science"
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <SciencePage />
-                      </Suspense>
-                    }
-                  />
+                    {/* 4. Science Page - Research & Neuroplasticity */}
+                    <Route
+                      path="/science"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <SciencePage />
+                        </Suspense>
+                      }
+                    />
 
-                  {/* 5. Results Page - Evidence & Testimonials */}
-                  <Route
-                    path="/results"
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <ResultsPage />
-                      </Suspense>
-                    }
-                  />
+                    {/* 5. Results Page - Evidence & Testimonials */}
+                    <Route
+                      path="/results"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ResultsPage />
+                        </Suspense>
+                      }
+                    />
 
-                  {/* 6. Resources Page - Videos, Slides, FAQ */}
-                  <Route
-                    path="/resources"
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <ResourcesPage />
-                      </Suspense>
-                    }
-                  />
+                    {/* 6. Resources Page - Videos, Slides, FAQ */}
+                    <Route
+                      path="/resources"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ResourcesPage />
+                        </Suspense>
+                      }
+                    />
 
-                  {/* Contact/Get Started Page */}
-                  <Route
-                    path="/contact"
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <ContactPage />
-                      </Suspense>
-                    }
-                  />
+                    {/* Contact/Get Started Page */}
+                    <Route
+                      path="/contact"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ContactPage />
+                        </Suspense>
+                      }
+                    />
 
-                  {/* ═════════════════════════════════════════════════════==
-                      SPECIAL PAGES
-                      ═══════════════════════════════════════════════════════ */}
-                {/* 7. About Page - Centre & Specialist Info */}
-                <Route
-                  path="/about"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <AboutPage />
-                    </Suspense>
-                  }
-                />
+                    {/* ═════════════════════════════════════════════════════==
+                        SPECIAL PAGES
+                        ═══════════════════════════════════════════════════════ */}
+                    {/* 7. About Page - Centre & Specialist Info */}
+                    <Route
+                      path="/about"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <AboutPage />
+                        </Suspense>
+                      }
+                    />
 
-                {/* ═══════════════════════════════════════════════════════
-                    SPECIAL PAGES
-                    ═══════════════════════════════════════════════════════ */}
+                    {/* ═══════════════════════════════════════════════════════
+                        SPECIAL PAGES
+                        ═══════════════════════════════════════════════════════ */}
 
-                  {/* Brain Function Detail Page */}
-                  <Route
-                    path="/function/:slug"
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <BrainFunctionPage />
-                      </Suspense>
-                    }
-                  />
+                    {/* Brain Function Detail Page */}
+                    <Route
+                      path="/function/:slug"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <BrainFunctionPage />
+                        </Suspense>
+                      }
+                    />
 
-                  {/* ═════════════════════════════════════════════════════==
-                      DASHBOARD PAGES
-                      ═══════════════════════════════════════════════════════ */}
+                    {/* ═════════════════════════════════════════════════════==
+                        DASHBOARD PAGES
+                        ═══════════════════════════════════════════════════════ */}
 
-                  <Route
-                    path="/school-dashboard"
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <SchoolDashboard />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="/parent-dashboard"
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <ParentDashboard />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="/clinician-dashboard"
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <ClinicianDashboard />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="/settings"
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <SettingsPage />
-                      </Suspense>
-                    }
-                  />
+                    <Route
+                      path="/school-dashboard"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <SchoolDashboard />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/parent-dashboard"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ParentDashboard />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/clinician-dashboard"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ClinicianDashboard />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/settings"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <SettingsPage />
+                        </Suspense>
+                      }
+                    />
 
-                  {/* ═════════════════════════════════════════════════════==
-                      404 NOT FOUND - Catch-all route (must be last)
-                      ═══════════════════════════════════════════════════════ */}
-                  <Route
-                    path="*"
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <NotFoundPage />
-                      </Suspense>
-                    }
-                  />
-                </Routes>
-              </div>
+                    {/* ═════════════════════════════════════════════════════==
+                        404 NOT FOUND - Catch-all route (must be last)
+                        ═══════════════════════════════════════════════════════ */}
+                    <Route
+                      path="*"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <NotFoundPage />
+                        </Suspense>
+                      }
+                    />
+                  </Routes>
+                </div>
 
-              {/* Gamification UI (always visible) */}
-              <GamificationUI />
-            </GamificationProvider>
-          </UserProvider>
+                {/* Gamification UI (always visible) */}
+                <GamificationUI />
+
+                {/* Sticky Smart CTA (mode-aware) */}
+                <StickySmartCTA />
+              </GamificationProvider>
+            </UserProvider>
+          </VisitorModeProvider>
         </LanguageProvider>
       </BrowserRouter>
     </ErrorBoundary>
