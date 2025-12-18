@@ -22,6 +22,7 @@ import ActivityFeed from './components/ActivityFeed';
 import NotificationCenter from './components/NotificationCenter';
 import { ProgressExportButton } from './components/ProgressExport';
 import { useClinicalSync } from './hooks/useClinicalSync';
+import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
 
 // Lazy load pages
 const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
@@ -83,6 +84,7 @@ LazySection.displayName = 'LazySection';
 function HomePage() {
   // Sync clinical progress when patient logs in
   useClinicalSync();
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const scrollToHash = () => {
@@ -92,14 +94,14 @@ function HomePage() {
       const el = document.getElementById(id);
       if (!el) return;
       window.setTimeout(() => {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
       }, 50);
     };
 
     scrollToHash();
     window.addEventListener('hashchange', scrollToHash);
     return () => window.removeEventListener('hashchange', scrollToHash);
-  }, []);
+  }, [prefersReducedMotion]);
 
   return (
     <div style={styles.page}>
@@ -342,6 +344,43 @@ function PageLoader() {
 }
 
 function App() {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const applyReducedMotionPreference = () => {
+      try {
+        const raw = localStorage.getItem('lotus_user_settings');
+        const reducedMotion = raw ? Boolean(JSON.parse(raw)?.display?.reducedMotion) : false;
+        if (reducedMotion) {
+          document.documentElement.dataset.reducedMotion = 'true';
+        } else {
+          delete document.documentElement.dataset.reducedMotion;
+        }
+      } catch {
+        delete document.documentElement.dataset.reducedMotion;
+      }
+    };
+
+    applyReducedMotionPreference();
+
+    const handleStorage = (event: StorageEvent) => {
+      if (!event.key || event.key === 'lotus_user_settings') {
+        applyReducedMotionPreference();
+      }
+    };
+
+    const handleSettingsChanged = () => {
+      applyReducedMotionPreference();
+    };
+
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('lotus-settings-changed', handleSettingsChanged);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('lotus-settings-changed', handleSettingsChanged);
+    };
+  }, []);
+
   return (
     <ErrorBoundary>
       <BrowserRouter basename={import.meta.env.BASE_URL}>

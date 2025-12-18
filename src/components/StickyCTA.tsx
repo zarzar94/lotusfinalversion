@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useScrollProgress } from '../hooks/useParallax';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import { useLanguage } from '../context/LanguageContext';
 import { CLINIC } from '../data/clinic';
 import {
@@ -22,6 +23,7 @@ interface StickyCTAProps {
 
 export default function StickyCTA({ showThreshold = 0.15 }: StickyCTAProps) {
   const { t, isArabic } = useLanguage();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const progress = useScrollProgress();
   const [isVisible, setIsVisible] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -38,8 +40,8 @@ export default function StickyCTA({ showThreshold = 0.15 }: StickyCTAProps) {
   }, [t]);
 
   const handleScroll = useCallback(() => {
-    document.getElementById('intake')?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
+    document.getElementById('intake')?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+  }, [prefersReducedMotion]);
 
   const css = useMemo(() => `
     @keyframes ctaSlideUp {

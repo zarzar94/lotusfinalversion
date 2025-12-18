@@ -14,6 +14,7 @@ import {
 } from './styles';
 import { BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
 import { useLanguage } from '../context/LanguageContext';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -445,18 +446,12 @@ export default function HeroCircuitBrain() {
   const [pulses, setPulses] = useState<Pulse[]>([]);
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const [particles, setParticles] = useState<Particle[]>([]);
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const reducedMotion = usePrefersReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
   const [tooltipNode, setTooltipNode] = useState<BrainFunction | null>(null);
 
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setReducedMotion(mq.matches);
     setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
-
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
   }, []);
 
   useEffect(() => {

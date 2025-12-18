@@ -11,6 +11,7 @@ import {
   transitions,
 } from './styles';
 import { useLanguage } from '../context/LanguageContext';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PLATFORM MODULE DEFINITIONS
@@ -106,12 +107,13 @@ const ModuleCard = memo(({
   isArabic: boolean;
   index: number;
 }) => {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [isHovered, setIsHovered] = useState(false);
 
   const handleClick = () => {
     const target = document.getElementById(module.targetId);
     if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      target.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
     }
   };
 

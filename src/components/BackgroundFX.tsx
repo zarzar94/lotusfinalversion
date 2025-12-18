@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, memo } from 'react';
 
 import { brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 /**
  * Enhanced Sound Lab Background:
@@ -58,10 +59,7 @@ const BackgroundFX = memo(() => {
   const isVisibleRef = useRef(true);
   const isTabActiveRef = useRef(true);
 
-  const prefersReducedMotion = useMemo(() => {
-    if (typeof window === 'undefined') return true;
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  }, []);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   // Detect mobile for reduced particle count
   const isMobile = useMemo(() => {
