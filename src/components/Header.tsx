@@ -555,7 +555,7 @@ const Header = memo(function Header() {
                 letterSpacing: 1.5,
                 textTransform: 'uppercase',
               }}>
-                LOTUS LAB • NAVIGATION
+                {t('labTech.lotusLab')} • {t('labTech.navigation')}
               </span>
             </div>
             <span style={{
@@ -563,7 +563,7 @@ const Header = memo(function Header() {
               color: 'rgba(255,255,255,0.4)',
               fontFamily: 'monospace',
             }}>
-              v2.0
+              {t('labTech.version')}
             </span>
           </div>
           {/* Home Link */}

@@ -489,12 +489,12 @@ const Footer = () => {
                 fontWeight: 700,
                 color: brandCyan,
                 letterSpacing: 1,
-              }}>LOTUS LAB</span>
+              }}>{t('labTech.lotusLab')}</span>
               <span style={{
                 fontSize: 8,
                 color: 'rgba(255,255,255,0.4)',
                 fontFamily: 'monospace',
-              }}>v2.0</span>
+              }}>{t('labTech.version')}</span>
             </div>
 
             {/* System status */}
@@ -512,7 +512,7 @@ const Footer = () => {
                 background: '#22c55e',
                 animation: 'statusPulse 2s ease-in-out infinite',
               }} />
-              <span style={{ fontFamily: 'monospace', fontSize: 10 }}>SYSTEM ONLINE</span>
+              <span style={{ fontFamily: 'monospace', fontSize: 10 }}>{t('labTech.systemOnline')}</span>
             </div>
           </div>
         </div>
