@@ -232,6 +232,8 @@ export const gradients = {
   glass: `linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))`,
   cyanPurple: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
   purplePink: `linear-gradient(135deg, ${brandPurple}, ${brandPink})`,
+  grid:
+    'repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 28px), repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 28px)',
 };
 
 export const styles: Record<string, CSSProperties> = {
