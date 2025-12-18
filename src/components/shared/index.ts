@@ -27,3 +27,31 @@ export {
   StaggerChildren,
   FadeOnScroll,
 } from './PageTransition';
+
+// Charts & Data Visualization
+export {
+  default as LineChart,
+  BarChart,
+  ProgressRing,
+  MultiLineChart,
+  WeeklyActivityChart,
+  ScoreTrend,
+} from './ProgressChart';
+
+// Milestones & Achievements
+export {
+  default as MilestoneTracker,
+  AchievementBadge,
+  AchievementGrid,
+  TreatmentPhaseIndicator,
+} from './MilestoneTracker';
+export type { Milestone } from './MilestoneTracker';
+
+// Tips & Guidance
+export {
+  default as TipsCard,
+  InfoCard,
+  GuidanceSteps,
+  QuickActionsCard,
+} from './TipsCard';
+export type { Tip } from './TipsCard';

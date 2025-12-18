@@ -8,6 +8,9 @@ import {
   StatCard,
   PageTransition,
   StaggerChildren,
+  MilestoneTracker,
+  TreatmentPhaseIndicator,
+  InfoCard,
 } from '../shared';
 import {
   brandCyan,

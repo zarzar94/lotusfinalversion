@@ -7,7 +7,11 @@ import {
   ResponsiveStyles,
   StatCard,
   PageTransition,
+  TipsCard,
+  BarChart,
+  InfoCard,
 } from '../shared';
+import type { Tip } from '../shared';
 import {
   brandCyan,
   brandPurple,
@@ -1042,6 +1046,94 @@ export default function ClinicianDashboard() {
           isArabic={isArabic}
           onClose={() => setSelectedPatient(null)}
         />
+      )}
+
+      {/* Insights Row */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: spacing[4],
+          marginTop: spacing[6],
+        }}
+      >
+        {/* Score Distribution Chart */}
+        <div
+          style={{
+            padding: spacing[5],
+            background: colors.surface.card,
+            border: `1px solid ${colors.border.default}`,
+            borderRadius: radius.xl,
+          }}
+        >
+          <BarChart
+            title={isArabic ? 'توزيع درجات الانتباه' : 'Attention Score Distribution'}
+            titleAr="توزيع درجات الانتباه"
+            data={[
+              { label: '<50', labelAr: '<٥٠', value: MOCK_PATIENTS.filter(p => p.attentionScore < 50).length * 25, color: '#ef4444' },
+              { label: '50-69', labelAr: '٥٠-٦٩', value: MOCK_PATIENTS.filter(p => p.attentionScore >= 50 && p.attentionScore < 70).length * 25, color: '#f59e0b' },
+              { label: '70-84', labelAr: '٧٠-٨٤', value: MOCK_PATIENTS.filter(p => p.attentionScore >= 70 && p.attentionScore < 85).length * 25, color: brandCyan },
+              { label: '85+', labelAr: '٨٥+', value: MOCK_PATIENTS.filter(p => p.attentionScore >= 85).length * 25, color: '#22c55e' },
+            ]}
+            isArabic={isArabic}
+            height={140}
+            maxValue={100}
+          />
+        </div>
+
+        {/* Tips Card */}
+        <TipsCard
+          title="Clinical Tips"
+          titleAr="نصائح سريرية"
+          icon="🩺"
+          color={brandPurple}
+          isArabic={isArabic}
+          tips={[
+            {
+              id: '1',
+              title: 'Monitor Streaks',
+              titleAr: 'راقب الاستمرارية',
+              content: 'Patients with consistent daily practice show 40% better outcomes. Follow up with patients whose streaks have broken.',
+              contentAr: 'المرضى الذين يمارسون بانتظام يومياً يظهرون نتائج أفضل بنسبة 40٪. تابع مع المرضى الذين انقطعت استمراريتهم.',
+            },
+            {
+              id: '2',
+              title: 'Weekly Check-ins',
+              titleAr: 'متابعة أسبوعية',
+              content: 'Schedule brief check-ins during weeks 2 and 3 when patients commonly experience plateaus.',
+              contentAr: 'جدولة متابعات قصيرة خلال الأسبوعين الثاني والثالث عندما يعاني المرضى عادة من الثبات.',
+            },
+            {
+              id: '3',
+              title: 'Parent Communication',
+              titleAr: 'التواصل مع الأهل',
+              content: 'Share progress reports with parents weekly to maintain engagement and support at home.',
+              contentAr: 'شارك تقارير التقدم مع الأهل أسبوعياً للحفاظ على المشاركة والدعم في المنزل.',
+            },
+          ]}
+          variant="carousel"
+        />
+      </div>
+
+      {/* Alerts Section */}
+      {MOCK_PATIENTS.some(p => p.streak === 0 && p.treatmentPhase === 'active') && (
+        <div style={{ marginTop: spacing[4] }}>
+          <InfoCard
+            title={isArabic ? 'تنبيه: مرضى غير نشطين' : 'Alert: Inactive Patients'}
+            titleAr="تنبيه: مرضى غير نشطين"
+            content={`${MOCK_PATIENTS.filter(p => p.streak === 0 && p.treatmentPhase === 'active').length} ${isArabic ? 'مرضى في العلاج النشط لم يمارسوا منذ أكثر من يومين' : 'patients in active treatment haven\'t practiced in over 2 days'}`}
+            contentAr={`${MOCK_PATIENTS.filter(p => p.streak === 0 && p.treatmentPhase === 'active').length} مرضى في العلاج النشط لم يمارسوا منذ أكثر من يومين`}
+            variant="warning"
+            isArabic={isArabic}
+            actions={[
+              {
+                label: 'View Details',
+                labelAr: 'عرض التفاصيل',
+                onClick: () => setFilterPhase('active'),
+              },
+            ]}
+          />
+        </div>
       )}
 
       {/* Section Navigation */}
