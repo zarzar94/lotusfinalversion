@@ -101,6 +101,18 @@ const Header = memo(function Header() {
         0%, 100% { box-shadow: 0 0 0 0 rgba(143,211,204,0.3); }
         50% { box-shadow: 0 0 8px 2px rgba(143,211,204,0.2); }
       }
+      @keyframes scanLine {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+      }
+      @keyframes statusPulse {
+        0%, 100% { opacity: 1; box-shadow: 0 0 6px ${brandCyan}; }
+        50% { opacity: 0.6; box-shadow: 0 0 10px ${brandCyan}; }
+      }
+      @keyframes headerGlow {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+      }
       .brandGlow {
         filter: drop-shadow(0 10px 30px rgba(143,211,204,0.18));
       }
@@ -144,6 +156,7 @@ const Header = memo(function Header() {
       }
       .nav-link:hover {
         color: ${brandCyan};
+        text-shadow: 0 0 10px ${brandCyan}44;
       }
       .nav-link.active::after {
         width: 80%;
@@ -151,15 +164,50 @@ const Header = memo(function Header() {
       .nav-link.active {
         color: ${brandCyan};
         background: rgba(143,211,204,0.1);
+        text-shadow: 0 0 8px ${brandCyan}33;
       }
       .mobile-menu {
         animation: slideDown 0.3s ease forwards;
       }
       .menu-btn {
-        transition: transform 0.3s ease;
+        transition: all 0.3s ease;
       }
       .menu-btn:hover {
         transform: scale(1.1);
+        border-color: ${brandCyan}44 !important;
+        box-shadow: 0 0 15px ${brandCyan}22;
+      }
+      .header-container {
+        position: relative;
+      }
+      .header-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, ${brandCyan}66, ${brandPurple}66, transparent);
+        animation: headerGlow 3s ease-in-out infinite;
+      }
+      .header-scan-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .header-scan-line::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 30%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, ${brandCyan}08, transparent);
+        animation: scanLine 4s linear infinite;
       }
     `,
     [],
@@ -170,24 +218,29 @@ const Header = memo(function Header() {
   return (
     <>
       <style>{css}</style>
-      <header style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        padding: isScrolled ? '10px 20px' : '16px 24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 16,
-        background: isScrolled
-          ? 'rgba(11,15,28,0.95)'
-          : 'linear-gradient(180deg, rgba(11,15,28,0.95) 0%, rgba(11,15,28,0.8) 70%, transparent 100%)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: isScrolled ? '1px solid rgba(143,211,204,0.15)' : 'none',
-        transition: 'all 0.3s ease',
-      }}>
+      <header
+        className="header-container"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          padding: isScrolled ? '10px 20px' : '16px 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 16,
+          background: isScrolled
+            ? 'linear-gradient(180deg, rgba(26,31,46,0.98) 0%, rgba(13,17,23,0.95) 100%)'
+            : 'linear-gradient(180deg, rgba(26,31,46,0.95) 0%, rgba(13,17,23,0.85) 70%, transparent 100%)',
+          backdropFilter: 'blur(16px)',
+          borderBottom: isScrolled ? `1px solid ${brandCyan}22` : 'none',
+          boxShadow: isScrolled ? `0 4px 30px rgba(0,0,0,0.3), 0 0 40px ${brandCyan}08` : 'none',
+          transition: 'all 0.3s ease',
+        }}>
+        {/* Scan line effect */}
+        <div className="header-scan-line" />
         {/* Logo Section */}
         <Link to="/" style={{ textDecoration: 'none', transition: 'all 0.3s ease' }}>
           <BrainLogo
@@ -199,7 +252,40 @@ const Header = memo(function Header() {
 
         {/* Desktop Navigation */}
         {!showCompactNav && (
-          <nav style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <nav style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '6px 10px',
+            background: 'rgba(13,17,23,0.5)',
+            borderRadius: 14,
+            border: '1px solid rgba(143,211,204,0.1)',
+          }}>
+            {/* Lab status indicator */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '4px 10px',
+              marginRight: 4,
+              borderRight: '1px solid rgba(143,211,204,0.15)',
+            }}>
+              <div style={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                background: '#22c55e',
+                boxShadow: '0 0 8px #22c55e',
+                animation: 'statusPulse 2s ease-in-out infinite',
+              }} />
+              <span style={{
+                fontSize: 9,
+                fontWeight: 800,
+                color: brandCyan,
+                letterSpacing: 1,
+                textTransform: 'uppercase',
+              }}>LAB</span>
+            </div>
             {NAV_ITEMS.map((item) => {
               const isActive = isActivePath(item.path);
               return (
@@ -217,11 +303,14 @@ const Header = memo(function Header() {
                     color: isActive ? brandCyan : '#f7f8fb',
                     textDecoration: 'none',
                     borderRadius: 10,
-                    background: isActive ? 'rgba(143,211,204,0.1)' : 'rgba(255,255,255,0.04)',
-                    border: isActive ? `1px solid ${brandCyan}30` : '1px solid transparent',
+                    background: isActive
+                      ? `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}10)`
+                      : 'rgba(255,255,255,0.03)',
+                    border: isActive ? `1px solid ${brandCyan}35` : '1px solid transparent',
+                    boxShadow: isActive ? `0 0 12px ${brandCyan}15` : 'none',
                   }}
                 >
-                  <span style={{ fontSize: 14 }}>
+                  <span style={{ fontSize: 14, opacity: isActive ? 1 : 0.7 }}>
                     {typeof item.icon === 'string' ? item.icon : item.icon}
                   </span>
                   {isArabic ? item.labelAr : item.label}
@@ -263,8 +352,25 @@ const Header = memo(function Header() {
 
         {/* Mobile/Tablet Menu Button */}
         {showCompactNav && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <LanguageToggle />
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '6px 10px',
+            background: 'rgba(13,17,23,0.5)',
+            borderRadius: 14,
+            border: '1px solid rgba(143,211,204,0.1)',
+          }}>
+            {/* Mobile status dot */}
+            <div style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: '#22c55e',
+              boxShadow: '0 0 6px #22c55e',
+              animation: 'statusPulse 2s ease-in-out infinite',
+            }} />
+            <LanguageToggle compact />
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="menu-btn"
@@ -272,18 +378,21 @@ const Header = memo(function Header() {
               aria-controls="mobile-nav-menu"
               aria-label={isArabic ? (isMobileMenuOpen ? 'إغلاق القائمة' : 'فتح القائمة') : (isMobileMenuOpen ? 'Close menu' : 'Open menu')}
               style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: 12,
+                background: isMobileMenuOpen
+                  ? `linear-gradient(135deg, ${brandCyan}20, ${brandPurple}15)`
+                  : 'rgba(255,255,255,0.06)',
+                border: `1px solid ${isMobileMenuOpen ? brandCyan + '40' : 'rgba(255,255,255,0.12)'}`,
+                borderRadius: 10,
                 padding: 10,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                boxShadow: isMobileMenuOpen ? `0 0 15px ${brandCyan}20` : 'none',
               }}
             >
               {isMobileMenuOpen ? (
-                <XIcon size={22} color="#f7f8fb" />
+                <XIcon size={22} color={brandCyan} />
               ) : (
                 <MenuIcon size={22} color="#f7f8fb" />
               )}
@@ -305,19 +414,58 @@ const Header = memo(function Header() {
             left: 16,
             right: 16,
             zIndex: 99,
-            background: 'rgba(11,15,28,0.98)',
-            border: '1px solid rgba(143,211,204,0.2)',
-            borderRadius: 16,
+            background: 'linear-gradient(180deg, rgba(26,31,46,0.98) 0%, rgba(13,17,23,0.98) 100%)',
+            border: `1px solid ${brandCyan}25`,
+            borderRadius: 18,
             padding: 16,
             display: 'flex',
             flexDirection: 'column',
             gap: 8,
             backdropFilter: 'blur(20px)',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+            boxShadow: `0 20px 50px rgba(0,0,0,0.5), 0 0 40px ${brandCyan}08`,
             maxHeight: 'calc(100vh - 100px)',
             overflowY: 'auto',
           }}
         >
+          {/* Mobile menu header bar */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '8px 12px',
+            marginBottom: 8,
+            borderBottom: `1px solid ${brandCyan}15`,
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}>
+              <div style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: '#22c55e',
+                boxShadow: '0 0 8px #22c55e',
+              }} />
+              <span style={{
+                fontSize: 10,
+                fontWeight: 800,
+                color: brandCyan,
+                letterSpacing: 1.5,
+                textTransform: 'uppercase',
+              }}>
+                LOTUS LAB • NAVIGATION
+              </span>
+            </div>
+            <span style={{
+              fontSize: 9,
+              color: 'rgba(255,255,255,0.4)',
+              fontFamily: 'monospace',
+            }}>
+              v2.0
+            </span>
+          </div>
           {/* Home Link */}
           <Link
             to="/"
