@@ -37,10 +37,23 @@ const ClinicianDashboard = lazy(() => import('./components/analytics/ClinicianDa
 const SettingsPage = lazy(() => import('./components/SettingsPage'));
 
 // ═══════════════════════════════════════════════════════════════════════════
-// PAGE LOADER - Enhanced with brain-themed animation
+// PAGE LOADER - Enhanced with brain-themed animation (bilingual)
 // ═══════════════════════════════════════════════════════════════════════════
 
+// Get language from localStorage (same key as LanguageContext)
+function getStoredLanguage(): 'ar' | 'en' {
+  if (typeof window === 'undefined') return 'ar';
+  const saved = localStorage.getItem('lotus_language');
+  if (saved === 'ar' || saved === 'en') return saved;
+  const browserLang = navigator.language.toLowerCase();
+  if (browserLang.startsWith('en')) return 'en';
+  return 'ar';
+}
+
 function PageLoader() {
+  const isArabic = getStoredLanguage() === 'ar';
+  const loadingText = isArabic ? 'جارٍ التحميل...' : 'Loading...';
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -50,6 +63,7 @@ function PageLoader() {
       background: '#05060d',
       position: 'relative',
       overflow: 'hidden',
+      direction: isArabic ? 'rtl' : 'ltr',
     }}>
       {/* Background pulse effect */}
       <div style={{
@@ -130,16 +144,16 @@ function PageLoader() {
           ))}
         </div>
 
-        {/* Text */}
+        {/* Text - Bilingual */}
         <div style={{
           color: '#8FD3CC',
           fontSize: 16,
           fontFamily: 'Cairo, sans-serif',
           fontWeight: 600,
-          letterSpacing: 1,
+          letterSpacing: isArabic ? 0 : 1,
           opacity: 0.9,
         }}>
-          Loading...
+          {loadingText}
         </div>
 
         <style>{`
