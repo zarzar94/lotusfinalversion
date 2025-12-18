@@ -725,7 +725,38 @@ const Checklist = () => {
   const currentSelectedInCategory = currentCategory?.items.filter(item => selected[item.id]).length || 0;
 
   return (
-    <section id="checklist" style={styles.sectionCard}>
+    <section id="checklist" style={{
+      ...styles.sectionCard,
+      background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+      border: '1px solid rgba(143,211,204,0.15)',
+      boxShadow: '0 15px 40px rgba(0,0,0,0.4), 0 0 60px rgba(143,211,204,0.08)',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      {/* Top glow bar */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 2,
+        background: `linear-gradient(90deg, transparent, ${brandCyan}, ${brandPink}, ${brandPurple}, transparent)`,
+        opacity: 0.6,
+      }} />
+
+      {/* Grid pattern overlay */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        backgroundImage: `
+          linear-gradient(rgba(143,211,204,0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(143,211,204,0.02) 1px, transparent 1px)
+        `,
+        backgroundSize: '50px 50px',
+        pointerEvents: 'none',
+        opacity: 0.5,
+      }} />
+
       <style>{`
         @keyframes radarSweep { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes blipPulse { 0%, 100% { box-shadow: 0 0 10px currentColor; } 50% { box-shadow: 0 0 25px currentColor, 0 0 50px currentColor; } }
@@ -741,6 +772,7 @@ const Checklist = () => {
         }
         @keyframes launchPulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
         @keyframes scanLine { 0% { transform: translateY(-100%); opacity: 0; } 50% { opacity: 0.5; } 100% { transform: translateY(100%); opacity: 0; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         @media (max-width: 640px) {
           .radar-container { transform: scale(0.75) !important; }
           .category-tabs { gap: 6px !important; }
@@ -755,18 +787,94 @@ const Checklist = () => {
         }
       `}</style>
 
-      {/* Header */}
-      <div style={styles.sectionHeader}>
-        <div style={styles.sectionHeaderRow}>
-          <h2 style={{ ...styles.h2, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <MicroscopeIcon size={28} color={brandCyan} /> الماسح العصبي للتقييم
-          </h2>
-          <span style={{ ...styles.chip, background: `${recommendation.color}22`, borderColor: `${recommendation.color}44`, color: recommendation.color }}>
+      {/* Header - Lab Tech Style */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20,
+        padding: '12px 18px',
+        background: 'rgba(0,0,0,0.3)',
+        borderRadius: 14,
+        border: '1px solid rgba(255,255,255,0.05)',
+        position: 'relative',
+        zIndex: 1,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{
+            width: 44,
+            height: 44,
+            borderRadius: 12,
+            background: `linear-gradient(135deg, ${brandCyan}22, ${brandPink}22)`,
+            border: `1px solid ${brandCyan}44`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <MicroscopeIcon size={24} color={brandCyan} />
+          </div>
+          <div>
+            <h2 style={{
+              ...styles.h2,
+              margin: 0,
+              fontSize: 15,
+              color: brandCyan,
+              fontWeight: 800,
+              letterSpacing: '0.5px',
+            }}>
+              NEURAL SCANNER
+            </h2>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.5px' }}>
+              الماسح العصبي للتقييم الذاتي
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '6px 12px',
+            background: 'rgba(34,197,94,0.12)',
+            border: '1px solid rgba(34,197,94,0.3)',
+            borderRadius: 8,
+          }}>
+            <div style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              background: '#22c55e',
+              animation: 'blink 2s ease-in-out infinite',
+              boxShadow: '0 0 8px #22c55e',
+            }} />
+            <span style={{ fontSize: 10, color: '#22c55e', fontWeight: 700 }}>SCANNING</span>
+          </div>
+          <span style={{
+            ...styles.chip,
+            background: `${recommendation.color}22`,
+            borderColor: `${recommendation.color}44`,
+            color: recommendation.color,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}>
             {recommendation.icon} {selectedCount}/{totalItems}
           </span>
         </div>
-        <p style={styles.bodyText}>حدد المؤشرات على الرادار لبناء تقرير تقييمي. اضغط الزر الأحمر لتدمير المؤشرات المحددة.</p>
       </div>
+
+      <p style={{
+        ...styles.bodyText,
+        marginBottom: 20,
+        padding: '12px 16px',
+        background: 'rgba(143,211,204,0.06)',
+        border: '1px solid rgba(143,211,204,0.15)',
+        borderRadius: 12,
+        position: 'relative',
+        zIndex: 1,
+      }}>
+        حدد المؤشرات على الرادار لبناء تقرير تقييمي. اضغط الزر الأحمر لتدمير المؤشرات المحددة.
+      </p>
 
       {/* Category Tabs */}
       <div style={{
@@ -775,6 +883,8 @@ const Checklist = () => {
         overflowX: 'auto',
         padding: '16px 0',
         marginBottom: 16,
+        position: 'relative',
+        zIndex: 1,
       }}>
         {checklistCategories.map((cat, idx) => {
           const cfg = CATEGORY_CONFIG[cat.title] || { icon: <ChartIcon size={20} />, color: brandCyan };
@@ -797,6 +907,8 @@ const Checklist = () => {
         flexDirection: 'column',
         alignItems: 'center',
         gap: 24,
+        position: 'relative',
+        zIndex: 1,
       }}>
         {/* Category Info */}
         <div style={{
@@ -993,6 +1105,8 @@ const Checklist = () => {
           display: 'flex',
           alignItems: 'center',
           gap: 10,
+          position: 'relative',
+          zIndex: 1,
         }}>
           <LightbulbIcon size={18} color={currentConfig.color} />
           {currentCategory.note}
@@ -1000,7 +1114,7 @@ const Checklist = () => {
       )}
 
       {/* Quick Actions */}
-      <div style={{ marginTop: 24, display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div style={{ marginTop: 24, display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
         <a href={assetUrl('downloads/Check list (2).pdf')} target="_blank" rel="noreferrer" style={{ ...styles.ghostBtn, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           <DocumentIcon size={16} /> PDF الرسمي
         </a>
@@ -1029,9 +1143,11 @@ const Checklist = () => {
         <div style={{
           marginTop: 24,
           padding: 20,
-          background: `linear-gradient(135deg, ${recommendation.color}15, transparent)`,
+          background: `linear-gradient(135deg, ${recommendation.color}15, rgba(13,17,23,0.8))`,
           border: `1px solid ${recommendation.color}33`,
           borderRadius: 16,
+          position: 'relative',
+          zIndex: 1,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
             <span style={{ fontSize: 32 }}>{recommendation.icon}</span>
@@ -1155,7 +1271,7 @@ const Checklist = () => {
       )}
 
       {/* Disclaimer */}
-      <div style={{ marginTop: 20, padding: 14, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 12, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+      <div style={{ marginTop: 20, padding: 14, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 12, display: 'flex', alignItems: 'flex-start', gap: 10, position: 'relative', zIndex: 1 }}>
         <AlertIcon size={24} color="#f59e0b" style={{ flexShrink: 0 }} />
         <div>
           <div style={{ fontWeight: 800, color: '#f59e0b', marginBottom: 4, fontSize: 13 }}>تنبيه</div>
