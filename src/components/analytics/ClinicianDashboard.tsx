@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
-import { BackNavigation } from '../shared';
+import { BackNavigation, SectionNav, ResponsiveStyles } from '../shared';
 import {
   brandCyan,
   brandPurple,
@@ -757,13 +757,12 @@ export default function ClinicianDashboard() {
   return (
     <section
       id="clinician-dashboard"
+      className="page-container"
       style={{
-        padding: `${spacing[10]}px ${spacing[4]}px`,
-        maxWidth: 1200,
-        margin: '0 auto',
         direction,
       }}
     >
+      <ResponsiveStyles />
       {/* Back Navigation */}
       <BackNavigation />
 
@@ -811,14 +810,7 @@ export default function ClinicianDashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: spacing[4],
-          marginBottom: spacing[8],
-        }}
-      >
+      <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
         <StatCard
           label={isArabic ? 'إجمالي المرضى' : 'Total Patients'}
           value={stats.total}
@@ -1039,6 +1031,23 @@ export default function ClinicianDashboard() {
           onClose={() => setSelectedPatient(null)}
         />
       )}
+
+      {/* Section Navigation */}
+      <div
+        style={{
+          marginTop: spacing[8],
+          padding: spacing[5],
+          background: colors.surface.card,
+          border: `1px solid ${colors.border.default}`,
+          borderRadius: radius.xl,
+        }}
+      >
+        <SectionNav
+          variant="pills"
+          title="Quick Access"
+          titleAr="وصول سريع"
+        />
+      </div>
     </section>
   );
 }

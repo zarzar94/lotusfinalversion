@@ -1,7 +1,7 @@
 import { useState, useMemo, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
-import { BackNavigation } from '../shared';
+import { BackNavigation, SectionNav, ResponsiveStyles } from '../shared';
 import {
   brandCyan,
   brandPurple,
@@ -468,13 +468,12 @@ export default function SchoolDashboard() {
   return (
     <section
       id="school-dashboard"
+      className="page-container"
       style={{
-        padding: `${spacing[10]}px ${spacing[4]}px`,
-        maxWidth: 1200,
-        margin: '0 auto',
         direction,
       }}
     >
+      <ResponsiveStyles />
       {/* Back Navigation */}
       <BackNavigation />
 
@@ -522,14 +521,7 @@ export default function SchoolDashboard() {
       </div>
 
       {/* Metric Cards */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: spacing[4],
-          marginBottom: spacing[8],
-        }}
-      >
+      <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
         <MetricCard
           title={isArabic ? 'إجمالي الطلاب' : 'Total Students'}
           value={metrics.totalStudents}
@@ -562,18 +554,11 @@ export default function SchoolDashboard() {
       </div>
 
       {/* Charts Row */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-          gap: spacing[6],
-          marginBottom: spacing[8],
-        }}
-      >
+      <div className="panels-grid" style={{ marginBottom: spacing[8] }}>
         {/* Weekly Progress Chart */}
         <div
+          className="card"
           style={{
-            padding: spacing[5],
             background: colors.surface.card,
             border: `1px solid ${colors.border.default}`,
             borderRadius: radius.xl,
@@ -594,8 +579,8 @@ export default function SchoolDashboard() {
 
         {/* Grade Distribution */}
         <div
+          className="card"
           style={{
-            padding: spacing[5],
             background: colors.surface.card,
             border: `1px solid ${colors.border.default}`,
             borderRadius: radius.xl,
@@ -729,6 +714,24 @@ export default function SchoolDashboard() {
         </div>
 
         <StudentTable students={filteredStudents} isArabic={isArabic} />
+      </div>
+
+      {/* Section Navigation */}
+      <div
+        style={{
+          marginTop: spacing[8],
+          padding: spacing[5],
+          background: colors.surface.card,
+          border: `1px solid ${colors.border.default}`,
+          borderRadius: radius.xl,
+        }}
+      >
+        <SectionNav
+          variant="grid"
+          showDescriptions={true}
+          title="Explore Platform"
+          titleAr="استكشف المنصة"
+        />
       </div>
     </section>
   );

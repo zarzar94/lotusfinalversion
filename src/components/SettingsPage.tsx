@@ -5,7 +5,7 @@
 import { useState, useCallback, memo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useUser } from '../context/UserContext';
-import { BackNavigation } from './shared';
+import { BackNavigation, SectionNav, ResponsiveStyles } from './shared';
 import {
   brandCyan,
   brandPurple,
@@ -425,13 +425,13 @@ export default function SettingsPage() {
   return (
     <section
       id="settings"
+      className="page-container"
       style={{
-        padding: `${spacing[10]}px ${spacing[4]}px`,
         maxWidth: 700,
-        margin: '0 auto',
         direction,
       }}
     >
+      <ResponsiveStyles />
       {/* Back Navigation */}
       <BackNavigation />
 
@@ -759,6 +759,23 @@ export default function SettingsPage() {
             {text.deleteAccount}
           </button>
         </div>
+      </div>
+
+      {/* Section Navigation */}
+      <div
+        style={{
+          marginTop: spacing[8],
+          padding: spacing[5],
+          background: colors.surface.card,
+          border: `1px solid ${colors.border.default}`,
+          borderRadius: radius.xl,
+        }}
+      >
+        <SectionNav
+          variant="pills"
+          title="Explore Platform"
+          titleAr="استكشف المنصة"
+        />
       </div>
 
       <style>{`

@@ -1,7 +1,7 @@
 import { useState, useMemo, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
-import { BackNavigation } from '../shared';
+import { BackNavigation, SectionNav, ResponsiveStyles } from '../shared';
 import {
   brandCyan,
   brandPurple,
@@ -592,13 +592,13 @@ export default function ParentDashboard() {
   return (
     <section
       id="parent-dashboard"
+      className="page-container"
       style={{
-        padding: `${spacing[10]}px ${spacing[4]}px`,
         maxWidth: 900,
-        margin: '0 auto',
         direction,
       }}
     >
+      <ResponsiveStyles />
       {/* Back Navigation */}
       <BackNavigation />
 
@@ -648,14 +648,7 @@ export default function ParentDashboard() {
       </div>
 
       {/* Quick Stats */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: spacing[4],
-          marginBottom: spacing[8],
-        }}
-      >
+      <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
         <StatCard
           label={isArabic ? 'إجمالي الجلسات' : 'Total Sessions'}
           value={overallStats.totalSessions}
@@ -756,6 +749,24 @@ export default function ParentDashboard() {
               : 'Contact the clinician if you notice any regression'}
           </li>
         </ul>
+      </div>
+
+      {/* Section Navigation */}
+      <div
+        style={{
+          marginTop: spacing[8],
+          padding: spacing[5],
+          background: colors.surface.card,
+          border: `1px solid ${colors.border.default}`,
+          borderRadius: radius.xl,
+        }}
+      >
+        <SectionNav
+          variant="grid"
+          showDescriptions={true}
+          title="Explore Platform"
+          titleAr="استكشف المنصة"
+        />
       </div>
     </section>
   );
