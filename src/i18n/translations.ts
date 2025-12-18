@@ -22,6 +22,22 @@ export const translations = {
       allRightsReserved: 'جميع الحقوق محفوظة',
     },
 
+    // Lab-tech UI labels
+    labTech: {
+      lotusLab: 'مختبر لوتس',
+      systemOnline: 'النظام متصل',
+      neuralScanActive: 'المسح العصبي نشط',
+      neuralScanner: 'الماسح العصبي',
+      auditoryCenter: 'مركز السمع',
+      berardProtocol: 'بروتوكول بيرارد',
+      explore: 'استكشف',
+      navigation: 'التنقل',
+      scanning: 'جارٍ المسح',
+      screeningStation: 'محطة الفحص',
+      portalView: 'عرض البوابة',
+      version: 'الإصدار',
+    },
+
     // Navigation
     nav: {
       program: 'البرنامج',
@@ -488,6 +504,22 @@ export const translations = {
       followUs: 'Follow Us',
       quickLinks: 'Quick Links',
       allRightsReserved: 'All Rights Reserved',
+    },
+
+    // Lab-tech UI labels
+    labTech: {
+      lotusLab: 'LOTUS LAB',
+      systemOnline: 'SYSTEM ONLINE',
+      neuralScanActive: 'NEURAL SCAN ACTIVE',
+      neuralScanner: 'NEURAL SCANNER',
+      auditoryCenter: 'AUDITORY CENTER',
+      berardProtocol: 'BÉRARD AIT PROTOCOL',
+      explore: 'EXPLORE',
+      navigation: 'NAVIGATION',
+      scanning: 'SCANNING',
+      screeningStation: 'Screening Station',
+      portalView: 'Portal View',
+      version: 'v2.0',
     },
 
     // Navigation

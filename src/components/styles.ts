@@ -197,6 +197,151 @@ export const transitions = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// LAB-TECH DESIGN SYSTEM
+// Futuristic lab-tech aesthetic with consistent dark theme
+// ─────────────────────────────────────────────────────────────────────────────
+export const labTech = {
+  // Dark theme gradients
+  backgrounds: {
+    primary: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+    hero: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 40%, rgba(8,10,18,1) 100%)',
+    footer: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 50%, rgba(5,6,13,1) 100%)',
+    card: 'linear-gradient(180deg, rgba(26,31,46,0.95) 0%, rgba(13,17,23,0.95) 100%)',
+    glass: 'rgba(13,17,23,0.8)',
+  },
+  // Border colors
+  borders: {
+    subtle: `rgba(143,211,204,0.1)`,
+    default: `rgba(143,211,204,0.2)`,
+    emphasis: `rgba(143,211,204,0.35)`,
+    glow: `rgba(143,211,204,0.5)`,
+  },
+  // Status colors
+  status: {
+    online: '#22c55e',
+    active: brandCyan,
+    warning: '#f59e0b',
+    error: '#ef4444',
+  },
+};
+
+// Consolidated animation keyframes for lab-tech aesthetic
+export const labTechAnimations = `
+  /* Status pulse animation for online indicators */
+  @keyframes statusPulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px #22c55e; }
+    50% { opacity: 0.6; box-shadow: 0 0 10px #22c55e; }
+  }
+
+  /* Glow bar animation for top accent bars */
+  @keyframes glowBar {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  /* Horizontal scan line effect */
+  @keyframes scanLine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* Vertical scan line effect */
+  @keyframes scanLineVertical {
+    0% { top: -100%; }
+    100% { top: 200%; }
+  }
+
+  /* Status blink for labels */
+  @keyframes statusBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Data stream animation */
+  @keyframes dataStream {
+    0% { transform: translateY(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-100px); opacity: 0; }
+  }
+
+  /* Fade in with scale */
+  @keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  /* Slide down animation */
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Reduced motion support - disable animations for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+`;
+
+// Lab-tech component styles
+export const labTechStyles = {
+  // Top glow bar
+  glowBar: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    background: `linear-gradient(90deg, transparent, ${brandCyan}66, ${brandPurple}66, transparent)`,
+    animation: 'glowBar 3s ease-in-out infinite',
+  },
+  // Grid pattern overlay
+  gridPattern: {
+    position: 'absolute' as const,
+    inset: 0,
+    opacity: 0.03,
+    backgroundImage: `
+      linear-gradient(${brandCyan}20 1px, transparent 1px),
+      linear-gradient(90deg, ${brandCyan}20 1px, transparent 1px)
+    `,
+    backgroundSize: '40px 40px',
+    pointerEvents: 'none' as const,
+  },
+  // Status indicator dot
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: '50%',
+    background: '#22c55e',
+    boxShadow: '0 0 8px #22c55e',
+    animation: 'statusPulse 2s ease-in-out infinite',
+  },
+  // Lab badge container
+  labBadge: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '8px 14px',
+    background: 'rgba(13,17,23,0.8)',
+    border: `1px solid ${brandCyan}30`,
+    borderRadius: 8,
+    backdropFilter: 'blur(10px)',
+  },
+  // Monospace text for tech readouts
+  monoText: {
+    fontFamily: 'monospace',
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: 1,
+    textTransform: 'uppercase' as const,
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // RESPONSIVE BREAKPOINTS
 // Mobile-first breakpoint system
 // ─────────────────────────────────────────────────────────────────────────────

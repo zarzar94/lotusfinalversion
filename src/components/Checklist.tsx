@@ -1,6 +1,7 @@
 import { useMemo, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 
 import { checklistCategories, checklistItems, type ChecklistItem } from '../data/checklistItems';
+import { useLanguage } from '../context/LanguageContext';
 import { assetUrl } from '../utils/asset';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
 import {
@@ -12,7 +13,6 @@ import {
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, radius, spacing, typography, transitions } from './styles';
 import { useGamification } from '../context/GamificationContext';
 import { useVisitorMode } from '../context/VisitorModeContext';
-import { useLanguage } from '../context/LanguageContext';
 import {
   BookIcon,
   EarIcon,
@@ -568,7 +568,7 @@ type ChecklistRecommendation = {
 
 const Checklist = () => {
   const { mode: visitorMode, config: visitorConfig, isSchool, isParent, isClinician } = useVisitorMode();
-  const { isArabic } = useLanguage();
+  const { t, isArabic } = useLanguage();
 
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [exporting, setExporting] = useState(false);
@@ -822,10 +822,10 @@ const Checklist = () => {
               fontWeight: 800,
               letterSpacing: '0.5px',
             }}>
-              NEURAL SCANNER
+              {t('labTech.neuralScanner')}
             </h2>
             <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.5px' }}>
-              الماسح العصبي للتقييم الذاتي
+              {t('checklist.subtitle')}
             </div>
           </div>
         </div>
@@ -847,7 +847,7 @@ const Checklist = () => {
               animation: 'blink 2s ease-in-out infinite',
               boxShadow: '0 0 8px #22c55e',
             }} />
-            <span style={{ fontSize: 10, color: '#22c55e', fontWeight: 700 }}>SCANNING</span>
+            <span style={{ fontSize: 10, color: '#22c55e', fontWeight: 700 }}>{t('labTech.scanning')}</span>
           </div>
           <span style={{
             ...styles.chip,

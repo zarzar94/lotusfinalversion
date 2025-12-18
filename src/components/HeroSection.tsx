@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, memo } from 'react';
 import { brandCyan, brandPurple, brandPink } from './styles';
+import { useLanguage } from '../context/LanguageContext';
 
 // Brain image component using the detailed PNG
 const BrainImage = ({ size = 400 }: { size?: number }) => (
@@ -64,6 +65,7 @@ const OrbitingParticle = ({
 );
 
 const HeroSection = memo(function HeroSection() {
+  const { t } = useLanguage();
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -303,7 +305,7 @@ const HeroSection = memo(function HeroSection() {
             textTransform: 'uppercase',
             fontFamily: 'monospace',
           }}>
-            NEURAL SCAN ACTIVE
+            {t('labTech.neuralScanActive')}
           </span>
         </div>
         <div style={{
@@ -312,7 +314,7 @@ const HeroSection = memo(function HeroSection() {
           fontFamily: 'monospace',
           paddingLeft: 4,
         }}>
-          LOTUS LAB v2.0
+          {t('labTech.lotusLab')} {t('labTech.version')}
         </div>
       </div>
 
@@ -344,7 +346,7 @@ const HeroSection = memo(function HeroSection() {
             letterSpacing: 1,
             fontFamily: 'monospace',
           }}>
-            AUDITORY CENTER
+            {t('labTech.auditoryCenter')}
           </span>
           <div style={{
             width: 6,
@@ -359,7 +361,7 @@ const HeroSection = memo(function HeroSection() {
           color: 'rgba(255,255,255,0.25)',
           fontFamily: 'monospace',
         }}>
-          BÉRARD AIT PROTOCOL
+          {t('labTech.berardProtocol')}
         </div>
       </div>
 
@@ -430,7 +432,7 @@ const HeroSection = memo(function HeroSection() {
           fontFamily: 'monospace',
           opacity: 0.7,
         }}>
-          EXPLORE
+          {t('labTech.explore')}
         </div>
         <div style={{
           width: 24,
