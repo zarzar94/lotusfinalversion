@@ -28,11 +28,12 @@ type AuthMode = 'login' | 'register' | 'demo';
 // DEMO ACCOUNTS
 // ═══════════════════════════════════════════════════════════════════════════
 
-const DEMO_ACCOUNTS: { role: UserRole; email: string; label: string; labelAr: string; icon: string; color: string }[] = [
-  { role: 'patient', email: 'demo@patient.com', label: 'Patient', labelAr: 'مريض', icon: '👤', color: brandCyan },
-  { role: 'parent', email: 'demo@parent.com', label: 'Parent', labelAr: 'ولي أمر', icon: '👨‍👩‍👧', color: brandPurple },
-  { role: 'clinician', email: 'demo@clinician.com', label: 'Clinician', labelAr: 'طبيب', icon: '👨‍⚕️', color: brandPink },
-  { role: 'school_admin', email: 'demo@school.com', label: 'School Admin', labelAr: 'مدير مدرسة', icon: '🏫', color: '#f59e0b' },
+const DEMO_ACCOUNTS: { role: UserRole; email: string; label: string; labelAr: string; icon: string; color: string; description: string; descriptionAr: string }[] = [
+  { role: 'patient', email: 'demo@patient.com', label: 'Patient', labelAr: 'مريض', icon: '👤', color: brandCyan, description: 'Track your AIT sessions', descriptionAr: 'تتبع جلسات العلاج السمعي' },
+  { role: 'parent', email: 'demo@parent.com', label: 'Parent', labelAr: 'ولي أمر', icon: '👨‍👩‍👧', color: brandPurple, description: 'Monitor children progress', descriptionAr: 'مراقبة تقدم الأطفال' },
+  { role: 'clinician', email: 'demo@clinician.com', label: 'Clinician', labelAr: 'طبيب', icon: '👨‍⚕️', color: brandPink, description: 'Manage patient records', descriptionAr: 'إدارة سجلات المرضى' },
+  { role: 'school_admin', email: 'demo@school.com', label: 'School Admin', labelAr: 'مدير مدرسة', icon: '🏫', color: '#f59e0b', description: 'View school analytics', descriptionAr: 'عرض تحليلات المدرسة' },
+  { role: 'super_admin', email: 'demo@admin.com', label: 'Admin', labelAr: 'مشرف', icon: '⚙️', color: '#ef4444', description: 'Full system access', descriptionAr: 'الوصول الكامل للنظام' },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -279,7 +280,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
                   >
                     {account.icon}
                   </div>
-                  <div style={{ textAlign: isArabic ? 'right' : 'left' }}>
+                  <div style={{ textAlign: isArabic ? 'right' : 'left', flex: 1 }}>
                     <div
                       style={{
                         fontSize: typography.size.base,
@@ -292,11 +293,21 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
                     <div
                       style={{
                         fontSize: typography.size.xs,
-                        color: colors.text.muted,
+                        color: account.color,
+                        marginTop: 2,
                       }}
                     >
-                      {account.email}
+                      {isArabic ? account.descriptionAr : account.description}
                     </div>
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: colors.text.muted,
+                      opacity: 0.6,
+                    }}
+                  >
+                    →
                   </div>
                 </button>
               ))}
