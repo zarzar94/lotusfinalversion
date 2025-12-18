@@ -1,8 +1,10 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { brandPurple, brandCyan, brandPink } from './styles';
 import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon } from './Icons';
 import BrainLogo from './BrainLogo';
 import LanguageToggle from './LanguageToggle';
+import ProfileMenu from './auth/ProfileMenu';
+import LoginModal from './auth/LoginModal';
 import { useLanguage } from '../context/LanguageContext';
 
 const getNavItems = (t: (key: string) => string) => [
@@ -18,8 +20,12 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const NAV_ITEMS = useMemo(() => getNavItems(t), [t]);
+
+  const openLoginModal = useCallback(() => setIsLoginModalOpen(true), []);
+  const closeLoginModal = useCallback(() => setIsLoginModalOpen(false), []);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -168,6 +174,8 @@ const Header = () => {
             ))}
             {/* Language Toggle */}
             <LanguageToggle />
+            {/* Profile Menu */}
+            <ProfileMenu onLoginClick={openLoginModal} />
           </nav>
         )}
 
@@ -251,21 +259,30 @@ const Header = () => {
               {item.label}
             </a>
           ))}
-          {/* Language Toggle in Mobile Menu */}
+          {/* Language Toggle & Profile in Mobile Menu */}
           <div style={{
             marginTop: 8,
             paddingTop: 12,
             borderTop: '1px solid rgba(255,255,255,0.08)',
             display: 'flex',
             justifyContent: 'center',
+            alignItems: 'center',
+            gap: 12,
           }}>
             <LanguageToggle />
+            <ProfileMenu onLoginClick={() => {
+              setIsMobileMenuOpen(false);
+              openLoginModal();
+            }} />
           </div>
         </div>
       )}
 
       {/* Spacer for fixed header */}
       <div style={{ height: isMobile ? 75 : 90 }} />
+
+      {/* Login Modal */}
+      <LoginModal isOpen={isLoginModalOpen} onClose={closeLoginModal} />
     </>
   );
 };

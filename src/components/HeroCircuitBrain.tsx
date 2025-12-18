@@ -35,6 +35,16 @@ type Ripple = {
   color: string;
 };
 
+type Particle = {
+  id: string;
+  x: number;
+  y: number;
+  angle: number;
+  color: string;
+  size: number;
+  speed: number;
+};
+
 // ═══════════════════════════════════════════════════════════════════════════
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════════════════
@@ -434,8 +444,10 @@ export default function HeroCircuitBrain() {
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [pulses, setPulses] = useState<Pulse[]>([]);
   const [ripples, setRipples] = useState<Ripple[]>([]);
+  const [particles, setParticles] = useState<Particle[]>([]);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [tooltipNode, setTooltipNode] = useState<BrainFunction | null>(null);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -454,9 +466,39 @@ export default function HeroCircuitBrain() {
   const burstAtNode = useCallback((x: number, y: number) => {
     if (reducedMotion) return;
 
-    const rippleColor = COLORS[Math.floor(Math.random() * COLORS.length)];
-    const rippleId = uid();
-    setRipples((prev) => [...prev.slice(-3), { id: rippleId, x, y, color: rippleColor }]);
+    // Multiple ripple rings for enhanced explosion
+    const rippleColors = [brandCyan, brandPurple, brandPink];
+    rippleColors.forEach((color, i) => {
+      const rippleId = uid();
+      setTimeout(() => {
+        setRipples((prev) => [...prev.slice(-6), { id: rippleId, x, y, color }]);
+        setTimeout(() => {
+          setRipples((prev) => prev.filter((r) => r.id !== rippleId));
+        }, 800);
+      }, i * 100);
+    });
+
+    // Particle explosion - synaptic burst
+    const particleCount = 12;
+    const newParticles: Particle[] = [];
+    for (let i = 0; i < particleCount; i++) {
+      const angle = (i / particleCount) * Math.PI * 2;
+      newParticles.push({
+        id: uid(),
+        x,
+        y,
+        angle,
+        color: COLORS[i % COLORS.length],
+        size: 2 + Math.random() * 3,
+        speed: 30 + Math.random() * 40,
+      });
+    }
+    setParticles((prev) => [...prev.slice(-20), ...newParticles]);
+
+    // Clean up particles after animation
+    setTimeout(() => {
+      setParticles((prev) => prev.filter((p) => !newParticles.find((np) => np.id === p.id)));
+    }, 1000);
 
     const waves = 2;
     const baseDur = 2;
@@ -479,10 +521,6 @@ export default function HeroCircuitBrain() {
     }
 
     setPulses((prev) => [...prev.slice(-40), ...all]);
-
-    setTimeout(() => {
-      setRipples((prev) => prev.filter((r) => r.id !== rippleId));
-    }, 600);
   }, [reducedMotion]);
 
   const handleNodeClick = useCallback((node: BrainFunction) => {
@@ -530,6 +568,30 @@ export default function HeroCircuitBrain() {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-3px); }
     }
+    @keyframes particleBurst {
+      0% { opacity: 1; transform: translate(0, 0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+    }
+    @keyframes tooltipFadeIn {
+      from { opacity: 0; transform: translateY(5px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes techRingSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes techRingSpinReverse {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+    @keyframes statusPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @keyframes dataStream {
+      0% { stroke-dashoffset: 100; }
+      100% { stroke-dashoffset: 0; }
+    }
     .circuit-brain-container {
       animation: fadeInScale 0.7s ease-out forwards;
     }
@@ -556,6 +618,20 @@ export default function HeroCircuitBrain() {
     .circuit-node:focus-visible {
       outline: 2px solid ${brandCyan};
       outline-offset: 4px;
+    }
+    .floating-tooltip {
+      animation: tooltipFadeIn 0.2s ease-out forwards;
+    }
+    .tech-ring {
+      animation: ${reducedMotion ? 'none' : 'techRingSpin 20s linear infinite'};
+      transform-origin: center;
+    }
+    .tech-ring-reverse {
+      animation: ${reducedMotion ? 'none' : 'techRingSpinReverse 25s linear infinite'};
+      transform-origin: center;
+    }
+    .status-dot {
+      animation: ${reducedMotion ? 'none' : 'statusPulse 2s ease-in-out infinite'};
     }
   `, [reducedMotion]);
 
@@ -881,13 +957,43 @@ export default function HeroCircuitBrain() {
                   </div>
                 </div>
               </div>
-              <div style={{
-                display: 'flex',
-                gap: 6,
-              }}>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: brandCyan, opacity: 0.6 }} />
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: brandPurple, opacity: 0.6 }} />
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: brandPink, opacity: 0.6 }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: spacing[3] }}>
+                {/* NEURAL LINK ACTIVE Badge */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing[1.5],
+                  padding: `${spacing[1]}px ${spacing[2.5]}px`,
+                  background: `${brandCyan}15`,
+                  border: `1px solid ${brandCyan}30`,
+                  borderRadius: radius.full,
+                }}>
+                  <div
+                    className="status-dot"
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: '50%',
+                      background: brandCyan,
+                      boxShadow: `0 0 8px ${brandCyan}`,
+                    }}
+                  />
+                  <span style={{
+                    fontSize: 9,
+                    fontWeight: typography.weight.bold,
+                    color: brandCyan,
+                    textTransform: 'uppercase',
+                    letterSpacing: 0.5,
+                  }}>
+                    {isArabic ? 'نشط' : 'NEURAL LINK ACTIVE'}
+                  </span>
+                </div>
+                {/* Traffic light dots */}
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: brandCyan, opacity: 0.6 }} />
+                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: brandPurple, opacity: 0.6 }} />
+                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: brandPink, opacity: 0.6 }} />
+                </div>
               </div>
             </div>
 
@@ -962,6 +1068,57 @@ export default function HeroCircuitBrain() {
               </feMerge>
             </filter>
           </defs>
+
+          {/* ═══════════════════════════════════════════════════════════════
+              ROTATING TECH RINGS - HUD Style Enhancement
+              ═══════════════════════════════════════════════════════════════ */}
+          {!reducedMotion && (
+            <g opacity="0.25">
+              {/* Outer dashed ring - slow spin */}
+              <circle
+                className="tech-ring"
+                cx="300"
+                cy="240"
+                r="185"
+                fill="none"
+                stroke={brandCyan}
+                strokeWidth="1"
+                strokeDasharray="8 12"
+                style={{ transformOrigin: '300px 240px' }}
+              />
+              {/* Middle ring - reverse spin */}
+              <circle
+                className="tech-ring-reverse"
+                cx="300"
+                cy="240"
+                r="170"
+                fill="none"
+                stroke={brandPurple}
+                strokeWidth="0.5"
+                strokeDasharray="4 8"
+                style={{ transformOrigin: '300px 240px' }}
+              />
+              {/* Inner dotted ring */}
+              <circle
+                className="tech-ring"
+                cx="300"
+                cy="240"
+                r="155"
+                fill="none"
+                stroke={brandPink}
+                strokeWidth="0.5"
+                strokeDasharray="2 6"
+                style={{ transformOrigin: '300px 240px' }}
+              />
+              {/* Corner markers for HUD feel */}
+              <g stroke={brandCyan} strokeWidth="1" opacity="0.4">
+                <path d="M130 90 L150 90 L150 110" fill="none" />
+                <path d="M470 90 L450 90 L450 110" fill="none" />
+                <path d="M130 390 L150 390 L150 370" fill="none" />
+                <path d="M470 390 L450 390 L450 370" fill="none" />
+              </g>
+            </g>
+          )}
 
           {/* Anatomical Brain Shape - Left Hemisphere */}
           <path
@@ -1261,7 +1418,7 @@ export default function HeroCircuitBrain() {
             )}
           </g>
 
-          {/* Ripples */}
+          {/* Ripples - Enhanced multi-ring explosion */}
           <g>
             {ripples.map((r) => (
               <circle
@@ -1272,12 +1429,36 @@ export default function HeroCircuitBrain() {
                 fill="transparent"
                 stroke={r.color}
                 strokeWidth="2"
-                style={{ filter: `drop-shadow(0 0 8px ${r.color})` }}
+                style={{ filter: `drop-shadow(0 0 12px ${r.color})` }}
               >
-                <animate attributeName="r" values="2;40" dur="0.6s" fill="freeze" />
-                <animate attributeName="opacity" values="0.7;0" dur="0.6s" fill="freeze" />
+                <animate attributeName="r" values="2;50" dur="0.8s" fill="freeze" />
+                <animate attributeName="opacity" values="0.8;0" dur="0.8s" fill="freeze" />
+                <animate attributeName="stroke-width" values="3;0.5" dur="0.8s" fill="freeze" />
               </circle>
             ))}
+          </g>
+
+          {/* Particle Burst - Synaptic Explosion */}
+          <g>
+            {particles.map((p) => {
+              const tx = Math.cos(p.angle) * p.speed;
+              const ty = Math.sin(p.angle) * p.speed;
+              return (
+                <circle
+                  key={p.id}
+                  cx={p.x}
+                  cy={p.y}
+                  r={p.size}
+                  fill={p.color}
+                  style={{
+                    filter: `drop-shadow(0 0 6px ${p.color})`,
+                    animation: 'particleBurst 0.8s ease-out forwards',
+                    ['--tx' as string]: `${tx}px`,
+                    ['--ty' as string]: `${ty}px`,
+                  }}
+                />
+              );
+            })}
           </g>
 
           {/* Pulses */}
@@ -1320,8 +1501,18 @@ export default function HeroCircuitBrain() {
                     setTimeout(() => setHoveredNode(null), 100);
                   }}
                   onKeyDown={(e) => handleKeyDown(e, node)}
-                  onMouseEnter={() => !isMobile && setHoveredNode(node.id)}
-                  onMouseLeave={() => !isMobile && setHoveredNode(null)}
+                  onMouseEnter={() => {
+                    if (!isMobile) {
+                      setHoveredNode(node.id);
+                      setTooltipNode(node);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (!isMobile) {
+                      setHoveredNode(null);
+                      setTooltipNode(null);
+                    }
+                  }}
                   onTouchStart={() => setHoveredNode(node.id)}
                   tabIndex={0}
                   role="button"
@@ -1435,6 +1626,88 @@ export default function HeroCircuitBrain() {
             </g>
           )}
         </svg>
+
+        {/* Floating Tooltip - appears on hover */}
+        {tooltipNode && !isMobile && (
+          <div
+            className="floating-tooltip"
+            style={{
+              position: 'absolute',
+              top: Math.min(tooltipNode.position.y - 30, 320),
+              left: tooltipNode.position.x > 300
+                ? tooltipNode.position.x - 180
+                : tooltipNode.position.x + 30,
+              width: 200,
+              padding: spacing[3],
+              background: 'linear-gradient(135deg, rgba(11,15,28,0.98) 0%, rgba(5,6,13,0.98) 100%)',
+              border: `1px solid ${tooltipNode.color}40`,
+              borderRadius: radius.lg,
+              boxShadow: `0 8px 32px rgba(0,0,0,0.4), 0 0 20px ${tooltipNode.color}20`,
+              backdropFilter: 'blur(12px)',
+              pointerEvents: 'none',
+              zIndex: 20,
+            }}
+          >
+            {/* Tooltip arrow */}
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              [tooltipNode.position.x > 300 ? 'right' : 'left']: -6,
+              transform: 'translateY(-50%)',
+              width: 0,
+              height: 0,
+              borderTop: '6px solid transparent',
+              borderBottom: '6px solid transparent',
+              [tooltipNode.position.x > 300 ? 'borderLeft' : 'borderRight']: `6px solid ${tooltipNode.color}40`,
+            }} />
+
+            {/* Icon & Title */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: spacing[2],
+              marginBottom: spacing[2],
+            }}>
+              <span style={{ fontSize: 20 }}>{tooltipNode.icon}</span>
+              <span style={{
+                fontSize: typography.size.sm,
+                fontWeight: typography.weight.bold,
+                color: tooltipNode.color,
+              }}>
+                {isArabic ? tooltipNode.labelAr : tooltipNode.labelEn}
+              </span>
+            </div>
+
+            {/* Description preview */}
+            <p style={{
+              margin: 0,
+              fontSize: typography.size.xs,
+              color: colors.text.secondary,
+              lineHeight: typography.lineHeight.relaxed,
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}>
+              {tooltipNode.content.subtitle}
+            </p>
+
+            {/* Click hint */}
+            <div style={{
+              marginTop: spacing[2],
+              paddingTop: spacing[2],
+              borderTop: `1px solid ${colors.border.subtle}`,
+              fontSize: 10,
+              color: colors.text.muted,
+              display: 'flex',
+              alignItems: 'center',
+              gap: spacing[1],
+            }}>
+              <span style={{ color: tooltipNode.color }}>→</span>
+              {isArabic ? 'انقر للمزيد' : 'Click to explore'}
+            </div>
+          </div>
+        )}
 
         {/* Instruction hint */}
         <div

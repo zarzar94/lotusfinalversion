@@ -97,6 +97,7 @@ export default function AchievementToast() {
     learning: brandPurple,
     mastery: '#f59e0b',
     engagement: brandPink,
+    clinical: '#22c55e',
   }[recentUnlock.category];
 
   return (

@@ -11,6 +11,7 @@ import StickyCTA from './components/StickyCTA';
 import ErrorBoundary from './components/ErrorBoundary';
 import { GamificationProvider } from './context/GamificationContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { UserProvider } from './context/UserContext';
 import SectionLoader from './components/SectionLoader';
 import FadeIn from './components/FadeIn';
 import ScrollProgressBar from './components/ScrollProgressBar';
@@ -18,9 +19,16 @@ import AchievementToast from './components/AchievementToast';
 import ProgressDashboard from './components/ProgressDashboard';
 import ScrollProgressTracker from './components/ScrollProgressTracker';
 import ActivityFeed from './components/ActivityFeed';
+import NotificationCenter from './components/NotificationCenter';
+import { ProgressExportButton } from './components/ProgressExport';
+import { useClinicalSync } from './hooks/useClinicalSync';
 
 // Lazy load pages
 const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
+const SchoolDashboard = lazy(() => import('./components/analytics/SchoolDashboard'));
+const ParentDashboard = lazy(() => import('./components/analytics/ParentDashboard'));
+const ClinicianDashboard = lazy(() => import('./components/analytics/ClinicianDashboard'));
+const SettingsPage = lazy(() => import('./components/SettingsPage'));
 
 // Lazy load all non-critical sections for better initial load
 const PlatformNav = lazy(() => import('./components/PlatformNav'));
@@ -73,6 +81,9 @@ LazySection.displayName = 'LazySection';
 
 // Home page content
 function HomePage() {
+  // Sync clinical progress when patient logs in
+  useClinicalSync();
+
   useEffect(() => {
     const scrollToHash = () => {
       const hash = window.location.hash;
@@ -287,6 +298,11 @@ function HomePage() {
       <ProgressDashboard />
       <ScrollProgressTracker />
       <ActivityFeed />
+      <NotificationCenter />
+      {/* Hidden export button that listens for export-progress event */}
+      <div style={{ position: 'fixed', bottom: -100, left: -100, opacity: 0, pointerEvents: 'none' }}>
+        <ProgressExportButton />
+      </div>
     </div>
   );
 }
@@ -330,19 +346,53 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <LanguageProvider>
-          <GamificationProvider>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route
-                path="/function/:slug"
-                element={
-                  <Suspense fallback={<PageLoader />}>
-                    <BrainFunctionPage />
-                  </Suspense>
-                }
-              />
-            </Routes>
-          </GamificationProvider>
+          <UserProvider>
+            <GamificationProvider>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route
+                  path="/function/:slug"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <BrainFunctionPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/school-dashboard"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <SchoolDashboard />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/parent-dashboard"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ParentDashboard />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/clinician-dashboard"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ClinicianDashboard />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/settings"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <SettingsPage />
+                    </Suspense>
+                  }
+                />
+              </Routes>
+            </GamificationProvider>
+          </UserProvider>
         </LanguageProvider>
       </BrowserRouter>
     </ErrorBoundary>

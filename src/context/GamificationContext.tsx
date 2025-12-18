@@ -11,7 +11,7 @@ export interface Achievement {
   points: number;
   unlocked: boolean;
   unlockedAt?: number;
-  category: 'exploration' | 'learning' | 'mastery' | 'engagement';
+  category: 'exploration' | 'learning' | 'mastery' | 'engagement' | 'clinical';
 }
 
 export interface BrainRegion {
@@ -38,6 +38,11 @@ export interface GamificationState {
   totalTimeSpent: number; // in seconds
   maxScrollProgress: number; // 0-100
   videosWatched: string[];
+  // Clinical tracking
+  clinicalSessionsCompleted: number;
+  clinicalStreak: number;
+  lastClinicalActivity: number;
+  treatmentPhase: 'assessment' | 'active' | 'maintenance' | 'completed';
 }
 
 const INITIAL_ACHIEVEMENTS: Achievement[] = [
@@ -234,6 +239,106 @@ const INITIAL_ACHIEVEMENTS: Achievement[] = [
     unlocked: false,
     category: 'engagement',
   },
+  // Clinical achievements - Treatment milestones
+  {
+    id: 'treatment_started',
+    title: 'Treatment Pioneer',
+    titleAr: 'رائد العلاج',
+    description: 'Complete your first treatment session',
+    descriptionAr: 'أكمل جلستك العلاجية الأولى',
+    icon: '🏥',
+    points: 50,
+    unlocked: false,
+    category: 'clinical',
+  },
+  {
+    id: 'week_one',
+    title: 'Week One Champion',
+    titleAr: 'بطل الأسبوع الأول',
+    description: 'Complete 5 treatment sessions',
+    descriptionAr: 'أكمل 5 جلسات علاجية',
+    icon: '📅',
+    points: 100,
+    unlocked: false,
+    category: 'clinical',
+  },
+  {
+    id: 'halfway_hero',
+    title: 'Halfway Hero',
+    titleAr: 'بطل المنتصف',
+    description: 'Complete 10 treatment sessions',
+    descriptionAr: 'أكمل 10 جلسات علاجية',
+    icon: '⭐',
+    points: 150,
+    unlocked: false,
+    category: 'clinical',
+  },
+  {
+    id: 'treatment_graduate',
+    title: 'Treatment Graduate',
+    titleAr: 'خريج العلاج',
+    description: 'Complete all 20 treatment sessions',
+    descriptionAr: 'أكمل جميع الجلسات العلاجية الـ 20',
+    icon: '🎓',
+    points: 300,
+    unlocked: false,
+    category: 'clinical',
+  },
+  {
+    id: 'streak_starter',
+    title: 'Consistency Starter',
+    titleAr: 'بداية الاستمرارية',
+    description: 'Maintain a 3-day activity streak',
+    descriptionAr: 'حافظ على نشاط لمدة 3 أيام متتالية',
+    icon: '🔥',
+    points: 30,
+    unlocked: false,
+    category: 'clinical',
+  },
+  {
+    id: 'streak_master',
+    title: 'Streak Master',
+    titleAr: 'سيد الاستمرارية',
+    description: 'Maintain a 7-day activity streak',
+    descriptionAr: 'حافظ على نشاط لمدة 7 أيام متتالية',
+    icon: '💪',
+    points: 75,
+    unlocked: false,
+    category: 'clinical',
+  },
+  {
+    id: 'attention_improved',
+    title: 'Focus Enhanced',
+    titleAr: 'تركيز محسّن',
+    description: 'Improve your attention score by 10%',
+    descriptionAr: 'حسّن درجة انتباهك بنسبة 10٪',
+    icon: '🎯',
+    points: 100,
+    unlocked: false,
+    category: 'clinical',
+  },
+  {
+    id: 'processing_boost',
+    title: 'Quick Processor',
+    titleAr: 'معالج سريع',
+    description: 'Improve your processing speed by 15%',
+    descriptionAr: 'حسّن سرعة معالجتك بنسبة 15٪',
+    icon: '⚡',
+    points: 100,
+    unlocked: false,
+    category: 'clinical',
+  },
+  {
+    id: 'auditory_ace',
+    title: 'Auditory Ace',
+    titleAr: 'خبير السمع',
+    description: 'Achieve 80%+ auditory discrimination score',
+    descriptionAr: 'حقق درجة تمييز سمعي أعلى من 80٪',
+    icon: '👂',
+    points: 150,
+    unlocked: false,
+    category: 'clinical',
+  },
 ];
 
 const BRAIN_REGIONS: BrainRegion[] = [
@@ -302,39 +407,7 @@ const BRAIN_REGIONS: BrainRegion[] = [
 const STORAGE_KEY = 'lotus_gamification_state';
 
 const getInitialState = (): GamificationState => {
-  if (typeof window === 'undefined') {
-    return {
-      achievements: INITIAL_ACHIEVEMENTS,
-      totalPoints: 0,
-      level: 1,
-      exploredBrainRegions: [],
-      slidesViewed: [],
-      checklistCompleted: false,
-      gamesCompleted: [],
-      audioJourneyProgress: 0,
-      sessionStartTime: Date.now(),
-      totalTimeSpent: 0,
-      maxScrollProgress: 0,
-      videosWatched: [],
-    };
-  }
-
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    try {
-      const parsed = JSON.parse(saved);
-      return {
-        ...parsed,
-        sessionStartTime: Date.now(),
-        maxScrollProgress: parsed.maxScrollProgress || 0,
-        videosWatched: parsed.videosWatched || [],
-      };
-    } catch {
-      // Invalid data, return fresh state
-    }
-  }
-
-  return {
+  const defaultState: GamificationState = {
     achievements: INITIAL_ACHIEVEMENTS,
     totalPoints: 0,
     level: 1,
@@ -347,7 +420,39 @@ const getInitialState = (): GamificationState => {
     totalTimeSpent: 0,
     maxScrollProgress: 0,
     videosWatched: [],
+    // Clinical tracking defaults
+    clinicalSessionsCompleted: 0,
+    clinicalStreak: 0,
+    lastClinicalActivity: 0,
+    treatmentPhase: 'assessment',
   };
+
+  if (typeof window === 'undefined') {
+    return defaultState;
+  }
+
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      return {
+        ...defaultState,
+        ...parsed,
+        sessionStartTime: Date.now(),
+        maxScrollProgress: parsed.maxScrollProgress || 0,
+        videosWatched: parsed.videosWatched || [],
+        // Ensure clinical fields exist
+        clinicalSessionsCompleted: parsed.clinicalSessionsCompleted || 0,
+        clinicalStreak: parsed.clinicalStreak || 0,
+        lastClinicalActivity: parsed.lastClinicalActivity || 0,
+        treatmentPhase: parsed.treatmentPhase || 'assessment',
+      };
+    } catch {
+      // Invalid data, return fresh state
+    }
+  }
+
+  return defaultState;
 };
 
 interface GamificationContextType {
@@ -366,6 +471,18 @@ interface GamificationContextType {
   recentUnlock: Achievement | null;
   clearRecentUnlock: () => void;
   playUnlockSound: () => void;
+  // Clinical tracking methods
+  completeClinicalSession: () => void;
+  updateClinicalStreak: () => void;
+  setTreatmentPhase: (phase: GamificationState['treatmentPhase']) => void;
+  getClinicalAchievements: () => Achievement[];
+  syncClinicalProgress: (progress: {
+    sessionsCompleted?: number;
+    streak?: number;
+    attentionScore?: number;
+    processingSpeed?: number;
+    auditoryDiscrimination?: number;
+  }) => void;
 }
 
 const GamificationContext = createContext<GamificationContextType | null>(null);
@@ -567,6 +684,112 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     setRecentUnlock(null);
   }, []);
 
+  // Clinical tracking methods
+  const completeClinicalSession = useCallback(() => {
+    setState((prev) => {
+      const clinicalSessionsCompleted = prev.clinicalSessionsCompleted + 1;
+
+      let treatmentPhase: GamificationState['treatmentPhase'] = prev.treatmentPhase;
+      if (clinicalSessionsCompleted >= 20) {
+        treatmentPhase = 'completed';
+      } else if (clinicalSessionsCompleted >= 15) {
+        treatmentPhase = 'maintenance';
+      } else if (clinicalSessionsCompleted >= 1) {
+        treatmentPhase = 'active';
+      }
+
+      return {
+        ...prev,
+        clinicalSessionsCompleted,
+        treatmentPhase,
+      };
+    });
+  }, []);
+
+  const updateClinicalStreak = useCallback(() => {
+    setState((prev) => {
+      const now = Date.now();
+      const lastActivity = prev.lastClinicalActivity;
+      const oneDayMs = 24 * 60 * 60 * 1000;
+
+      let clinicalStreak = prev.clinicalStreak;
+      if (lastActivity === 0 || now - lastActivity > 2 * oneDayMs) {
+        clinicalStreak = 1;
+      } else if (now - lastActivity > oneDayMs) {
+        clinicalStreak = prev.clinicalStreak + 1;
+      }
+
+      return {
+        ...prev,
+        clinicalStreak,
+        lastClinicalActivity: now,
+      };
+    });
+  }, []);
+
+  const setTreatmentPhase = useCallback((phase: GamificationState['treatmentPhase']) => {
+    setState(prev => ({ ...prev, treatmentPhase: phase }));
+  }, []);
+
+  const clinicalAchievements = useMemo(() => {
+    return state.achievements.filter(a => a.category === 'clinical');
+  }, [state.achievements]);
+
+  const getClinicalAchievements = useCallback(() => clinicalAchievements, [clinicalAchievements]);
+
+  const syncClinicalProgress = useCallback((progress: {
+    sessionsCompleted?: number;
+    streak?: number;
+    attentionScore?: number;
+    processingSpeed?: number;
+    auditoryDiscrimination?: number;
+  }) => {
+    setState((prev) => {
+      let changed = false;
+      const next: GamificationState = { ...prev };
+
+      if (
+        progress.sessionsCompleted !== undefined &&
+        progress.sessionsCompleted > prev.clinicalSessionsCompleted
+      ) {
+        next.clinicalSessionsCompleted = progress.sessionsCompleted;
+        changed = true;
+
+        if (progress.sessionsCompleted >= 20) {
+          next.treatmentPhase = 'completed';
+        } else if (progress.sessionsCompleted >= 15) {
+          next.treatmentPhase = 'maintenance';
+        } else if (progress.sessionsCompleted >= 1) {
+          next.treatmentPhase = 'active';
+        }
+      }
+
+      if (progress.streak !== undefined && progress.streak !== prev.clinicalStreak) {
+        next.clinicalStreak = progress.streak;
+        changed = true;
+      }
+
+      if (!changed) return prev;
+
+      next.lastClinicalActivity = Date.now();
+      return next;
+    });
+
+    // Check score-based achievements
+    if (progress.attentionScore !== undefined && progress.attentionScore >= 10) {
+      // 10% improvement triggers achievement
+      unlockAchievement('attention_improved');
+    }
+    if (progress.processingSpeed !== undefined && progress.processingSpeed >= 15) {
+      // 15% improvement triggers achievement
+      unlockAchievement('processing_boost');
+    }
+    if (progress.auditoryDiscrimination !== undefined && progress.auditoryDiscrimination >= 80) {
+      // 80%+ score triggers achievement
+      unlockAchievement('auditory_ace');
+    }
+  }, [unlockAchievement]);
+
   const brainRegions = useMemo(() => {
     const exploredSet = new Set(state.exploredBrainRegions);
     return BRAIN_REGIONS.map(region => ({
@@ -643,6 +866,24 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     if (state.videosWatched.length >= 1 && !isUnlocked('video_watcher')) {
       unlockAchievement('video_watcher');
     }
+    if (state.clinicalSessionsCompleted >= 1 && !isUnlocked('treatment_started')) {
+      unlockAchievement('treatment_started');
+    }
+    if (state.clinicalSessionsCompleted >= 5 && !isUnlocked('week_one')) {
+      unlockAchievement('week_one');
+    }
+    if (state.clinicalSessionsCompleted >= 10 && !isUnlocked('halfway_hero')) {
+      unlockAchievement('halfway_hero');
+    }
+    if (state.clinicalSessionsCompleted >= 20 && !isUnlocked('treatment_graduate')) {
+      unlockAchievement('treatment_graduate');
+    }
+    if (state.clinicalStreak >= 3 && !isUnlocked('streak_starter')) {
+      unlockAchievement('streak_starter');
+    }
+    if (state.clinicalStreak >= 7 && !isUnlocked('streak_master')) {
+      unlockAchievement('streak_master');
+    }
   }, [
     state.exploredBrainRegions.length,
     state.slidesViewed.length,
@@ -651,6 +892,8 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     state.audioJourneyProgress,
     state.maxScrollProgress,
     state.videosWatched.length,
+    state.clinicalSessionsCompleted,
+    state.clinicalStreak,
     state.achievements,
     unlockAchievement,
   ]);
@@ -745,6 +988,12 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
         recentUnlock,
         clearRecentUnlock,
         playUnlockSound,
+        // Clinical tracking
+        completeClinicalSession,
+        updateClinicalStreak,
+        setTreatmentPhase,
+        getClinicalAchievements,
+        syncClinicalProgress,
       }}
     >
       {children}
