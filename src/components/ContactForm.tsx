@@ -2,7 +2,7 @@ import React, { FormEvent, useMemo, useState, useEffect, useCallback, memo, useR
 
 import { CLINIC } from '../data/clinic';
 import { handleWhatsApp } from '../utils/whatsapp';
-import { brandCyan, brandPurple, brandPurpleDark } from './styles';
+import { brandCyan, brandPurple, brandPurpleDark, brandColors, transitions } from './styles';
 import { BrainLogoSVG } from './BrainLogo';
 
 const normaliseDigits = (value: string) => value.replace(/\D/g, '');
@@ -61,7 +61,7 @@ const batteryOuterStyle: React.CSSProperties = {
 const batteryInnerStyle: React.CSSProperties = {
   width: '80%',
   height: '100%',
-  background: '#32D74B',
+  background: brandColors.success,
   borderRadius: 1.5,
 };
 
@@ -561,7 +561,7 @@ const ContactForm = () => {
     padding: '16px',
     borderRadius: 14,
     border: 'none',
-    background: requiredValid ? '#25D366' : 'rgba(255,255,255,0.1)',
+    background: requiredValid ? brandColors.whatsapp : 'rgba(255,255,255,0.1)',
     color: requiredValid ? '#fff' : 'rgba(255,255,255,0.4)',
     fontSize: 17,
     fontWeight: 600,
@@ -609,7 +609,7 @@ const ContactForm = () => {
 
               <div style={{ display: 'flex', gap: 40, marginTop: 20 }}>
                 <CallActionButton icon={<EmailIcon />} label="البريد" onClick={handleEmailClick} />
-                <CallActionButton icon={<PhoneIcon />} label="إعادة" color="#32D74B" onClick={handleReset} />
+                <CallActionButton icon={<PhoneIcon />} label="إعادة" color={brandColors.success} onClick={handleReset} />
                 <CallActionButton icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.55 0 1-.45 1-1v-1c0-.35-.19-.68-.49-.86-.31-.18-.69-.2-1.01-.05-1.09.52-2.37.75-3.71.51-2.73-.5-4.93-2.72-5.42-5.45C1.84 9.32 5.12 5 10 5c3.87 0 7 3.13 7 7-1.1 0-2 .9-2 2v2.5c0 .27.22.5.5.5s.5-.22.5-.5V14c0-.55.45-1 1-1h2c.55 0 1-.45 1-1 0-5.52-4.48-10-10-10z"/></svg>} label="Instagram" onClick={handleInstagramClick} />
               </div>
 
@@ -686,7 +686,7 @@ const ContactForm = () => {
                   <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingRight: 4 }}>رقم WhatsApp *</label>
                   <IOSInput value={phone} onChange={setPhone} placeholder="+971 XX XXX XXXX" type="tel" dir="ltr" />
                   {phone && !isValidPhone(phone) && (
-                    <span style={{ fontSize: 12, color: '#FF453A', paddingRight: 4 }}>أدخل رقم صحيح (9–15 رقم)</span>
+                    <span style={{ fontSize: 12, color: brandColors.error, paddingRight: 4 }}>أدخل رقم صحيح (9–15 رقم)</span>
                   )}
                 </AnimatedFormField>
 
@@ -749,14 +749,14 @@ const ContactForm = () => {
                   <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>Sound Lab • {CLINIC.city}</p>
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  <span style={{ background: 'rgba(37,211,102,0.15)', color: '#25D366', padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>WhatsApp متاح</span>
+                  <span style={{ background: brandColors.whatsappLight, color: brandColors.whatsapp, padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>WhatsApp متاح</span>
                   <span style={{ background: 'rgba(143,211,204,0.15)', color: brandCyan, padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>استشارة مجانية</span>
                 </div>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: 30, width: '100%' }}>
                 <CallActionButton icon={<MessageIcon />} label="رسالة" color="rgba(255,255,255,0.12)" onClick={handleShowForm} />
-                <CallActionButton icon={<WhatsAppIcon />} label="WhatsApp" color="#25D366" onClick={handleQuickWhatsApp} />
+                <CallActionButton icon={<WhatsAppIcon />} label="WhatsApp" color={brandColors.whatsapp} onClick={handleQuickWhatsApp} />
                 <CallActionButton icon={<EmailIcon />} label="البريد" color="rgba(255,255,255,0.12)" onClick={handleEmailClick} />
               </div>
 
@@ -781,7 +781,7 @@ const ContactForm = () => {
                 <a href={CLINIC.socials.instagram} target="_blank" rel="noreferrer" style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
                   <InstagramIcon />
                 </a>
-                <a href={CLINIC.socials.linkedin} target="_blank" rel="noreferrer" style={{ width: 44, height: 44, borderRadius: '50%', background: '#0A66C2', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+                <a href={CLINIC.socials.linkedin} target="_blank" rel="noreferrer" style={{ width: 44, height: 44, borderRadius: '50%', background: brandColors.linkedin, display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
                   <LinkedInIcon />
                 </a>
               </div>
