@@ -89,10 +89,48 @@ const Footer = () => {
       transform: translateY(-2px);
       box-shadow: 0 15px 40px rgba(143,211,204,0.2);
     }
+    @media (max-width: 640px) {
+      .footer-main {
+        padding: 28px 16px 20px !important;
+      }
+      .footer-top-grid {
+        gap: 20px !important;
+      }
+      .footer-middle-section {
+        gap: 20px !important;
+        padding-top: 20px !important;
+      }
+      .location-card {
+        padding: 16px !important;
+        gap: 12px !important;
+      }
+      .contact-card {
+        padding: 16px !important;
+      }
+      .quick-links-container {
+        gap: 6px !important;
+      }
+      .quick-link-item {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+      }
+      .social-icons-container {
+        gap: 8px !important;
+      }
+      .social-icon {
+        width: 40px !important;
+        height: 40px !important;
+      }
+      .footer-bottom-bar {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 12px !important;
+      }
+    }
   `, []);
 
   return (
-    <footer style={{
+    <footer className="footer-main" style={{
       background: 'linear-gradient(180deg, rgba(11,15,28,0.95) 0%, rgba(5,6,13,1) 100%)',
       borderTop: '1px solid rgba(143,211,204,0.15)',
       padding: '40px 20px 24px',
@@ -133,9 +171,9 @@ const Footer = () => {
 
       <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         {/* Top Section - Brand + Location */}
-        <div style={{
+        <div className="footer-top-grid" style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
           gap: 30,
           marginBottom: 30,
         }}>
@@ -211,7 +249,7 @@ const Footer = () => {
           </a>
 
           {/* Contact Card */}
-          <div style={{
+          <div className="contact-card" style={{
             padding: '20px 24px',
             background: 'rgba(176,18,112,0.06)',
             border: '1px solid rgba(176,18,112,0.15)',
@@ -245,7 +283,7 @@ const Footer = () => {
         </div>
 
         {/* Middle Section - Links + Social */}
-        <div style={{
+        <div className="footer-middle-section" style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
@@ -259,7 +297,7 @@ const Footer = () => {
             <div style={{ fontWeight: 800, fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 14, letterSpacing: 1 }}>
               {t('common.quickLinks')}
             </div>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <div className="quick-links-container" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {QUICK_LINKS.map((link) => (
                 <Link
                   key={link.to}
@@ -291,7 +329,7 @@ const Footer = () => {
             <div style={{ fontWeight: 800, fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 14, letterSpacing: 1 }}>
               {t('common.followUs')}
             </div>
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div className="social-icons-container" style={{ display: 'flex', gap: 10 }}>
               {social.map((s) => (
                 <a
                   key={s.name}
@@ -322,7 +360,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div style={{
+        <div className="footer-bottom-bar" style={{
           marginTop: 30,
           paddingTop: 20,
           borderTop: '1px solid rgba(255,255,255,0.06)',

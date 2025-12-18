@@ -137,6 +137,33 @@ const iosScrollCss = `
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
   }
+  @media (max-width: 420px) {
+    .iphone-frame {
+      max-width: 100% !important;
+      min-height: 580px !important;
+      border-radius: 44px !important;
+      border-width: 6px !important;
+    }
+    .iphone-screen {
+      border-radius: 38px !important;
+    }
+    .contact-header-text {
+      font-size: 20px !important;
+    }
+    .contact-subtext {
+      font-size: 13px !important;
+    }
+  }
+  @media (max-width: 360px) {
+    .iphone-frame {
+      min-height: 520px !important;
+      border-radius: 36px !important;
+      border-width: 5px !important;
+    }
+    .iphone-screen {
+      border-radius: 32px !important;
+    }
+  }
 `;
 
 // Memoized sub-components
@@ -537,7 +564,7 @@ const ContactForm = () => {
     width: '100%',
     maxWidth: 390,
     aspectRatio: '390/844',
-    minHeight: 700,
+    minHeight: 640,
     background: 'linear-gradient(180deg, #1c1c1e 0%, #000000 100%)',
     borderRadius: 55,
     border: '8px solid #2c2c2e',
@@ -575,15 +602,16 @@ const ContactForm = () => {
 
   return (
     <section id="contact" style={sectionStyle}>
-      <div style={{ textAlign: 'center', maxWidth: 500 }}>
-        <h2 style={headerStyle}>تواصل معنا</h2>
-        <p style={{ margin: 0, opacity: 0.7, fontSize: 14, lineHeight: 1.6 }}>
+      <style>{iosScrollCss}</style>
+      <div style={{ textAlign: 'center', maxWidth: 500, padding: '0 16px' }}>
+        <h2 className="contact-header-text" style={headerStyle}>تواصل معنا</h2>
+        <p className="contact-subtext" style={{ margin: 0, opacity: 0.7, fontSize: 14, lineHeight: 1.6 }}>
           جاهزون لاستقبال أولياء الأمور، وكذلك تنسيق عروض تجريبية وشراكات مع المدارس والجامعات.
         </p>
       </div>
 
-      <div style={iPhoneFrameStyle}>
-        <div style={screenStyle}>
+      <div className="iphone-frame" style={iPhoneFrameStyle}>
+        <div className="iphone-screen" style={screenStyle}>
           <DynamicIsland />
           <IOSStatusBar time={currentTime} />
 
@@ -619,7 +647,6 @@ const ContactForm = () => {
             </div>
           ) : showForm ? (
             <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100% - 50px)', position: 'relative' }}>
-              <style>{iosScrollCss}</style>
 
               {/* Header with back button */}
               <div style={{
