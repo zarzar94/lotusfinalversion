@@ -14,6 +14,7 @@ import {
 } from './styles';
 import { BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
 import { useLanguage } from '../context/LanguageContext';
+import { useVisitorMode } from '../context/VisitorModeContext';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -455,6 +456,7 @@ InfoModal.displayName = 'InfoModal';
 
 const HeroCircuitBrain = memo(function HeroCircuitBrain() {
   const { isArabic, direction } = useLanguage();
+  const { setMode } = useVisitorMode();
   const navigate = useNavigate();
   const text = isArabic ? heroText.ar : heroText.en;
 
@@ -845,7 +847,10 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
             marginTop: spacing[2],
           }}>
             <button
-              onClick={() => navigate('/contact')}
+              onClick={() => {
+                setMode('school');
+                navigate('/contact');
+              }}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -867,7 +872,10 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
               <span style={{ transform: isArabic ? 'rotate(180deg)' : 'none' }}>→</span>
             </button>
             <button
-              onClick={() => navigate('/assessment')}
+              onClick={() => {
+                setMode('parent');
+                navigate('/assessment');
+              }}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',

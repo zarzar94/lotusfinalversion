@@ -457,7 +457,7 @@ const LabModeSelector = memo(function LabModeSelector() {
           position: 'relative',
         }}
       >
-        {(['parent', 'school', 'clinician'] as VisitorMode[]).map((modeType) => (
+        {(['school', 'parent', 'clinician'] as VisitorMode[]).map((modeType) => (
           <ModeCard
             key={modeType}
             mode={modeType}
