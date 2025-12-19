@@ -547,7 +547,7 @@ function TestCard({
 
 const GameSection = memo(function GameSection() {
   const { mode: visitorMode, config: visitorConfig, isSchool, isParent, isClinician } = useVisitorMode();
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
 
   const [mode, setMode] = useState<GameMode | null>(null);
   const [briefingMode, setBriefingMode] = useState<GameMode | null>(null);
@@ -621,55 +621,81 @@ const GameSection = memo(function GameSection() {
     setModalOutcome(null);
   }, []);
 
+  const cardLabels = useMemo(() => ({
+    moduleLabel: t('games.moduleLabel'),
+    signalPreview: t('games.signalPreview'),
+    statusReady: t('games.moduleStatusReady'),
+    statusStandby: t('games.moduleStatusStandby'),
+    statusActive: t('games.moduleStatusActive'),
+    statusIdle: t('games.moduleStatusIdle'),
+    outputsLabel: t('games.outputsLabel'),
+    disclaimer: t('games.nonDiagnostic'),
+    startModule: t('games.startModule'),
+  }), [t]);
+
+  const outputLabels = useMemo(() => ({
+    rt: t('games.outputs.rt'),
+    accuracy: t('games.outputs.accuracy'),
+    threshold: t('games.outputs.threshold'),
+    span: t('games.outputs.span'),
+    score: t('games.outputs.score'),
+    profile: t('games.outputs.profile'),
+  }), [t]);
+
   const cards = useMemo(
     () => [
       {
         mode: 'suite' as const,
-        title: 'معمل الفحص السمعي الشامل',
-        fullTitle: '🧪 معمل الفحص السمعي (3 اختبارات) — تقرير PDF/CSV',
-        desc: 'جلسة تفاعلية لقياس مؤشرات الانتباه + تمييز التردد + التسلسل',
+        title: t('games.modules.suite.name'),
+        fullTitle: t('games.modules.suite.name'),
+        desc: t('games.modules.suite.measure'),
+        outputs: [outputLabels.rt, outputLabels.accuracy, outputLabels.threshold, outputLabels.span],
         tag: 'FULL SUITE',
         color: '#22c55e',
         waveType: 'ecg' as const,
       },
       {
         mode: 'attention' as const,
-        title: 'اختبار الانتباه السمعي',
-        fullTitle: '🎯 اختبار الانتباه السمعي تحت الضوضاء (Go/No-Go)',
-        desc: 'قياس الانتباه الانتقائي + الاندفاعية وزمن الاستجابة',
+        title: t('games.modules.attention.name'),
+        fullTitle: t('games.modules.attention.name'),
+        desc: t('games.modules.attention.measure'),
+        outputs: [outputLabels.rt, outputLabels.accuracy],
         tag: 'ATTENTION',
         color: '#3B82F6',
         waveType: 'spo2' as const,
       },
       {
         mode: 'frequency' as const,
-        title: 'اختبار تمييز التردد',
-        fullTitle: '🎚️ اختبار تمييز التردد (Adaptive 2IFC)',
-        desc: 'تقدير عتبة تمييز فروقات التردد عبر صعوبة تكيفية',
+        title: t('games.modules.frequency.name'),
+        fullTitle: t('games.modules.frequency.name'),
+        desc: t('games.modules.frequency.measure'),
+        outputs: [outputLabels.threshold, outputLabels.accuracy, outputLabels.rt],
         tag: 'FREQUENCY',
         color: '#8B5CF6',
         waveType: 'audio' as const,
       },
       {
         mode: 'sequence' as const,
-        title: 'محاكاة الصف الدراسي — ذاكرة سمعية',
-        fullTitle: '🏫 محاكاة الصف الدراسي — تسلسل/ذاكرة سمعية تحت الضوضاء',
-        desc: 'اتباع سلسلة أوامر صوتية مع ضوضاء متزايدة',
+        title: t('games.modules.sequence.name'),
+        fullTitle: t('games.modules.sequence.name'),
+        desc: t('games.modules.sequence.measure'),
+        outputs: [outputLabels.span, outputLabels.accuracy, outputLabels.rt],
         tag: 'SEQUENCE',
         color: '#F59E0B',
         waveType: 'resp' as const,
       },
       {
         mode: 'questionnaire' as const,
-        title: 'استبيان مؤشرات للأهل',
-        fullTitle: '📝 استبيان مؤشرات للأهل (غير تشخيصي)',
-        desc: 'يعطي سياقاً ذاتياً مع الاختبارات الموضوعية',
+        title: t('games.modules.questionnaire.name'),
+        fullTitle: t('games.modules.questionnaire.name'),
+        desc: t('games.modules.questionnaire.measure'),
+        outputs: [outputLabels.score, outputLabels.profile],
         tag: 'SURVEY',
         color: brandPink,
         waveType: 'ecg' as const,
       },
     ],
-    []
+    [outputLabels, t]
   );
 
   const activeCard = cards.find(c => c.mode === mode);
@@ -718,7 +744,7 @@ const GameSection = memo(function GameSection() {
       {/* Section Header */}
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
-          <h2 style={styles.h2}>🏥 معمل الفحص السمعي</h2>
+          <h2 style={styles.h2}>{t('games.labModulesTitle')}</h2>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             <button
               onClick={() => setShowPortal(!showPortal)}
@@ -748,10 +774,7 @@ const GameSection = memo(function GameSection() {
             </span>
           </div>
         </div>
-        <p style={styles.lead}>
-          هذه <b style={{ color: brandCyan }}>اختبارات تفاعلية منظمة</b> تعطي مؤشرات قابلة للقياس.{' '}
-          <b style={{ color: brandPink }}>ليست تشخيصاً طبياً</b> ولا تغني عن تقييم أخصائي.
-        </p>
+        <p style={styles.lead}>{t('games.labModulesLead')}</p>
       </div>
 
       {/* Game Portal - Special Delivery Design */}
@@ -952,6 +975,28 @@ const GameSection = memo(function GameSection() {
             </div>
           </div>
 
+          {/* Full suite CTA */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginBottom: 16,
+          }}>
+            <button
+              type="button"
+              onClick={() => {
+                setBriefingMode(null);
+                setMode('suite');
+              }}
+              style={{
+                ...styles.primaryBtn,
+                background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
+                color: '#05060d',
+              }}
+            >
+              {t('games.startFullSuite')}
+            </button>
+          </div>
+
           {/* Test Cards Grid */}
           <div className="test-cards-grid" style={{
             display: 'grid',
@@ -964,6 +1009,9 @@ const GameSection = memo(function GameSection() {
                 title={c.title}
                 description={c.desc}
                 tag={c.tag}
+                outputs={c.outputs}
+                labels={cardLabels}
+                isArabic={isArabic}
                 waveformColor={c.color}
                 waveformType={c.waveType}
                 onClick={() => handleModeSelect(c.mode)}
