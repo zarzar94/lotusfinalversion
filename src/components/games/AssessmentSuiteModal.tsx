@@ -122,7 +122,7 @@ export default function AssessmentSuiteModal({
               <p style={{ ...styles.bodyText, marginTop: 8 }}>
                 {isArabic
                   ? <>هذا "فحص تفاعلي" (Screening) يساعد على قياس مؤشرات مرتبطة بـ <b>الانتباه السمعي</b> و<b>تمييز التردد</b> و<b>التسلسل/الذاكرة السمعية</b> تحت الضوضاء.</>
-                  : <>This is an interactive screening that helps measure indicators related to <b>auditory attention</b>, <b>frequency discrimination</b>, and <b>sequencing/auditory memory</b> in noise.</>
+                  : <>This is an interactive screening that measures indicators related to <b>auditory attention</b> (Go/No-Go and focused attention), <b>frequency discrimination</b>, <b>sequencing/auditory memory</b>, <b>dichotic listening</b>, and <b>speech in noise</b>.</>
                 }
               </p>
               <ul style={{ marginTop: 10, opacity: 0.9, lineHeight: 1.7 }}>
@@ -162,6 +162,16 @@ export default function AssessmentSuiteModal({
           <AttentionTestPanel
             onDone={(o) => {
               persistOutcome(o);
+              setStep('focused_attention');
+            }}
+            onCancel={() => setStep('summary')}
+          />
+        ) : null}
+
+        {step === 'focused_attention' ? (
+          <FocusedAttentionTestPanel
+            onDone={(o) => {
+              persistOutcome(o);
               setStep('frequency');
             }}
             onCancel={() => setStep('summary')}
@@ -181,6 +191,26 @@ export default function AssessmentSuiteModal({
         {step === 'sequence' ? (
           <SequencingTestPanel
             enableExports={false}
+            onDone={(o) => {
+              persistOutcome(o);
+              setStep('dichotic_listening');
+            }}
+            onCancel={() => setStep('summary')}
+          />
+        ) : null}
+
+        {step === 'dichotic_listening' ? (
+          <DichoticListeningTestPanel
+            onDone={(o) => {
+              persistOutcome(o);
+              setStep('speech_in_noise');
+            }}
+            onCancel={() => setStep('summary')}
+          />
+        ) : null}
+
+        {step === 'speech_in_noise' ? (
+          <SpeechInNoiseTestPanel
             onDone={(o) => {
               persistOutcome(o);
               setStep('summary');
