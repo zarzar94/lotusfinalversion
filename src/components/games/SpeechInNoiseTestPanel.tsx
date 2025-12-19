@@ -165,7 +165,9 @@ export default function SpeechInNoiseTestPanel({
     resultsRef.current = [];
     setTrialIndex(0);
     setStage('running');
-    runTrial(0, false, snrIndex);
+    const initialIndex = 1;
+    setSnrIndex(initialIndex);
+    runTrial(0, false, initialIndex);
   };
 
   const toggleWord = (word: string) => {

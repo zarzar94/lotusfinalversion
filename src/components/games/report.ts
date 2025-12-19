@@ -106,7 +106,7 @@ export const downloadSessionPdf = async (
   }
 
   // Per-test outcomes
-  const ordered: TestKey[] = ['attention', 'frequency', 'sequence', 'questionnaire'];
+  const ordered: TestKey[] = ['attention', 'focused_attention', 'frequency', 'sequence', 'dichotic_listening', 'speech_in_noise', 'questionnaire'];
   for (const key of ordered) {
     const o = session.outcomes[key];
     if (!o) continue;
