@@ -7,8 +7,11 @@ import type { AssessmentSession, GameResult, TestKey, TestOutcome } from './type
 import { resultMeta } from './types';
 import HeadphoneCheckPanel, { HeadphoneCheckResult } from './HeadphoneCheckPanel';
 import AttentionTestPanel from './AttentionTestPanel';
+import FocusedAttentionTestPanel from './FocusedAttentionTestPanel';
 import FrequencyDiscriminationTestPanel from './FrequencyDiscriminationTestPanel';
 import SequencingTestPanel from './SequencingTestPanel';
+import DichoticListeningTestPanel from './DichoticListeningTestPanel';
+import SpeechInNoiseTestPanel from './SpeechInNoiseTestPanel';
 import QuestionnairePanel from './QuestionnairePanel';
 import { downloadSessionCsv, downloadSessionPdf } from './report';
 import { saveSession as saveLabSession } from '../../utils/sessionStorage';
@@ -19,7 +22,7 @@ const genId = () => `S${Date.now().toString(36)}-${Math.random().toString(36).sl
 const scoreMap: Record<GameResult, number> = { low: 0, medium: 1, high: 2 };
 
 const compositeFrom = (outcomes: Partial<Record<TestKey, TestOutcome>>): { result: GameResult; score: number } => {
-  const keys: TestKey[] = ['attention', 'frequency', 'sequence'];
+  const keys: TestKey[] = ['attention', 'focused_attention', 'frequency', 'sequence', 'dichotic_listening', 'speech_in_noise'];
   const available = keys.map((k) => outcomes[k]).filter(Boolean) as TestOutcome[];
   if (!available.length) return { result: 'medium', score: 1 };
   const avg = available.reduce((s, o) => s + scoreMap[o.result], 0) / available.length;
@@ -34,7 +37,18 @@ export default function AssessmentSuiteModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const [step, setStep] = useState<'intro' | 'headphone' | 'attention' | 'frequency' | 'sequence' | 'questionnaire' | 'summary'>('intro');
+  const [step, setStep] = useState<
+    | 'intro'
+    | 'headphone'
+    | 'attention'
+    | 'focused_attention'
+    | 'frequency'
+    | 'sequence'
+    | 'dichotic_listening'
+    | 'speech_in_noise'
+    | 'questionnaire'
+    | 'summary'
+  >('intro');
   const [session, setSession] = useState<AssessmentSession>(() => ({ id: genId(), startedAt: Date.now(), outcomes: {} }));
   const { isArabic, direction } = useLanguage();
   const modalRef = useFocusTrap<HTMLDivElement>(open);
