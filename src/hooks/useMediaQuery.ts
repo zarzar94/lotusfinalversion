@@ -117,11 +117,4 @@ export function useIsTouchDevice(): boolean {
   return isTouch;
 }
 
-/**
- * Detect reduced motion preference
- */
-export function usePrefersReducedMotion(): boolean {
-  return useMediaQuery('(prefers-reduced-motion: reduce)');
-}
-
 export default useMediaQuery;
