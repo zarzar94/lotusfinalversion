@@ -23,7 +23,7 @@ import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 type Pulse = {
   id: string;
-  path: 'c1' | 'c2' | 'c3' | 'c4' | 'c5';
+  path: 'c1' | 'c2' | 'c3';
   color: string;
   dur: number;
   begin: number;
@@ -455,7 +455,7 @@ InfoModal.displayName = 'InfoModal';
 // ═══════════════════════════════════════════════════════════════════════════
 
 const HeroCircuitBrain = memo(function HeroCircuitBrain() {
-  const { isArabic, direction } = useLanguage();
+  const { isArabic, direction, t } = useLanguage();
   const { setMode } = useVisitorMode();
   const navigate = useNavigate();
   const text = isArabic ? heroText.ar : heroText.en;
@@ -486,7 +486,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
     rippleColors.forEach((color, i) => {
       const rippleId = uid();
       setTimeout(() => {
-        setRipples((prev) => [...prev.slice(-6), { id: rippleId, x, y, color }]);
+        setRipples((prev) => [...prev.slice(-12), { id: rippleId, x, y, color }]);
         setTimeout(() => {
           setRipples((prev) => prev.filter((r) => r.id !== rippleId));
         }, 800);
@@ -515,27 +515,40 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
       setParticles((prev) => prev.filter((p) => !newParticles.find((np) => np.id === p.id)));
     }, 1000);
 
-    const waves = 2;
-    const baseDur = 2;
+    const waves = 3;
+    const baseDur = 1.7;
     const all: Pulse[] = [];
-    const paths = ['c1', 'c2', 'c3', 'c4', 'c5'] as const;
+    const paths: Pulse['path'][] = ['c1', 'c2', 'c3'];
 
     for (let w = 0; w < waves; w++) {
-      const waveDelay = w * 0.15;
+      const waveDelay = w * 0.12;
       paths.forEach((path, i) => {
-        const color = COLORS[(w + i) % COLORS.length];
-        all.push({
-          id: uid(),
-          path,
-          color,
-          dur: baseDur + Math.random() * 1,
-          begin: waveDelay + i * 0.05,
-          r: 3 + Math.random() * 1.5,
-        });
+        const trailCount = 2;
+        for (let trail = 0; trail < trailCount; trail++) {
+          all.push({
+            id: uid(),
+            path,
+            color: COLORS[(w + i + trail) % COLORS.length],
+            dur: baseDur + Math.random() * 0.9,
+            begin: waveDelay + i * 0.07 + trail * 0.1,
+            r: 3.25 + Math.random() * 2,
+          });
+        }
       });
     }
 
-    setPulses((prev) => [...prev.slice(-40), ...all]);
+    const idsToRemove = new Set(all.map((p) => p.id));
+    const maxEndSeconds = all.reduce((max, p) => Math.max(max, p.begin + p.dur), 0);
+
+    setPulses((prev) => {
+      const maxPulses = 60;
+      const keep = Math.max(0, maxPulses - all.length);
+      return [...prev.slice(-keep), ...all];
+    });
+
+    window.setTimeout(() => {
+      setPulses((prev) => prev.filter((p) => !idsToRemove.has(p.id)));
+    }, Math.ceil((maxEndSeconds + 0.1) * 1000));
   }, [reducedMotion]);
 
   const handleNodeClick = useCallback((node: BrainFunction) => {
@@ -765,7 +778,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
               textTransform: 'uppercase',
               letterSpacing: 1,
             }}>
-              {isArabic ? 'منصة التدريب السمعي' : 'Auditory Training Platform'}
+              {t('hero.neuralLabTitle')}
             </span>
           </div>
 
@@ -799,9 +812,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
               lineHeight: typography.lineHeight.relaxed,
               maxWidth: 480,
             }}>
-              {isArabic
-                ? 'منصة متكاملة لتدريب التكامل السمعي. استكشف مناطق الدماغ واكتشف كيف يمكن للبرنامج تحسين المعالجة السمعية.'
-                : 'An integrated platform for auditory integration training. Explore brain regions and discover how the program can improve auditory processing.'}
+              {t('hero.neuralLabDescription')}
             </p>
           </div>
 
@@ -1440,65 +1451,69 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
             )}
           </g>
 
-          {/* Ripples - Enhanced multi-ring explosion */}
-          <g>
-            {ripples.map((r) => (
-              <circle
-                key={r.id}
-                cx={r.x}
-                cy={r.y}
-                r="2"
-                fill="transparent"
-                stroke={r.color}
-                strokeWidth="2"
-                style={{ filter: `drop-shadow(0 0 12px ${r.color})` }}
-              >
-                <animate attributeName="r" values="2;50" dur="0.8s" fill="freeze" />
-                <animate attributeName="opacity" values="0.8;0" dur="0.8s" fill="freeze" />
-                <animate attributeName="stroke-width" values="3;0.5" dur="0.8s" fill="freeze" />
-              </circle>
-            ))}
-          </g>
+          {!reducedMotion && (
+            <>
+              {/* Ripples - Enhanced multi-ring explosion */}
+              <g>
+                {ripples.map((r) => (
+                  <circle
+                    key={r.id}
+                    cx={r.x}
+                    cy={r.y}
+                    r="2"
+                    fill="transparent"
+                    stroke={r.color}
+                    strokeWidth="2"
+                    style={{ filter: `drop-shadow(0 0 12px ${r.color})` }}
+                  >
+                    <animate attributeName="r" values="2;50" dur="0.8s" fill="freeze" />
+                    <animate attributeName="opacity" values="0.8;0" dur="0.8s" fill="freeze" />
+                    <animate attributeName="stroke-width" values="3;0.5" dur="0.8s" fill="freeze" />
+                  </circle>
+                ))}
+              </g>
 
-          {/* Particle Burst - Synaptic Explosion */}
-          <g>
-            {particles.map((p) => {
-              const tx = Math.cos(p.angle) * p.speed;
-              const ty = Math.sin(p.angle) * p.speed;
-              return (
-                <circle
-                  key={p.id}
-                  cx={p.x}
-                  cy={p.y}
-                  r={p.size}
-                  fill={p.color}
-                  style={{
-                    filter: `drop-shadow(0 0 6px ${p.color})`,
-                    animation: 'particleBurst 0.8s ease-out forwards',
-                    ['--tx' as string]: `${tx}px`,
-                    ['--ty' as string]: `${ty}px`,
-                  }}
-                />
-              );
-            })}
-          </g>
+              {/* Particle Burst - Synaptic Explosion */}
+              <g>
+                {particles.map((p) => {
+                  const tx = Math.cos(p.angle) * p.speed;
+                  const ty = Math.sin(p.angle) * p.speed;
+                  return (
+                    <circle
+                      key={p.id}
+                      cx={p.x}
+                      cy={p.y}
+                      r={p.size}
+                      fill={p.color}
+                      style={{
+                        filter: `drop-shadow(0 0 6px ${p.color})`,
+                        animation: 'particleBurst 0.8s ease-out forwards',
+                        ['--tx' as string]: `${tx}px`,
+                        ['--ty' as string]: `${ty}px`,
+                      }}
+                    />
+                  );
+                })}
+              </g>
 
-          {/* Pulses */}
-          <g opacity="0.8">
-            {pulses.map((p) => (
-              <circle
-                key={p.id}
-                r={p.r}
-                fill={p.color}
-                style={{ filter: `drop-shadow(0 0 6px ${p.color})` }}
-              >
-                <animate attributeName="opacity" values="0;1;0.2;0" dur={`${p.dur}s`} begin={`${p.begin}s`} fill="freeze" />
-                <animateMotion dur={`${p.dur}s`} begin={`${p.begin}s`} repeatCount="1" fill="freeze">
-                  <mpath href={`#${p.path}`} />
-                </animateMotion>
-              </circle>
-            ))}
-          </g>
+              {/* Pulses */}
+              <g opacity="0.9">
+                {pulses.map((p) => (
+                  <circle
+                    key={p.id}
+                    r={p.r}
+                    fill={p.color}
+                    style={{ filter: `drop-shadow(0 0 6px ${p.color})` }}
+                  >
+                    <animate attributeName="opacity" values="0;1;0.2;0" dur={`${p.dur}s`} begin={`${p.begin}s`} fill="freeze" />
+                    <animateMotion dur={`${p.dur}s`} begin={`${p.begin}s`} repeatCount="1" fill="freeze">
+                      <mpath href={`#${p.path}`} />
+                    </animateMotion>
+                  </circle>
+                ))}
+              </g>
+            </>
+          )}
 
           {/* Interactive nodes */}
           <g filter="url(#nodeGlow)">

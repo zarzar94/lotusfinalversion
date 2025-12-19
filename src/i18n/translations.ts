@@ -68,6 +68,8 @@ export const translations = {
       title: 'Lotus × Bérard AIT',
       subtitle: 'تدريب التكامل السمعي',
       description: 'برنامج مكثّف يعتمد على الاستماع لموسيقى مُعدّلة لدعم معالجة الدماغ للمعلومات السمعية',
+      neuralLabTitle: 'مختبر التقييم السمعي العصبي',
+      neuralLabDescription: 'فحص تفاعلي غير تشخيصي لرصد أنماط السمع والانتباه في الضوضاء.',
     },
 
     // Credentials Banner
@@ -663,6 +665,8 @@ export const translations = {
       title: 'Lotus × Bérard AIT',
       subtitle: 'Auditory Integration Training',
       description: 'An intensive program using modified music to support the brain in processing auditory information',
+      neuralLabTitle: 'Neural Auditory Screening Lab',
+      neuralLabDescription: 'Interactive, non-diagnostic screening to map listening and attention patterns in noise.',
     },
 
     // Credentials Banner
