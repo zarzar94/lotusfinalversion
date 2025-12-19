@@ -92,7 +92,7 @@ export default function AssessmentSuiteModal({
 
   const stepLabel = () => {
     if (step === 'questionnaire') return isArabic ? 'استبيان' : 'Questionnaire';
-    const order = ['intro', 'headphone', 'attention', 'frequency', 'sequence', 'summary'];
+    const order = ['intro', 'headphone', 'attention', 'focused_attention', 'frequency', 'sequence', 'dichotic_listening', 'speech_in_noise', 'summary'];
     const idx = order.indexOf(step);
     return idx >= 0 ? `${idx + 1}/${order.length}` : '';
   };
@@ -106,7 +106,7 @@ export default function AssessmentSuiteModal({
       <div ref={modalRef} style={styles.modal} dir={direction} onClick={(e) => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
           <div>
-            <div style={{ fontWeight: 900, color: brandCyan }}>🧪 {isArabic ? 'معمل الفحص السمعي — 3 اختبارات موضوعية' : 'Auditory Screening Lab — 3 Objective Tests'}</div>
+            <div style={{ fontWeight: 900, color: brandCyan }}>🧪 {isArabic ? 'مختبر الفحص السمعي — 6 اختبارات موضوعية' : 'Auditory Screening Lab — 6 Objective Tests'}</div>
             <div style={styles.muted}>{isArabic ? 'جلسة تفاعلية قصيرة + تقرير PDF/CSV (للأهل والمدارس).' : 'Quick interactive session + PDF/CSV report (for parents & schools).'}</div>
           </div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
