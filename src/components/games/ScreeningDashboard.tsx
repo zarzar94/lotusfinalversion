@@ -28,15 +28,16 @@ const Gauge = memo(function Gauge({
   color,
   size = 120,
   thickness = 10,
-}: GaugeProps) {
+  isArabic = false,
+}: GaugeProps & { isArabic?: boolean }) {
   const circumference = (size - thickness) * Math.PI;
   const progress = Math.min(100, Math.max(0, value));
   const offset = circumference - (progress / 100) * circumference;
 
-  const getResultLevel = (v: number): { label: string; emoji: string } => {
-    if (v >= 70) return { label: 'Strong', emoji: '⭐' };
-    if (v >= 40) return { label: 'Moderate', emoji: '◐' };
-    return { label: 'Needs Attention', emoji: '○' };
+  const getResultLevel = (v: number): { labelEn: string; labelAr: string; emoji: string } => {
+    if (v >= 70) return { labelEn: 'Strong', labelAr: 'قوي', emoji: '⭐' };
+    if (v >= 40) return { labelEn: 'Moderate', labelAr: 'معتدل', emoji: '◐' };
+    return { labelEn: 'Needs Attention', labelAr: 'يحتاج انتباه', emoji: '○' };
   };
 
   const level = getResultLevel(value);
@@ -98,7 +99,7 @@ const Gauge = memo(function Gauge({
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {level.emoji} {level.label}
+            {level.emoji} {isArabic ? level.labelAr : level.labelEn}
           </div>
         </div>
       </div>
@@ -123,6 +124,7 @@ interface TrendChartProps {
   color: string;
   height?: number;
   label: string;
+  isArabic?: boolean;
 }
 
 const TrendChart = memo(function TrendChart({
@@ -130,6 +132,7 @@ const TrendChart = memo(function TrendChart({
   color,
   height = 60,
   label,
+  isArabic = false,
 }: TrendChartProps) {
   if (data.length < 2) {
     return (
@@ -141,7 +144,7 @@ const TrendChart = memo(function TrendChart({
         color: colors.text.muted,
         fontSize: typography.size.xs,
       }}>
-        More data needed
+        {isArabic ? 'بحاجة لمزيد من البيانات' : 'More data needed'}
       </div>
     );
   }
@@ -619,6 +622,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                   value={metrics.overallAvg}
                   label={isArabic ? 'المعدل الكلي' : 'Overall Score'}
                   color={metrics.overallAvg >= 70 ? brandCyan : metrics.overallAvg >= 40 ? brandPurple : brandPink}
+                  isArabic={isArabic}
                 />
                 {metrics.averages['attention'] && (
                   <Gauge
@@ -626,6 +630,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                     label={isArabic ? 'الانتباه' : 'Attention'}
                     color="#3B82F6"
                     size={100}
+                    isArabic={isArabic}
                   />
                 )}
                 {metrics.averages['frequency'] && (
@@ -634,6 +639,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                     label={isArabic ? 'التردد' : 'Frequency'}
                     color="#8B5CF6"
                     size={100}
+                    isArabic={isArabic}
                   />
                 )}
                 {metrics.averages['sequence'] && (
@@ -642,6 +648,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                     label={isArabic ? 'التسلسل' : 'Sequence'}
                     color="#F59E0B"
                     size={100}
+                    isArabic={isArabic}
                   />
                 )}
               </div>
@@ -852,6 +859,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                       key === 'sequence' ? (isArabic ? 'التسلسل' : 'Sequence') :
                       isArabic ? 'الاستبيان' : 'Questionnaire'
                     }
+                    isArabic={isArabic}
                   />
                 </div>
               ))}
