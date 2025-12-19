@@ -452,7 +452,7 @@ export default function WhatIsAIT() {
                 color: visitorConfig.color,
                 border: `1px solid ${visitorConfig.color}40`,
               }}>
-                {visitorConfig.icon} {isArabic ? visitorConfig.labelAr : visitorConfig.labelEn}
+                {visitorConfig.icon} {isArabic ? visitorConfig.labelAr : visitorConfig.label}
               </div>
             </div>
 

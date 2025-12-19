@@ -266,7 +266,7 @@ export default function QuickActionsPanel() {
               fontWeight: typography.weight.bold,
               color: visitorConfig.color,
             }}>
-              {isArabic ? visitorConfig.labelAr : visitorConfig.labelEn}
+              {isArabic ? visitorConfig.labelAr : visitorConfig.label}
             </span>
           </div>
 
