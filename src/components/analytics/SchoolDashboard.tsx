@@ -255,7 +255,7 @@ const StudentTable = memo(({
                   {isArabic ? student.nameAr : student.name}
                 </td>
                 <td style={{ padding: spacing[3], color: colors.text.secondary }}>
-                  {student.grade}
+                  {isArabic ? student.gradeAr : student.grade}
                 </td>
                 <td style={{ padding: spacing[3] }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>

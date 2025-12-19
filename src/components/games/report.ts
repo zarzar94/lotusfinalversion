@@ -1,5 +1,7 @@
 import type { jsPDF } from 'jspdf';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../../utils/pdf';
+import { translations } from '../../i18n/translations';
+import type { Language } from '../../context/LanguageContext';
 import { AssessmentSession, TestOutcome, TestKey } from './types';
 
 const downloadBlob = (blob: Blob, filename: string) => {
@@ -17,6 +19,9 @@ const safeJson = (value: unknown) => {
     return '"<unserializable>"';
   }
 };
+
+const getReportLabels = (language: Language) => translations[language].report;
+
 
 export const downloadSessionCsv = (session: AssessmentSession) => {
   const rows: string[] = [];
@@ -56,32 +61,35 @@ const writeMetrics = (doc: jsPDF, metrics: TestOutcome['metrics'], yStart: numbe
   return y;
 };
 
-export const downloadSessionPdf = async (session: AssessmentSession, composite?: { label: string; message: string }) => {
+export const downloadSessionPdf = async (
+  session: AssessmentSession,
+  composite?: { label: string; message: string },
+  language: Language = 'ar',
+) => {
+  const labels = getReportLabels(language);
   const doc = await createPdfDoc();
   doc.setFont('Cairo', 'bold');
 
   let y = 62;
   doc.setFontSize(18);
-  y = writePdfText(doc, 'Berard AIT Sound Lab — تقرير فحص سمعي تفاعلي', PDF_MARGIN_X, y, { maxWidth: 520, lineHeight: 22 });
+  y = writePdfText(doc, labels.title, PDF_MARGIN_X, y, { maxWidth: 520, lineHeight: 22 });
 
   doc.setFont('Cairo', 'normal');
-  doc.setFontSize(11);
-  y = writePdfText(doc, `Session: ${session.id}`, PDF_MARGIN_X, y + 10, { maxWidth: 520, lineHeight: 16 });
-  y = writePdfText(doc, `Date: ${new Date(session.startedAt).toLocaleString()}`, PDF_MARGIN_X, y + 4, { maxWidth: 520, lineHeight: 16 });
+  doc.setFontSize(12);
+  y = writePdfText(doc, labels.subtitle, PDF_MARGIN_X, y + 6, { maxWidth: 520, lineHeight: 18 });
 
-  y = writePdfText(
-    doc,
-    'تنبيه مهم: هذا فحص تفاعلي (Screening) للتوعية وقياس مؤشرات عامة. لا يعتبر تشخيصاً طبياً ولا يغني عن تقييم سريري باستخدام أدوات معيارية ومعايرة سماعات.',
-    PDF_MARGIN_X,
-    y + 8,
-    { maxWidth: 520, lineHeight: 16 }
-  );
+  doc.setFontSize(11);
+  y = writePdfText(doc, `${labels.session}: ${session.id}`, PDF_MARGIN_X, y + 10, { maxWidth: 520, lineHeight: 16 });
+  y = writePdfText(doc, `${labels.date}: ${new Date(session.startedAt).toLocaleString()}`, PDF_MARGIN_X, y + 4, { maxWidth: 520, lineHeight: 16 });
+
+  y = writePdfText(doc, labels.disclaimer, PDF_MARGIN_X, y + 8, { maxWidth: 520, lineHeight: 16 });
 
   if (session.headphoneCheck) {
     const hc = session.headphoneCheck;
+    const status = hc.supported ? (hc.passed ? labels.pass : labels.fail) : labels.notSupported;
     y = writePdfText(
       doc,
-      `Headphone check: ${hc.supported ? (hc.passed ? 'PASS' : 'FAIL') : 'NOT SUPPORTED'} (${hc.correct}/${hc.total})`,
+      `${labels.headphoneCheck}: ${status} (${hc.correct}/${hc.total})`,
       PDF_MARGIN_X,
       y + 10,
       { maxWidth: 520, lineHeight: 16 }
@@ -91,7 +99,7 @@ export const downloadSessionPdf = async (session: AssessmentSession, composite?:
   if (composite) {
     doc.setFont('Cairo', 'bold');
     doc.setFontSize(14);
-    y = writePdfText(doc, `الخلاصة: ${composite.label}`, PDF_MARGIN_X, y + 14, { maxWidth: 520, lineHeight: 18 });
+    y = writePdfText(doc, `${labels.summary}: ${composite.label}`, PDF_MARGIN_X, y + 14, { maxWidth: 520, lineHeight: 18 });
     doc.setFont('Cairo', 'normal');
     doc.setFontSize(11);
     y = writePdfText(doc, composite.message, PDF_MARGIN_X, y + 6, { maxWidth: 520, lineHeight: 16 });
@@ -109,7 +117,7 @@ export const downloadSessionPdf = async (session: AssessmentSession, composite?:
 
     doc.setFont('Cairo', 'normal');
     doc.setFontSize(11);
-    y = writePdfText(doc, `النتيجة: ${o.scoreLabel} | التصنيف: ${o.result}`, PDF_MARGIN_X, y + 6, { maxWidth: 520, lineHeight: 16 });
+    y = writePdfText(doc, `${labels.result}: ${o.scoreLabel} | ${labels.classification}: ${o.result}`, PDF_MARGIN_X, y + 6, { maxWidth: 520, lineHeight: 16 });
     y = writePdfText(doc, o.message, PDF_MARGIN_X, y + 4, { maxWidth: 520, lineHeight: 16 });
 
     y = writeMetrics(doc, o.metrics, y + 6);

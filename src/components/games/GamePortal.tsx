@@ -800,8 +800,17 @@ const SectionTitle = memo(function SectionTitle({
   title: string;
   subtitle: string;
 }) {
+  const { isArabic } = useLanguage();
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, direction: 'rtl' }}>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12,
+      marginBottom: 16,
+      direction: isArabic ? 'rtl' : 'ltr',
+      textAlign: isArabic ? 'right' : 'left',
+    }}>
       <span style={{ fontSize: 22, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>{icon}</span>
       <div>
         <div style={{ fontWeight: 800, fontSize: 16, color: '#fff' }}>{title}</div>

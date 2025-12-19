@@ -31,6 +31,7 @@ import {
   shadows,
   transitions,
 } from '../styles';
+import LongitudinalCharts from '../dashboards/LongitudinalCharts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -743,12 +744,13 @@ ScoreComparisonCard.displayName = 'ScoreComparisonCard';
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function ClinicianDashboard() {
-  const { isArabic, direction } = useLanguage();
+  const { isArabic, direction, t } = useLanguage();
   const { user } = useUser();
   const hasAccess = usePermission('view_patient_reports');
   const [selectedPatient, setSelectedPatient] = useState<PatientData | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPhase, setFilterPhase] = useState<string>('all');
+  const [trendModule, setTrendModule] = useState<'attention' | 'frequency' | 'sequence' | 'questionnaire'>('attention');
 
   const filteredPatients = useMemo(() => {
     return MOCK_PATIENTS.filter((patient) => {
@@ -880,6 +882,65 @@ export default function ClinicianDashboard() {
           />
         </div>
       </PageTransition>
+
+      {/* Longitudinal Analytics */}
+      <div style={{ marginBottom: spacing[8] }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], flexWrap: 'wrap' }}>
+          <h2
+            style={{
+              margin: 0,
+              fontSize: typography.size.xl,
+              fontWeight: typography.weight.bold,
+              color: colors.text.primary,
+            }}
+          >
+            {t('dashboard.trends', 'Trends')}
+          </h2>
+          <div style={{ display: 'flex', gap: spacing[2], flexWrap: 'wrap' }}>
+            {(['attention', 'frequency', 'sequence', 'questionnaire'] as const).map((key) => {
+              const isActive = trendModule === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setTrendModule(key)}
+                  style={{
+                    padding: `${spacing[1.5]}px ${spacing[3]}px`,
+                    borderRadius: radius.md,
+                    border: `1px solid ${isActive ? brandCyan : colors.border.default}`,
+                    background: isActive ? `${brandCyan}20` : 'transparent',
+                    color: isActive ? brandCyan : colors.text.secondary,
+                    fontSize: typography.size.xs,
+                    fontWeight: typography.weight.bold,
+                    cursor: 'pointer',
+                    transition: transitions.fast,
+                  }}
+                >
+                  {key === 'attention' && t('games.attention', 'Attention Test')}
+                  {key === 'frequency' && t('games.frequency', 'Frequency')}
+                  {key === 'sequence' && t('games.sequence', 'Sequence')}
+                  {key === 'questionnaire' && t('games.questionnaire', 'Questionnaire')}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <div style={{ marginTop: spacing[4] }}>
+          <LongitudinalCharts
+            moduleId={trendModule}
+            variant="clinician"
+            title={
+              trendModule === 'attention'
+                ? t('games.attention', 'Attention Test')
+                : trendModule === 'frequency'
+                  ? t('games.frequency', 'Frequency')
+                  : trendModule === 'sequence'
+                    ? t('games.sequence', 'Sequence')
+                    : t('games.questionnaire', 'Questionnaire')
+            }
+          />
+        </div>
+      </div>
 
       {/* Filters */}
       <div

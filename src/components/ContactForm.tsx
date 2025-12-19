@@ -140,7 +140,6 @@ const textareaStyle: React.CSSProperties = {
   fontSize: 16,
   outline: 'none',
   resize: 'none',
-  direction: 'rtl',
   fontFamily: 'inherit',
 };
 
@@ -406,6 +405,7 @@ const IOSTextarea = memo(({
   placeholder: string;
   maxLength?: number;
 }) => {
+  const { isArabic } = useLanguage();
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(maxLength ? e.target.value.slice(0, maxLength) : e.target.value);
   }, [onChange, maxLength]);
@@ -418,7 +418,7 @@ const IOSTextarea = memo(({
         placeholder={placeholder}
         maxLength={maxLength}
         rows={4}
-        style={textareaStyle}
+        style={{ ...textareaStyle, direction: isArabic ? 'rtl' : 'ltr', textAlign: isArabic ? 'right' : 'left' }}
       />
       {maxLength && (
         <span style={{ position: 'absolute', bottom: 8, left: 12, fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>

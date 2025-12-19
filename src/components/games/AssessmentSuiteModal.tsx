@@ -11,6 +11,8 @@ import FrequencyDiscriminationTestPanel from './FrequencyDiscriminationTestPanel
 import SequencingTestPanel from './SequencingTestPanel';
 import QuestionnairePanel from './QuestionnairePanel';
 import { downloadSessionCsv, downloadSessionPdf } from './report';
+import { saveSession as saveLabSession } from '../../utils/sessionStorage';
+import { buildLabMetrics } from '../../utils/labMetrics';
 
 const genId = () => `S${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`.toUpperCase();
 
@@ -46,6 +48,11 @@ export default function AssessmentSuiteModal({
 
   const upsertOutcome = (outcome: TestOutcome) => {
     setSession((s) => ({ ...s, outcomes: { ...s.outcomes, [outcome.key]: outcome } }));
+  };
+
+  const persistOutcome = (outcome: TestOutcome) => {
+    upsertOutcome(outcome);
+    saveLabSession(buildLabMetrics(outcome));
   };
 
   const setHeadphone = (hc: HeadphoneCheckResult) => {
@@ -140,7 +147,7 @@ export default function AssessmentSuiteModal({
         {step === 'attention' ? (
           <AttentionTestPanel
             onDone={(o) => {
-              upsertOutcome(o);
+              persistOutcome(o);
               setStep('frequency');
             }}
             onCancel={() => setStep('summary')}
@@ -150,7 +157,7 @@ export default function AssessmentSuiteModal({
         {step === 'frequency' ? (
           <FrequencyDiscriminationTestPanel
             onDone={(o) => {
-              upsertOutcome(o);
+              persistOutcome(o);
               setStep('sequence');
             }}
             onCancel={() => setStep('summary')}
@@ -161,7 +168,7 @@ export default function AssessmentSuiteModal({
           <SequencingTestPanel
             enableExports={false}
             onDone={(o) => {
-              upsertOutcome(o);
+              persistOutcome(o);
               setStep('summary');
             }}
             onCancel={() => setStep('summary')}
@@ -171,7 +178,7 @@ export default function AssessmentSuiteModal({
         {step === 'questionnaire' ? (
           <QuestionnairePanel
             onDone={(o) => {
-              upsertOutcome(o);
+              persistOutcome(o);
               setStep('headphone');
             }}
             onCancel={() => setStep('intro')}
@@ -216,7 +223,7 @@ export default function AssessmentSuiteModal({
                   {isArabic ? 'تنزيل CSV (ملخص)' : 'Download CSV (Summary)'}
                 </button>
                 <button
-                  onClick={() => downloadSessionPdf(session, { label: composite.label, message: composite.message })}
+                  onClick={() => downloadSessionPdf(session, { label: composite.label, message: composite.message }, isArabic ? 'ar' : 'en')}
                   style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}
                 >
                   {isArabic ? 'تنزيل PDF (تقرير)' : 'Download PDF (Report)'}

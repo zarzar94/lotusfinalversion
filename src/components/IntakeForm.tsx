@@ -73,7 +73,6 @@ const notepadInputStyle: React.CSSProperties = {
   color: '#3a3020',
   fontSize: 14,
   fontFamily: "'Cairo', serif",
-  direction: 'rtl',
   outline: 'none',
 };
 
@@ -191,6 +190,11 @@ ImprovementSelector.displayName = 'ImprovementSelector';
 
 const IntakeForm: React.FC = () => {
   const { isArabic, direction } = useLanguage();
+  const fieldStyle = useMemo(() => ({
+    ...notepadInputStyle,
+    direction: isArabic ? 'rtl' : 'ltr',
+    textAlign: isArabic ? 'right' : 'left',
+  }), [isArabic]);
   const [currentStep, setCurrentStep] = useState(1);
   const [isChild, setIsChild] = useState(true);
   const [isReturningClient, setIsReturningClient] = useState(false);
@@ -313,12 +317,12 @@ ${isChild ? `*بيانات ولي الأمر:*
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
               <NotepadField label="اسم المريض" required>
                 <input type="text" value={personalData.name} onChange={(e) => updatePersonalData('name', e.target.value)}
-                  style={notepadInputStyle} placeholder="الاسم الكامل" />
+                  style={fieldStyle} placeholder="الاسم الكامل" />
               </NotepadField>
 
               <NotepadField label="العمر" required>
                 <input type="number" value={personalData.age} onChange={(e) => updatePersonalData('age', e.target.value)}
-                  style={notepadInputStyle} placeholder="السنوات" />
+                  style={fieldStyle} placeholder="السنوات" />
               </NotepadField>
 
               <NotepadField label="الجنس" required>
@@ -328,17 +332,17 @@ ${isChild ? `*بيانات ولي الأمر:*
 
               <NotepadField label="رقم الجوال" required>
                 <input type="tel" value={personalData.mobile} onChange={(e) => updatePersonalData('mobile', e.target.value)}
-                  style={{ ...notepadInputStyle, direction: 'ltr', textAlign: 'right' }} placeholder="+971 XX XXX XXXX" />
+                  style={{ ...fieldStyle, direction: 'ltr', textAlign: isArabic ? 'right' : 'left' }} placeholder="+971 XX XXX XXXX" />
               </NotepadField>
 
               <NotepadField label="مكان الإقامة">
                 <input type="text" value={personalData.residence} onChange={(e) => updatePersonalData('residence', e.target.value)}
-                  style={notepadInputStyle} placeholder="المدينة / الدولة" />
+                  style={fieldStyle} placeholder="المدينة / الدولة" />
               </NotepadField>
 
               <NotepadField label="المستوى التعليمي">
                 <input type="text" value={personalData.educationLevel} onChange={(e) => updatePersonalData('educationLevel', e.target.value)}
-                  style={notepadInputStyle} placeholder="الصف / المرحلة" />
+                  style={fieldStyle} placeholder="الصف / المرحلة" />
               </NotepadField>
             </div>
 
@@ -363,15 +367,15 @@ ${isChild ? `*بيانات ولي الأمر:*
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
                 <NotepadField label="الاسم">
-                  <input type="text" value={parentInfo.fatherName} onChange={(e) => updateParentInfo('fatherName', e.target.value)} style={notepadInputStyle} />
+                  <input type="text" value={parentInfo.fatherName} onChange={(e) => updateParentInfo('fatherName', e.target.value)} style={fieldStyle} />
                 </NotepadField>
                 <NotepadField label="الجوال" required>
                   <input type="tel" value={parentInfo.fatherMobile} onChange={(e) => updateParentInfo('fatherMobile', e.target.value)}
-                    style={{ ...notepadInputStyle, direction: 'ltr', textAlign: 'right' }} />
+                    style={{ ...fieldStyle, direction: 'ltr', textAlign: isArabic ? 'right' : 'left' }} />
                 </NotepadField>
                 <NotepadField label="البريد الإلكتروني">
                   <input type="email" value={parentInfo.fatherEmail} onChange={(e) => updateParentInfo('fatherEmail', e.target.value)}
-                    style={{ ...notepadInputStyle, direction: 'ltr', textAlign: 'right' }} />
+                    style={{ ...fieldStyle, direction: 'ltr', textAlign: isArabic ? 'right' : 'left' }} />
                 </NotepadField>
               </div>
             </div>
@@ -383,15 +387,15 @@ ${isChild ? `*بيانات ولي الأمر:*
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
                 <NotepadField label="الاسم">
-                  <input type="text" value={parentInfo.motherName} onChange={(e) => updateParentInfo('motherName', e.target.value)} style={notepadInputStyle} />
+                  <input type="text" value={parentInfo.motherName} onChange={(e) => updateParentInfo('motherName', e.target.value)} style={fieldStyle} />
                 </NotepadField>
                 <NotepadField label="الجوال" required>
                   <input type="tel" value={parentInfo.motherMobile} onChange={(e) => updateParentInfo('motherMobile', e.target.value)}
-                    style={{ ...notepadInputStyle, direction: 'ltr', textAlign: 'right' }} />
+                    style={{ ...fieldStyle, direction: 'ltr', textAlign: isArabic ? 'right' : 'left' }} />
                 </NotepadField>
                 <NotepadField label="البريد الإلكتروني">
                   <input type="email" value={parentInfo.motherEmail} onChange={(e) => updateParentInfo('motherEmail', e.target.value)}
-                    style={{ ...notepadInputStyle, direction: 'ltr', textAlign: 'right' }} />
+                    style={{ ...fieldStyle, direction: 'ltr', textAlign: isArabic ? 'right' : 'left' }} />
                 </NotepadField>
               </div>
             </div>

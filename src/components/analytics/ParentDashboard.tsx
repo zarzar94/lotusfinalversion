@@ -31,6 +31,7 @@ import {
   radius,
   transitions,
 } from '../styles';
+import LongitudinalCharts from '../dashboards/LongitudinalCharts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -534,7 +535,7 @@ ScoreCard.displayName = 'ScoreCard';
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function ParentDashboard() {
-  const { isArabic, direction } = useLanguage();
+  const { isArabic, direction, t } = useLanguage();
   const { user } = useUser();
   const hasAccess = usePermission('view_child_reports');
   const [expandedChild, setExpandedChild] = useState<string | null>(MOCK_CHILDREN[0]?.id || null);
@@ -668,6 +669,25 @@ export default function ParentDashboard() {
           />
         </div>
       </PageTransition>
+
+      {/* Longitudinal Trend */}
+      <div style={{ marginBottom: spacing[8] }}>
+        <h2
+          style={{
+            margin: `0 0 ${spacing[4]}px`,
+            fontSize: typography.size.xl,
+            fontWeight: typography.weight.bold,
+            color: colors.text.primary,
+          }}
+        >
+          {t('dashboard.trends', 'Trends')}
+        </h2>
+        <LongitudinalCharts
+          moduleId="attention"
+          variant="parent"
+          title={t('games.attention', 'Attention Test')}
+        />
+      </div>
 
       {/* Children List */}
       <div>

@@ -14,15 +14,17 @@ import ScreeningDashboard from './games/ScreeningDashboard';
 import type { GameResult, TestOutcome } from './games/types';
 import { resultMeta } from './games/types';
 import { saveSession, type StoredSession } from './games/scoring';
+import { saveSession as saveLabSession } from '../utils/sessionStorage';
+import { buildLabMetrics } from '../utils/labMetrics';
 import { useVisitorMode } from '../context/VisitorModeContext';
 import { useLanguage } from '../context/LanguageContext';
 
 type GameMode = 'suite' | 'attention' | 'frequency' | 'sequence' | 'questionnaire';
 
-const nextStepFrom = (r: GameResult) => {
-  if (r === 'low') return { label: 'احجز تقييماً / تواصل الآن', hash: '#contact', tone: brandPink };
-  if (r === 'medium') return { label: 'ابدأ بالاستبيان + أكمل الفحص', hash: '#games', tone: brandPurple };
-  return { label: 'خيار المدارس/الجامعات', hash: '#schools', tone: brandCyan };
+const nextStepFrom = (r: GameResult, t: (key: string) => string) => {
+  if (r === 'low') return { label: t('cta.contactNow'), hash: '#contact', tone: brandPink };
+  if (r === 'medium') return { label: t('games.startAssessment'), hash: '#games', tone: brandPurple };
+  return { label: t('schools.requestDemo'), hash: '#schools', tone: brandCyan };
 };
 
 // Animated waveform component
@@ -131,6 +133,7 @@ function MedicalMonitor({
   statusText: string;
   isActive: boolean;
 }) {
+  const { isArabic } = useLanguage();
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -325,7 +328,8 @@ function MedicalMonitor({
           padding: 24,
           maxHeight: '50vh',
           overflowY: 'auto',
-          direction: 'rtl',
+          direction: isArabic ? 'rtl' : 'ltr',
+          textAlign: isArabic ? 'right' : 'left',
           background: 'linear-gradient(180deg, rgba(26,31,46,0.5) 0%, rgba(13,17,23,0.5) 100%)',
         }}>
           {children}
@@ -384,6 +388,7 @@ function TestCard({
   onClick: () => void;
   index: number;
 }) {
+  const { isArabic } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -482,7 +487,7 @@ function TestCard({
         </div>
 
         {/* Info */}
-        <div style={{ direction: 'rtl', textAlign: 'right' }}>
+        <div style={{ direction: isArabic ? 'rtl' : 'ltr', textAlign: isArabic ? 'right' : 'left' }}>
           <div style={{
             fontWeight: 800,
             fontSize: 14,
@@ -606,6 +611,9 @@ const GameSection = memo(function GameSection() {
       totalPoints,
     };
     saveSession(session);
+
+    const labMetrics = buildLabMetrics(outcome);
+    saveLabSession(labMetrics);
   }, []);
 
   // Handle retry from summary
@@ -674,7 +682,7 @@ const GameSection = memo(function GameSection() {
 
   const activeCard = cards.find(c => c.mode === mode);
   const lastMeta = lastOutcome ? resultMeta[lastOutcome.result] : null;
-  const lastNext = lastOutcome ? nextStepFrom(lastOutcome.result) : null;
+  const lastNext = lastOutcome ? nextStepFrom(lastOutcome.result, t) : null;
 
   const handleTestStart = useCallback(() => {
     setIsTestActive(true);
@@ -913,7 +921,7 @@ const GameSection = memo(function GameSection() {
             }}>
               🎧
             </div>
-            <div style={{ flex: 1, direction: 'rtl', textAlign: 'right' }}>
+            <div style={{ flex: 1, direction: isArabic ? 'rtl' : 'ltr', textAlign: isArabic ? 'right' : 'left' }}>
               <div style={{ fontWeight: 800, fontSize: 14, color: brandCyan, marginBottom: 4 }}>
                 بيئة الفحص المثالية
               </div>
@@ -1082,7 +1090,7 @@ const GameSection = memo(function GameSection() {
             gap: 20,
             flexWrap: 'wrap',
             alignItems: 'center',
-            direction: 'rtl',
+            direction: isArabic ? 'rtl' : 'ltr',
           }}>
             <div style={{ flex: 1 }}>
               <div style={{
