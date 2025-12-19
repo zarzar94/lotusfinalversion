@@ -1,7 +1,14 @@
 import { brandCyan, brandPink, brandPurple } from '../styles';
 
 export type GameResult = 'high' | 'medium' | 'low';
-export type TestKey = 'attention' | 'frequency' | 'sequence' | 'questionnaire';
+export type TestKey =
+  | 'attention'
+  | 'focused_attention'
+  | 'frequency'
+  | 'sequence'
+  | 'dichotic_listening'
+  | 'speech_in_noise'
+  | 'questionnaire';
 
 export type TestOutcome = {
   key: TestKey;
