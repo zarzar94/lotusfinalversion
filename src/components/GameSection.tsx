@@ -1047,7 +1047,6 @@ const GameSection = memo(function GameSection() {
             flexWrap: 'wrap',
           }}>
             {[
-            [
               { mode: 'suite', color: '#22c55e', labelEn: 'FULL SUITE', labelAr: '????? ??????', icon: '??' },
               { mode: 'attention', color: '#3B82F6', labelEn: 'ATTENTION', labelAr: '????????', icon: '??' },
               { mode: 'focused_attention', color: '#0EA5E9', labelEn: 'FOCUSED', labelAr: '???????? ??????', icon: '??' },
