@@ -826,6 +826,7 @@ export const translations = {
         resultLabel: 'التصنيف',
         scoreLabel: 'الدرجة',
         metricsHeading: 'المؤشرات',
+        footerNote: 'هذا الفحص غير تشخيصي. يُنصح بمراجعة أخصائي لتقييم سريري كامل.',
         csvHeaders: {
           sessionId: 'معرف الجلسة',
           startedAt: 'تاريخ البدء',
@@ -1761,6 +1762,7 @@ export const translations = {
         resultLabel: 'Result',
         scoreLabel: 'Score',
         metricsHeading: 'Metrics',
+        footerNote: 'This screening is non-diagnostic. For clinical evaluation, consult a qualified specialist.',
         csvHeaders: {
           sessionId: 'Session ID',
           startedAt: 'Started At',
