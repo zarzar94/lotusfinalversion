@@ -184,6 +184,52 @@ const iosScrollCss = `
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
   }
+  @keyframes iphoneGlow {
+    0%, 100% { box-shadow: 0 0 0 2px #1a1a1a, 0 50px 100px rgba(0,0,0,0.5), inset 0 0 30px rgba(255,255,255,0.02), 0 0 40px ${brandCyan}15; }
+    50% { box-shadow: 0 0 0 2px #1a1a1a, 0 50px 100px rgba(0,0,0,0.5), inset 0 0 30px rgba(255,255,255,0.02), 0 0 60px ${brandCyan}25; }
+  }
+  @keyframes scanLineContact {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+  .iphone-frame {
+    animation: iphoneGlow 4s ease-in-out infinite;
+  }
+  .iphone-frame::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 30%;
+    background: linear-gradient(180deg, transparent, ${brandCyan}05, transparent);
+    animation: scanLineContact 6s linear infinite;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+  .contact-input:focus {
+    border-color: ${brandCyan} !important;
+    box-shadow: 0 0 15px ${brandCyan}30 !important;
+  }
+  .contact-submit-btn {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 25px ${brandCyan}30;
+  }
+  .contact-submit-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
+    transform: translateX(-100%);
+  }
+  .contact-submit-btn:hover::after {
+    animation: scanLineContact 0.8s ease-out;
+  }
   @media (max-width: 420px) {
     .iphone-frame {
       max-width: 100% !important;

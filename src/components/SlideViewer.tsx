@@ -893,11 +893,60 @@ const SlideViewer = () => {
       0%, 100% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.2); opacity: 0.7; }
     }
+    @keyframes scanLine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 20px ${brandCyan}20; }
+      50% { box-shadow: 0 0 35px ${brandCyan}40; }
+    }
     .flask-card {
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .flask-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, ${brandCyan}08, transparent);
+      transform: translateX(-100%);
+      pointer-events: none;
     }
     .flask-card:hover {
       transform: translateY(-8px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.4), 0 0 30px ${brandCyan}25;
+    }
+    .flask-card:hover::after {
+      animation: scanLine 1.5s ease-in-out;
+    }
+    .category-btn {
+      transition: all 0.3s ease;
+    }
+    .category-btn:hover {
+      transform: translateY(-2px);
+    }
+    .category-btn.active {
+      animation: glowPulse 2s ease-in-out infinite;
+    }
+    .search-input {
+      transition: all 0.3s ease;
+    }
+    .search-input:focus {
+      border-color: ${brandCyan} !important;
+      box-shadow: 0 0 20px ${brandCyan}30, 0 0 40px ${brandCyan}15 !important;
+      outline: none;
+    }
+    .lab-btn {
+      transition: all 0.3s ease;
+    }
+    .lab-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3), 0 0 20px ${brandCyan}20;
     }
     .category-filters {
       scrollbar-width: thin;
@@ -1030,6 +1079,7 @@ const SlideViewer = () => {
                 }}
               />
               <input
+                className="search-input"
                 style={{
                   ...styles.input,
                   width: '100%',
@@ -1037,13 +1087,14 @@ const SlideViewer = () => {
                 }}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={'ابحث في العينات (مثال: APD، "auditory processing"، #12، 5-10، 12 15، apd|hyperacusis...)'}
+                placeholder={isArabic ? 'ابحث في العينات (مثال: APD، #12، 5-10...)' : 'Search samples (e.g., APD, #12, 5-10...)'}
               />
             </div>
             <a
               href={assetUrl('downloads/berard-profile.pdf')}
               target="_blank"
               rel="noreferrer"
+              className="lab-btn"
               style={{
                 ...styles.ghostBtn,
                 textDecoration: 'none',
@@ -1053,12 +1104,15 @@ const SlideViewer = () => {
               }}
             >
               <MicroscopeIcon size={16} />
-              ملف المختبر
+              {isArabic ? 'ملف المختبر' : 'Lab Profile'}
             </a>
           </div>
 
           <p style={{ ...styles.muted, fontSize: 12, opacity: 0.75 }}>
-            تلميح البحث: <b>#12</b> أو <b>5-10</b> أو <b>12, 15, 18</b> أو <b>12 15 18</b> أو <b>"auditory processing"</b> أو <b>apd|hyperacusis</b>
+            {isArabic
+              ? <>تلميح البحث: <b>#12</b> أو <b>5-10</b> أو <b>12, 15</b> أو <b>"auditory"</b></>
+              : <>Search tip: <b>#12</b> or <b>5-10</b> or <b>12, 15</b> or <b>"auditory"</b></>
+            }
           </p>
 
           {/* Category Filter Tabs - Visitor Mode Aware */}
@@ -1088,6 +1142,7 @@ const SlideViewer = () => {
                 <button
                   key={category.id}
                   type="button"
+                  className={`category-btn ${isActive ? 'active' : ''}`}
                   onClick={() => setActiveCategory(category.id)}
                   style={{
                     display: 'flex',
@@ -1103,8 +1158,8 @@ const SlideViewer = () => {
                     fontSize: 12,
                     fontWeight: 700,
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease',
                     position: 'relative',
+                    boxShadow: isActive ? `0 0 20px ${category.color}30` : 'none',
                   }}
                   aria-pressed={isActive}
                   aria-label={isArabic ? category.labelAr : category.labelEn}

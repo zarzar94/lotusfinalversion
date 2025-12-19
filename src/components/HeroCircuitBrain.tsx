@@ -157,7 +157,7 @@ const InfoModal = memo(({
         {/* Close button */}
         <button
           onClick={onClose}
-          aria-label="Close"
+          aria-label={isArabic ? 'إغلاق' : 'Close'}
           className="modal-close-btn"
           style={{
             position: 'absolute',

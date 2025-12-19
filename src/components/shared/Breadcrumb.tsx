@@ -80,7 +80,7 @@ function Breadcrumb({ showHome = true, showIcon = true }: BreadcrumbProps) {
 
   return (
     <nav
-      aria-label="Breadcrumb"
+      aria-label={isArabic ? 'مسار التنقل' : 'Breadcrumb'}
       style={{
         display: 'flex',
         alignItems: 'center',
