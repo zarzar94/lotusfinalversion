@@ -18,6 +18,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useClinicalSync } from '../hooks/useClinicalSync';
 import { usePageTitle } from '../hooks/usePageTitle';
 import ExperienceJourney from '../components/ExperienceJourney';
+import LabModeSelector from '../components/LabModeSelector';
+import ClinicalProtocolSection from '../components/ClinicalProtocolSection';
 import {
   brandCyan,
   brandPurple,
@@ -445,6 +447,11 @@ function LandingPage() {
           <HeroCircuitBrain />
         </FadeIn>
 
+        {/* MODE SELECTOR - Choose Your Path */}
+        <FadeIn delay={300} direction="up" distance={30}>
+          <LabModeSelector />
+        </FadeIn>
+
         {/* Credentials Banner - Trust signals */}
         <FadeIn delay={200} direction="none" scale scaleFrom={0.98}>
           <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={100} />}>
@@ -455,6 +462,11 @@ function LandingPage() {
         {/* Guided journey section */}
         <FadeIn delay={200} direction="none" scale>
           <ExperienceJourney isArabic={isArabic} />
+        </FadeIn>
+
+        {/* Clinical Protocol - Trust Kit */}
+        <FadeIn delay={300} direction="up" distance={20}>
+          <ClinicalProtocolSection />
         </FadeIn>
 
         {/* Page Navigation Cards */}
