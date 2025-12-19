@@ -18,6 +18,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useClinicalSync } from '../hooks/useClinicalSync';
 import { usePageTitle } from '../hooks/usePageTitle';
 import ExperienceJourney from '../components/ExperienceJourney';
+import LabModeSelector from '../components/LabModeSelector';
+import ClinicalProtocolSection from '../components/ClinicalProtocolSection';
 import {
   brandCyan,
   brandPurple,
@@ -448,6 +450,11 @@ function LandingPage() {
           <HeroCircuitBrain />
         </FadeIn>
 
+        {/* MODE SELECTOR - Choose Your Path */}
+        <FadeIn delay={300} direction="up" distance={30}>
+          <LabModeSelector />
+        </FadeIn>
+
         {/* Credentials Banner - Trust signals */}
         <FadeIn delay={200} direction="none" scale scaleFrom={0.98}>
           <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={100} />}>
@@ -465,6 +472,11 @@ function LandingPage() {
           <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={200} />}>
             <QuickActionsPanel />
           </Suspense>
+        </FadeIn>
+
+        {/* Clinical Protocol - Trust Kit */}
+        <FadeIn delay={350} direction="up" distance={20}>
+          <ClinicalProtocolSection />
         </FadeIn>
 
         {/* What is AIT - Medical trust content */}
