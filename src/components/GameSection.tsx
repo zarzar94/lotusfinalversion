@@ -855,7 +855,10 @@ const GameSection = memo(function GameSection() {
             </span>
           </div>
         </div>
-        <p style={styles.lead}>{t('games.labModulesLead')}</p>
+        <p style={styles.lead}>
+          هذه <b style={{ color: brandCyan }}>اختبارات تفاعلية منظمة</b> تعطي مؤشرات قابلة للقياس.{' '}
+          <b style={{ color: brandPink }}>ليست تشخيصاً طبياً</b> ولا تغني عن تقييم أخصائي.
+        </p>
       </div>
 
       {/* Game Portal - Special Delivery Design */}
