@@ -38,15 +38,29 @@ export const translations = {
       version: 'الإصدار',
     },
 
-    // Navigation
+    // Navigation - Comprehensive menu labels
     nav: {
+      home: 'الرئيسية',
+      assessment: 'التقييم',
       program: 'البرنامج',
+      science: 'العلوم',
+      results: 'النتائج',
+      resources: 'الموارد',
+      about: 'من نحن',
+      contact: 'تواصل',
       neuralScanner: 'الماسح العصبي',
       games: 'الألعاب',
       faq: 'الأسئلة',
-      contact: 'تواصل',
-      results: 'النتائج',
       schools: 'المدارس',
+      lab: 'مختبر',
+      recommended: 'موصى',
+      openMenu: 'فتح القائمة',
+      closeMenu: 'إغلاق القائمة',
+      mainNavigation: 'القائمة الرئيسية',
+      // Dashboard links
+      childrenDashboard: 'لوحة الأطفال',
+      patientsDashboard: 'المرضى',
+      schoolDashboard: 'المدرسة',
     },
 
     // Hero Section
@@ -619,15 +633,29 @@ export const translations = {
       version: 'v2.0',
     },
 
-    // Navigation
+    // Navigation - Comprehensive menu labels
     nav: {
+      home: 'Home',
+      assessment: 'Assessment',
       program: 'Program',
+      science: 'Science',
+      results: 'Results',
+      resources: 'Resources',
+      about: 'About',
+      contact: 'Contact',
       neuralScanner: 'Neural Scanner',
       games: 'Games',
       faq: 'FAQ',
-      contact: 'Contact',
-      results: 'Results',
       schools: 'Schools',
+      lab: 'LAB',
+      recommended: 'Top',
+      openMenu: 'Open menu',
+      closeMenu: 'Close menu',
+      mainNavigation: 'Main navigation',
+      // Dashboard links
+      childrenDashboard: 'Children',
+      patientsDashboard: 'Patients',
+      schoolDashboard: 'School',
     },
 
     // Hero Section

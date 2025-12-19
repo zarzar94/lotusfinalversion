@@ -13,13 +13,12 @@ import { useVisitorMode, type VisitorMode } from '../context/VisitorModeContext'
 import { useBreakpoints } from '../hooks';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// NAVIGATION ITEMS - Multi-page structure
+// NAVIGATION ITEMS - Multi-page structure with translation keys
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface NavItem {
   id: string;
-  label: string;
-  labelAr: string;
+  translationKey: string; // Translation key for consistent language handling
   path: string;
   icon: React.ReactNode;
   color?: string;
@@ -29,8 +28,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   {
     id: 'assessment',
-    label: 'Assessment',
-    labelAr: 'التقييم',
+    translationKey: 'nav.assessment',
     path: '/assessment',
     icon: <BrainIcon size={16} />,
     color: brandCyan,
@@ -38,8 +36,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     id: 'program',
-    label: 'Program',
-    labelAr: 'البرنامج',
+    translationKey: 'nav.program',
     path: '/program',
     icon: <HeadphonesIcon size={16} />,
     color: brandPurple,
@@ -47,8 +44,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     id: 'science',
-    label: 'Science',
-    labelAr: 'العلوم',
+    translationKey: 'nav.science',
     path: '/science',
     icon: '🧠',
     color: brandPink,
@@ -56,8 +52,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     id: 'results',
-    label: 'Results',
-    labelAr: 'النتائج',
+    translationKey: 'nav.results',
     path: '/results',
     icon: '📊',
     color: '#22c55e',
@@ -65,8 +60,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     id: 'resources',
-    label: 'Resources',
-    labelAr: 'الموارد',
+    translationKey: 'nav.resources',
     path: '/resources',
     icon: <HelpIcon size={16} />,
     color: '#f59e0b',
@@ -74,8 +68,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     id: 'about',
-    label: 'About',
-    labelAr: 'من نحن',
+    translationKey: 'nav.about',
     path: '/about',
     icon: '🏛️',
     color: brandPurple,
@@ -83,8 +76,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     id: 'contact',
-    label: 'Contact',
-    labelAr: 'تواصل',
+    translationKey: 'nav.contact',
     path: '/contact',
     icon: <PhoneIcon size={16} />,
     color: brandCyan,
@@ -124,16 +116,16 @@ const Header = memo(function Header() {
   const dashboardLink = useMemo(() => {
     if (!isAuthenticated || !user) return null;
     if (hasPermission('view_child_reports')) {
-      return { path: '/parent-dashboard', label: isArabic ? 'لوحة الأطفال' : 'Children', icon: '👨‍👩‍👧' };
+      return { path: '/parent-dashboard', translationKey: 'nav.childrenDashboard', icon: '👨‍👩‍👧' };
     }
     if (hasPermission('view_patient_reports')) {
-      return { path: '/clinician-dashboard', label: isArabic ? 'المرضى' : 'Patients', icon: '🏥' };
+      return { path: '/clinician-dashboard', translationKey: 'nav.patientsDashboard', icon: '🏥' };
     }
     if (hasPermission('school_analytics')) {
-      return { path: '/school-dashboard', label: isArabic ? 'المدرسة' : 'School', icon: '📊' };
+      return { path: '/school-dashboard', translationKey: 'nav.schoolDashboard', icon: '📊' };
     }
     return null;
-  }, [isAuthenticated, user, hasPermission, isArabic]);
+  }, [isAuthenticated, user, hasPermission]);
 
   const openLoginModal = useCallback(() => setIsLoginModalOpen(true), []);
   const closeLoginModal = useCallback(() => setIsLoginModalOpen(false), []);
@@ -358,7 +350,7 @@ const Header = memo(function Header() {
                 color: brandCyan,
                 letterSpacing: 1,
                 textTransform: 'uppercase',
-              }}>{isArabic ? 'مختبر' : 'LAB'}</span>
+              }}>{t('nav.lab')}</span>
             </div>
             {sortedNavItems.map((item) => {
               const isActive = isActivePath(item.path);
@@ -409,7 +401,7 @@ const Header = memo(function Header() {
                   <span style={{ fontSize: 14, opacity: isActive ? 1 : isPriority ? 0.9 : 0.7 }}>
                     {item.icon}
                   </span>
-                  {isArabic ? item.labelAr : item.label}
+                  {t(item.translationKey)}
                 </Link>
               );
             })}
@@ -434,7 +426,7 @@ const Header = memo(function Header() {
                 }}
               >
                 <span>{dashboardLink.icon}</span>
-                {dashboardLink.label}
+                {t(dashboardLink.translationKey)}
               </Link>
             )}
 
@@ -476,7 +468,7 @@ const Header = memo(function Header() {
               className="menu-btn"
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-nav-menu"
-              aria-label={isArabic ? (isMobileMenuOpen ? 'إغلاق القائمة' : 'فتح القائمة') : (isMobileMenuOpen ? 'Close menu' : 'Open menu')}
+              aria-label={isMobileMenuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
               style={{
                 background: isMobileMenuOpen
                   ? `linear-gradient(135deg, ${brandCyan}20, ${brandPurple}15)`
@@ -507,7 +499,7 @@ const Header = memo(function Header() {
           id="mobile-nav-menu"
           className="mobile-menu"
           role="navigation"
-          aria-label={isArabic ? 'القائمة الرئيسية' : 'Main navigation'}
+          aria-label={t('nav.mainNavigation')}
           style={{
             position: 'fixed',
             top: 75,
@@ -600,7 +592,7 @@ const Header = memo(function Header() {
             }}>
               🏠
             </span>
-            {isArabic ? 'الرئيسية' : 'Home'}
+            {t('nav.home')}
           </Link>
 
           {/* Nav Items - Sorted by visitor mode priority */}
@@ -649,7 +641,7 @@ const Header = memo(function Header() {
                     color: '#fff',
                     borderRadius: 4,
                   }}>
-                    {isArabic ? 'موصى' : 'Top'}
+                    {t('nav.recommended')}
                   </span>
                 )}
                 <span style={{
@@ -715,7 +707,7 @@ const Header = memo(function Header() {
               }}>
                 {dashboardLink.icon}
               </span>
-              {dashboardLink.label}
+              {t(dashboardLink.translationKey)}
             </Link>
           )}
 

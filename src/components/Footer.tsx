@@ -36,22 +36,21 @@ const social: SocialLink[] = [
   { name: 'LinkedIn', href: 'https://www.linkedin.com/company/lotus-holistic-centre/', icon: <LinkedInIcon size={18} />, color: '#0A66C2' },
 ];
 
-// Quick links with proper page routes
+// Quick links with proper page routes - using translation keys for consistency
 type QuickLink = {
-  label: string;
-  labelAr: string;
+  translationKey: string;
   to: string;
   icon: ReactNode;
 };
 
 const QUICK_LINKS: QuickLink[] = [
-  { label: 'Program', labelAr: 'البرنامج', to: '/program', icon: <HeadphonesIcon size={16} /> },
-  { label: 'Assessment', labelAr: 'التقييم', to: '/assessment', icon: <GamepadIcon size={16} /> },
-  { label: 'Results', labelAr: 'النتائج', to: '/results', icon: <ChartIcon size={16} /> },
-  { label: 'Science', labelAr: 'العلوم', to: '/science', icon: <BrainIcon size={16} /> },
-  { label: 'Resources', labelAr: 'الموارد', to: '/resources', icon: <HelpIcon size={16} /> },
-  { label: 'About', labelAr: 'من نحن', to: '/about', icon: '🏛️' },
-  { label: 'Contact', labelAr: 'تواصل', to: '/contact', icon: <PhoneIcon size={16} /> },
+  { translationKey: 'nav.program', to: '/program', icon: <HeadphonesIcon size={16} /> },
+  { translationKey: 'nav.assessment', to: '/assessment', icon: <GamepadIcon size={16} /> },
+  { translationKey: 'nav.results', to: '/results', icon: <ChartIcon size={16} /> },
+  { translationKey: 'nav.science', to: '/science', icon: <BrainIcon size={16} /> },
+  { translationKey: 'nav.resources', to: '/resources', icon: <HelpIcon size={16} /> },
+  { translationKey: 'nav.about', to: '/about', icon: '🏛️' },
+  { translationKey: 'nav.contact', to: '/contact', icon: <PhoneIcon size={16} /> },
 ];
 
 // Lotus Holistic Centre Abu Dhabi location
@@ -61,7 +60,7 @@ const LOCATION = {
 };
 
 const Footer = () => {
-  const { t, isArabic, direction } = useLanguage();
+  const { t } = useLanguage();
   const year = new Date().getFullYear();
 
   const css = useMemo(() => `
@@ -441,7 +440,7 @@ const Footer = () => {
                   }}
                 >
                   {link.icon}
-                  {isArabic ? link.labelAr : link.label}
+                  {t(link.translationKey)}
                 </Link>
               ))}
             </div>

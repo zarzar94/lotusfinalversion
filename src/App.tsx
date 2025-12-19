@@ -244,11 +244,179 @@ const PageTransitionStyles = memo(() => (
       outline-offset: 2px;
     }
 
+    /* ═══════════════════════════════════════════════════════════════════════
+       ENHANCED WORKFLOW ANIMATIONS & MICRO-INTERACTIONS
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    /* Button hover micro-interactions */
+    .btn-primary, .btn-secondary, .btn-ghost {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(143,211,204,0.3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    /* Card hover effects */
+    .card-interactive {
+      transition: all 0.3s ease;
+    }
+
+    .card-interactive:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2), 0 0 30px rgba(143,211,204,0.1);
+      border-color: rgba(143,211,204,0.3);
+    }
+
+    /* Lab-tech scan line effect */
+    .scan-line-effect {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scan-line-effect::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(143,211,204,0.05),
+        transparent
+      );
+      animation: scanLineMove 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes scanLineMove {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* Neural pulse effect for interactive elements */
+    .neural-pulse {
+      position: relative;
+    }
+
+    .neural-pulse::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(143,211,204,0.3), rgba(175,132,186,0.3));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      filter: blur(8px);
+    }
+
+    .neural-pulse:hover::before {
+      opacity: 1;
+    }
+
+    /* Status indicator animations */
+    .status-online {
+      position: relative;
+    }
+
+    .status-online::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: inherit;
+      animation: statusPulseRing 2s ease-out infinite;
+    }
+
+    @keyframes statusPulseRing {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+
+    /* Lab-tech glow bar animation */
+    .glow-bar {
+      animation: glowBarPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes glowBarPulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* Data stream animation for loading states */
+    .data-stream {
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(143,211,204,0.15),
+        transparent
+      );
+      background-size: 200% 100%;
+      animation: dataStreamFlow 1.5s ease-in-out infinite;
+    }
+
+    @keyframes dataStreamFlow {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Fade-in animations for content */
+    .fade-in-up {
+      animation: fadeInUp 0.5s ease-out forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Stagger animation delays */
+    .stagger-1 { animation-delay: 0.1s; }
+    .stagger-2 { animation-delay: 0.2s; }
+    .stagger-3 { animation-delay: 0.3s; }
+    .stagger-4 { animation-delay: 0.4s; }
+    .stagger-5 { animation-delay: 0.5s; }
+
+    /* Language switch transition */
+    [data-lang] {
+      transition: all 0.3s ease;
+    }
+
+    /* RTL/LTR smooth transitions */
+    [dir="rtl"], [dir="ltr"] {
+      transition: direction 0s, text-align 0.2s ease;
+    }
+
     /* Reduced motion support */
     @media (prefers-reduced-motion: reduce) {
-      .page-transition-wrapper {
-        animation: none;
+      .page-transition-wrapper,
+      .card-interactive,
+      .btn-primary,
+      .scan-line-effect::after,
+      .neural-pulse::before,
+      .status-online::after,
+      .glow-bar,
+      .data-stream,
+      .fade-in-up {
+        animation: none !important;
+        transition: none !important;
       }
+
       html {
         scroll-behavior: auto;
       }

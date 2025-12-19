@@ -787,3 +787,375 @@ export const styles: Record<string, CSSProperties> = {
     lineHeight: typography.lineHeight.relaxed,
   },
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADVANCED LAB-TECH DESIGN SYSTEM
+// Enhanced visual elements for futuristic auditory science lab aesthetic
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const labTechAdvanced = {
+  // Neural network patterns
+  patterns: {
+    neuralGrid: `
+      linear-gradient(90deg, ${brandCyan}08 1px, transparent 1px),
+      linear-gradient(${brandCyan}08 1px, transparent 1px)
+    `,
+    neuralGridSize: '60px 60px',
+    circuitBoard: `
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        ${brandCyan}05 10px,
+        ${brandCyan}05 11px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 10px,
+        ${brandPurple}05 10px,
+        ${brandPurple}05 11px
+      )
+    `,
+    dataMesh: `
+      radial-gradient(circle at 25% 25%, ${brandCyan}10 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, ${brandPurple}10 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, ${brandPink}05 0%, transparent 30%)
+    `,
+  },
+
+  // Glow effects
+  glows: {
+    subtle: `0 0 20px ${brandCyan}15`,
+    medium: `0 0 40px ${brandCyan}25, 0 0 80px ${brandPurple}15`,
+    intense: `0 0 60px ${brandCyan}35, 0 0 120px ${brandPurple}25, 0 0 180px ${brandPink}15`,
+    pulse: `0 0 30px ${brandCyan}30`,
+    neural: `0 0 25px ${brandCyan}20, 0 0 50px ${brandPurple}15`,
+  },
+
+  // Gradient overlays
+  overlays: {
+    scanLine: `linear-gradient(
+      180deg,
+      transparent 0%,
+      ${brandCyan}05 45%,
+      ${brandCyan}10 50%,
+      ${brandCyan}05 55%,
+      transparent 100%
+    )`,
+    verticalScan: `linear-gradient(
+      90deg,
+      transparent 0%,
+      ${brandCyan}08 48%,
+      ${brandCyan}15 50%,
+      ${brandCyan}08 52%,
+      transparent 100%
+    )`,
+    holographic: `linear-gradient(
+      135deg,
+      ${brandCyan}15 0%,
+      transparent 25%,
+      ${brandPurple}15 50%,
+      transparent 75%,
+      ${brandPink}15 100%
+    )`,
+  },
+
+  // Border styles
+  borders: {
+    glowCyan: `1px solid ${brandCyan}40`,
+    glowPurple: `1px solid ${brandPurple}40`,
+    glowPink: `1px solid ${brandPink}40`,
+    neural: `1px solid linear-gradient(90deg, ${brandCyan}30, ${brandPurple}30)`,
+    dataLine: `2px solid ${brandCyan}50`,
+  },
+
+  // Status indicators
+  status: {
+    online: { color: '#22c55e', glow: '0 0 10px #22c55e' },
+    processing: { color: brandCyan, glow: `0 0 10px ${brandCyan}` },
+    warning: { color: '#f59e0b', glow: '0 0 10px #f59e0b' },
+    error: { color: '#ef4444', glow: '0 0 10px #ef4444' },
+    standby: { color: brandPurple, glow: `0 0 10px ${brandPurple}` },
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ENHANCED ANIMATION KEYFRAMES
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const advancedAnimations = `
+  /* Neural pulse animation */
+  @keyframes neuralPulse {
+    0%, 100% {
+      opacity: 0.6;
+      transform: scale(1);
+      filter: blur(0px);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.02);
+      filter: blur(1px);
+    }
+  }
+
+  /* Data flow animation */
+  @keyframes dataFlow {
+    0% {
+      background-position: 0% 0%;
+    }
+    100% {
+      background-position: 100% 100%;
+    }
+  }
+
+  /* Scanning line horizontal */
+  @keyframes horizontalScan {
+    0% { transform: translateX(-100%); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateX(100%); opacity: 0; }
+  }
+
+  /* Scanning line vertical */
+  @keyframes verticalScan {
+    0% { transform: translateY(-100%); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(100%); opacity: 0; }
+  }
+
+  /* Holographic shimmer */
+  @keyframes holographicShimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /* Circuit glow */
+  @keyframes circuitGlow {
+    0%, 100% {
+      box-shadow: 0 0 5px ${brandCyan}30, inset 0 0 5px ${brandCyan}10;
+    }
+    50% {
+      box-shadow: 0 0 20px ${brandCyan}50, inset 0 0 10px ${brandCyan}20;
+    }
+  }
+
+  /* Text reveal for lab tech labels */
+  @keyframes textReveal {
+    0% {
+      opacity: 0;
+      letter-spacing: 8px;
+      filter: blur(4px);
+    }
+    100% {
+      opacity: 1;
+      letter-spacing: inherit;
+      filter: blur(0);
+    }
+  }
+
+  /* Floating element */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    25% {
+      transform: translateY(-5px) rotate(1deg);
+    }
+    75% {
+      transform: translateY(5px) rotate(-1deg);
+    }
+  }
+
+  /* Brain wave oscillation */
+  @keyframes brainWave {
+    0%, 100% {
+      transform: scaleY(1);
+    }
+    25% {
+      transform: scaleY(1.3);
+    }
+    50% {
+      transform: scaleY(0.8);
+    }
+    75% {
+      transform: scaleY(1.2);
+    }
+  }
+
+  /* Ripple effect */
+  @keyframes ripple {
+    0% {
+      transform: scale(0.8);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(2);
+      opacity: 0;
+    }
+  }
+
+  /* Fade slide in from direction */
+  @keyframes fadeSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeSlideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeSlideLeft {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes fadeSlideRight {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Stagger animation helper */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+`;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WORKFLOW UX COMPONENTS
+// Pre-styled components for consistent user experience
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const workflowStyles: Record<string, CSSProperties> = {
+  // Step indicator for multi-step processes
+  stepIndicator: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '12px 16px',
+    background: 'rgba(143,211,204,0.08)',
+    borderRadius: 12,
+    border: `1px solid ${brandCyan}25`,
+  },
+  stepNumber: {
+    width: 28,
+    height: 28,
+    borderRadius: '50%',
+    background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
+    color: brandInk,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 13,
+    fontWeight: 800,
+  },
+  stepLabel: {
+    fontSize: 14,
+    fontWeight: 600,
+    color: colors.text.primary,
+  },
+
+  // Progress bar
+  progressTrack: {
+    height: 6,
+    background: 'rgba(255,255,255,0.08)',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    background: `linear-gradient(90deg, ${brandCyan}, ${brandPurple})`,
+    borderRadius: 3,
+    transition: 'width 0.4s ease',
+  },
+
+  // Action card
+  actionCard: {
+    padding: 20,
+    background: labTech.backgrounds.card,
+    borderRadius: 16,
+    border: `1px solid ${brandCyan}20`,
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+  },
+  actionCardHover: {
+    borderColor: `${brandCyan}40`,
+    boxShadow: `0 8px 30px ${brandCyan}15`,
+    transform: 'translateY(-2px)',
+  },
+
+  // Lab badge
+  labBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '6px 12px',
+    background: 'rgba(13,17,23,0.9)',
+    borderRadius: 8,
+    border: `1px solid ${brandCyan}30`,
+    fontSize: 11,
+    fontWeight: 800,
+    color: brandCyan,
+    letterSpacing: 1,
+    textTransform: 'uppercase' as const,
+  },
+
+  // Data readout
+  dataReadout: {
+    fontFamily: 'monospace',
+    fontSize: 13,
+    color: brandCyan,
+    padding: '8px 12px',
+    background: 'rgba(143,211,204,0.08)',
+    borderRadius: 6,
+    border: `1px solid ${brandCyan}20`,
+  },
+
+  // Neural section divider
+  neuralDivider: {
+    height: 2,
+    background: `linear-gradient(90deg, transparent, ${brandCyan}50, ${brandPurple}50, transparent)`,
+    margin: '32px 0',
+  },
+};
