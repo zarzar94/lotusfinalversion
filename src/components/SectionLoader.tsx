@@ -1,11 +1,17 @@
 import { brandCyan, brandPurple, brandPink, typography, spacing, radius, colors } from './styles';
+import { useLanguage } from '../context/LanguageContext';
 
 interface SectionLoaderProps {
   label?: string;
+  labelAr?: string;
   height?: number;
 }
 
-export default function SectionLoader({ label = 'جارٍ التحميل...', height = 300 }: SectionLoaderProps) {
+export default function SectionLoader({ label, labelAr, height = 300 }: SectionLoaderProps) {
+  const { isArabic } = useLanguage();
+  const displayLabel = label || labelAr
+    ? (isArabic ? (labelAr || 'جارٍ التحميل...') : (label || 'Loading...'))
+    : (isArabic ? 'جارٍ التحميل...' : 'Loading...');
   return (
     <div style={{
       background: 'rgba(11,15,28,0.7)',
@@ -62,7 +68,7 @@ export default function SectionLoader({ label = 'جارٍ التحميل...', he
         color: colors.text.secondary,
         letterSpacing: typography.letterSpacing.wide,
       }}>
-        {label}
+        {displayLabel}
       </div>
 
       {/* Skeleton lines */}
