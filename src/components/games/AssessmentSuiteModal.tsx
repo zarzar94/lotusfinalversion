@@ -34,7 +34,9 @@ export default function AssessmentSuiteModal({
 }) {
   const [step, setStep] = useState<'intro' | 'headphone' | 'attention' | 'frequency' | 'sequence' | 'questionnaire' | 'summary'>('intro');
   const [session, setSession] = useState<AssessmentSession>(() => ({ id: genId(), startedAt: Date.now(), outcomes: {} }));
+  const [reportTemplate, setReportTemplate] = useState<'parent' | 'school'>('parent');
   const { isArabic, direction, t } = useLanguage();
+  const reportLang = isArabic ? 'ar' : 'en';
   const modalRef = useFocusTrap<HTMLDivElement>(open);
 
   useEffect(() => {
@@ -230,15 +232,53 @@ export default function AssessmentSuiteModal({
                 </div>
               </div>
 
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                flexWrap: 'wrap',
+                marginTop: 12,
+                direction: isArabic ? 'rtl' : 'ltr',
+              }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>
+                  {t('games.report.typeLabel')}
+                </span>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {(['parent', 'school'] as const).map((type) => {
+                    const isActive = reportTemplate === type;
+                    return (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setReportTemplate(type)}
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: 999,
+                          border: `1px solid ${isActive ? brandCyan : 'rgba(255,255,255,0.12)'}`,
+                          background: isActive ? 'rgba(143,211,204,0.15)' : 'rgba(255,255,255,0.02)',
+                          color: isActive ? brandCyan : 'rgba(255,255,255,0.6)',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        {type === 'parent' ? t('games.report.typeParent') : t('games.report.typeSchool')}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
                 <button
-                  onClick={() => downloadSessionCsv(session)}
+                  onClick={() => downloadSessionCsv(session, { lang: reportLang, template: reportTemplate })}
                   style={{ ...styles.ghostBtn, borderColor: 'rgba(143,211,204,0.25)' }}
                 >
                   {t('games.exportCsvSummary')}
                 </button>
                 <button
-                  onClick={() => downloadSessionPdf(session, { label: composite.label, message: composite.message })}
+                  onClick={() => downloadSessionPdf(session, { lang: reportLang, template: reportTemplate }, { label: composite.label, message: composite.message })}
                   style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}
                 >
                   {t('games.exportPdfReport')}

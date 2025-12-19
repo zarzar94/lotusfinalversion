@@ -1,5 +1,6 @@
 import type { jsPDF } from 'jspdf';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../../utils/pdf';
+import { translations } from '../../i18n/translations';
 import { AssessmentSession, TestOutcome, TestKey } from './types';
 
 const downloadBlob = (blob: Blob, filename: string) => {
@@ -18,9 +19,39 @@ const safeJson = (value: unknown) => {
   }
 };
 
-export const downloadSessionCsv = (session: AssessmentSession) => {
+export type ReportTemplate = 'parent' | 'school';
+export type ReportLang = 'ar' | 'en';
+export type ReportOptions = { lang: ReportLang; template: ReportTemplate };
+
+type ReportComposite = { label: string; message: string };
+
+const getReportCopy = (lang: ReportLang) => translations[lang].games.report;
+
+const formatDate = (lang: ReportLang, timestamp: number) =>
+  new Date(timestamp).toLocaleString(lang === 'ar' ? 'ar' : 'en-US');
+
+const ensurePage = (doc: jsPDF, y: number) => {
+  if (y > 760) {
+    doc.addPage();
+    return 62;
+  }
+  return y;
+};
+
+export const downloadSessionCsv = (session: AssessmentSession, options: ReportOptions) => {
+  const { lang, template } = options;
+  const copy = getReportCopy(lang);
   const rows: string[] = [];
-  rows.push(['session_id', 'started_at', 'test_key', 'title', 'result', 'score_label', 'message', 'metrics_json'].join(','));
+  rows.push([
+    copy.csvHeaders.sessionId,
+    copy.csvHeaders.startedAt,
+    copy.csvHeaders.testKey,
+    copy.csvHeaders.title,
+    copy.csvHeaders.result,
+    copy.csvHeaders.scoreLabel,
+    copy.csvHeaders.message,
+    copy.csvHeaders.metricsJson,
+  ].join(','));
 
   (Object.keys(session.outcomes) as TestKey[]).forEach((key) => {
     const o = session.outcomes[key];
@@ -39,49 +70,58 @@ export const downloadSessionCsv = (session: AssessmentSession) => {
   });
 
   const csv = rows.join('\n');
-  downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `Berard-AIT-Screening-${Date.now()}.csv`);
+  const templateTag = template.toUpperCase();
+  downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `Berard-AIT-Screening-${templateTag}-${Date.now()}.csv`);
 };
 
-const writeMetrics = (doc: jsPDF, metrics: TestOutcome['metrics'], yStart: number) => {
+const writeMetrics = (doc: jsPDF, metrics: TestOutcome['metrics'], yStart: number, label: string) => {
   let y = yStart;
+  doc.setFont('Cairo', 'bold');
+  doc.setFontSize(11);
+  y = writePdfText(doc, label, PDF_MARGIN_X, y, { maxWidth: 520, lineHeight: 16 });
+
   doc.setFont('Cairo', 'normal');
   doc.setFontSize(11);
-  for (const [k, v] of Object.entries(metrics)) {
-    y = writePdfText(doc, `• ${k}: ${String(v)}`, PDF_MARGIN_X, y, { maxWidth: 520, lineHeight: 16 });
-    if (y > 760) {
-      doc.addPage();
-      y = 62;
-    }
+  for (const [key, value] of Object.entries(metrics)) {
+    y = writePdfText(doc, `- ${key}: ${String(value)}`, PDF_MARGIN_X, y + 4, { maxWidth: 520, lineHeight: 16 });
+    y = ensurePage(doc, y);
   }
   return y;
 };
 
-export const downloadSessionPdf = async (session: AssessmentSession, composite?: { label: string; message: string }) => {
+export const downloadSessionPdf = async (session: AssessmentSession, options: ReportOptions, composite?: ReportComposite) => {
+  const { lang, template } = options;
+  const copy = getReportCopy(lang);
+  const templateLabel = template === 'parent' ? copy.typeParent : copy.typeSchool;
+  const intro = template === 'parent' ? copy.introParent : copy.introSchool;
+  const subtitle = template === 'parent' ? copy.subtitleParent : copy.subtitleSchool;
+  const resultLabels = translations[lang].games.resultMeta;
+
   const doc = await createPdfDoc();
   doc.setFont('Cairo', 'bold');
 
   let y = 62;
   doc.setFontSize(18);
-  y = writePdfText(doc, 'Berard AIT Sound Lab — تقرير فحص سمعي تفاعلي', PDF_MARGIN_X, y, { maxWidth: 520, lineHeight: 22 });
+  y = writePdfText(doc, copy.title, PDF_MARGIN_X, y, { maxWidth: 520, lineHeight: 22 });
 
   doc.setFont('Cairo', 'normal');
-  doc.setFontSize(11);
-  y = writePdfText(doc, `Session: ${session.id}`, PDF_MARGIN_X, y + 10, { maxWidth: 520, lineHeight: 16 });
-  y = writePdfText(doc, `Date: ${new Date(session.startedAt).toLocaleString()}`, PDF_MARGIN_X, y + 4, { maxWidth: 520, lineHeight: 16 });
+  doc.setFontSize(12);
+  y = writePdfText(doc, subtitle, PDF_MARGIN_X, y + 8, { maxWidth: 520, lineHeight: 18 });
 
-  y = writePdfText(
-    doc,
-    'تنبيه مهم: هذا فحص تفاعلي (Screening) للتوعية وقياس مؤشرات عامة. لا يعتبر تشخيصاً طبياً ولا يغني عن تقييم سريري باستخدام أدوات معيارية ومعايرة سماعات.',
-    PDF_MARGIN_X,
-    y + 8,
-    { maxWidth: 520, lineHeight: 16 }
-  );
+  doc.setFontSize(11);
+  y = writePdfText(doc, `${copy.sessionLabel}: ${session.id}`, PDF_MARGIN_X, y + 8, { maxWidth: 520, lineHeight: 16 });
+  y = writePdfText(doc, `${copy.dateLabel}: ${formatDate(lang, session.startedAt)}`, PDF_MARGIN_X, y + 4, { maxWidth: 520, lineHeight: 16 });
+  y = writePdfText(doc, `${copy.typeLabel}: ${templateLabel}`, PDF_MARGIN_X, y + 4, { maxWidth: 520, lineHeight: 16 });
+  y = writePdfText(doc, intro, PDF_MARGIN_X, y + 8, { maxWidth: 520, lineHeight: 16 });
 
   if (session.headphoneCheck) {
     const hc = session.headphoneCheck;
+    const hcLabel = hc.supported
+      ? (hc.passed ? copy.headphoneStatus.pass : copy.headphoneStatus.fail)
+      : copy.headphoneStatus.notSupported;
     y = writePdfText(
       doc,
-      `Headphone check: ${hc.supported ? (hc.passed ? 'PASS' : 'FAIL') : 'NOT SUPPORTED'} (${hc.correct}/${hc.total})`,
+      `${copy.headphoneLabel}: ${hcLabel} (${hc.correct}/${hc.total})`,
       PDF_MARGIN_X,
       y + 10,
       { maxWidth: 520, lineHeight: 16 }
@@ -90,35 +130,52 @@ export const downloadSessionPdf = async (session: AssessmentSession, composite?:
 
   if (composite) {
     doc.setFont('Cairo', 'bold');
-    doc.setFontSize(14);
-    y = writePdfText(doc, `الخلاصة: ${composite.label}`, PDF_MARGIN_X, y + 14, { maxWidth: 520, lineHeight: 18 });
+    doc.setFontSize(13);
+    y = writePdfText(doc, copy.summaryHeading, PDF_MARGIN_X, y + 14, { maxWidth: 520, lineHeight: 18 });
     doc.setFont('Cairo', 'normal');
     doc.setFontSize(11);
-    y = writePdfText(doc, composite.message, PDF_MARGIN_X, y + 6, { maxWidth: 520, lineHeight: 16 });
+    y = writePdfText(doc, `${copy.resultLabel}: ${composite.label}`, PDF_MARGIN_X, y + 6, { maxWidth: 520, lineHeight: 16 });
+    y = writePdfText(doc, composite.message, PDF_MARGIN_X, y + 4, { maxWidth: 520, lineHeight: 16 });
   }
 
-  // Per-test outcomes
+  y = ensurePage(doc, y);
+  doc.setFont('Cairo', 'bold');
+  doc.setFontSize(13);
+  y = writePdfText(doc, copy.resultsHeading, PDF_MARGIN_X, y + 14, { maxWidth: 520, lineHeight: 18 });
+
   const ordered: TestKey[] = ['attention', 'frequency', 'sequence', 'questionnaire'];
   for (const key of ordered) {
     const o = session.outcomes[key];
     if (!o) continue;
 
     doc.setFont('Cairo', 'bold');
-    doc.setFontSize(14);
-    y = writePdfText(doc, o.title, PDF_MARGIN_X, y + 16, { maxWidth: 520, lineHeight: 18 });
+    doc.setFontSize(12);
+    y = writePdfText(doc, o.title, PDF_MARGIN_X, y + 12, { maxWidth: 520, lineHeight: 18 });
 
     doc.setFont('Cairo', 'normal');
     doc.setFontSize(11);
-    y = writePdfText(doc, `النتيجة: ${o.scoreLabel} | التصنيف: ${o.result}`, PDF_MARGIN_X, y + 6, { maxWidth: 520, lineHeight: 16 });
+    const resultLabel = resultLabels[o.result]?.label ?? o.result;
+    y = writePdfText(doc, `${copy.resultLabel}: ${resultLabel}`, PDF_MARGIN_X, y + 4, { maxWidth: 520, lineHeight: 16 });
+    y = writePdfText(doc, `${copy.scoreLabel}: ${o.scoreLabel}`, PDF_MARGIN_X, y + 4, { maxWidth: 520, lineHeight: 16 });
     y = writePdfText(doc, o.message, PDF_MARGIN_X, y + 4, { maxWidth: 520, lineHeight: 16 });
 
-    y = writeMetrics(doc, o.metrics, y + 6);
+    y = writeMetrics(doc, o.metrics, y + 6, copy.metricsHeading);
+    y = ensurePage(doc, y);
+  }
 
-    if (y > 760) {
-      doc.addPage();
-      y = 62;
+  if (template === 'school') {
+    doc.setFont('Cairo', 'bold');
+    doc.setFontSize(13);
+    y = writePdfText(doc, copy.supportsHeading, PDF_MARGIN_X, y + 14, { maxWidth: 520, lineHeight: 18 });
+
+    doc.setFont('Cairo', 'normal');
+    doc.setFontSize(11);
+    for (const item of copy.supportsBullets) {
+      y = writePdfText(doc, `- ${item}`, PDF_MARGIN_X, y + 4, { maxWidth: 520, lineHeight: 16 });
+      y = ensurePage(doc, y);
     }
   }
 
-  doc.save(`Berard-AIT-Screening-Report-${Date.now()}.pdf`);
+  const templateTag = template.toUpperCase();
+  doc.save(`Berard-AIT-Screening-Report-${templateTag}-${Date.now()}.pdf`);
 };
