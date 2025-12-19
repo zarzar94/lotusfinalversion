@@ -4,8 +4,11 @@ import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, rad
 
 import AssessmentSuiteModal from './games/AssessmentSuiteModal';
 import AttentionTestPanel from './games/AttentionTestPanel';
+import FocusedAttentionTestPanel from './games/FocusedAttentionTestPanel';
 import FrequencyDiscriminationTestPanel from './games/FrequencyDiscriminationTestPanel';
 import SequencingTestPanel from './games/SequencingTestPanel';
+import DichoticListeningTestPanel from './games/DichoticListeningTestPanel';
+import SpeechInNoiseTestPanel from './games/SpeechInNoiseTestPanel';
 import QuestionnairePanel from './games/QuestionnairePanel';
 import GamePortal from './games/GamePortal';
 import PreTestBriefing from './games/PreTestBriefing';
@@ -19,7 +22,15 @@ import { buildLabMetrics } from '../utils/labMetrics';
 import { useVisitorMode } from '../context/VisitorModeContext';
 import { useLanguage } from '../context/LanguageContext';
 
-type GameMode = 'suite' | 'attention' | 'frequency' | 'sequence' | 'questionnaire';
+type GameMode =
+  | 'suite'
+  | 'attention'
+  | 'focused_attention'
+  | 'frequency'
+  | 'sequence'
+  | 'dichotic_listening'
+  | 'speech_in_noise'
+  | 'questionnaire';
 
 const nextStepFrom = (r: GameResult, t: (key: string) => string) => {
   if (r === 'low') return { label: t('cta.contactNow'), hash: '#contact', tone: brandPink };
@@ -133,7 +144,7 @@ function MedicalMonitor({
   statusText: string;
   isActive: boolean;
 }) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -633,45 +644,72 @@ const GameSection = memo(function GameSection() {
     () => [
       {
         mode: 'suite' as const,
-        title: 'معمل الفحص السمعي الشامل',
-        fullTitle: '🧪 معمل الفحص السمعي (3 اختبارات) — تقرير PDF/CSV',
-        desc: 'جلسة تفاعلية لقياس مؤشرات الانتباه + تمييز التردد + التسلسل',
+        title: '???? ????? ?????? ??????',
+        fullTitle: '?? ???? ????? ?????? (6 ????????) ? ????? PDF/CSV',
+        desc: '???? ?????: ???????? + ???????? ?????? + ????? ?????? + ??????? + ???????? ??????? + ?????? ??? ??????',
         tag: 'FULL SUITE',
         color: '#22c55e',
         waveType: 'ecg' as const,
       },
       {
         mode: 'attention' as const,
-        title: 'اختبار الانتباه السمعي',
-        fullTitle: '🎯 اختبار الانتباه السمعي تحت الضوضاء (Go/No-Go)',
-        desc: 'قياس الانتباه الانتقائي + الاندفاعية وزمن الاستجابة',
+        title: '?????? ???????? ??????',
+        fullTitle: '?? ?????? ???????? ?????? ??? ??????? (Go/No-Go)',
+        desc: '???? ???????? ????????? ?????????? ???????',
         tag: 'ATTENTION',
         color: '#3B82F6',
         waveType: 'spo2' as const,
       },
       {
+        mode: 'focused_attention' as const,
+        title: '?????? ???????? ??????',
+        fullTitle: '?? ???????? ?????? (CPT / Odd-One-Out)',
+        desc: '?????? ??????? ???????????? ?? ???? ??????',
+        tag: 'FOCUSED',
+        color: '#0EA5E9',
+        waveType: 'spo2' as const,
+      },
+      {
         mode: 'frequency' as const,
-        title: 'اختبار تمييز التردد',
-        fullTitle: '🎚️ اختبار تمييز التردد (Adaptive 2IFC)',
-        desc: 'تقدير عتبة تمييز فروقات التردد عبر صعوبة تكيفية',
+        title: '?????? ????? ??????',
+        fullTitle: '??? ?????? ????? ?????? (Adaptive 2IFC)',
+        desc: '????? ???? ??????? ??? ????????',
         tag: 'FREQUENCY',
         color: '#8B5CF6',
         waveType: 'audio' as const,
       },
       {
         mode: 'sequence' as const,
-        title: 'محاكاة الصف الدراسي — ذاكرة سمعية',
-        fullTitle: '🏫 محاكاة الصف الدراسي — تسلسل/ذاكرة سمعية تحت الضوضاء',
-        desc: 'اتباع سلسلة أوامر صوتية مع ضوضاء متزايدة',
+        title: '?????? ??????? ??????',
+        fullTitle: '?? ?????? ???? ??????? ? ?????/????? ????? ??? ???????',
+        desc: '?????? ??????? ???????? ??????? ?? ???????',
         tag: 'SEQUENCE',
         color: '#F59E0B',
         waveType: 'resp' as const,
       },
       {
+        mode: 'dichotic_listening' as const,
+        title: '?????? ???????? ???????',
+        fullTitle: '?? ???????? ??????? ? ????? ????',
+        desc: '???? ????? ??????? ???? ?????',
+        tag: 'DICHOTIC',
+        color: '#10B981',
+        waveType: 'audio' as const,
+      },
+      {
+        mode: 'speech_in_noise' as const,
+        title: '?????? ?????? ??? ??????',
+        fullTitle: '?? ?????? ??? ?????? ? ???? SNR ??????',
+        desc: '????? ???? ??????? ???? ??????',
+        tag: 'SPEECH/NOISE',
+        color: '#F97316',
+        waveType: 'resp' as const,
+      },
+      {
         mode: 'questionnaire' as const,
-        title: 'استبيان مؤشرات للأهل',
-        fullTitle: '📝 استبيان مؤشرات للأهل (غير تشخيصي)',
-        desc: 'يعطي سياقاً ذاتياً مع الاختبارات الموضوعية',
+        title: '??????? ???????? ?????',
+        fullTitle: '?? ??????? ?????? ????? (??? ??????)',
+        desc: '??? ?????? ?????? ??????? ?????',
         tag: 'SURVEY',
         color: brandPink,
         waveType: 'ecg' as const,
@@ -679,7 +717,6 @@ const GameSection = memo(function GameSection() {
     ],
     []
   );
-
   const activeCard = cards.find(c => c.mode === mode);
   const lastMeta = lastOutcome ? resultMeta[lastOutcome.result] : null;
   const lastNext = lastOutcome ? nextStepFrom(lastOutcome.result, t) : null;
@@ -858,7 +895,7 @@ const GameSection = memo(function GameSection() {
               color: brandCyan,
               fontWeight: 700,
             }}>
-              5 MODULES
+              {cards.length} MODULES
             </div>
           </div>
         </div>
@@ -999,7 +1036,7 @@ const GameSection = memo(function GameSection() {
               {isArabic ? 'وصول سريع' : 'QUICK ACCESS'}
             </span>
             <span style={{ fontSize: 10, color: brandCyan, fontWeight: 600 }}>
-              {isArabic ? '5 وحدات متاحة' : '5 MODULES AVAILABLE'}
+              {isArabic ? `${cards.length} وحدات متاحة` : `${cards.length} MODULES AVAILABLE`}
             </span>
           </div>
           <div style={{
@@ -1010,16 +1047,20 @@ const GameSection = memo(function GameSection() {
             flexWrap: 'wrap',
           }}>
             {[
-              { color: '#22c55e', labelEn: 'FULL SUITE', labelAr: 'الباقة الكاملة', icon: '🧪' },
-              { color: '#3B82F6', labelEn: 'ATTENTION', labelAr: 'الانتباه', icon: '🎯' },
-              { color: '#8B5CF6', labelEn: 'FREQUENCY', labelAr: 'التردد', icon: '🎚️' },
-              { color: '#F59E0B', labelEn: 'SEQUENCE', labelAr: 'التسلسل', icon: '🏫' },
-              { color: brandPink, labelEn: 'SURVEY', labelAr: 'الاستبيان', icon: '📝' },
+            [
+              { mode: 'suite', color: '#22c55e', labelEn: 'FULL SUITE', labelAr: '????? ??????', icon: '??' },
+              { mode: 'attention', color: '#3B82F6', labelEn: 'ATTENTION', labelAr: '????????', icon: '??' },
+              { mode: 'focused_attention', color: '#0EA5E9', labelEn: 'FOCUSED', labelAr: '???????? ??????', icon: '??' },
+              { mode: 'frequency', color: '#8B5CF6', labelEn: 'FREQUENCY', labelAr: '??????', icon: '???' },
+              { mode: 'sequence', color: '#F59E0B', labelEn: 'SEQUENCE', labelAr: '???????', icon: '??' },
+              { mode: 'dichotic_listening', color: '#10B981', labelEn: 'DICHOTIC', labelAr: '????? ?????', icon: '??' },
+              { mode: 'speech_in_noise', color: '#F97316', labelEn: 'SPEECH/NOISE', labelAr: '?????? ?? ??????', icon: '??' },
+              { mode: 'questionnaire', color: brandPink, labelEn: 'SURVEY', labelAr: '???????', icon: '??' },
             ].map((btn, i) => (
               <button
                 key={i}
                 type="button"
-                onClick={() => handleModeSelect(cards[i].mode)}
+                onClick={() => handleModeSelect(btn.mode as GameMode)}
                 aria-label={isArabic ? `ابدأ اختبار ${btn.labelAr}` : `Start ${btn.labelEn} test`}
                 style={{
                   padding: '8px 16px',
@@ -1206,6 +1247,42 @@ const GameSection = memo(function GameSection() {
       </MedicalMonitor>
 
       <MedicalMonitor
+        open={mode === 'focused_attention'}
+        onClose={() => setMode(null)}
+        title={isArabic ? '🎯 اختبار الانتباه المركز' : '🎯 FOCUSED ATTENTION'}
+        waveformColor="#0EA5E9"
+        waveformType="spo2"
+        statusText={isTestActive ? (isArabic ? 'جاري الاختبار' : 'TESTING') : (isArabic ? 'جاهز' : 'READY')}
+        isActive={isTestActive}
+      >
+        <FocusedAttentionTestPanel
+          onDone={handleOutcome}
+        />
+        {modalOutcome && showSummary ? (
+          <PostTestSummary
+            outcome={modalOutcome}
+            onClose={handleCloseSummary}
+            onRetry={handleRetry}
+          />
+        ) : modalOutcome ? (
+          <div style={{
+            marginTop: 16,
+            padding: 12,
+            background: `${resultMeta[modalOutcome.result].color}22`,
+            border: `1px solid ${resultMeta[modalOutcome.result].color}44`,
+            borderRadius: 8,
+          }}>
+            <div style={{ fontWeight: 900, color: resultMeta[modalOutcome.result].color }}>
+              {isArabic ? 'النتيجة:' : 'Result:'} {resultMeta[modalOutcome.result].label}
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
+              {modalOutcome.scoreLabel}
+            </div>
+          </div>
+        ) : null}
+      </MedicalMonitor>
+
+      <MedicalMonitor
         open={mode === 'frequency'}
         onClose={() => setMode(null)}
         title={isArabic ? '🎚️ اختبار التردد' : '🎚️ FREQUENCY TEST'}
@@ -1251,6 +1328,78 @@ const GameSection = memo(function GameSection() {
         isActive={isTestActive}
       >
         <SequencingTestPanel
+          onDone={handleOutcome}
+        />
+        {modalOutcome && showSummary ? (
+          <PostTestSummary
+            outcome={modalOutcome}
+            onClose={handleCloseSummary}
+            onRetry={handleRetry}
+          />
+        ) : modalOutcome ? (
+          <div style={{
+            marginTop: 16,
+            padding: 12,
+            background: `${resultMeta[modalOutcome.result].color}22`,
+            border: `1px solid ${resultMeta[modalOutcome.result].color}44`,
+            borderRadius: 8,
+          }}>
+            <div style={{ fontWeight: 900, color: resultMeta[modalOutcome.result].color }}>
+              {isArabic ? 'النتيجة:' : 'Result:'} {resultMeta[modalOutcome.result].label}
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
+              {modalOutcome.scoreLabel}
+            </div>
+          </div>
+        ) : null}
+      </MedicalMonitor>
+
+      <MedicalMonitor
+        open={mode === 'dichotic_listening'}
+        onClose={() => setMode(null)}
+        title={isArabic ? '🎧 اختبار الاستماع الثنائي' : '🎧 DICHOTIC LISTENING'}
+        waveformColor="#10B981"
+        waveformType="audio"
+        statusText={isTestActive ? (isArabic ? 'جاري الاختبار' : 'TESTING') : (isArabic ? 'جاهز' : 'READY')}
+        isActive={isTestActive}
+      >
+        <DichoticListeningTestPanel
+          onDone={handleOutcome}
+        />
+        {modalOutcome && showSummary ? (
+          <PostTestSummary
+            outcome={modalOutcome}
+            onClose={handleCloseSummary}
+            onRetry={handleRetry}
+          />
+        ) : modalOutcome ? (
+          <div style={{
+            marginTop: 16,
+            padding: 12,
+            background: `${resultMeta[modalOutcome.result].color}22`,
+            border: `1px solid ${resultMeta[modalOutcome.result].color}44`,
+            borderRadius: 8,
+          }}>
+            <div style={{ fontWeight: 900, color: resultMeta[modalOutcome.result].color }}>
+              {isArabic ? 'النتيجة:' : 'Result:'} {resultMeta[modalOutcome.result].label}
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
+              {modalOutcome.scoreLabel}
+            </div>
+          </div>
+        ) : null}
+      </MedicalMonitor>
+
+      <MedicalMonitor
+        open={mode === 'speech_in_noise'}
+        onClose={() => setMode(null)}
+        title={isArabic ? '🔊 اختبار الكلام وسط الضجيج' : '🔊 SPEECH IN NOISE'}
+        waveformColor="#F97316"
+        waveformType="resp"
+        statusText={isTestActive ? (isArabic ? 'جاري الاختبار' : 'TESTING') : (isArabic ? 'جاهز' : 'READY')}
+        isActive={isTestActive}
+      >
+        <SpeechInNoiseTestPanel
           onDone={handleOutcome}
         />
         {modalOutcome && showSummary ? (
