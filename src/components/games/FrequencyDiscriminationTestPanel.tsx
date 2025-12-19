@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import { mean, median, stdDev } from './stats';
@@ -24,6 +25,7 @@ export default function FrequencyDiscriminationTestPanel({
   onDone: (outcome: TestOutcome) => void;
   onCancel?: () => void;
 }) {
+  const { isArabic } = useLanguage();
   const audioRef = useRef<AudioContext | null>(null);
   const ensure = () => ensureAudio(audioRef);
 
@@ -221,7 +223,7 @@ export default function FrequencyDiscriminationTestPanel({
           <div style={{ fontWeight: 900, color: brandCyan }}>اختبار تمييز التردد (Frequency Discrimination)</div>
           <div style={styles.muted}>اختبار موضوعي بنمط 2IFC مع صعوبة تكيفية لتقدير "عتبة التمييز".</div>
         </div>
-        <span style={styles.chip}>Objective</span>
+        <span style={styles.chip}>{isArabic ? 'موضوعي' : 'Objective'}</span>
       </div>
 
       {stage === 'intro' ? (
@@ -284,7 +286,7 @@ export default function FrequencyDiscriminationTestPanel({
               }}>
                 {points} pts
               </span>
-              <span style={styles.chip}>2IFC • Adaptive</span>
+              <span style={styles.chip}>{isArabic ? '2IFC • تكيفي' : '2IFC • Adaptive'}</span>
             </div>
           </div>
 

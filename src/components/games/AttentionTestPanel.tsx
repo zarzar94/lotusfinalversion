@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import { clamp01, dPrime, mean } from './stats';
@@ -67,6 +68,7 @@ export default function AttentionTestPanel({
   onDone: (outcome: TestOutcome) => void;
   onCancel?: () => void;
 }) {
+  const { isArabic } = useLanguage();
   const audioRef = useRef<AudioContext | null>(null);
   const noiseRef: NoiseRef = useRef(null);
 
@@ -370,7 +372,7 @@ export default function AttentionTestPanel({
           <div style={{ fontWeight: 900, color: brandCyan }}>اختبار الانتباه السمعي تحت الضوضاء</div>
           <div style={styles.muted}>فحص موضوعي قصير (Go/No-Go) لقياس الانتباه الانتقائي والاندفاعية.</div>
         </div>
-        <span style={styles.chip}>Objective</span>
+        <span style={styles.chip}>{isArabic ? 'موضوعي' : 'Objective'}</span>
       </div>
 
       {stage === 'intro' ? (
@@ -383,14 +385,14 @@ export default function AttentionTestPanel({
           <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', marginTop: 12 }}>
             <div style={styles.section}>
               <div style={{ fontWeight: 900 }}>النغمة المستهدفة</div>
-              <div style={styles.muted}>High tone (Target)</div>
+              <div style={styles.muted}>{isArabic ? 'نغمة عالية (الهدف)' : 'High tone (Target)'}</div>
               <button onClick={() => playExample(TARGET_FREQ)} style={{ ...styles.primaryBtn, marginTop: 10 }}>
                 استمع
               </button>
             </div>
             <div style={styles.section}>
               <div style={{ fontWeight: 900 }}>مثال غير مستهدف</div>
-              <div style={styles.muted}>Do NOT tap</div>
+              <div style={styles.muted}>{isArabic ? 'لا تضغط' : 'Do NOT tap'}</div>
               <button onClick={() => playExample(NON_TARGET_FREQS[0])} style={{ ...styles.ghostBtn, marginTop: 10, borderColor: 'rgba(143,211,204,0.25)' }}>
                 استمع
               </button>

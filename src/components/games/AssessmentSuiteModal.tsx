@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { useLanguage } from '../../context/LanguageContext';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import type { AssessmentSession, GameResult, TestKey, TestOutcome } from './types';
@@ -33,6 +34,7 @@ export default function AssessmentSuiteModal({
 }) {
   const [step, setStep] = useState<'intro' | 'headphone' | 'attention' | 'frequency' | 'sequence' | 'questionnaire' | 'summary'>('intro');
   const [session, setSession] = useState<AssessmentSession>(() => ({ id: genId(), startedAt: Date.now(), outcomes: {} }));
+  const { isArabic, direction } = useLanguage();
   const modalRef = useFocusTrap<HTMLDivElement>(open);
 
   useEffect(() => {
@@ -60,15 +62,15 @@ export default function AssessmentSuiteModal({
   }, [session.outcomes]);
 
   const cta = useMemo(() => {
-    if (composite.result === 'low') return { title: 'احجز تقييماً', hash: '#contact', color: brandPink };
-    if (composite.result === 'medium') return { title: 'ابدأ بالاستبيان', hash: '#games', color: brandPurpleDark };
-    return { title: 'خيار المدارس/الجامعات', hash: '#schools', color: brandCyan };
-  }, [composite.result]);
+    if (composite.result === 'low') return { title: isArabic ? 'احجز تقييماً' : 'Book Assessment', hash: '#contact', color: brandPink };
+    if (composite.result === 'medium') return { title: isArabic ? 'ابدأ بالاستبيان' : 'Start Questionnaire', hash: '#games', color: brandPurpleDark };
+    return { title: isArabic ? 'خيار المدارس/الجامعات' : 'Schools/Universities', hash: '#schools', color: brandCyan };
+  }, [composite.result, isArabic]);
 
   if (!open) return null;
 
   const stepLabel = () => {
-    if (step === 'questionnaire') return 'استبيان';
+    if (step === 'questionnaire') return isArabic ? 'استبيان' : 'Questionnaire';
     const order = ['intro', 'headphone', 'attention', 'frequency', 'sequence', 'summary'];
     const idx = order.indexOf(step);
     return idx >= 0 ? `${idx + 1}/${order.length}` : '';
@@ -80,43 +82,46 @@ export default function AssessmentSuiteModal({
 
   return (
     <div style={styles.modalBackdrop} onClick={close} role="presentation">
-      <div ref={modalRef} style={styles.modal} dir="rtl" onClick={(e) => e.stopPropagation()}>
+      <div ref={modalRef} style={styles.modal} dir={direction} onClick={(e) => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
           <div>
-            <div style={{ fontWeight: 900, color: brandCyan }}>🧪 معمل الفحص السمعي — 3 اختبارات موضوعية</div>
-            <div style={styles.muted}>جلسة تفاعلية قصيرة + تقرير PDF/CSV (للأهل والمدارس).</div>
+            <div style={{ fontWeight: 900, color: brandCyan }}>🧪 {isArabic ? 'معمل الفحص السمعي — 3 اختبارات موضوعية' : 'Auditory Screening Lab — 3 Objective Tests'}</div>
+            <div style={styles.muted}>{isArabic ? 'جلسة تفاعلية قصيرة + تقرير PDF/CSV (للأهل والمدارس).' : 'Quick interactive session + PDF/CSV report (for parents & schools).'}</div>
           </div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
             <span style={styles.chip}>{stepLabel()}</span>
-            <button onClick={close} style={styles.ghostBtn}>إغلاق</button>
+            <button onClick={close} style={styles.ghostBtn}>{isArabic ? 'إغلاق' : 'Close'}</button>
           </div>
         </div>
 
         {step === 'intro' ? (
           <div style={{ marginTop: 12 }}>
             <div style={styles.section}>
-              <div style={{ fontWeight: 900, color: brandPurpleDark }}>قبل البدء</div>
+              <div style={{ fontWeight: 900, color: brandPurpleDark }}>{isArabic ? 'قبل البدء' : 'Before Starting'}</div>
               <p style={{ ...styles.bodyText, marginTop: 8 }}>
-                هذا "فحص تفاعلي" (Screening) يساعد على قياس مؤشرات مرتبطة بـ <b>الانتباه السمعي</b> و<b>تمييز التردد</b> و<b>التسلسل/الذاكرة السمعية</b> تحت الضوضاء.
+                {isArabic
+                  ? <>هذا "فحص تفاعلي" (Screening) يساعد على قياس مؤشرات مرتبطة بـ <b>الانتباه السمعي</b> و<b>تمييز التردد</b> و<b>التسلسل/الذاكرة السمعية</b> تحت الضوضاء.</>
+                  : <>This is an interactive screening that helps measure indicators related to <b>auditory attention</b>, <b>frequency discrimination</b>, and <b>sequencing/auditory memory</b> in noise.</>
+                }
               </p>
               <ul style={{ marginTop: 10, opacity: 0.9, lineHeight: 1.7 }}>
-                <li>يفضل استخدام <b style={{ color: brandPink }}>سماعات</b> وفي مكان هادئ.</li>
-                <li>النتائج ليست تشخيصاً طبياً، ولا تغني عن تقييم أخصائي بأدوات معيارية.</li>
-                <li>يمكن تنزيل تقرير تجريبي للمدارس (PDF/CSV) بدون بيانات شخصية.</li>
+                <li>{isArabic ? <>يفضل استخدام <b style={{ color: brandPink }}>سماعات</b> وفي مكان هادئ.</> : <>Using <b style={{ color: brandPink }}>headphones</b> in a quiet environment is recommended.</>}</li>
+                <li>{isArabic ? 'النتائج ليست تشخيصاً طبياً، ولا تغني عن تقييم أخصائي بأدوات معيارية.' : 'Results are not a medical diagnosis and do not replace professional assessment with standardized tools.'}</li>
+                <li>{isArabic ? 'يمكن تنزيل تقرير تجريبي للمدارس (PDF/CSV) بدون بيانات شخصية.' : 'You can download a demo report for schools (PDF/CSV) without personal data.'}</li>
               </ul>
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
                 <button onClick={() => setStep('headphone')} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}>
-                  ابدأ الجلسة
+                  {isArabic ? 'ابدأ الجلسة' : 'Start Session'}
                 </button>
                 <button onClick={() => setStep('questionnaire')} style={{ ...styles.ghostBtn, borderColor: 'rgba(175,132,186,0.25)' }}>
-                  أو ابدأ بالاستبيان
+                  {isArabic ? 'أو ابدأ بالاستبيان' : 'Or Start with Questionnaire'}
                 </button>
               </div>
             </div>
 
             <div style={{ ...styles.section, marginBottom: 0 }}>
-              <div style={{ fontWeight: 900, color: brandCyan }}>Session ID</div>
+              <div style={{ fontWeight: 900, color: brandCyan }}>{isArabic ? 'معرف الجلسة' : 'Session ID'}</div>
               <div style={styles.muted}>{session.id}</div>
             </div>
           </div>
@@ -178,7 +183,7 @@ export default function AssessmentSuiteModal({
             <div style={styles.section}>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontWeight: 900, color: resultMeta[composite.result].color }}>الخلاصة: {composite.label}</div>
+                  <div style={{ fontWeight: 900, color: resultMeta[composite.result].color }}>{isArabic ? 'الخلاصة:' : 'Summary:'} {composite.label}</div>
                   <p style={{ ...styles.muted, marginTop: 6 }}>{composite.message}</p>
                 </div>
                 <a
@@ -191,7 +196,7 @@ export default function AssessmentSuiteModal({
               </div>
 
               <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
-                <div style={{ fontWeight: 900, color: brandPurpleDark }}>نتائج الاختبارات</div>
+                <div style={{ fontWeight: 900, color: brandPurpleDark }}>{isArabic ? 'نتائج الاختبارات' : 'Test Results'}</div>
                 <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', marginTop: 10 }}>
                   {(Object.values(session.outcomes) as TestOutcome[]).map((o) => (
                     <div key={o.key} style={{ padding: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(0,0,0,0.18)' }}>
@@ -208,22 +213,24 @@ export default function AssessmentSuiteModal({
                   onClick={() => downloadSessionCsv(session)}
                   style={{ ...styles.ghostBtn, borderColor: 'rgba(143,211,204,0.25)' }}
                 >
-                  تنزيل CSV (ملخص)
+                  {isArabic ? 'تنزيل CSV (ملخص)' : 'Download CSV (Summary)'}
                 </button>
                 <button
                   onClick={() => downloadSessionPdf(session, { label: composite.label, message: composite.message })}
                   style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}
                 >
-                  تنزيل PDF (تقرير)
+                  {isArabic ? 'تنزيل PDF (تقرير)' : 'Download PDF (Report)'}
                 </button>
-                <button onClick={() => setStep('attention')} style={styles.ghostBtn}>إعادة الاختبارات</button>
+                <button onClick={() => setStep('attention')} style={styles.ghostBtn}>{isArabic ? 'إعادة الاختبارات' : 'Retry Tests'}</button>
               </div>
             </div>
 
             <div style={{ ...styles.section, marginBottom: 0 }}>
-              <div style={{ fontWeight: 900, color: brandPink }}>تنبيه امتثال</div>
+              <div style={{ fontWeight: 900, color: brandPink }}>{isArabic ? 'تنبيه امتثال' : 'Compliance Notice'}</div>
               <p style={{ ...styles.muted, marginTop: 6 }}>
-                هذا التقرير توعوي وغير تشخيصي. للحصول على تشخيص/خطة علاج، يجب تقييم سريري ومعايرة سماعات واستخدام أدوات معيارية.
+                {isArabic
+                  ? 'هذا التقرير توعوي وغير تشخيصي. للحصول على تشخيص/خطة علاج، يجب تقييم سريري ومعايرة سماعات واستخدام أدوات معيارية.'
+                  : 'This report is educational and non-diagnostic. For a diagnosis or treatment plan, clinical evaluation with calibrated equipment and standardized tools is required.'}
               </p>
             </div>
           </div>

@@ -83,19 +83,48 @@ const Footer = () => {
     }
     .social-icon {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .social-icon::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
     }
     .social-icon:hover {
       transform: translateY(-4px) scale(1.05);
-      box-shadow: 0 8px 20px rgba(143,211,204,0.15);
+      box-shadow: 0 8px 25px var(--icon-color, rgba(143,211,204,0.3));
+    }
+    .social-icon:hover::after {
+      transform: translateX(100%);
     }
     .quick-link-item {
       transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .quick-link-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: ${brandCyan};
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
     }
     .quick-link-item:hover {
       transform: translateX(-6px);
       color: ${brandCyan};
       border-color: ${brandCyan}30;
-      box-shadow: 0 0 15px ${brandCyan}15;
+      box-shadow: 0 0 20px ${brandCyan}20;
+    }
+    .quick-link-item:hover::before {
+      transform: scaleY(1);
     }
     .location-card {
       transition: all 0.3s ease;

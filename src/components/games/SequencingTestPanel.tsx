@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from '../styles';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../../utils/pdf';
 import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise, type NoiseRef } from './audio';
@@ -48,6 +49,7 @@ export default function SequencingTestPanel({
   onCancel?: () => void;
   enableExports?: boolean;
 }) {
+  const { isArabic } = useLanguage();
   const audioRef = useRef<AudioContext | null>(null);
   const noiseRef: NoiseRef = useRef(null);
 
@@ -347,7 +349,7 @@ export default function SequencingTestPanel({
           <div style={{ fontWeight: 900, color: brandCyan }}>اختبار التسلسل/الذاكرة السمعية تحت الضوضاء</div>
           <div style={styles.muted}>اختبار موضوعي يحاكي اتباع تعليمات متعددة داخل الصف مع ضوضاء متزايدة.</div>
         </div>
-        <span style={styles.chip}>Objective • School Demo</span>
+        <span style={styles.chip}>{isArabic ? 'موضوعي • عرض مدرسي' : 'Objective • School Demo'}</span>
       </div>
 
       {stage === 'intro' ? (
