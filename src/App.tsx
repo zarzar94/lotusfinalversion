@@ -16,6 +16,13 @@ import { ProgressExportButton } from './components/ProgressExport';
 import { useClinicalSync } from './hooks/useClinicalSync';
 import StickySmartCTA from './components/StickySmartCTA';
 
+// UX Enhancement imports
+import WelcomeModal from './components/WelcomeModal';
+import JourneyProgressIndicator from './components/JourneyProgressIndicator';
+import FloatingTrustBar from './components/FloatingTrustBar';
+import { ReadingProgressBar } from './components/ScrollSectionIndicator';
+import { ReturningUserBanner } from './components/PersonalizedGreeting';
+
 // Respect Vite base for subpath deployments (e.g., GitHub Pages)
 const rawBase = import.meta.env.BASE_URL ?? '/';
 const appBase = (rawBase === './' ? '/' : rawBase).replace(/\/+$/, '') || '/';
@@ -402,6 +409,120 @@ const PageTransitionStyles = memo(() => (
       transition: direction 0s, text-align 0.2s ease;
     }
 
+    /* Enhanced UX micro-interactions */
+
+    /* Smooth link transitions */
+    a {
+      transition: color 0.2s ease, opacity 0.2s ease;
+    }
+
+    /* Focus ring for accessibility */
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 2px solid #8FD3CC;
+      outline-offset: 2px;
+      box-shadow: 0 0 0 4px rgba(143, 211, 204, 0.15);
+    }
+
+    /* Touch feedback for mobile */
+    @media (hover: none) {
+      button:active,
+      a:active {
+        opacity: 0.8;
+        transform: scale(0.98);
+      }
+    }
+
+    /* Smooth section scrolling */
+    section {
+      scroll-margin-top: 100px;
+    }
+
+    /* Loading skeleton animation */
+    .skeleton-loading {
+      background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0.05) 0%,
+        rgba(255,255,255,0.1) 50%,
+        rgba(255,255,255,0.05) 100%
+      );
+      background-size: 200% 100%;
+      animation: skeletonShimmer 1.5s ease-in-out infinite;
+    }
+
+    @keyframes skeletonShimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Entrance animations for content */
+    .animate-fade-in {
+      animation: contentFadeIn 0.5s ease-out forwards;
+    }
+
+    @keyframes contentFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Attention-grabbing pulse for CTAs */
+    .cta-pulse {
+      animation: ctaPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes ctaPulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(143, 211, 204, 0.4);
+      }
+      50% {
+        box-shadow: 0 0 0 10px rgba(143, 211, 204, 0);
+      }
+    }
+
+    /* Tooltip fade animation */
+    .tooltip-enter {
+      animation: tooltipFade 0.2s ease-out forwards;
+    }
+
+    @keyframes tooltipFade {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Success checkmark animation */
+    .success-check {
+      animation: successPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes successPop {
+      0% {
+        transform: scale(0);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.2);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
     /* Reduced motion support */
     @media (prefers-reduced-motion: reduce) {
       .page-transition-wrapper,
@@ -412,7 +533,12 @@ const PageTransitionStyles = memo(() => (
       .status-online::after,
       .glow-bar,
       .data-stream,
-      .fade-in-up {
+      .fade-in-up,
+      .skeleton-loading,
+      .animate-fade-in,
+      .cta-pulse,
+      .tooltip-enter,
+      .success-check {
         animation: none !important;
         transition: none !important;
       }
@@ -443,6 +569,30 @@ const GamificationUI = memo(() => (
   </>
 ));
 GamificationUI.displayName = 'GamificationUI';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UX ENHANCEMENTS WRAPPER - All user experience improvements
+// ═══════════════════════════════════════════════════════════════════════════
+
+const UXEnhancements = memo(() => (
+  <>
+    {/* Reading progress bar at top */}
+    <ReadingProgressBar />
+
+    {/* Welcome modal for first-time visitors */}
+    <WelcomeModal />
+
+    {/* Returning user welcome banner */}
+    <ReturningUserBanner />
+
+    {/* Journey progress indicator (navigation compass) */}
+    <JourneyProgressIndicator />
+
+    {/* Social proof floating bar */}
+    <FloatingTrustBar />
+  </>
+));
+UXEnhancements.displayName = 'UXEnhancements';
 
 const ClinicalSync = memo(() => {
   useClinicalSync();
@@ -659,6 +809,9 @@ function App() {
 
                 {/* Gamification UI (always visible) */}
                 <GamificationUI />
+
+                {/* UX Enhancements (welcome, progress, trust) */}
+                <UXEnhancements />
 
                 {/* Sticky Smart CTA (mode-aware) */}
                 <StickySmartCTA />
