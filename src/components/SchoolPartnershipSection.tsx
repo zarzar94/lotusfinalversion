@@ -1,8 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
 import { CLINIC } from '../data/clinic';
 import { handleWhatsApp } from '../utils/whatsapp';
+import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
 import { useLanguage } from '../context/LanguageContext';
+import { downloadSessionCsv, downloadSessionPdf } from './games/report';
+import type { AssessmentSession, TestOutcome } from './games/types';
 import { SchoolIcon, CheckCircleIcon, UsersIcon, ChartIcon, ClockIcon, DocumentIcon, StarIcon } from './Icons';
 
 // Impact Statistics
@@ -82,10 +85,193 @@ const getTiers = (t: (key: string) => string) => [
   },
 ];
 
+const buildDemoSession = (t: (key: string) => string): { session: AssessmentSession; composite: { label: string; message: string } } => {
+  const now = Date.now();
+  const sampleId = `DEMO-SCHOOL-${new Date(now).getFullYear()}-${String(now).slice(-5)}`;
+
+  const attention: TestOutcome = {
+    key: 'attention',
+    title: t('schools.demoSession.attention.title'),
+    result: 'medium',
+    scoreLabel: t('schools.demoSession.attention.scoreLabel'),
+    message: t('schools.demoSession.attention.message'),
+    metrics: {
+      trials: 36,
+      targets: 12,
+      hitRate: '0.78',
+      falseAlarmRate: '0.12',
+      avgReactionMs: 620,
+      sustainedAttention: t('schools.demoSession.attention.metrics.sustainedAttention'),
+      rtVariability: t('schools.demoSession.attention.metrics.rtVariability'),
+      fatigueIndex: t('schools.demoSession.attention.metrics.fatigueIndex'),
+      maxNoiseLevel: '0.62',
+    },
+  };
+
+  const frequency: TestOutcome = {
+    key: 'frequency',
+    title: t('schools.demoSession.frequency.title'),
+    result: 'high',
+    scoreLabel: t('schools.demoSession.frequency.scoreLabel'),
+    message: t('schools.demoSession.frequency.message'),
+    metrics: {
+      referenceHz: 1000,
+      trials: 24,
+      accuracyPct: 88,
+      thresholdHz: 45,
+      thresholdPercent: '4.5%',
+      consistencyStdHz: 12,
+      avgReactionMs: 520,
+    },
+  };
+
+  const sequence: TestOutcome = {
+    key: 'sequence',
+    title: t('schools.demoSession.sequence.title'),
+    result: 'medium',
+    scoreLabel: t('schools.demoSession.sequence.scoreLabel'),
+    message: t('schools.demoSession.sequence.message'),
+    metrics: {
+      rounds: 8,
+      correctRounds: 6,
+      accuracyPct: 75,
+      maxSpan: 5,
+      avgReactionMs: 690,
+      workingMemorySpan: 5,
+    },
+  };
+
+  const questionnaire: TestOutcome = {
+    key: 'questionnaire',
+    title: t('schools.demoSession.questionnaire.title'),
+    result: 'medium',
+    scoreLabel: t('schools.demoSession.questionnaire.scoreLabel'),
+    message: t('schools.demoSession.questionnaire.message'),
+    metrics: {
+      totalQuestions: 10,
+      totalScore: 22,
+      note: t('schools.demoSession.questionnaire.metrics.note'),
+    },
+  };
+
+  const composite = {
+    label: t('schools.demoSession.composite.label'),
+    message: t('schools.demoSession.composite.message'),
+  };
+
+  return {
+    session: {
+      id: sampleId,
+      startedAt: now - 1000 * 60 * 60 * 24 * 3,
+      headphoneCheck: { supported: true, passed: true, correct: 4, total: 4 },
+      outcomes: {
+        attention,
+        frequency,
+        sequence,
+        questionnaire,
+      },
+    },
+    composite,
+  };
+};
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const downloadInterpretationGuide = async (t: (key: string) => string, isArabic: boolean) => {
+  const doc = await createPdfDoc();
+
+  doc.setFont('Cairo', 'bold');
+  doc.setFontSize(18);
+  let y = 62;
+  y = writePdfText(doc, t('schools.interpretationGuide.title'), PDF_MARGIN_X, y, { maxWidth: 520, lineHeight: 22 });
+
+  doc.setFont('Cairo', 'normal');
+  doc.setFontSize(11);
+  y = writePdfText(doc, t('schools.interpretationGuide.subtitle'), PDF_MARGIN_X, y + 8, { maxWidth: 520, lineHeight: 16 });
+  y = writePdfText(doc, t('schools.interpretationGuide.intro'), PDF_MARGIN_X, y + 6, { maxWidth: 520, lineHeight: 16 });
+
+  const writeSection = (title: string, items: string[], startY: number) => {
+    doc.setFont('Cairo', 'bold');
+    doc.setFontSize(12);
+    let nextY = writePdfText(doc, title, PDF_MARGIN_X, startY + 12, { maxWidth: 520, lineHeight: 16 });
+    doc.setFont('Cairo', 'normal');
+    doc.setFontSize(11);
+    items.forEach((item) => {
+      nextY = writePdfText(doc, `- ${item}`, PDF_MARGIN_X, nextY + 6, { maxWidth: 520, lineHeight: 16 });
+    });
+    return nextY;
+  };
+
+  y = writeSection(
+    t('schools.interpretationGuide.levelsTitle'),
+    [
+      t('schools.interpretationGuide.levels.high'),
+      t('schools.interpretationGuide.levels.medium'),
+      t('schools.interpretationGuide.levels.low'),
+    ],
+    y,
+  );
+
+  y = writeSection(
+    t('schools.interpretationGuide.signalsTitle'),
+    [
+      t('schools.interpretationGuide.signals.hitRate'),
+      t('schools.interpretationGuide.signals.rtVariability'),
+      t('schools.interpretationGuide.signals.sequenceSpan'),
+    ],
+    y,
+  );
+
+  y = writeSection(
+    t('schools.interpretationGuide.nextStepsTitle'),
+    [
+      t('schools.interpretationGuide.nextSteps.share'),
+      t('schools.interpretationGuide.nextSteps.assess'),
+      t('schools.interpretationGuide.nextSteps.retest'),
+    ],
+    y,
+  );
+
+  doc.setFont('Cairo', 'normal');
+  doc.setFontSize(10);
+  y = writePdfText(doc, t('schools.interpretationGuide.footer'), PDF_MARGIN_X, y + 10, { maxWidth: 520, lineHeight: 14 });
+
+  doc.save(`Berard-AIT-Interpretation-Guide-${isArabic ? 'AR' : 'EN'}.pdf`);
+};
+
 const SchoolPartnershipSection = () => {
   const { t, isArabic, direction } = useLanguage();
   const processSteps = useMemo(() => getProcessSteps(t), [t]);
   const tiers = useMemo(() => getTiers(t), [t]);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const demoPack = useMemo(() => ({
+    title: t('schools.demoPack.title'),
+    description: t('schools.demoPack.description'),
+    items: [
+      t('schools.demoPack.items.reportPdf'),
+      t('schools.demoPack.items.reportCsv'),
+      t('schools.demoPack.items.guidePdf'),
+    ],
+    note: t('schools.demoPack.note'),
+    button: t('schools.demoPack.button'),
+    buttonLoading: t('schools.demoPack.buttonLoading'),
+  }), [t]);
+
+  const handleDownloadDemoPack = useCallback(async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
+    try {
+      const { session, composite } = buildDemoSession(t);
+      await downloadSessionPdf(session, composite);
+      await wait(350);
+      downloadSessionCsv(session);
+      await wait(350);
+      await downloadInterpretationGuide(t, isArabic);
+    } finally {
+      setIsDownloading(false);
+    }
+  }, [isArabic, isDownloading, t]);
   return (
     <section id="schools" style={styles.sectionCard}>
       <div style={styles.sectionHeader}>
@@ -217,6 +403,107 @@ const SchoolPartnershipSection = () => {
             <li>{t('schools.advantages.clearOptions')}</li>
             <li>{t('schools.advantages.arabicFirst')}</li>
           </ul>
+        </div>
+      </div>
+
+      {/* Demo Pack Download */}
+      <div style={{
+        marginTop: 18,
+        padding: 20,
+        background: 'linear-gradient(135deg, rgba(143,211,204,0.12), rgba(175,132,186,0.12))',
+        borderRadius: 16,
+        border: '1px solid rgba(143,211,204,0.25)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 14,
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 16,
+          flexWrap: 'wrap',
+          flexDirection: isArabic ? 'row-reverse' : 'row',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexDirection: isArabic ? 'row-reverse' : 'row' }}>
+            <div style={{
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              background: 'rgba(143,211,204,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <SchoolIcon size={22} color={brandCyan} />
+            </div>
+            <div style={{ textAlign: 'start' }}>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>{demoPack.title}</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
+                {demoPack.description}
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleDownloadDemoPack}
+            disabled={isDownloading}
+            style={{
+              ...styles.primaryBtn,
+              background: isDownloading
+                ? 'linear-gradient(135deg, rgba(143,211,204,0.6), rgba(175,132,186,0.6))'
+                : 'linear-gradient(135deg, #1aa37a, #8FD3CC)',
+              color: '#05060d',
+              opacity: isDownloading ? 0.7 : 1,
+              cursor: isDownloading ? 'wait' : 'pointer',
+            }}
+          >
+            {isDownloading ? demoPack.buttonLoading : demoPack.button}
+          </button>
+        </div>
+
+        <div style={{
+          display: 'grid',
+          gap: 12,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        }}>
+          {demoPack.items.map((item, index) => (
+            <div
+              key={`${item}-${index}`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '10px 12px',
+                background: 'rgba(0,0,0,0.25)',
+                borderRadius: 12,
+                border: '1px solid rgba(255,255,255,0.08)',
+                flexDirection: isArabic ? 'row-reverse' : 'row',
+                textAlign: 'start',
+              }}
+            >
+              <div style={{
+                width: 32,
+                height: 32,
+                borderRadius: 10,
+                background: 'rgba(255,255,255,0.05)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                {index === 0 ? <DocumentIcon size={18} color={brandCyan} /> : null}
+                {index === 1 ? <ChartIcon size={18} color={brandPurple} /> : null}
+                {index === 2 ? <StarIcon size={18} color={brandPink} /> : null}
+              </div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
+                {item}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', textAlign: 'start' }}>
+          {demoPack.note}
         </div>
       </div>
 

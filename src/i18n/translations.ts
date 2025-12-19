@@ -391,7 +391,77 @@ export const translations = {
       tryDemoNow: 'جرّب الديمو الآن',
       demoInstructions: 'ادخل إلى قسم الألعاب → اختر "محاكاة الصف الدراسي" → بعد النهاية قم بتنزيل التقرير.',
       runSimulation: 'تشغيل محاكاة الصف الدراسي',
-      downloadDemoPack: 'تنزيل حزمة الديمو',
+      demoPack: {
+        title: 'حزمة العرض التجريبي للمدارس',
+        description: 'ملفات جاهزة للمشاركة مع الإدارة وأولياء الأمور.',
+        items: {
+          reportPdf: 'تقرير PDF تجريبي للمدرسة',
+          reportCsv: 'تصدير CSV تجريبي (لنفس الجلسة)',
+          guidePdf: 'دليل "كيفية تفسير النتائج" (صفحة واحدة)',
+        },
+        note: 'لا يتطلب تشغيل الألعاب - بدون بيانات شخصية.',
+        button: 'تحميل حزمة العرض التجريبي',
+        buttonLoading: 'جارٍ تجهيز الملفات...',
+      },
+      interpretationGuide: {
+        title: 'كيفية تفسير النتائج',
+        subtitle: 'دليل مختصر لفهم تقرير الفحص المدرسي.',
+        intro: 'هذا تقرير فحص أولي وليس تشخيصاً. يُستخدم لفهم أنماط الانتباه في الضوضاء وتحديد الخطوات التالية.',
+        levelsTitle: 'مستويات النتيجة',
+        levels: {
+          high: 'مرتفع: انتباه ثابت في الضوضاء.',
+          medium: 'متوسط: تذبذب بسيط وقد يستفيد من دعم موجّه.',
+          low: 'منخفض: صعوبة واضحة، يُوصى بتقييم اختصاصي.',
+        },
+        signalsTitle: 'مؤشرات رئيسية',
+        signals: {
+          hitRate: 'انخفاض معدل الإصابات مع ارتفاع الإنذارات الكاذبة يشير إلى التشتت.',
+          rtVariability: 'تباين زمن الاستجابة العالي يشير إلى الإرهاق أو عدم ثبات التركيز.',
+          sequenceSpan: 'انخفاض امتداد التسلسل يشير إلى عبء على الذاكرة العاملة.',
+        },
+        nextStepsTitle: 'الخطوات التالية الموصى بها',
+        nextSteps: {
+          share: 'مشاركة النتائج مع المرشد/الدعم التعليمي.',
+          assess: 'النظر في تقييم فردي أو شراكة مدرسية.',
+          retest: 'إعادة الفحص بعد فترة دعم.',
+        },
+        footer: 'تم إنشاء هذا التقرير لأغراض العرض ولا يحتوي على بيانات شخصية.',
+      },
+      demoSession: {
+        attention: {
+          title: 'اختبار الانتباه السمعي',
+          scoreLabel: 'انتباه متوسط مع تشتت بسيط',
+          message: 'أداء جيد في البداية مع انخفاض طفيف قرب نهاية الجلسة.',
+          metrics: {
+            sustainedAttention: 'متوسط',
+            rtVariability: '140 مللي ثانية',
+            fatigueIndex: 'منخفض',
+          },
+        },
+        frequency: {
+          title: 'اختبار التمييز الترددي',
+          scoreLabel: 'تمييز ترددي قوي',
+          message: 'عتبة منخفضة مع استجابات ثابتة عبر المحاولات.',
+        },
+        sequence: {
+          title: 'اختبار تسلسل الأصوات',
+          scoreLabel: 'ذاكرة سمعية متوسطة',
+          message: 'صعوبة بسيطة مع التسلسلات الأطول.',
+        },
+        questionnaire: {
+          title: 'استبيان الخبرة السمعية',
+          scoreLabel: 'مخاوف متوسطة وفق التقرير الذاتي',
+          message: 'يشير إلى حساسية صوتية خفيفة في بعض البيئات.',
+          metrics: {
+            note: 'استبيان ذاتي وليس تشخيصاً.',
+          },
+        },
+        composite: {
+          label: 'مؤشرات متوسطة',
+          message: 'يوجد بعض التباين في الانتباه مع الضوضاء. يُنصح بمراجعة صوتيات الصف والنظر في دعم موجّه.',
+        },
+      },
+      downloadDemoPack: 'تحميل حزمة العرض التجريبي',
       // Why Advanced
       whyAdvanced: 'لماذا هذا "متقدم"؟',
       advantages: {
@@ -1329,6 +1399,76 @@ export const translations = {
       tryDemoNow: 'Try the Demo Now',
       demoInstructions: 'Go to Games section → Select "Classroom Simulation" → Download the report when finished.',
       runSimulation: 'Run Classroom Simulation',
+      demoPack: {
+        title: 'School Demo Pack',
+        description: 'Ready-to-share files for administrators and parents.',
+        items: {
+          reportPdf: 'Sample school PDF report',
+          reportCsv: 'Sample CSV export (same session)',
+          guidePdf: '"How to Interpret Results" guide (1 page)',
+        },
+        note: 'No gameplay required - no personal data.',
+        button: 'Download Demo Pack',
+        buttonLoading: 'Preparing downloads...',
+      },
+      interpretationGuide: {
+        title: 'How to Interpret Results',
+        subtitle: 'A concise guide for understanding the school screening report.',
+        intro: 'This is a screening report, not a diagnosis. Use it to understand attention patterns in noise and plan next steps.',
+        levelsTitle: 'Result Levels',
+        levels: {
+          high: 'High: consistent attention in noise.',
+          medium: 'Medium: mild variability, likely to benefit from targeted support.',
+          low: 'Low: clear difficulty, recommend specialist assessment.',
+        },
+        signalsTitle: 'Key Indicators',
+        signals: {
+          hitRate: 'Low hit rate with higher false alarms suggests distractibility.',
+          rtVariability: 'High reaction time variability points to fatigue or inconsistent focus.',
+          sequenceSpan: 'Lower sequence span indicates working memory load.',
+        },
+        nextStepsTitle: 'Recommended Next Steps',
+        nextSteps: {
+          share: 'Share results with counselor/learning support.',
+          assess: 'Consider individual assessment or a school partnership.',
+          retest: 'Re-test after a support period.',
+        },
+        footer: 'Generated for demo purposes and contains no personal data.',
+      },
+      demoSession: {
+        attention: {
+          title: 'Auditory Attention Test',
+          scoreLabel: 'Moderate focus with minor distractions',
+          message: 'Solid early performance with a slight drop near the end of the session.',
+          metrics: {
+            sustainedAttention: 'Moderate',
+            rtVariability: '140 ms',
+            fatigueIndex: 'Low',
+          },
+        },
+        frequency: {
+          title: 'Frequency Discrimination Test',
+          scoreLabel: 'Strong frequency discrimination',
+          message: 'Low threshold with consistent responses across trials.',
+        },
+        sequence: {
+          title: 'Sound Sequence Test',
+          scoreLabel: 'Moderate auditory memory',
+          message: 'Slight difficulty with longer sequences.',
+        },
+        questionnaire: {
+          title: 'Auditory Experience Questionnaire',
+          scoreLabel: 'Moderate self-reported concerns',
+          message: 'Suggests mild sound sensitivity in certain environments.',
+          metrics: {
+            note: 'Subjective questionnaire, not diagnostic.',
+          },
+        },
+        composite: {
+          label: 'Moderate Indicators',
+          message: 'Some variability in attention with noise. Review classroom acoustics and consider targeted support.',
+        },
+      },
       downloadDemoPack: 'Download Demo Pack',
       // Why Advanced
       whyAdvanced: 'Why is This "Advanced"?',
