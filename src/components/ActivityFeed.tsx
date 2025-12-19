@@ -146,6 +146,7 @@ export default function ActivityFeed() {
   const lastStateRef = useRef(state);
   const tipIndexRef = useRef(0);
   const newActivityTimeoutRef = useRef<number | null>(null);
+  const panelId = 'activity-feed-panel';
 
   // Add a new activity
   const addActivity = useCallback((activity: Omit<Activity, 'id' | 'timestamp'>) => {
@@ -345,6 +346,21 @@ export default function ActivityFeed() {
     });
   }, []);
 
+  // Close panel with Escape for accessibility
+  useEffect(() => {
+    if (!isExpanded) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setIsExpanded(false);
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isExpanded]);
+
   const unlockedCount = getUnlockedAchievements().length;
 
   return (
@@ -403,6 +419,7 @@ export default function ActivityFeed() {
         {/* Expanded Feed */}
         {isExpanded && (
           <div
+            id={panelId}
             style={{
               width: 320,
               maxHeight: 400,
@@ -465,6 +482,8 @@ export default function ActivityFeed() {
                 flexDirection: 'column',
                 gap: spacing[2],
               }}
+              aria-live="polite"
+              role="status"
             >
               {activities.length === 0 ? (
                 <div
@@ -496,6 +515,9 @@ export default function ActivityFeed() {
         <button
           className="activity-feed-btn"
           onClick={() => setIsExpanded(!isExpanded)}
+          aria-expanded={isExpanded}
+          aria-controls={panelId}
+          aria-label={isExpanded ? (isArabic ? 'إغلاق سجل النشاط' : 'Close activity feed') : isArabic ? 'فتح سجل النشاط' : 'Open activity feed'}
           style={{
             display: 'flex',
             alignItems: 'center',
