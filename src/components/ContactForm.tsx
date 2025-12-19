@@ -859,7 +859,7 @@ const ContactForm = () => {
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <h3 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 400, color: '#fff' }}>Berard AIT</h3>
-                  <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>Sound Lab • {CLINIC.city}</p>
+                  <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>{isArabic ? 'معمل الصوت' : 'Sound Lab'} • {CLINIC.city}</p>
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
                   <span style={{ background: brandColors.whatsappLight, color: brandColors.whatsapp, padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>WhatsApp {isArabic ? 'متاح' : 'Available'}</span>

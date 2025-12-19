@@ -206,7 +206,7 @@ const MOCK_USERS: Record<string, { user: User; password: string }> = {
     },
   },
   'demo@admin.com': {
-    password: 'admin123',
+    password: 'demo123',
     user: {
       id: 'demo_admin_1',
       email: 'demo@admin.com',
