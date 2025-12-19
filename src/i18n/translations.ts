@@ -63,6 +63,45 @@ export const translations = {
       schoolDashboard: 'المدرسة',
     },
 
+
+    // Landing
+    landing: {
+      quickNavigationBadge: 'تنقل سريع',
+      quickNavigationTitle: 'استكشف المنصة',
+      quickNavigationSubtitle: 'انتقل إلى الصفحات الأساسية خلال ثوانٍ.',
+      quickNavigationTip: 'نصيحة: ابدأ بمسار التقييم إذا لم تكن متأكداً من أين تبدأ.',
+      cards: {
+        assessment: {
+          title: 'التقييم',
+          description: 'ابدأ الفحص السمعي التفاعلي.',
+        },
+        program: {
+          title: 'البرنامج',
+          description: 'تعرّف على كيفية عمل بروتوكول AIT.',
+        },
+        science: {
+          title: 'العلوم',
+          description: 'الأبحاث وراء التكامل السمعي.',
+        },
+        results: {
+          title: 'النتائج',
+          description: 'أمثلة للتحسن قبل/بعد.',
+        },
+        resources: {
+          title: 'الموارد',
+          description: 'أدلة وأسئلة شائعة ومواد تعليمية.',
+        },
+        about: {
+          title: 'من نحن',
+          description: 'تعرف على الفريق ورسالتنا.',
+        },
+        contact: {
+          title: 'تواصل',
+          description: 'تواصل معنا أو اطلب عرضاً تجريبياً.',
+        },
+      },
+    },
+
     // Hero Section
     hero: {
       title: 'Lotus × Bérard AIT',
@@ -70,6 +109,44 @@ export const translations = {
       description: 'برنامج مكثّف يعتمد على الاستماع لموسيقى مُعدّلة لدعم معالجة الدماغ للمعلومات السمعية',
       neuralLabTitle: 'مختبر التقييم السمعي العصبي',
       neuralLabDescription: 'فحص تفاعلي غير تشخيصي لرصد أنماط السمع والانتباه في الضوضاء.',
+
+      titlePrefix: 'Lotus',
+      titleHighlight: '× Bérard',
+      titleSuffix: 'AIT',
+      platformBadge: 'منصة المختبر العصبي',
+      ctaSchools: 'المدارس والجامعات',
+      ctaAssessment: 'ابدأ التقييم',
+      trustCertified: 'بروتوكول معتمد',
+      trustCases: '1500+ حالة',
+      mapTitle: 'خريطة التغطية',
+      mapSubtitle: 'أبوظبي - الإمارات',
+      neuralLinkActive: 'الاتصال العصبي نشط',
+      tooltipHint: 'انقر لمعرفة المزيد',
+      ariaLearnMore: 'اعرف المزيد',
+      instructions: {
+        desktop: 'انقر على أي عقدة لاستكشاف وظيفتها',
+        mobile: 'اضغط على أي عقدة لاستكشاف وظيفتها',
+      },
+      modal: {
+        doYouExperience: 'هل تواجه أياً من هذه؟',
+        howItHelps: 'كيف يساعد',
+        expectedBenefits: 'الفوائد المتوقعة',
+        cta: 'ابدأ الآن',
+      },
+      features: {
+        sessions: {
+          title: 'جلسات 10 أيام',
+          desc: '20 جلسة، 30 دقيقة',
+        },
+        tracking: {
+          title: 'تتبع مباشر',
+          desc: 'مؤشرات + تقارير',
+        },
+        areas: {
+          title: 'مناطق الدماغ',
+          desc: 'السمع / الانتباه / الذاكرة',
+        },
+      },
     },
 
     // Credentials Banner
@@ -307,11 +384,14 @@ export const translations = {
         schools: 'المدارس',
         universities: 'الجامعات',
         supportCenters: 'مراكز الدعم التعليمي',
+        learningSupport: 'دعم التعلم',
+        senInclusion: 'دمج الاحتياجات التعليمية الخاصة',
       },
       // Demo
       tryDemoNow: 'جرّب الديمو الآن',
       demoInstructions: 'ادخل إلى قسم الألعاب → اختر "محاكاة الصف الدراسي" → بعد النهاية قم بتنزيل التقرير.',
       runSimulation: 'تشغيل محاكاة الصف الدراسي',
+      downloadDemoPack: 'تنزيل حزمة الديمو',
       // Why Advanced
       whyAdvanced: 'لماذا هذا "متقدم"؟',
       advantages: {
@@ -327,6 +407,7 @@ export const translations = {
         pilot: {
           name: 'باقة Pilot',
           subtitle: 'مناسبة للتجربة داخل المدرسة',
+          badge: 'تجريبي',
           bullet1: 'عرض توعوي للطاقم + تعريف سريع بـ AIT',
           bullet2: 'تجربة "محاكاة الصف الدراسي" كديمو',
           bullet3: 'تقرير PDF/CSV تجريبي — بدون بيانات شخصية',
@@ -335,6 +416,7 @@ export const translations = {
         partner: {
           name: 'باقة School Partnership',
           subtitle: 'الأكثر شيوعاً للمدارس',
+          badge: 'شريك',
           bullet1: 'يوم Demo داخل المدرسة + تدريب مُختصر للمعلمين',
           bullet2: 'تقارير توضيحية للمدرسة + قوالب تواصل',
           bullet3: 'مقابلات/توجيه لحالات مختارة (غير تشخيصي)',
@@ -343,6 +425,7 @@ export const translations = {
         enterprise: {
           name: 'باقة Enterprise',
           subtitle: 'للشبكات التعليمية والجامعات',
+          badge: 'مؤسسي',
           bullet1: 'برنامج متعدد المدارس + لوحة متابعة Dashboard',
           bullet2: 'تدريب متقدم + ورش للمرشدين والأخصائيين',
           bullet3: 'Integration Kit: سياسات صفية + بروتوكولات دعم',
@@ -437,6 +520,84 @@ export const translations = {
         messageLength: 'الرسالة يجب أن لا تتجاوز 1000 حرف',
       },
     },
+
+
+    // Contact Page
+    contactPage: {
+      badge: 'ابدأ الآن',
+      title: 'التواصل والحجز',
+      description: 'التسجيل والاستفسارات وشراكات المدارس.',
+    },
+
+    // Contact Form
+    contactForm: {
+      headerTitle: 'تواصل معنا',
+      submittedMessage: 'تم استلام رسالتك عبر واتساب. سيقوم فريقنا بالرد قريباً.',
+      submittedVia: 'تم الإرسال عبر واتساب',
+      submittedFooter: 'تفضل البريد الإلكتروني؟ يمكنك مراسلتنا في أي وقت.',
+      soundLab: 'مختبر الصوت',
+      whatsappAvailable: 'واتساب متاح',
+      formTitle: 'نموذج التواصل',
+      submit: 'أرسل عبر واتساب',
+      submitReady: 'جاهز للإرسال عبر واتساب',
+      submitIncomplete: 'أكمل الحقول المطلوبة للمتابعة',
+      footerHint: 'اضغط على الرسالة لبدء استفسار مفصل.',
+      actions: {
+        email: 'البريد الإلكتروني',
+        reset: 'إعادة ضبط',
+        instagram: 'إنستغرام',
+        message: 'رسالة',
+        whatsapp: 'واتساب',
+        back: 'رجوع',
+      },
+      fields: {
+        nameLabel: 'الاسم الكامل *',
+        namePlaceholder: 'اكتب اسمك',
+        whatsappLabel: 'رقم واتساب *',
+        whatsappPlaceholder: '+971 XX XXX XXXX',
+        emailLabel: 'البريد الإلكتروني (اختياري)',
+        emailPlaceholder: 'email@example.com',
+        messageLabel: 'الرسالة *',
+      },
+      validation: {
+        phoneInvalid: 'يرجى إدخال رقم صحيح (9-15 رقماً)',
+      },
+      info: {
+        whatsapp: 'واتساب',
+        location: 'الموقع',
+      },
+      details: {
+        name: 'الاسم',
+        whatsapp: 'واتساب',
+        email: 'البريد الإلكتروني',
+        emailFallback: '?',
+        message: 'الرسالة',
+      },
+      roles: {
+        school: {
+          quickMessage: 'مرحباً، نحن مدرسة ونود طلب عرض تجريبي لـ Berard AIT.',
+          placeholder: 'أخبرنا عن أهداف المدرسة والطلاب الذين نخدمهم.',
+          badgePrimary: 'شراكة مدرسية',
+          badgeSecondary: 'عرض تجريبي',
+          subtitle: 'للمدارس والجامعات الراغبة في استكشاف AIT للطلاب.',
+        },
+        parent: {
+          quickMessage: 'مرحباً، أنا ولي أمر وأود معرفة المزيد عن Berard AIT لطفلي.',
+          placeholder: 'شارك تحديات طفلك وما الذي تأمل تحسينه.',
+          badgePrimary: 'ولي أمر',
+          badgeSecondary: 'تقييم',
+          subtitle: 'لأولياء الأمور الباحثين عن إرشاد حول الفحص السمعي والخطوات التالية.',
+        },
+        clinician: {
+          quickMessage: 'مرحباً، أنا أخصائي وأود مناقشة إحالات Berard AIT.',
+          placeholder: 'شارك سياق الحالة وأسئلة حول البروتوكول أو التقارير.',
+          badgePrimary: 'أخصائي',
+          badgeSecondary: 'استفسار سريري',
+          subtitle: 'للأخصائيين الذين يستكشفون تفاصيل البروتوكول أو مسارات الإحالة.',
+        },
+      },
+    },
+
 
     // Footer
     footer: {
@@ -538,6 +699,144 @@ export const translations = {
       sessionId: 'رقم الجلسة',
       completed: 'مكتمل',
       inProgress: 'قيد التنفيذ',
+
+      moduleLabel: 'الوحدة',
+      signalPreview: 'معاينة الإشارة',
+      moduleStatusReady: 'جاهز',
+      moduleStatusStandby: 'وضع الاستعداد',
+      moduleStatusActive: 'نشط',
+      moduleStatusIdle: 'خامل',
+      outputsLabel: 'المخرجات',
+      nonDiagnostic: 'غير تشخيصي',
+      startModule: 'ابدأ الوحدة',
+      available: 'متاح',
+      labModulesTitle: 'وحدات المختبر',
+      labModulesLead: 'اختر وحدة للبدء.',
+      labToggleAriaStation: 'التبديل إلى عرض محطة الفحص',
+      labToggleAriaPortal: 'التبديل إلى عرض بوابة الوحدات',
+      labToggleStation: 'محطة الفحص',
+      labTogglePortal: 'بوابة الوحدات',
+      labBadge: 'وضع المختبر',
+      startFullSuite: 'ابدأ الحزمة الكاملة',
+      quickAccessLabel: 'وصول سريع',
+      modulesAvailable: 'وحدات متاحة',
+      resultLabel: 'النتيجة:',
+      lastResultLabel: 'آخر نتيجة',
+      exportCsvSummary: 'تنزيل CSV (ملخص)',
+      exportPdfReport: 'تنزيل PDF (تقرير)',
+      nextStep: {
+        low: 'احجز تقييماً',
+        medium: 'أكمل الفحص',
+        high: 'المدارس والجامعات',
+      },
+      outputs: {
+        rt: 'زمن الاستجابة',
+        accuracy: 'الدقة',
+        threshold: 'العتبة',
+        span: 'المدى',
+        score: 'النتيجة',
+        profile: 'الملف',
+      },
+      modules: {
+        suite: {
+          name: 'الحزمة الكاملة',
+          measure: '3 اختبارات + استبيان',
+        },
+        attention: {
+          name: 'الانتباه',
+          measure: 'تركيز في الضوضاء',
+        },
+        frequency: {
+          name: 'التردد',
+          measure: 'تمييز النغمات',
+        },
+        sequence: {
+          name: 'التسلسل',
+          measure: 'الذاكرة السمعية',
+        },
+        questionnaire: {
+          name: 'الاستبيان',
+          measure: 'فحص ذاتي',
+        },
+      },
+      cards: {
+        suite: {
+          fullTitle: 'حزمة التقييم الكاملة',
+        },
+        attention: {
+          fullTitle: 'اختبار الانتباه السمعي',
+        },
+        frequency: {
+          fullTitle: 'اختبار تمييز التردد',
+        },
+        sequence: {
+          fullTitle: 'اختبار تسلسل الأصوات',
+        },
+        questionnaire: {
+          fullTitle: 'استبيان الاستماع',
+        },
+      },
+      tags: {
+        suite: 'الحزمة',
+        attention: 'انتباه',
+        frequency: 'تردد',
+        sequence: 'تسلسل',
+        questionnaire: 'استبيان',
+      },
+      resultMeta: {
+        high: {
+          label: 'مؤشرات منخفضة / أداء قوي',
+          hint: 'نتائج قوية ضمن هذا الفحص التفاعلي. إذا استمرت المخاوف يومياً، استشر مختصاً.',
+        },
+        medium: {
+          label: 'مؤشرات متوسطة',
+          hint: 'قد تظهر بعض الصعوبة مع الضوضاء أو سرعة المعالجة. جرّب الاختبارات الأخرى أو استشر مختصاً.',
+        },
+        low: {
+          label: 'مؤشرات مرتفعة / تحتاج متابعة',
+          hint: 'إذا استمرت الأعراض في المنزل/المدرسة، يُنصح بتقييم مختص. هذا ليس تشخيصاً طبياً.',
+        },
+      },
+      suite: {
+        headerSubtitle: 'جلسة تفاعلية سريعة + تقرير PDF/CSV (للأهل والمدارس).',
+        beforeTitle: 'قبل البدء',
+        beforeIntro: 'يساعد هذا الفحص التفاعلي في قياس مؤشرات مرتبطة بـ ',
+        beforeAttention: 'الانتباه السمعي',
+        beforeSeparator1: '، ',
+        beforeFrequency: 'تمييز التردد',
+        beforeSeparator2: '، و',
+        beforeSequence: 'التسلسل/الذاكرة السمعية',
+        beforeOutro: ' في الضوضاء.',
+        bullets: {
+          headphonesIntro: 'يوصى باستخدام ',
+          headphonesLabel: 'سماعات',
+          headphonesOutro: ' في بيئة هادئة.',
+          nonDiagnostic: 'النتائج ليست تشخيصاً طبياً ولا تغني عن تقييم مهني بأدوات معيارية.',
+          demoReport: 'يمكنك تنزيل تقرير ديمو للمدارس (PDF/CSV) بدون بيانات شخصية.',
+        },
+        startSession: 'ابدأ الجلسة',
+        startWithQuestionnaire: 'أو ابدأ بالاستبيان',
+        summaryTitle: 'الملخص:',
+        retryTests: 'أعد الاختبارات',
+        complianceTitle: 'إشعار الالتزام',
+        complianceText: 'هذا التقرير تعليمي وغير تشخيصي. للتشخيص أو خطة العلاج يلزم تقييم سريري بأجهزة معايرة وأدوات معيارية.',
+      },
+      lab: {
+        screeningStation: 'محطة الفحص',
+        nonDiagnostic: 'غير تشخيصي',
+        signalLabel: 'الإشارة',
+        livePreview: 'معاينة حية',
+        statusLabel: 'الحالة',
+        modeLabel: 'الوضع',
+        screeningMode: 'فحص',
+        typeLabel: 'النوع',
+        soundLab: 'مختبر الصوت',
+        professionalGrade: 'مستوى احترافي',
+        systemReady: 'النظام جاهز',
+        modulesCount: '5 وحدات',
+        statusTesting: 'جارٍ الاختبار',
+        statusActive: 'نشط',
+      },
     },
 
     // Dashboards
@@ -660,6 +959,45 @@ export const translations = {
       schoolDashboard: 'School',
     },
 
+
+    // Landing
+    landing: {
+      quickNavigationBadge: 'Quick Navigation',
+      quickNavigationTitle: 'Explore the Platform',
+      quickNavigationSubtitle: 'Jump to key pages in seconds.',
+      quickNavigationTip: 'Tip: Start with the assessment path if you are unsure where to begin.',
+      cards: {
+        assessment: {
+          title: 'Assessment',
+          description: 'Start the interactive auditory screening.',
+        },
+        program: {
+          title: 'Program',
+          description: 'See how the AIT protocol works.',
+        },
+        science: {
+          title: 'Science',
+          description: 'The research behind auditory integration.',
+        },
+        results: {
+          title: 'Results',
+          description: 'Examples of improvement before/after.',
+        },
+        resources: {
+          title: 'Resources',
+          description: 'Guides, FAQs, and learning materials.',
+        },
+        about: {
+          title: 'About',
+          description: 'Meet the team and our mission.',
+        },
+        contact: {
+          title: 'Contact',
+          description: 'Get in touch or request a demo.',
+        },
+      },
+    },
+
     // Hero Section
     hero: {
       title: 'Lotus × Bérard AIT',
@@ -667,6 +1005,44 @@ export const translations = {
       description: 'An intensive program using modified music to support the brain in processing auditory information',
       neuralLabTitle: 'Neural Auditory Screening Lab',
       neuralLabDescription: 'Interactive, non-diagnostic screening to map listening and attention patterns in noise.',
+
+      titlePrefix: 'Lotus',
+      titleHighlight: '× Bérard',
+      titleSuffix: 'AIT',
+      platformBadge: 'Neural Lab Platform',
+      ctaSchools: 'Schools & Universities',
+      ctaAssessment: 'Start Assessment',
+      trustCertified: 'Certified Protocol',
+      trustCases: '1,500+ Cases',
+      mapTitle: 'Coverage Map',
+      mapSubtitle: 'Abu Dhabi - UAE',
+      neuralLinkActive: 'Neural Link Active',
+      tooltipHint: 'Click to learn more',
+      ariaLearnMore: 'Learn more',
+      instructions: {
+        desktop: 'Click any node to explore its function',
+        mobile: 'Tap any node to explore its function',
+      },
+      modal: {
+        doYouExperience: 'Do you experience any of these?',
+        howItHelps: 'How it helps',
+        expectedBenefits: 'Expected benefits',
+        cta: 'Get Started',
+      },
+      features: {
+        sessions: {
+          title: '10-Day Sessions',
+          desc: '20 sessions, 30 min',
+        },
+        tracking: {
+          title: 'Live Tracking',
+          desc: 'Indicators + reports',
+        },
+        areas: {
+          title: 'Brain Areas',
+          desc: 'Auditory / Attention / Memory',
+        },
+      },
     },
 
     // Credentials Banner
@@ -904,11 +1280,14 @@ export const translations = {
         schools: 'Schools',
         universities: 'Universities',
         supportCenters: 'Learning Support Centers',
+        learningSupport: 'Learning Support',
+        senInclusion: 'SEN Inclusion',
       },
       // Demo
       tryDemoNow: 'Try the Demo Now',
       demoInstructions: 'Go to Games section → Select "Classroom Simulation" → Download the report when finished.',
       runSimulation: 'Run Classroom Simulation',
+      downloadDemoPack: 'Download Demo Pack',
       // Why Advanced
       whyAdvanced: 'Why is This "Advanced"?',
       advantages: {
@@ -924,6 +1303,7 @@ export const translations = {
         pilot: {
           name: 'Pilot Package',
           subtitle: 'Suitable for in-school trial',
+          badge: 'Pilot',
           bullet1: 'Staff awareness presentation + quick AIT introduction',
           bullet2: '"Classroom Simulation" experience as demo',
           bullet3: 'Trial PDF/CSV report — without personal data',
@@ -932,6 +1312,7 @@ export const translations = {
         partner: {
           name: 'School Partnership Package',
           subtitle: 'Most popular for schools',
+          badge: 'Partner',
           bullet1: 'Demo day at school + brief teacher training',
           bullet2: 'Explanatory reports for school + communication templates',
           bullet3: 'Interviews/guidance for selected cases (non-diagnostic)',
@@ -940,6 +1321,7 @@ export const translations = {
         enterprise: {
           name: 'Enterprise Package',
           subtitle: 'For educational networks and universities',
+          badge: 'Enterprise',
           bullet1: 'Multi-school program + Dashboard with aggregated data',
           bullet2: 'Advanced training + workshops for counselors and specialists',
           bullet3: 'Integration Kit: classroom policies + auditory support protocols',
@@ -1032,6 +1414,82 @@ export const translations = {
         phoneFormat: 'Please enter a valid phone number (05XXXXXXXX)',
         purposeLength: 'Purpose must not exceed 200 characters',
         messageLength: 'Message must not exceed 1000 characters',
+      },
+    },
+
+    // Contact Page
+    contactPage: {
+      badge: 'Get Started',
+      title: 'Contact & Booking',
+      description: 'Registration, inquiries, and school partnerships.',
+    },
+
+    // Contact Form
+    contactForm: {
+      headerTitle: 'Contact Us',
+      submittedMessage: 'We received your WhatsApp message. Our team will reply shortly.',
+      submittedVia: 'Sent via WhatsApp',
+      submittedFooter: 'Prefer email? You can reach us anytime.',
+      soundLab: 'Sound Lab',
+      whatsappAvailable: 'WhatsApp Available',
+      formTitle: 'Contact Form',
+      submit: 'Send via WhatsApp',
+      submitReady: 'Ready to send via WhatsApp',
+      submitIncomplete: 'Complete the required fields to continue',
+      footerHint: 'Tap Message to start a detailed inquiry.',
+      actions: {
+        email: 'Email',
+        reset: 'Reset',
+        instagram: 'Instagram',
+        message: 'Message',
+        whatsapp: 'WhatsApp',
+        back: 'Back',
+      },
+      fields: {
+        nameLabel: 'Full Name *',
+        namePlaceholder: 'Enter your name',
+        whatsappLabel: 'WhatsApp Number *',
+        whatsappPlaceholder: '+971 XX XXX XXXX',
+        emailLabel: 'Email (optional)',
+        emailPlaceholder: 'email@example.com',
+        messageLabel: 'Message *',
+      },
+      validation: {
+        phoneInvalid: 'Please enter a valid number (9-15 digits)',
+      },
+      info: {
+        whatsapp: 'WhatsApp',
+        location: 'Location',
+      },
+      details: {
+        name: 'Name',
+        whatsapp: 'WhatsApp',
+        email: 'Email',
+        emailFallback: '?',
+        message: 'Message',
+      },
+      roles: {
+        school: {
+          quickMessage: 'Hello, we are a school and would like to request a demo for Berard AIT.',
+          placeholder: 'Tell us about your school goals and the students you serve.',
+          badgePrimary: 'School Partnership',
+          badgeSecondary: 'Demo Request',
+          subtitle: 'For schools and universities looking to explore AIT for students.',
+        },
+        parent: {
+          quickMessage: 'Hello, I am a parent and would like to learn about Berard AIT for my child.',
+          placeholder: 'Share your child challenges and what you hope to improve.',
+          badgePrimary: 'Parent',
+          badgeSecondary: 'Assessment',
+          subtitle: 'For parents seeking guidance on auditory screening and next steps.',
+        },
+        clinician: {
+          quickMessage: 'Hello, I am a clinician and would like to discuss Berard AIT referrals.',
+          placeholder: 'Share the case context and questions about protocol or reports.',
+          badgePrimary: 'Clinician',
+          badgeSecondary: 'Clinical Inquiry',
+          subtitle: 'For clinicians exploring protocol details or referral pathways.',
+        },
       },
     },
 
@@ -1135,6 +1593,144 @@ export const translations = {
       sessionId: 'Session ID',
       completed: 'Completed',
       inProgress: 'In Progress',
+
+      moduleLabel: 'MODULE',
+      signalPreview: 'Signal Preview',
+      moduleStatusReady: 'Ready',
+      moduleStatusStandby: 'Standby',
+      moduleStatusActive: 'Active',
+      moduleStatusIdle: 'Idle',
+      outputsLabel: 'Outputs',
+      nonDiagnostic: 'Non-diagnostic',
+      startModule: 'Start Module',
+      available: 'Available',
+      labModulesTitle: 'Lab Modules',
+      labModulesLead: 'Choose a module to begin.',
+      labToggleAriaStation: 'Switch to screening station view',
+      labToggleAriaPortal: 'Switch to module portal view',
+      labToggleStation: 'Screening Station',
+      labTogglePortal: 'Module Portal',
+      labBadge: 'LAB MODE',
+      startFullSuite: 'Start Full Suite',
+      quickAccessLabel: 'Quick Access',
+      modulesAvailable: 'Modules Available',
+      resultLabel: 'Result:',
+      lastResultLabel: 'Last Result',
+      exportCsvSummary: 'Download CSV (Summary)',
+      exportPdfReport: 'Download PDF (Report)',
+      nextStep: {
+        low: 'Book Assessment',
+        medium: 'Continue Screening',
+        high: 'Schools & Universities',
+      },
+      outputs: {
+        rt: 'RT',
+        accuracy: 'Accuracy',
+        threshold: 'Threshold',
+        span: 'Span',
+        score: 'Score',
+        profile: 'Profile',
+      },
+      modules: {
+        suite: {
+          name: 'Full Suite',
+          measure: '3 tests + questionnaire',
+        },
+        attention: {
+          name: 'Attention',
+          measure: 'Focus in noise',
+        },
+        frequency: {
+          name: 'Frequency',
+          measure: 'Tone discrimination',
+        },
+        sequence: {
+          name: 'Sequence',
+          measure: 'Auditory memory',
+        },
+        questionnaire: {
+          name: 'Questionnaire',
+          measure: 'Self-report screen',
+        },
+      },
+      cards: {
+        suite: {
+          fullTitle: 'Full Assessment Suite',
+        },
+        attention: {
+          fullTitle: 'Auditory Attention Test',
+        },
+        frequency: {
+          fullTitle: 'Frequency Discrimination Test',
+        },
+        sequence: {
+          fullTitle: 'Sound Sequence Test',
+        },
+        questionnaire: {
+          fullTitle: 'Listening Questionnaire',
+        },
+      },
+      tags: {
+        suite: 'Suite',
+        attention: 'Attention',
+        frequency: 'Frequency',
+        sequence: 'Sequence',
+        questionnaire: 'Questionnaire',
+      },
+      resultMeta: {
+        high: {
+          label: 'Low indicators / Strong performance',
+          hint: 'Strong results within this interactive screening. If concerns persist daily, consult a specialist.',
+        },
+        medium: {
+          label: 'Moderate indicators',
+          hint: 'Some difficulty may appear with noise or processing speed. Try the other tests or consult a specialist.',
+        },
+        low: {
+          label: 'Elevated indicators / Needs follow-up',
+          hint: 'If symptoms continue at home/school, a specialist evaluation is recommended. This is not a medical diagnosis.',
+        },
+      },
+      suite: {
+        headerSubtitle: 'Quick interactive session + PDF/CSV report (for parents & schools).',
+        beforeTitle: 'Before Starting',
+        beforeIntro: 'This interactive screening helps measure indicators related to ',
+        beforeAttention: 'auditory attention',
+        beforeSeparator1: ', ',
+        beforeFrequency: 'frequency discrimination',
+        beforeSeparator2: ', and ',
+        beforeSequence: 'sequencing/auditory memory',
+        beforeOutro: ' in noise.',
+        bullets: {
+          headphonesIntro: 'Using ',
+          headphonesLabel: 'headphones',
+          headphonesOutro: ' in a quiet environment is recommended.',
+          nonDiagnostic: 'Results are not a medical diagnosis and do not replace professional assessment with standardized tools.',
+          demoReport: 'You can download a demo report for schools (PDF/CSV) without personal data.',
+        },
+        startSession: 'Start Session',
+        startWithQuestionnaire: 'Or Start with Questionnaire',
+        summaryTitle: 'Summary:',
+        retryTests: 'Retry Tests',
+        complianceTitle: 'Compliance Notice',
+        complianceText: 'This report is educational and non-diagnostic. For a diagnosis or treatment plan, clinical evaluation with calibrated equipment and standardized tools is required.',
+      },
+      lab: {
+        screeningStation: 'Screening Station',
+        nonDiagnostic: 'Non-diagnostic',
+        signalLabel: 'Signal',
+        livePreview: 'Live Preview',
+        statusLabel: 'Status',
+        modeLabel: 'Mode',
+        screeningMode: 'Screening',
+        typeLabel: 'Type',
+        soundLab: 'Sound Lab',
+        professionalGrade: 'Professional Grade',
+        systemReady: 'System Ready',
+        modulesCount: '5 Modules',
+        statusTesting: 'Testing',
+        statusActive: 'Active',
+      },
     },
 
     // Dashboards

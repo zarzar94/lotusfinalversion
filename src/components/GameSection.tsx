@@ -19,10 +19,23 @@ import { useLanguage } from '../context/LanguageContext';
 
 type GameMode = 'suite' | 'attention' | 'frequency' | 'sequence' | 'questionnaire';
 
-const nextStepFrom = (r: GameResult) => {
-  if (r === 'low') return { label: 'احجز تقييماً / تواصل الآن', hash: '#contact', tone: brandPink };
-  if (r === 'medium') return { label: 'ابدأ بالاستبيان + أكمل الفحص', hash: '#games', tone: brandPurple };
-  return { label: 'خيار المدارس/الجامعات', hash: '#schools', tone: brandCyan };
+const nextStepFrom = (r: GameResult, t: (key: string) => string) => {
+  if (r === 'low') return { label: t('games.nextStep.low'), hash: '#contact', tone: brandPink };
+  if (r === 'medium') return { label: t('games.nextStep.medium'), hash: '#games', tone: brandPurple };
+  return { label: t('games.nextStep.high'), hash: '#schools', tone: brandCyan };
+};
+
+type CardLabels = {
+  moduleLabel: string;
+  signalPreview: string;
+  statusReady: string;
+  statusStandby: string;
+  statusActive: string;
+  statusIdle: string;
+  outputsLabel: string;
+  disclaimer: string;
+  startModule: string;
+  available: string;
 };
 
 // Animated waveform component
@@ -131,6 +144,8 @@ function MedicalMonitor({
   statusText: string;
   isActive: boolean;
 }) {
+  const { t, direction } = useLanguage();
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -211,10 +226,10 @@ function MedicalMonitor({
             </div>
             <div>
               <div style={{ fontSize: 14, color: waveformColor, fontWeight: 800 }}>
-                LOTUS SCREENING STATION
+                {t('games.lab.screeningStation')}
               </div>
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.5px' }}>
-                {title} • NON-DIAGNOSTIC
+                {title} • {t('games.lab.nonDiagnostic')}
               </div>
             </div>
           </div>
@@ -247,7 +262,7 @@ function MedicalMonitor({
             <button
               type="button"
               onClick={onClose}
-              aria-label="Close modal"
+              aria-label={t('games.close')}
               style={{
                 width: 36,
                 height: 36,
@@ -283,14 +298,14 @@ function MedicalMonitor({
               marginBottom: 10,
             }}>
               <span style={{ color: waveformColor, fontSize: 12, fontWeight: 700 }}>
-                {title} SIGNAL
+                {title} {t('games.lab.signalLabel')}
               </span>
               <span style={{
                 fontSize: 10,
                 color: 'rgba(255,255,255,0.4)',
                 fontWeight: 600,
               }}>
-                LIVE PREVIEW
+                {t('games.lab.livePreview')}
               </span>
             </div>
             <Waveform color={waveformColor} type={waveformType} active={isActive} />
@@ -299,7 +314,7 @@ function MedicalMonitor({
           {/* Stats panel */}
           <div style={{ padding: 20, background: 'rgba(0,0,0,0.2)' }}>
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 9, color: waveformColor, marginBottom: 3, letterSpacing: '0.5px' }}>STATUS</div>
+              <div style={{ fontSize: 9, color: waveformColor, marginBottom: 3, letterSpacing: '0.5px' }}>{t('games.lab.statusLabel')}</div>
               <div style={{
                 fontSize: 26,
                 fontWeight: 900,
@@ -310,12 +325,12 @@ function MedicalMonitor({
               </div>
             </div>
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginBottom: 3, letterSpacing: '0.5px' }}>MODE</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>SCREENING</div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginBottom: 3, letterSpacing: '0.5px' }}>{t('games.lab.modeLabel')}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{t('games.lab.screeningMode')}</div>
             </div>
             <div>
-              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginBottom: 3, letterSpacing: '0.5px' }}>TYPE</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: waveformColor }}>NON-DIAGNOSTIC</div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginBottom: 3, letterSpacing: '0.5px' }}>{t('games.lab.typeLabel')}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: waveformColor }}>{t('games.lab.nonDiagnostic')}</div>
             </div>
           </div>
         </div>
@@ -325,7 +340,7 @@ function MedicalMonitor({
           padding: 24,
           maxHeight: '50vh',
           overflowY: 'auto',
-          direction: 'rtl',
+          direction,
           background: 'linear-gradient(180deg, rgba(26,31,46,0.5) 0%, rgba(13,17,23,0.5) 100%)',
         }}>
           {children}
@@ -342,7 +357,7 @@ function MedicalMonitor({
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
-              LOTUS SOUND LAB
+              {t('games.lab.soundLab')}
             </span>
             <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>•</span>
             <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>
@@ -371,6 +386,9 @@ function TestCard({
   title,
   description,
   tag,
+  outputs,
+  labels,
+  isArabic,
   waveformColor,
   waveformType,
   onClick,
@@ -379,6 +397,9 @@ function TestCard({
   title: string;
   description: string;
   tag: string;
+  outputs: string[];
+  labels: CardLabels;
+  isArabic: boolean;
   waveformColor: string;
   waveformType: 'ecg' | 'spo2' | 'resp' | 'audio';
   onClick: () => void;
@@ -391,7 +412,7 @@ function TestCard({
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      aria-label={`Start ${title} test`}
+      aria-label={`${labels.startModule}: ${title}`}
       style={{
         background: 'linear-gradient(180deg, rgba(26,31,46,0.95) 0%, rgba(13,17,23,0.98) 100%)',
         borderRadius: 16,
@@ -435,7 +456,7 @@ function TestCard({
           color: waveformColor,
           fontWeight: 700,
           letterSpacing: '0.5px',
-        }}>MODULE: {tag}</span>
+        }}>{labels.moduleLabel}: {tag}</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{
             width: 6,
@@ -449,7 +470,7 @@ function TestCard({
             fontSize: 9,
             color: isHovered ? '#22c55e' : 'rgba(255,255,255,0.4)',
             fontWeight: 600,
-          }}>{isHovered ? 'READY' : 'STANDBY'}</span>
+          }}>{isHovered ? labels.statusReady : labels.statusStandby}</span>
         </div>
       </div>
 
@@ -467,7 +488,7 @@ function TestCard({
               fontSize: 10,
               color: 'rgba(255,255,255,0.5)',
               fontWeight: 600,
-            }}>SIGNAL PREVIEW</span>
+            }}>{labels.signalPreview}</span>
             <span style={{
               fontSize: 14,
               fontWeight: 900,
@@ -475,14 +496,14 @@ function TestCard({
               fontFamily: 'system-ui',
               transition: 'color 0.3s ease',
             }}>
-              {isHovered ? '▶ START' : '○ IDLE'}
+              {isHovered ? `\u25B6 ${labels.statusActive}` : `\u25CB ${labels.statusIdle}`}
             </span>
           </div>
           <Waveform color={waveformColor} type={waveformType} active={isHovered} />
         </div>
 
         {/* Info */}
-        <div style={{ direction: 'rtl', textAlign: 'right' }}>
+        <div style={{ direction: isArabic ? 'rtl' : 'ltr', textAlign: 'start' }}>
           <div style={{
             fontWeight: 800,
             fontSize: 14,
@@ -499,6 +520,59 @@ function TestCard({
           }}>
             {description}
           </div>
+        </div>
+
+        {/* Outputs + disclaimer */}
+        <div style={{
+          marginTop: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 8,
+          direction: isArabic ? 'rtl' : 'ltr',
+          textAlign: 'start',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            flexWrap: 'wrap',
+          }}>
+            <span style={{
+              fontSize: 10,
+              color: 'rgba(255,255,255,0.5)',
+              fontWeight: 700,
+            }}>
+              {labels.outputsLabel}
+            </span>
+            {outputs.map((output) => (
+              <span
+                key={output}
+                style={{
+                  padding: '4px 8px',
+                  borderRadius: 999,
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: 'rgba(255,255,255,0.75)',
+                }}
+              >
+                {output}
+              </span>
+            ))}
+          </div>
+          <span style={{
+            alignSelf: isArabic ? 'flex-end' : 'flex-start',
+            padding: '4px 10px',
+            borderRadius: 999,
+            background: 'rgba(239,68,68,0.12)',
+            border: '1px solid rgba(239,68,68,0.3)',
+            fontSize: 10,
+            fontWeight: 700,
+            color: '#fecaca',
+          }}>
+            {labels.disclaimer}
+          </span>
         </div>
 
         {/* Start button */}
@@ -518,7 +592,7 @@ function TestCard({
             fontWeight: 700,
             color: isHovered ? waveformColor : 'rgba(255,255,255,0.45)',
           }}>
-            {isHovered ? '🔬 ابدأ الفحص' : '○ متاح'}
+            {isHovered ? `\u{1F52C} ${labels.startModule}` : `\u25CB ${labels.available}`}
           </span>
         </div>
       </div>
@@ -631,6 +705,7 @@ const GameSection = memo(function GameSection() {
     outputsLabel: t('games.outputsLabel'),
     disclaimer: t('games.nonDiagnostic'),
     startModule: t('games.startModule'),
+    available: t('games.available'),
   }), [t]);
 
   const outputLabels = useMemo(() => ({
@@ -642,55 +717,61 @@ const GameSection = memo(function GameSection() {
     profile: t('games.outputs.profile'),
   }), [t]);
 
+  const resultLabels = useMemo(() => ({
+    high: t('games.resultMeta.high.label'),
+    medium: t('games.resultMeta.medium.label'),
+    low: t('games.resultMeta.low.label'),
+  }), [t]);
+
   const cards = useMemo(
     () => [
       {
         mode: 'suite' as const,
         title: t('games.modules.suite.name'),
-        fullTitle: t('games.modules.suite.name'),
+        fullTitle: t('games.cards.suite.fullTitle'),
         desc: t('games.modules.suite.measure'),
         outputs: [outputLabels.rt, outputLabels.accuracy, outputLabels.threshold, outputLabels.span],
-        tag: 'FULL SUITE',
+        tag: t('games.tags.suite'),
         color: '#22c55e',
         waveType: 'ecg' as const,
       },
       {
         mode: 'attention' as const,
         title: t('games.modules.attention.name'),
-        fullTitle: t('games.modules.attention.name'),
+        fullTitle: t('games.cards.attention.fullTitle'),
         desc: t('games.modules.attention.measure'),
         outputs: [outputLabels.rt, outputLabels.accuracy],
-        tag: 'ATTENTION',
+        tag: t('games.tags.attention'),
         color: '#3B82F6',
         waveType: 'spo2' as const,
       },
       {
         mode: 'frequency' as const,
         title: t('games.modules.frequency.name'),
-        fullTitle: t('games.modules.frequency.name'),
+        fullTitle: t('games.cards.frequency.fullTitle'),
         desc: t('games.modules.frequency.measure'),
         outputs: [outputLabels.threshold, outputLabels.accuracy, outputLabels.rt],
-        tag: 'FREQUENCY',
+        tag: t('games.tags.frequency'),
         color: '#8B5CF6',
         waveType: 'audio' as const,
       },
       {
         mode: 'sequence' as const,
         title: t('games.modules.sequence.name'),
-        fullTitle: t('games.modules.sequence.name'),
+        fullTitle: t('games.cards.sequence.fullTitle'),
         desc: t('games.modules.sequence.measure'),
         outputs: [outputLabels.span, outputLabels.accuracy, outputLabels.rt],
-        tag: 'SEQUENCE',
+        tag: t('games.tags.sequence'),
         color: '#F59E0B',
         waveType: 'resp' as const,
       },
       {
         mode: 'questionnaire' as const,
         title: t('games.modules.questionnaire.name'),
-        fullTitle: t('games.modules.questionnaire.name'),
+        fullTitle: t('games.cards.questionnaire.fullTitle'),
         desc: t('games.modules.questionnaire.measure'),
         outputs: [outputLabels.score, outputLabels.profile],
-        tag: 'SURVEY',
+        tag: t('games.tags.questionnaire'),
         color: brandPink,
         waveType: 'ecg' as const,
       },
@@ -700,7 +781,7 @@ const GameSection = memo(function GameSection() {
 
   const activeCard = cards.find(c => c.mode === mode);
   const lastMeta = lastOutcome ? resultMeta[lastOutcome.result] : null;
-  const lastNext = lastOutcome ? nextStepFrom(lastOutcome.result) : null;
+  const lastNext = lastOutcome ? nextStepFrom(lastOutcome.result, t) : null;
 
   const handleTestStart = useCallback(() => {
     setIsTestActive(true);
@@ -748,7 +829,7 @@ const GameSection = memo(function GameSection() {
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             <button
               onClick={() => setShowPortal(!showPortal)}
-              aria-label={showPortal ? 'Switch to Screening Station view' : 'Switch to Portal view'}
+              aria-label={showPortal ? t('games.labToggleAriaStation') : t('games.labToggleAriaPortal')}
               style={{
                 padding: '6px 14px',
                 borderRadius: 8,
@@ -763,14 +844,14 @@ const GameSection = memo(function GameSection() {
                 transition: 'all 0.3s ease',
               }}
             >
-              {showPortal ? '🔬 Screening Station' : '🎮 Portal View'}
+              {showPortal ? t('games.labToggleStation') : t('games.labTogglePortal')}
             </button>
             <span style={{
               ...styles.chip,
               background: 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(59,130,246,0.2))',
               borderColor: 'rgba(34,197,94,0.4)',
             }}>
-              SCREENING LAB
+              {t('games.labBadge')}
             </span>
           </div>
         </div>
@@ -837,10 +918,10 @@ const GameSection = memo(function GameSection() {
             </div>
             <div>
               <div style={{ fontSize: 13, color: brandCyan, fontWeight: 800, letterSpacing: '0.5px' }}>
-                LOTUS SCREENING STATION
+                {t('games.lab.screeningStation')}
               </div>
               <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '1px' }}>
-                BERARD AIT SOUND LAB • PROFESSIONAL GRADE
+                {t('games.lab.professionalGrade')}
               </div>
             </div>
           </div>
@@ -862,7 +943,7 @@ const GameSection = memo(function GameSection() {
                 animation: 'blink 2s ease-in-out infinite',
                 boxShadow: '0 0 8px #22c55e',
               }} />
-              <span style={{ fontSize: 10, color: '#22c55e', fontWeight: 700 }}>SYSTEM READY</span>
+              <span style={{ fontSize: 10, color: '#22c55e', fontWeight: 700 }}>{t('games.lab.systemReady')}</span>
             </div>
             <div style={{
               padding: '6px 12px',
@@ -873,7 +954,7 @@ const GameSection = memo(function GameSection() {
               color: brandCyan,
               fontWeight: 700,
             }}>
-              5 MODULES
+              {t('games.lab.modulesCount')}
             </div>
           </div>
         </div>
@@ -936,7 +1017,7 @@ const GameSection = memo(function GameSection() {
             }}>
               🎧
             </div>
-            <div style={{ flex: 1, direction: 'rtl', textAlign: 'right' }}>
+            <div style={{ flex: 1, direction: isArabic ? 'rtl' : 'ltr', textAlign: 'start' }}>
               <div style={{ fontWeight: 800, fontSize: 14, color: brandCyan, marginBottom: 4 }}>
                 بيئة الفحص المثالية
               </div>
@@ -1036,10 +1117,10 @@ const GameSection = memo(function GameSection() {
             marginBottom: 12,
           }}>
             <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600, letterSpacing: '0.5px' }}>
-              {isArabic ? 'وصول سريع' : 'QUICK ACCESS'}
+              {t('games.quickAccessLabel')}
             </span>
             <span style={{ fontSize: 10, color: brandCyan, fontWeight: 600 }}>
-              {isArabic ? '5 وحدات متاحة' : '5 MODULES AVAILABLE'}
+              {t('games.modulesAvailable')}
             </span>
           </div>
           <div style={{
@@ -1050,17 +1131,17 @@ const GameSection = memo(function GameSection() {
             flexWrap: 'wrap',
           }}>
             {[
-              { color: '#22c55e', labelEn: 'FULL SUITE', labelAr: 'الباقة الكاملة', icon: '🧪' },
-              { color: '#3B82F6', labelEn: 'ATTENTION', labelAr: 'الانتباه', icon: '🎯' },
-              { color: '#8B5CF6', labelEn: 'FREQUENCY', labelAr: 'التردد', icon: '🎚️' },
-              { color: '#F59E0B', labelEn: 'SEQUENCE', labelAr: 'التسلسل', icon: '🏫' },
-              { color: brandPink, labelEn: 'SURVEY', labelAr: 'الاستبيان', icon: '📝' },
+              { color: '#22c55e', label: t('games.tags.suite'), icon: '\u{1F9EA}' },
+              { color: '#3B82F6', label: t('games.tags.attention'), icon: '\u{1F3AF}' },
+              { color: '#8B5CF6', label: t('games.tags.frequency'), icon: '\u{1F39A}' },
+              { color: '#F59E0B', label: t('games.tags.sequence'), icon: '\u{1F3EB}' },
+              { color: brandPink, label: t('games.tags.questionnaire'), icon: '\u{1F4DD}' },
             ].map((btn, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => handleModeSelect(cards[i].mode)}
-                aria-label={isArabic ? `ابدأ اختبار ${btn.labelAr}` : `Start ${btn.labelEn} test`}
+                aria-label={`${t('games.startModule')}: ${btn.label}`}
                 style={{
                   padding: '8px 16px',
                   borderRadius: 10,
@@ -1088,7 +1169,7 @@ const GameSection = memo(function GameSection() {
                 }}
               >
                 <span>{btn.icon}</span>
-                <span>{isArabic ? btn.labelAr : btn.labelEn}</span>
+                <span>{btn.label}</span>
               </button>
             ))}
           </div>
@@ -1130,7 +1211,7 @@ const GameSection = memo(function GameSection() {
             gap: 20,
             flexWrap: 'wrap',
             alignItems: 'center',
-            direction: 'rtl',
+            direction: isArabic ? 'rtl' : 'ltr',
           }}>
             <div style={{ flex: 1 }}>
               <div style={{
@@ -1166,7 +1247,7 @@ const GameSection = memo(function GameSection() {
                     letterSpacing: '0.5px',
                     marginBottom: 2,
                   }}>
-                    LAST RESULT
+                    {t('games.lastResultLabel')}
                   </div>
                   <span style={{ fontWeight: 900, color: lastMeta.color, fontSize: 18 }}>
                     {lastOutcome.title}
@@ -1184,6 +1265,9 @@ const GameSection = memo(function GameSection() {
                 </div>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4, lineHeight: 1.5 }}>
                   {lastOutcome.message}
+                </div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 6 }}>
+                  {t('clinical.disclaimer')}
                 </div>
               </div>
             </div>
@@ -1212,10 +1296,10 @@ const GameSection = memo(function GameSection() {
       <MedicalMonitor
         open={mode === 'attention'}
         onClose={() => setMode(null)}
-        title={isArabic ? '🎯 اختبار الانتباه' : '🎯 ATTENTION TEST'}
+        title={t('games.cards.attention.fullTitle')}
         waveformColor="#3B82F6"
         waveformType="spo2"
-        statusText={isTestActive ? (isArabic ? 'جارٍ الاختبار' : 'TESTING') : (isArabic ? 'جاهز' : 'READY')}
+        statusText={isTestActive ? t('games.lab.statusTesting') : t('games.moduleStatusReady')}
         isActive={isTestActive}
       >
         <AttentionTestPanel
@@ -1236,10 +1320,13 @@ const GameSection = memo(function GameSection() {
             borderRadius: 8,
           }}>
             <div style={{ fontWeight: 900, color: resultMeta[modalOutcome.result].color }}>
-              {isArabic ? 'النتيجة:' : 'Result:'} {resultMeta[modalOutcome.result].label}
+              {t('games.resultLabel')} {resultLabels[modalOutcome.result]}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
               {modalOutcome.scoreLabel}
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+              {t('clinical.disclaimer')}
             </div>
           </div>
         ) : null}
@@ -1248,10 +1335,10 @@ const GameSection = memo(function GameSection() {
       <MedicalMonitor
         open={mode === 'frequency'}
         onClose={() => setMode(null)}
-        title={isArabic ? '🎚️ اختبار التردد' : '🎚️ FREQUENCY TEST'}
+        title={t('games.cards.frequency.fullTitle')}
         waveformColor="#8B5CF6"
         waveformType="audio"
-        statusText={isTestActive ? (isArabic ? 'جارٍ الاختبار' : 'TESTING') : (isArabic ? 'جاهز' : 'READY')}
+        statusText={isTestActive ? t('games.lab.statusTesting') : t('games.moduleStatusReady')}
         isActive={isTestActive}
       >
         <FrequencyDiscriminationTestPanel
@@ -1272,10 +1359,13 @@ const GameSection = memo(function GameSection() {
             borderRadius: 8,
           }}>
             <div style={{ fontWeight: 900, color: resultMeta[modalOutcome.result].color }}>
-              {isArabic ? 'النتيجة:' : 'Result:'} {resultMeta[modalOutcome.result].label}
+              {t('games.resultLabel')} {resultLabels[modalOutcome.result]}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
               {modalOutcome.scoreLabel}
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+              {t('clinical.disclaimer')}
             </div>
           </div>
         ) : null}
@@ -1284,10 +1374,10 @@ const GameSection = memo(function GameSection() {
       <MedicalMonitor
         open={mode === 'sequence'}
         onClose={() => setMode(null)}
-        title={isArabic ? '🏫 اختبار التسلسل' : '🏫 SEQUENCE TEST'}
+        title={t('games.cards.sequence.fullTitle')}
         waveformColor="#F59E0B"
         waveformType="resp"
-        statusText={isTestActive ? (isArabic ? 'جارٍ الاختبار' : 'TESTING') : (isArabic ? 'جاهز' : 'READY')}
+        statusText={isTestActive ? t('games.lab.statusTesting') : t('games.moduleStatusReady')}
         isActive={isTestActive}
       >
         <SequencingTestPanel
@@ -1308,10 +1398,13 @@ const GameSection = memo(function GameSection() {
             borderRadius: 8,
           }}>
             <div style={{ fontWeight: 900, color: resultMeta[modalOutcome.result].color }}>
-              {isArabic ? 'النتيجة:' : 'Result:'} {resultMeta[modalOutcome.result].label}
+              {t('games.resultLabel')} {resultLabels[modalOutcome.result]}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
               {modalOutcome.scoreLabel}
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+              {t('clinical.disclaimer')}
             </div>
           </div>
         ) : null}
@@ -1320,10 +1413,10 @@ const GameSection = memo(function GameSection() {
       <MedicalMonitor
         open={mode === 'questionnaire'}
         onClose={() => setMode(null)}
-        title={isArabic ? '📝 الاستبيان' : '📝 QUESTIONNAIRE'}
+        title={t('games.cards.questionnaire.fullTitle')}
         waveformColor={brandPink}
         waveformType="ecg"
-        statusText={isTestActive ? (isArabic ? 'نشط' : 'ACTIVE') : (isArabic ? 'جاهز' : 'READY')}
+        statusText={isTestActive ? t('games.lab.statusActive') : t('games.moduleStatusReady')}
         isActive={isTestActive}
       >
         <QuestionnairePanel
@@ -1344,10 +1437,13 @@ const GameSection = memo(function GameSection() {
             borderRadius: 8,
           }}>
             <div style={{ fontWeight: 900, color: resultMeta[modalOutcome.result].color }}>
-              {isArabic ? 'النتيجة:' : 'Result:'} {resultMeta[modalOutcome.result].label}
+              {t('games.resultLabel')} {resultLabels[modalOutcome.result]}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
               {modalOutcome.scoreLabel}
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+              {t('clinical.disclaimer')}
             </div>
           </div>
         ) : null}

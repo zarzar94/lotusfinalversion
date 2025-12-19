@@ -661,7 +661,7 @@ const Header = memo(function Header() {
                 }}>
                   {item.icon}
                 </span>
-                {isArabic ? item.labelAr : item.label}
+                {t(item.translationKey)}
                 {isActive && (
                   <span style={{
                     marginRight: isArabic ? 'auto' : 0,

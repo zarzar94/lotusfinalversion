@@ -46,7 +46,7 @@ const getTiers = (t: (key: string) => string) => [
   {
     name: t('schools.tiers.pilot.name'),
     subtitle: t('schools.tiers.pilot.subtitle'),
-    badge: 'PILOT',
+    badge: t('schools.tiers.pilot.badge'),
     color: brandCyan,
     bullets: [
       t('schools.tiers.pilot.bullet1'),
@@ -58,7 +58,7 @@ const getTiers = (t: (key: string) => string) => [
   {
     name: t('schools.tiers.partner.name'),
     subtitle: t('schools.tiers.partner.subtitle'),
-    badge: 'PARTNER',
+    badge: t('schools.tiers.partner.badge'),
     color: brandPurple,
     popular: true,
     bullets: [
@@ -71,7 +71,7 @@ const getTiers = (t: (key: string) => string) => [
   {
     name: t('schools.tiers.enterprise.name'),
     subtitle: t('schools.tiers.enterprise.subtitle'),
-    badge: 'ENTERPRISE',
+    badge: t('schools.tiers.enterprise.badge'),
     color: brandPink,
     bullets: [
       t('schools.tiers.enterprise.bullet1'),
@@ -194,8 +194,8 @@ const SchoolPartnershipSection = () => {
             <span style={styles.chip}>{t('schools.audiences.schools')}</span>
             <span style={styles.chip}>{t('schools.audiences.universities')}</span>
             <span style={styles.chip}>{t('schools.audiences.supportCenters')}</span>
-            <span style={{ ...styles.chip, background: 'rgba(175,132,186,0.12)', borderColor: 'rgba(175,132,186,0.25)' }}>Learning Support</span>
-            <span style={{ ...styles.chip, background: 'rgba(176,18,112,0.12)', borderColor: 'rgba(176,18,112,0.25)' }}>SEN / Inclusion</span>
+            <span style={{ ...styles.chip, background: 'rgba(175,132,186,0.12)', borderColor: 'rgba(175,132,186,0.25)' }}>{t('schools.audiences.learningSupport')}</span>
+            <span style={{ ...styles.chip, background: 'rgba(176,18,112,0.12)', borderColor: 'rgba(176,18,112,0.25)' }}>{t('schools.audiences.senInclusion')}</span>
           </div>
 
           <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
