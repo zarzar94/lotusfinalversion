@@ -688,7 +688,7 @@ const ContactForm = () => {
           fontWeight: 700,
           color: visitorConfig.color,
         }}>
-          {visitorConfig.icon} {isArabic ? visitorConfig.labelAr : visitorConfig.labelEn}
+          {visitorConfig.icon} {isArabic ? visitorConfig.labelAr : visitorConfig.label}
         </div>
         <h2 className="contact-header-text" style={headerStyle}>{isArabic ? 'تواصل معنا' : 'Contact Us'}</h2>
         <p className="contact-subtext" style={{ margin: 0, opacity: 0.7, fontSize: 14, lineHeight: 1.6 }}>

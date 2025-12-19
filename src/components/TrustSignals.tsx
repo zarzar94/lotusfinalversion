@@ -12,7 +12,7 @@ import {
   colors,
   shadows,
 } from './styles';
-import { CheckCircleIcon, ShieldIcon, StarIcon, UsersIcon, AwardIcon, BookOpenIcon, HeartIcon } from './Icons';
+import { CheckCircleIcon, ShieldIcon, StarIcon, UsersIcon } from './Icons';
 
 interface TrustSignal {
   id: string;
@@ -382,7 +382,7 @@ export default function TrustSignals() {
                 border: `1px solid ${visitorConfig.color}40`,
               }}
             >
-              {visitorConfig.icon} {isArabic ? visitorConfig.labelAr : visitorConfig.labelEn}
+              {visitorConfig.icon} {isArabic ? visitorConfig.labelAr : visitorConfig.label}
             </div>
             <h3 style={{
               margin: 0,

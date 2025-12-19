@@ -132,14 +132,17 @@ export const spacing = {
   3: 12,
   3.5: 14,
   4: 16,
+  4.5: 18,
   5: 20,
   6: 24,
   7: 28,
   8: 32,
   9: 36,
   10: 40,
+  11: 44,
   12: 48,
   14: 56,
+  14.5: 58,
   16: 64,
   20: 80,
   24: 96,
@@ -229,6 +232,8 @@ export const gradients = {
   glass: `linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))`,
   cyanPurple: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
   purplePink: `linear-gradient(135deg, ${brandPurple}, ${brandPink})`,
+  grid:
+    'repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 28px), repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 28px)',
 };
 
 export const styles: Record<string, CSSProperties> = {

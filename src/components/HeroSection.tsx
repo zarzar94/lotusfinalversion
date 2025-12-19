@@ -119,6 +119,24 @@ const HeroSection = memo(function HeroSection() {
       0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
       50% { transform: translateX(-50%) translateY(10px); opacity: 1; }
     }
+    @keyframes scanLineVertical {
+      0% { top: -100%; }
+      100% { top: 200%; }
+    }
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    @keyframes statusBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    @keyframes dataStream {
+      0% { transform: translateY(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100px); opacity: 0; }
+    }
     .brain-container {
       animation: fadeInScale 1.2s ease-out forwards, brainPulse 4s ease-in-out infinite;
       animation-delay: 0s, 1.2s;
@@ -126,6 +144,22 @@ const HeroSection = memo(function HeroSection() {
     .orbit-trail {
       opacity: 0.1;
       animation: orbitReverse 60s linear infinite;
+    }
+    .hero-scan-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 100px;
+      background: linear-gradient(180deg, transparent, ${brandCyan}08, transparent);
+      pointer-events: none;
+      animation: scanLineVertical 8s linear infinite;
+    }
+    .corner-bracket {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-color: ${brandCyan}40;
+      border-style: solid;
     }
     @media (max-width: 640px) {
       .brain-container img {
@@ -141,6 +175,12 @@ const HeroSection = memo(function HeroSection() {
       }
       .scroll-indicator {
         bottom: 20px !important;
+      }
+      .lab-badge {
+        display: none !important;
+      }
+      .corner-bracket {
+        display: none !important;
       }
     }
     @media (max-width: 480px) {
@@ -189,10 +229,25 @@ const HeroSection = memo(function HeroSection() {
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        background: 'radial-gradient(ellipse at center, rgba(20,26,45,1) 0%, rgba(8,10,18,1) 100%)',
+        background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 40%, rgba(8,10,18,1) 100%)',
       }}
     >
       <style>{css}</style>
+
+      {/* Top glow bar */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 2,
+        background: `linear-gradient(90deg, transparent, ${brandCyan}66, ${brandPurple}66, transparent)`,
+        animation: 'glowPulse 3s ease-in-out infinite',
+        zIndex: 10,
+      }} />
+
+      {/* Scan line effect */}
+      <div className="hero-scan-line" />
 
       {/* Subtle grid background */}
       <div style={{
@@ -205,6 +260,108 @@ const HeroSection = memo(function HeroSection() {
         backgroundSize: '50px 50px',
         pointerEvents: 'none',
       }} />
+
+      {/* Corner brackets for tech aesthetic */}
+      <div className="corner-bracket" style={{ top: 40, left: 40, borderWidth: '2px 0 0 2px' }} />
+      <div className="corner-bracket" style={{ top: 40, right: 40, borderWidth: '2px 2px 0 0' }} />
+      <div className="corner-bracket" style={{ bottom: 80, left: 40, borderWidth: '0 0 2px 2px' }} />
+      <div className="corner-bracket" style={{ bottom: 80, right: 40, borderWidth: '0 2px 2px 0' }} />
+
+      {/* Lab status badge - top left */}
+      <div className="lab-badge" style={{
+        position: 'absolute',
+        top: 100,
+        left: 40,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        zIndex: 5,
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '8px 14px',
+          background: 'rgba(13,17,23,0.8)',
+          border: `1px solid ${brandCyan}30`,
+          borderRadius: 8,
+          backdropFilter: 'blur(10px)',
+        }}>
+          <div style={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            background: '#22c55e',
+            boxShadow: '0 0 8px #22c55e',
+            animation: 'statusBlink 2s ease-in-out infinite',
+          }} />
+          <span style={{
+            fontSize: 10,
+            fontWeight: 800,
+            color: brandCyan,
+            letterSpacing: 1.5,
+            textTransform: 'uppercase',
+            fontFamily: 'monospace',
+          }}>
+            NEURAL SCAN ACTIVE
+          </span>
+        </div>
+        <div style={{
+          fontSize: 9,
+          color: 'rgba(255,255,255,0.3)',
+          fontFamily: 'monospace',
+          paddingLeft: 4,
+        }}>
+          LOTUS LAB v2.0
+        </div>
+      </div>
+
+      {/* Tech readout - top right */}
+      <div className="lab-badge" style={{
+        position: 'absolute',
+        top: 100,
+        right: 40,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        gap: 6,
+        zIndex: 5,
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          padding: '8px 14px',
+          background: 'rgba(13,17,23,0.8)',
+          border: `1px solid ${brandPurple}30`,
+          borderRadius: 8,
+          backdropFilter: 'blur(10px)',
+        }}>
+          <span style={{
+            fontSize: 10,
+            fontWeight: 700,
+            color: brandPurple,
+            letterSpacing: 1,
+            fontFamily: 'monospace',
+          }}>
+            AUDITORY CENTER
+          </span>
+          <div style={{
+            width: 6,
+            height: 6,
+            borderRadius: '50%',
+            background: brandPurple,
+            boxShadow: `0 0 6px ${brandPurple}`,
+          }} />
+        </div>
+        <div style={{
+          fontSize: 9,
+          color: 'rgba(255,255,255,0.25)',
+          fontFamily: 'monospace',
+        }}>
+          BÉRARD AIT PROTOCOL
+        </div>
+      </div>
 
       {/* Orbit trail rings */}
       <div style={{
@@ -260,27 +417,51 @@ const HeroSection = memo(function HeroSection() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: 8,
+        gap: 10,
         animation: 'scrollHint 2s ease-in-out infinite',
         zIndex: 10,
       }}>
         <div style={{
+          fontSize: 9,
+          fontWeight: 700,
+          color: brandCyan,
+          letterSpacing: 2,
+          textTransform: 'uppercase',
+          fontFamily: 'monospace',
+          opacity: 0.7,
+        }}>
+          EXPLORE
+        </div>
+        <div style={{
           width: 24,
           height: 38,
-          border: '2px solid rgba(143,211,204,0.3)',
+          border: `2px solid ${brandCyan}40`,
           borderRadius: 12,
           display: 'flex',
           justifyContent: 'center',
           paddingTop: 8,
+          background: 'rgba(13,17,23,0.5)',
         }}>
           <div style={{
             width: 4,
             height: 8,
             background: brandCyan,
             borderRadius: 2,
+            boxShadow: `0 0 8px ${brandCyan}`,
           }} />
         </div>
       </div>
+
+      {/* Bottom gradient fade */}
+      <div style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 100,
+        background: 'linear-gradient(to top, #0d1117, transparent)',
+        pointerEvents: 'none',
+      }} />
     </section>
   );
 });

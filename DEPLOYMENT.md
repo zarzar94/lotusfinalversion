@@ -17,6 +17,29 @@ Notes:
 - If you rename the repo or use a custom domain, update `BASE_PATH` accordingly or leave it empty for root hosting.
 - Keep `public/fonts/` bundled so PDFs render Arabic text.
 
+### Private repo workaround (public deploy-only repo)
+If GitHub Pages is not available for your private source repo, deploy only the built `/dist` output to a separate **public** repo and enable Pages there.
+
+Example (deploy repo created for this project):
+- Repo: `https://github.com/zarzar94/lotusfinalversion-site`
+- Pages: `https://zarzar94.github.io/lotusfinalversion-site/`
+
+Deploy from your source repo:
+```powershell
+# Build with the deploy repo name as the base path
+$env:BASE_PATH = "/lotusfinalversion-site/"
+npm run build
+
+# Copy dist -> deploy repo checkout, then commit + push
+$deploy = "..\\lotusfinalversion-site"
+Get-ChildItem -Force $deploy | Where-Object { $_.Name -ne ".git" } | Remove-Item -Recurse -Force
+Copy-Item -Path .\\dist\\* -Destination $deploy -Recurse -Force
+cd $deploy
+git add -A
+git commit -m "deploy: update site"
+git push
+```
+
 ## C) Manual gh-pages alternative
 If you prefer a `gh-pages` branch:
 ```bash

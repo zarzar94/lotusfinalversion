@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from 'react';
 
 // Achievement definitions
 export interface Achievement {
@@ -491,9 +491,17 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<GamificationState>(getInitialState);
   const [recentUnlock, setRecentUnlock] = useState<Achievement | null>(null);
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
+  const stateRef = useRef(state);
+  const saveTimeoutRef = useRef<number | null>(null);
+  const lastNotifiedUnlockAtRef = useRef(0);
+  const soundScientistTimerRef = useRef<number | null>(null);
+
+  stateRef.current = state;
 
   // Initialize audio context on first interaction
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const initAudio = () => {
       if (!audioContext) {
         const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
@@ -507,32 +515,32 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
 
   // Save state to localStorage
   useEffect(() => {
-    const toSave = {
-      ...state,
-      totalTimeSpent: state.totalTimeSpent + Math.floor((Date.now() - state.sessionStartTime) / 1000),
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
-  }, [state]);
+    if (typeof window === 'undefined') return;
 
-  // Track time spent
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const timeSpent = Math.floor((Date.now() - state.sessionStartTime) / 1000);
-      if (timeSpent >= 300 && !state.achievements.find(a => a.id === 'dedicated_learner')?.unlocked) {
-        unlockAchievement('dedicated_learner');
-      }
-    }, 30000); // Check every 30 seconds
-
-    return () => clearInterval(interval);
-  }, [state.sessionStartTime, state.achievements]);
-
-  // Unlock first_steps on mount if not already unlocked
-  useEffect(() => {
-    const firstSteps = state.achievements.find(a => a.id === 'first_steps');
-    if (firstSteps && !firstSteps.unlocked) {
-      setTimeout(() => unlockAchievement('first_steps'), 2000);
+    if (saveTimeoutRef.current !== null) {
+      window.clearTimeout(saveTimeoutRef.current);
     }
-  }, []);
+
+    const snapshot = state;
+    saveTimeoutRef.current = window.setTimeout(() => {
+      try {
+        const toSave = {
+          ...snapshot,
+          totalTimeSpent: snapshot.totalTimeSpent + Math.floor((Date.now() - snapshot.sessionStartTime) / 1000),
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+      } catch {
+        // Ignore quota/availability errors
+      }
+    }, 750);
+
+    return () => {
+      if (saveTimeoutRef.current !== null) {
+        window.clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
+    };
+  }, [state]);
 
   const playUnlockSound = useCallback(() => {
     if (!audioContext) return;
@@ -573,143 +581,104 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     }
   }, [audioContext]);
 
-  const calculateLevel = (points: number): number => {
+  const calculateLevel = useCallback((points: number): number => {
     if (points < 50) return 1;
     if (points < 150) return 2;
     if (points < 300) return 3;
     if (points < 500) return 4;
     return 5;
-  };
+  }, []);
 
   const unlockAchievement = useCallback((id: string): boolean => {
-    const achievement = state.achievements.find(a => a.id === id);
-    if (!achievement || achievement.unlocked) return false;
+    const current = stateRef.current;
+    const currentAchievement = current.achievements.find(a => a.id === id);
+    if (!currentAchievement || currentAchievement.unlocked) return false;
 
-    const newAchievements = state.achievements.map(a =>
-      a.id === id ? { ...a, unlocked: true, unlockedAt: Date.now() } : a
-    );
-    const newPoints = state.totalPoints + achievement.points;
+    const unlockedAt = Date.now();
 
-    setState(prev => ({
-      ...prev,
-      achievements: newAchievements,
-      totalPoints: newPoints,
-      level: calculateLevel(newPoints),
-    }));
+    setState((prev) => {
+      const achievement = prev.achievements.find(a => a.id === id);
+      if (!achievement || achievement.unlocked) return prev;
 
-    setRecentUnlock({ ...achievement, unlocked: true, unlockedAt: Date.now() });
-    playUnlockSound();
+      const achievements = prev.achievements.map(a => (
+        a.id === id ? { ...a, unlocked: true, unlockedAt } : a
+      ));
+      const totalPoints = prev.totalPoints + achievement.points;
 
-    // Check for sound_scientist achievement
-    if (newPoints >= 300) {
-      setTimeout(() => {
-        const soundScientist = state.achievements.find(a => a.id === 'sound_scientist');
-        if (soundScientist && !soundScientist.unlocked) {
-          unlockAchievement('sound_scientist');
-        }
-      }, 1500);
-    }
+      return {
+        ...prev,
+        achievements,
+        totalPoints,
+        level: calculateLevel(totalPoints),
+      };
+    });
 
     return true;
-  }, [state.achievements, state.totalPoints, playUnlockSound]);
+  }, [calculateLevel]);
 
   const exploreBrainRegion = useCallback((id: string) => {
-    if (state.exploredBrainRegions.includes(id)) return;
-
-    const newExplored = [...state.exploredBrainRegions, id];
-    setState(prev => ({ ...prev, exploredBrainRegions: newExplored }));
-
-    // Check achievements
-    if (newExplored.length === 3) {
-      unlockAchievement('brain_explorer');
-    }
-    if (newExplored.length === BRAIN_REGIONS.length) {
-      unlockAchievement('neural_master');
-    }
-  }, [state.exploredBrainRegions, unlockAchievement]);
+    setState((prev) => {
+      if (prev.exploredBrainRegions.includes(id)) return prev;
+      return { ...prev, exploredBrainRegions: [...prev.exploredBrainRegions, id] };
+    });
+  }, []);
 
   const viewSlide = useCallback((slideId: number) => {
-    if (state.slidesViewed.includes(slideId)) return;
-
-    const newViewed = [...state.slidesViewed, slideId];
-    setState(prev => ({ ...prev, slidesViewed: newViewed }));
-
-    if (newViewed.length === 10) {
-      unlockAchievement('slide_scholar');
-    }
-    if (newViewed.length === 30) {
-      unlockAchievement('data_detective');
-    }
-  }, [state.slidesViewed, unlockAchievement]);
+    setState((prev) => {
+      if (prev.slidesViewed.includes(slideId)) return prev;
+      return { ...prev, slidesViewed: [...prev.slidesViewed, slideId] };
+    });
+  }, []);
 
   const completeChecklist = useCallback(() => {
-    if (state.checklistCompleted) return;
-    setState(prev => ({ ...prev, checklistCompleted: true }));
-    unlockAchievement('self_aware');
-  }, [state.checklistCompleted, unlockAchievement]);
+    setState((prev) => {
+      if (prev.checklistCompleted) return prev;
+      return { ...prev, checklistCompleted: true };
+    });
+  }, []);
 
   const completeGame = useCallback((gameId: string) => {
-    if (state.gamesCompleted.includes(gameId)) return;
-
-    const newCompleted = [...state.gamesCompleted, gameId];
-    setState(prev => ({ ...prev, gamesCompleted: newCompleted }));
-
-    if (newCompleted.length === 1) {
-      unlockAchievement('game_starter');
-    }
-    if (newCompleted.length >= 5) {
-      unlockAchievement('lab_explorer');
-    }
-  }, [state.gamesCompleted, unlockAchievement]);
+    setState((prev) => {
+      if (prev.gamesCompleted.includes(gameId)) return prev;
+      return { ...prev, gamesCompleted: [...prev.gamesCompleted, gameId] };
+    });
+  }, []);
 
   const updateAudioJourneyProgress = useCallback((progress: number) => {
     const clampedProgress = Math.min(100, Math.max(0, progress));
-    if (clampedProgress <= state.audioJourneyProgress) return;
 
-    setState(prev => ({ ...prev, audioJourneyProgress: clampedProgress }));
-
-    if (clampedProgress >= 50 && state.audioJourneyProgress < 50) {
-      unlockAchievement('sound_traveler');
-    }
-    if (clampedProgress >= 100) {
-      unlockAchievement('audio_master');
-    }
-  }, [state.audioJourneyProgress, unlockAchievement]);
+    setState((prev) => {
+      if (clampedProgress <= prev.audioJourneyProgress) return prev;
+      return { ...prev, audioJourneyProgress: clampedProgress };
+    });
+  }, []);
 
   const updateScrollProgress = useCallback((progress: number) => {
     const clampedProgress = Math.min(100, Math.max(0, progress));
-    if (clampedProgress <= state.maxScrollProgress) return;
 
-    setState(prev => ({ ...prev, maxScrollProgress: clampedProgress }));
-
-    // Check scroll achievements
-    if (clampedProgress >= 50 && state.maxScrollProgress < 50) {
-      unlockAchievement('curious_explorer');
-    }
-    if (clampedProgress >= 95) {
-      unlockAchievement('completionist');
-    }
-  }, [state.maxScrollProgress, unlockAchievement]);
+    setState((prev) => {
+      if (clampedProgress <= prev.maxScrollProgress) return prev;
+      return { ...prev, maxScrollProgress: clampedProgress };
+    });
+  }, []);
 
   const watchVideo = useCallback((videoId: string) => {
-    if (state.videosWatched.includes(videoId)) return;
+    setState((prev) => {
+      if (prev.videosWatched.includes(videoId)) return prev;
+      return { ...prev, videosWatched: [...prev.videosWatched, videoId] };
+    });
+  }, []);
 
-    const newWatched = [...state.videosWatched, videoId];
-    setState(prev => ({ ...prev, videosWatched: newWatched }));
-
-    // First video achievement
-    if (newWatched.length === 1) {
-      unlockAchievement('video_watcher');
-    }
-  }, [state.videosWatched, unlockAchievement]);
-
-  const getUnlockedAchievements = useCallback(() => {
+  const unlockedAchievements = useMemo(() => {
     return state.achievements.filter(a => a.unlocked);
   }, [state.achievements]);
 
-  const getNextAchievements = useCallback(() => {
+  const nextAchievements = useMemo(() => {
     return state.achievements.filter(a => !a.unlocked).slice(0, 3);
   }, [state.achievements]);
+
+  const getUnlockedAchievements = useCallback(() => unlockedAchievements, [unlockedAchievements]);
+  const getNextAchievements = useCallback(() => nextAchievements, [nextAchievements]);
 
   const clearRecentUnlock = useCallback(() => {
     setRecentUnlock(null);
@@ -717,75 +686,56 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
 
   // Clinical tracking methods
   const completeClinicalSession = useCallback(() => {
-    const newSessions = state.clinicalSessionsCompleted + 1;
-    const now = Date.now();
+    setState((prev) => {
+      const clinicalSessionsCompleted = prev.clinicalSessionsCompleted + 1;
 
-    setState(prev => ({
-      ...prev,
-      clinicalSessionsCompleted: newSessions,
-      lastClinicalActivity: now,
-    }));
+      let treatmentPhase: GamificationState['treatmentPhase'] = prev.treatmentPhase;
+      if (clinicalSessionsCompleted >= 20) {
+        treatmentPhase = 'completed';
+      } else if (clinicalSessionsCompleted >= 15) {
+        treatmentPhase = 'maintenance';
+      } else if (clinicalSessionsCompleted >= 1) {
+        treatmentPhase = 'active';
+      }
 
-    // Check clinical session achievements
-    if (newSessions === 1) {
-      unlockAchievement('treatment_started');
-    }
-    if (newSessions === 5) {
-      unlockAchievement('week_one');
-    }
-    if (newSessions === 10) {
-      unlockAchievement('halfway_hero');
-    }
-    if (newSessions === 20) {
-      unlockAchievement('treatment_graduate');
-    }
-
-    // Update treatment phase based on sessions
-    if (newSessions >= 20) {
-      setState(prev => ({ ...prev, treatmentPhase: 'completed' }));
-    } else if (newSessions >= 15) {
-      setState(prev => ({ ...prev, treatmentPhase: 'maintenance' }));
-    } else if (newSessions >= 1) {
-      setState(prev => ({ ...prev, treatmentPhase: 'active' }));
-    }
-  }, [state.clinicalSessionsCompleted, unlockAchievement]);
+      return {
+        ...prev,
+        clinicalSessionsCompleted,
+        treatmentPhase,
+      };
+    });
+  }, []);
 
   const updateClinicalStreak = useCallback(() => {
-    const now = Date.now();
-    const lastActivity = state.lastClinicalActivity;
-    const oneDayMs = 24 * 60 * 60 * 1000;
+    setState((prev) => {
+      const now = Date.now();
+      const lastActivity = prev.lastClinicalActivity;
+      const oneDayMs = 24 * 60 * 60 * 1000;
 
-    // If last activity was within 24-48 hours, increment streak
-    // If more than 48 hours, reset streak
-    let newStreak = state.clinicalStreak;
-    if (lastActivity === 0 || now - lastActivity > 2 * oneDayMs) {
-      newStreak = 1;
-    } else if (now - lastActivity > oneDayMs) {
-      newStreak = state.clinicalStreak + 1;
-    }
+      let clinicalStreak = prev.clinicalStreak;
+      if (lastActivity === 0 || now - lastActivity > 2 * oneDayMs) {
+        clinicalStreak = 1;
+      } else if (now - lastActivity > oneDayMs) {
+        clinicalStreak = prev.clinicalStreak + 1;
+      }
 
-    setState(prev => ({
-      ...prev,
-      clinicalStreak: newStreak,
-      lastClinicalActivity: now,
-    }));
-
-    // Check streak achievements
-    if (newStreak >= 3) {
-      unlockAchievement('streak_starter');
-    }
-    if (newStreak >= 7) {
-      unlockAchievement('streak_master');
-    }
-  }, [state.clinicalStreak, state.lastClinicalActivity, unlockAchievement]);
+      return {
+        ...prev,
+        clinicalStreak,
+        lastClinicalActivity: now,
+      };
+    });
+  }, []);
 
   const setTreatmentPhase = useCallback((phase: GamificationState['treatmentPhase']) => {
     setState(prev => ({ ...prev, treatmentPhase: phase }));
   }, []);
 
-  const getClinicalAchievements = useCallback(() => {
+  const clinicalAchievements = useMemo(() => {
     return state.achievements.filter(a => a.category === 'clinical');
   }, [state.achievements]);
+
+  const getClinicalAchievements = useCallback(() => clinicalAchievements, [clinicalAchievements]);
 
   const syncClinicalProgress = useCallback((progress: {
     sessionsCompleted?: number;
@@ -794,41 +744,36 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     processingSpeed?: number;
     auditoryDiscrimination?: number;
   }) => {
-    // Sync sessions if provided
-    if (progress.sessionsCompleted !== undefined) {
-      const currentSessions = state.clinicalSessionsCompleted;
-      if (progress.sessionsCompleted > currentSessions) {
-        setState(prev => ({
-          ...prev,
-          clinicalSessionsCompleted: progress.sessionsCompleted!,
-        }));
+    setState((prev) => {
+      let changed = false;
+      const next: GamificationState = { ...prev };
 
-        // Trigger achievements based on synced session count
-        if (progress.sessionsCompleted >= 1 && currentSessions < 1) {
-          unlockAchievement('treatment_started');
-        }
-        if (progress.sessionsCompleted >= 5 && currentSessions < 5) {
-          unlockAchievement('week_one');
-        }
-        if (progress.sessionsCompleted >= 10 && currentSessions < 10) {
-          unlockAchievement('halfway_hero');
-        }
-        if (progress.sessionsCompleted >= 20 && currentSessions < 20) {
-          unlockAchievement('treatment_graduate');
-        }
-      }
-    }
+      if (
+        progress.sessionsCompleted !== undefined &&
+        progress.sessionsCompleted > prev.clinicalSessionsCompleted
+      ) {
+        next.clinicalSessionsCompleted = progress.sessionsCompleted;
+        changed = true;
 
-    // Sync streak if provided
-    if (progress.streak !== undefined) {
-      setState(prev => ({ ...prev, clinicalStreak: progress.streak! }));
-      if (progress.streak >= 3) {
-        unlockAchievement('streak_starter');
+        if (progress.sessionsCompleted >= 20) {
+          next.treatmentPhase = 'completed';
+        } else if (progress.sessionsCompleted >= 15) {
+          next.treatmentPhase = 'maintenance';
+        } else if (progress.sessionsCompleted >= 1) {
+          next.treatmentPhase = 'active';
+        }
       }
-      if (progress.streak >= 7) {
-        unlockAchievement('streak_master');
+
+      if (progress.streak !== undefined && progress.streak !== prev.clinicalStreak) {
+        next.clinicalStreak = progress.streak;
+        changed = true;
       }
-    }
+
+      if (!changed) return prev;
+
+      next.lastClinicalActivity = Date.now();
+      return next;
+    });
 
     // Check score-based achievements
     if (progress.attentionScore !== undefined && progress.attentionScore >= 10) {
@@ -843,29 +788,187 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       // 80%+ score triggers achievement
       unlockAchievement('auditory_ace');
     }
-  }, [state.clinicalSessionsCompleted, unlockAchievement]);
+  }, [unlockAchievement]);
 
-  const brainRegions = BRAIN_REGIONS.map(region => ({
-    ...region,
-    explored: state.exploredBrainRegions.includes(region.id),
-  }));
+  const brainRegions = useMemo(() => {
+    const exploredSet = new Set(state.exploredBrainRegions);
+    return BRAIN_REGIONS.map(region => ({
+      ...region,
+      explored: exploredSet.has(region.id),
+    }));
+  }, [state.exploredBrainRegions]);
+
+  // Initialize unlock notification cursor from existing saved state.
+  useEffect(() => {
+    lastNotifiedUnlockAtRef.current = state.achievements.reduce((max, achievement) => {
+      if (!achievement.unlocked) return max;
+      if (!achievement.unlockedAt) return max;
+      return Math.max(max, achievement.unlockedAt);
+    }, 0);
+  }, []);
+
+  // Show toast + play sound for new unlocks (but not for previously persisted unlocks).
+  useEffect(() => {
+    const latest = state.achievements.reduce<Achievement | null>((acc, achievement) => {
+      if (!achievement.unlocked) return acc;
+      if (!achievement.unlockedAt) return acc;
+      if (achievement.unlockedAt <= lastNotifiedUnlockAtRef.current) return acc;
+      if (!acc || (acc.unlockedAt ?? 0) < achievement.unlockedAt) return achievement;
+      return acc;
+    }, null);
+
+    if (!latest || !latest.unlockedAt) return;
+
+    lastNotifiedUnlockAtRef.current = latest.unlockedAt;
+    setRecentUnlock(latest);
+    playUnlockSound();
+  }, [state.achievements, playUnlockSound]);
+
+  // Derive achievement unlocks from state (keeps update functions side-effect free).
+  useEffect(() => {
+    const isUnlocked = (id: string) => (
+      state.achievements.some(a => a.id === id && a.unlocked)
+    );
+
+    if (state.exploredBrainRegions.length >= 3 && !isUnlocked('brain_explorer')) {
+      unlockAchievement('brain_explorer');
+    }
+    if (state.exploredBrainRegions.length >= BRAIN_REGIONS.length && !isUnlocked('neural_master')) {
+      unlockAchievement('neural_master');
+    }
+    if (state.slidesViewed.length >= 10 && !isUnlocked('slide_scholar')) {
+      unlockAchievement('slide_scholar');
+    }
+    if (state.slidesViewed.length >= 30 && !isUnlocked('data_detective')) {
+      unlockAchievement('data_detective');
+    }
+    if (state.checklistCompleted && !isUnlocked('self_aware')) {
+      unlockAchievement('self_aware');
+    }
+    if (state.gamesCompleted.length >= 1 && !isUnlocked('game_starter')) {
+      unlockAchievement('game_starter');
+    }
+    if (state.gamesCompleted.length >= 5 && !isUnlocked('lab_explorer')) {
+      unlockAchievement('lab_explorer');
+    }
+    if (state.audioJourneyProgress >= 50 && !isUnlocked('sound_traveler')) {
+      unlockAchievement('sound_traveler');
+    }
+    if (state.audioJourneyProgress >= 100 && !isUnlocked('audio_master')) {
+      unlockAchievement('audio_master');
+    }
+    if (state.maxScrollProgress >= 50 && !isUnlocked('curious_explorer')) {
+      unlockAchievement('curious_explorer');
+    }
+    if (state.maxScrollProgress >= 95 && !isUnlocked('completionist')) {
+      unlockAchievement('completionist');
+    }
+    if (state.videosWatched.length >= 1 && !isUnlocked('video_watcher')) {
+      unlockAchievement('video_watcher');
+    }
+    if (state.clinicalSessionsCompleted >= 1 && !isUnlocked('treatment_started')) {
+      unlockAchievement('treatment_started');
+    }
+    if (state.clinicalSessionsCompleted >= 5 && !isUnlocked('week_one')) {
+      unlockAchievement('week_one');
+    }
+    if (state.clinicalSessionsCompleted >= 10 && !isUnlocked('halfway_hero')) {
+      unlockAchievement('halfway_hero');
+    }
+    if (state.clinicalSessionsCompleted >= 20 && !isUnlocked('treatment_graduate')) {
+      unlockAchievement('treatment_graduate');
+    }
+    if (state.clinicalStreak >= 3 && !isUnlocked('streak_starter')) {
+      unlockAchievement('streak_starter');
+    }
+    if (state.clinicalStreak >= 7 && !isUnlocked('streak_master')) {
+      unlockAchievement('streak_master');
+    }
+  }, [
+    state.exploredBrainRegions.length,
+    state.slidesViewed.length,
+    state.checklistCompleted,
+    state.gamesCompleted.length,
+    state.audioJourneyProgress,
+    state.maxScrollProgress,
+    state.videosWatched.length,
+    state.clinicalSessionsCompleted,
+    state.clinicalStreak,
+    state.achievements,
+    unlockAchievement,
+  ]);
+
+  // Cleanup any pending timers on unmount.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    return () => {
+      if (soundScientistTimerRef.current !== null) {
+        window.clearTimeout(soundScientistTimerRef.current);
+        soundScientistTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  // Schedule sound_scientist when point threshold is reached.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const soundScientistUnlocked =
+      state.achievements.find(a => a.id === 'sound_scientist')?.unlocked ?? false;
+
+    const shouldSchedule = state.totalPoints >= 300 && !soundScientistUnlocked;
+    if (!shouldSchedule) {
+      if (soundScientistTimerRef.current !== null) {
+        window.clearTimeout(soundScientistTimerRef.current);
+        soundScientistTimerRef.current = null;
+      }
+      return;
+    }
+
+    if (soundScientistTimerRef.current !== null) return;
+
+    soundScientistTimerRef.current = window.setTimeout(() => {
+      soundScientistTimerRef.current = null;
+      unlockAchievement('sound_scientist');
+    }, 1500);
+  }, [state.totalPoints, state.achievements, unlockAchievement]);
+
+  // Track time spent
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const interval = window.setInterval(() => {
+      const timeSpent = Math.floor((Date.now() - state.sessionStartTime) / 1000);
+      if (timeSpent < 300) return;
+      unlockAchievement('dedicated_learner');
+    }, 30000); // Check every 30 seconds
+
+    return () => window.clearInterval(interval);
+  }, [state.sessionStartTime, unlockAchievement]);
+
+  // Unlock first_steps shortly after mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const timer = window.setTimeout(() => {
+      unlockAchievement('first_steps');
+    }, 2000);
+    return () => window.clearTimeout(timer);
+  }, [unlockAchievement]);
 
   // Check time-based achievements on mount
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const hour = new Date().getHours();
     if (hour < 9) {
-      const earlyBird = state.achievements.find(a => a.id === 'early_bird');
-      if (earlyBird && !earlyBird.unlocked) {
-        setTimeout(() => unlockAchievement('early_bird'), 3000);
-      }
+      const timer = window.setTimeout(() => unlockAchievement('early_bird'), 3000);
+      return () => window.clearTimeout(timer);
     }
     if (hour >= 22) {
-      const nightOwl = state.achievements.find(a => a.id === 'night_owl');
-      if (nightOwl && !nightOwl.unlocked) {
-        setTimeout(() => unlockAchievement('night_owl'), 3000);
-      }
+      const timer = window.setTimeout(() => unlockAchievement('night_owl'), 3000);
+      return () => window.clearTimeout(timer);
     }
-  }, []);
+  }, [unlockAchievement]);
 
   return (
     <GamificationContext.Provider

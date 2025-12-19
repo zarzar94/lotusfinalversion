@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { useGamification } from '../context/GamificationContext';
 import { useLanguage } from '../context/LanguageContext';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import {
   brandCyan,
   brandPurple,
@@ -43,10 +44,12 @@ const ActivityItem = memo(function ActivityItem({
   activity,
   isArabic,
   isNew,
+  prefersReducedMotion,
 }: {
   activity: Activity;
   isArabic: boolean;
   isNew: boolean;
+  prefersReducedMotion: boolean;
 }) {
   const message = isArabic ? activity.messageAr : activity.messageEn;
   const timeAgo = getTimeAgo(activity.timestamp, isArabic);
@@ -60,7 +63,7 @@ const ActivityItem = memo(function ActivityItem({
         background: isNew ? `${activity.color}12` : 'rgba(255,255,255,0.02)',
         borderRadius: radius.lg,
         border: `1px solid ${isNew ? `${activity.color}30` : colors.border.subtle}`,
-        animation: isNew ? 'activitySlideIn 0.4s ease-out' : undefined,
+        animation: isNew && !prefersReducedMotion ? 'activitySlideIn 0.4s ease-out' : undefined,
         transition: transitions.normal,
       }}
     >
@@ -136,11 +139,13 @@ function getTimeAgo(timestamp: number, isArabic: boolean): string {
 export default function ActivityFeed() {
   const { state, recentUnlock, getUnlockedAchievements } = useGamification();
   const { isArabic, t } = useLanguage();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [hasNewActivity, setHasNewActivity] = useState(false);
   const lastStateRef = useRef(state);
   const tipIndexRef = useRef(0);
+  const newActivityTimeoutRef = useRef<number | null>(null);
 
   // Add a new activity
   const addActivity = useCallback((activity: Omit<Activity, 'id' | 'timestamp'>) => {
@@ -151,7 +156,27 @@ export default function ActivityFeed() {
     };
     setActivities(prev => [newActivity, ...prev].slice(0, 20)); // Keep last 20
     setHasNewActivity(true);
-    setTimeout(() => setHasNewActivity(false), 3000);
+
+    if (typeof window === 'undefined') return;
+
+    if (newActivityTimeoutRef.current !== null) {
+      window.clearTimeout(newActivityTimeoutRef.current);
+    }
+
+    newActivityTimeoutRef.current = window.setTimeout(() => {
+      newActivityTimeoutRef.current = null;
+      setHasNewActivity(false);
+    }, 3000);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window === 'undefined') return;
+      if (newActivityTimeoutRef.current !== null) {
+        window.clearTimeout(newActivityTimeoutRef.current);
+        newActivityTimeoutRef.current = null;
+      }
+    };
   }, []);
 
   // Track state changes and generate activities
@@ -349,9 +374,21 @@ export default function ActivityFeed() {
         .activity-feed-btn:active {
           transform: scale(0.98) !important;
         }
+        @media (prefers-reduced-motion: reduce) {
+          .activity-feed,
+          .activity-feed * {
+            animation: none !important;
+            transition: none !important;
+          }
+          .activity-feed-btn:hover,
+          .activity-feed-btn:active {
+            transform: none !important;
+          }
+        }
       `}</style>
 
       <div
+        className="activity-feed"
         style={{
           position: 'fixed',
           bottom: spacing[4],
@@ -371,13 +408,13 @@ export default function ActivityFeed() {
               maxHeight: 400,
               background: 'linear-gradient(135deg, rgba(11,15,28,0.98) 0%, rgba(5,6,13,0.98) 100%)',
               border: `1px solid ${colors.border.emphasis}`,
-              borderRadius: radius.xl,
-              backdropFilter: 'blur(16px)',
-              boxShadow: shadows['2xl'],
-              overflow: 'hidden',
-              animation: 'activitySlideIn 0.3s ease-out',
-            }}
-          >
+               borderRadius: radius.xl,
+               backdropFilter: 'blur(16px)',
+               boxShadow: shadows['2xl'],
+               overflow: 'hidden',
+               animation: prefersReducedMotion ? undefined : 'activitySlideIn 0.3s ease-out',
+             }}
+           >
             {/* Header */}
             <div
               style={{
@@ -447,6 +484,7 @@ export default function ActivityFeed() {
                     activity={activity}
                     isArabic={isArabic}
                     isNew={index === 0 && hasNewActivity}
+                    prefersReducedMotion={prefersReducedMotion}
                   />
                 ))
               )}
@@ -469,8 +507,11 @@ export default function ActivityFeed() {
             cursor: 'pointer',
             backdropFilter: 'blur(12px)',
             boxShadow: hasNewActivity ? `0 0 20px ${brandCyan}30, ${shadows.lg}` : shadows.lg,
-            transition: transitions.bounce,
-            animation: hasNewActivity ? 'newActivityGlow 2s ease-in-out infinite' : undefined,
+            transition: prefersReducedMotion ? 'none' : transitions.bounce,
+            animation:
+              hasNewActivity && !prefersReducedMotion
+                ? 'newActivityGlow 2s ease-in-out infinite'
+                : undefined,
           }}
         >
           <div
@@ -498,7 +539,7 @@ export default function ActivityFeed() {
                   borderRadius: '50%',
                   background: brandCyan,
                   border: '2px solid #05060d',
-                  animation: 'activityPulse 1s ease-in-out infinite',
+                  animation: prefersReducedMotion ? undefined : 'activityPulse 1s ease-in-out infinite',
                 }}
               />
             )}

@@ -34,7 +34,7 @@ export const SPECIALIST: Specialist = {
   titleAr: 'أخصائي التخاطب',
   titleEn: 'Speech & Language Specialist',
   certificationId: 'PA21213',
-  image: '/images/specialist-profile.jpg',
+  image: 'images/specialist-profile.jpg?v=2',
   credentials: [
     {
       id: 'berard-cert',

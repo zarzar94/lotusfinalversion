@@ -394,6 +394,9 @@ export default function SettingsPage() {
           },
         };
         saveSettings(updated);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('lotus-settings-changed', { detail: updated }));
+        }
         setIsSaved(true);
         setTimeout(() => setIsSaved(false), 2000);
         return updated;

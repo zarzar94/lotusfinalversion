@@ -696,12 +696,18 @@ select:focus-visible,
 
 /* Reduced motion preference - comprehensive accessibility support */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
     scroll-behavior: auto !important;
   }
 
@@ -748,4 +754,19 @@ select:focus-visible,
     transform: none !important;
     box-shadow: none !important;
   }
+}
+
+/* Reduced motion (manual setting) */
+:root[data-reduced-motion='true'] {
+  scroll-behavior: auto;
+}
+
+:root[data-reduced-motion='true'] *,
+:root[data-reduced-motion='true'] *::before,
+:root[data-reduced-motion='true'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0ms !important;
 }

@@ -74,6 +74,7 @@ export default function AttentionTestPanel({
   const [trialIndex, setTrialIndex] = useState(0);
   const [hits, setHits] = useState(0);
   const [falseAlarms, setFalseAlarms] = useState(0);
+  const [impulsiveTaps, setImpulsiveTaps] = useState(0);
   const [msg, setMsg] = useState<string | null>(null);
 
   // Enhanced gamification state
@@ -146,6 +147,7 @@ export default function AttentionTestPanel({
 
     setHits(0);
     setFalseAlarms(0);
+    setImpulsiveTaps(0);
     setMsg(null);
     setTrialIndex(0);
     setPoints(0);
@@ -196,8 +198,8 @@ export default function AttentionTestPanel({
     const now = performance.now();
 
     if (!cur || !trials[cur.idx]) {
-      // no active trial - false alarm
-      setFalseAlarms((x) => x + 1);
+      // no active trial => impulsive tap (penalize like a false alarm)
+      setImpulsiveTaps((x) => x + 1);
       const newCombo = updateCombo(combo, 'fa');
       setCombo(newCombo);
       setPoints((p) => Math.max(0, p + ATTENTION_POINTS.falseAlarm));
@@ -210,7 +212,7 @@ export default function AttentionTestPanel({
 
     // Too early/late => treat as false alarm
     if (dt < RESPONSE_MIN || dt > RESPONSE_MAX) {
-      setFalseAlarms((x) => x + 1);
+      setImpulsiveTaps((x) => x + 1);
       const newCombo = updateCombo(combo, 'fa');
       setCombo(newCombo);
       setPoints((p) => Math.max(0, p + ATTENTION_POINTS.falseAlarm));
@@ -220,7 +222,7 @@ export default function AttentionTestPanel({
 
     if (t.responded) {
       // double tap within same trial -> impulsive false alarm
-      setFalseAlarms((x) => x + 1);
+      setImpulsiveTaps((x) => x + 1);
       const newCombo = updateCombo(combo, 'fa');
       setCombo(newCombo);
       setPoints((p) => Math.max(0, p + ATTENTION_POINTS.falseAlarm));
@@ -275,6 +277,7 @@ export default function AttentionTestPanel({
 
     const h = hits;
     const fa = falseAlarms;
+    const impulsive = impulsiveTaps;
 
     const hitRate = clamp01(h / Math.max(1, targetTrials));
     const faRate = clamp01(fa / nonTargetTrials);
@@ -284,12 +287,16 @@ export default function AttentionTestPanel({
 
     // Convert to a friendly 0–100 score (not normative)
     const dpClamped = Math.max(0, Math.min(3, dp));
-    const score100 = Math.round((dpClamped / 3) * 100);
+    const impulsePenalty = Math.min(30, impulsive * 3);
+    const score100 = Math.max(0, Math.min(100, Math.round((dpClamped / 3) * 100 - impulsePenalty)));
 
     // Calculate Auditory Fatigue Index
     const fatigueAnalysis = calculateFatigueIndex(trials);
 
-    const result: GameResult = dp >= 1.2 && hitRate >= 0.7 && faRate <= 0.25 ? 'high' : dp >= 0.65 ? 'medium' : 'low';
+    const result: GameResult =
+      dp >= 1.2 && hitRate >= 0.7 && faRate <= 0.25 && impulsive <= 5 ? 'high'
+        : dp >= 0.65 && impulsive <= 12 ? 'medium'
+          : 'low';
 
     // Enhanced message including fatigue insight
     let message =
@@ -312,17 +319,19 @@ export default function AttentionTestPanel({
       key: 'attention',
       title: 'اختبار الانتباه السمعي تحت الضوضاء (Go/No-Go)',
       result,
-      scoreLabel: `${getStarEmoji(starRating)} ${score100}/100 • d'=${dp.toFixed(2)} • RT≈${avgRt}ms • ${points}pts`,
+      scoreLabel: `${getStarEmoji(starRating)} ${score100}/100 • d'=${dp.toFixed(2)} • RT≈${avgRt}ms • ${points}pts • اندفاع=${impulsive}`,
       message,
       metrics: {
         trials: trials.length,
         targets: targetTrials,
         hits: h,
         falseAlarms: fa,
+        impulsiveTaps: impulsive,
         hitRate: hitRate.toFixed(2),
         falseAlarmRate: faRate.toFixed(2),
         dPrime: dp.toFixed(2),
         avgReactionMs: avgRt,
+        impulsePenaltyPoints: impulsePenalty,
         maxNoiseLevel: Math.max(...trials.map((t) => t.noise)).toFixed(2),
         // Enhanced gamification metrics
         gamePoints: points,
@@ -443,6 +452,7 @@ export default function AttentionTestPanel({
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
               <span style={styles.chip}>Hits ✅ {hits}</span>
               <span style={{ ...styles.chip, background: 'rgba(176,18,112,0.14)', borderColor: 'rgba(176,18,112,0.25)' }}>FA ✖ {falseAlarms}</span>
+              <span style={{ ...styles.chip, background: 'rgba(143,132,186,0.14)', borderColor: 'rgba(143,132,186,0.25)' }}>اندفاع ⚡ {impulsiveTaps}</span>
             </div>
           </div>
 
@@ -527,7 +537,7 @@ export default function AttentionTestPanel({
               👆 اضغط عند سماع Target
             </button>
             <div style={{ marginTop: 10, ...styles.muted }}>
-              نصيحة: لا تضغط بسرعة. الضغط العشوائي يزيد "False Alarms".
+              نصيحة: لا تضغط بسرعة. الضغط العشوائي يزيد الاندفاع ويؤثر على النتيجة.
             </div>
           </div>
 

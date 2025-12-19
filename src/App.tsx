@@ -1,4 +1,4 @@
-import { lazy, Suspense, memo } from 'react';
+import { lazy, Suspense, memo, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import ErrorBoundary from './components/ErrorBoundary';
@@ -13,7 +13,12 @@ import ScrollProgressTracker from './components/ScrollProgressTracker';
 import ActivityFeed from './components/ActivityFeed';
 import NotificationCenter from './components/NotificationCenter';
 import { ProgressExportButton } from './components/ProgressExport';
+import { useClinicalSync } from './hooks/useClinicalSync';
 import StickySmartCTA from './components/StickySmartCTA';
+
+// Respect Vite base for subpath deployments (e.g., GitHub Pages)
+const rawBase = import.meta.env.BASE_URL ?? '/';
+const appBase = (rawBase === './' ? '/' : rawBase).replace(/\/+$/, '') || '/';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LAZY LOADED PAGES
@@ -58,69 +63,83 @@ function PageLoader() {
   const loadingText = isArabic ? 'جارٍ التحميل...' : 'Loading...';
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: '#05060d',
-      position: 'relative',
-      overflow: 'hidden',
-      direction: isArabic ? 'rtl' : 'ltr',
-    }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#05060d',
+        position: 'relative',
+        overflow: 'hidden',
+        direction: isArabic ? 'rtl' : 'ltr',
+      }}
+    >
       {/* Background pulse effect */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: 'radial-gradient(ellipse at center, rgba(143,211,204,0.05) 0%, transparent 60%)',
-        animation: 'bgPulse 2s ease-in-out infinite',
-      }} />
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'radial-gradient(ellipse at center, rgba(143,211,204,0.05) 0%, transparent 60%)',
+          animation: 'bgPulse 2s ease-in-out infinite',
+        }}
+      />
 
       <div style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
         {/* Neural network loader */}
-        <div style={{
-          position: 'relative',
-          width: 80,
-          height: 80,
-          margin: '0 auto 20px',
-        }}>
+        <div
+          style={{
+            position: 'relative',
+            width: 80,
+            height: 80,
+            margin: '0 auto 20px',
+          }}
+        >
           {/* Outer ring */}
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            border: '2px solid rgba(143,211,204,0.15)',
-            borderRadius: '50%',
-          }} />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              border: '2px solid rgba(143,211,204,0.15)',
+              borderRadius: '50%',
+            }}
+          />
           {/* Spinning ring */}
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            border: '3px solid transparent',
-            borderTopColor: '#8FD3CC',
-            borderRightColor: '#AF84BA',
-            borderRadius: '50%',
-            animation: 'spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite',
-          }} />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              border: '3px solid transparent',
+              borderTopColor: '#8FD3CC',
+              borderRightColor: '#AF84BA',
+              borderRadius: '50%',
+              animation: 'spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite',
+            }}
+          />
           {/* Inner pulse */}
-          <div style={{
-            position: 'absolute',
-            inset: 15,
-            background: 'linear-gradient(135deg, rgba(143,211,204,0.2), rgba(175,132,186,0.2))',
-            borderRadius: '50%',
-            animation: 'innerPulse 1.5s ease-in-out infinite',
-          }} />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 15,
+              background: 'linear-gradient(135deg, rgba(143,211,204,0.2), rgba(175,132,186,0.2))',
+              borderRadius: '50%',
+              animation: 'innerPulse 1.5s ease-in-out infinite',
+            }}
+          />
           {/* Center dot */}
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 12,
-            height: 12,
-            background: '#8FD3CC',
-            borderRadius: '50%',
-            boxShadow: '0 0 20px rgba(143,211,204,0.6)',
-          }} />
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 12,
+              height: 12,
+              background: '#8FD3CC',
+              borderRadius: '50%',
+              boxShadow: '0 0 20px rgba(143,211,204,0.6)',
+            }}
+          />
           {/* Orbiting dots */}
           {[0, 1, 2].map((i) => (
             <div
@@ -132,30 +151,34 @@ function PageLoader() {
                 animationDelay: `${i * 0.3}s`,
               }}
             >
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: 6,
-                height: 6,
-                background: ['#8FD3CC', '#AF84BA', '#B01270'][i],
-                borderRadius: '50%',
-                boxShadow: `0 0 10px ${['#8FD3CC', '#AF84BA', '#B01270'][i]}`,
-              }} />
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: 6,
+                  height: 6,
+                  background: ['#8FD3CC', '#AF84BA', '#B01270'][i],
+                  borderRadius: '50%',
+                  boxShadow: `0 0 10px ${['#8FD3CC', '#AF84BA', '#B01270'][i]}`,
+                }}
+              />
             </div>
           ))}
         </div>
 
         {/* Text - Bilingual */}
-        <div style={{
-          color: '#8FD3CC',
-          fontSize: 16,
-          fontFamily: 'Cairo, sans-serif',
-          fontWeight: 600,
-          letterSpacing: isArabic ? 0 : 1,
-          opacity: 0.9,
-        }}>
+        <div
+          style={{
+            color: '#8FD3CC',
+            fontSize: 16,
+            fontFamily: 'Cairo, sans-serif',
+            fontWeight: 600,
+            letterSpacing: isArabic ? 0 : 1,
+            opacity: 0.9,
+          }}
+        >
           {loadingText}
         </div>
 
@@ -207,6 +230,14 @@ const PageTransitionStyles = memo(() => (
       scroll-behavior: smooth;
     }
 
+    html[data-reduced-motion="true"] {
+      scroll-behavior: auto;
+    }
+
+    html[data-reduced-motion="true"] .page-transition-wrapper {
+      animation: none;
+    }
+
     /* Global focus styles for accessibility */
     *:focus-visible {
       outline: 2px solid #8FD3CC;
@@ -245,169 +276,217 @@ const GamificationUI = memo(() => (
 ));
 GamificationUI.displayName = 'GamificationUI';
 
+const ClinicalSync = memo(() => {
+  useClinicalSync();
+  return null;
+});
+ClinicalSync.displayName = 'ClinicalSync';
+
 // ═══════════════════════════════════════════════════════════════════════════
 // MAIN APP
 // ═══════════════════════════════════════════════════════════════════════════
 
 function App() {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const applyReducedMotionPreference = () => {
+      try {
+        const raw = localStorage.getItem('lotus_user_settings');
+        const reducedMotion = raw ? Boolean(JSON.parse(raw)?.display?.reducedMotion) : false;
+        if (reducedMotion) {
+          document.documentElement.dataset.reducedMotion = 'true';
+        } else {
+          delete document.documentElement.dataset.reducedMotion;
+        }
+      } catch {
+        delete document.documentElement.dataset.reducedMotion;
+      }
+    };
+
+    applyReducedMotionPreference();
+
+    const handleStorage = (event: StorageEvent) => {
+      if (!event.key || event.key === 'lotus_user_settings') {
+        applyReducedMotionPreference();
+      }
+    };
+
+    const handleSettingsChanged = () => {
+      applyReducedMotionPreference();
+    };
+
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('lotus-settings-changed', handleSettingsChanged);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('lotus-settings-changed', handleSettingsChanged);
+    };
+  }, []);
+
   return (
     <ErrorBoundary>
-      <BrowserRouter>
+      <BrowserRouter basename={appBase}>
         <ScrollToTop />
         <PageTransitionStyles />
         <LanguageProvider>
           <VisitorModeProvider>
             <UserProvider>
               <GamificationProvider>
+                <ClinicalSync />
+
                 <div className="page-transition-wrapper">
-                <Routes>
-                {/* ═══════════════════════════════════════════════════════
-                    MAIN 6 PAGES
-                    ═══════════════════════════════════════════════════════ */}
+                  <Routes>
+                    {/* ═══════════════════════════════════════════════════════
+                        MAIN 6 PAGES
+                        ═══════════════════════════════════════════════════════ */}
 
-                {/* 1. Landing Page - Hero + Credentials */}
-                <Route
-                  path="/"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <LandingPage />
-                    </Suspense>
-                  }
-                />
+                    {/* 1. Landing Page - Hero + Credentials */}
+                    <Route
+                      path="/"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <LandingPage />
+                        </Suspense>
+                      }
+                    />
 
-                {/* 2. Assessment Page - Diagnostic Tools */}
-                <Route
-                  path="/assessment"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <AssessmentPage />
-                    </Suspense>
-                  }
-                />
+                    {/* 2. Assessment Page - Diagnostic Tools */}
+                    <Route
+                      path="/assessment"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <AssessmentPage />
+                        </Suspense>
+                      }
+                    />
 
-                {/* 3. Program Page - Treatment Protocol */}
-                <Route
-                  path="/program"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <ProgramPage />
-                    </Suspense>
-                  }
-                />
+                    {/* 3. Program Page - Treatment Protocol */}
+                    <Route
+                      path="/program"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ProgramPage />
+                        </Suspense>
+                      }
+                    />
 
-                {/* 4. Science Page - Research & Neuroplasticity */}
-                <Route
-                  path="/science"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <SciencePage />
-                    </Suspense>
-                  }
-                />
+                    {/* 4. Science Page - Research & Neuroplasticity */}
+                    <Route
+                      path="/science"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <SciencePage />
+                        </Suspense>
+                      }
+                    />
 
-                {/* 5. Results Page - Evidence & Testimonials */}
-                <Route
-                  path="/results"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <ResultsPage />
-                    </Suspense>
-                  }
-                />
+                    {/* 5. Results Page - Evidence & Testimonials */}
+                    <Route
+                      path="/results"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ResultsPage />
+                        </Suspense>
+                      }
+                    />
 
-                {/* 6. Resources Page - Videos, Slides, FAQ */}
-                <Route
-                  path="/resources"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <ResourcesPage />
-                    </Suspense>
-                  }
-                />
+                    {/* 6. Resources Page - Videos, Slides, FAQ */}
+                    <Route
+                      path="/resources"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ResourcesPage />
+                        </Suspense>
+                      }
+                    />
 
-                {/* Contact/Get Started Page */}
-                <Route
-                  path="/contact"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <ContactPage />
-                    </Suspense>
-                  }
-                />
+                    {/* Contact/Get Started Page */}
+                    <Route
+                      path="/contact"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ContactPage />
+                        </Suspense>
+                      }
+                    />
 
-                {/* 7. About Page - Centre & Specialist Info */}
-                <Route
-                  path="/about"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <AboutPage />
-                    </Suspense>
-                  }
-                />
+                    {/* ═════════════════════════════════════════════════════==
+                        SPECIAL PAGES
+                        ═══════════════════════════════════════════════════════ */}
+                    {/* 7. About Page - Centre & Specialist Info */}
+                    <Route
+                      path="/about"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <AboutPage />
+                        </Suspense>
+                      }
+                    />
 
-                {/* ═══════════════════════════════════════════════════════
-                    SPECIAL PAGES
-                    ═══════════════════════════════════════════════════════ */}
+                    {/* ═══════════════════════════════════════════════════════
+                        SPECIAL PAGES
+                        ═══════════════════════════════════════════════════════ */}
 
-                {/* Brain Function Detail Page */}
-                <Route
-                  path="/function/:slug"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <BrainFunctionPage />
-                    </Suspense>
-                  }
-                />
+                    {/* Brain Function Detail Page */}
+                    <Route
+                      path="/function/:slug"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <BrainFunctionPage />
+                        </Suspense>
+                      }
+                    />
 
-                {/* ═══════════════════════════════════════════════════════
-                    DASHBOARD PAGES
-                    ═══════════════════════════════════════════════════════ */}
+                    {/* ═════════════════════════════════════════════════════==
+                        DASHBOARD PAGES
+                        ═══════════════════════════════════════════════════════ */}
 
-                <Route
-                  path="/school-dashboard"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <SchoolDashboard />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/parent-dashboard"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <ParentDashboard />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/clinician-dashboard"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <ClinicianDashboard />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/settings"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <SettingsPage />
-                    </Suspense>
-                  }
-                />
+                    <Route
+                      path="/school-dashboard"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <SchoolDashboard />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/parent-dashboard"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ParentDashboard />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/clinician-dashboard"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ClinicianDashboard />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/settings"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <SettingsPage />
+                        </Suspense>
+                      }
+                    />
 
-                {/* ═══════════════════════════════════════════════════════
-                    404 NOT FOUND - Catch-all route (must be last)
-                    ═══════════════════════════════════════════════════════ */}
-                <Route
-                  path="*"
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <NotFoundPage />
-                    </Suspense>
-                  }
-                />
-                </Routes>
+                    {/* ═════════════════════════════════════════════════════==
+                        404 NOT FOUND - Catch-all route (must be last)
+                        ═══════════════════════════════════════════════════════ */}
+                    <Route
+                      path="*"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <NotFoundPage />
+                        </Suspense>
+                      }
+                    />
+                  </Routes>
                 </div>
 
                 {/* Gamification UI (always visible) */}

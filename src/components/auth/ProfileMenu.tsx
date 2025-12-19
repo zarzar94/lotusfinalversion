@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, type UserRole } from '../../context/UserContext';
 import {
@@ -35,6 +36,7 @@ interface ProfileMenuProps {
 }
 
 function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
+  const navigate = useNavigate();
   const { isArabic, direction } = useLanguage();
   const { user, isAuthenticated, logout, hasPermission, clinicalProgress } = useUser();
   const [isOpen, setIsOpen] = useState(false);
@@ -301,7 +303,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                 label={isArabic ? 'تقدم الأطفال' : 'Children Progress'}
                 onClick={() => {
                   setIsOpen(false);
-                  window.location.href = '/parent-dashboard';
+                  navigate('/parent-dashboard');
                 }}
               />
             )}
@@ -313,7 +315,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                 label={isArabic ? 'لوحة المرضى' : 'Patients Dashboard'}
                 onClick={() => {
                   setIsOpen(false);
-                  window.location.href = '/clinician-dashboard';
+                  navigate('/clinician-dashboard');
                 }}
               />
             )}
@@ -325,7 +327,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                 label={isArabic ? 'تحليلات المدرسة' : 'School Analytics'}
                 onClick={() => {
                   setIsOpen(false);
-                  window.location.href = '/school-dashboard';
+                  navigate('/school-dashboard');
                 }}
               />
             )}
@@ -366,7 +368,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
               label={isArabic ? 'الإعدادات' : 'Settings'}
               onClick={() => {
                 setIsOpen(false);
-                window.location.href = '/settings';
+                navigate('/settings');
               }}
             />
 

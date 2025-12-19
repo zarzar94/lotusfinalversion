@@ -17,6 +17,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { SPECIALIST, CENTRE_INFO } from '../data/specialist';
 import { CLINIC } from '../data/clinic';
+import { assetUrl } from '../utils/asset';
 import {
   brandCyan,
   brandPurple,
@@ -206,7 +207,7 @@ const SpecialistProfile = memo(({ isArabic }: { isArabic: boolean }) => {
             >
               {!imageError ? (
                 <img
-                  src={specialist.image}
+                  src={assetUrl(specialist.image)}
                   alt={isArabic ? specialist.nameAr : specialist.nameEn}
                   onError={() => setImageError(true)}
                   style={{

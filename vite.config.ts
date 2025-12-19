@@ -1,5 +1,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+
+const rootDir = dirname(fileURLToPath(import.meta.url));
 
 // For GitHub Pages subpath deployments, set BASE_PATH (e.g. '/repo-name/')
 // Otherwise default './' works well for static hosting under any path.
@@ -12,6 +16,10 @@ export default defineConfig({
     // Chunk size warnings at 500KB
     chunkSizeWarningLimit: 500,
     rollupOptions: {
+      input: {
+        main: resolve(rootDir, 'index.html'),
+        404: resolve(rootDir, '404.html'),
+      },
       output: {
         manualChunks: {
           // Vendor chunks - loaded once and cached

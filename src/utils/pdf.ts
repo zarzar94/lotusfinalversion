@@ -75,9 +75,15 @@ const ensurePdfFonts = async (doc: JsPDFInstance): Promise<boolean> => {
  * Creates an A4 PDF doc with embedded Cairo font (Arabic-friendly). Works under GitHub Pages.
  * Note: jsPDF is lazy-loaded on first call to reduce initial bundle size.
  */
-export const createPdfDoc = async (): Promise<JsPDFInstance> => {
+export type CreatePdfDocOptions = {
+  orientation?: 'p' | 'l';
+  format?: 'a4' | [number, number];
+};
+
+export const createPdfDoc = async (options: CreatePdfDocOptions = {}): Promise<JsPDFInstance> => {
   const jsPDF = await getJsPDF();
-  const doc = new jsPDF({ orientation: 'p', unit: 'pt', format: 'a4', putOnlyUsedFonts: true });
+  const { orientation = 'p', format = 'a4' } = options;
+  const doc = new jsPDF({ orientation, unit: 'pt', format, putOnlyUsedFonts: true });
   const fontReady = await ensurePdfFonts(doc);
   doc.setFont(fontReady ? 'Cairo' : 'helvetica', 'bold');
   return doc;

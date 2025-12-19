@@ -69,11 +69,24 @@ const Footer = () => {
       0%, 100% { opacity: 0.5; }
       50% { opacity: 1; }
     }
+    @keyframes scanLine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    @keyframes statusPulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 6px #22c55e; }
+      50% { opacity: 0.6; box-shadow: 0 0 10px #22c55e; }
+    }
+    @keyframes glowBar {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
     .social-icon {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .social-icon:hover {
       transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(143,211,204,0.15);
     }
     .quick-link-item {
       transition: all 0.25s ease;
@@ -81,13 +94,39 @@ const Footer = () => {
     .quick-link-item:hover {
       transform: translateX(-6px);
       color: ${brandCyan};
+      border-color: ${brandCyan}30;
+      box-shadow: 0 0 15px ${brandCyan}15;
     }
     .location-card {
       transition: all 0.3s ease;
     }
     .location-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 15px 40px rgba(143,211,204,0.2);
+      box-shadow: 0 15px 40px rgba(143,211,204,0.15), 0 0 30px ${brandCyan}10;
+      border-color: ${brandCyan}30;
+    }
+    .contact-card:hover {
+      border-color: ${brandPink}30;
+      box-shadow: 0 0 25px ${brandPink}10;
+    }
+    .footer-scan-line {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .footer-scan-line::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, ${brandCyan}04, transparent);
+      animation: scanLine 6s linear infinite;
     }
     @media (max-width: 640px) {
       .footer-main {
@@ -164,23 +203,45 @@ const Footer = () => {
 
   return (
     <footer className="footer-main" style={{
-      background: 'linear-gradient(180deg, rgba(11,15,28,0.95) 0%, rgba(5,6,13,1) 100%)',
-      borderTop: '1px solid rgba(143,211,204,0.15)',
+      background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 50%, rgba(5,6,13,1) 100%)',
+      borderTop: `1px solid ${brandCyan}20`,
       padding: '40px 20px 24px',
       position: 'relative',
       overflow: 'hidden',
     }}>
       <style>{css}</style>
 
-      {/* Background decorations */}
+      {/* Top glow bar */}
       <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
-        height: 1,
-        background: `linear-gradient(90deg, transparent, ${brandCyan}50, ${brandPurple}50, transparent)`,
+        height: 2,
+        background: `linear-gradient(90deg, transparent, ${brandCyan}66, ${brandPurple}66, transparent)`,
+        animation: 'glowBar 3s ease-in-out infinite',
       }} />
+
+      {/* Scan line effect */}
+      <div className="footer-scan-line" />
+
+      {/* Grid pattern overlay */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        opacity: 0.03,
+        backgroundImage: `
+          linear-gradient(${brandCyan}20 1px, transparent 1px),
+          linear-gradient(90deg, ${brandCyan}20 1px, transparent 1px)
+        `,
+        backgroundSize: '40px 40px',
+        pointerEvents: 'none',
+      }} />
+
+      {/* Background decorations */}
       <div style={{
         position: 'absolute',
         top: '20%',
@@ -188,7 +249,7 @@ const Footer = () => {
         width: 300,
         height: 300,
         borderRadius: '50%',
-        background: `radial-gradient(circle, ${brandPurple}10, transparent 70%)`,
+        background: `radial-gradient(circle, ${brandPurple}08, transparent 70%)`,
         pointerEvents: 'none',
       }} />
       <div style={{
@@ -198,7 +259,7 @@ const Footer = () => {
         width: 250,
         height: 250,
         borderRadius: '50%',
-        background: `radial-gradient(circle, ${brandCyan}08, transparent 70%)`,
+        background: `radial-gradient(circle, ${brandCyan}06, transparent 70%)`,
         pointerEvents: 'none',
       }} />
 
@@ -396,7 +457,7 @@ const Footer = () => {
         <div className="footer-bottom-bar" style={{
           marginTop: 30,
           paddingTop: 20,
-          borderTop: '1px solid rgba(255,255,255,0.06)',
+          borderTop: `1px solid ${brandCyan}10`,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -406,21 +467,53 @@ const Footer = () => {
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
             © {year} {CLINIC.name}. {t('footer.copyright')}
           </div>
+
+          {/* Lab tech status bar */}
           <div style={{
-            fontSize: 11,
-            color: 'rgba(255,255,255,0.3)',
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 16,
           }}>
-            <span style={{
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              background: '#22c55e',
-              animation: 'footerGlow 2s ease-in-out infinite',
-            }} />
-            React + Vite • GitHub Pages
+            {/* Version badge */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '4px 10px',
+              background: 'rgba(143,211,204,0.08)',
+              border: `1px solid ${brandCyan}20`,
+              borderRadius: 6,
+            }}>
+              <span style={{
+                fontSize: 9,
+                fontWeight: 700,
+                color: brandCyan,
+                letterSpacing: 1,
+              }}>LOTUS LAB</span>
+              <span style={{
+                fontSize: 8,
+                color: 'rgba(255,255,255,0.4)',
+                fontFamily: 'monospace',
+              }}>v2.0</span>
+            </div>
+
+            {/* System status */}
+            <div style={{
+              fontSize: 11,
+              color: 'rgba(255,255,255,0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}>
+              <span style={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                background: '#22c55e',
+                animation: 'statusPulse 2s ease-in-out infinite',
+              }} />
+              <span style={{ fontFamily: 'monospace', fontSize: 10 }}>SYSTEM ONLINE</span>
+            </div>
           </div>
         </div>
       </div>
