@@ -4,6 +4,7 @@
  */
 
 import type { GameResult, TestOutcome } from './types';
+import { mean, stdDev } from './stats';
 
 // ==================== POINTS SYSTEM ====================
 
@@ -92,6 +93,13 @@ export const getStarEmoji = (rating: StarRating): string => {
 
 // ==================== AUDITORY FATIGUE INDEX ====================
 
+export interface QuadrantPerformance {
+  hitRate: number;
+  avgRt: number;
+  rtVariability: number;  // Standard deviation of RTs
+  trials: number;
+}
+
 export interface FatigueAnalysis {
   earlyPerformance: {
     hitRate: number;
@@ -103,14 +111,51 @@ export interface FatigueAnalysis {
     avgRt: number;
     trials: number;
   };
+  // Quadrant analysis (Q1-Q4)
+  quadrants?: QuadrantPerformance[];
   rtIncrease: number;      // % increase in reaction time
   hitRateDrop: number;     // Drop in hit rate
+  rtVariability: number;   // Overall RT variability (CV)
+  rtDriftSlope: number;    // Linear slope of RT across quadrants
+  accuracyDriftSlope: number; // Linear slope of accuracy across quadrants
   fatigueIndex: 'low' | 'moderate' | 'high';
   fatigueScore: number;    // 0-100, higher = more fatigue
+  sustainedAttention: 'strong' | 'moderate' | 'weak'; // Overall sustained attention rating
 }
 
 /**
+ * Calculate coefficient of variation (CV) for reaction times
+ */
+export const calculateRtVariability = (rts: number[]): number => {
+  if (rts.length < 2) return 0;
+  const m = mean(rts);
+  const sd = stdDev(rts);
+  return m > 0 ? (sd / m) * 100 : 0; // Return as percentage
+};
+
+/**
+ * Calculate linear slope using simple linear regression
+ */
+const linearSlope = (values: number[]): number => {
+  if (values.length < 2) return 0;
+  const n = values.length;
+  const xMean = (n - 1) / 2;
+  const yMean = mean(values);
+
+  let numerator = 0;
+  let denominator = 0;
+
+  for (let i = 0; i < n; i++) {
+    numerator += (i - xMean) * (values[i] - yMean);
+    denominator += (i - xMean) ** 2;
+  }
+
+  return denominator > 0 ? numerator / denominator : 0;
+};
+
+/**
  * Calculate Auditory Fatigue Index by comparing early vs late trial performance
+ * Enhanced with quadrant analysis and RT variability metrics
  * @param trials Array of trial data with isTarget, responseType, rtMs
  * @returns Fatigue analysis with clinical interpretation
  */
@@ -123,24 +168,35 @@ export const calculateFatigueIndex = (
   }>
 ): FatigueAnalysis => {
   const midpoint = Math.floor(trials.length / 2);
+  const quarterPoint = Math.floor(trials.length / 4);
 
   const earlyTrials = trials.slice(0, midpoint);
   const lateTrials = trials.slice(midpoint);
 
-  const getStats = (t: typeof trials) => {
+  // Quadrant splits for more granular analysis
+  const q1 = trials.slice(0, quarterPoint);
+  const q2 = trials.slice(quarterPoint, midpoint);
+  const q3 = trials.slice(midpoint, midpoint + quarterPoint);
+  const q4 = trials.slice(midpoint + quarterPoint);
+
+  const getStats = (t: typeof trials): QuadrantPerformance => {
     const targetTrials = t.filter(x => x.isTarget || x.target);
     const hits = targetTrials.filter(x => x.responseType === 'hit');
     const rts = hits.map(x => x.rtMs).filter((rt): rt is number => typeof rt === 'number' && rt > 0);
 
     return {
       hitRate: targetTrials.length > 0 ? hits.length / targetTrials.length : 0,
-      avgRt: rts.length > 0 ? rts.reduce((a, b) => a + b, 0) / rts.length : 0,
+      avgRt: rts.length > 0 ? mean(rts) : 0,
+      rtVariability: calculateRtVariability(rts),
       trials: t.length,
     };
   };
 
   const early = getStats(earlyTrials);
   const late = getStats(lateTrials);
+
+  // Quadrant analysis
+  const quadrants = [q1, q2, q3, q4].map(getStats);
 
   // Calculate fatigue indicators
   const rtIncrease = early.avgRt > 0
@@ -149,11 +205,26 @@ export const calculateFatigueIndex = (
 
   const hitRateDrop = (early.hitRate - late.hitRate) * 100;
 
+  // Overall RT variability across all trials
+  const allRts = trials
+    .filter(x => x.responseType === 'hit')
+    .map(x => x.rtMs)
+    .filter((rt): rt is number => typeof rt === 'number' && rt > 0);
+  const rtVariability = calculateRtVariability(allRts);
+
+  // Calculate drift slopes
+  const quadrantRts = quadrants.map(q => q.avgRt).filter(rt => rt > 0);
+  const quadrantAccuracy = quadrants.map(q => q.hitRate);
+  const rtDriftSlope = linearSlope(quadrantRts);
+  const accuracyDriftSlope = linearSlope(quadrantAccuracy);
+
   // Composite fatigue score (0-100)
-  // Higher RT increase and hit rate drop = more fatigue
-  const rtComponent = Math.min(50, Math.max(0, rtIncrease));  // 0-50 points from RT
-  const hitComponent = Math.min(50, Math.max(0, hitRateDrop * 2)); // 0-50 points from hits
-  const fatigueScore = Math.round(rtComponent + hitComponent);
+  // Components: RT increase, hit rate drop, RT variability, drift slopes
+  const rtComponent = Math.min(25, Math.max(0, rtIncrease * 0.5));  // 0-25 points from RT increase
+  const hitComponent = Math.min(25, Math.max(0, hitRateDrop * 1.25)); // 0-25 points from hit drop
+  const variabilityComponent = Math.min(25, Math.max(0, (rtVariability - 15) * 0.5)); // 0-25 from variability (>15% CV penalized)
+  const driftComponent = Math.min(25, Math.max(0, rtDriftSlope * 0.1 + Math.abs(accuracyDriftSlope) * 50)); // 0-25 from drift
+  const fatigueScore = Math.round(rtComponent + hitComponent + variabilityComponent + driftComponent);
 
   // Classify fatigue level
   let fatigueIndex: 'low' | 'moderate' | 'high';
@@ -165,14 +236,65 @@ export const calculateFatigueIndex = (
     fatigueIndex = 'high';
   }
 
+  // Sustained attention rating
+  let sustainedAttention: 'strong' | 'moderate' | 'weak';
+  const sustainScore = (1 - fatigueScore / 100) * 50 + (1 - rtVariability / 50) * 25 + (late.hitRate * 25);
+  if (sustainScore >= 70) {
+    sustainedAttention = 'strong';
+  } else if (sustainScore >= 40) {
+    sustainedAttention = 'moderate';
+  } else {
+    sustainedAttention = 'weak';
+  }
+
   return {
-    earlyPerformance: early,
-    latePerformance: late,
+    earlyPerformance: { hitRate: early.hitRate, avgRt: early.avgRt, trials: early.trials },
+    latePerformance: { hitRate: late.hitRate, avgRt: late.avgRt, trials: late.trials },
+    quadrants,
     rtIncrease: Math.round(rtIncrease * 10) / 10,
     hitRateDrop: Math.round(hitRateDrop * 10) / 10,
+    rtVariability: Math.round(rtVariability * 10) / 10,
+    rtDriftSlope: Math.round(rtDriftSlope * 100) / 100,
+    accuracyDriftSlope: Math.round(accuracyDriftSlope * 1000) / 1000,
     fatigueIndex,
     fatigueScore,
+    sustainedAttention,
   };
+};
+
+/**
+ * Calculate fatigue-adjusted score
+ * Applies a multiplier based on fatigue level to reward sustained performance
+ */
+export const getFatigueAdjustedScore = (
+  baseScore: number,
+  fatigueAnalysis: FatigueAnalysis
+): { adjustedScore: number; multiplier: number; bonus: number } => {
+  // Reward low fatigue, penalize high fatigue
+  let multiplier: number;
+  let bonus = 0;
+
+  switch (fatigueAnalysis.fatigueIndex) {
+    case 'low':
+      multiplier = 1.15; // 15% bonus for sustained performance
+      bonus = 50;
+      break;
+    case 'moderate':
+      multiplier = 1.0; // No change
+      break;
+    case 'high':
+      multiplier = 0.9; // 10% penalty for fatigue
+      break;
+  }
+
+  // Additional bonus for strong sustained attention
+  if (fatigueAnalysis.sustainedAttention === 'strong') {
+    bonus += 25;
+  }
+
+  const adjustedScore = Math.round(baseScore * multiplier) + bonus;
+
+  return { adjustedScore, multiplier, bonus };
 };
 
 // ==================== SESSION STORAGE ====================
@@ -396,6 +518,32 @@ export const GAME_ACHIEVEMENTS: GameAchievement[] = [
         }
       }
       return false;
+    },
+  },
+  {
+    id: 'sustained_focus',
+    title: 'Sustained Focus',
+    titleAr: 'تركيز مستدام',
+    description: 'Maintain strong sustained attention throughout the test',
+    descriptionAr: 'حافظ على انتباه مستدام قوي طوال الاختبار',
+    icon: '🔬',
+    points: 75,
+    condition: (o) => {
+      const sustainedAttention = o.attention?.metrics?.sustainedAttention;
+      return sustainedAttention === 'strong';
+    },
+  },
+  {
+    id: 'low_variability',
+    title: 'Consistent Performer',
+    titleAr: 'أداء متسق',
+    description: 'Low reaction time variability (CV < 15%)',
+    descriptionAr: 'تباين منخفض في وقت الاستجابة (أقل من 15%)',
+    icon: '📊',
+    points: 50,
+    condition: (o) => {
+      const rtVariability = o.attention?.metrics?.rtVariability;
+      return typeof rtVariability === 'number' && rtVariability < 15;
     },
   },
 ];

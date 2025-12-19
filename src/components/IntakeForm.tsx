@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, memo } from 'react';
 import { styles, brandCyan, brandPink, brandPurple } from './styles';
 import { BrainIcon, UserIcon, HeartIcon, ChartIcon, CheckCircleIcon, ClipboardIcon } from './Icons';
+import { useLanguage } from '../context/LanguageContext';
 
 /**
  * Berard AIT Registration/Intake Form
@@ -189,6 +190,7 @@ const ImprovementSelector = memo(({ value, onChange, label }: {
 ImprovementSelector.displayName = 'ImprovementSelector';
 
 const IntakeForm: React.FC = () => {
+  const { isArabic, direction } = useLanguage();
   const [currentStep, setCurrentStep] = useState(1);
   const [isChild, setIsChild] = useState(true);
   const [isReturningClient, setIsReturningClient] = useState(false);
@@ -616,7 +618,7 @@ ${isChild ? `*بيانات ولي الأمر:*
                 <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#c4b8a8', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }} />
               </div>
               <div style={{ fontSize: 12, color: '#8a7a6a', fontStyle: 'italic' }}>
-                Berard AIT - Sound Lab
+                {isArabic ? 'Berard AIT - معمل الصوت' : 'Berard AIT - Sound Lab'}
               </div>
             </div>
 

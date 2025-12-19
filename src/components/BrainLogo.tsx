@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { brandCyan, brandPurple } from './styles';
+import { useLanguage } from '../context/LanguageContext';
 
 interface BrainLogoProps {
   size?: number;
@@ -223,8 +224,10 @@ export const BrainLogoSVG = memo(({ size = 50, animated = false }: { size?: numb
 BrainLogoSVG.displayName = 'BrainLogoSVG';
 
 const BrainLogo = memo(({ size = 50, showText = true, textSize = 22 }: BrainLogoProps) => {
+  const { isArabic, direction } = useLanguage();
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, direction }}>
       <div
         style={{
           width: size,
@@ -257,7 +260,7 @@ const BrainLogo = memo(({ size = 50, showText = true, textSize = 22 }: BrainLogo
             color: 'rgba(255,255,255,0.5)',
             letterSpacing: 0.5,
           }}>
-            Sound Lab
+            {isArabic ? 'معمل الصوت' : 'Sound Lab'}
           </div>
         </div>
       )}

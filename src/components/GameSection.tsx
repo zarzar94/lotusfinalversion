@@ -988,10 +988,10 @@ const GameSection = memo(function GameSection() {
             marginBottom: 12,
           }}>
             <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600, letterSpacing: '0.5px' }}>
-              QUICK ACCESS
+              {isArabic ? 'وصول سريع' : 'QUICK ACCESS'}
             </span>
             <span style={{ fontSize: 10, color: brandCyan, fontWeight: 600 }}>
-              5 MODULES AVAILABLE
+              {isArabic ? '5 وحدات متاحة' : '5 MODULES AVAILABLE'}
             </span>
           </div>
           <div style={{
@@ -1002,17 +1002,17 @@ const GameSection = memo(function GameSection() {
             flexWrap: 'wrap',
           }}>
             {[
-              { color: '#22c55e', label: 'FULL SUITE', icon: '🧪' },
-              { color: '#3B82F6', label: 'ATTENTION', icon: '🎯' },
-              { color: '#8B5CF6', label: 'FREQUENCY', icon: '🎚️' },
-              { color: '#F59E0B', label: 'SEQUENCE', icon: '🏫' },
-              { color: brandPink, label: 'SURVEY', icon: '📝' },
+              { color: '#22c55e', labelEn: 'FULL SUITE', labelAr: 'الباقة الكاملة', icon: '🧪' },
+              { color: '#3B82F6', labelEn: 'ATTENTION', labelAr: 'الانتباه', icon: '🎯' },
+              { color: '#8B5CF6', labelEn: 'FREQUENCY', labelAr: 'التردد', icon: '🎚️' },
+              { color: '#F59E0B', labelEn: 'SEQUENCE', labelAr: 'التسلسل', icon: '🏫' },
+              { color: brandPink, labelEn: 'SURVEY', labelAr: 'الاستبيان', icon: '📝' },
             ].map((btn, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => handleModeSelect(cards[i].mode)}
-                aria-label={`Start ${btn.label} test`}
+                aria-label={isArabic ? `ابدأ اختبار ${btn.labelAr}` : `Start ${btn.labelEn} test`}
                 style={{
                   padding: '8px 16px',
                   borderRadius: 10,
@@ -1040,7 +1040,7 @@ const GameSection = memo(function GameSection() {
                 }}
               >
                 <span>{btn.icon}</span>
-                <span>{btn.label}</span>
+                <span>{isArabic ? btn.labelAr : btn.labelEn}</span>
               </button>
             ))}
           </div>
@@ -1164,10 +1164,10 @@ const GameSection = memo(function GameSection() {
       <MedicalMonitor
         open={mode === 'attention'}
         onClose={() => setMode(null)}
-        title="🎯 ATTENTION TEST"
+        title={isArabic ? '🎯 اختبار الانتباه' : '🎯 ATTENTION TEST'}
         waveformColor="#3B82F6"
         waveformType="spo2"
-        statusText={isTestActive ? 'TESTING' : 'READY'}
+        statusText={isTestActive ? (isArabic ? 'جارٍ الاختبار' : 'TESTING') : (isArabic ? 'جاهز' : 'READY')}
         isActive={isTestActive}
       >
         <AttentionTestPanel
@@ -1188,7 +1188,7 @@ const GameSection = memo(function GameSection() {
             borderRadius: 8,
           }}>
             <div style={{ fontWeight: 900, color: resultMeta[modalOutcome.result].color }}>
-              النتيجة: {resultMeta[modalOutcome.result].label}
+              {isArabic ? 'النتيجة:' : 'Result:'} {resultMeta[modalOutcome.result].label}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
               {modalOutcome.scoreLabel}
@@ -1200,10 +1200,10 @@ const GameSection = memo(function GameSection() {
       <MedicalMonitor
         open={mode === 'frequency'}
         onClose={() => setMode(null)}
-        title="🎚️ FREQUENCY TEST"
+        title={isArabic ? '🎚️ اختبار التردد' : '🎚️ FREQUENCY TEST'}
         waveformColor="#8B5CF6"
         waveformType="audio"
-        statusText={isTestActive ? 'TESTING' : 'READY'}
+        statusText={isTestActive ? (isArabic ? 'جارٍ الاختبار' : 'TESTING') : (isArabic ? 'جاهز' : 'READY')}
         isActive={isTestActive}
       >
         <FrequencyDiscriminationTestPanel
@@ -1224,7 +1224,7 @@ const GameSection = memo(function GameSection() {
             borderRadius: 8,
           }}>
             <div style={{ fontWeight: 900, color: resultMeta[modalOutcome.result].color }}>
-              النتيجة: {resultMeta[modalOutcome.result].label}
+              {isArabic ? 'النتيجة:' : 'Result:'} {resultMeta[modalOutcome.result].label}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
               {modalOutcome.scoreLabel}
@@ -1236,10 +1236,10 @@ const GameSection = memo(function GameSection() {
       <MedicalMonitor
         open={mode === 'sequence'}
         onClose={() => setMode(null)}
-        title="🏫 SEQUENCE TEST"
+        title={isArabic ? '🏫 اختبار التسلسل' : '🏫 SEQUENCE TEST'}
         waveformColor="#F59E0B"
         waveformType="resp"
-        statusText={isTestActive ? 'TESTING' : 'READY'}
+        statusText={isTestActive ? (isArabic ? 'جارٍ الاختبار' : 'TESTING') : (isArabic ? 'جاهز' : 'READY')}
         isActive={isTestActive}
       >
         <SequencingTestPanel
@@ -1260,7 +1260,7 @@ const GameSection = memo(function GameSection() {
             borderRadius: 8,
           }}>
             <div style={{ fontWeight: 900, color: resultMeta[modalOutcome.result].color }}>
-              النتيجة: {resultMeta[modalOutcome.result].label}
+              {isArabic ? 'النتيجة:' : 'Result:'} {resultMeta[modalOutcome.result].label}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
               {modalOutcome.scoreLabel}
@@ -1272,10 +1272,10 @@ const GameSection = memo(function GameSection() {
       <MedicalMonitor
         open={mode === 'questionnaire'}
         onClose={() => setMode(null)}
-        title="📝 QUESTIONNAIRE"
+        title={isArabic ? '📝 الاستبيان' : '📝 QUESTIONNAIRE'}
         waveformColor={brandPink}
         waveformType="ecg"
-        statusText={isTestActive ? 'ACTIVE' : 'READY'}
+        statusText={isTestActive ? (isArabic ? 'نشط' : 'ACTIVE') : (isArabic ? 'جاهز' : 'READY')}
         isActive={isTestActive}
       >
         <QuestionnairePanel
@@ -1296,7 +1296,7 @@ const GameSection = memo(function GameSection() {
             borderRadius: 8,
           }}>
             <div style={{ fontWeight: 900, color: resultMeta[modalOutcome.result].color }}>
-              النتيجة: {resultMeta[modalOutcome.result].label}
+              {isArabic ? 'النتيجة:' : 'Result:'} {resultMeta[modalOutcome.result].label}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
               {modalOutcome.scoreLabel}

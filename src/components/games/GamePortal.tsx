@@ -5,6 +5,7 @@
 
 import React, { useEffect, useMemo, useState, useRef, useCallback, memo } from 'react';
 import { brandCyan, brandPink, brandPurple } from '../styles';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   GAME_ACHIEVEMENTS,
   checkGameAchievements,
@@ -19,12 +20,13 @@ import type { GameResult, TestOutcome } from './types';
 const PARTICLE_COUNT = 35; // Reduced for performance
 const CONNECTION_DISTANCE = 80;
 
-const GAME_CONFIG = [
-  { mode: 'suite', icon: '🧪', title: 'الفحص الشامل', desc: '3 اختبارات', color: '#22c55e', gradient: 'linear-gradient(135deg, #22c55e, #16a34a)' },
-  { mode: 'attention', icon: '🎯', title: 'الانتباه', desc: 'Go/No-Go', color: '#3B82F6', gradient: 'linear-gradient(135deg, #3B82F6, #2563EB)' },
-  { mode: 'frequency', icon: '🎚️', title: 'التردد', desc: 'Adaptive', color: '#8B5CF6', gradient: 'linear-gradient(135deg, #8B5CF6, #7C3AED)' },
-  { mode: 'sequence', icon: '🏫', title: 'التسلسل', desc: 'الذاكرة', color: '#F59E0B', gradient: 'linear-gradient(135deg, #F59E0B, #D97706)' },
-  { mode: 'questionnaire', icon: '📝', title: 'الاستبيان', desc: 'للأهل', color: brandPink, gradient: `linear-gradient(135deg, ${brandPink}, #9D174D)` },
+// Language-aware game configuration
+const getGameConfig = (isArabic: boolean) => [
+  { mode: 'suite', icon: '🧪', title: isArabic ? 'الفحص الشامل' : 'Full Assessment', desc: isArabic ? '3 اختبارات' : '3 Tests', color: '#22c55e', gradient: 'linear-gradient(135deg, #22c55e, #16a34a)' },
+  { mode: 'attention', icon: '🎯', title: isArabic ? 'الانتباه' : 'Attention', desc: 'Go/No-Go', color: '#3B82F6', gradient: 'linear-gradient(135deg, #3B82F6, #2563EB)' },
+  { mode: 'frequency', icon: '🎚️', title: isArabic ? 'التردد' : 'Frequency', desc: 'Adaptive', color: '#8B5CF6', gradient: 'linear-gradient(135deg, #8B5CF6, #7C3AED)' },
+  { mode: 'sequence', icon: '🏫', title: isArabic ? 'التسلسل' : 'Sequence', desc: isArabic ? 'الذاكرة' : 'Memory', color: '#F59E0B', gradient: 'linear-gradient(135deg, #F59E0B, #D97706)' },
+  { mode: 'questionnaire', icon: '📝', title: isArabic ? 'الاستبيان' : 'Questionnaire', desc: isArabic ? 'للأهل' : 'Parents', color: brandPink, gradient: `linear-gradient(135deg, ${brandPink}, #9D174D)` },
 ] as const;
 
 // ==================== CSS KEYFRAMES ====================
@@ -253,10 +255,12 @@ const PortalHeader = memo(function PortalHeader({
   totalPoints,
   sessionsCount,
   streak,
+  isArabic,
 }: {
   totalPoints: number;
   sessionsCount: number;
   streak: number;
+  isArabic: boolean;
 }) {
   return (
     <div
@@ -289,6 +293,7 @@ const PortalHeader = memo(function PortalHeader({
             alignItems: 'center',
             flexWrap: 'wrap',
             gap: 20,
+            direction: isArabic ? 'rtl' : 'ltr',
           }}
         >
           {/* Logo and Title */}
@@ -322,7 +327,7 @@ const PortalHeader = memo(function PortalHeader({
                   letterSpacing: '-0.5px',
                 }}
               >
-                Lotus Sound Lab
+                {isArabic ? 'معمل لوتس الصوتي' : 'Lotus Sound Lab'}
               </h2>
               <div
                 style={{
@@ -330,25 +335,27 @@ const PortalHeader = memo(function PortalHeader({
                   color: 'rgba(255,255,255,0.55)',
                   marginTop: 4,
                   fontWeight: 500,
-                  direction: 'rtl',
                 }}
               >
-                معمل الفحص السمعي التفاعلي
+                {isArabic ? 'معمل الفحص السمعي التفاعلي' : 'Interactive Auditory Screening Lab'}
               </div>
             </div>
           </div>
 
           {/* Stats */}
           <div style={{ display: 'flex', gap: 14 }}>
-            <StatBadge icon="⭐" value={totalPoints.toLocaleString()} label="النقاط" color={brandCyan} animate={totalPoints > 0} />
-            <StatBadge icon="🎮" value={sessionsCount.toString()} label="الجلسات" color={brandPurple} />
-            {streak > 0 && <StatBadge icon="🔥" value={streak.toString()} label="التوالي" color="#F59E0B" />}
+            <StatBadge icon="⭐" value={totalPoints.toLocaleString()} label={isArabic ? 'النقاط' : 'Points'} color={brandCyan} animate={totalPoints > 0} />
+            <StatBadge icon="🎮" value={sessionsCount.toString()} label={isArabic ? 'الجلسات' : 'Sessions'} color={brandPurple} />
+            {streak > 0 && <StatBadge icon="🔥" value={streak.toString()} label={isArabic ? 'التوالي' : 'Streak'} color="#F59E0B" />}
           </div>
         </div>
       </div>
     </div>
   );
 });
+
+// Type for game configuration
+type GameConfigItem = ReturnType<typeof getGameConfig>[number];
 
 // ==================== GAME CARD ====================
 
@@ -357,7 +364,7 @@ const GameCard = memo(function GameCard({
   index,
   onSelect,
 }: {
-  game: typeof GAME_CONFIG[number];
+  game: GameConfigItem;
   index: number;
   onSelect: () => void;
 }) {
@@ -479,8 +486,10 @@ const GameCard = memo(function GameCard({
 
 const QuickStartSection = memo(function QuickStartSection({
   onSelectMode,
+  gameConfig,
 }: {
   onSelectMode: (mode: string) => void;
+  gameConfig: readonly GameConfigItem[];
 }) {
   return (
     <div
@@ -490,7 +499,7 @@ const QuickStartSection = memo(function QuickStartSection({
         gap: 14,
       }}
     >
-      {GAME_CONFIG.map((game, i) => (
+      {gameConfig.map((game, i) => (
         <GameCard key={game.mode} game={game} index={i} onSelect={() => onSelectMode(game.mode)} />
       ))}
     </div>
@@ -503,10 +512,12 @@ const AchievementCard = memo(function AchievementCard({
   achievement,
   isUnlocked,
   index,
+  isArabic,
 }: {
   achievement: GameAchievement;
   isUnlocked: boolean;
   index: number;
+  isArabic: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -554,7 +565,7 @@ const AchievementCard = memo(function AchievementCard({
           lineHeight: 1.3,
         }}
       >
-        {isUnlocked ? achievement.titleAr : '???'}
+        {isUnlocked ? (isArabic ? achievement.titleAr : achievement.title) : '???'}
       </div>
       {isUnlocked && (
         <div
@@ -564,7 +575,7 @@ const AchievementCard = memo(function AchievementCard({
             fontWeight: 700,
           }}
         >
-          +{achievement.points} pts
+          +{achievement.points} {isArabic ? 'نقطة' : 'pts'}
         </div>
       )}
     </div>
@@ -575,8 +586,10 @@ const AchievementCard = memo(function AchievementCard({
 
 const AchievementShowcase = memo(function AchievementShowcase({
   unlockedIds,
+  isArabic,
 }: {
   unlockedIds: Set<string>;
+  isArabic: boolean;
 }) {
   const achievements = useMemo(() => {
     // Show unlocked first, then locked
@@ -597,10 +610,10 @@ const AchievementShowcase = memo(function AchievementShowcase({
       >
         <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.4 }}>🏆</div>
         <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: 600 }}>
-          ابدأ بالاختبارات لفتح الإنجازات!
+          {isArabic ? 'ابدأ بالاختبارات لفتح الإنجازات!' : 'Complete tests to unlock achievements!'}
         </div>
         <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, marginTop: 6 }}>
-          {GAME_ACHIEVEMENTS.length} إنجازات متاحة
+          {GAME_ACHIEVEMENTS.length} {isArabic ? 'إنجازات متاحة' : 'achievements available'}
         </div>
       </div>
     );
@@ -620,6 +633,7 @@ const AchievementShowcase = memo(function AchievementShowcase({
           achievement={a}
           isUnlocked={unlockedIds.has(a.id)}
           index={i}
+          isArabic={isArabic}
         />
       ))}
     </div>
@@ -632,14 +646,17 @@ const SessionItem = memo(function SessionItem({
   session,
   isLatest,
   index,
+  isArabic,
 }: {
   session: StoredSession;
   isLatest: boolean;
   index: number;
+  isArabic: boolean;
 }) {
   const date = useMemo(() => new Date(session.date), [session.date]);
   const testsCompleted = Object.keys(session.outcomes).length;
   const results = Object.values(session.outcomes);
+  const locale = isArabic ? 'ar-SA' : 'en-US';
 
   return (
     <div
@@ -672,15 +689,15 @@ const SessionItem = memo(function SessionItem({
                 letterSpacing: '0.3px',
               }}
             >
-              الأخيرة
+              {isArabic ? 'الأخيرة' : 'Latest'}
             </span>
           )}
           <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>
-            {testsCompleted} اختبارات
+            {testsCompleted} {isArabic ? 'اختبارات' : 'tests'}
           </span>
         </div>
         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>
-          {date.toLocaleDateString('ar-SA')} • {date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
+          {date.toLocaleDateString(locale)} • {date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>
 
@@ -719,7 +736,7 @@ const SessionItem = memo(function SessionItem({
             color: brandCyan,
           }}
         >
-          {session.totalPoints} pts
+          {session.totalPoints} {isArabic ? 'نقطة' : 'pts'}
         </div>
       )}
     </div>
@@ -730,8 +747,10 @@ const SessionItem = memo(function SessionItem({
 
 const SessionHistory = memo(function SessionHistory({
   sessions,
+  isArabic,
 }: {
   sessions: StoredSession[];
+  isArabic: boolean;
 }) {
   const recentSessions = useMemo(() => sessions.slice(0, 5), [sessions]);
 
@@ -747,10 +766,10 @@ const SessionHistory = memo(function SessionHistory({
       >
         <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.4 }}>📊</div>
         <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: 600 }}>
-          لم تُكمل أي جلسة بعد
+          {isArabic ? 'لم تُكمل أي جلسة بعد' : 'No sessions completed yet'}
         </div>
         <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, marginTop: 6 }}>
-          ابدأ اختباراً لتتبع تقدمك
+          {isArabic ? 'ابدأ اختباراً لتتبع تقدمك' : 'Start a test to track your progress'}
         </div>
       </div>
     );
@@ -759,11 +778,11 @@ const SessionHistory = memo(function SessionHistory({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {recentSessions.map((session, i) => (
-        <SessionItem key={session.id} session={session} isLatest={i === 0} index={i} />
+        <SessionItem key={session.id} session={session} isLatest={i === 0} index={i} isArabic={isArabic} />
       ))}
       {sessions.length > 5 && (
         <div style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 6 }}>
-          +{sessions.length - 5} جلسات سابقة
+          +{sessions.length - 5} {isArabic ? 'جلسات سابقة' : 'previous sessions'}
         </div>
       )}
     </div>
@@ -796,11 +815,11 @@ const SectionTitle = memo(function SectionTitle({
 
 // ==================== TIPS BANNER ====================
 
-const TipsBanner = memo(function TipsBanner() {
+const TipsBanner = memo(function TipsBanner({ isArabic }: { isArabic: boolean }) {
   const tips = [
-    { icon: '🎧', text: 'سماعات' },
-    { icon: '🔊', text: 'صوت مريح' },
-    { icon: '🤫', text: 'مكان هادئ' },
+    { icon: '🎧', textAr: 'سماعات', textEn: 'Headphones' },
+    { icon: '🔊', textAr: 'صوت مريح', textEn: 'Comfortable volume' },
+    { icon: '🤫', textAr: 'مكان هادئ', textEn: 'Quiet place' },
   ];
 
   return (
@@ -815,6 +834,7 @@ const TipsBanner = memo(function TipsBanner() {
         alignItems: 'center',
         gap: 16,
         animation: 'fadeSlideIn 0.6s ease-out 0.3s backwards',
+        direction: isArabic ? 'rtl' : 'ltr',
       }}
     >
       <div
@@ -832,12 +852,14 @@ const TipsBanner = memo(function TipsBanner() {
       >
         💡
       </div>
-      <div style={{ flex: 1, direction: 'rtl', textAlign: 'right' }}>
+      <div style={{ flex: 1, direction: isArabic ? 'rtl' : 'ltr', textAlign: isArabic ? 'right' : 'left' }}>
         <div style={{ fontWeight: 700, fontSize: 14, color: brandCyan, marginBottom: 3 }}>
-          نصيحة للحصول على أفضل النتائج
+          {isArabic ? 'نصيحة للحصول على أفضل النتائج' : 'Tips for Best Results'}
         </div>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>
-          استخدم سماعات عالية الجودة، في مكان هادئ، وارفع مستوى الصوت لمستوى مريح.
+          {isArabic
+            ? 'استخدم سماعات عالية الجودة، في مكان هادئ، وارفع مستوى الصوت لمستوى مريح.'
+            : 'Use quality headphones, in a quiet environment, and set volume to a comfortable level.'}
         </div>
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
@@ -856,7 +878,7 @@ const TipsBanner = memo(function TipsBanner() {
               fontSize: 16,
               transition: 'all 0.2s ease',
             }}
-            title={tip.text}
+            title={isArabic ? tip.textAr : tip.textEn}
           >
             {tip.icon}
           </div>
@@ -912,10 +934,14 @@ export default function GamePortal({
   onSelectMode: (mode: string) => void;
   lastOutcome?: TestOutcome | null;
 }) {
+  const { isArabic, t } = useLanguage();
   const [sessions, setSessions] = useState<StoredSession[]>([]);
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set());
   const [totalPoints, setTotalPoints] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Get language-aware game config
+  const GAME_CONFIG = useMemo(() => getGameConfig(isArabic), [isArabic]);
 
   // Memoized callbacks
   const handleSelectMode = useCallback(
@@ -982,14 +1008,14 @@ export default function GamePortal({
       <style>{KEYFRAMES}</style>
 
       {/* Portal Header */}
-      <PortalHeader totalPoints={totalPoints} sessionsCount={sessions.length} streak={streak} />
+      <PortalHeader totalPoints={totalPoints} sessionsCount={sessions.length} streak={streak} isArabic={isArabic} />
 
       {/* Main Content */}
       <div style={{ padding: 28 }}>
         {/* Quick Start Section */}
         <div style={{ marginBottom: 32 }}>
-          <SectionTitle icon="🚀" title="ابدأ اختباراً" subtitle="Quick Start" />
-          <QuickStartSection onSelectMode={handleSelectMode} />
+          <SectionTitle icon="🚀" title={isArabic ? 'ابدأ اختباراً' : 'Start Test'} subtitle={isArabic ? 'البدء السريع' : 'Quick Start'} />
+          <QuickStartSection onSelectMode={handleSelectMode} gameConfig={GAME_CONFIG} />
         </div>
 
         {/* Two Column Layout */}
@@ -1002,19 +1028,19 @@ export default function GamePortal({
         >
           {/* Achievements */}
           <div>
-            <SectionTitle icon="🏆" title="الإنجازات" subtitle="Achievements" />
-            {!isLoading && <AchievementShowcase unlockedIds={unlockedIds} />}
+            <SectionTitle icon="🏆" title={isArabic ? 'الإنجازات' : 'Achievements'} subtitle={isArabic ? 'الشارات' : 'Badges'} />
+            {!isLoading && <AchievementShowcase unlockedIds={unlockedIds} isArabic={isArabic} />}
           </div>
 
           {/* Session History */}
           <div>
-            <SectionTitle icon="📈" title="سجل الجلسات" subtitle="History" />
-            {!isLoading && <SessionHistory sessions={sessions} />}
+            <SectionTitle icon="📈" title={isArabic ? 'سجل الجلسات' : 'Session History'} subtitle={isArabic ? 'التاريخ' : 'History'} />
+            {!isLoading && <SessionHistory sessions={sessions} isArabic={isArabic} />}
           </div>
         </div>
 
         {/* Tips Banner */}
-        <TipsBanner />
+        <TipsBanner isArabic={isArabic} />
       </div>
     </div>
   );
