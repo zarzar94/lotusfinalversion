@@ -525,6 +525,16 @@ function App() {
                       }
                     />
 
+                    {/* Contact/Get Started Page */}
+                    <Route
+                      path="/contact"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ContactPage />
+                        </Suspense>
+                      }
+                    />
+
                     <Route element={<RequireAuth />}>
                     {/* 2. Assessment Page - Diagnostic Tools */}
                     <Route
@@ -572,16 +582,6 @@ function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <ResourcesPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* Contact/Get Started Page */}
-                    <Route
-                      path="/contact"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ContactPage />
                         </Suspense>
                       }
                     />
