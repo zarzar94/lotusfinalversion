@@ -21,10 +21,12 @@ import WelcomeModal from './components/WelcomeModal';
 import JourneyProgressIndicator from './components/JourneyProgressIndicator';
 import FloatingTrustBar from './components/FloatingTrustBar';
 import { ReadingProgressBar } from './components/ScrollSectionIndicator';
-import { ReturningUserBanner } from './components/PersonalizedGreeting';
+import { ReturningUserBanner, EngagementStreak } from './components/PersonalizedGreeting';
 import KeyboardShortcuts, { SkipToContent } from './components/KeyboardShortcuts';
 import { ScrollBasedCTA, EngagementCelebration, TimeOnPageTracker } from './components/SmartEngagement';
 import { FeedbackProvider } from './components/VisualFeedback';
+import SmartNavigationDrawer, { BreadcrumbNav, ContinueWhereYouLeftOff } from './components/SmartNavigation';
+import { TourProvider, StartTourButton } from './components/InteractiveOnboarding';
 
 // Respect Vite base for subpath deployments (e.g., GitHub Pages)
 const rawBase = import.meta.env.BASE_URL ?? '/';
@@ -591,6 +593,9 @@ const UXEnhancements = memo(() => (
     {/* Returning user welcome banner */}
     <ReturningUserBanner />
 
+    {/* Engagement streak indicator */}
+    <EngagementStreak />
+
     {/* Journey progress indicator (navigation compass) */}
     <JourneyProgressIndicator />
 
@@ -599,6 +604,18 @@ const UXEnhancements = memo(() => (
 
     {/* Keyboard shortcuts system */}
     <KeyboardShortcuts />
+
+    {/* Smart navigation drawer (⌘K) */}
+    <SmartNavigationDrawer />
+
+    {/* Continue where you left off prompt */}
+    <ContinueWhereYouLeftOff />
+
+    {/* Breadcrumb navigation */}
+    <BreadcrumbNav />
+
+    {/* Interactive onboarding tour button */}
+    <StartTourButton />
 
     {/* Smart scroll-based CTAs */}
     <ScrollBasedCTA />
@@ -670,6 +687,7 @@ function App() {
           <VisitorModeProvider>
             <UserProvider>
               <GamificationProvider>
+                <TourProvider>
                 <ClinicalSync />
 
                 <div id="main-content" className="page-transition-wrapper">
@@ -834,6 +852,7 @@ function App() {
 
                 {/* Sticky Smart CTA (mode-aware) */}
                 <StickySmartCTA />
+                </TourProvider>
               </GamificationProvider>
             </UserProvider>
           </VisitorModeProvider>
