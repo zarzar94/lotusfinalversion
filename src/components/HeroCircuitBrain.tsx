@@ -15,7 +15,7 @@ import {
 import { BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
 import { useLanguage } from '../context/LanguageContext';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
-import { BrainIcon, CheckCircleIcon, HeadphonesIcon } from './Icons';
+import { ClipboardIcon, HeadphonesIcon, MessageIcon, SparklesIcon, UsersIcon } from './Icons';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -656,40 +656,64 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
   const platformFeatures = isArabic ? [
     {
       icon: <HeadphonesIcon size={24} color={brandCyan} />,
-      title: '20 ????',
-      desc: '?????? ????',
+      title: 'مختبر الصوت',
+      desc: 'تجارب سمعية تفاعلية',
       color: brandCyan,
     },
     {
-      icon: <CheckCircleIcon size={24} color={brandPurple} />,
-      title: '???? ??????',
-      desc: '????? ?????',
+      icon: <UsersIcon size={24} color={brandPurple} />,
+      title: 'الشركاء',
+      desc: 'شبكة مدارس وعيادات',
       color: brandPurple,
     },
     {
-      icon: <BrainIcon size={24} color={brandPink} />,
-      title: '10 ?????',
-      desc: '????? ????',
+      icon: <MessageIcon size={24} color={brandPink} />,
+      title: 'الشهادات',
+      desc: 'قصص نجاح موثقة',
       color: brandPink,
+    },
+    {
+      icon: <SparklesIcon size={24} color="#22c55e" />,
+      title: 'الفوائد المتوقعة',
+      desc: 'تحسنات يمكن ملاحظتها',
+      color: '#22c55e',
+    },
+    {
+      icon: <ClipboardIcon size={24} color="#f59e0b" />,
+      title: 'البروتوكول',
+      desc: '20 جلسة بخطة واضحة',
+      color: '#f59e0b',
     },
   ] : [
     {
       icon: <HeadphonesIcon size={24} color={brandCyan} />,
-      title: '20 Sessions',
-      desc: 'Intensive Program',
+      title: 'Sound Lab',
+      desc: 'Interactive auditory sessions',
       color: brandCyan,
     },
     {
-      icon: <CheckCircleIcon size={24} color={brandPurple} />,
-      title: 'Track Progress',
-      desc: 'Documented Results',
+      icon: <UsersIcon size={24} color={brandPurple} />,
+      title: 'Partners',
+      desc: 'Schools & clinics network',
       color: brandPurple,
     },
     {
-      icon: <BrainIcon size={24} color={brandPink} />,
-      title: '10 Areas',
-      desc: 'Comprehensive',
+      icon: <MessageIcon size={24} color={brandPink} />,
+      title: 'Testimonials',
+      desc: 'Verified success stories',
       color: brandPink,
+    },
+    {
+      icon: <SparklesIcon size={24} color="#22c55e" />,
+      title: 'Expected Benefits',
+      desc: 'Measurable improvements',
+      color: '#22c55e',
+    },
+    {
+      icon: <ClipboardIcon size={24} color="#f59e0b" />,
+      title: 'Protocol',
+      desc: '20-session plan',
+      color: '#f59e0b',
     },
   ];
 
@@ -840,7 +864,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
           {/* Platform Feature Cards */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
             gap: spacing[3],
             marginTop: spacing[2],
           }}>
