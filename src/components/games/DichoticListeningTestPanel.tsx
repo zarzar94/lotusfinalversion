@@ -8,6 +8,7 @@ import type { GameResult, TestOutcome } from './types';
 type Stimulus = {
   label: string;
   freq: number;
+  group: 'syllable' | 'number';
 };
 
 type Trial = {
@@ -26,14 +27,23 @@ type Trial = {
   rtMs?: number;
 };
 
-const STIMULI: Stimulus[] = [
-  { label: 'ba', freq: 410 },
-  { label: 'da', freq: 460 },
-  { label: 'ga', freq: 520 },
-  { label: 'ka', freq: 580 },
-  { label: 'pa', freq: 640 },
-  { label: 'ta', freq: 700 },
+const SYLLABLES: Stimulus[] = [
+  { label: 'ba', freq: 410, group: 'syllable' },
+  { label: 'da', freq: 460, group: 'syllable' },
+  { label: 'ga', freq: 520, group: 'syllable' },
+  { label: 'ka', freq: 580, group: 'syllable' },
+  { label: 'pa', freq: 640, group: 'syllable' },
+  { label: 'ta', freq: 700, group: 'syllable' },
 ];
+
+const NUMBERS: Stimulus[] = [
+  { label: '1', freq: 760, group: 'number' },
+  { label: '2', freq: 820, group: 'number' },
+  { label: '3', freq: 880, group: 'number' },
+  { label: '4', freq: 940, group: 'number' },
+];
+
+const STIMULI: Stimulus[] = [...SYLLABLES, ...NUMBERS];
 
 const shuffle = <T,>(arr: T[]): T[] => {
   const a = [...arr];
@@ -45,7 +55,8 @@ const shuffle = <T,>(arr: T[]): T[] => {
 };
 
 const randomPair = (): { left: Stimulus; right: Stimulus } => {
-  const options = shuffle(STIMULI);
+  const pool = Math.random() < 0.5 ? SYLLABLES : NUMBERS;
+  const options = shuffle(pool);
   return { left: options[0], right: options[1] };
 };
 
@@ -55,9 +66,18 @@ const buildTrials = (integrationCount: number, separationCount: number): Trial[]
     const { left, right } = randomPair();
     trials.push({ i: i + 1, mode: 'integration', left, right });
   }
+  const focusPool: Array<'left' | 'right'> = [];
+  const pairs = Math.floor(separationCount / 2);
+  for (let i = 0; i < pairs; i++) {
+    focusPool.push('left', 'right');
+  }
+  if (separationCount % 2) {
+    focusPool.push(Math.random() < 0.5 ? 'left' : 'right');
+  }
+  const focusOrder = shuffle(focusPool);
   for (let i = 0; i < separationCount; i++) {
     const { left, right } = randomPair();
-    const focus = Math.random() < 0.5 ? 'left' : 'right';
+    const focus = focusOrder[i] ?? (Math.random() < 0.5 ? 'left' : 'right');
     trials.push({ i: integrationCount + i + 1, mode: 'separation', focus, left, right });
   }
   return shuffle(trials).map((t, idx) => ({ ...t, i: idx + 1 }));
@@ -212,7 +232,7 @@ export default function DichoticListeningTestPanel({
 
     const outcome: TestOutcome = {
       key: 'dichotic_listening',
-      title: isArabic ? 'الاستماع الثنائي (تكامل/فصل)' : 'Dichotic Listening (Integration/Separation)',
+      title: isArabic ? 'الاستماع الثنائي (تكامل/فصل)' : 'Dichotic Listening - Integration + Separation',
       result,
       scoreLabel: `Score ${score}/100 · L ${leftPct}% R ${rightPct}% · Sep ${separationPct}%`,
       message,
@@ -258,7 +278,7 @@ export default function DichoticListeningTestPanel({
           <div style={styles.muted}>
             {isArabic
               ? 'أصوات مختلفة تُعرض لكل أذن.'
-              : 'Different sounds are presented to each ear.'}
+              : 'Syllables or numbers are presented to each ear.'}
           </div>
         </div>
         {progressLabel ? <span style={styles.chip}>{progressLabel}</span> : null}
@@ -271,7 +291,7 @@ export default function DichoticListeningTestPanel({
             <p style={{ ...styles.bodyText, marginTop: 8 }}>
               {isArabic
                 ? 'ستسمع مقطعاً مختلفاً في كل أذن. في التكامل اختر ما سمعته في اليسار واليمين. في الفصل ركّز على أذن واحدة.'
-                : 'You will hear different syllables in each ear. In integration, report both ears. In separation, focus on one ear.'}
+                : 'You will hear different syllables or numbers in each ear. In integration, report both ears. In separation, focus on the instructed ear.'}
             </p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
               <button onClick={startPractice} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}>
@@ -299,7 +319,7 @@ export default function DichoticListeningTestPanel({
             <div style={{ fontWeight: 700, marginBottom: 6 }}>
               {current.mode === 'integration'
                 ? (isArabic ? 'تكامل: أبلغ عن الأذنين' : 'Integration: report both ears')
-                : (isArabic ? `فصل: ركّز على الأذن ${current.focus === 'left' ? 'اليسرى' : 'اليمنى'}` : `Separation: focus ${current.focus}`)}
+                : (isArabic ? `فصل: ركّز على الأذن ${current.focus === 'left' ? 'اليسرى' : 'اليمنى'}` : `Separation: focus ${current.focus === 'left' ? t('games.left') : t('games.right')}`)}
             </div>
             <div style={styles.muted}>
               {isArabic ? 'استمع ثم اختر الإجابة.' : 'Listen, then choose the response.'}
@@ -422,3 +442,4 @@ export default function DichoticListeningTestPanel({
     </div>
   );
 }
+

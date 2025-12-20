@@ -28,7 +28,7 @@ const getGameConfig = (isArabic: boolean) => [
   { mode: 'focused_attention', icon: '??', title: isArabic ? '???????? ??????' : 'Focused Attention', desc: 'CPT', color: '#0EA5E9', gradient: 'linear-gradient(135deg, #0EA5E9, #0284C7)' },
   { mode: 'frequency', icon: '???', title: isArabic ? '??????' : 'Frequency', desc: 'Adaptive', color: '#8B5CF6', gradient: 'linear-gradient(135deg, #8B5CF6, #7C3AED)' },
   { mode: 'sequence', icon: '??', title: isArabic ? '???????' : 'Sequence', desc: isArabic ? '?????' : 'Memory', color: '#F59E0B', gradient: 'linear-gradient(135deg, #F59E0B, #D97706)' },
-  { mode: 'dichotic_listening', icon: '??', title: isArabic ? '???????? ???????' : 'Dichotic', desc: isArabic ? '?????/???' : 'Integration', color: '#10B981', gradient: 'linear-gradient(135deg, #10B981, #059669)' },
+  { mode: 'dichotic_listening', icon: '??', title: isArabic ? '???????? ???????' : 'Dichotic', desc: isArabic ? '?????/???' : 'Integration + Separation', color: '#10B981', gradient: 'linear-gradient(135deg, #10B981, #059669)' },
   { mode: 'speech_in_noise', icon: '??', title: isArabic ? '?????? ??? ??????' : 'Speech in Noise', desc: isArabic ? 'SNR ?????' : 'Adaptive SNR', color: '#F97316', gradient: 'linear-gradient(135deg, #F97316, #EA580C)' },
   { mode: 'questionnaire', icon: '??', title: isArabic ? '?????????' : 'Questionnaire', desc: isArabic ? '?????' : 'Parents', color: brandPink, gradient: `linear-gradient(135deg, ${brandPink}, #9D174D)` },
 ] as const;
