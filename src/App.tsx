@@ -15,6 +15,7 @@ import NotificationCenter from './components/NotificationCenter';
 import { ProgressExportButton } from './components/ProgressExport';
 import { useClinicalSync } from './hooks/useClinicalSync';
 import StickySmartCTA from './components/StickySmartCTA';
+import RequireAuth from './components/auth/RequireAuth';
 import RequirePermission from './components/auth/RequirePermission';
 
 // Respect Vite base for subpath deployments (e.g., GitHub Pages)
@@ -524,6 +525,7 @@ function App() {
                       }
                     />
 
+                    <Route element={<RequireAuth />}>
                     {/* 2. Assessment Page - Diagnostic Tools */}
                     <Route
                       path="/assessment"
@@ -705,6 +707,7 @@ function App() {
                         </Suspense>
                       }
                     />
+                    </Route>
                   </Routes>
                 </div>
 
