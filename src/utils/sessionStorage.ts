@@ -193,7 +193,8 @@ export const getAllSessions = (): LabModuleMetrics[] => {
   }
 };
 
-export const getSessionsOrDemo = (): LabModuleMetrics[] => {
+export const getSessionsOrDemo = (allowDemo = false): LabModuleMetrics[] => {
   const sessions = getAllSessions();
-  return sessions.length ? sessions : cloneSessions(DEMO_SESSIONS);
+  if (sessions.length) return sessions;
+  return allowDemo ? cloneSessions(DEMO_SESSIONS) : [];
 };

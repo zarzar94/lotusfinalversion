@@ -105,17 +105,19 @@ export default function FocusedAttentionTestPanel({
   const RESPONSE_MIN = 150;
 
   const introInstruction = isAudioMode
-    ? 'Press Space or the response button when you hear the target tone. Ignore other tones.'
+    ? (isArabic
+      ? 'اضغط على المسافة أو زر الاستجابة عند سماع النغمة المستهدفة. تجاهل النغمات الأخرى.'
+      : 'Press Space or the response button when you hear the target tone. Ignore other tones.')
     : isArabic
       ? 'اضغط على المسافة أو زر الاستجابة عندما ترى الرمز المستهدف. تجاهل الرموز الأخرى.'
       : 'Press Space or the response button when you see the target. Ignore other symbols.';
   const shortInstruction = isAudioMode
-    ? 'Respond only when the target tone plays.'
+    ? (isArabic ? 'استجب فقط عند سماع النغمة المستهدفة.' : 'Respond only when the target tone plays.')
     : isArabic
       ? 'استجب فقط عندما يظهر الرمز المستهدف.'
       : 'Respond only when the target symbol appears.';
   const responsePrompt = isAudioMode
-    ? 'Press Space or the response button when you hear the target tone.'
+    ? (isArabic ? 'اضغط المسافة أو زر الاستجابة عند سماع النغمة المستهدفة.' : 'Press Space or the response button when you hear the target tone.')
     : isArabic
       ? 'اضغط المسافة أو زر الاستجابة'
       : 'Press Space or the response button';
@@ -355,16 +357,16 @@ export default function FocusedAttentionTestPanel({
               <div style={{ marginTop: 12 }}>
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
                   <div style={{ ...styles.chip, borderColor: brandCyan, color: brandCyan }}>
-                    {t('attention.target')} Tone
+                    {isArabic ? 'النغمة المستهدفة' : `${t('attention.target')} Tone`}
                   </div>
-                  <div style={styles.muted}>Distractors: Other tones</div>
+                  <div style={styles.muted}>{isArabic ? 'مشتتات: نغمات أخرى' : 'Distractors: Other tones'}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
                   <button onClick={() => playExample(AUDIO_TARGET_FREQ)} style={styles.primaryBtn}>
-                    Play target tone
+                    {isArabic ? 'تشغيل النغمة المستهدفة' : 'Play target tone'}
                   </button>
                   <button onClick={() => playExample(AUDIO_DISTRACTORS[0])} style={styles.ghostBtn}>
-                    Play distractor
+                    {isArabic ? 'تشغيل نغمة مشتتة' : 'Play distractor'}
                   </button>
                 </div>
               </div>

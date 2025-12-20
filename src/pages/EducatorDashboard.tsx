@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useVisitorMode } from '../context/VisitorModeContext';
+import { useUser } from '../context/UserContext';
 import { getSessionsOrDemo } from '../utils/sessionStorage';
 import { colors, spacing, radius, typography, brandCyan, brandPurple } from '../components/styles';
 import {
@@ -38,6 +39,7 @@ const buildTokens = (count: number) => {
 const EducatorDashboard = memo(function EducatorDashboard() {
   const { t, isArabic } = useLanguage();
   const { mode, setMode } = useVisitorMode();
+  const { isAuthenticated } = useUser();
   const location = useLocation();
   const locale = isArabic ? 'ar-SA' : 'en-US';
   const flagIcon = String.fromCodePoint(0x1f534);
@@ -56,7 +58,11 @@ const EducatorDashboard = memo(function EducatorDashboard() {
     }
   }, [location.search, mode, setMode]);
 
-  const sessions = useMemo(() => sortSessionsByTime(getSessionsOrDemo()), []);
+  const allowDemoSessions = !isAuthenticated;
+  const sessions = useMemo(
+    () => sortSessionsByTime(getSessionsOrDemo(allowDemoSessions)),
+    [allowDemoSessions]
+  );
 
   const studentRows = useMemo<StudentRow[]>(() => {
     if (!sessions.length) return [];

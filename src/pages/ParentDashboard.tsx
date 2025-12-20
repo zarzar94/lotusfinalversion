@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useVisitorMode } from '../context/VisitorModeContext';
+import { useUser } from '../context/UserContext';
 import { getSessionsOrDemo } from '../utils/sessionStorage';
 import { LineChart } from '../components/shared/ProgressChart';
 import { colors, spacing, radius, typography, brandCyan, brandPurple, brandPink } from '../components/styles';
@@ -30,6 +31,7 @@ const cardStyle: CSSProperties = {
 const ParentDashboard = memo(function ParentDashboard() {
   const { t, isArabic } = useLanguage();
   const { mode, setMode } = useVisitorMode();
+  const { isAuthenticated } = useUser();
   const location = useLocation();
   const locale = isArabic ? 'ar-SA' : 'en-US';
 
@@ -47,7 +49,8 @@ const ParentDashboard = memo(function ParentDashboard() {
     }
   }, [location.search, mode, setMode]);
 
-  const sessions = useMemo(() => getSessionsOrDemo(), []);
+  const allowDemoSessions = !isAuthenticated;
+  const sessions = useMemo(() => getSessionsOrDemo(allowDemoSessions), [allowDemoSessions]);
   const sortedSessions = useMemo(() => sortSessionsByTime(sessions), [sessions]);
   const latestSession = useMemo(() => getLatestSession(sortedSessions), [sortedSessions]);
   const latestByModule = useMemo(() => getLatestByModule(sortedSessions), [sortedSessions]);

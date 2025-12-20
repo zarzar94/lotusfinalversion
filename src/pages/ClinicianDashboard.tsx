@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useVisitorMode } from '../context/VisitorModeContext';
+import { useUser } from '../context/UserContext';
 import { getSessionsOrDemo } from '../utils/sessionStorage';
 import { LineChart, BarChart } from '../components/shared/ProgressChart';
 import { colors, spacing, radius, typography, brandCyan, brandPurple, brandPink } from '../components/styles';
@@ -33,6 +34,7 @@ const cardStyle: CSSProperties = {
 const ClinicianDashboard = memo(function ClinicianDashboard() {
   const { t, isArabic } = useLanguage();
   const { mode, setMode } = useVisitorMode();
+  const { isAuthenticated } = useUser();
   const location = useLocation();
   const locale = isArabic ? 'ar-SA' : 'en-US';
 
@@ -50,7 +52,11 @@ const ClinicianDashboard = memo(function ClinicianDashboard() {
     }
   }, [location.search, mode, setMode]);
 
-  const sessions = useMemo(() => sortSessionsByTime(getSessionsOrDemo()), []);
+  const allowDemoSessions = !isAuthenticated;
+  const sessions = useMemo(
+    () => sortSessionsByTime(getSessionsOrDemo(allowDemoSessions)),
+    [allowDemoSessions]
+  );
   const latestByModule = useMemo(() => getLatestByModule(sessions), [sessions]);
 
   const averageScore = useMemo(() => {
