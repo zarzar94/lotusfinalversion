@@ -303,7 +303,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                 label={isArabic ? 'تقدم الأطفال' : 'Children Progress'}
                 onClick={() => {
                   setIsOpen(false);
-                  navigate('/parent-dashboard');
+                  navigate('/dashboard/parent');
                 }}
               />
             )}
@@ -315,7 +315,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                 label={isArabic ? 'لوحة المرضى' : 'Patients Dashboard'}
                 onClick={() => {
                   setIsOpen(false);
-                  navigate('/clinician-dashboard');
+                  navigate('/dashboard/clinician');
                 }}
               />
             )}
@@ -327,7 +327,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                 label={isArabic ? 'تحليلات المدرسة' : 'School Analytics'}
                 onClick={() => {
                   setIsOpen(false);
-                  navigate('/school-dashboard');
+                  navigate('/dashboard/educator');
                 }}
               />
             )}
@@ -340,7 +340,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                   label={isArabic ? 'لوحة الأطباء' : 'Clinician Dashboard'}
                   onClick={() => {
                     setIsOpen(false);
-                    window.location.href = '/clinician-dashboard';
+                    window.location.href = '/dashboard/clinician';
                   }}
                 />
                 <MenuItem
@@ -348,7 +348,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                   label={isArabic ? 'لوحة المدرسة' : 'School Dashboard'}
                   onClick={() => {
                     setIsOpen(false);
-                    window.location.href = '/school-dashboard';
+                    window.location.href = '/dashboard/educator';
                   }}
                 />
                 <MenuItem
@@ -356,7 +356,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                   label={isArabic ? 'لوحة الأولياء' : 'Parent Dashboard'}
                   onClick={() => {
                     setIsOpen(false);
-                    window.location.href = '/parent-dashboard';
+                    window.location.href = '/dashboard/parent';
                   }}
                 />
               </>

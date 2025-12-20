@@ -116,13 +116,13 @@ const Header = memo(function Header() {
   const dashboardLink = useMemo(() => {
     if (!isAuthenticated || !user) return null;
     if (hasPermission('view_child_reports')) {
-      return { path: '/parent-dashboard', translationKey: 'nav.childrenDashboard', icon: '👨‍👩‍👧' };
+      return { path: '/dashboard/parent', translationKey: 'nav.childrenDashboard', icon: '👨‍👩‍👧' };
     }
     if (hasPermission('view_patient_reports')) {
-      return { path: '/clinician-dashboard', translationKey: 'nav.patientsDashboard', icon: '🏥' };
+      return { path: '/dashboard/clinician', translationKey: 'nav.patientsDashboard', icon: '🏥' };
     }
     if (hasPermission('school_analytics')) {
-      return { path: '/school-dashboard', translationKey: 'nav.schoolDashboard', icon: '📊' };
+      return { path: '/dashboard/educator', translationKey: 'nav.schoolDashboard', icon: '📊' };
     }
     return null;
   }, [isAuthenticated, user, hasPermission]);
