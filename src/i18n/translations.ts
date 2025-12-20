@@ -549,6 +549,15 @@ export const translations = {
       inProgress: 'قيد التنفيذ',
     },
 
+    modules: {
+      instructionsTitle: 'التعليمات',
+      next: 'التالي',
+      disclaimer: 'هذه أداة تقييم مبدئية، وليست تشخيصًا طبيًا.',
+      attention: {
+        instructions: 'استمع للنغمة العالية الهدف واضغط عند سماعها. تجاهل النغمات الأخرى قدر الإمكان.',
+      },
+    },
+
     attention: {
       performance: '??????',
       consistency: '??????',
@@ -1214,6 +1223,15 @@ export const translations = {
       sessionId: 'Session ID',
       completed: 'Completed',
       inProgress: 'In Progress',
+    },
+
+    modules: {
+      instructionsTitle: 'Instructions',
+      next: 'Next',
+      disclaimer: 'This is a screening tool, not a medical diagnosis.',
+      attention: {
+        instructions: 'Listen for the high-pitched target tone and tap when you hear it. Ignore the other tones.',
+      },
     },
 
     attention: {
