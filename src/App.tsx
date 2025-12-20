@@ -54,7 +54,7 @@ const DebugSessionPage = lazy(() => import('./pages/DebugSessionPage'));
 
 const HomeGate = memo(function HomeGate() {
   const { isAuthenticated } = useUser();
-  return isAuthenticated ? <LandingPage /> : <ExplorePage />;
+  return isAuthenticated ? <ExplorePage /> : <LandingPage />;
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
