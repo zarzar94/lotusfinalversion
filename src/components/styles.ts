@@ -413,7 +413,7 @@ export const styles: Record<string, CSSProperties> = {
   container: {
     maxWidth: 1180,
     margin: '0 auto',
-    padding: `${spacing[6]}px ${spacing[4]}px ${spacing[20]}px`,
+    padding: `${spacing[2]}px ${spacing[4]}px ${spacing[20]}px`,
     position: 'relative',
     zIndex: 1,
   },

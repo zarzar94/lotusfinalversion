@@ -333,11 +333,7 @@ const Header = memo(function Header() {
           left: 0,
           right: 0,
           zIndex: 100,
-          padding: isScrolled ? '10px 20px' : '16px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 16,
+          padding: isScrolled ? '10px 0' : '16px 0',
           background: isScrolled
             ? 'linear-gradient(180deg, rgba(26,31,46,0.98) 0%, rgba(13,17,23,0.95) 100%)'
             : 'linear-gradient(180deg, rgba(26,31,46,0.95) 0%, rgba(13,17,23,0.85) 70%, transparent 100%)',
@@ -348,6 +344,16 @@ const Header = memo(function Header() {
         }}>
         {/* Scan line effect */}
         <div className="header-scan-line" />
+        <div style={{
+          width: '100%',
+          maxWidth: 1180,
+          margin: '0 auto',
+          padding: '0 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 16,
+        }}>
         {/* Logo Section */}
         <Link to="/" style={{ textDecoration: 'none', transition: 'all 0.3s ease' }}>
           <BrainLogo
@@ -535,6 +541,7 @@ const Header = memo(function Header() {
             </button>
           </div>
         )}
+        </div>
       </header>
 
       {/* Mobile Menu Dropdown */}
