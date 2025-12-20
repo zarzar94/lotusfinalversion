@@ -1,5 +1,6 @@
 /**
  * Lotus AIT Backend - Express Server Entry Point
+ * Optimized for performance with caching, compression, and indexes
  */
 
 import 'dotenv/config';
@@ -9,6 +10,9 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
 import { connectDB } from './utils/db.js';
+import createIndexes from './utils/indexes.js';
+import { compressResponse, performanceHeaders, requestTimeout } from './middleware/compression.js';
+import { sanitizeBody } from './middleware/validate.js';
 import {
   authRoutes,
   clinicalRoutes,
@@ -54,8 +58,14 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Body parsing
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+
+// Performance optimizations
+app.use(performanceHeaders());
+app.use(requestTimeout(30000));
+app.use(compressResponse(1024));
+app.use(sanitizeBody);
 
 // Request logging (dev mode)
 if (process.env.NODE_ENV !== 'production') {
@@ -136,6 +146,9 @@ const startServer = async () => {
   try {
     // Connect to MongoDB
     await connectDB();
+
+    // Create indexes for query optimization
+    await createIndexes();
 
     // Start Express server
     app.listen(PORT, () => {
