@@ -1,5 +1,5 @@
 import { memo, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, type Permission } from '../../context/UserContext';
@@ -82,9 +82,11 @@ function AccessDenied({ isAuthenticated }: AccessDeniedProps) {
 
 function RequirePermission({ permission, children }: RequirePermissionProps) {
   const { hasPermission, isAuthenticated } = useUser();
+  const location = useLocation();
 
-  if (hasPermission(permission)) {
-    return <>{children}</>;
+  if (hasPermission(permission)) return <>{children}</>;
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace state={{ from: location.pathname }} />;
   }
 
   return <AccessDenied isAuthenticated={isAuthenticated} />;

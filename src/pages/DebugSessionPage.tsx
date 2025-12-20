@@ -30,10 +30,6 @@ export default function DebugSessionPage() {
     URL.revokeObjectURL(url);
   };
 
-  if (!import.meta.env.DEV) {
-    return null;
-  }
-
   return (
     <section
       className="page-container"
@@ -115,7 +111,7 @@ export default function DebugSessionPage() {
           {t('debug.exportJson', 'Export JSON')}
         </button>
         <span style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
-          {t('debug.devOnly', 'Dev only')}
+          {t('debug.restricted', 'Restricted')}
         </span>
       </div>
 

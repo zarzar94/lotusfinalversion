@@ -47,7 +47,7 @@ const ParentRoleDashboard = lazy(() => import('./pages/ParentDashboard'));
 const EducatorDashboard = lazy(() => import('./pages/EducatorDashboard'));
 const ClinicianRoleDashboard = lazy(() => import('./pages/ClinicianDashboard'));
 const SettingsPage = lazy(() => import('./components/SettingsPage'));
-const DebugSessionPage = import.meta.env.DEV ? lazy(() => import('./pages/DebugSessionPage')) : null;
+const DebugSessionPage = lazy(() => import('./pages/DebugSessionPage'));
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PAGE LOADER - Enhanced with brain-themed animation (bilingual)
@@ -683,16 +683,16 @@ function App() {
                         </Suspense>
                       }
                     />
-                    {import.meta.env.DEV && DebugSessionPage ? (
-                      <Route
-                        path="/debug/session"
-                        element={
+                    <Route
+                      path="/debug/session"
+                      element={
+                        <RequirePermission permission="system_config">
                           <Suspense fallback={<PageLoader />}>
                             <DebugSessionPage />
                           </Suspense>
-                        }
-                      />
-                    ) : null}
+                        </RequirePermission>
+                      }
+                    />
 
                     {/* ═════════════════════════════════════════════════════==
                         404 NOT FOUND - Catch-all route (must be last)
