@@ -51,7 +51,7 @@ const QUICK_LINKS: QuickLink[] = [
   { translationKey: 'nav.partners', to: '/partners', icon: <UsersIcon size={16} /> },
   { translationKey: 'nav.science', to: '/science', icon: <BrainIcon size={16} /> },
   { translationKey: 'nav.resources', to: '/resources', icon: <HelpIcon size={16} /> },
-  { translationKey: 'nav.faq', to: '/faq', icon: <HelpIcon size=16 /> },
+  { translationKey: 'nav.faq', to: '/faq', icon: <HelpIcon size={16} /> },
   { translationKey: 'nav.about', to: '/about', icon: '🏛️' },
   { translationKey: 'nav.contact', to: '/contact', icon: <PhoneIcon size={16} /> },
 ];
