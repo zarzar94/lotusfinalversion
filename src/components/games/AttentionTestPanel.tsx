@@ -86,8 +86,8 @@ function AttentionHeader({ chipLabel }: { chipLabel?: string }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
       <div>
-        <div style={{ fontWeight: 900, color: brandCyan }}>OOrO¦O"OOñ OU,OU+O¦O"OUØ OU,O3U.O1US O¦O-O¦ OU,OU^OOO­</div>
-        <div style={styles.muted}>U?O-Oæ U.U^OU^O1US U,OæUSOñ (Go/No-Go) U,U,USOO3 OU,OU+O¦O"OUØ OU,OU+O¦U,OOÝUS U^OU,OU+O_U?OO1USOc.</div>
+        <div style={{ fontWeight: 900, color: brandCyan }}>اختبار الانتباه السمعي تحت الضوضاء</div>
+        <div style={styles.muted}>فحص موضوعي قصير (Go/No-Go) لقياس الانتباه الانتقائي والاندفاعية.</div>
       </div>
       {chipLabel ? <span style={styles.chip}>{chipLabel}</span> : null}
     </div>
@@ -233,11 +233,11 @@ function AttentionPractice({ audioRef, noiseRef }: SharedAudioProps) {
         <div style={{ marginTop: 12 }}>
           <div style={{ ...styles.section, marginBottom: 0 }}>
             <div style={{ fontWeight: 900, color: brandCyan }}>
-              {isArabic ? 'U.O1OñU? O¦O_OñUSO"' : 'Quick Practice'}
+              {isArabic ? 'تدريب سريع' : 'Quick Practice'}
             </div>
             <p style={{ ...styles.muted, marginTop: 6 }}>
               {isArabic
-                ? 'O3O¦O3U.O1 3 OO3O¦OªO"Oc O¦O_OñUSO" UU?Oñ. OOO§Oú U?U,Oú O1U+O_ O3U.OO1.'
+                ? 'ستسمع 3 نغمات تدريبية قصيرة. اضغط فقط عند سماع النغمة العالية جداً.'
                 : 'You will hear 3 short practice tones. Tap only for the high target tone.'}
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
@@ -245,7 +245,7 @@ function AttentionPractice({ audioRef, noiseRef }: SharedAudioProps) {
                 onClick={startPractice}
                 style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}
               >
-                {isArabic ? 'OO"O_Oœ O¦O_OñUSO"' : 'Start Practice'}
+                {isArabic ? 'ابدأ التدريب' : 'Start Practice'}
               </button>
             </div>
           </div>
@@ -255,7 +255,7 @@ function AttentionPractice({ audioRef, noiseRef }: SharedAudioProps) {
       {stage === 'running' ? (
         <div style={{ marginTop: 12 }}>
           <div style={{ marginTop: 12, padding: 18, borderRadius: 16, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(0,0,0,0.18)' }}>
-            <div style={{ fontWeight: 900, marginBottom: 10 }}>OýOñ OU,OO3O¦OªOO"Oc</div>
+            <div style={{ fontWeight: 900, marginBottom: 10 }}>زر الاستجابة</div>
             <button
               onClick={respond}
               style={{
@@ -271,14 +271,14 @@ function AttentionPractice({ audioRef, noiseRef }: SharedAudioProps) {
                 transition: 'background 0.2s ease',
               }}
             >
-              dY`+ OOO§Oú O1U+O_ O3U.OO1 Target
+              👆 اضغط عند سماع Target
             </button>
             <div style={{ marginTop: 10, ...styles.muted }}>
-              U+OæUSO-Oc: U,O O¦OO§Oú O"O3OñO1Oc. OU,OO§Oú OU,O1O'U^OOÝUS USOýUSO_ OU,OU+O_U?OO1 U^USOO®Oñ O1U,U% OU,U+O¦USOªOc.
+              نصيحة: لا تضغط بسرعة. الضغط العشوائي يزيد الاندفاع ويؤثر على النتيجة.
             </div>
             {feedback ? (
               <div style={{ marginTop: 10, color: feedback === 'hit' ? brandCyan : brandPink, fontWeight: 700, textAlign: 'center' }}>
-                {feedback === 'hit' ? (isArabic ? 'OæO-USO-' : 'Correct') : (isArabic ? 'O¦U+O"USUØ OrOOúOÝ' : 'False alarm')}
+                {feedback === 'hit' ? (isArabic ? 'صحيح' : 'Correct') : (isArabic ? 'إنذار كاذب' : 'False alarm')}
               </div>
             ) : null}
           </div>
@@ -287,9 +287,9 @@ function AttentionPractice({ audioRef, noiseRef }: SharedAudioProps) {
 
       {stage === 'done' ? (
         <div style={{ marginTop: 12, textAlign: 'center' }}>
-          <div style={{ fontWeight: 900 }}>{isArabic ? 'OœO-O3U+O¦!' : 'Practice complete.'}</div>
+          <div style={{ fontWeight: 900 }}>{isArabic ? 'اكتمل التدريب!' : 'Practice complete.'}</div>
           <p style={{ ...styles.muted, marginTop: 6 }}>
-            {isArabic ? 'OOO§Oú O3OñUSO1 OU,OOrO¦O"OOñ.' : 'Click Next to begin the main test.'}
+            {isArabic ? 'اضغط التالي لبدء الاختبار.' : 'Click Next to begin the main test.'}
           </p>
         </div>
       ) : null}
@@ -507,24 +507,24 @@ function AttentionMain({ audioRef, noiseRef, onDone }: SharedAudioProps & { onDo
 
     let message =
       result === 'high'
-        ? 'OO3O¦OªOO"Oc U,U^USOc U,U,U.O®USOñOO¦ OU,O3U.O1USOc OU,U.O3O¦UØO_U?Oc U.O1 OU^OOO­ U.O¦OýOUSO_Oc (OU+O¦O"OUØ OU+O¦U,OOÝUS OªUSO_ OU.U+ UØOøO OU,U?O-Oæ).'
+        ? 'استجابة قوية للمثيرات السمعية المستهدفة مع ضوضاء متزايدة (انتباه انتقائي جيد ضمن هذا الفحص).'
         : result === 'medium'
-          ? 'O,UØOñO¦ O"O1O OU,OœOrOúOO­/OU,OU+O_U?OO1USOc O¦O-O¦ OU,OU^OOO­. U.U+ OU,U.U?USO_ O¦OªOñO"Oc OOrO¦O"OOñ OU,O¦OñO_O_ + OU,O¦O3U,O3U, OU,O3U.O1US U,U,O-OæU^U, O1U,U% OæU^OñOc OœO_U,.'
-          : 'O,UØOñO¦ OæO1U^O"Oc U^OOO-Oc U?US O¦U.USUSOý OU,U.O®USOñ OU,U.O3O¦UØO_U? OœU^ OO"Oú OU,OO3O¦OªOO"Oc O¦O-O¦ OU,OU^OOO­. OOøO UŸOU+ UØOøO USU+O1UŸO3 O1U,U% OU,OœO_OO­ OU,O_OñOO3US/OU,O3U,U^UŸUSOO U+U+OæO- O"O¦U,USUSU. U.O¦OrOæOæ.';
+          ? 'ظهرت بعض الأخطاء/الاندفاعية تحت الضوضاء. من المفيد تجربة اختبار التردد + التسلسل السمعي للحصول على صورة أدق.'
+          : 'ظهرت صعوبة واضحة في تمييز المثير المستهدف أو ضبط الاستجابة تحت الضوضاء. إذا كان هذا ينعكس على الأداء الدراسي/السلوكي، ننصح بتقييم متخصص.';
 
     if (fatigueAnalysis.fatigueIndex === 'high') {
-      message += ' ƒsÿ‹,? U,U^O-O, OU+OrU?OO U?US OU,OœO_OO­ U+O-U^ U+UØOUSOc OU,OOrO¦O"OOñOO U.U.O U,O_ USO\'USOñ OU,U% OOñUØOU, O3U.O1US.';
+      message += ' ⚠️ لوحظ انخفاض في الأداء نحو نهاية الاختبار، مما قد يشير إلى إرهاق سمعي.';
     } else if (fatigueAnalysis.fatigueIndex === 'moderate') {
-      message += ' O¦OñOOªO1 OúU?USU? U?US OU,OœO_OO­ U+O-U^ OU,U+UØOUSOc.';
+      message += ' تراجع طفيف في الأداء نحو النهاية.';
     }
 
     const starRating = getStarRating(result);
 
     const outcome: TestOutcome = {
       key: 'attention',
-      title: 'OOrO¦O"OOñ OU,OU+O¦O"OUØ OU,O3U.O1US O¦O-O¦ OU,OU^OOO­ (Go/No-Go)',
+      title: 'اختبار الانتباه السمعي تحت الضوضاء (Go/No-Go)',
       result,
-      scoreLabel: `${getStarEmoji(starRating)} ${score100}/100 ƒ?› d'=${dp.toFixed(2)} ƒ?› RTƒ%^${avgRt}ms ƒ?› ${points}pts ƒ?› OU+O_U?OO1=${impulsive}`,
+      scoreLabel: `${getStarEmoji(starRating)} ${score100}/100 • d'=${dp.toFixed(2)} • RT≈${avgRt}ms • ${points}pts • اندفاع=${impulsive}`,
       message,
       metrics: {
         trials: trials.length,
@@ -568,19 +568,19 @@ function AttentionMain({ audioRef, noiseRef, onDone }: SharedAudioProps & { onDo
 
   return (
     <div style={{ marginTop: 12 }}>
-      <AttentionHeader chipLabel={isArabic ? 'U.U^OU^O1US' : 'Objective'} />
+      <AttentionHeader chipLabel={isArabic ? 'موضوعي' : 'Objective'} />
 
       {stage === 'running' ? (
         <div style={{ marginTop: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
             <div>
-              <div style={{ fontWeight: 900 }}>OU,O¦U,O_U.: {trialIndex}/{TOTAL} ({progressPct}%)</div>
-              <div style={styles.muted}>OOO§Oú U?U,Oú O1U+O_ O3U.OO1 OU,U+O§U.Oc OU,O1OU,USOc OªO_OU&lt;.</div>
+              <div style={{ fontWeight: 900 }}>التقدم: {trialIndex}/{TOTAL} ({progressPct}%)</div>
+              <div style={styles.muted}>اضغط فقط عند سماع النغمة العالية جداً.</div>
             </div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-              <span style={styles.chip}>Hits ƒo. {hits}</span>
-              <span style={{ ...styles.chip, background: 'rgba(176,18,112,0.14)', borderColor: 'rgba(176,18,112,0.25)' }}>FA ƒo- {falseAlarms}</span>
-              <span style={{ ...styles.chip, background: 'rgba(143,132,186,0.14)', borderColor: 'rgba(143,132,186,0.25)' }}>OU+O_U?OO1 ƒs­ {impulsiveTaps}</span>
+              <span style={styles.chip}>Hits ✅ {hits}</span>
+              <span style={{ ...styles.chip, background: 'rgba(176,18,112,0.14)', borderColor: 'rgba(176,18,112,0.25)' }}>FA ✖ {falseAlarms}</span>
+              <span style={{ ...styles.chip, background: 'rgba(143,132,186,0.14)', borderColor: 'rgba(143,132,186,0.25)' }}>اندفاع ⚡ {impulsiveTaps}</span>
             </div>
           </div>
 
@@ -613,8 +613,8 @@ function AttentionMain({ audioRef, noiseRef, onDone }: SharedAudioProps & { onDo
             }}>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }}>COMBO</div>
               <div style={{ fontSize: 24, fontWeight: 900, color: brandPurpleDark }}>
-                {combo.streak}dY"
-                {combo.multiplier > 1 && <span style={{ fontSize: 14, marginLeft: 4 }}>A-{combo.multiplier.toFixed(1)}</span>}
+                {combo.streak}🔥
+                {combo.multiplier > 1 && <span style={{ fontSize: 14, marginLeft: 4 }}>×{combo.multiplier.toFixed(1)}</span>}
               </div>
             </div>
           </div>
@@ -635,15 +635,15 @@ function AttentionMain({ audioRef, noiseRef, onDone }: SharedAudioProps & { onDo
                 : feedback === 'combo' ? '#FFD700'
                 : brandPink,
             }}>
-              {feedback === 'hit' && `ƒo" +${lastPointChange}`}
-              {feedback === 'combo' && `dY" COMBO! +${lastPointChange}`}
-              {feedback === 'fa' && `ƒo- ${lastPointChange}`}
-              {feedback === 'miss' && `ƒS~ Missed`}
+              {feedback === 'hit' && `✓ +${lastPointChange}`}
+              {feedback === 'combo' && `🔥 COMBO! +${lastPointChange}`}
+              {feedback === 'fa' && `✗ ${lastPointChange}`}
+              {feedback === 'miss' && `⊘ Missed`}
             </div>
           )}
 
           <div style={{ marginTop: 12, padding: 18, borderRadius: 16, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(0,0,0,0.18)' }}>
-            <div style={{ fontWeight: 900, marginBottom: 10 }}>OýOñ OU,OO3O¦OªOO"Oc</div>
+            <div style={{ fontWeight: 900, marginBottom: 10 }}>زر الاستجابة</div>
             <button
               onClick={respond}
               style={{
@@ -659,10 +659,10 @@ function AttentionMain({ audioRef, noiseRef, onDone }: SharedAudioProps & { onDo
                 transition: 'background 0.2s ease',
               }}
             >
-              dY`+ OOO§Oú O1U+O_ O3U.OO1 Target
+              👆 اضغط عند سماع Target
             </button>
             <div style={{ marginTop: 10, ...styles.muted }}>
-              U+OæUSO-Oc: U,O O¦OO§Oú O"O3OñO1Oc. OU,OO§Oú OU,O1O'U^OOÝUS USOýUSO_ OU,OU+O_U?OO1 U^USOO®Oñ O1U,U% OU,U+O¦USOªOc.
+              نصيحة: لا تضغط بسرعة. الضغط العشوائي يزيد الاندفاع ويؤثر على النتيجة.
             </div>
           </div>
 
@@ -680,8 +680,8 @@ function AttentionMain({ audioRef, noiseRef, onDone }: SharedAudioProps & { onDo
 
       {stage === 'done' ? (
         <div style={{ marginTop: 12, textAlign: 'center' }}>
-          <div style={{ fontWeight: 900 }}>O¦U. O-U?O, OU,U+O¦USOªOc ƒo.</div>
-          <p style={{ ...styles.muted, marginTop: 6 }}>USU.UŸU+UŸ OU,O›U+ OU,OU+O¦U,OU, U,U,OOrO¦O"OOñ OU,O¦OU,US.</p>
+          <div style={{ fontWeight: 900 }}>تم حفظ النتيجة ✅</div>
+          <p style={{ ...styles.muted, marginTop: 6 }}>يمكنك الآن الانتقال للاختبار التالي.</p>
         </div>
       ) : null}
     </div>

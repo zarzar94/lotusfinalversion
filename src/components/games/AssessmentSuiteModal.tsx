@@ -175,6 +175,7 @@ export default function AssessmentSuiteModal({
               setStep('frequency');
             }}
             onCancel={() => setStep('summary')}
+            stimulusMode="audio"
           />
         ) : null}
 

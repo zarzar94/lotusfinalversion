@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useVisitorMode } from '../context/VisitorModeContext';
-import { getAllSessions } from '../utils/sessionStorage';
+import { getSessionsOrDemo } from '../utils/sessionStorage';
 import { colors, spacing, radius, typography, brandCyan, brandPurple } from '../components/styles';
 import {
   average,
@@ -56,7 +56,7 @@ const EducatorDashboard = memo(function EducatorDashboard() {
     }
   }, [location.search, mode, setMode]);
 
-  const sessions = useMemo(() => sortSessionsByTime(getAllSessions()), []);
+  const sessions = useMemo(() => sortSessionsByTime(getSessionsOrDemo()), []);
 
   const studentRows = useMemo<StudentRow[]>(() => {
     if (!sessions.length) return [];

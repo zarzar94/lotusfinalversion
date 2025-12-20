@@ -1256,6 +1256,7 @@ const GameSection = memo(function GameSection() {
       >
         <FocusedAttentionTestPanel
           onDone={handleOutcome}
+          stimulusMode="audio"
         />
         {modalOutcome && showSummary ? (
           <PostTestSummary
