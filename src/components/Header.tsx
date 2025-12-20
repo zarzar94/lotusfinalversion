@@ -27,6 +27,14 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   {
+    id: 'home',
+    translationKey: 'nav.home',
+    path: '/',
+    icon: 'dY?ÿ',
+    color: brandCyan,
+    priority: { school: 0, parent: 0, clinician: 0 },
+  },
+  {
     id: 'assessment',
     translationKey: 'nav.assessment',
     path: '/assessment',
@@ -108,8 +116,8 @@ const Header = memo(function Header() {
   // Get sorted nav items based on visitor mode
   const sortedNavItems = useMemo(() => getSortedNavItems(visitorMode), [visitorMode]);
   const visibleNavItems = useMemo(() => {
-    if (isAuthenticated) return sortedNavItems;
-    return sortedNavItems.filter((item) => item.id === 'program' || item.id === 'about');
+    if (isAuthenticated) return sortedNavItems.filter((item) => item.id !== 'home');
+    return sortedNavItems.filter((item) => item.id === 'home' || item.id === 'program' || item.id === 'about');
   }, [isAuthenticated, sortedNavItems]);
 
   // Check if current path matches nav item
@@ -621,7 +629,7 @@ const Header = memo(function Header() {
           </Link>
 
           {/* Nav Items - Sorted by visitor mode priority */}
-          {visibleNavItems.map((item, index) => {
+          {visibleNavItems.filter((item) => item.id !== 'home').map((item, index) => {
             const isActive = isActivePath(item.path);
             const isPriority = item.priority?.[visitorMode] === 1;
             return (
