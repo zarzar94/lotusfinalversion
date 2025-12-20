@@ -15,6 +15,8 @@ export default defineConfig({
     target: 'es2020',
     // Chunk size warnings at 500KB
     chunkSizeWarningLimit: 500,
+    // Minify and drop console/debugger in production
+    minify: 'esbuild',
     rollupOptions: {
       input: {
         main: resolve(rootDir, 'index.html'),
@@ -29,6 +31,10 @@ export default defineConfig({
         },
       },
     },
+  },
+  // Drop console and debugger in production builds
+  esbuild: {
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
   },
   // Optimize dependencies
   optimizeDeps: {
