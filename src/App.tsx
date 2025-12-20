@@ -22,6 +22,9 @@ import JourneyProgressIndicator from './components/JourneyProgressIndicator';
 import FloatingTrustBar from './components/FloatingTrustBar';
 import { ReadingProgressBar } from './components/ScrollSectionIndicator';
 import { ReturningUserBanner } from './components/PersonalizedGreeting';
+import KeyboardShortcuts, { SkipToContent } from './components/KeyboardShortcuts';
+import { ScrollBasedCTA, EngagementCelebration, TimeOnPageTracker } from './components/SmartEngagement';
+import { FeedbackProvider } from './components/VisualFeedback';
 
 // Respect Vite base for subpath deployments (e.g., GitHub Pages)
 const rawBase = import.meta.env.BASE_URL ?? '/';
@@ -576,6 +579,9 @@ GamificationUI.displayName = 'GamificationUI';
 
 const UXEnhancements = memo(() => (
   <>
+    {/* Skip to content link for accessibility */}
+    <SkipToContent />
+
     {/* Reading progress bar at top */}
     <ReadingProgressBar />
 
@@ -590,6 +596,18 @@ const UXEnhancements = memo(() => (
 
     {/* Social proof floating bar */}
     <FloatingTrustBar />
+
+    {/* Keyboard shortcuts system */}
+    <KeyboardShortcuts />
+
+    {/* Smart scroll-based CTAs */}
+    <ScrollBasedCTA />
+
+    {/* Engagement celebration effects */}
+    <EngagementCelebration />
+
+    {/* Time on page tracker rewards */}
+    <TimeOnPageTracker />
   </>
 ));
 UXEnhancements.displayName = 'UXEnhancements';
@@ -644,16 +662,17 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <BrowserRouter basename={appBase}>
-        <ScrollToTop />
-        <PageTransitionStyles />
-        <LanguageProvider>
+      <FeedbackProvider>
+        <BrowserRouter basename={appBase}>
+          <ScrollToTop />
+          <PageTransitionStyles />
+          <LanguageProvider>
           <VisitorModeProvider>
             <UserProvider>
               <GamificationProvider>
                 <ClinicalSync />
 
-                <div className="page-transition-wrapper">
+                <div id="main-content" className="page-transition-wrapper">
                   <Routes>
                     {/* ═══════════════════════════════════════════════════════
                         MAIN 6 PAGES
@@ -819,7 +838,8 @@ function App() {
             </UserProvider>
           </VisitorModeProvider>
         </LanguageProvider>
-      </BrowserRouter>
+        </BrowserRouter>
+      </FeedbackProvider>
     </ErrorBoundary>
   );
 }
