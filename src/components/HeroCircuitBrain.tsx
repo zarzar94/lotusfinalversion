@@ -669,11 +669,11 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
         position: 'relative',
         minHeight: '100vh',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
         overflow: 'hidden',
         background: `linear-gradient(180deg, ${colors.surface.base} 0%, rgba(15,20,35,1) 50%, ${colors.surface.base} 100%)`,
-        padding: `${spacing[16]}px ${spacing[4]}px ${spacing[10]}px`,
+        padding: `0 ${spacing[4]}px ${spacing[10]}px`,
         direction,
       }}
     >

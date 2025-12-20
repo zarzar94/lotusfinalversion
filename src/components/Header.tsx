@@ -328,10 +328,8 @@ const Header = memo(function Header() {
       <header
         className="header-container"
         style={{
-          position: 'fixed',
+          position: 'sticky',
           top: 0,
-          left: 0,
-          right: 0,
           zIndex: 100,
           padding: isScrolled ? '10px 0' : '16px 0',
           background: isScrolled
@@ -783,9 +781,6 @@ const Header = memo(function Header() {
           </div>
         </nav>
       )}
-
-      {/* Spacer for fixed header */}
-      <div style={{ height: showCompactNav ? 75 : 90 }} />
 
       {/* Login Modal */}
       <LoginModal isOpen={isLoginModalOpen} onClose={closeLoginModal} />

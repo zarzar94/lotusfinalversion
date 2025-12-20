@@ -1,6 +1,5 @@
 /**
- * Science Page - Research & Neuroplasticity
- * Educational content about the science behind AIT
+ * FAQ Page - Frequently asked questions and program comparison
  */
 
 import { lazy, Suspense, memo } from 'react';
@@ -15,6 +14,7 @@ import FadeIn from '../components/FadeIn';
 import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { HelpIcon } from '../components/Icons';
 import {
   brandPink,
   colors,
@@ -23,13 +23,10 @@ import {
   radius,
 } from '../components/styles';
 
-// Lazy load sections
-const NeuroplasticitySection = lazy(() => import('../components/NeuroplasticitySection'));
-const AudioJourney = lazy(() => import('../components/AudioJourney'));
-const AudioSpectrumDemo = lazy(() => import('../components/AudioSpectrumDemo'));
+const ComparisonSection = lazy(() => import('../components/ComparisonSection'));
+const FAQSection = lazy(() => import('../components/FAQSection'));
 
-// Page header component
-const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
+const PageHeader = memo(({ title, subtitle }: { title: string; subtitle: string }) => (
   <div
     style={{
       textAlign: 'center',
@@ -49,7 +46,7 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
         marginBottom: spacing[4],
       }}
     >
-      <span style={{ fontSize: 20 }}>🧠</span>
+      <HelpIcon size={18} color={brandPink} />
       <span
         style={{
           fontSize: typography.size.sm,
@@ -57,7 +54,7 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
           color: brandPink,
         }}
       >
-        {isArabic ? 'العلم والأبحاث' : 'Science & Research'}
+        FAQ
       </span>
     </div>
 
@@ -70,7 +67,7 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
         lineHeight: 1.2,
       }}
     >
-      {isArabic ? 'المرونة العصبية والصوت' : 'Neuroplasticity & Sound'}
+      {title}
     </h1>
 
     <p
@@ -82,16 +79,14 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
         margin: '0 auto',
       }}
     >
-      {isArabic
-        ? 'اكتشف كيف يستخدم الدماغ المرونة العصبية لإعادة توصيل مسارات المعالجة السمعية من خلال التحفيز الصوتي المستهدف'
-        : 'Discover how the brain uses neuroplasticity to rewire auditory processing pathways through targeted sound stimulation'}
+      {subtitle}
     </p>
   </div>
 ));
 PageHeader.displayName = 'PageHeader';
 
-function SciencePage() {
-  const { isArabic, t } = useLanguage();
+function FAQPage() {
+  const { t } = useLanguage();
   usePageTitle();
 
   return (
@@ -100,31 +95,19 @@ function SciencePage() {
       <Header />
 
       <main style={styles.container}>
-        <BackNavigation
-          to="/"
-          label={isArabic ? 'الصفحة الرئيسية' : 'Home'}
-        />
+        <BackNavigation to="/" label={t('nav.home')} />
 
-        <PageHeader isArabic={isArabic} />
+        <PageHeader title={t('faq.title')} subtitle={t('faq.subtitle')} />
 
-        {/* Neuroplasticity Section */}
-        <FadeIn delay={100} scale blur blurAmount={5}>
-          <Suspense fallback={<SectionLoader label={t('common.loading')} height={350} />}>
-            <NeuroplasticitySection />
+        <FadeIn delay={100} direction="none" scale>
+          <Suspense fallback={<SectionLoader label={t('common.loading')} height={400} />}>
+            <ComparisonSection />
           </Suspense>
         </FadeIn>
 
-        {/* Interactive Audio Journey */}
-        <FadeIn delay={150} direction="left" distance={40}>
-          <Suspense fallback={<SectionLoader label={t('common.loadingAudioJourney')} height={400} />}>
-            <AudioJourney />
-          </Suspense>
-        </FadeIn>
-
-        {/* Audio Spectrum Demo */}
-        <FadeIn delay={200} direction="right" distance={40}>
-          <Suspense fallback={<SectionLoader label={t('common.loading')} height={300} />}>
-            <AudioSpectrumDemo />
+        <FadeIn delay={150} direction="none" scale>
+          <Suspense fallback={<SectionLoader label={t('common.loading')} height={400} />}>
+            <FAQSection />
           </Suspense>
         </FadeIn>
 
@@ -139,4 +122,4 @@ function SciencePage() {
   );
 }
 
-export default memo(SciencePage);
+export default memo(FAQPage);

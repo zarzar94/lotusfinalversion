@@ -36,6 +36,7 @@ const ResultsPage = lazy(() => import('./pages/ResultsPage'));
 const ResourcesPage = lazy(() => import('./pages/ResourcesPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
+const FAQPage = lazy(() => import('./pages/FAQPage'));
 
 // Special Pages
 const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
@@ -557,6 +558,16 @@ function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <ProgramPage />
+                        </Suspense>
+                      }
+                    />
+
+                    {/* FAQ Page - Common Questions */}
+                    <Route
+                      path="/faq"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <FAQPage />
                         </Suspense>
                       }
                     />
