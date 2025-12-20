@@ -518,6 +518,14 @@ function App() {
                         </Suspense>
                       }
                     />
+                    <Route
+                      path="/home"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <LandingPage />
+                        </Suspense>
+                      }
+                    />
 
                     {/* 2. Assessment Page - Diagnostic Tools */}
                     <Route
