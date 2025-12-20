@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback, memo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { brandPurple, brandCyan, brandPink, colors, radius, spacing, typography, transitions } from './styles';
 import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon } from './Icons';
 import BrainLogo from './BrainLogo';
@@ -99,9 +99,11 @@ const Header = memo(function Header() {
   const { mode: visitorMode, config: visitorConfig } = useVisitorMode();
   const { isMobile, isTablet } = useBreakpoints();
   const location = useLocation();
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [loginRedirect, setLoginRedirect] = useState<string | null>(null);
 
   // Get sorted nav items based on visitor mode
   const sortedNavItems = useMemo(() => getSortedNavItems(visitorMode), [visitorMode]);
@@ -129,6 +131,28 @@ const Header = memo(function Header() {
 
   const openLoginModal = useCallback(() => setIsLoginModalOpen(true), []);
   const closeLoginModal = useCallback(() => setIsLoginModalOpen(false), []);
+
+  useEffect(() => {
+    if (isAuthenticated) return;
+    const params = new URLSearchParams(location.search);
+    if (params.get('login') !== '1') return;
+    const next = params.get('next');
+    if (next && next.startsWith('/')) {
+      setLoginRedirect(next);
+    }
+    openLoginModal();
+    params.delete('login');
+    params.delete('next');
+    const search = params.toString();
+    navigate({ pathname: location.pathname, search: search ? `?${search}` : '' }, { replace: true });
+  }, [isAuthenticated, location.pathname, location.search, navigate, openLoginModal]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !loginRedirect) return;
+    const target = loginRedirect;
+    setLoginRedirect(null);
+    navigate(target);
+  }, [isAuthenticated, loginRedirect, navigate]);
 
   // Close mobile menu when switching to desktop or route changes
   useEffect(() => {
