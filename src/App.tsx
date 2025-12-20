@@ -42,6 +42,9 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const SchoolDashboard = lazy(() => import('./components/analytics/SchoolDashboard'));
 const ParentDashboard = lazy(() => import('./components/analytics/ParentDashboard'));
 const ClinicianDashboard = lazy(() => import('./components/analytics/ClinicianDashboard'));
+const ParentRoleDashboard = lazy(() => import('./pages/ParentDashboard'));
+const EducatorDashboard = lazy(() => import('./pages/EducatorDashboard'));
+const ClinicianRoleDashboard = lazy(() => import('./pages/ClinicianDashboard'));
 const SettingsPage = lazy(() => import('./components/SettingsPage'));
 const DebugSessionPage = import.meta.env.DEV ? lazy(() => import('./pages/DebugSessionPage')) : null;
 
@@ -632,6 +635,30 @@ function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <ClinicianDashboard />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/parent"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ParentRoleDashboard />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/educator"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <EducatorDashboard />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/clinician"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ClinicianRoleDashboard />
                         </Suspense>
                       }
                     />

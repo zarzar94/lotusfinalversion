@@ -33,6 +33,9 @@ const ROUTE_BREADCRUMBS: Record<string, BreadcrumbItem> = {
   '/school-dashboard': { label: 'School Dashboard', labelAr: 'لوحة المدرسة', path: '/school-dashboard', icon: '🏫' },
   '/parent-dashboard': { label: 'Parent Dashboard', labelAr: 'لوحة الأولياء', path: '/parent-dashboard', icon: '👨‍👩‍👧' },
   '/clinician-dashboard': { label: 'Clinician Dashboard', labelAr: 'لوحة الأخصائي', path: '/clinician-dashboard', icon: '🏥' },
+  '/dashboard/parent': { label: 'Parent Dashboard', labelAr: 'لوحة أولياء الأمور', path: '/dashboard/parent' },
+  '/dashboard/educator': { label: 'Educator Dashboard', labelAr: 'لوحة المعلم', path: '/dashboard/educator' },
+  '/dashboard/clinician': { label: 'Clinician Dashboard', labelAr: 'لوحة الأخصائي', path: '/dashboard/clinician' },
   '/settings': { label: 'Settings', labelAr: 'الإعدادات', path: '/settings', icon: '⚙️' },
 };
 

@@ -23,6 +23,9 @@ const ROUTE_NAMES: Record<string, string> = {
   '/school-dashboard': 'School Dashboard',
   '/parent-dashboard': 'Parent Dashboard',
   '/clinician-dashboard': 'Clinician Dashboard',
+  '/dashboard/parent': 'Parent Dashboard (Role)',
+  '/dashboard/educator': 'Educator Dashboard',
+  '/dashboard/clinician': 'Clinician Dashboard (Role)',
   '/settings': 'Settings',
 };
 

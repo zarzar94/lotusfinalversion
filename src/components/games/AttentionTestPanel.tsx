@@ -575,7 +575,7 @@ function AttentionMain({ audioRef, noiseRef, onDone }: SharedAudioProps & { onDo
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
             <div>
               <div style={{ fontWeight: 900 }}>OU,O¦U,O_U.: {trialIndex}/{TOTAL} ({progressPct}%)</div>
-              <div style={styles.muted}>OOO§Oú U?U,Oú O1U+O_ O3U.OO1 OU,U+O§U.Oc OU,O1OU,USOc OªO_OU<.</div>
+              <div style={styles.muted}>OOO§Oú U?U,Oú O1U+O_ O3U.OO1 OU,U+O§U.Oc OU,O1OU,USOc OªO_OU&lt;.</div>
             </div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
               <span style={styles.chip}>Hits ƒo. {hits}</span>

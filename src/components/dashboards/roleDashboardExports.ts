@@ -1,19 +1,12 @@
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../../utils/pdf';
 import type { LabModuleMetrics } from '../../types/moduleMetrics';
+import { downloadBlob } from '../games/report';
 import {
   getBandMeta,
   getModuleLabel,
   formatTimestamp,
   sortSessionsByTime,
 } from './roleDashboardUtils';
-
-const downloadBlob = (blob: Blob, filename: string) => {
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(link.href);
-};
 
 const escapeCsv = (value: string | number | null | undefined) => {
   if (value === null || value === undefined) return '';
@@ -227,4 +220,3 @@ export const downloadClinicianReportPdf = async ({
 
   doc.save(isArabic ? 'تقرير-الأخصائي.pdf' : 'clinician-report.pdf');
 };
-

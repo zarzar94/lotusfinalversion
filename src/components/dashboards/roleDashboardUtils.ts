@@ -93,6 +93,11 @@ export const getLatestSession = (sessions: LabModuleMetrics[]) => {
   return sorted[sorted.length - 1] ?? null;
 };
 
+export const average = (values: number[]) => {
+  if (!values.length) return 0;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+};
+
 export const getLatestByModule = (sessions: LabModuleMetrics[]) => {
   const grouped: Record<string, LabModuleMetrics[]> = {};
   sessions.forEach((session) => {
@@ -108,6 +113,12 @@ export const getLatestByModule = (sessions: LabModuleMetrics[]) => {
     latest[moduleId] = list[list.length - 1] ?? null;
   });
   return latest;
+};
+
+export const normalizeFatigue01 = (value?: number | null) => {
+  if (value === null || value === undefined || !Number.isFinite(value)) return null;
+  const normalized = value > 1 ? value / 100 : value;
+  return clamp01(normalized);
 };
 
 export const computeSlope = (values: number[]) => {
@@ -140,3 +151,69 @@ export const buildScoreTrendSeries = (
 
 export const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 
+export const bandToValue = (band: LabModuleMetrics['band']) => {
+  if (band === 'high') return 3;
+  if (band === 'mid') return 2;
+  return 1;
+};
+
+export const buildBandTrendSeries = (sessions: LabModuleMetrics[], locale: string) => {
+  return sessions.map((session) => ({
+    label: formatShortDate(session.timestamp, locale),
+    value: bandToValue(session.band),
+    color: BAND_META[session.band]?.color ?? brandPurple,
+  }));
+};
+
+export const buildFatigueTrendSeries = (sessions: LabModuleMetrics[], locale: string) => {
+  return sessions
+    .map((session) => ({
+      session,
+      normalized: normalizeFatigue01(session.fatigueIndex),
+    }))
+    .filter((entry) => entry.normalized !== null)
+    .map((entry) => ({
+      label: formatShortDate(entry.session.timestamp, locale),
+      value: Math.round((entry.normalized ?? 0) * 100),
+      color: brandPink,
+    }));
+};
+
+export const buildConsistencyTrendSeries = (sessions: LabModuleMetrics[], locale: string) => {
+  return sessions
+    .filter((session) => typeof session.consistency === 'number')
+    .map((session) => ({
+      label: formatShortDate(session.timestamp, locale),
+      value: Math.round(session.consistency ?? 0),
+      color: brandCyan,
+    }));
+};
+
+const extractDirectionalValues = (rawMetrics: Record<string, number>) => {
+  const left: number[] = [];
+  const right: number[] = [];
+  Object.entries(rawMetrics).forEach(([key, value]) => {
+    const lower = key.toLowerCase();
+    if (lower.includes('left')) left.push(value);
+    if (lower.includes('right')) right.push(value);
+  });
+  return { left, right };
+};
+
+export const getLatestLeftRightSplit = (sessions: LabModuleMetrics[]) => {
+  const sorted = sortSessionsByTime(sessions);
+  for (let i = sorted.length - 1; i >= 0; i -= 1) {
+    const session = sorted[i];
+    const { left, right } = extractDirectionalValues(session.rawMetrics);
+    if (left.length || right.length) {
+      const leftAvg = left.length ? Math.round(average(left)) : null;
+      const rightAvg = right.length ? Math.round(average(right)) : null;
+      return {
+        session,
+        leftAvg,
+        rightAvg,
+      };
+    }
+  }
+  return null;
+};

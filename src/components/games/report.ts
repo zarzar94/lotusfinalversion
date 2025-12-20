@@ -4,7 +4,7 @@ import { translations } from '../../i18n/translations';
 import type { Language } from '../../context/LanguageContext';
 import { AssessmentSession, TestOutcome, TestKey } from './types';
 
-const downloadBlob = (blob: Blob, filename: string) => {
+export const downloadBlob = (blob: Blob, filename: string) => {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = filename;
@@ -12,7 +12,7 @@ const downloadBlob = (blob: Blob, filename: string) => {
   URL.revokeObjectURL(a.href);
 };
 
-const safeJson = (value: unknown) => {
+export const safeJson = (value: unknown) => {
   try {
     return JSON.stringify(value);
   } catch {
