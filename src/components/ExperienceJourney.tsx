@@ -135,7 +135,7 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
       aria-labelledby="journey-title"
       style={{
         position: 'relative',
-        margin: `${spacing[10]}px auto`,
+        margin: `0 auto ${spacing[10]}px`,
         padding: `${spacing[10]}px ${spacing[4]}px`,
         maxWidth: 1200,
       }}

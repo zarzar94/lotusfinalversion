@@ -8,7 +8,7 @@ interface LanguageContextType {
   direction: Direction;
   setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
-  t: (key: string, fallback?: string) => string;
+  t: <T = string>(key: string, fallback?: T) => T;
   isArabic: boolean;
   isEnglish: boolean;
   // Language-aware utilities
@@ -35,7 +35,7 @@ const LanguageContext = createContext<LanguageContextType | null>(null);
 // Import translations
 import { translations } from '../i18n/translations';
 
-function getNestedValue(obj: Record<string, unknown>, path: string): string {
+function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
   const keys = path.split('.');
   let current: unknown = obj;
 
@@ -43,11 +43,11 @@ function getNestedValue(obj: Record<string, unknown>, path: string): string {
     if (current && typeof current === 'object' && key in current) {
       current = (current as Record<string, unknown>)[key];
     } else {
-      return path; // Return key if not found
+      return undefined;
     }
   }
 
-  return typeof current === 'string' ? current : path;
+  return current;
 }
 
 // Detect if this is the user's first visit
@@ -127,11 +127,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLanguageState(prev => prev === 'ar' ? 'en' : 'ar');
   }, []);
 
-  const t = useCallback((key: string, fallback?: string): string => {
+  const t = useCallback(<T,>(key: string, fallback?: T): T => {
     const langTranslations = translations[language];
     const value = getNestedValue(langTranslations as Record<string, unknown>, key);
-    if (value === key && fallback) return fallback;
-    return value;
+    if (value === undefined) {
+      return fallback ?? (key as unknown as T);
+    }
+    return value as T;
   }, [language]);
 
   // Language-aware CSS utilities

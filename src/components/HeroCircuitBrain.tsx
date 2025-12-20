@@ -16,6 +16,8 @@ import { BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
 import { useLanguage } from '../context/LanguageContext';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import { ClipboardIcon, HeadphonesIcon, MessageIcon, SparklesIcon, UsersIcon } from './Icons';
+import ExpectedBenefitsModal from './ExpectedBenefitsModal';
+import TestimonialsModal from './TestimonialsModal';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -45,6 +47,18 @@ type Particle = {
   color: string;
   size: number;
   speed: number;
+};
+
+type HeroCircuitBrainProps = {
+  onOpenCertifications?: () => void;
+};
+
+type PlatformFeature = {
+  icon: JSX.Element;
+  title: string;
+  desc: string;
+  color: string;
+  onClick?: () => void;
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -457,7 +471,7 @@ InfoModal.displayName = 'InfoModal';
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════
 
-const HeroCircuitBrain = memo(function HeroCircuitBrain() {
+const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }: HeroCircuitBrainProps) {
   const { isArabic, direction } = useLanguage();
   const navigate = useNavigate();
   const text = isArabic ? heroText.ar : heroText.en;
@@ -471,6 +485,12 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
   const reducedMotion = usePrefersReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
   const [tooltipNode, setTooltipNode] = useState<BrainFunction | null>(null);
+  const [showExpectedBenefits, setShowExpectedBenefits] = useState(false);
+  const openExpectedBenefits = useCallback(() => setShowExpectedBenefits(true), []);
+  const closeExpectedBenefits = useCallback(() => setShowExpectedBenefits(false), []);
+  const [showTestimonials, setShowTestimonials] = useState(false);
+  const openTestimonials = useCallback(() => setShowTestimonials(true), []);
+  const closeTestimonials = useCallback(() => setShowTestimonials(false), []);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
@@ -650,38 +670,51 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
     .status-dot {
       animation: ${reducedMotion ? 'none' : 'statusPulse 2s ease-in-out infinite'};
     }
+    .platform-feature-card[data-clickable="true"] {
+      cursor: pointer;
+    }
+    .platform-feature-card[data-clickable="true"]:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    }
+    .platform-feature-card[data-clickable="true"]:focus-visible {
+      outline: 2px solid ${brandCyan};
+      outline-offset: 3px;
+    }
   `, [reducedMotion]);
 
   // Platform feature cards data
-  const platformFeatures = isArabic ? [
+  const platformFeatures: PlatformFeature[] = isArabic ? [
     {
       icon: <HeadphonesIcon size={24} color={brandCyan} />,
-      title: 'مختبر الصوت',
-      desc: 'تجارب سمعية تفاعلية',
+      title: '????? ?????',
+      desc: '????? ????? ???????',
       color: brandCyan,
     },
     {
       icon: <UsersIcon size={24} color={brandPurple} />,
-      title: 'الشركاء',
-      desc: 'شبكة مدارس وعيادات',
+      title: '???????',
+      desc: '???? ????? ???????',
       color: brandPurple,
     },
     {
       icon: <MessageIcon size={24} color={brandPink} />,
-      title: 'الشهادات',
-      desc: 'قصص نجاح موثقة',
+      title: '????????',
+      desc: '??? ???? ?????',
       color: brandPink,
+      onClick: openTestimonials,
     },
     {
       icon: <SparklesIcon size={24} color="#22c55e" />,
-      title: 'الفوائد المتوقعة',
-      desc: 'تحسنات يمكن ملاحظتها',
+      title: '??????? ????????',
+      desc: '?????? ???? ????????',
       color: '#22c55e',
+      onClick: openExpectedBenefits,
     },
     {
       icon: <ClipboardIcon size={24} color="#f59e0b" />,
-      title: 'البروتوكول',
-      desc: '20 جلسة بخطة واضحة',
+      title: '????????',
+      desc: '20 ???? ???? ?????',
       color: '#f59e0b',
     },
   ] : [
@@ -702,12 +735,14 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
       title: 'Testimonials',
       desc: 'Verified success stories',
       color: brandPink,
+      onClick: openTestimonials,
     },
     {
       icon: <SparklesIcon size={24} color="#22c55e" />,
       title: 'Expected Benefits',
       desc: 'Measurable improvements',
       color: '#22c55e',
+      onClick: openExpectedBenefits,
     },
     {
       icon: <ClipboardIcon size={24} color="#f59e0b" />,
@@ -868,31 +903,47 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
             gap: spacing[3],
             marginTop: spacing[2],
           }}>
-            {platformFeatures.map((feature, i) => (
-              <div
-                key={i}
-                style={{
-                  padding: spacing[3],
-                  background: `linear-gradient(135deg, ${feature.color}10, transparent)`,
-                  border: `1px solid ${feature.color}25`,
-                  borderRadius: radius.lg,
-                  textAlign: 'center',
-                  transition: transitions.normal,
-                }}
-              >
-                <div style={{ fontSize: 24, marginBottom: spacing[1.5] }}>{feature.icon}</div>
-                <div style={{
-                  fontSize: typography.size.sm,
-                  fontWeight: typography.weight.bold,
-                  color: feature.color,
-                }}>{feature.title}</div>
-                <div style={{
-                  fontSize: typography.size.xs,
-                  color: colors.text.muted,
-                  marginTop: 2,
-                }}>{feature.desc}</div>
-              </div>
-            ))}
+            {platformFeatures.map((feature, i) => {
+              const isClickable = Boolean(feature.onClick);
+
+              return (
+                <div
+                  key={i}
+                  role={isClickable ? 'button' : undefined}
+                  tabIndex={isClickable ? 0 : undefined}
+                  aria-label={isClickable ? feature.title : undefined}
+                  onClick={feature.onClick}
+                  onKeyDown={isClickable ? (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      feature.onClick?.();
+                    }
+                  } : undefined}
+                  className="platform-feature-card"
+                  data-clickable={isClickable ? 'true' : 'false'}
+                  style={{
+                    padding: spacing[3],
+                    background: `linear-gradient(135deg, ${feature.color}10, transparent)`,
+                    border: `1px solid ${feature.color}25`,
+                    borderRadius: radius.lg,
+                    textAlign: 'center',
+                    transition: transitions.normal,
+                  }}
+                >
+                  <div style={{ fontSize: 24, marginBottom: spacing[1.5] }}>{feature.icon}</div>
+                  <div style={{
+                    fontSize: typography.size.sm,
+                    fontWeight: typography.weight.bold,
+                    color: feature.color,
+                  }}>{feature.title}</div>
+                  <div style={{
+                    fontSize: typography.size.xs,
+                    color: colors.text.muted,
+                    marginTop: 2,
+                  }}>{feature.desc}</div>
+                </div>
+              );
+            })}
           </div>
 
           {/* CTA Buttons */}
@@ -1864,6 +1915,8 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
 
       {/* Info Modal */}
       <InfoModal node={activeNode} onClose={closeModal} isArabic={isArabic} />
+      <ExpectedBenefitsModal open={showExpectedBenefits} onClose={closeExpectedBenefits} />
+      <TestimonialsModal open={showTestimonials} onClose={closeTestimonials} />
     </section>
   );
 });

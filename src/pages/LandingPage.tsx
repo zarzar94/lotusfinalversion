@@ -3,7 +3,7 @@
  * Clean, focused entry point to the platform
  */
 
-import { lazy, Suspense, memo } from 'react';
+import { lazy, Suspense, memo, useCallback, useEffect, useState } from 'react';
 import Header from '../components/Header';
 import BackgroundFX from '../components/BackgroundFX';
 import HeroCircuitBrain from '../components/HeroCircuitBrain';
@@ -29,6 +29,27 @@ const TrustSignals = lazy(() => import('../components/TrustSignals'));
 
 function LandingPage() {
   const { isArabic } = useLanguage();
+  const [isCertificationsOpen, setIsCertificationsOpen] = useState(false);
+
+  const openCertifications = useCallback(() => setIsCertificationsOpen(true), []);
+  const closeCertifications = useCallback(() => setIsCertificationsOpen(false), []);
+
+  useEffect(() => {
+    if (!isCertificationsOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeCertifications();
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isCertificationsOpen, closeCertifications]);
   useClinicalSync();
   usePageTitle();
 
@@ -40,14 +61,7 @@ function LandingPage() {
       <main style={styles.container}>
         {/* HERO - Interactive Brain Dashboard */}
         <FadeIn duration={1000} scale blur blurAmount={8}>
-          <HeroCircuitBrain />
-        </FadeIn>
-
-        {/* Credentials Banner - Trust signals */}
-        <FadeIn delay={200} direction="none" scale scaleFrom={0.98}>
-          <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={100} />}>
-            <CredentialsBanner />
-          </Suspense>
+          <HeroCircuitBrain onOpenCertifications={openCertifications} />
         </FadeIn>
 
         {/* Guided journey section */}
@@ -89,6 +103,58 @@ function LandingPage() {
 
       <WhatsAppFab />
       <ScrollToTopButton />
+
+      {isCertificationsOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={isArabic ? 'الاعتمادات والشهادات' : 'Certifications & Credentials'}
+          onClick={closeCertifications}
+          style={{
+            ...styles.modalBackdrop,
+            zIndex: 1000,
+            background: 'rgba(5,6,13,0.88)',
+            backdropFilter: 'blur(10px)',
+          }}
+        >
+          <div
+            onClick={(event) => event.stopPropagation()}
+            style={{
+              ...styles.modal,
+              maxWidth: 1100,
+              width: '100%',
+              padding: 0,
+              background: 'transparent',
+              border: 'none',
+            }}
+          >
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={closeCertifications}
+                aria-label={isArabic ? 'إغلاق' : 'Close'}
+                style={{
+                  position: 'absolute',
+                  top: 12,
+                  [isArabic ? 'left' : 'right']: 12,
+                  zIndex: 2,
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  background: 'rgba(0,0,0,0.4)',
+                  color: '#fff',
+                  cursor: 'pointer',
+                }}
+              >
+                X
+              </button>
+              <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={200} />}>
+                <CredentialsBanner />
+              </Suspense>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
