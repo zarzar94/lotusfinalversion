@@ -545,6 +545,16 @@ function App() {
                       }
                     />
 
+                    {/* 3. Program Page - Treatment Protocol */}
+                    <Route
+                      path="/program"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ProgramPage />
+                        </Suspense>
+                      }
+                    />
+
                     <Route element={<RequireAuth />}>
                     {/* 2. Assessment Page - Diagnostic Tools */}
                     <Route
@@ -552,16 +562,6 @@ function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <AssessmentPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* 3. Program Page - Treatment Protocol */}
-                    <Route
-                      path="/program"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ProgramPage />
                         </Suspense>
                       }
                     />

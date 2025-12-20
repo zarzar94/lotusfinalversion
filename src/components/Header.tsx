@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useCallback, memo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { brandPurple, brandCyan, brandPink, colors, radius, spacing, typography, transitions } from './styles';
-import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon } from './Icons';
+import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon, HomeIcon } from './Icons';
 import BrainLogo from './BrainLogo';
 import LanguageToggle from './LanguageToggle';
 import ModeSwitcher from './ModeSwitcher';
@@ -30,7 +30,7 @@ const NAV_ITEMS: NavItem[] = [
     id: 'home',
     translationKey: 'nav.home',
     path: '/',
-    icon: 'dY?ÿ',
+    icon: <HomeIcon size={16} />,
     color: brandCyan,
     priority: { school: 0, parent: 0, clinician: 0 },
   },
@@ -112,12 +112,22 @@ const Header = memo(function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginRedirect, setLoginRedirect] = useState<string | null>(null);
+  const handleHomeClick = useCallback(() => {
+    if (location.pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [location.pathname]);
 
   // Get sorted nav items based on visitor mode
   const sortedNavItems = useMemo(() => getSortedNavItems(visitorMode), [visitorMode]);
   const visibleNavItems = useMemo(() => {
-    if (isAuthenticated) return sortedNavItems.filter((item) => item.id !== 'home');
-    return sortedNavItems.filter((item) => item.id === 'home' || item.id === 'program' || item.id === 'about');
+    if (isAuthenticated) return sortedNavItems;
+    return sortedNavItems.filter((item) => (
+      item.id === 'home'
+      || item.id === 'program'
+      || item.id === 'about'
+      || item.id === 'contact'
+    ));
   }, [isAuthenticated, sortedNavItems]);
 
   // Check if current path matches nav item
@@ -393,6 +403,7 @@ const Header = memo(function Header() {
                   key={item.id}
                   to={item.path}
                   className={`nav-link ${isActive ? 'active' : ''}`}
+                  onClick={item.id === 'home' ? handleHomeClick : undefined}
                   style={{
                     position: 'relative',
                     display: 'flex',
@@ -594,6 +605,10 @@ const Header = memo(function Header() {
           {/* Home Link */}
           <Link
             to="/"
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              handleHomeClick();
+            }}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -623,7 +638,7 @@ const Header = memo(function Header() {
               justifyContent: 'center',
               fontSize: 18,
             }}>
-              🏠
+              <HomeIcon size={18} />
             </span>
             {t('nav.home')}
           </Link>
@@ -694,7 +709,7 @@ const Header = memo(function Header() {
                 }}>
                   {item.icon}
                 </span>
-                {isArabic ? item.labelAr : item.label}
+                {t(item.translationKey)}
                 {isActive && (
                   <span style={{
                     marginRight: isArabic ? 'auto' : 0,
