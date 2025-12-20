@@ -1107,3 +1107,601 @@ export const checkGameAchievements = (
 ): GameAchievement[] => {
   return GAME_ACHIEVEMENTS.filter(a => a.condition(outcomes));
 };
+
+// ==================== TYPE-SAFE TEST KEYS ====================
+
+/**
+ * Valid test identifiers used throughout the scoring system.
+ * Using this type instead of raw strings provides better type safety.
+ *
+ * @typedef {'attention'|'frequency'|'sequence'|'questionnaire'|'headphone'} TestKey
+ */
+export type TestKey = 'attention' | 'frequency' | 'sequence' | 'questionnaire' | 'headphone';
+
+/**
+ * Array of all valid test keys for iteration.
+ * @constant {readonly TestKey[]}
+ */
+export const TEST_KEYS: readonly TestKey[] = ['attention', 'frequency', 'sequence', 'questionnaire', 'headphone'] as const;
+
+/**
+ * Clinical test keys (excludes questionnaire and headphone check).
+ * These are the tests that contribute to the composite score.
+ * @constant {readonly TestKey[]}
+ */
+export const CLINICAL_TEST_KEYS: readonly TestKey[] = ['attention', 'frequency', 'sequence'] as const;
+
+// ==================== OPTIMIZED SESSION CACHE ====================
+
+/**
+ * Simple in-memory cache for session data to avoid repeated localStorage reads.
+ * Cache is invalidated on any write operation.
+ */
+let _sessionCache: StoredSession[] | null = null;
+let _sessionCacheTime = 0;
+const SESSION_CACHE_TTL = 5000; // 5 seconds
+
+/**
+ * Retrieves sessions with in-memory caching for better performance.
+ *
+ * This optimized version caches the parsed sessions for 5 seconds,
+ * reducing JSON.parse overhead when multiple functions access sessions
+ * in rapid succession (e.g., checking achievements + analyzing progress).
+ *
+ * @returns {StoredSession[]} Cached or freshly loaded sessions
+ *
+ * @example
+ * // These calls within 5 seconds use cached data
+ * const trend1 = analyzeProgressCached('attention');
+ * const trend2 = analyzeProgressCached('frequency');
+ * const trend3 = analyzeProgressCached('sequence');
+ */
+export const getSessionsCached = (): StoredSession[] => {
+  const now = Date.now();
+  if (_sessionCache && (now - _sessionCacheTime) < SESSION_CACHE_TTL) {
+    return _sessionCache;
+  }
+  _sessionCache = getSessions();
+  _sessionCacheTime = now;
+  return _sessionCache;
+};
+
+/**
+ * Invalidates the session cache.
+ * Call this after saving a new session to ensure fresh data.
+ */
+export const invalidateSessionCache = (): void => {
+  _sessionCache = null;
+  _sessionCacheTime = 0;
+};
+
+/**
+ * Saves a session and invalidates the cache.
+ * Use this instead of saveSession for cache-aware operations.
+ *
+ * @param {StoredSession} session - The session to save
+ */
+export const saveSessionCached = (session: StoredSession): void => {
+  saveSession(session);
+  invalidateSessionCache();
+};
+
+// ==================== BATCH PROGRESS ANALYSIS ====================
+
+/**
+ * Analyzes progress trends for all clinical tests in a single call.
+ *
+ * More efficient than calling analyzeProgress() multiple times because
+ * sessions are loaded only once from localStorage/cache.
+ *
+ * @param {StoredSession[]} [sessions] - Optional pre-loaded sessions (uses cache if not provided)
+ * @returns {Map<TestKey, ProgressTrend>} Map of test keys to their progress trends
+ *
+ * @example
+ * const allTrends = analyzeAllProgress();
+ * for (const [testKey, trend] of allTrends) {
+ *   console.log(`${testKey}: ${trend.trend} (${trend.improvement}%)`);
+ * }
+ */
+export const analyzeAllProgress = (
+  sessions?: StoredSession[]
+): Map<TestKey, ProgressTrend> => {
+  const data = sessions ?? getSessionsCached();
+  const results = new Map<TestKey, ProgressTrend>();
+
+  for (const testKey of CLINICAL_TEST_KEYS) {
+    const relevantSessions = data
+      .filter(s => s.outcomes[testKey])
+      .map(s => ({
+        date: s.date,
+        result: s.outcomes[testKey]!.result,
+        score: extractNumericScore(s.outcomes[testKey]!.scoreLabel),
+      }))
+      .reverse();
+
+    if (relevantSessions.length < 2) continue;
+
+    const first = relevantSessions[0];
+    const last = relevantSessions[relevantSessions.length - 1];
+    const improvement = first.score > 0
+      ? ((last.score - first.score) / first.score) * 100
+      : 0;
+
+    const resultScores = { high: 3, medium: 2, low: 1 };
+    const bestResult = relevantSessions.reduce((best, s) =>
+      resultScores[s.result] > resultScores[best] ? s.result : best,
+      'low' as GameResult
+    );
+
+    const averageScore = relevantSessions.reduce((sum, s) => sum + s.score, 0) / relevantSessions.length;
+
+    let trend: 'improving' | 'stable' | 'declining';
+    if (improvement > 10) trend = 'improving';
+    else if (improvement < -10) trend = 'declining';
+    else trend = 'stable';
+
+    results.set(testKey, {
+      testKey,
+      sessions: relevantSessions,
+      improvement: Math.round(improvement),
+      trend,
+      bestResult,
+      averageScore: Math.round(averageScore),
+    });
+  }
+
+  return results;
+};
+
+// ==================== SCORE CALCULATION HELPERS ====================
+
+/**
+ * Calculates the total points for an attention test trial.
+ *
+ * Convenience function that applies all relevant bonuses and penalties
+ * based on the response type, reaction time, and combo state.
+ *
+ * @param {Object} params - Trial parameters
+ * @param {'hit'|'miss'|'fa'|'cr'} params.responseType - The response classification
+ * @param {number} [params.rtMs] - Reaction time in milliseconds (for speed bonus)
+ * @param {number} [params.speedThreshold=500] - RT threshold for speed bonus (default 500ms)
+ * @param {number} [params.multiplier=1] - Combo multiplier to apply
+ * @returns {number} Total points for this trial
+ *
+ * @example
+ * const points = calculateAttentionTrialPoints({
+ *   responseType: 'hit',
+ *   rtMs: 380,
+ *   speedThreshold: 500,
+ *   multiplier: 1.5
+ * });
+ * // Returns: (100 + 25) * 1.5 = 187.5 -> 188
+ */
+export const calculateAttentionTrialPoints = (params: {
+  responseType: 'hit' | 'miss' | 'fa' | 'cr';
+  rtMs?: number;
+  speedThreshold?: number;
+  multiplier?: number;
+}): number => {
+  const { responseType, rtMs, speedThreshold = 500, multiplier = 1 } = params;
+
+  let basePoints: number;
+  switch (responseType) {
+    case 'hit':
+      basePoints = ATTENTION_POINTS.hit;
+      // Apply speed bonus for fast hits
+      if (rtMs && rtMs < speedThreshold) {
+        basePoints += ATTENTION_POINTS.speedBonus;
+      }
+      break;
+    case 'cr':
+      basePoints = ATTENTION_POINTS.correctReject;
+      break;
+    case 'fa':
+      basePoints = ATTENTION_POINTS.falseAlarm;
+      break;
+    case 'miss':
+      basePoints = ATTENTION_POINTS.miss;
+      break;
+  }
+
+  return Math.round(basePoints * multiplier);
+};
+
+/**
+ * Calculates total points for a frequency discrimination trial.
+ *
+ * @param {Object} params - Trial parameters
+ * @param {boolean} params.correct - Whether the response was correct
+ * @param {number} [params.deltaHz] - Frequency difference in Hz (for hard difficulty bonus)
+ * @returns {number} Total points for this trial
+ *
+ * @example
+ * const points = calculateFrequencyTrialPoints({ correct: true, deltaHz: 25 });
+ * // Returns: 100 + 50 = 150 (includes hard difficulty bonus)
+ */
+export const calculateFrequencyTrialPoints = (params: {
+  correct: boolean;
+  deltaHz?: number;
+}): number => {
+  const { correct, deltaHz } = params;
+
+  if (!correct) {
+    return FREQUENCY_POINTS.incorrect;
+  }
+
+  let points = FREQUENCY_POINTS.correct;
+  if (deltaHz !== undefined && deltaHz < 30) {
+    points += FREQUENCY_POINTS.hardDifficultyBonus;
+  }
+
+  return points;
+};
+
+/**
+ * Calculates total points for a sequencing trial.
+ *
+ * @param {Object} params - Trial parameters
+ * @param {boolean} params.correct - Whether the sequence was reproduced correctly
+ * @param {number} params.span - Current span length
+ * @param {boolean} [params.usedReplay=false] - Whether replay was used
+ * @param {boolean} [params.isPerfectRound=false] - Whether this completes a perfect round
+ * @returns {number} Total points for this trial
+ *
+ * @example
+ * const points = calculateSequenceTrialPoints({
+ *   correct: true,
+ *   span: 5,
+ *   usedReplay: false,
+ *   isPerfectRound: true
+ * });
+ * // Returns: 150 + 50 + 100 + 200 = 500
+ */
+export const calculateSequenceTrialPoints = (params: {
+  correct: boolean;
+  span: number;
+  usedReplay?: boolean;
+  isPerfectRound?: boolean;
+}): number => {
+  const { correct, span, usedReplay = false, isPerfectRound = false } = params;
+
+  if (!correct) {
+    return SEQUENCE_POINTS.wrongSequence;
+  }
+
+  let points = SEQUENCE_POINTS.correctSequence;
+
+  if (!usedReplay) {
+    points += SEQUENCE_POINTS.noReplayBonus;
+  }
+
+  if (span >= 4) {
+    points += SEQUENCE_POINTS.longSpanBonus;
+  }
+
+  if (isPerfectRound) {
+    points += SEQUENCE_POINTS.perfectRoundBonus;
+  }
+
+  return points;
+};
+
+// ==================== ACHIEVEMENT PROGRESS ====================
+
+/**
+ * Represents progress toward an achievement.
+ */
+export interface AchievementProgress {
+  achievement: GameAchievement;
+  unlocked: boolean;
+  /** Progress percentage (0-100). 100 means unlocked. */
+  progress: number;
+  /** Human-readable progress description */
+  progressLabel: string;
+}
+
+/**
+ * Calculates progress toward each achievement based on current outcomes.
+ *
+ * This is useful for displaying achievement progress in UI, showing users
+ * how close they are to unlocking each achievement.
+ *
+ * @param {Partial<Record<string, TestOutcome>>} outcomes - Current session outcomes
+ * @returns {AchievementProgress[]} Array of progress for each achievement
+ *
+ * @example
+ * const progress = getAchievementProgress(outcomes);
+ * progress.forEach(p => {
+ *   console.log(`${p.achievement.icon} ${p.achievement.title}: ${p.progress}%`);
+ *   if (!p.unlocked) {
+ *     console.log(`  ${p.progressLabel}`);
+ *   }
+ * });
+ */
+export const getAchievementProgress = (
+  outcomes: Partial<Record<string, TestOutcome>>
+): AchievementProgress[] => {
+  return GAME_ACHIEVEMENTS.map(achievement => {
+    const unlocked = achievement.condition(outcomes);
+
+    if (unlocked) {
+      return {
+        achievement,
+        unlocked: true,
+        progress: 100,
+        progressLabel: 'Unlocked!',
+      };
+    }
+
+    // Calculate progress based on achievement type
+    let progress = 0;
+    let progressLabel = '';
+
+    switch (achievement.id) {
+      case 'sharp_ears': {
+        const result = outcomes.frequency?.result;
+        if (result === 'medium') {
+          progress = 66;
+          progressLabel = 'Achieve High (currently Medium)';
+        } else if (result === 'low') {
+          progress = 33;
+          progressLabel = 'Achieve High (currently Low)';
+        } else {
+          progress = 0;
+          progressLabel = 'Complete frequency test with High score';
+        }
+        break;
+      }
+      case 'focused_mind': {
+        const result = outcomes.attention?.result;
+        if (result === 'medium') {
+          progress = 66;
+          progressLabel = 'Achieve High (currently Medium)';
+        } else if (result === 'low') {
+          progress = 33;
+          progressLabel = 'Achieve High (currently Low)';
+        } else {
+          progress = 0;
+          progressLabel = 'Complete attention test with High score';
+        }
+        break;
+      }
+      case 'memory_master': {
+        const span = outcomes.sequence?.metrics?.maxSpan;
+        if (typeof span === 'number') {
+          progress = Math.min(100, (span / 5) * 100);
+          progressLabel = `Reach span 5 (currently ${span})`;
+        } else {
+          progress = 0;
+          progressLabel = 'Complete sequencing test with span 5+';
+        }
+        break;
+      }
+      case 'triple_crown': {
+        const scores = { high: 1, medium: 0.5, low: 0 };
+        let sum = 0;
+        if (outcomes.attention?.result) sum += scores[outcomes.attention.result];
+        if (outcomes.frequency?.result) sum += scores[outcomes.frequency.result];
+        if (outcomes.sequence?.result) sum += scores[outcomes.sequence.result];
+        progress = Math.round((sum / 3) * 100);
+        progressLabel = 'Achieve High in all three tests';
+        break;
+      }
+      case 'speed_demon': {
+        const rt = outcomes.attention?.metrics?.avgReactionMs;
+        if (typeof rt === 'number') {
+          // Progress from 600ms to 400ms
+          progress = Math.min(100, Math.max(0, ((600 - rt) / 200) * 100));
+          progressLabel = `Achieve <400ms (currently ${Math.round(rt)}ms)`;
+        } else {
+          progress = 0;
+          progressLabel = 'Complete attention test with avg RT <400ms';
+        }
+        break;
+      }
+      case 'perfect_sequence': {
+        const acc = outcomes.sequence?.metrics?.accuracyPct;
+        if (typeof acc === 'number') {
+          progress = acc;
+          progressLabel = `Achieve 100% accuracy (currently ${acc}%)`;
+        } else {
+          progress = 0;
+          progressLabel = 'Complete sequencing test with 100% accuracy';
+        }
+        break;
+      }
+      default:
+        progress = 0;
+        progressLabel = achievement.description;
+    }
+
+    return {
+      achievement,
+      unlocked: false,
+      progress: Math.round(progress),
+      progressLabel,
+    };
+  });
+};
+
+// ==================== COMPOSITE SESSION SUMMARY ====================
+
+/**
+ * Comprehensive summary of a user's assessment history.
+ */
+export interface SessionSummary {
+  totalSessions: number;
+  totalPoints: number;
+  averagePoints: number;
+  bestCompositeResult: GameResult | null;
+  allAchievements: string[];
+  uniqueAchievementsCount: number;
+  progressTrends: Map<TestKey, ProgressTrend>;
+  lastSessionDate: Date | null;
+  streakDays: number;
+}
+
+/**
+ * Generates a comprehensive summary of all stored sessions.
+ *
+ * This is a convenience function that aggregates multiple analyses
+ * into a single summary object, optimized to read sessions only once.
+ *
+ * @returns {SessionSummary} Complete summary of user's assessment history
+ *
+ * @example
+ * const summary = getSessionSummary();
+ * console.log(`Total sessions: ${summary.totalSessions}`);
+ * console.log(`Total points: ${summary.totalPoints}`);
+ * console.log(`Unique achievements: ${summary.uniqueAchievementsCount}`);
+ * console.log(`Current streak: ${summary.streakDays} days`);
+ */
+export const getSessionSummary = (): SessionSummary => {
+  const sessions = getSessionsCached();
+
+  if (sessions.length === 0) {
+    return {
+      totalSessions: 0,
+      totalPoints: 0,
+      averagePoints: 0,
+      bestCompositeResult: null,
+      allAchievements: [],
+      uniqueAchievementsCount: 0,
+      progressTrends: new Map(),
+      lastSessionDate: null,
+      streakDays: 0,
+    };
+  }
+
+  // Aggregate statistics
+  const totalPoints = sessions.reduce((sum, s) => sum + (s.totalPoints ?? 0), 0);
+  const averagePoints = Math.round(totalPoints / sessions.length);
+
+  // Find best composite result
+  const resultScores = { high: 3, medium: 2, low: 1 };
+  let bestCompositeResult: GameResult | null = null;
+  let bestScore = 0;
+  for (const session of sessions) {
+    if (session.compositeResult) {
+      const score = resultScores[session.compositeResult];
+      if (score > bestScore) {
+        bestScore = score;
+        bestCompositeResult = session.compositeResult;
+      }
+    }
+  }
+
+  // Collect all unique achievements
+  const achievementSet = new Set<string>();
+  for (const session of sessions) {
+    if (session.achievements) {
+      for (const id of session.achievements) {
+        achievementSet.add(id);
+      }
+    }
+  }
+
+  // Calculate streak (consecutive days with sessions)
+  let streakDays = 0;
+  const sortedDates = sessions
+    .map(s => new Date(s.date).toDateString())
+    .filter((v, i, a) => a.indexOf(v) === i); // unique dates
+
+  const today = new Date().toDateString();
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+  if (sortedDates[0] === today || sortedDates[0] === yesterday) {
+    streakDays = 1;
+    for (let i = 1; i < sortedDates.length; i++) {
+      const prevDate = new Date(sortedDates[i - 1]);
+      const currDate = new Date(sortedDates[i]);
+      const diffDays = Math.round((prevDate.getTime() - currDate.getTime()) / 86400000);
+      if (diffDays === 1) {
+        streakDays++;
+      } else {
+        break;
+      }
+    }
+  }
+
+  return {
+    totalSessions: sessions.length,
+    totalPoints,
+    averagePoints,
+    bestCompositeResult,
+    allAchievements: Array.from(achievementSet),
+    uniqueAchievementsCount: achievementSet.size,
+    progressTrends: analyzeAllProgress(sessions),
+    lastSessionDate: new Date(sessions[0].date),
+    streakDays,
+  };
+};
+
+// ==================== RESULT UTILITIES ====================
+
+/**
+ * Maps a numeric score percentage to a GameResult category.
+ *
+ * Thresholds:
+ * - High: >= 80%
+ * - Medium: >= 50%
+ * - Low: < 50%
+ *
+ * @param {number} percentage - Score as percentage (0-100)
+ * @returns {GameResult} The corresponding result category
+ *
+ * @example
+ * percentageToResult(85); // 'high'
+ * percentageToResult(65); // 'medium'
+ * percentageToResult(40); // 'low'
+ */
+export const percentageToResult = (percentage: number): GameResult => {
+  if (percentage >= 80) return 'high';
+  if (percentage >= 50) return 'medium';
+  return 'low';
+};
+
+/**
+ * Calculates a composite result from multiple test outcomes.
+ *
+ * Uses weighted averaging of result scores:
+ * - high = 3 points
+ * - medium = 2 points
+ * - low = 1 point
+ *
+ * @param {Partial<Record<TestKey, TestOutcome>>} outcomes - Map of test outcomes
+ * @param {Partial<Record<TestKey, number>>} [weights] - Optional weights for each test (default: equal)
+ * @returns {GameResult} The weighted composite result
+ *
+ * @example
+ * const outcomes = {
+ *   attention: { result: 'high', ... },
+ *   frequency: { result: 'medium', ... },
+ *   sequence: { result: 'high', ... },
+ * };
+ * calculateCompositeResult(outcomes); // 'high' (average: 2.67 -> rounds to high)
+ */
+export const calculateCompositeResult = (
+  outcomes: Partial<Record<TestKey, TestOutcome>>,
+  weights?: Partial<Record<TestKey, number>>
+): GameResult => {
+  const resultScores = { high: 3, medium: 2, low: 1 };
+  let totalScore = 0;
+  let totalWeight = 0;
+
+  for (const key of CLINICAL_TEST_KEYS) {
+    const outcome = outcomes[key];
+    if (outcome?.result) {
+      const weight = weights?.[key] ?? 1;
+      totalScore += resultScores[outcome.result] * weight;
+      totalWeight += weight;
+    }
+  }
+
+  if (totalWeight === 0) return 'low';
+
+  const average = totalScore / totalWeight;
+  if (average >= 2.5) return 'high';
+  if (average >= 1.5) return 'medium';
+  return 'low';
+};
