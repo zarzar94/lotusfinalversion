@@ -15,6 +15,7 @@ import NotificationCenter from './components/NotificationCenter';
 import { ProgressExportButton } from './components/ProgressExport';
 import { useClinicalSync } from './hooks/useClinicalSync';
 import StickySmartCTA from './components/StickySmartCTA';
+import RequirePermission from './components/auth/RequirePermission';
 
 // Respect Vite base for subpath deployments (e.g., GitHub Pages)
 const rawBase = import.meta.env.BASE_URL ?? '/';
@@ -617,49 +618,61 @@ function App() {
                     <Route
                       path="/school-dashboard"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <SchoolDashboard />
-                        </Suspense>
+                        <RequirePermission permission="school_analytics">
+                          <Suspense fallback={<PageLoader />}>
+                            <SchoolDashboard />
+                          </Suspense>
+                        </RequirePermission>
                       }
                     />
                     <Route
                       path="/parent-dashboard"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ParentDashboard />
-                        </Suspense>
+                        <RequirePermission permission="view_child_reports">
+                          <Suspense fallback={<PageLoader />}>
+                            <ParentDashboard />
+                          </Suspense>
+                        </RequirePermission>
                       }
                     />
                     <Route
                       path="/clinician-dashboard"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ClinicianDashboard />
-                        </Suspense>
+                        <RequirePermission permission="view_patient_reports">
+                          <Suspense fallback={<PageLoader />}>
+                            <ClinicianDashboard />
+                          </Suspense>
+                        </RequirePermission>
                       }
                     />
                     <Route
                       path="/dashboard/parent"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ParentRoleDashboard />
-                        </Suspense>
+                        <RequirePermission permission="view_child_reports">
+                          <Suspense fallback={<PageLoader />}>
+                            <ParentRoleDashboard />
+                          </Suspense>
+                        </RequirePermission>
                       }
                     />
                     <Route
                       path="/dashboard/educator"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <EducatorDashboard />
-                        </Suspense>
+                        <RequirePermission permission="school_analytics">
+                          <Suspense fallback={<PageLoader />}>
+                            <EducatorDashboard />
+                          </Suspense>
+                        </RequirePermission>
                       }
                     />
                     <Route
                       path="/dashboard/clinician"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ClinicianRoleDashboard />
-                        </Suspense>
+                        <RequirePermission permission="view_patient_reports">
+                          <Suspense fallback={<PageLoader />}>
+                            <ClinicianRoleDashboard />
+                          </Suspense>
+                        </RequirePermission>
                       }
                     />
                     <Route
