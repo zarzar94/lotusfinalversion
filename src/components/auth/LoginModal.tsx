@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, memo } from 'react';
+import { createPortal } from 'react-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, type UserRole } from '../../context/UserContext';
 import {
@@ -129,7 +130,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
     }
   }, [login, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
 
   const text = {
     login: isArabic ? 'تسجيل الدخول' : 'Sign In',
@@ -145,7 +146,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
     backToLogin: isArabic ? 'العودة لتسجيل الدخول' : 'Back to Sign In',
   };
 
-  return (
+  return createPortal(
     <div
       onClick={onClose}
       role="dialog"
@@ -156,7 +157,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
         background: 'rgba(5,6,13,0.88)',
         backdropFilter: 'blur(12px)',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
         zIndex: 1000,
         padding: spacing[4],
@@ -569,7 +570,8 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
           }
         }
       `}</style>
-    </div>
+    </div>,
+    document.body
   );
 }
 

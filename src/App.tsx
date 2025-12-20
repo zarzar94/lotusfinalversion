@@ -561,6 +561,16 @@ function App() {
                       }
                     />
 
+                    {/* 7. About Page - Centre & Specialist Info */}
+                    <Route
+                      path="/about"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <AboutPage />
+                        </Suspense>
+                      }
+                    />
+
                     <Route element={<RequireAuth />}>
                     {/* 2. Assessment Page - Diagnostic Tools */}
                     <Route
@@ -605,16 +615,6 @@ function App() {
                     {/* ═════════════════════════════════════════════════════==
                         SPECIAL PAGES
                         ═══════════════════════════════════════════════════════ */}
-                    {/* 7. About Page - Centre & Specialist Info */}
-                    <Route
-                      path="/about"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <AboutPage />
-                        </Suspense>
-                      }
-                    />
-
                     {/* ═══════════════════════════════════════════════════════
                         SPECIAL PAGES
                         ═══════════════════════════════════════════════════════ */}
