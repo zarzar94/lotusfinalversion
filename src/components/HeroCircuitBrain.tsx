@@ -112,6 +112,9 @@ const InfoModal = memo(({
 
   if (!node) return null;
 
+  const content = isArabic && node.contentAr ? node.contentAr : node.content;
+  const showArabicLabel = isArabic && !node.contentAr?.title;
+
   return (
     <div
       onClick={onClose}
@@ -217,9 +220,9 @@ const InfoModal = memo(({
                   lineHeight: typography.lineHeight.tight,
                 }}
               >
-                {node.content.title}
+                {content.title}
               </h2>
-              {isArabic && (
+              {showArabicLabel && (
                 <div
                   style={{
                     margin: `${spacing[1]}px 0 0`,
@@ -239,7 +242,7 @@ const InfoModal = memo(({
                 color: node.color,
                 fontWeight: typography.weight.semibold,
               }}>
-                {node.content.subtitle}
+                {content.subtitle}
               </p>
             </div>
           </div>
@@ -274,7 +277,7 @@ const InfoModal = memo(({
             }}>
               {text.doYouExperience}
             </div>
-            {node.content.questions.map((q, i) => (
+            {content.questions.map((q, i) => (
               <p
                 key={i}
                 style={{
@@ -316,7 +319,7 @@ const InfoModal = memo(({
               lineHeight: typography.lineHeight.loose,
               color: colors.text.secondary,
             }}>
-              {node.content.explanation}
+              {content.explanation}
             </p>
           </div>
 
@@ -338,7 +341,7 @@ const InfoModal = memo(({
               {text.expectedBenefits}
             </h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2] }}>
-              {node.content.benefits.map((benefit, i) => (
+              {content.benefits.map((benefit, i) => (
                 <span
                   key={i}
                   style={{
@@ -1723,7 +1726,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
             }}>
-              {tooltipNode.content.subtitle}
+              {(isArabic && tooltipNode.contentAr ? tooltipNode.contentAr : tooltipNode.content).subtitle}
             </p>
 
             {/* Click hint */}

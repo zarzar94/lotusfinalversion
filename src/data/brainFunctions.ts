@@ -1,5 +1,13 @@
 import { brandCyan, brandPurple, brandPink } from '../components/styles';
 
+type BrainFunctionContent = {
+  title: string;
+  subtitle: string;
+  questions: string[];
+  explanation: string;
+  benefits: string[];
+};
+
 export type BrainFunction = {
   id: string;
   slug: string;
@@ -7,13 +15,8 @@ export type BrainFunction = {
   labelEn: string;
   color: string;
   icon: string;
-  content: {
-    title: string;
-    subtitle: string;
-    questions: string[];
-    explanation: string;
-    benefits: string[];
-  };
+  content: BrainFunctionContent;
+  contentAr?: BrainFunctionContent;
   position: { x: number; y: number; r: number };
 };
 
@@ -273,6 +276,23 @@ export const BRAIN_FUNCTIONS: BrainFunction[] = [
         'Better task completion',
         'Reduced distractibility',
         'Enhanced concentration',
+      ],
+    },
+    contentAr: {
+      title: 'الانتباه والتركيز',
+      subtitle: 'التركيز على ما يهم',
+      questions: [
+        'هل يصعب عليك الانتباه أو الملاحظة والاستماع بعناية لشيء مهم؟',
+        'هل يمكنك التركيز على المهمة دون أن يتشتت انتباهك إلى مواضيع غير مرتبطة؟',
+        'هل تجذب الأنشطة الأخرى أو الأشياء المرئية أو الضوضاء انتباهك؟',
+        'هل تشعر بالتعب والملل وتكثر من الحركة؟',
+      ],
+      explanation: 'يُعد Berard AIT طريقة فريدة لزيادة الانتباه والتركيز على المهمة. يعيد منهج Berard AIT تدريب نظام في الجسم/الدماغ لا يعمل بكفاءته القصوى. إعادة توازن النظام السمعي ودمجه مع النظام البصري تجعل من السهل التركيز ومعالجة المعلومات الأهم. التحفيز المناسب الذي يوفره Berard AIT يمكّن النظام غير الكفء من إنشاء وصلات أفضل. لم تعد المشتتات تتنافس على الانتباه. المعالجة الفعالة للمعلومات تقلل الحمل الزائد والإرهاق والتململ. يصبح الانتباه والتركيز ممكنين.',
+      benefits: [
+        'زيادة مدة التركيز',
+        'تحسين إنجاز المهام',
+        'تقليل التشتت',
+        'تعزيز التركيز',
       ],
     },
   },
