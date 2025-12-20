@@ -2,7 +2,7 @@ import type { jsPDF } from 'jspdf';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../../utils/pdf';
 import { AssessmentSession, TestOutcome, TestKey } from './types';
 
-const downloadBlob = (blob: Blob, filename: string) => {
+const downloadBlob = (blob: Blob, filename: string): void => {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = filename;
@@ -10,7 +10,7 @@ const downloadBlob = (blob: Blob, filename: string) => {
   URL.revokeObjectURL(a.href);
 };
 
-const safeJson = (value: unknown) => {
+const safeJson = (value: unknown): string => {
   try {
     return JSON.stringify(value);
   } catch {
@@ -18,7 +18,7 @@ const safeJson = (value: unknown) => {
   }
 };
 
-export const downloadSessionCsv = (session: AssessmentSession) => {
+export const downloadSessionCsv = (session: AssessmentSession): void => {
   const rows: string[] = [];
   rows.push(['session_id', 'started_at', 'test_key', 'title', 'result', 'score_label', 'message', 'metrics_json'].join(','));
 
@@ -42,7 +42,7 @@ export const downloadSessionCsv = (session: AssessmentSession) => {
   downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `Berard-AIT-Screening-${Date.now()}.csv`);
 };
 
-const writeMetrics = (doc: jsPDF, metrics: TestOutcome['metrics'], yStart: number) => {
+const writeMetrics = (doc: jsPDF, metrics: TestOutcome['metrics'], yStart: number): number => {
   let y = yStart;
   doc.setFont('Cairo', 'normal');
   doc.setFontSize(11);
@@ -56,7 +56,7 @@ const writeMetrics = (doc: jsPDF, metrics: TestOutcome['metrics'], yStart: numbe
   return y;
 };
 
-export const downloadSessionPdf = async (session: AssessmentSession, composite?: { label: string; message: string }) => {
+export const downloadSessionPdf = async (session: AssessmentSession, composite?: { label: string; message: string }): Promise<void> => {
   const doc = await createPdfDoc();
   doc.setFont('Cairo', 'bold');
 
