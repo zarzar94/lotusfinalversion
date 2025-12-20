@@ -574,8 +574,9 @@ export const translations = {
 
     speechInNoise: {
       snrThreshold: '???? SNR',
-      recognitionAccuracy: '??? ??? ??????',
+      recognitionAccuracy: 'دقة التعرف على الكلام',
       noiseTolerance: '???? ???????',
+      neutralSummary: 'كنت بحاجة إلى تعزيز إشارة بمقدار {snr} لفهم الكلام وسط الضوضاء.',
       summaryHigh: '???? ?????? ?? ????? ?????.',
       summaryMid: '????? ??? ????? ????? ??????? ???? ??????.',
       summaryLow: '????? ??? ???? ???? ?????? ???? ??????.',
@@ -662,6 +663,7 @@ export const translations = {
       treatmentPlan: 'خطة العلاج',
       clinicalNotes: 'الملاحظات السريرية',
       disclaimer: 'هذا فحص وليس تشخيص',
+      screeningDisclaimer: 'This is a screening tool, not a diagnosis.',
       screeningOnly: 'للفحص فقط',
     },
   },
@@ -1239,8 +1241,9 @@ export const translations = {
 
     speechInNoise: {
       snrThreshold: 'SNR Threshold',
-      recognitionAccuracy: 'Speech recognition accuracy',
+      recognitionAccuracy: 'Speech Recognition Accuracy',
       noiseTolerance: 'Noise tolerance',
+      neutralSummary: 'You required {snr} signal boost to understand speech in noise.',
       summaryHigh: 'Understands speech in challenging noise.',
       summaryMid: 'Needs moderate noise reduction to follow speech.',
       summaryLow: 'Needs quieter conditions to understand speech.',
@@ -1327,6 +1330,7 @@ export const translations = {
       treatmentPlan: 'Treatment Plan',
       clinicalNotes: 'Clinical Notes',
       disclaimer: 'This is screening, not diagnosis',
+      screeningDisclaimer: 'This is a screening tool, not a diagnosis.',
       screeningOnly: 'Screening Only',
     },
   },

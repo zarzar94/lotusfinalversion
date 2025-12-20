@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
-import { ensureAudio, safeCloseAudio, setNoiseLevel, stopNoise, type NoiseRef } from './audio';
+import { ensureAudio, safeCloseAudio, setBabbleNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import type { GameResult, TestOutcome } from './types';
 import { calculateFatigueIndex } from './scoring';
 import { mean } from './stats';
@@ -20,19 +20,54 @@ type Trial = {
   selected: string[];
   correct: boolean;
   rtMs: number;
+  reversal?: boolean;
+  stepDb?: number;
 };
 
 const SENTENCES: Sentence[] = [
-  { text: 'The blue bird flew away', keywords: ['blue', 'bird', 'flew'] },
-  { text: 'Open the door and sit', keywords: ['open', 'door', 'sit'] },
-  { text: 'The child plays with blocks', keywords: ['child', 'plays', 'blocks'] },
-  { text: 'She drinks water every day', keywords: ['drinks', 'water', 'day'] },
-  { text: 'The dog runs in the park', keywords: ['dog', 'runs', 'park'] },
-  { text: 'We will meet after lunch', keywords: ['meet', 'after', 'lunch'] },
+  { text: 'The yellow bus stops at noon', keywords: ['yellow', 'bus', 'noon'] },
+  { text: 'She packed lunch for the trip', keywords: ['packed', 'lunch', 'trip'] },
+  { text: 'The quiet room feels very calm', keywords: ['quiet', 'room', 'calm'] },
+  { text: 'Rain fell softly on the roof', keywords: ['rain', 'softly', 'roof'] },
+  { text: 'He wrote a note to mom', keywords: ['wrote', 'note', 'mom'] },
+  { text: 'We found the key near the door', keywords: ['key', 'near', 'door'] },
+  { text: 'The small cat slept on the chair', keywords: ['cat', 'slept', 'chair'] },
+  { text: 'They walked home after the movie', keywords: ['walked', 'home', 'movie'] },
+  { text: 'Please turn off the bright light', keywords: ['turn', 'bright', 'light'] },
+  { text: 'Her friend called late last night', keywords: ['friend', 'called', 'night'] },
+  { text: 'The farmer watered the green plants', keywords: ['farmer', 'watered', 'plants'] },
+  { text: 'My brother plays soccer every weekend', keywords: ['brother', 'soccer', 'weekend'] },
 ];
 
-const DISTRACTORS = ['green', 'cat', 'jump', 'chair', 'night', 'book', 'river', 'quiet', 'small', 'glass'];
-const SNR_LEVELS = [15, 10, 5, 0, -5, -10];
+const DISTRACTORS = [
+  'blue',
+  'glass',
+  'river',
+  'music',
+  'paper',
+  'window',
+  'stone',
+  'cloud',
+  'garden',
+  'pencil',
+  'table',
+  'train',
+  'apple',
+  'market',
+  'clock',
+];
+
+const MIN_SNR_DB = -10;
+const MAX_SNR_DB = 15;
+const START_SNR_DB = 8;
+const PRACTICE_SNR_DB = 10;
+const STEP_LARGE_DB = 4;
+const STEP_SMALL_DB = 2;
+const MAX_REVERSALS = 6;
+const MAX_TRIALS = 20;
+const REVERSAL_AVG_COUNT = 4;
+const LONG_SESSION_TRIALS = 16;
+const PRACTICE_TRIALS = 3;
 
 const shuffle = <T,>(arr: T[]): T[] => {
   const a = [...arr];
@@ -44,13 +79,13 @@ const shuffle = <T,>(arr: T[]): T[] => {
 };
 
 const snrToNoise = (snrDb: number): number => {
-  const min = -10;
-  const max = 15;
-  const clamped = Math.max(min, Math.min(max, snrDb));
-  const norm = (clamped - min) / (max - min);
+  const clamped = Math.max(MIN_SNR_DB, Math.min(MAX_SNR_DB, snrDb));
+  const norm = (clamped - MIN_SNR_DB) / (MAX_SNR_DB - MIN_SNR_DB);
   const noise = 0.2 - norm * 0.18;
   return Math.max(0.02, Math.min(0.2, noise));
 };
+
+const formatSnr = (value: number): string => `${value > 0 ? '+' : ''}${value} dB`;
 
 export default function SpeechInNoiseTestPanel({
   onDone,
@@ -64,12 +99,14 @@ export default function SpeechInNoiseTestPanel({
   const noiseRef: NoiseRef = useRef(null);
   const resultsRef = useRef<Trial[]>([]);
   const onsetRef = useRef<number>(0);
+  const directionRef = useRef<'up' | 'down' | null>(null);
+  const reversalsRef = useRef(0);
+  const reversalSnrsRef = useRef<number[]>([]);
 
   const [stage, setStage] = useState<'intro' | 'practice' | 'running' | 'done'>('intro');
   const [trialIndex, setTrialIndex] = useState(0);
   const [practiceIndex, setPracticeIndex] = useState(0);
   const [current, setCurrent] = useState<Trial | null>(null);
-  const [snrIndex, setSnrIndex] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
   const [played, setPlayed] = useState(false);
   const [summary, setSummary] = useState<{
@@ -79,10 +116,8 @@ export default function SpeechInNoiseTestPanel({
     accuracy: number;
     noiseTolerance: string;
     message: string;
+    interpretation: string;
   } | null>(null);
-
-  const TRIALS = 12;
-  const PRACTICE_TRIALS = 3;
 
   useEffect(() => {
     return () => {
@@ -105,7 +140,7 @@ export default function SpeechInNoiseTestPanel({
       // ignore
     }
     const noise = snrToNoise(snrDb);
-    setNoiseLevel(audio, noiseRef, noise);
+    setBabbleNoiseLevel(audio, noiseRef, noise);
     setPlayed(false);
     setSelected([]);
 
@@ -135,9 +170,8 @@ export default function SpeechInNoiseTestPanel({
     }
   }, []);
 
-  const runTrial = (idx: number, practice: boolean, nextSnrIndex: number) => {
+  const runTrial = (idx: number, practice: boolean, snrDb: number) => {
     const sentence = SENTENCES[idx % SENTENCES.length];
-    const snrDb = SNR_LEVELS[nextSnrIndex];
     const options = buildOptions(sentence);
     const trial: Trial = {
       i: idx + 1,
@@ -158,16 +192,17 @@ export default function SpeechInNoiseTestPanel({
     resultsRef.current = [];
     setStage('practice');
     setPracticeIndex(0);
-    runTrial(0, true, snrIndex);
+    runTrial(0, true, PRACTICE_SNR_DB);
   };
 
   const startTest = () => {
     resultsRef.current = [];
     setTrialIndex(0);
     setStage('running');
-    const initialIndex = 1;
-    setSnrIndex(initialIndex);
-    runTrial(0, false, initialIndex);
+    directionRef.current = null;
+    reversalsRef.current = 0;
+    reversalSnrsRef.current = [];
+    runTrial(0, false, START_SNR_DB);
   };
 
   const toggleWord = (word: string) => {
@@ -184,82 +219,109 @@ export default function SpeechInNoiseTestPanel({
     const selectedSet = new Set(selected);
     const correct = keywordSet.size === selectedSet.size && [...keywordSet].every((k) => selectedSet.has(k));
 
+    let reversal = false;
+    let stepDb = STEP_LARGE_DB;
+    if (stage === 'running') {
+      const nextDirection: 'up' | 'down' = correct ? 'down' : 'up';
+      const prevDirection = directionRef.current;
+      if (prevDirection && prevDirection !== nextDirection) {
+        reversalsRef.current += 1;
+        reversalSnrsRef.current.push(current.snrDb);
+        reversal = true;
+      }
+      directionRef.current = nextDirection;
+      stepDb = reversalsRef.current >= 2 ? STEP_SMALL_DB : STEP_LARGE_DB;
+    }
+
     const trial: Trial = {
       ...current,
       selected,
       correct,
       rtMs: rt,
+      reversal: stage === 'running' ? reversal : undefined,
+      stepDb: stage === 'running' ? stepDb : undefined,
     };
 
     if (stage === 'running') resultsRef.current.push(trial);
 
-    const nextIndex = stage === 'practice' ? practiceIndex : trialIndex;
-    const nextSnrIndex = correct
-      ? Math.min(SNR_LEVELS.length - 1, snrIndex + 1)
-      : Math.max(0, snrIndex - 1);
-
-    setSnrIndex(nextSnrIndex);
-
     if (stage === 'practice') {
-      if (nextIndex >= PRACTICE_TRIALS) {
+      if (practiceIndex >= PRACTICE_TRIALS) {
         startTest();
         return;
       }
-      runTrial(nextIndex, true, nextSnrIndex);
+      runTrial(practiceIndex, true, PRACTICE_SNR_DB);
       return;
     }
 
-    if (nextIndex >= TRIALS) {
+    const nextSnrDb = Math.max(
+      MIN_SNR_DB,
+      Math.min(MAX_SNR_DB, current.snrDb + (correct ? -stepDb : stepDb))
+    );
+
+    if (resultsRef.current.length >= MAX_TRIALS || reversalsRef.current >= MAX_REVERSALS) {
       finish();
       return;
     }
 
-    runTrial(nextIndex, false, nextSnrIndex);
+    runTrial(trialIndex, false, nextSnrDb);
   };
 
   const finish = () => {
     const results = resultsRef.current;
     const accuracy = Math.round((results.filter((r) => r.correct).length / Math.max(1, results.length)) * 100);
-    const snrValues = results.map((r) => r.snrDb);
-    const threshold = snrValues.length ? Number(mean(snrValues.slice(-4)).toFixed(1)) : SNR_LEVELS[snrIndex];
+    const reversalSnrs = reversalSnrsRef.current;
+    const thresholdSamples =
+      reversalSnrs.length >= 2
+        ? reversalSnrs.slice(-REVERSAL_AVG_COUNT)
+        : results.slice(-4).map((r) => r.snrDb);
+    const threshold = thresholdSamples.length ? Number(mean(thresholdSamples).toFixed(1)) : START_SNR_DB;
 
-    const snrScore = Math.max(0, Math.min(100, Math.round(100 - ((threshold + 10) / 25) * 100)));
+    const snrScore = Math.max(
+      0,
+      Math.min(100, Math.round(100 - ((threshold - MIN_SNR_DB) / (MAX_SNR_DB - MIN_SNR_DB)) * 100))
+    );
     let score = Math.round(accuracy * 0.6 + snrScore * 0.4);
     score = Math.max(0, Math.min(100, score));
 
-    const fatigue = calculateFatigueIndex(
-      results.map((r) => ({
-        target: true,
-        responseType: r.correct ? 'hit' : 'miss',
-        rtMs: r.rtMs,
-      }))
-    );
+    const fatigue = results.length >= LONG_SESSION_TRIALS
+      ? calculateFatigueIndex(
+        results.map((r) => ({
+          target: true,
+          responseType: r.correct ? 'hit' : 'miss',
+          rtMs: r.rtMs,
+        }))
+      )
+      : null;
 
     const result: GameResult = score >= 80 ? 'high' : score >= 60 ? 'medium' : 'low';
-    const message =
+    const interpretation =
       result === 'high'
         ? t('speechInNoise.summaryHigh')
         : result === 'medium'
           ? t('speechInNoise.summaryMid')
           : t('speechInNoise.summaryLow');
+    const neutralSummary = t('speechInNoise.neutralSummary').replace('{snr}', formatSnr(threshold));
 
     const noiseTolerance =
       threshold <= 0 ? t('speechInNoise.noiseStrong') : threshold <= 8 ? t('speechInNoise.noiseModerate') : t('speechInNoise.noiseNeedsQuiet');
+
+    const metrics: Record<string, number | string | boolean> = {
+      trials: results.length,
+      accuracyPct: accuracy,
+      snrThresholdDb: threshold,
+      snrScore,
+      reversals: reversalsRef.current,
+      score100: score,
+    };
+    if (fatigue) metrics.fatigueScore = fatigue.fatigueScore;
 
     const outcome: TestOutcome = {
       key: 'speech_in_noise',
       title: isArabic ? 'الكلام وسط الضجيج' : 'Speech in Noise',
       result,
-      scoreLabel: `SNR ${threshold} dB · ${accuracy}% · Score ${score}/100`,
-      message,
-      metrics: {
-        trials: results.length,
-        accuracyPct: accuracy,
-        snrThresholdDb: threshold,
-        snrScore,
-        fatigueScore: fatigue.fatigueScore,
-        score100: score,
-      },
+      scoreLabel: `SNR ${formatSnr(threshold)} | ${accuracy}% | Score ${score}/100`,
+      message: neutralSummary,
+      metrics,
       trials: results,
     };
 
@@ -269,7 +331,8 @@ export default function SpeechInNoiseTestPanel({
       snrThreshold: threshold,
       accuracy,
       noiseTolerance,
-      message,
+      message: neutralSummary,
+      interpretation,
     });
     setStage('done');
     onDone(outcome);
@@ -277,7 +340,7 @@ export default function SpeechInNoiseTestPanel({
 
   const progressLabel = useMemo(() => {
     if (stage === 'practice') return `${practiceIndex}/${PRACTICE_TRIALS}`;
-    if (stage === 'running') return `${trialIndex}/${TRIALS}`;
+    if (stage === 'running') return `${trialIndex}/${MAX_TRIALS}`;
     return '';
   }, [practiceIndex, stage, trialIndex]);
 
@@ -379,9 +442,12 @@ export default function SpeechInNoiseTestPanel({
             <div style={{ fontWeight: 900, color: summary.result === 'high' ? brandCyan : summary.result === 'medium' ? brandPurpleDark : brandPink }}>
               {summary.message}
             </div>
+            <div style={{ marginTop: 6, ...styles.muted }}>
+              {summary.interpretation}
+            </div>
             <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', marginTop: 12 }}>
               {[
-                { label: t('speechInNoise.snrThreshold'), value: `${summary.snrThreshold} dB` },
+                { label: t('speechInNoise.snrThreshold'), value: formatSnr(summary.snrThreshold) },
                 { label: t('speechInNoise.recognitionAccuracy'), value: `${summary.accuracy}%` },
                 { label: t('speechInNoise.noiseTolerance'), value: summary.noiseTolerance },
               ].map((item) => (
