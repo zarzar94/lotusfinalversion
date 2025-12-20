@@ -1,6 +1,6 @@
 /**
- * Contact Page - Get Started
- * Intake Form, Contact Form, Partnerships
+ * Partners Page - School & Organization Partnerships
+ * Public landing page for institutional collaboration
  */
 
 import { lazy, Suspense, memo } from 'react';
@@ -15,6 +15,7 @@ import FadeIn from '../components/FadeIn';
 import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { UsersIcon } from '../components/Icons';
 import {
   brandCyan,
   colors,
@@ -23,17 +24,23 @@ import {
   radius,
 } from '../components/styles';
 
-// Lazy load sections
-const IntakeForm = lazy(() => import('../components/IntakeForm'));
-const ContactForm = lazy(() => import('../components/ContactForm'));
+const SchoolPartnershipSection = lazy(() => import('../components/SchoolPartnershipSection'));
+const PartnerLogos = lazy(() => import('../components/PartnerLogos'));
 
-// Page header component
-const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
+const PageHeader = memo(({
+  title,
+  subtitle,
+  chipLabel,
+}: {
+  title: string;
+  subtitle: string;
+  chipLabel: string;
+}) => (
   <div
     style={{
       textAlign: 'center',
       padding: `0 ${spacing[4]}px ${spacing[8]}px`,
-      maxWidth: 800,
+      maxWidth: 880,
       margin: '0 auto',
     }}
   >
@@ -48,7 +55,7 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
         marginBottom: spacing[4],
       }}
     >
-      <span style={{ fontSize: 20 }}>✉️</span>
+      <UsersIcon size={16} color={brandCyan} />
       <span
         style={{
           fontSize: typography.size.sm,
@@ -56,7 +63,7 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
           color: brandCyan,
         }}
       >
-        {isArabic ? 'تواصل معنا' : 'Get in Touch'}
+        {chipLabel}
       </span>
     </div>
 
@@ -69,7 +76,7 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
         lineHeight: 1.2,
       }}
     >
-      {isArabic ? 'ابدأ رحلتك اليوم' : 'Start Your Journey Today'}
+      {title}
     </h1>
 
     <p
@@ -77,20 +84,18 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
         fontSize: typography.size.lg,
         color: colors.text.secondary,
         lineHeight: typography.lineHeight.relaxed,
-        maxWidth: 600,
+        maxWidth: 640,
         margin: '0 auto',
       }}
     >
-      {isArabic
-        ? 'املأ نموذج القبول أو تواصل معنا مباشرة. نحن هنا للإجابة على جميع استفساراتك'
-        : 'Fill out our intake form or contact us directly. We\'re here to answer all your questions'}
+      {subtitle}
     </p>
   </div>
 ));
 PageHeader.displayName = 'PageHeader';
 
-function ContactPage() {
-  const { isArabic, t } = useLanguage();
+function PartnersPage() {
+  const { t } = useLanguage();
   usePageTitle();
 
   return (
@@ -99,24 +104,23 @@ function ContactPage() {
       <Header />
 
       <main style={styles.container}>
-        <BackNavigation
-          to="/"
-          label={isArabic ? 'الصفحة الرئيسية' : 'Home'}
+        <BackNavigation to="/" label={t('nav.home')} />
+
+        <PageHeader
+          title={t('partners.title')}
+          subtitle={t('partners.subtitle')}
+          chipLabel={t('nav.partners')}
         />
 
-        <PageHeader isArabic={isArabic} />
-
-        {/* Intake Form */}
-        <FadeIn delay={100} scale blur blurAmount={4}>
-          <Suspense fallback={<SectionLoader label={t('common.loadingIntake')} height={500} />}>
-            <IntakeForm />
+        <FadeIn delay={100} direction="right" distance={25}>
+          <Suspense fallback={<SectionLoader label={t('common.loading')} height={800} />}>
+            <SchoolPartnershipSection />
           </Suspense>
         </FadeIn>
 
-        {/* Contact Form */}
-        <FadeIn delay={150} scale blur blurAmount={4}>
-          <Suspense fallback={<SectionLoader label={t('common.loadingContact')} height={700} />}>
-            <ContactForm />
+        <FadeIn delay={200} direction="none" scale scaleFrom={0.97}>
+          <Suspense fallback={<SectionLoader label={t('common.loading')} height={260} />}>
+            <PartnerLogos />
           </Suspense>
         </FadeIn>
 
@@ -131,4 +135,4 @@ function ContactPage() {
   );
 }
 
-export default memo(ContactPage);
+export default memo(PartnersPage);

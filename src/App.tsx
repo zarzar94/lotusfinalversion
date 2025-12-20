@@ -35,6 +35,7 @@ const SciencePage = lazy(() => import('./pages/SciencePage'));
 const ResultsPage = lazy(() => import('./pages/ResultsPage'));
 const ResourcesPage = lazy(() => import('./pages/ResourcesPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
+const PartnersPage = lazy(() => import('./pages/PartnersPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const FAQPage = lazy(() => import('./pages/FAQPage'));
 
@@ -548,6 +549,16 @@ function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <ContactPage />
+                        </Suspense>
+                      }
+                    />
+
+                    {/* Partners Page - Schools & Organizations */}
+                    <Route
+                      path="/partners"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <PartnersPage />
                         </Suspense>
                       }
                     />

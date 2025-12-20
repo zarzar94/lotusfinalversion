@@ -20,6 +20,7 @@ const ROUTE_NAMES: Record<string, string> = {
   '/results': 'Results Page',
   '/resources': 'Resources Page',
   '/contact': 'Contact Page',
+  '/partners': 'Partners Page',
   '/school-dashboard': 'School Dashboard',
   '/parent-dashboard': 'Parent Dashboard',
   '/clinician-dashboard': 'Clinician Dashboard',

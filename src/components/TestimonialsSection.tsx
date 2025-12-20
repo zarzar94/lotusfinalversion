@@ -429,8 +429,8 @@ function CaseStudyCard({
               overflow: 'hidden',
             }}>
               <img
-                src={assetUrl('assets/images/brain_logo.png')}
-                alt="Berard AIT"
+                src={assetUrl('assets/images/sound_lab_logo.png')}
+                alt="Sound Lab"
                 style={{
                   width: 42,
                   height: 42,

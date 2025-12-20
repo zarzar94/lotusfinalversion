@@ -29,6 +29,7 @@ const ROUTE_BREADCRUMBS: Record<string, BreadcrumbItem> = {
   '/science': { label: 'Science', labelAr: 'العلوم', path: '/science', icon: '🧠' },
   '/results': { label: 'Results', labelAr: 'النتائج', path: '/results', icon: '📊' },
   '/resources': { label: 'Resources', labelAr: 'الموارد', path: '/resources', icon: '📚' },
+  '/partners': { label: 'Partners', labelAr: 'الشركاء', path: '/partners', icon: '🤝' },
   '/contact': { label: 'Contact', labelAr: 'تواصل', path: '/contact', icon: '✉️' },
   '/school-dashboard': { label: 'School Dashboard', labelAr: 'لوحة المدرسة', path: '/school-dashboard', icon: '🏫' },
   '/parent-dashboard': { label: 'Parent Dashboard', labelAr: 'لوحة الأولياء', path: '/parent-dashboard', icon: '👨‍👩‍👧' },

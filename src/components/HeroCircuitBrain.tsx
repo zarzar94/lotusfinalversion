@@ -15,6 +15,7 @@ import {
 import { BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
 import { useLanguage } from '../context/LanguageContext';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { BrainIcon, CheckCircleIcon, HeadphonesIcon } from './Icons';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -653,13 +654,43 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
 
   // Platform feature cards data
   const platformFeatures = isArabic ? [
-    { icon: '🎧', title: '20 جلسة', desc: 'برنامج مكثف', color: brandCyan },
-    { icon: '📊', title: 'تتبع التقدم', desc: 'نتائج موثقة', color: brandPurple },
-    { icon: '🧠', title: '10 مناطق', desc: 'تحفيز شامل', color: brandPink },
+    {
+      icon: <HeadphonesIcon size={24} color={brandCyan} />,
+      title: '20 ????',
+      desc: '?????? ????',
+      color: brandCyan,
+    },
+    {
+      icon: <CheckCircleIcon size={24} color={brandPurple} />,
+      title: '???? ??????',
+      desc: '????? ?????',
+      color: brandPurple,
+    },
+    {
+      icon: <BrainIcon size={24} color={brandPink} />,
+      title: '10 ?????',
+      desc: '????? ????',
+      color: brandPink,
+    },
   ] : [
-    { icon: '🎧', title: '20 Sessions', desc: 'Intensive Program', color: brandCyan },
-    { icon: '📊', title: 'Track Progress', desc: 'Documented Results', color: brandPurple },
-    { icon: '🧠', title: '10 Areas', desc: 'Comprehensive', color: brandPink },
+    {
+      icon: <HeadphonesIcon size={24} color={brandCyan} />,
+      title: '20 Sessions',
+      desc: 'Intensive Program',
+      color: brandCyan,
+    },
+    {
+      icon: <CheckCircleIcon size={24} color={brandPurple} />,
+      title: 'Track Progress',
+      desc: 'Documented Results',
+      color: brandPurple,
+    },
+    {
+      icon: <BrainIcon size={24} color={brandPink} />,
+      title: '10 Areas',
+      desc: 'Comprehensive',
+      color: brandPink,
+    },
   ];
 
   return (

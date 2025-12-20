@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useCallback, memo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { brandPurple, brandCyan, brandPink, colors, radius, spacing, typography, transitions } from './styles';
-import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon, HomeIcon } from './Icons';
+import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon, HomeIcon, UsersIcon } from './Icons';
 import BrainLogo from './BrainLogo';
 import LanguageToggle from './LanguageToggle';
 import ModeSwitcher from './ModeSwitcher';
@@ -67,6 +67,14 @@ const NAV_ITEMS: NavItem[] = [
     priority: { school: 2, parent: 3, clinician: 4 }, // Schools & Parents: want to see results
   },
   {
+    id: 'partners',
+    translationKey: 'nav.partners',
+    path: '/partners',
+    icon: <UsersIcon size={16} />,
+    color: brandPurple,
+    priority: { school: 2, parent: 5, clinician: 6 },
+  },
+  {
     id: 'resources',
     translationKey: 'nav.resources',
     path: '/resources',
@@ -125,6 +133,7 @@ const Header = memo(function Header() {
     return sortedNavItems.filter((item) => (
       item.id === 'home'
       || item.id === 'program'
+      || item.id === 'partners'
       || item.id === 'about'
       || item.id === 'contact'
     ));

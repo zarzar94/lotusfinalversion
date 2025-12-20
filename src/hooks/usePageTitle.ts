@@ -37,6 +37,10 @@ const PAGE_TITLES: Record<string, { en: string; ar: string }> = {
     en: 'Contact Us - Lotus × Bérard AIT',
     ar: 'تواصل معنا - Lotus × Bérard AIT',
   },
+  '/partners': {
+    en: 'Partners - Lotus Ã BÃ©rard AIT',
+    ar: 'Ø§ÙØ´Ø±ÙØ§Ø¡ - Lotus Ã BÃ©rard AIT',
+  },
   '/school-dashboard': {
     en: 'School Dashboard - Lotus × Bérard AIT',
     ar: 'لوحة المدرسة - Lotus × Bérard AIT',

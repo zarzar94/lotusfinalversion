@@ -33,9 +33,9 @@ type GameMode =
   | 'questionnaire';
 
 const nextStepFrom = (r: GameResult, t: (key: string) => string) => {
-  if (r === 'low') return { label: t('cta.contactNow'), hash: '#contact', tone: brandPink };
+  if (r === 'low') return { label: t('cta.contactNow'), hash: '/contact#contact', tone: brandPink };
   if (r === 'medium') return { label: t('games.startAssessment'), hash: '#games', tone: brandPurple };
-  return { label: t('schools.requestDemo'), hash: '#schools', tone: brandCyan };
+  return { label: t('schools.requestDemo'), hash: '/partners#schools', tone: brandCyan };
 };
 
 // Animated waveform component

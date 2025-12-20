@@ -372,7 +372,7 @@ export default function PartnerLogos() {
           }}>
             هل أنت مؤسسة تعليمية أو صحية مهتمة بالشراكة؟
           </p>
-          <a href="#contact" style={{
+          <a href="/contact#contact" style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: 8,

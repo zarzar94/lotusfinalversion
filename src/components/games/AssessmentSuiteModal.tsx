@@ -83,9 +83,9 @@ export default function AssessmentSuiteModal({
   }, [session.outcomes]);
 
   const cta = useMemo(() => {
-    if (composite.result === 'low') return { title: isArabic ? 'احجز تقييماً' : 'Book Assessment', hash: '#contact', color: brandPink };
+    if (composite.result === 'low') return { title: isArabic ? 'احجز تقييماً' : 'Book Assessment', hash: '/contact#contact', color: brandPink };
     if (composite.result === 'medium') return { title: isArabic ? 'ابدأ بالاستبيان' : 'Start Questionnaire', hash: '#games', color: brandPurpleDark };
-    return { title: isArabic ? 'خيار المدارس/الجامعات' : 'Schools/Universities', hash: '#schools', color: brandCyan };
+    return { title: isArabic ? 'خيار المدارس/الجامعات' : 'Schools/Universities', hash: '/partners#schools', color: brandCyan };
   }, [composite.result, isArabic]);
 
   if (!open) return null;
