@@ -39,6 +39,7 @@ const AboutPage = lazy(() => import('./pages/AboutPage'));
 // Special Pages
 const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
 
 // Dashboard Pages
 const SchoolDashboard = lazy(() => import('./components/analytics/SchoolDashboard'));
@@ -521,6 +522,15 @@ function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <LandingPage />
+                        </Suspense>
+                      }
+                    />
+
+                    <Route
+                      path="/login"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <LoginPage />
                         </Suspense>
                       }
                     />

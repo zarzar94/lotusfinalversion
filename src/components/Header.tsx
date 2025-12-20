@@ -138,14 +138,11 @@ const Header = memo(function Header() {
     if (params.get('login') !== '1') return;
     const next = params.get('next');
     if (next && next.startsWith('/')) {
-      setLoginRedirect(next);
+      navigate(`/login?next=${encodeURIComponent(next)}`, { replace: true });
+    } else {
+      navigate('/login', { replace: true });
     }
-    openLoginModal();
-    params.delete('login');
-    params.delete('next');
-    const search = params.toString();
-    navigate({ pathname: location.pathname, search: search ? `?${search}` : '' }, { replace: true });
-  }, [isAuthenticated, location.pathname, location.search, navigate, openLoginModal]);
+  }, [isAuthenticated, location.search, navigate]);
 
   useEffect(() => {
     if (!isAuthenticated || !loginRedirect) return;

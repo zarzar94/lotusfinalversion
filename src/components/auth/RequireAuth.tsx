@@ -13,8 +13,8 @@ function RequireAuth({ children }: RequireAuthProps) {
 
   if (!isAuthenticated) {
     const next = `${location.pathname}${location.search}`;
-    const params = new URLSearchParams({ login: '1', next });
-    return <Navigate to={`/?${params.toString()}`} replace />;
+    const params = new URLSearchParams({ next });
+    return <Navigate to={`/login?${params.toString()}`} replace />;
   }
 
   return children ? <>{children}</> : <Outlet />;
