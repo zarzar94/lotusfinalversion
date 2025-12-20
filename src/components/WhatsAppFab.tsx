@@ -2,6 +2,8 @@ import { memo, useState, useCallback } from 'react';
 import { CLINIC } from '../data/clinic';
 import { handleWhatsApp } from '../utils/whatsapp';
 import { useLanguage } from '../context/LanguageContext';
+import { positionInlineStart } from '../utils/rtl';
+import { keyframes } from '../utils/animations';
 import { radius, brandColors, transitions } from './styles';
 
 // WhatsApp brand colors
@@ -40,8 +42,7 @@ const WhatsAppFab = memo(() => {
       style={{
         position: 'fixed',
         bottom: 140,
-        right: isArabic ? 'auto' : 24,
-        left: isArabic ? 24 : 'auto',
+        ...positionInlineStart(isArabic, 24),
         width: 56,
         height: 56,
         borderRadius: radius.full,
@@ -90,22 +91,10 @@ const WhatsAppFab = memo(() => {
       )}
 
       <style>{`
-        @keyframes whatsappPulse {
-          0% {
-            transform: scale(1);
-            opacity: 0.6;
-          }
-          100% {
-            transform: scale(1.4);
-            opacity: 0;
-          }
-        }
+        ${keyframes.pulseRing.replace('pulseRing', 'whatsappPulse').replace('scale(2)', 'scale(1.4)')}
         @media (prefers-reduced-motion: reduce) {
           @keyframes whatsappPulse {
-            0%, 100% {
-              transform: scale(1);
-              opacity: 0.4;
-            }
+            0%, 100% { transform: scale(1); opacity: 0.4; }
           }
         }
       `}</style>

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useGamification, type Achievement } from '../context/GamificationContext';
 import { useLanguage } from '../context/LanguageContext';
+import { positionInlineStart } from '../utils/rtl';
 import {
   brandCyan,
   brandPurple,
@@ -108,7 +109,7 @@ export default function AchievementToast() {
         style={{
           position: 'fixed',
           top: spacing[20],
-          [isArabic ? 'left' : 'right']: spacing[4],
+          ...positionInlineStart(isArabic, spacing[4]),
           zIndex: 100,
           display: 'flex',
           alignItems: 'center',
