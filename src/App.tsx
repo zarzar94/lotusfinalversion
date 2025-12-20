@@ -5,7 +5,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
 import { GamificationProvider } from './context/GamificationContext';
 import { LanguageProvider } from './context/LanguageContext';
-import { UserProvider } from './context/UserContext';
+import { UserProvider, useUser } from './context/UserContext';
 import { VisitorModeProvider } from './context/VisitorModeContext';
 import AchievementToast from './components/AchievementToast';
 import ProgressDashboard from './components/ProgressDashboard';
@@ -28,6 +28,7 @@ const appBase = (rawBase === './' ? '/' : rawBase).replace(/\/+$/, '') || '/';
 
 // Main 7 Pages
 const LandingPage = lazy(() => import('./pages/LandingPage'));
+const ExplorePage = lazy(() => import('./pages/ExplorePage'));
 const AssessmentPage = lazy(() => import('./pages/AssessmentPage'));
 const ProgramPage = lazy(() => import('./pages/ProgramPage'));
 const SciencePage = lazy(() => import('./pages/SciencePage'));
@@ -50,6 +51,11 @@ const EducatorDashboard = lazy(() => import('./pages/EducatorDashboard'));
 const ClinicianRoleDashboard = lazy(() => import('./pages/ClinicianDashboard'));
 const SettingsPage = lazy(() => import('./components/SettingsPage'));
 const DebugSessionPage = lazy(() => import('./pages/DebugSessionPage'));
+
+const HomeGate = memo(function HomeGate() {
+  const { isAuthenticated } = useUser();
+  return isAuthenticated ? <LandingPage /> : <ExplorePage />;
+});
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PAGE LOADER - Enhanced with brain-themed animation (bilingual)
@@ -521,7 +527,7 @@ function App() {
                       path="/"
                       element={
                         <Suspense fallback={<PageLoader />}>
-                          <LandingPage />
+                          <HomeGate />
                         </Suspense>
                       }
                     />
