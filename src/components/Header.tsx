@@ -107,6 +107,10 @@ const Header = memo(function Header() {
 
   // Get sorted nav items based on visitor mode
   const sortedNavItems = useMemo(() => getSortedNavItems(visitorMode), [visitorMode]);
+  const visibleNavItems = useMemo(() => {
+    if (isAuthenticated) return sortedNavItems;
+    return sortedNavItems.filter((item) => item.id === 'program' || item.id === 'about');
+  }, [isAuthenticated, sortedNavItems]);
 
   // Check if current path matches nav item
   const isActivePath = useCallback((path: string) => {
@@ -373,7 +377,7 @@ const Header = memo(function Header() {
                 textTransform: 'uppercase',
               }}>{t('nav.lab')}</span>
             </div>
-            {sortedNavItems.map((item) => {
+            {visibleNavItems.map((item) => {
               const isActive = isActivePath(item.path);
               const isPriority = item.priority?.[visitorMode] === 1; // Top priority for current mode
               return (
@@ -617,7 +621,7 @@ const Header = memo(function Header() {
           </Link>
 
           {/* Nav Items - Sorted by visitor mode priority */}
-          {sortedNavItems.map((item, index) => {
+          {visibleNavItems.map((item, index) => {
             const isActive = isActivePath(item.path);
             const isPriority = item.priority?.[visitorMode] === 1;
             return (
