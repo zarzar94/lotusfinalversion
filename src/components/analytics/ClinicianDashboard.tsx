@@ -1208,7 +1208,7 @@ export default function ClinicianDashboard() {
           <InfoCard
             title={t('auto.ClinicianDashboard.k32', "Alert: Inactive Patients")}
             titleAr="تنبيه: مرضى غير نشطين"
-            content={`${MOCK_PATIENTS.filter(p => p.streak === 0 && p.treatmentPhase === 'active').length} ${t('auto.ClinicianDashboard.k33', "patients in active treatment haven\\")t practiced in over 2 days'}`}
+            content={`${MOCK_PATIENTS.filter(p => p.streak === 0 && p.treatmentPhase === 'active').length} ${t('auto.ClinicianDashboard.k33', "patients in active treatment haven't practiced in over 2 days")}`}
             contentAr={`${MOCK_PATIENTS.filter(p => p.streak === 0 && p.treatmentPhase === 'active').length} مرضى في العلاج النشط لم يمارسوا منذ أكثر من يومين`}
             variant="warning"
             isArabic={isArabic}

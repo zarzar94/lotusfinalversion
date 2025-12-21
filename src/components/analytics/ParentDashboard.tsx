@@ -826,7 +826,7 @@ export default function ParentDashboard() {
           <InfoCard
             title={t('auto.ParentDashboard.k17', "Alert: Low Activity")}
             titleAr="تنبيه: نشاط منخفض"
-            content={`${children.filter(c => c.streak === 0).length} ${t('auto.ParentDashboard.k18', "children haven\\")t practiced recently'}`}
+            content={`${children.filter(c => c.streak === 0).length} ${t('auto.ParentDashboard.k18', "children haven't practiced recently")}`}
             contentAr={`${children.filter(c => c.streak === 0).length} أطفال لم يمارسوا مؤخراً`}
             variant="warning"
             isArabic={isArabic}
