@@ -20,7 +20,25 @@ export const safeJson = (value: unknown) => {
   }
 };
 
-const getReportLabels = (language: Language) => translations[language].report;
+const fallbackReportLabels = {
+  title: 'Screening Report',
+  subtitle: 'Interactive auditory screening session results',
+  session: 'Session',
+  date: 'Date',
+  disclaimer: 'This screening is non-diagnostic and does not replace clinical evaluation.',
+  pass: 'Pass',
+  fail: 'Fail',
+  notSupported: 'Not supported',
+  headphoneCheck: 'Headphone Check',
+  summary: 'Summary',
+  result: 'Result',
+  classification: 'Classification',
+};
+
+const getReportLabels = (language: Language) => {
+  const lang = translations[language] as { report?: typeof fallbackReportLabels };
+  return lang.report ?? fallbackReportLabels;
+};
 
 
 export const downloadSessionCsv = (session: AssessmentSession) => {

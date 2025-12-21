@@ -162,7 +162,7 @@ export default function SpeechInNoiseTestPanel({
       };
       window.speechSynthesis.speak(utter);
     } else {
-      window.setTimeout(() => {
+      setTimeout(() => {
         stopNoise(noiseRef);
         onsetRef.current = performance.now();
         setPlayed(true);

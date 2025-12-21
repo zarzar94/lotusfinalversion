@@ -158,6 +158,7 @@ const ChildProgressCard = memo(({
   isExpanded: boolean;
   onToggle: () => void;
 }) => {
+  const { t } = useLanguage();
   const progressPercent = Math.round((child.sessionsCompleted / child.totalSessions) * 100);
   const milestones = getMilestones(child.sessionsCompleted);
 

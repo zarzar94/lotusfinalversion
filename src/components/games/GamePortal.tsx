@@ -266,6 +266,7 @@ const PortalHeader = memo(function PortalHeader({
   streak: number;
   isArabic: boolean;
 }) {
+  const { t } = useLanguage();
   return (
     <div
       style={{
@@ -523,6 +524,7 @@ const AchievementCard = memo(function AchievementCard({
   index: number;
   isArabic: boolean;
 }) {
+  const { t } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -595,6 +597,7 @@ const AchievementShowcase = memo(function AchievementShowcase({
   unlockedIds: Set<string>;
   isArabic: boolean;
 }) {
+  const { t } = useLanguage();
   const achievements = useMemo(() => {
     // Show unlocked first, then locked
     const unlocked = GAME_ACHIEVEMENTS.filter(a => unlockedIds.has(a.id));
@@ -657,6 +660,7 @@ const SessionItem = memo(function SessionItem({
   index: number;
   isArabic: boolean;
 }) {
+  const { t } = useLanguage();
   const date = useMemo(() => new Date(session.date), [session.date]);
   const testsCompleted = Object.keys(session.outcomes).length;
   const results = Object.values(session.outcomes);
@@ -756,6 +760,7 @@ const SessionHistory = memo(function SessionHistory({
   sessions: StoredSession[];
   isArabic: boolean;
 }) {
+  const { t } = useLanguage();
   const recentSessions = useMemo(() => sessions.slice(0, 5), [sessions]);
 
   if (recentSessions.length === 0) {
@@ -829,6 +834,7 @@ const SectionTitle = memo(function SectionTitle({
 // ==================== TIPS BANNER ====================
 
 const TipsBanner = memo(function TipsBanner({ isArabic }: { isArabic: boolean }) {
+  const { t } = useLanguage();
   const tips = [
     { icon: '🎧', textAr: 'auto.GamePortal.k23', textEn: 'Headphones' },
     { icon: '🔊', textAr: 'auto.GamePortal.k24', textEn: 'Comfortable volume' },

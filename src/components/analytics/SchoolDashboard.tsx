@@ -38,6 +38,7 @@ interface StudentData {
   name: string;
   nameAr: string;
   grade: string;
+  gradeAr?: string;
   sessionsCompleted: number;
   totalSessions: number;
   attentionScore: number;
@@ -106,6 +107,7 @@ const ProgressBarChart = memo(({
   data: WeeklyProgress[];
   isArabic: boolean;
 }) => {
+  const { t } = useLanguage();
   const maxSessions = Math.max(...data.map(d => d.sessionsCompleted));
 
   return (
@@ -187,6 +189,7 @@ const StudentTable = memo(({
   students: StudentData[];
   isArabic: boolean;
 }) => {
+  const { t } = useLanguage();
   const statusColors: Record<StudentData['status'], { bg: string; text: string; label: string; labelAr: string }> = {
     on_track: { bg: 'rgba(34,197,94,0.15)', text: '#22c55e', label: 'On Track', labelAr: 'auto.SchoolDashboard.k47' },
     completed: { bg: 'rgba(143,211,204,0.15)', text: brandCyan, label: 'Completed', labelAr: 'auto.SchoolDashboard.k48' },
@@ -255,7 +258,7 @@ const StudentTable = memo(({
                   {isArabic ? t(student.nameAr, student.name) : student.name}
                 </td>
                 <td style={{ padding: spacing[3], color: colors.text.secondary }}>
-                  {isArabic ? t(student.gradeAr, student.grade) : student.grade}
+                  {isArabic ? t(student.gradeAr ?? student.grade, student.grade) : student.grade}
                 </td>
                 <td style={{ padding: spacing[3] }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>

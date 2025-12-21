@@ -19,7 +19,7 @@ interface LocalizedTextProps {
   /** English text */
   en: string;
   /** Optional tag name (default: span) */
-  as?: keyof JSX.IntrinsicElements;
+  as?: 'span' | 'div' | 'p' | 'strong' | 'em' | 'small' | 'label' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   /** Optional style */
   style?: CSSProperties;
   /** Optional className */

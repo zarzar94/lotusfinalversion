@@ -190,11 +190,11 @@ ImprovementSelector.displayName = 'ImprovementSelector';
 
 const IntakeForm: React.FC = () => {
   const { isArabic, direction, t } = useLanguage();
-  const fieldStyle = useMemo(() => ({
+  const fieldStyle = useMemo<React.CSSProperties>(() => ({
     ...notepadInputStyle,
-    direction: isArabic ? 'rtl' : 'ltr',
+    direction,
     textAlign: isArabic ? 'right' : 'left',
-  }), [isArabic]);
+  }), [direction, isArabic]);
   const [currentStep, setCurrentStep] = useState(1);
   const [isChild, setIsChild] = useState(true);
   const [isReturningClient, setIsReturningClient] = useState(false);

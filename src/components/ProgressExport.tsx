@@ -24,6 +24,7 @@ import {
 
 const generateProgressPdf = async (
   isArabic: boolean,
+  t: (key: string, fallback?: string) => string,
   user: { name?: string; nameAr?: string; email?: string; role: string },
   clinicalProgress: {
     sessionsCompleted: number;
@@ -149,7 +150,12 @@ const generateProgressPdf = async (
   // ════════════════════════════════════════════════════════════════════════
 
   y = drawSection(text.userInfo, y);
-  y = drawInfoRow(text.name, (isArabic ? t(user.nameAr, user.name) : user.name) || 'N/A', y);
+  const displayName = isArabic
+    ? user.nameAr
+      ? t(user.nameAr, user.name ?? user.nameAr)
+      : user.name
+    : user.name;
+  y = drawInfoRow(text.name, displayName || 'N/A', y);
   y = drawInfoRow(text.email, user.email || 'N/A', y);
   y = drawInfoRow(text.role, user.role.charAt(0).toUpperCase() + user.role.slice(1), y);
 
@@ -295,6 +301,7 @@ export const ProgressExportButton = memo(({
     try {
       await generateProgressPdf(
         isArabic,
+        t,
         user,
         clinicalProgress,
         {

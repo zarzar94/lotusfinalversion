@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type CSSProperties } from 'react';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
 
 interface Partner {
@@ -75,7 +75,7 @@ const stats = [
   { value: '8+', label: 'عيادات متعاونة', icon: '🏥' },
 ];
 
-const particleBaseStyle = {
+const particleBaseStyle: CSSProperties = {
   position: 'absolute',
   width: 4,
   height: 4,
@@ -83,7 +83,7 @@ const particleBaseStyle = {
   opacity: 0.3,
 };
 
-const statsRowStyle = {
+const statsRowStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'center',
   gap: 24,
@@ -91,7 +91,7 @@ const statsRowStyle = {
   flexWrap: 'wrap',
 };
 
-const statCardBaseStyle = {
+const statCardBaseStyle: CSSProperties = {
   padding: '16px 28px',
   background: 'rgba(255,255,255,0.03)',
   borderRadius: 16,
@@ -100,7 +100,7 @@ const statCardBaseStyle = {
   minWidth: 120,
 };
 
-const statValueStyle = {
+const statValueStyle: CSSProperties = {
   fontSize: 32,
   fontWeight: 900,
   color: brandCyan,
@@ -108,7 +108,7 @@ const statValueStyle = {
   marginBottom: 4,
 };
 
-const statLabelStyle = {
+const statLabelStyle: CSSProperties = {
   fontSize: 12,
   color: 'rgba(255,255,255,0.7)',
   display: 'flex',
@@ -117,14 +117,14 @@ const statLabelStyle = {
   gap: 6,
 };
 
-const partnerGridStyle = {
+const partnerGridStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
   gap: 16,
   marginBottom: 32,
 };
 
-const partnerCardBaseStyle = {
+const partnerCardBaseStyle: CSSProperties = {
   padding: 20,
   borderRadius: 18,
   cursor: 'default',
@@ -132,7 +132,7 @@ const partnerCardBaseStyle = {
   textAlign: 'center',
 };
 
-const partnerIconBaseStyle = {
+const partnerIconBaseStyle: CSSProperties = {
   width: 60,
   height: 60,
   margin: '0 auto 14px',
@@ -143,19 +143,19 @@ const partnerIconBaseStyle = {
   fontSize: 28,
 };
 
-const partnerNameBaseStyle = {
+const partnerNameBaseStyle: CSSProperties = {
   fontWeight: 800,
   fontSize: 14,
   marginBottom: 4,
   transition: 'color 0.3s ease',
 };
 
-const partnerNameEnBaseStyle = {
+const partnerNameEnBaseStyle: CSSProperties = {
   fontSize: 10,
   color: 'rgba(255,255,255,0.5)',
 };
 
-const partnerDescriptionBaseStyle = {
+const partnerDescriptionBaseStyle: CSSProperties = {
   marginTop: 10,
   padding: '8px 10px',
   background: 'rgba(0,0,0,0.3)',
@@ -165,7 +165,7 @@ const partnerDescriptionBaseStyle = {
   animation: 'partnerEnter 0.3s ease-out',
 };
 
-const partnerBadgeBaseStyle = {
+const partnerBadgeBaseStyle: CSSProperties = {
   marginTop: 10,
   display: 'inline-flex',
   padding: '4px 10px',

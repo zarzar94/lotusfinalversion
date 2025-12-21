@@ -107,6 +107,7 @@ const ModuleCard = memo(({
   isArabic: boolean;
   index: number;
 }) => {
+  const { t } = useLanguage();
   const prefersReducedMotion = usePrefersReducedMotion();
   const [isHovered, setIsHovered] = useState(false);
 

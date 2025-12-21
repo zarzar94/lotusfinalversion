@@ -118,8 +118,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   // Language-aware CSS utilities
   const fontFamily = 'Cairo, system-ui, -apple-system, sans-serif';
-  const textAlign = isArabic ? 'right' as const : 'left' as const;
-  const flexDirection = isArabic ? 'row-reverse' as const : 'row' as const;
+  const textAlign: 'right' | 'left' = isArabic ? 'right' : 'left';
+  const flexDirection: 'row' | 'row-reverse' = isArabic ? 'row-reverse' : 'row';
 
   const marginStart = useCallback((value: number): CSSProperties =>
     isArabic ? { marginRight: value } : { marginLeft: value }, [isArabic]);
@@ -464,18 +464,23 @@ export function useLocalizedContent<T extends { ar: string; en: string }>(conten
 export function useDirectionalStyles() {
   const { direction, isArabic } = useLanguage();
 
-  return useMemo(() => ({
-    textAlign: (isArabic ? 'right' : 'left') as const,
-    flexDirection: (isArabic ? 'row-reverse' : 'row') as const,
-    transformOrigin: isArabic ? 'right center' : 'left center',
-    gradientDirection: isArabic ? 'to left' : 'to right',
-    iconPosition: isArabic ? 'right' : 'left',
-    marginInlineStart: (value: number) => isArabic ? { marginRight: value } : { marginLeft: value },
-    marginInlineEnd: (value: number) => isArabic ? { marginLeft: value } : { marginRight: value },
-    paddingInlineStart: (value: number) => isArabic ? { paddingRight: value } : { paddingLeft: value },
-    paddingInlineEnd: (value: number) => isArabic ? { paddingLeft: value } : { paddingRight: value },
-    borderInlineStart: (border: string) => isArabic ? { borderRight: border } : { borderLeft: border },
-    borderInlineEnd: (border: string) => isArabic ? { borderLeft: border } : { borderRight: border },
-    direction,
-  }), [direction, isArabic]);
+  return useMemo(() => {
+    const textAlign: 'right' | 'left' = isArabic ? 'right' : 'left';
+    const flexDirection: 'row' | 'row-reverse' = isArabic ? 'row-reverse' : 'row';
+
+    return {
+      textAlign,
+      flexDirection,
+      transformOrigin: isArabic ? 'right center' : 'left center',
+      gradientDirection: isArabic ? 'to left' : 'to right',
+      iconPosition: isArabic ? 'right' : 'left',
+      marginInlineStart: (value: number) => (isArabic ? { marginRight: value } : { marginLeft: value }),
+      marginInlineEnd: (value: number) => (isArabic ? { marginLeft: value } : { marginRight: value }),
+      paddingInlineStart: (value: number) => (isArabic ? { paddingRight: value } : { paddingLeft: value }),
+      paddingInlineEnd: (value: number) => (isArabic ? { paddingLeft: value } : { paddingRight: value }),
+      borderInlineStart: (border: string) => (isArabic ? { borderRight: border } : { borderLeft: border }),
+      borderInlineEnd: (border: string) => (isArabic ? { borderLeft: border } : { borderRight: border }),
+      direction,
+    };
+  }, [direction, isArabic]);
 }

@@ -91,6 +91,7 @@ const ModeCard = memo(({
   onSelect: () => void;
   onNavigate: () => void;
 }) => {
+  const { t } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
   const config = MODE_CONFIGS[mode];
 

@@ -162,6 +162,7 @@ const PatientRow = memo(({
   isArabic: boolean;
   onSelect: () => void;
 }) => {
+  const { t } = useLanguage();
   const progressPercent = Math.round((patient.sessionsCompleted / patient.totalSessions) * 100);
 
   const phaseConfig = {
@@ -340,6 +341,7 @@ const PatientDetailModal = memo(({
   isArabic: boolean;
   onClose: () => void;
 }) => {
+  const { t } = useLanguage();
   const progressPercent = Math.round((patient.sessionsCompleted / patient.totalSessions) * 100);
 
   const formatDate = (timestamp: number) => {

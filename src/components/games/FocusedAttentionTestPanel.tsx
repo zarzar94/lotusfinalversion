@@ -214,21 +214,21 @@ export default function FocusedAttentionTestPanel({
     const cur = currentRef.current;
     if (!cur) return;
     const trials = cur.practice ? practiceRef.current : trialsRef.current;
-    const t = trials[cur.idx];
-    if (t.responded) return;
+    const trial = trials[cur.idx];
+    if (trial.responded) return;
 
     const now = performance.now();
     const rt = Math.round(now - cur.onset);
     if (rt < RESPONSE_MIN) return;
 
-    t.responded = true;
-    t.rtMs = rt;
-    t.responseType = t.isTarget ? 'hit' : 'fa';
+    trial.responded = true;
+    trial.rtMs = rt;
+    trial.responseType = trial.isTarget ? 'hit' : 'fa';
 
-    if (!cur.practice && t.isTarget) rtsRef.current.push(rt);
+    if (!cur.practice && trial.isTarget) rtsRef.current.push(rt);
 
     if (cur.practice) {
-      showFeedback(t.isTarget ? (t('auto.FocusedAttentionTestPanel.k7', "Correct")) : (t('auto.FocusedAttentionTestPanel.k8', "False alarm")));
+      showFeedback(trial.isTarget ? t('auto.FocusedAttentionTestPanel.k7', "Correct") : t('auto.FocusedAttentionTestPanel.k8', "False alarm"));
     }
   }, [isArabic, stage]);
 

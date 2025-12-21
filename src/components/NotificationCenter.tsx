@@ -75,11 +75,13 @@ const NotificationItem = memo(({
   isArabic,
   onMarkRead,
   onDismiss,
+  t,
 }: {
   notification: Notification;
   isArabic: boolean;
   onMarkRead: (id: string) => void;
   onDismiss: (id: string) => void;
+  t: (key: string, fallback?: string) => string;
 }) => {
   const typeConfig = {
     achievement: { color: brandCyan, bgColor: `${brandCyan}12` },
@@ -553,6 +555,7 @@ export default function NotificationCenter() {
                     isArabic={isArabic}
                     onMarkRead={markRead}
                     onDismiss={dismissNotification}
+                    t={t}
                   />
                 ))
               )}

@@ -30,6 +30,7 @@ const Gauge = memo(function Gauge({
   thickness = 10,
   isArabic = false,
 }: GaugeProps & { isArabic?: boolean }) {
+  const { t } = useLanguage();
   const circumference = (size - thickness) * Math.PI;
   const progress = Math.min(100, Math.max(0, value));
   const offset = circumference - (progress / 100) * circumference;
@@ -134,6 +135,7 @@ const TrendChart = memo(function TrendChart({
   label,
   isArabic = false,
 }: TrendChartProps) {
+  const { t } = useLanguage();
   if (data.length < 2) {
     return (
       <div style={{
