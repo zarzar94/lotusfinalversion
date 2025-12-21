@@ -1,8 +1,10 @@
 import type { jsPDF } from 'jspdf';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../../utils/pdf';
+import { translations } from '../../i18n/translations';
+import type { Language } from '../../context/LanguageContext';
 import { AssessmentSession, TestOutcome, TestKey } from './types';
 
-const downloadBlob = (blob: Blob, filename: string) => {
+export const downloadBlob = (blob: Blob, filename: string): void => {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = filename;
@@ -10,7 +12,7 @@ const downloadBlob = (blob: Blob, filename: string) => {
   URL.revokeObjectURL(a.href);
 };
 
-const safeJson = (value: unknown) => {
+const safeJson = (value: unknown): string => {
   try {
     return JSON.stringify(value);
   } catch {
@@ -18,7 +20,28 @@ const safeJson = (value: unknown) => {
   }
 };
 
-export const downloadSessionCsv = (session: AssessmentSession) => {
+const fallbackReportLabels = {
+  title: 'Screening Report',
+  subtitle: 'Interactive auditory screening session results',
+  session: 'Session',
+  date: 'Date',
+  disclaimer: 'This screening is non-diagnostic and does not replace clinical evaluation.',
+  pass: 'Pass',
+  fail: 'Fail',
+  notSupported: 'Not supported',
+  headphoneCheck: 'Headphone Check',
+  summary: 'Summary',
+  result: 'Result',
+  classification: 'Classification',
+};
+
+const getReportLabels = (language: Language) => {
+  const lang = translations[language] as { report?: typeof fallbackReportLabels };
+  return lang.report ?? fallbackReportLabels;
+};
+
+
+export const downloadSessionCsv = (session: AssessmentSession): void => {
   const rows: string[] = [];
   rows.push(['session_id', 'started_at', 'test_key', 'title', 'result', 'score_label', 'message', 'metrics_json'].join(','));
 
@@ -42,7 +65,7 @@ export const downloadSessionCsv = (session: AssessmentSession) => {
   downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `Berard-AIT-Screening-${Date.now()}.csv`);
 };
 
-const writeMetrics = (doc: jsPDF, metrics: TestOutcome['metrics'], yStart: number) => {
+const writeMetrics = (doc: jsPDF, metrics: TestOutcome['metrics'], yStart: number): number => {
   let y = yStart;
   doc.setFont('Cairo', 'normal');
   doc.setFontSize(11);
@@ -56,32 +79,35 @@ const writeMetrics = (doc: jsPDF, metrics: TestOutcome['metrics'], yStart: numbe
   return y;
 };
 
-export const downloadSessionPdf = async (session: AssessmentSession, composite?: { label: string; message: string }) => {
+export const downloadSessionPdf = async (
+  session: AssessmentSession,
+  composite?: { label: string; message: string },
+  language: Language = 'ar',
+) : Promise<void> => {
+  const labels = getReportLabels(language);
   const doc = await createPdfDoc();
   doc.setFont('Cairo', 'bold');
 
   let y = 62;
   doc.setFontSize(18);
-  y = writePdfText(doc, 'Berard AIT Sound Lab — تقرير فحص سمعي تفاعلي', PDF_MARGIN_X, y, { maxWidth: 520, lineHeight: 22 });
+  y = writePdfText(doc, labels.title, PDF_MARGIN_X, y, { maxWidth: 520, lineHeight: 22 });
 
   doc.setFont('Cairo', 'normal');
-  doc.setFontSize(11);
-  y = writePdfText(doc, `Session: ${session.id}`, PDF_MARGIN_X, y + 10, { maxWidth: 520, lineHeight: 16 });
-  y = writePdfText(doc, `Date: ${new Date(session.startedAt).toLocaleString()}`, PDF_MARGIN_X, y + 4, { maxWidth: 520, lineHeight: 16 });
+  doc.setFontSize(12);
+  y = writePdfText(doc, labels.subtitle, PDF_MARGIN_X, y + 6, { maxWidth: 520, lineHeight: 18 });
 
-  y = writePdfText(
-    doc,
-    'تنبيه مهم: هذا فحص تفاعلي (Screening) للتوعية وقياس مؤشرات عامة. لا يعتبر تشخيصاً طبياً ولا يغني عن تقييم سريري باستخدام أدوات معيارية ومعايرة سماعات.',
-    PDF_MARGIN_X,
-    y + 8,
-    { maxWidth: 520, lineHeight: 16 }
-  );
+  doc.setFontSize(11);
+  y = writePdfText(doc, `${labels.session}: ${session.id}`, PDF_MARGIN_X, y + 10, { maxWidth: 520, lineHeight: 16 });
+  y = writePdfText(doc, `${labels.date}: ${new Date(session.startedAt).toLocaleString()}`, PDF_MARGIN_X, y + 4, { maxWidth: 520, lineHeight: 16 });
+
+  y = writePdfText(doc, labels.disclaimer, PDF_MARGIN_X, y + 8, { maxWidth: 520, lineHeight: 16 });
 
   if (session.headphoneCheck) {
     const hc = session.headphoneCheck;
+    const status = hc.supported ? (hc.passed ? labels.pass : labels.fail) : labels.notSupported;
     y = writePdfText(
       doc,
-      `Headphone check: ${hc.supported ? (hc.passed ? 'PASS' : 'FAIL') : 'NOT SUPPORTED'} (${hc.correct}/${hc.total})`,
+      `${labels.headphoneCheck}: ${status} (${hc.correct}/${hc.total})`,
       PDF_MARGIN_X,
       y + 10,
       { maxWidth: 520, lineHeight: 16 }
@@ -91,14 +117,14 @@ export const downloadSessionPdf = async (session: AssessmentSession, composite?:
   if (composite) {
     doc.setFont('Cairo', 'bold');
     doc.setFontSize(14);
-    y = writePdfText(doc, `الخلاصة: ${composite.label}`, PDF_MARGIN_X, y + 14, { maxWidth: 520, lineHeight: 18 });
+    y = writePdfText(doc, `${labels.summary}: ${composite.label}`, PDF_MARGIN_X, y + 14, { maxWidth: 520, lineHeight: 18 });
     doc.setFont('Cairo', 'normal');
     doc.setFontSize(11);
     y = writePdfText(doc, composite.message, PDF_MARGIN_X, y + 6, { maxWidth: 520, lineHeight: 16 });
   }
 
   // Per-test outcomes
-  const ordered: TestKey[] = ['attention', 'frequency', 'sequence', 'questionnaire'];
+  const ordered: TestKey[] = ['attention', 'focused_attention', 'frequency', 'sequence', 'dichotic_listening', 'speech_in_noise', 'questionnaire'];
   for (const key of ordered) {
     const o = session.outcomes[key];
     if (!o) continue;
@@ -109,7 +135,7 @@ export const downloadSessionPdf = async (session: AssessmentSession, composite?:
 
     doc.setFont('Cairo', 'normal');
     doc.setFontSize(11);
-    y = writePdfText(doc, `النتيجة: ${o.scoreLabel} | التصنيف: ${o.result}`, PDF_MARGIN_X, y + 6, { maxWidth: 520, lineHeight: 16 });
+    y = writePdfText(doc, `${labels.result}: ${o.scoreLabel} | ${labels.classification}: ${o.result}`, PDF_MARGIN_X, y + 6, { maxWidth: 520, lineHeight: 16 });
     y = writePdfText(doc, o.message, PDF_MARGIN_X, y + 4, { maxWidth: 520, lineHeight: 16 });
 
     y = writeMetrics(doc, o.metrics, y + 6);

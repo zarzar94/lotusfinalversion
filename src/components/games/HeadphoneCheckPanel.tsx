@@ -367,14 +367,15 @@ export default function HeadphoneCheckPanel({
   onDone: (res: HeadphoneCheckResult) => void;
   onSkip?: () => void;
 }) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const audioRef = useRef<AudioContext | null>(null);
   const [phase, setPhase] = useState<'volume' | 'headphone'>('volume');
 
   const supported = useMemo(() => {
     try {
-      const tmp = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const ok = Boolean((tmp as any).createStereoPanner);
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      const tmp = new AudioContextClass();
+      const ok = typeof tmp.createStereoPanner === 'function';
       tmp.close();
       return ok;
     } catch {

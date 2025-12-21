@@ -38,7 +38,7 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
     className="about-page-header"
     style={{
       textAlign: 'center',
-      padding: `${spacing[10]}px ${spacing[4]}px ${spacing[6]}px`,
+      padding: `0 ${spacing[4]}px ${spacing[6]}px`,
       maxWidth: 800,
       margin: '0 auto',
       position: 'relative',

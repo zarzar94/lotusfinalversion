@@ -1,4 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode, type CSSProperties } from 'react';
+import { translations } from '../i18n/translations';
+import { detectPreferredLanguage, LANGUAGE_STORAGE_KEY } from '../utils/language';
+import { safeStorage } from '../utils/storage';
 
 export type Language = 'ar' | 'en';
 export type Direction = 'rtl' | 'ltr';
@@ -8,7 +11,7 @@ interface LanguageContextType {
   direction: Direction;
   setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
-  t: (key: string, fallback?: string) => string;
+  t: <T = string>(key: string | T, fallback?: T) => T;
   isArabic: boolean;
   isEnglish: boolean;
   // Language-aware utilities
@@ -27,15 +30,12 @@ interface LanguageContextType {
   enforceLanguage: boolean;
 }
 
-const STORAGE_KEY = 'lotus_language';
 const FIRST_VISIT_KEY = 'lotus_first_visit';
 
 const LanguageContext = createContext<LanguageContextType | null>(null);
 
-// Import translations
-import { translations } from '../i18n/translations';
-
-function getNestedValue(obj: Record<string, unknown>, path: string): string {
+function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
+  if (typeof path !== 'string') return undefined;
   const keys = path.split('.');
   let current: unknown = obj;
 
@@ -43,43 +43,20 @@ function getNestedValue(obj: Record<string, unknown>, path: string): string {
     if (current && typeof current === 'object' && key in current) {
       current = (current as Record<string, unknown>)[key];
     } else {
-      return path; // Return key if not found
+      return undefined;
     }
   }
 
-  return typeof current === 'string' ? current : path;
+  return current;
 }
 
 // Detect if this is the user's first visit
 function isFirstVisit(): boolean {
-  if (typeof window === 'undefined') return false;
-  const visited = localStorage.getItem(FIRST_VISIT_KEY);
-  if (!visited) {
-    localStorage.setItem(FIRST_VISIT_KEY, 'true');
-    return true;
-  }
-  return false;
-}
-
-// Detect user's preferred language from browser
-function detectPreferredLanguage(): Language {
-  if (typeof window === 'undefined') return 'ar';
-
-  // First check localStorage
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved === 'ar' || saved === 'en') return saved;
-
-  // Check browser language
-  const browserLang = navigator.language.toLowerCase();
-  if (browserLang.startsWith('ar')) return 'ar';
-  if (browserLang.startsWith('en')) return 'en';
-
-  // Check timezone for GCC countries (default to Arabic)
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const gccTimezones = ['Asia/Dubai', 'Asia/Riyadh', 'Asia/Qatar', 'Asia/Kuwait', 'Asia/Bahrain', 'Asia/Muscat'];
-  if (gccTimezones.some(tz => timezone.includes(tz))) return 'ar';
-
-  return 'ar'; // Default to Arabic for this Arabic-first app
+  if (!safeStorage.isAvailable()) return false;
+  const visited = safeStorage.getItem(FIRST_VISIT_KEY);
+  if (visited) return false;
+  safeStorage.setItem(FIRST_VISIT_KEY, 'true');
+  return true;
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
@@ -101,7 +78,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   // Save to localStorage and update document attributes
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, language);
+    safeStorage.setItem(LANGUAGE_STORAGE_KEY, language);
     document.documentElement.lang = language;
     document.documentElement.dir = direction;
     document.documentElement.dataset.lang = language;
@@ -127,17 +104,22 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLanguageState(prev => prev === 'ar' ? 'en' : 'ar');
   }, []);
 
-  const t = useCallback((key: string, fallback?: string): string => {
+  const t = useCallback(<T,>(key: string | T, fallback?: T): T => {
+    if (typeof key !== 'string') {
+      return key as T;
+    }
     const langTranslations = translations[language];
     const value = getNestedValue(langTranslations as Record<string, unknown>, key);
-    if (value === key && fallback) return fallback;
-    return value;
+    if (value === undefined) {
+      return fallback ?? (key as unknown as T);
+    }
+    return value as T;
   }, [language]);
 
   // Language-aware CSS utilities
   const fontFamily = 'Cairo, system-ui, -apple-system, sans-serif';
-  const textAlign = isArabic ? 'right' as const : 'left' as const;
-  const flexDirection = isArabic ? 'row-reverse' as const : 'row' as const;
+  const textAlign: 'right' | 'left' = isArabic ? 'right' : 'left';
+  const flexDirection: 'row' | 'row-reverse' = isArabic ? 'row-reverse' : 'row';
 
   const marginStart = useCallback((value: number): CSSProperties =>
     isArabic ? { marginRight: value } : { marginLeft: value }, [isArabic]);
@@ -482,18 +464,23 @@ export function useLocalizedContent<T extends { ar: string; en: string }>(conten
 export function useDirectionalStyles() {
   const { direction, isArabic } = useLanguage();
 
-  return useMemo(() => ({
-    textAlign: (isArabic ? 'right' : 'left') as const,
-    flexDirection: (isArabic ? 'row-reverse' : 'row') as const,
-    transformOrigin: isArabic ? 'right center' : 'left center',
-    gradientDirection: isArabic ? 'to left' : 'to right',
-    iconPosition: isArabic ? 'right' : 'left',
-    marginInlineStart: (value: number) => isArabic ? { marginRight: value } : { marginLeft: value },
-    marginInlineEnd: (value: number) => isArabic ? { marginLeft: value } : { marginRight: value },
-    paddingInlineStart: (value: number) => isArabic ? { paddingRight: value } : { paddingLeft: value },
-    paddingInlineEnd: (value: number) => isArabic ? { paddingLeft: value } : { paddingRight: value },
-    borderInlineStart: (border: string) => isArabic ? { borderRight: border } : { borderLeft: border },
-    borderInlineEnd: (border: string) => isArabic ? { borderLeft: border } : { borderRight: border },
-    direction,
-  }), [direction, isArabic]);
+  return useMemo(() => {
+    const textAlign: 'right' | 'left' = isArabic ? 'right' : 'left';
+    const flexDirection: 'row' | 'row-reverse' = isArabic ? 'row-reverse' : 'row';
+
+    return {
+      textAlign,
+      flexDirection,
+      transformOrigin: isArabic ? 'right center' : 'left center',
+      gradientDirection: isArabic ? 'to left' : 'to right',
+      iconPosition: isArabic ? 'right' : 'left',
+      marginInlineStart: (value: number) => (isArabic ? { marginRight: value } : { marginLeft: value }),
+      marginInlineEnd: (value: number) => (isArabic ? { marginLeft: value } : { marginRight: value }),
+      paddingInlineStart: (value: number) => (isArabic ? { paddingRight: value } : { paddingLeft: value }),
+      paddingInlineEnd: (value: number) => (isArabic ? { paddingLeft: value } : { paddingRight: value }),
+      borderInlineStart: (border: string) => (isArabic ? { borderRight: border } : { borderLeft: border }),
+      borderInlineEnd: (border: string) => (isArabic ? { borderLeft: border } : { borderRight: border }),
+      direction,
+    };
+  }, [direction, isArabic]);
 }

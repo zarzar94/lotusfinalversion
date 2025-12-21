@@ -9,7 +9,7 @@ const WHATSAPP_GREEN = brandColors.whatsapp;
 const WHATSAPP_DARK = '#128C7E';
 
 const WhatsAppFab = memo(() => {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
 
   // Bilingual WhatsApp message
@@ -21,7 +21,7 @@ const WhatsAppFab = memo(() => {
   }, [isArabic]);
 
   // Bilingual tooltip & aria-label
-  const label = isArabic ? 'تواصل عبر واتساب' : 'Chat on WhatsApp';
+  const label = t('auto.WhatsAppFab.k1', "Chat on WhatsApp");
 
   const handleClick = useCallback(() => {
     handleWhatsApp(getMessage());

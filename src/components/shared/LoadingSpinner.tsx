@@ -13,7 +13,7 @@ interface LoadingSpinnerProps {
 }
 
 function LoadingSpinner({ size = 'md', message, messageAr }: LoadingSpinnerProps) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const dims = useMemo(() => ({ sm: { s: 24, b: 3 }, md: { s: 40, b: 4 }, lg: { s: 56, b: 5 } }), []);
   const { s, b } = dims[size];
 

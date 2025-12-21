@@ -8,3 +8,8 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+// WebKit AudioContext for Safari compatibility
+interface Window {
+  webkitAudioContext?: typeof AudioContext;
+}

@@ -51,7 +51,7 @@ function StatCard({
   variant = 'default',
   onClick,
 }: StatCardProps) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
 
   const displayLabel = isArabic ? (labelAr || label) : label;
   const displaySubtitle = subtitle ? (isArabic ? (subtitleAr || subtitle) : subtitle) : undefined;

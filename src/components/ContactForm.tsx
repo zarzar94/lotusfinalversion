@@ -22,33 +22,33 @@ interface RoleContactConfig {
 const ROLE_CONTACT_CONFIG: Record<VisitorMode, RoleContactConfig> = {
   school: {
     quickMessageEn: 'Hello, I would like to inquire about school partnership and screening programs for Berard AIT',
-    quickMessageAr: 'مرحباً، أود الاستفسار عن شراكة المدارس وبرامج الفحص لـ Berard AIT',
+    quickMessageAr: 'auto.ContactForm.k5',
     placeholderEn: 'Write about partnership inquiry, demo request, or screening program for students...',
-    placeholderAr: 'اكتب عن طلب شراكة، عرض تجريبي، أو برنامج فحص للطلاب...',
+    placeholderAr: 'auto.ContactForm.k6',
     badgesEn: ['School Partnership', 'Group Screening'],
     badgesAr: ['شراكة مدرسية', 'فحص جماعي'],
     headerSubtitleEn: 'Ready for school partnerships and group screening coordination',
-    headerSubtitleAr: 'جاهزون لشراكات المدارس وتنسيق برامج الفحص الجماعي',
+    headerSubtitleAr: 'auto.ContactForm.k7',
   },
   parent: {
     quickMessageEn: 'Hello, I would like to book a screening for my child for Berard AIT program',
-    quickMessageAr: 'مرحباً، أود حجز موعد فحص لطفلي لبرنامج Berard AIT',
+    quickMessageAr: 'auto.ContactForm.k8',
     placeholderEn: 'Write about your child\'s condition, goals, or questions...',
-    placeholderAr: 'اكتب نبذة عن حالة طفلك، الأهداف، أو استفساراتك...',
+    placeholderAr: 'auto.ContactForm.k9',
     badgesEn: ['Free Consultation', 'Child Assessment'],
     badgesAr: ['استشارة مجانية', 'تقييم الطفل'],
     headerSubtitleEn: 'Ready to support families with personalized care',
-    headerSubtitleAr: 'جاهزون لدعم العائلات برعاية شخصية',
+    headerSubtitleAr: 'auto.ContactForm.k10',
   },
   clinician: {
     quickMessageEn: 'Hello, I am a healthcare professional interested in Berard AIT protocols and referral partnership',
-    quickMessageAr: 'مرحباً، أنا متخصص في الرعاية الصحية ومهتم ببروتوكولات Berard AIT وشراكة الإحالة',
+    quickMessageAr: 'auto.ContactForm.k11',
     placeholderEn: 'Write about professional inquiry, referral process, or clinical collaboration...',
-    placeholderAr: 'اكتب عن استفسار مهني، عملية الإحالة، أو التعاون السريري...',
+    placeholderAr: 'auto.ContactForm.k12',
     badgesEn: ['Professional Network', 'Clinical Referrals'],
     badgesAr: ['شبكة مهنية', 'إحالات سريرية'],
     headerSubtitleEn: 'Professional collaboration and clinical referrals',
-    headerSubtitleAr: 'تعاون مهني وإحالات سريرية',
+    headerSubtitleAr: 'auto.ContactForm.k13',
   },
 };
 
@@ -140,7 +140,6 @@ const textareaStyle: React.CSSProperties = {
   fontSize: 16,
   outline: 'none',
   resize: 'none',
-  direction: 'rtl',
   fontFamily: 'inherit',
 };
 
@@ -406,6 +405,7 @@ const IOSTextarea = memo(({
   placeholder: string;
   maxLength?: number;
 }) => {
+  const { isArabic, t } = useLanguage();
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(maxLength ? e.target.value.slice(0, maxLength) : e.target.value);
   }, [onChange, maxLength]);
@@ -418,7 +418,7 @@ const IOSTextarea = memo(({
         placeholder={placeholder}
         maxLength={maxLength}
         rows={4}
-        style={textareaStyle}
+        style={{ ...textareaStyle, direction: isArabic ? 'rtl' : 'ltr', textAlign: isArabic ? 'right' : 'left' }}
       />
       {maxLength && (
         <span style={{ position: 'absolute', bottom: 8, left: 12, fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
@@ -574,7 +574,7 @@ AnimatedFormField.displayName = 'AnimatedFormField';
 
 const ContactForm = () => {
   const { mode: visitorMode, config: visitorConfig } = useVisitorMode();
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -642,7 +642,7 @@ const ContactForm = () => {
   }, [requiredValid, name, phone, email, message]);
 
   const handleQuickWhatsApp = useCallback(() => {
-    const quickMessage = isArabic ? roleConfig.quickMessageAr : roleConfig.quickMessageEn;
+    const quickMessage = isArabic ? t(roleConfig.quickMessageAr, roleConfig.quickMessageEn) : roleConfig.quickMessageEn;
     handleWhatsApp(quickMessage);
     setSubmitted(true);
   }, [isArabic, roleConfig]);
@@ -734,11 +734,11 @@ const ContactForm = () => {
           fontWeight: 700,
           color: visitorConfig.color,
         }}>
-          {visitorConfig.icon} {isArabic ? visitorConfig.labelAr : visitorConfig.label}
+          {visitorConfig.icon} {isArabic ? t(visitorConfig.labelAr, visitorConfig.label) : visitorConfig.label}
         </div>
-        <h2 className="contact-header-text" style={headerStyle}>{isArabic ? 'تواصل معنا' : 'Contact Us'}</h2>
+        <h2 className="contact-header-text" style={headerStyle}>{t('auto.ContactForm.k1', "Contact Us")}</h2>
         <p className="contact-subtext" style={{ margin: 0, opacity: 0.7, fontSize: 14, lineHeight: 1.6 }}>
-          {isArabic ? roleConfig.headerSubtitleAr : roleConfig.headerSubtitleEn}
+          {isArabic ? t(roleConfig.headerSubtitleAr, roleConfig.headerSubtitleEn) : roleConfig.headerSubtitleEn}
         </p>
       </div>
 
@@ -855,8 +855,8 @@ const ContactForm = () => {
                 </AnimatedFormField>
 
                 <AnimatedFormField delay={0.3}>
-                  <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingRight: 4 }}>{isArabic ? 'الرسالة *' : 'Message *'}</label>
-                  <IOSTextarea value={message} onChange={setMessage} placeholder={isArabic ? roleConfig.placeholderAr : roleConfig.placeholderEn} maxLength={MAX_MESSAGE_LENGTH} />
+                  <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingRight: 4 }}>{t('auto.ContactForm.k2', "Message *")}</label>
+                  <IOSTextarea value={message} onChange={setMessage} placeholder={isArabic ? t(roleConfig.placeholderAr, roleConfig.placeholderEn) : roleConfig.placeholderEn} maxLength={MAX_MESSAGE_LENGTH} />
                 </AnimatedFormField>
 
                 {/* Spacer to ensure scrollability */}
@@ -905,11 +905,11 @@ const ContactForm = () => {
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <h3 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 400, color: '#fff' }}>Berard AIT</h3>
-                  <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>{isArabic ? 'معمل الصوت' : 'Sound Lab'} • {CLINIC.city}</p>
+                  <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>{t('auto.ContactForm.k3', "Sound Lab")} • {CLINIC.city}</p>
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  <span style={{ background: brandColors.whatsappLight, color: brandColors.whatsapp, padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>WhatsApp {isArabic ? 'متاح' : 'Available'}</span>
-                  {(isArabic ? roleConfig.badgesAr : roleConfig.badgesEn).map((badge, idx) => (
+                  <span style={{ background: brandColors.whatsappLight, color: brandColors.whatsapp, padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>WhatsApp {t('auto.ContactForm.k4', "Available")}</span>
+                  {(isArabic ? t(roleConfig.badgesAr, roleConfig.badgesEn) : roleConfig.badgesEn).map((badge, idx) => (
                     <span key={idx} style={{
                       background: `${visitorConfig.color}15`,
                       color: visitorConfig.color,

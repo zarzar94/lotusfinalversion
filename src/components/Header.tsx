@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useCallback, memo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { brandPurple, brandCyan, brandPink, colors, radius, spacing, typography, transitions } from './styles';
-import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon } from './Icons';
+import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon, HomeIcon, UsersIcon } from './Icons';
 import BrainLogo from './BrainLogo';
 import LanguageToggle from './LanguageToggle';
 import ModeSwitcher from './ModeSwitcher';
@@ -26,6 +26,14 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
+  {
+    id: 'home',
+    translationKey: 'nav.home',
+    path: '/',
+    icon: <HomeIcon size={16} />,
+    color: brandCyan,
+    priority: { school: 0, parent: 0, clinician: 0 },
+  },
   {
     id: 'assessment',
     translationKey: 'nav.assessment',
@@ -57,6 +65,14 @@ const NAV_ITEMS: NavItem[] = [
     icon: '📊',
     color: '#22c55e',
     priority: { school: 2, parent: 3, clinician: 4 }, // Schools & Parents: want to see results
+  },
+  {
+    id: 'partners',
+    translationKey: 'nav.partners',
+    path: '/partners',
+    icon: <UsersIcon size={16} />,
+    color: brandPurple,
+    priority: { school: 2, parent: 5, clinician: 6 },
   },
   {
     id: 'resources',
@@ -99,12 +115,29 @@ const Header = memo(function Header() {
   const { mode: visitorMode, config: visitorConfig } = useVisitorMode();
   const { isMobile, isTablet } = useBreakpoints();
   const location = useLocation();
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [loginRedirect, setLoginRedirect] = useState<string | null>(null);
+  const handleHomeClick = useCallback(() => {
+    if (location.pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [location.pathname]);
 
   // Get sorted nav items based on visitor mode
   const sortedNavItems = useMemo(() => getSortedNavItems(visitorMode), [visitorMode]);
+  const visibleNavItems = useMemo(() => {
+    if (isAuthenticated) return sortedNavItems;
+    return sortedNavItems.filter((item) => (
+      item.id === 'home'
+      || item.id === 'program'
+      || item.id === 'partners'
+      || item.id === 'about'
+      || item.id === 'contact'
+    ));
+  }, [isAuthenticated, sortedNavItems]);
 
   // Check if current path matches nav item
   const isActivePath = useCallback((path: string) => {
@@ -116,19 +149,38 @@ const Header = memo(function Header() {
   const dashboardLink = useMemo(() => {
     if (!isAuthenticated || !user) return null;
     if (hasPermission('view_child_reports')) {
-      return { path: '/parent-dashboard', translationKey: 'nav.childrenDashboard', icon: '👨‍👩‍👧' };
+      return { path: '/dashboard/parent', translationKey: 'nav.childrenDashboard', icon: '👨‍👩‍👧' };
     }
     if (hasPermission('view_patient_reports')) {
-      return { path: '/clinician-dashboard', translationKey: 'nav.patientsDashboard', icon: '🏥' };
+      return { path: '/dashboard/clinician', translationKey: 'nav.patientsDashboard', icon: '🏥' };
     }
     if (hasPermission('school_analytics')) {
-      return { path: '/school-dashboard', translationKey: 'nav.schoolDashboard', icon: '📊' };
+      return { path: '/dashboard/educator', translationKey: 'nav.schoolDashboard', icon: '📊' };
     }
     return null;
   }, [isAuthenticated, user, hasPermission]);
 
   const openLoginModal = useCallback(() => setIsLoginModalOpen(true), []);
   const closeLoginModal = useCallback(() => setIsLoginModalOpen(false), []);
+
+  useEffect(() => {
+    if (isAuthenticated) return;
+    const params = new URLSearchParams(location.search);
+    if (params.get('login') !== '1') return;
+    const next = params.get('next');
+    if (next && next.startsWith('/')) {
+      navigate(`/login?next=${encodeURIComponent(next)}`, { replace: true });
+    } else {
+      navigate('/login', { replace: true });
+    }
+  }, [isAuthenticated, location.search, navigate]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !loginRedirect) return;
+    const target = loginRedirect;
+    setLoginRedirect(null);
+    navigate(target);
+  }, [isAuthenticated, loginRedirect, navigate]);
 
   // Close mobile menu when switching to desktop or route changes
   useEffect(() => {
@@ -176,6 +228,31 @@ const Header = memo(function Header() {
       @keyframes headerGlow {
         0%, 100% { opacity: 0.6; }
         50% { opacity: 1; }
+      }
+      @keyframes holoBorderFlow {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 200% 50%; }
+      }
+      @keyframes dataStream {
+        0% { left: -20%; opacity: 0; }
+        10% { opacity: 0.6; }
+        90% { opacity: 0.6; }
+        100% { left: 100%; opacity: 0; }
+      }
+      @keyframes circuitPulse {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.8; }
+      }
+      @keyframes navGlitch {
+        0%, 100% { transform: translateX(0); opacity: 1; }
+        92% { transform: translateX(0); opacity: 1; }
+        93% { transform: translateX(-2px); opacity: 0.8; }
+        94% { transform: translateX(2px); opacity: 1; }
+        95% { transform: translateX(0); opacity: 0.9; }
+      }
+      @keyframes energyPulse {
+        0%, 100% { box-shadow: 0 0 10px ${brandCyan}20, inset 0 0 10px ${brandCyan}10; }
+        50% { box-shadow: 0 0 25px ${brandCyan}40, inset 0 0 20px ${brandCyan}20; }
       }
       .brandGlow {
         filter: drop-shadow(0 10px 30px rgba(143,211,204,0.18));
@@ -229,12 +306,26 @@ const Header = memo(function Header() {
         color: ${brandCyan};
         background: rgba(143,211,204,0.1);
         text-shadow: 0 0 8px ${brandCyan}33;
+        animation: energyPulse 2s ease-in-out infinite;
       }
       .mobile-menu {
         animation: slideDown 0.3s ease forwards;
       }
       .menu-btn {
         transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .menu-btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, ${brandCyan}20, ${brandPurple}20);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .menu-btn:hover::before {
+        opacity: 1;
       }
       .menu-btn:hover {
         transform: scale(1.1);
@@ -244,6 +335,7 @@ const Header = memo(function Header() {
       .header-container {
         position: relative;
       }
+      /* Top glow bar with holographic effect */
       .header-container::before {
         content: '';
         position: absolute;
@@ -251,8 +343,20 @@ const Header = memo(function Header() {
         left: 0;
         right: 0;
         height: 2px;
-        background: linear-gradient(90deg, transparent, ${brandCyan}66, ${brandPurple}66, transparent);
-        animation: headerGlow 3s ease-in-out infinite;
+        background: linear-gradient(90deg, transparent, ${brandCyan}66, ${brandPurple}66, ${brandPink}44, transparent);
+        background-size: 200% 100%;
+        animation: holoBorderFlow 4s linear infinite, headerGlow 3s ease-in-out infinite;
+      }
+      /* Bottom accent line */
+      .header-container::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 20%;
+        right: 20%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, ${brandCyan}30, transparent);
+        opacity: 0.5;
       }
       .header-scan-line {
         position: absolute;
@@ -273,6 +377,40 @@ const Header = memo(function Header() {
         background: linear-gradient(90deg, transparent, ${brandCyan}08, transparent);
         animation: scanLine 4s linear infinite;
       }
+      /* Data stream effect */
+      .header-data-stream {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 15%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, ${brandCyan}40, transparent);
+        animation: dataStream 6s linear infinite;
+        pointer-events: none;
+      }
+      /* Corner circuit nodes */
+      .header-circuit-node {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: ${brandCyan};
+        box-shadow: 0 0 8px ${brandCyan};
+        animation: circuitPulse 2s ease-in-out infinite;
+      }
+      /* HUD corner brackets */
+      .header-bracket {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        border-color: ${brandCyan}40;
+        border-style: solid;
+        pointer-events: none;
+      }
+      /* Glitch effect on nav hover */
+      .nav-link:hover .nav-icon {
+        animation: navGlitch 0.5s ease-in-out;
+      }
     `,
     [],
   );
@@ -285,16 +423,10 @@ const Header = memo(function Header() {
       <header
         className="header-container"
         style={{
-          position: 'fixed',
+          position: 'sticky',
           top: 0,
-          left: 0,
-          right: 0,
           zIndex: 100,
-          padding: isScrolled ? '10px 20px' : '16px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 16,
+          padding: isScrolled ? '10px 0' : '16px 0',
           background: isScrolled
             ? 'linear-gradient(180deg, rgba(26,31,46,0.98) 0%, rgba(13,17,23,0.95) 100%)'
             : 'linear-gradient(180deg, rgba(26,31,46,0.95) 0%, rgba(13,17,23,0.85) 70%, transparent 100%)',
@@ -305,6 +437,26 @@ const Header = memo(function Header() {
         }}>
         {/* Scan line effect */}
         <div className="header-scan-line" />
+        {/* Data stream effect */}
+        <div className="header-data-stream" />
+        {/* HUD corner brackets */}
+        <div className="header-bracket" style={{ top: 4, left: 4, borderWidth: '2px 0 0 2px' }} />
+        <div className="header-bracket" style={{ top: 4, right: 4, borderWidth: '2px 2px 0 0' }} />
+        <div className="header-bracket" style={{ bottom: 4, left: 4, borderWidth: '0 0 2px 2px' }} />
+        <div className="header-bracket" style={{ bottom: 4, right: 4, borderWidth: '0 2px 2px 0' }} />
+        {/* Circuit nodes */}
+        <div className="header-circuit-node" style={{ top: 10, left: '25%' }} />
+        <div className="header-circuit-node" style={{ top: 10, right: '25%', animationDelay: '0.5s' }} />
+        <div style={{
+          width: '100%',
+          maxWidth: 1180,
+          margin: '0 auto',
+          padding: '0 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 16,
+        }}>
         {/* Logo Section */}
         <Link to="/" style={{ textDecoration: 'none', transition: 'all 0.3s ease' }}>
           <BrainLogo
@@ -352,7 +504,7 @@ const Header = memo(function Header() {
                 textTransform: 'uppercase',
               }}>{t('nav.lab')}</span>
             </div>
-            {sortedNavItems.map((item) => {
+            {visibleNavItems.map((item) => {
               const isActive = isActivePath(item.path);
               const isPriority = item.priority?.[visitorMode] === 1; // Top priority for current mode
               return (
@@ -360,6 +512,7 @@ const Header = memo(function Header() {
                   key={item.id}
                   to={item.path}
                   className={`nav-link ${isActive ? 'active' : ''}`}
+                  onClick={item.id === 'home' ? handleHomeClick : undefined}
                   style={{
                     position: 'relative',
                     display: 'flex',
@@ -491,6 +644,7 @@ const Header = memo(function Header() {
             </button>
           </div>
         )}
+        </div>
       </header>
 
       {/* Mobile Menu Dropdown */}
@@ -561,6 +715,10 @@ const Header = memo(function Header() {
           {/* Home Link */}
           <Link
             to="/"
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              handleHomeClick();
+            }}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -590,13 +748,13 @@ const Header = memo(function Header() {
               justifyContent: 'center',
               fontSize: 18,
             }}>
-              🏠
+              <HomeIcon size={18} />
             </span>
             {t('nav.home')}
           </Link>
 
           {/* Nav Items - Sorted by visitor mode priority */}
-          {sortedNavItems.map((item, index) => {
+          {visibleNavItems.filter((item) => item.id !== 'home').map((item, index) => {
             const isActive = isActivePath(item.path);
             const isPriority = item.priority?.[visitorMode] === 1;
             return (
@@ -661,7 +819,7 @@ const Header = memo(function Header() {
                 }}>
                   {item.icon}
                 </span>
-                {isArabic ? item.labelAr : item.label}
+                {t(item.translationKey)}
                 {isActive && (
                   <span style={{
                     marginRight: isArabic ? 'auto' : 0,
@@ -728,9 +886,6 @@ const Header = memo(function Header() {
           </div>
         </nav>
       )}
-
-      {/* Spacer for fixed header */}
-      <div style={{ height: showCompactNav ? 75 : 90 }} />
 
       {/* Login Modal */}
       <LoginModal isOpen={isLoginModalOpen} onClose={closeLoginModal} />
