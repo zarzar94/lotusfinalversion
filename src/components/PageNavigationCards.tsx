@@ -29,6 +29,7 @@ const NavigationCard = memo(({
   onClick: () => void;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <button
