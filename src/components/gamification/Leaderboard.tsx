@@ -66,16 +66,16 @@ interface UserRankCardProps {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const MOCK_LEADERBOARD: LeaderboardEntry[] = [
-  { id: '1', name: 'Sonic Star', nameAr: 'نجم صوتي', points: 2450, level: 5, sessionsCompleted: 18, streak: 12, rank: 1, badge: '🌟' },
-  { id: '2', name: 'Wave Rider', nameAr: 'راكب الموجة', points: 2280, level: 5, sessionsCompleted: 17, streak: 8, rank: 2, badge: '🌊' },
-  { id: '3', name: 'Echo Master', nameAr: 'أستاذ الصدى', points: 2100, level: 4, sessionsCompleted: 16, streak: 5, rank: 3, badge: '🎭' },
-  { id: '4', name: 'Sound Seeker', nameAr: 'باحث الصوت', points: 1890, level: 4, sessionsCompleted: 15, streak: 7, rank: 4 },
-  { id: '5', name: 'Frequency Hero', nameAr: 'بطل التردد', points: 1720, level: 4, sessionsCompleted: 14, streak: 3, rank: 5 },
-  { id: '6', name: 'Melody Hunter', nameAr: 'صياد اللحن', points: 1580, level: 3, sessionsCompleted: 13, streak: 4, rank: 6 },
-  { id: '7', name: 'Rhythm Runner', nameAr: 'عداء الإيقاع', points: 1420, level: 3, sessionsCompleted: 12, streak: 2, rank: 7, isCurrentUser: true },
-  { id: '8', name: 'Beat Blazer', nameAr: 'مشعل الإيقاع', points: 1350, level: 3, sessionsCompleted: 11, streak: 6, rank: 8 },
-  { id: '9', name: 'Note Navigator', nameAr: 'ملاح النغمات', points: 1200, level: 3, sessionsCompleted: 10, streak: 1, rank: 9 },
-  { id: '10', name: 'Tune Tracker', nameAr: 'متتبع النغمة', points: 1050, level: 2, sessionsCompleted: 9, streak: 0, rank: 10 },
+  { id: '1', name: 'Sonic Star', nameAr: 'auto.Leaderboard.k10', points: 2450, level: 5, sessionsCompleted: 18, streak: 12, rank: 1, badge: '🌟' },
+  { id: '2', name: 'Wave Rider', nameAr: 'auto.Leaderboard.k11', points: 2280, level: 5, sessionsCompleted: 17, streak: 8, rank: 2, badge: '🌊' },
+  { id: '3', name: 'Echo Master', nameAr: 'auto.Leaderboard.k12', points: 2100, level: 4, sessionsCompleted: 16, streak: 5, rank: 3, badge: '🎭' },
+  { id: '4', name: 'Sound Seeker', nameAr: 'auto.Leaderboard.k13', points: 1890, level: 4, sessionsCompleted: 15, streak: 7, rank: 4 },
+  { id: '5', name: 'Frequency Hero', nameAr: 'auto.Leaderboard.k14', points: 1720, level: 4, sessionsCompleted: 14, streak: 3, rank: 5 },
+  { id: '6', name: 'Melody Hunter', nameAr: 'auto.Leaderboard.k15', points: 1580, level: 3, sessionsCompleted: 13, streak: 4, rank: 6 },
+  { id: '7', name: 'Rhythm Runner', nameAr: 'auto.Leaderboard.k16', points: 1420, level: 3, sessionsCompleted: 12, streak: 2, rank: 7, isCurrentUser: true },
+  { id: '8', name: 'Beat Blazer', nameAr: 'auto.Leaderboard.k17', points: 1350, level: 3, sessionsCompleted: 11, streak: 6, rank: 8 },
+  { id: '9', name: 'Note Navigator', nameAr: 'auto.Leaderboard.k18', points: 1200, level: 3, sessionsCompleted: 10, streak: 1, rank: 9 },
+  { id: '10', name: 'Tune Tracker', nameAr: 'auto.Leaderboard.k19', points: 1050, level: 2, sessionsCompleted: 9, streak: 0, rank: 10 },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -136,6 +136,7 @@ export const UserRankCard = memo(({
   totalParticipants,
   isArabic = false,
 }: UserRankCardProps) => {
+  const { t } = useLanguage();
   const percentile = Math.round(((totalParticipants - entry.rank + 1) / totalParticipants) * 100);
   const rankChange = entry.previousRank ? entry.previousRank - entry.rank : 0;
 
@@ -159,7 +160,7 @@ export const UserRankCard = memo(({
           textTransform: 'uppercase',
           letterSpacing: 1,
         }}>
-          {isArabic ? 'ترتيبك' : 'Your Rank'}
+          {t('auto.Leaderboard.k1', "Your Rank")}
         </div>
         {rankChange !== 0 && (
           <div style={{
@@ -217,7 +218,7 @@ export const UserRankCard = memo(({
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {isArabic ? 'نقطة' : 'points'}
+            {t('auto.Leaderboard.k2', "points")}
           </div>
         </div>
       </div>
@@ -242,7 +243,7 @@ export const UserRankCard = memo(({
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {isArabic ? 'المستوى' : 'Level'}
+            {t('auto.Leaderboard.k3', "Level")}
           </div>
         </div>
         <div style={{ flex: 1, textAlign: 'center' }}>
@@ -257,7 +258,7 @@ export const UserRankCard = memo(({
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {isArabic ? 'جلسات' : 'Sessions'}
+            {t('auto.Leaderboard.k4', "Sessions")}
           </div>
         </div>
         <div style={{ flex: 1, textAlign: 'center' }}>
@@ -272,7 +273,7 @@ export const UserRankCard = memo(({
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {isArabic ? 'استمرارية' : 'Streak'}
+            {t('auto.Leaderboard.k5', "Streak")}
           </div>
         </div>
       </div>
@@ -298,6 +299,7 @@ const LeaderboardRow = memo(({
   showSessions: boolean;
   showStreak: boolean;
 }) => {
+  const { t } = useLanguage();
   const isTop3 = entry.rank <= 3;
 
   return (
@@ -365,7 +367,7 @@ const LeaderboardRow = memo(({
               color: brandCyan,
               opacity: 0.8,
             }}>
-              ({isArabic ? 'أنت' : 'You'})
+              ({t('auto.Leaderboard.k6', "You")})
             </span>
           )}
         </div>
@@ -394,7 +396,7 @@ const LeaderboardRow = memo(({
           color: colors.text.muted,
           textAlign: 'right',
         }}>
-          {entry.sessionsCompleted} {isArabic ? 'جلسة' : 'sessions'}
+          {entry.sessionsCompleted} {t('auto.Leaderboard.k7', "sessions")}
         </div>
       )}
 
@@ -431,6 +433,7 @@ export const Leaderboard = memo(({
   maxDisplay = 10,
   onViewMore,
 }: LeaderboardProps) => {
+  const { t } = useLanguage();
   const [filter, setFilter] = useState<'all' | 'week' | 'month'>('all');
 
   const sortedEntries = useMemo(() => {
@@ -478,7 +481,7 @@ export const Leaderboard = memo(({
                 cursor: 'pointer',
               }}
             >
-              {isArabic ? 'المزيد' : 'More'}
+              {t('auto.Leaderboard.k8', "More")}
             </button>
           )}
         </div>
@@ -571,7 +574,7 @@ export const Leaderboard = memo(({
               transition: transitions.fast,
             }}
           >
-            {isArabic ? 'عرض المزيد' : 'View All'}
+            {t('auto.Leaderboard.k9', "View All")}
           </button>
         )}
       </div>
@@ -609,9 +612,9 @@ export const Leaderboard = memo(({
         <div style={{ display: 'flex', gap: spacing[1] }}>
           {(['all', 'week', 'month'] as const).map(f => {
             const labels = {
-              all: { en: 'All Time', ar: 'الكل' },
-              week: { en: 'This Week', ar: 'الأسبوع' },
-              month: { en: 'This Month', ar: 'الشهر' },
+              all: { en: 'All Time', ar: 'auto.Leaderboard.k20' },
+              week: { en: 'This Week', ar: 'auto.Leaderboard.k21' },
+              month: { en: 'This Month', ar: 'auto.Leaderboard.k22' },
             };
             const isActive = filter === f;
 

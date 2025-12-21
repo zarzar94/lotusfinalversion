@@ -282,7 +282,7 @@ export default function ProgressDashboard() {
                     fontSize: typography.size.xs,
                     color: colors.text.secondary,
                   }}>
-                    {state.totalPoints} {isArabic ? 'نقطة' : 'pts'}
+                    {state.totalPoints} {t('auto.ProgressDashboard.k1', "pts")}
                   </div>
                 </div>
               </div>
@@ -305,8 +305,8 @@ export default function ProgressDashboard() {
                 color: colors.text.secondary,
                 marginBottom: spacing[1],
               }}>
-                <span>{isArabic ? 'التقدم للمستوى التالي' : 'Next Level'}</span>
-                <span>{nextThreshold - state.totalPoints} {isArabic ? 'نقطة متبقية' : 'pts left'}</span>
+                <span>{t('auto.ProgressDashboard.k2', "Next Level")}</span>
+                <span>{nextThreshold - state.totalPoints} {t('auto.ProgressDashboard.k3', "pts left")}</span>
               </div>
               <div style={{
                 height: 6,
@@ -344,7 +344,7 @@ export default function ProgressDashboard() {
                   fontWeight: typography.weight.bold,
                   color: colors.text.primary,
                 }}>
-                  {isArabic ? 'الإنجازات' : 'Achievements'}
+                  {t('auto.ProgressDashboard.k4', "Achievements")}
                 </span>
                 <span style={{
                   fontSize: typography.size.xs,
@@ -379,7 +379,7 @@ export default function ProgressDashboard() {
                       opacity: achievement.unlocked ? 1 : 0.4,
                       filter: achievement.unlocked ? 'none' : 'grayscale(1)',
                     }}
-                    title={isArabic ? achievement.titleAr : achievement.title}
+                    title={isArabic ? t(achievement.titleAr, achievement.title) : achievement.title}
                   >
                     {achievement.icon}
                   </div>
@@ -413,7 +413,7 @@ export default function ProgressDashboard() {
                   textTransform: 'uppercase',
                   letterSpacing: typography.letterSpacing.wide,
                 }}>
-                  {isArabic ? 'التالي' : 'Up Next'}
+                  {t('auto.ProgressDashboard.k5', "Up Next")}
                 </div>
                 {nextAchievements.slice(0, 2).map((achievement) => (
                   <div
@@ -440,13 +440,13 @@ export default function ProgressDashboard() {
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                       }}>
-                        {isArabic ? achievement.titleAr : achievement.title}
+                        {isArabic ? t(achievement.titleAr, achievement.title) : achievement.title}
                       </div>
                       <div style={{
                         fontSize: 10,
                         color: colors.text.muted,
                       }}>
-                        +{achievement.points} {isArabic ? 'نقطة' : 'pts'}
+                        +{achievement.points} {t('auto.ProgressDashboard.k6', "pts")}
                       </div>
                     </div>
                   </div>
@@ -474,7 +474,7 @@ export default function ProgressDashboard() {
                   alignItems: 'center',
                   gap: spacing[1],
                 }}>
-                  🏥 {isArabic ? 'تقدم العلاج' : 'Treatment Progress'}
+                  🏥 {t('auto.ProgressDashboard.k7', "Treatment Progress")}
                 </div>
 
                 {/* Sessions Progress Bar */}
@@ -486,7 +486,7 @@ export default function ProgressDashboard() {
                     color: colors.text.secondary,
                     marginBottom: spacing[1],
                   }}>
-                    <span>{isArabic ? 'الجلسات' : 'Sessions'}</span>
+                    <span>{t('auto.ProgressDashboard.k8', "Sessions")}</span>
                     <span>{state.clinicalSessionsCompleted}/20</span>
                   </div>
                   <div style={{
@@ -530,7 +530,7 @@ export default function ProgressDashboard() {
                       color: colors.text.muted,
                       textTransform: 'uppercase',
                     }}>
-                      {isArabic ? 'الاستمرارية' : 'Streak'}
+                      {t('auto.ProgressDashboard.k9', "Streak")}
                     </div>
                   </div>
 
@@ -547,17 +547,17 @@ export default function ProgressDashboard() {
                       fontWeight: typography.weight.bold,
                       color: brandPurple,
                     }}>
-                      {state.treatmentPhase === 'assessment' && (isArabic ? 'تقييم' : 'Assess')}
-                      {state.treatmentPhase === 'active' && (isArabic ? 'نشط' : 'Active')}
-                      {state.treatmentPhase === 'maintenance' && (isArabic ? 'صيانة' : 'Maint.')}
-                      {state.treatmentPhase === 'completed' && (isArabic ? '✓ مكتمل' : '✓ Done')}
+                      {state.treatmentPhase === 'assessment' && (t('auto.ProgressDashboard.k10', "Assess"))}
+                      {state.treatmentPhase === 'active' && (t('auto.ProgressDashboard.k11', "Active"))}
+                      {state.treatmentPhase === 'maintenance' && (t('auto.ProgressDashboard.k12', "Maint."))}
+                      {state.treatmentPhase === 'completed' && (t('auto.ProgressDashboard.k13', "✓ Done"))}
                     </div>
                     <div style={{
                       fontSize: 9,
                       color: colors.text.muted,
                       textTransform: 'uppercase',
                     }}>
-                      {isArabic ? 'المرحلة' : 'Phase'}
+                      {t('auto.ProgressDashboard.k14', "Phase")}
                     </div>
                   </div>
                 </div>
@@ -586,7 +586,7 @@ export default function ProgressDashboard() {
                             justifyContent: 'center',
                             fontSize: 12,
                           }}
-                          title={isArabic ? achievement.titleAr : achievement.title}
+                          title={isArabic ? t(achievement.titleAr, achievement.title) : achievement.title}
                         >
                           {achievement.icon}
                         </div>
@@ -615,7 +615,7 @@ export default function ProgressDashboard() {
               boxShadow: shadows.md,
             }}
           >
-            {isArabic ? '👆 انقر لمشاهدة تقدمك' : '👆 Click to see progress'}
+            {t('auto.ProgressDashboard.k15', "👆 Click to see progress")}
           </div>
         )}
       </div>

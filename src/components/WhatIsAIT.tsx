@@ -35,7 +35,7 @@ const ROLE_MESSAGING: Record<VisitorMode, {
 }> = {
   school: {
     focusTitleEn: 'For Educational Settings',
-    focusTitleAr: 'للبيئات التعليمية',
+    focusTitleAr: 'auto.WhatIsAIT.k8',
     focusPointsEn: [
       'Group screening protocols for classroom implementation',
       'Teacher training on auditory processing awareness',
@@ -51,7 +51,7 @@ const ROLE_MESSAGING: Record<VisitorMode, {
   },
   parent: {
     focusTitleEn: 'For Families',
-    focusTitleAr: 'للعائلات',
+    focusTitleAr: 'auto.WhatIsAIT.k9',
     focusPointsEn: [
       'Non-invasive, child-friendly assessment environment',
       'Clear explanations every step of the way',
@@ -67,7 +67,7 @@ const ROLE_MESSAGING: Record<VisitorMode, {
   },
   clinician: {
     focusTitleEn: 'Clinical Protocol',
-    focusTitleAr: 'البروتوكول السريري',
+    focusTitleAr: 'auto.WhatIsAIT.k10',
     focusPointsEn: [
       'Evidence-based methodology with documented outcomes',
       'Comprehensive audiometric assessment integration',
@@ -89,50 +89,50 @@ const PROCESS_STEPS: ProcessStep[] = [
     id: 'assessment',
     stepNumber: 1,
     titleEn: 'Initial Assessment',
-    titleAr: 'التقييم الأولي',
+    titleAr: 'auto.WhatIsAIT.k11',
     descriptionEn: 'Comprehensive audiogram and auditory processing evaluation',
-    descriptionAr: 'مخطط سمعي شامل وتقييم المعالجة السمعية',
+    descriptionAr: 'auto.WhatIsAIT.k12',
     durationEn: '1-2 sessions',
-    durationAr: 'جلسة أو جلستان',
+    durationAr: 'auto.WhatIsAIT.k13',
     icon: '📋',
   },
   {
     id: 'listening',
     stepNumber: 2,
     titleEn: 'Listening Sessions',
-    titleAr: 'جلسات الاستماع',
+    titleAr: 'auto.WhatIsAIT.k14',
     descriptionEn: '20 sessions of specially modulated music through high-quality headphones',
-    descriptionAr: '20 جلسة من الموسيقى المعدلة خصيصاً عبر سماعات عالية الجودة',
+    descriptionAr: 'auto.WhatIsAIT.k15',
     durationEn: '10 days (2x daily)',
-    durationAr: '10 أيام (مرتين يومياً)',
+    durationAr: 'auto.WhatIsAIT.k16',
     icon: <HeadphonesIcon size={20} color={brandCyan} />,
   },
   {
     id: 'break',
     stepNumber: 3,
     titleEn: 'Integration Break',
-    titleAr: 'فترة التكامل',
+    titleAr: 'auto.WhatIsAIT.k17',
     descriptionEn: 'Required rest period allowing the brain to integrate changes',
-    descriptionAr: 'فترة راحة مطلوبة تسمح للدماغ بدمج التغييرات',
+    descriptionAr: 'auto.WhatIsAIT.k18',
     durationEn: '3+ weeks',
-    durationAr: '+3 أسابيع',
+    durationAr: 'auto.WhatIsAIT.k19',
     icon: '🧠',
   },
   {
     id: 'followup',
     stepNumber: 4,
     titleEn: 'Follow-up Evaluation',
-    titleAr: 'تقييم المتابعة',
+    titleAr: 'auto.WhatIsAIT.k20',
     descriptionEn: 'Post-treatment audiogram and progress assessment',
-    descriptionAr: 'مخطط سمعي ما بعد العلاج وتقييم التقدم',
+    descriptionAr: 'auto.WhatIsAIT.k21',
     durationEn: '1-2 sessions',
-    durationAr: 'جلسة أو جلستان',
+    durationAr: 'auto.WhatIsAIT.k22',
     icon: '📊',
   },
 ];
 
 export default function WhatIsAIT() {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const { mode: visitorMode, config: visitorConfig } = useVisitorMode();
   const [activeStep, setActiveStep] = useState<string | null>(null);
 
@@ -230,7 +230,7 @@ export default function WhatIsAIT() {
               fontWeight: typography.weight.bold,
               color: brandCyan,
             }}>
-              {isArabic ? 'علاج قائم على الأدلة' : 'Evidence-Based Therapy'}
+              {t('auto.WhatIsAIT.k1', "Evidence-Based Therapy")}
             </span>
           </div>
 
@@ -242,7 +242,7 @@ export default function WhatIsAIT() {
             marginBottom: spacing[3],
             lineHeight: 1.2,
           }}>
-            {isArabic ? 'ما هو برنامج بيرارد AIT؟' : 'What is Bérard AIT?'}
+            {t('auto.WhatIsAIT.k2', "What is Bérard AIT?")}
           </h2>
           <p style={{
             margin: 0,
@@ -253,9 +253,7 @@ export default function WhatIsAIT() {
             marginRight: 'auto',
             lineHeight: 1.6,
           }}>
-            {isArabic
-              ? 'برنامج العلاج التكاملي السمعي بطريقة بيرارد - تقنية متخصصة لتحسين المعالجة السمعية والتعلم'
-              : 'Bérard Auditory Integration Training - A specialized technique for improving auditory processing and learning'}
+            {t('auto.WhatIsAIT.k3', "Bérard Auditory Integration Training - A specialized technique for improving auditory processing and learning")}
           </p>
         </div>
 
@@ -287,7 +285,7 @@ export default function WhatIsAIT() {
               gap: spacing[2],
             }}>
               <BrainIcon size={24} color={brandCyan} />
-              {isArabic ? 'نظرة عامة' : 'Overview'}
+              {t('auto.WhatIsAIT.k4', "Overview")}
             </h3>
             <div style={{
               fontSize: typography.size.base,
@@ -295,14 +293,10 @@ export default function WhatIsAIT() {
               lineHeight: 1.8,
             }}>
               <p style={{ margin: `0 0 ${spacing[3]}px` }}>
-                {isArabic
-                  ? 'طوّر الدكتور جاي بيرارد هذه الطريقة في فرنسا، وهي تستخدم موسيقى معدلة إلكترونياً تُسمع عبر سماعات عالية الجودة لإعادة تدريب الجهاز السمعي.'
-                  : 'Developed by Dr. Guy Bérard in France, this method uses electronically modulated music delivered through high-quality headphones to retrain the auditory system.'}
+                {t('auto.WhatIsAIT.k5', "Developed by Dr. Guy Bérard in France, this method uses electronically modulated music delivered through high-quality headphones to retrain the auditory system.")}
               </p>
               <p style={{ margin: 0 }}>
-                {isArabic
-                  ? 'يساعد البرنامج في معالجة مشاكل المعالجة السمعية، والحساسية للأصوات، وصعوبات الانتباه والتركيز المرتبطة بالسمع.'
-                  : 'The program helps address auditory processing issues, sound sensitivities, and attention difficulties related to hearing.'}
+                {t('auto.WhatIsAIT.k6', "The program helps address auditory processing issues, sound sensitivities, and attention difficulties related to hearing.")}
               </p>
             </div>
 
@@ -316,9 +310,9 @@ export default function WhatIsAIT() {
               borderRadius: radius.lg,
             }}>
               {[
-                { value: '40+', labelEn: 'Years of Research', labelAr: 'سنة من البحث' },
-                { value: '50+', labelEn: 'Countries', labelAr: 'دولة' },
-                { value: '1000s', labelEn: 'Success Stories', labelAr: 'قصة نجاح' },
+                { value: '40+', labelEn: 'Years of Research', labelAr: 'auto.WhatIsAIT.k23' },
+                { value: '50+', labelEn: 'Countries', labelAr: 'auto.WhatIsAIT.k24' },
+                { value: '1000s', labelEn: 'Success Stories', labelAr: 'auto.WhatIsAIT.k25' },
               ].map((stat, idx) => (
                 <div key={idx} style={{ flex: 1, textAlign: 'center' }}>
                   <div style={{
@@ -333,7 +327,7 @@ export default function WhatIsAIT() {
                     fontSize: typography.size.xs,
                     color: colors.text.muted,
                   }}>
-                    {isArabic ? stat.labelAr : stat.labelEn}
+                    {isArabic ? t(stat.labelAr, stat.labelEn) : stat.labelEn}
                   </div>
                 </div>
               ))}
@@ -363,7 +357,7 @@ export default function WhatIsAIT() {
                 color: visitorConfig.color,
                 border: `1px solid ${visitorConfig.color}40`,
               }}>
-                {visitorConfig.icon} {isArabic ? visitorConfig.labelAr : visitorConfig.label}
+                {visitorConfig.icon} {isArabic ? t(visitorConfig.labelAr, visitorConfig.label) : visitorConfig.label}
               </div>
             </div>
 
@@ -374,11 +368,11 @@ export default function WhatIsAIT() {
               color: colors.text.primary,
               marginBottom: spacing[4],
             }}>
-              {isArabic ? roleMessaging.focusTitleAr : roleMessaging.focusTitleEn}
+              {isArabic ? t(roleMessaging.focusTitleAr, roleMessaging.focusTitleEn) : roleMessaging.focusTitleEn}
             </h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[3] }}>
-              {(isArabic ? roleMessaging.focusPointsAr : roleMessaging.focusPointsEn).map((point, idx) => (
+              {(isArabic ? t(roleMessaging.focusPointsAr, roleMessaging.focusPointsEn) : roleMessaging.focusPointsEn).map((point, idx) => (
                 <div
                   key={idx}
                   style={{
@@ -419,7 +413,7 @@ export default function WhatIsAIT() {
             color: colors.text.primary,
             marginBottom: spacing[6],
           }}>
-            {isArabic ? 'كيف يعمل البرنامج؟' : 'How Does It Work?'}
+            {t('auto.WhatIsAIT.k7', "How Does It Work?")}
           </h3>
 
           <div style={{
@@ -478,14 +472,14 @@ export default function WhatIsAIT() {
                       color: colors.text.primary,
                       marginBottom: 4,
                     }}>
-                      {isArabic ? step.titleAr : step.titleEn}
+                      {isArabic ? t(step.titleAr, step.titleEn) : step.titleEn}
                     </div>
                     <div style={{
                       fontSize: typography.size.sm,
                       color: colors.text.muted,
                       lineHeight: 1.4,
                     }}>
-                      {isArabic ? step.descriptionAr : step.descriptionEn}
+                      {isArabic ? t(step.descriptionAr, step.descriptionEn) : step.descriptionEn}
                     </div>
                   </div>
 
@@ -501,7 +495,7 @@ export default function WhatIsAIT() {
                       whiteSpace: 'nowrap',
                       transition: 'all 0.3s ease',
                     }}>
-                      {isArabic ? step.durationAr : step.durationEn}
+                      {isArabic ? t(step.durationAr, step.durationEn) : step.durationEn}
                     </div>
                   )}
                 </div>

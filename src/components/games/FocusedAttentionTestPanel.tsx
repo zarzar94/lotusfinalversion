@@ -105,22 +105,14 @@ export default function FocusedAttentionTestPanel({
   const RESPONSE_MIN = 150;
 
   const introInstruction = isAudioMode
-    ? (isArabic
-      ? 'اضغط على المسافة أو زر الاستجابة عند سماع النغمة المستهدفة. تجاهل النغمات الأخرى.'
-      : 'Press Space or the response button when you hear the target tone. Ignore other tones.')
-    : isArabic
-      ? 'اضغط على المسافة أو زر الاستجابة عندما ترى الرمز المستهدف. تجاهل الرموز الأخرى.'
-      : 'Press Space or the response button when you see the target. Ignore other symbols.';
+    ? (t('auto.FocusedAttentionTestPanel.k1', "Press Space or the response button when you hear the target tone. Ignore other tones."))
+    : t('auto.FocusedAttentionTestPanel.k2', "Press Space or the response button when you see the target. Ignore other symbols.");
   const shortInstruction = isAudioMode
-    ? (isArabic ? 'استجب فقط عند سماع النغمة المستهدفة.' : 'Respond only when the target tone plays.')
-    : isArabic
-      ? 'استجب فقط عندما يظهر الرمز المستهدف.'
-      : 'Respond only when the target symbol appears.';
+    ? (t('auto.FocusedAttentionTestPanel.k3', "Respond only when the target tone plays."))
+    : t('auto.FocusedAttentionTestPanel.k4', "Respond only when the target symbol appears.");
   const responsePrompt = isAudioMode
-    ? (isArabic ? 'اضغط المسافة أو زر الاستجابة عند سماع النغمة المستهدفة.' : 'Press Space or the response button when you hear the target tone.')
-    : isArabic
-      ? 'اضغط المسافة أو زر الاستجابة'
-      : 'Press Space or the response button';
+    ? (t('auto.FocusedAttentionTestPanel.k5', "Press Space or the response button when you hear the target tone."))
+    : t('auto.FocusedAttentionTestPanel.k6', "Press Space or the response button");
 
   const cleanup = useCallback(() => {
     if (timerRef.current) {
@@ -236,7 +228,7 @@ export default function FocusedAttentionTestPanel({
     if (!cur.practice && t.isTarget) rtsRef.current.push(rt);
 
     if (cur.practice) {
-      showFeedback(t.isTarget ? (isArabic ? 'صحيح' : 'Correct') : (isArabic ? 'تنبيه خاطئ' : 'False alarm'));
+      showFeedback(t.isTarget ? (t('auto.FocusedAttentionTestPanel.k7', "Correct")) : (t('auto.FocusedAttentionTestPanel.k8', "False alarm")));
     }
   }, [isArabic, stage]);
 
@@ -290,7 +282,7 @@ export default function FocusedAttentionTestPanel({
 
     const outcome: TestOutcome = {
       key: 'focused_attention',
-      title: isArabic ? 'الانتباه المركز (CPT)' : 'Focused Auditory Attention (CPT / Odd-One-Out)',
+      title: t('auto.FocusedAttentionTestPanel.k9', "Focused Auditory Attention (CPT / Odd-One-Out)"),
       result,
       scoreLabel: `${getStarEmoji(starRating)} Score ${score}/100 · ${accuracy}% · ${avgRt || '--'}ms`,
       message,
@@ -341,7 +333,7 @@ export default function FocusedAttentionTestPanel({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <div>
           <div style={{ fontWeight: 900, color: brandCyan }}>
-            {isArabic ? 'اختبار الانتباه المركز' : 'Focused Auditory Attention'}
+            {t('auto.FocusedAttentionTestPanel.k10', "Focused Auditory Attention")}
           </div>
           <div style={styles.muted}>{shortInstruction}</div>
         </div>
@@ -351,7 +343,7 @@ export default function FocusedAttentionTestPanel({
       {stage === 'intro' ? (
         <div style={{ marginTop: 12 }}>
           <div style={{ ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900 }}>{isArabic ? 'التعليمات' : 'Instructions'}</div>
+            <div style={{ fontWeight: 900 }}>{t('auto.FocusedAttentionTestPanel.k11', "Instructions")}</div>
             <p style={{ ...styles.bodyText, marginTop: 8 }}>{introInstruction}</p>
             {isAudioMode ? (
               <div style={{ marginTop: 12 }}>
@@ -359,14 +351,14 @@ export default function FocusedAttentionTestPanel({
                   <div style={{ ...styles.chip, borderColor: brandCyan, color: brandCyan }}>
                     {isArabic ? 'النغمة المستهدفة' : `${t('attention.target')} Tone`}
                   </div>
-                  <div style={styles.muted}>{isArabic ? 'مشتتات: نغمات أخرى' : 'Distractors: Other tones'}</div>
+                  <div style={styles.muted}>{t('auto.FocusedAttentionTestPanel.k12', "Distractors: Other tones")}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
                   <button onClick={() => playExample(AUDIO_TARGET_FREQ)} style={styles.primaryBtn}>
-                    {isArabic ? 'تشغيل النغمة المستهدفة' : 'Play target tone'}
+                    {t('auto.FocusedAttentionTestPanel.k13', "Play target tone")}
                   </button>
                   <button onClick={() => playExample(AUDIO_DISTRACTORS[0])} style={styles.ghostBtn}>
-                    {isArabic ? 'تشغيل نغمة مشتتة' : 'Play distractor'}
+                    {t('auto.FocusedAttentionTestPanel.k14', "Play distractor")}
                   </button>
                 </div>
               </div>
@@ -375,16 +367,16 @@ export default function FocusedAttentionTestPanel({
                 <div style={{ ...styles.chip, borderColor: brandCyan, color: brandCyan }}>
                   {t('attention.target')} {VISUAL_TARGET}
                 </div>
-                <div style={styles.muted}>{isArabic ? 'رموز مشتتة' : 'Distractors'}: {VISUAL_DISTRACTORS.join(' ')}</div>
+                <div style={styles.muted}>{t('auto.FocusedAttentionTestPanel.k15', "Distractors")}: {VISUAL_DISTRACTORS.join(' ')}</div>
               </div>
             )}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
               <button onClick={startPractice} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}>
-                {isArabic ? 'ابدأ التدريب' : 'Start Practice'}
+                {t('auto.FocusedAttentionTestPanel.k16', "Start Practice")}
               </button>
               {onCancel ? (
                 <button onClick={onCancel} style={styles.ghostBtn}>
-                  {isArabic ? 'إلغاء' : 'Cancel'}
+                  {t('auto.FocusedAttentionTestPanel.k17', "Cancel")}
                 </button>
               ) : null}
             </div>
@@ -402,7 +394,7 @@ export default function FocusedAttentionTestPanel({
             textAlign: 'center',
           }}>
             <div style={{ fontWeight: 700, color: 'rgba(255,255,255,0.6)', fontSize: 12 }}>
-              {stage === 'practice' ? (isArabic ? 'تجربة تدريب' : 'Practice Trial') : (isArabic ? 'جولة الاختبار' : 'Test Trial')}
+              {stage === 'practice' ? (t('auto.FocusedAttentionTestPanel.k18', "Practice Trial")) : (t('auto.FocusedAttentionTestPanel.k19', "Test Trial"))}
             </div>
             <div style={{ fontSize: 56, fontWeight: 900, marginTop: 12, minHeight: 68, color: stimulusVisible ? '#fff' : 'rgba(255,255,255,0.2)' }}>
               {stimulusVisible ? (stimulus?.label ?? '--') : '--'}
@@ -421,7 +413,7 @@ export default function FocusedAttentionTestPanel({
                 background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})`,
               }}
             >
-              {isArabic ? 'استجابة' : 'Respond'}
+              {t('auto.FocusedAttentionTestPanel.k20', "Respond")}
             </button>
             {feedback ? (
               <div style={{ marginTop: 8, color: brandCyan, fontWeight: 700, textAlign: 'center' }}>

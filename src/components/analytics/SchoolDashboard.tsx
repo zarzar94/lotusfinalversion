@@ -67,30 +67,30 @@ interface GradeDistribution {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const MOCK_STUDENTS: StudentData[] = [
-  { id: '1', name: 'Ahmed Hassan', nameAr: 'أحمد حسن', grade: 'Grade 3', sessionsCompleted: 18, totalSessions: 20, attentionScore: 85, processingSpeed: 78, lastActivity: Date.now() - 86400000, status: 'on_track' },
-  { id: '2', name: 'Sara Ali', nameAr: 'سارة علي', grade: 'Grade 4', sessionsCompleted: 20, totalSessions: 20, attentionScore: 92, processingSpeed: 88, lastActivity: Date.now() - 172800000, status: 'completed' },
-  { id: '3', name: 'Omar Khalid', nameAr: 'عمر خالد', grade: 'Grade 2', sessionsCompleted: 8, totalSessions: 20, attentionScore: 62, processingSpeed: 55, lastActivity: Date.now() - 604800000, status: 'at_risk' },
-  { id: '4', name: 'Fatima Mohammed', nameAr: 'فاطمة محمد', grade: 'Grade 3', sessionsCompleted: 14, totalSessions: 20, attentionScore: 75, processingSpeed: 72, lastActivity: Date.now() - 259200000, status: 'needs_attention' },
-  { id: '5', name: 'Yusuf Ibrahim', nameAr: 'يوسف إبراهيم', grade: 'Grade 5', sessionsCompleted: 16, totalSessions: 20, attentionScore: 88, processingSpeed: 82, lastActivity: Date.now() - 86400000, status: 'on_track' },
-  { id: '6', name: 'Layla Ahmad', nameAr: 'ليلى أحمد', grade: 'Grade 4', sessionsCompleted: 12, totalSessions: 20, attentionScore: 70, processingSpeed: 68, lastActivity: Date.now() - 432000000, status: 'needs_attention' },
-  { id: '7', name: 'Khaled Nasser', nameAr: 'خالد ناصر', grade: 'Grade 2', sessionsCompleted: 6, totalSessions: 20, attentionScore: 58, processingSpeed: 52, lastActivity: Date.now() - 864000000, status: 'at_risk' },
-  { id: '8', name: 'Noor Saleh', nameAr: 'نور صالح', grade: 'Grade 5', sessionsCompleted: 19, totalSessions: 20, attentionScore: 90, processingSpeed: 85, lastActivity: Date.now(), status: 'on_track' },
+  { id: '1', name: 'Ahmed Hassan', nameAr: 'auto.SchoolDashboard.k29', grade: 'Grade 3', sessionsCompleted: 18, totalSessions: 20, attentionScore: 85, processingSpeed: 78, lastActivity: Date.now() - 86400000, status: 'on_track' },
+  { id: '2', name: 'Sara Ali', nameAr: 'auto.SchoolDashboard.k30', grade: 'Grade 4', sessionsCompleted: 20, totalSessions: 20, attentionScore: 92, processingSpeed: 88, lastActivity: Date.now() - 172800000, status: 'completed' },
+  { id: '3', name: 'Omar Khalid', nameAr: 'auto.SchoolDashboard.k31', grade: 'Grade 2', sessionsCompleted: 8, totalSessions: 20, attentionScore: 62, processingSpeed: 55, lastActivity: Date.now() - 604800000, status: 'at_risk' },
+  { id: '4', name: 'Fatima Mohammed', nameAr: 'auto.SchoolDashboard.k32', grade: 'Grade 3', sessionsCompleted: 14, totalSessions: 20, attentionScore: 75, processingSpeed: 72, lastActivity: Date.now() - 259200000, status: 'needs_attention' },
+  { id: '5', name: 'Yusuf Ibrahim', nameAr: 'auto.SchoolDashboard.k33', grade: 'Grade 5', sessionsCompleted: 16, totalSessions: 20, attentionScore: 88, processingSpeed: 82, lastActivity: Date.now() - 86400000, status: 'on_track' },
+  { id: '6', name: 'Layla Ahmad', nameAr: 'auto.SchoolDashboard.k34', grade: 'Grade 4', sessionsCompleted: 12, totalSessions: 20, attentionScore: 70, processingSpeed: 68, lastActivity: Date.now() - 432000000, status: 'needs_attention' },
+  { id: '7', name: 'Khaled Nasser', nameAr: 'auto.SchoolDashboard.k35', grade: 'Grade 2', sessionsCompleted: 6, totalSessions: 20, attentionScore: 58, processingSpeed: 52, lastActivity: Date.now() - 864000000, status: 'at_risk' },
+  { id: '8', name: 'Noor Saleh', nameAr: 'auto.SchoolDashboard.k36', grade: 'Grade 5', sessionsCompleted: 19, totalSessions: 20, attentionScore: 90, processingSpeed: 85, lastActivity: Date.now(), status: 'on_track' },
 ];
 
 const MOCK_WEEKLY: WeeklyProgress[] = [
-  { week: 'Week 1', weekAr: 'الأسبوع 1', sessionsCompleted: 24, averageScore: 65, activeStudents: 8 },
-  { week: 'Week 2', weekAr: 'الأسبوع 2', sessionsCompleted: 32, averageScore: 68, activeStudents: 8 },
-  { week: 'Week 3', weekAr: 'الأسبوع 3', sessionsCompleted: 28, averageScore: 72, activeStudents: 7 },
-  { week: 'Week 4', weekAr: 'الأسبوع 4', sessionsCompleted: 35, averageScore: 75, activeStudents: 8 },
-  { week: 'Week 5', weekAr: 'الأسبوع 5', sessionsCompleted: 30, averageScore: 78, activeStudents: 6 },
-  { week: 'Week 6', weekAr: 'الأسبوع 6', sessionsCompleted: 38, averageScore: 80, activeStudents: 8 },
+  { week: 'Week 1', weekAr: 'auto.SchoolDashboard.k37', sessionsCompleted: 24, averageScore: 65, activeStudents: 8 },
+  { week: 'Week 2', weekAr: 'auto.SchoolDashboard.k38', sessionsCompleted: 32, averageScore: 68, activeStudents: 8 },
+  { week: 'Week 3', weekAr: 'auto.SchoolDashboard.k39', sessionsCompleted: 28, averageScore: 72, activeStudents: 7 },
+  { week: 'Week 4', weekAr: 'auto.SchoolDashboard.k40', sessionsCompleted: 35, averageScore: 75, activeStudents: 8 },
+  { week: 'Week 5', weekAr: 'auto.SchoolDashboard.k41', sessionsCompleted: 30, averageScore: 78, activeStudents: 6 },
+  { week: 'Week 6', weekAr: 'auto.SchoolDashboard.k42', sessionsCompleted: 38, averageScore: 80, activeStudents: 8 },
 ];
 
 const MOCK_GRADES: GradeDistribution[] = [
-  { grade: 'Grade 2', gradeAr: 'الصف الثاني', count: 2, averageProgress: 35, color: brandPink },
-  { grade: 'Grade 3', gradeAr: 'الصف الثالث', count: 2, averageProgress: 80, color: brandCyan },
-  { grade: 'Grade 4', gradeAr: 'الصف الرابع', count: 2, averageProgress: 80, color: brandPurple },
-  { grade: 'Grade 5', gradeAr: 'الصف الخامس', count: 2, averageProgress: 87, color: '#22c55e' },
+  { grade: 'Grade 2', gradeAr: 'auto.SchoolDashboard.k43', count: 2, averageProgress: 35, color: brandPink },
+  { grade: 'Grade 3', gradeAr: 'auto.SchoolDashboard.k44', count: 2, averageProgress: 80, color: brandCyan },
+  { grade: 'Grade 4', gradeAr: 'auto.SchoolDashboard.k45', count: 2, averageProgress: 80, color: brandPurple },
+  { grade: 'Grade 5', gradeAr: 'auto.SchoolDashboard.k46', count: 2, averageProgress: 87, color: '#22c55e' },
 ];
 
 // MetricCard replaced with StatCard from ../shared
@@ -120,7 +120,7 @@ const ProgressBarChart = memo(({
               textAlign: isArabic ? 'right' : 'left',
             }}
           >
-            {isArabic ? week.weekAr : week.week}
+            {isArabic ? t(week.weekAr, week.week) : week.week}
           </div>
           <div
             style={{
@@ -155,7 +155,7 @@ const ProgressBarChart = memo(({
                 color: colors.text.primary,
               }}
             >
-              {week.sessionsCompleted} {isArabic ? 'جلسة' : 'sessions'}
+              {week.sessionsCompleted} {t('auto.SchoolDashboard.k1', "sessions")}
             </div>
           </div>
           <div
@@ -188,17 +188,17 @@ const StudentTable = memo(({
   isArabic: boolean;
 }) => {
   const statusColors: Record<StudentData['status'], { bg: string; text: string; label: string; labelAr: string }> = {
-    on_track: { bg: 'rgba(34,197,94,0.15)', text: '#22c55e', label: 'On Track', labelAr: 'على المسار' },
-    completed: { bg: 'rgba(143,211,204,0.15)', text: brandCyan, label: 'Completed', labelAr: 'مكتمل' },
-    needs_attention: { bg: 'rgba(234,179,8,0.15)', text: '#eab308', label: 'Needs Attention', labelAr: 'يحتاج انتباه' },
-    at_risk: { bg: 'rgba(239,68,68,0.15)', text: '#ef4444', label: 'At Risk', labelAr: 'معرض للخطر' },
+    on_track: { bg: 'rgba(34,197,94,0.15)', text: '#22c55e', label: 'On Track', labelAr: 'auto.SchoolDashboard.k47' },
+    completed: { bg: 'rgba(143,211,204,0.15)', text: brandCyan, label: 'Completed', labelAr: 'auto.SchoolDashboard.k48' },
+    needs_attention: { bg: 'rgba(234,179,8,0.15)', text: '#eab308', label: 'Needs Attention', labelAr: 'auto.SchoolDashboard.k49' },
+    at_risk: { bg: 'rgba(239,68,68,0.15)', text: '#ef4444', label: 'At Risk', labelAr: 'auto.SchoolDashboard.k50' },
   };
 
   const getTimeAgo = (timestamp: number): string => {
     const diff = Date.now() - timestamp;
     const days = Math.floor(diff / 86400000);
-    if (days === 0) return isArabic ? 'اليوم' : 'Today';
-    if (days === 1) return isArabic ? 'أمس' : 'Yesterday';
+    if (days === 0) return t('auto.SchoolDashboard.k2', "Today");
+    if (days === 1) return t('auto.SchoolDashboard.k3', "Yesterday");
     return isArabic ? `منذ ${days} أيام` : `${days} days ago`;
   };
 
@@ -219,22 +219,22 @@ const StudentTable = memo(({
             }}
           >
             <th style={{ padding: spacing[3], fontWeight: typography.weight.bold, color: colors.text.secondary }}>
-              {isArabic ? 'الاسم' : 'Name'}
+              {t('auto.SchoolDashboard.k4', "Name")}
             </th>
             <th style={{ padding: spacing[3], fontWeight: typography.weight.bold, color: colors.text.secondary }}>
-              {isArabic ? 'الصف' : 'Grade'}
+              {t('auto.SchoolDashboard.k5', "Grade")}
             </th>
             <th style={{ padding: spacing[3], fontWeight: typography.weight.bold, color: colors.text.secondary }}>
-              {isArabic ? 'التقدم' : 'Progress'}
+              {t('auto.SchoolDashboard.k6', "Progress")}
             </th>
             <th style={{ padding: spacing[3], fontWeight: typography.weight.bold, color: colors.text.secondary }}>
-              {isArabic ? 'الانتباه' : 'Attention'}
+              {t('auto.SchoolDashboard.k7', "Attention")}
             </th>
             <th style={{ padding: spacing[3], fontWeight: typography.weight.bold, color: colors.text.secondary }}>
-              {isArabic ? 'آخر نشاط' : 'Last Active'}
+              {t('auto.SchoolDashboard.k8', "Last Active")}
             </th>
             <th style={{ padding: spacing[3], fontWeight: typography.weight.bold, color: colors.text.secondary }}>
-              {isArabic ? 'الحالة' : 'Status'}
+              {t('auto.SchoolDashboard.k9', "Status")}
             </th>
           </tr>
         </thead>
@@ -252,10 +252,10 @@ const StudentTable = memo(({
                 }}
               >
                 <td style={{ padding: spacing[3], color: colors.text.primary, fontWeight: typography.weight.semibold }}>
-                  {isArabic ? student.nameAr : student.name}
+                  {isArabic ? t(student.nameAr, student.name) : student.name}
                 </td>
                 <td style={{ padding: spacing[3], color: colors.text.secondary }}>
-                  {isArabic ? student.gradeAr : student.grade}
+                  {isArabic ? t(student.gradeAr, student.grade) : student.grade}
                 </td>
                 <td style={{ padding: spacing[3] }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
@@ -306,7 +306,7 @@ const StudentTable = memo(({
                       fontWeight: typography.weight.bold,
                     }}
                   >
-                    {isArabic ? status.labelAr : status.label}
+                    {isArabic ? t(status.labelAr, status.label) : status.label}
                   </span>
                 </td>
               </tr>
@@ -324,7 +324,7 @@ StudentTable.displayName = 'StudentTable';
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function SchoolDashboard() {
-  const { isArabic, direction } = useLanguage();
+  const { isArabic, direction, t } = useLanguage();
   const { user } = useUser();
   const hasAccess = usePermission('school_analytics');
   const [filter, setFilter] = useState<'all' | 'at_risk' | 'on_track' | 'completed'>('all');
@@ -355,12 +355,10 @@ export default function SchoolDashboard() {
       >
         <div style={{ fontSize: 48, marginBottom: spacing[4] }}>🔒</div>
         <h2 style={{ color: colors.text.primary, marginBottom: spacing[2] }}>
-          {isArabic ? 'الوصول مقيد' : 'Access Restricted'}
+          {t('auto.SchoolDashboard.k10', "Access Restricted")}
         </h2>
         <p>
-          {isArabic
-            ? 'يجب أن تكون مسؤول مدرسة للوصول إلى هذه اللوحة'
-            : 'You must be a school administrator to access this dashboard'}
+          {t('auto.SchoolDashboard.k11', "You must be a school administrator to access this dashboard")}
         </p>
       </div>
     );
@@ -412,10 +410,10 @@ export default function SchoolDashboard() {
                 fontFamily: typography.fontFamily,
               }}
             >
-              {isArabic ? 'لوحة تحكم المدرسة' : 'School Analytics Dashboard'}
+              {t('auto.SchoolDashboard.k12', "School Analytics Dashboard")}
             </h1>
             <p style={{ margin: 0, color: colors.text.secondary, fontSize: typography.size.sm }}>
-              {user?.school || (isArabic ? 'الأكاديمية الدولية' : 'International Academy')}
+              {user?.school || (t('auto.SchoolDashboard.k13', "International Academy"))}
             </p>
           </div>
         </div>
@@ -425,31 +423,31 @@ export default function SchoolDashboard() {
       <PageTransition animation="fade-in-up" delay={100}>
         <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
           <StatCard
-            label={isArabic ? 'إجمالي الطلاب' : 'Total Students'}
+            label={t('auto.SchoolDashboard.k14', "Total Students")}
             value={metrics.totalStudents}
-            subtitle={isArabic ? 'مسجلين في البرنامج' : 'Enrolled in program'}
+            subtitle={t('auto.SchoolDashboard.k15', "Enrolled in program")}
             icon="👥"
             color={brandCyan}
           />
           <StatCard
-            label={isArabic ? 'متوسط التقدم' : 'Avg. Progress'}
+            label={t('auto.SchoolDashboard.k16', "Avg. Progress")}
             value={`${metrics.avgProgress}%`}
-            subtitle={isArabic ? 'من الجلسات المكتملة' : 'Sessions completed'}
+            subtitle={t('auto.SchoolDashboard.k17', "Sessions completed")}
             icon="📈"
             color={brandPurple}
             trend={{ value: 12, isPositive: true }}
           />
           <StatCard
-            label={isArabic ? 'مكتملون' : 'Completed'}
+            label={t('auto.SchoolDashboard.k18', "Completed")}
             value={metrics.completed}
-            subtitle={isArabic ? 'أنهوا البرنامج' : 'Finished program'}
+            subtitle={t('auto.SchoolDashboard.k19', "Finished program")}
             icon="✅"
             color="#22c55e"
           />
           <StatCard
-            label={isArabic ? 'يحتاجون انتباه' : 'Need Attention'}
+            label={t('auto.SchoolDashboard.k20', "Need Attention")}
             value={metrics.atRisk}
-            subtitle={isArabic ? 'طلاب معرضون للخطر' : 'At-risk students'}
+            subtitle={t('auto.SchoolDashboard.k21', "At-risk students")}
             icon="⚠️"
             color="#ef4444"
           />
@@ -475,7 +473,7 @@ export default function SchoolDashboard() {
               color: colors.text.primary,
             }}
           >
-            {isArabic ? 'التقدم الأسبوعي' : 'Weekly Progress'}
+            {t('auto.SchoolDashboard.k22', "Weekly Progress")}
           </h3>
           <ProgressBarChart data={MOCK_WEEKLY} isArabic={isArabic} />
         </div>
@@ -497,7 +495,7 @@ export default function SchoolDashboard() {
               color: colors.text.primary,
             }}
           >
-            {isArabic ? 'توزيع الصفوف' : 'Grade Distribution'}
+            {t('auto.SchoolDashboard.k23', "Grade Distribution")}
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[3] }}>
             {MOCK_GRADES.map(grade => (
@@ -509,7 +507,7 @@ export default function SchoolDashboard() {
                     color: colors.text.secondary,
                   }}
                 >
-                  {isArabic ? grade.gradeAr : grade.grade}
+                  {isArabic ? t(grade.gradeAr, grade.grade) : grade.grade}
                 </div>
                 <div
                   style={{
@@ -542,7 +540,7 @@ export default function SchoolDashboard() {
                         color: '#fff',
                       }}
                     >
-                      {grade.count} {isArabic ? 'طلاب' : 'students'} • {grade.averageProgress}%
+                      {grade.count} {t('auto.SchoolDashboard.k24', "students")} • {grade.averageProgress}%
                     </span>
                   </div>
                 </div>
@@ -579,17 +577,17 @@ export default function SchoolDashboard() {
               color: colors.text.primary,
             }}
           >
-            {isArabic ? 'قائمة الطلاب' : 'Student List'}
+            {t('auto.SchoolDashboard.k25', "Student List")}
           </h3>
 
           {/* Filter Tabs */}
           <div style={{ display: 'flex', gap: spacing[2] }}>
             {(['all', 'on_track', 'at_risk', 'completed'] as const).map(f => {
               const labels = {
-                all: { en: 'All', ar: 'الكل' },
-                on_track: { en: 'On Track', ar: 'على المسار' },
-                at_risk: { en: 'At Risk', ar: 'معرض' },
-                completed: { en: 'Completed', ar: 'مكتمل' },
+                all: { en: 'All', ar: 'auto.SchoolDashboard.k58' },
+                on_track: { en: 'On Track', ar: 'auto.SchoolDashboard.k59' },
+                at_risk: { en: 'At Risk', ar: 'auto.SchoolDashboard.k60' },
+                completed: { en: 'Completed', ar: 'auto.SchoolDashboard.k61' },
               };
               const isActive = filter === f;
 
@@ -638,7 +636,7 @@ export default function SchoolDashboard() {
           }}
         >
           <LineChart
-            title={isArabic ? 'اتجاه الدرجات الأسبوعي' : 'Weekly Score Trend'}
+            title={t('auto.SchoolDashboard.k26', "Weekly Score Trend")}
             titleAr="اتجاه الدرجات الأسبوعي"
             data={MOCK_WEEKLY.map(w => ({
               label: w.week.replace('Week ', 'W'),
@@ -664,23 +662,23 @@ export default function SchoolDashboard() {
             {
               id: '1',
               title: 'Monitor At-Risk Students',
-              titleAr: 'راقب الطلاب المعرضين',
+              titleAr: 'auto.SchoolDashboard.k51',
               content: 'Students inactive for 5+ days need immediate follow-up with parents.',
-              contentAr: 'الطلاب غير النشطين لأكثر من 5 أيام يحتاجون متابعة فورية مع الأهل.',
+              contentAr: 'auto.SchoolDashboard.k52',
             },
             {
               id: '2',
               title: 'Weekly Reports',
-              titleAr: 'التقارير الأسبوعية',
+              titleAr: 'auto.SchoolDashboard.k53',
               content: 'Share weekly progress reports with teachers to coordinate classroom support.',
-              contentAr: 'شارك تقارير التقدم الأسبوعية مع المعلمين لتنسيق الدعم في الفصل.',
+              contentAr: 'auto.SchoolDashboard.k54',
             },
             {
               id: '3',
               title: 'Celebrate Success',
-              titleAr: 'احتفل بالنجاح',
+              titleAr: 'auto.SchoolDashboard.k55',
               content: 'Recognize students who complete the program in school assemblies.',
-              contentAr: 'كرّم الطلاب الذين يكملون البرنامج في الطابور الصباحي.',
+              contentAr: 'auto.SchoolDashboard.k56',
             },
           ]}
           variant="carousel"
@@ -691,16 +689,16 @@ export default function SchoolDashboard() {
       {metrics.atRisk > 0 && (
         <div style={{ marginTop: spacing[4] }}>
           <InfoCard
-            title={isArabic ? 'تنبيه: طلاب معرضون للخطر' : 'Alert: At-Risk Students'}
+            title={t('auto.SchoolDashboard.k27', "Alert: At-Risk Students")}
             titleAr="تنبيه: طلاب معرضون للخطر"
-            content={`${metrics.atRisk} ${isArabic ? 'طلاب يحتاجون تدخلاً فورياً. تواصل مع أولياء أمورهم.' : 'students need immediate intervention. Contact their parents.'}`}
+            content={`${metrics.atRisk} ${t('auto.SchoolDashboard.k28', "students need immediate intervention. Contact their parents.")}`}
             contentAr={`${metrics.atRisk} طلاب يحتاجون تدخلاً فورياً. تواصل مع أولياء أمورهم.`}
             variant="warning"
             isArabic={isArabic}
             actions={[
               {
                 label: 'View At-Risk',
-                labelAr: 'عرض المعرضين',
+                labelAr: 'auto.SchoolDashboard.k57',
                 onClick: () => setFilter('at_risk'),
               },
             ]}

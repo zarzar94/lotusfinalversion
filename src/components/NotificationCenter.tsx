@@ -93,7 +93,7 @@ const NotificationItem = memo(({
 
   const getTimeAgo = (timestamp: number): string => {
     const seconds = Math.floor((Date.now() - timestamp) / 1000);
-    if (seconds < 60) return isArabic ? 'الآن' : 'Just now';
+    if (seconds < 60) return t('auto.NotificationCenter.k1', "Just now");
     const minutes = Math.floor(seconds / 60);
     if (minutes < 60) return isArabic ? `منذ ${minutes} دقيقة` : `${minutes}m ago`;
     const hours = Math.floor(minutes / 60);
@@ -159,7 +159,7 @@ const NotificationItem = memo(({
               marginBottom: spacing[0.5],
             }}
           >
-            {isArabic ? notification.titleAr : notification.title}
+            {isArabic ? t(notification.titleAr, notification.title) : notification.title}
           </div>
           <div
             style={{
@@ -169,7 +169,7 @@ const NotificationItem = memo(({
               marginBottom: spacing[1.5],
             }}
           >
-            {isArabic ? notification.messageAr : notification.message}
+            {isArabic ? t(notification.messageAr, notification.message) : notification.message}
           </div>
 
           <div
@@ -199,7 +199,7 @@ const NotificationItem = memo(({
                   textDecoration: 'none',
                 }}
               >
-                {isArabic ? notification.action.labelAr : notification.action.label} →
+                {isArabic ? t(notification.action.labelAr, notification.action.label) : notification.action.label} →
               </a>
             )}
           </div>
@@ -235,7 +235,7 @@ NotificationItem.displayName = 'NotificationItem';
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function NotificationCenter() {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const { user, isAuthenticated, clinicalProgress } = useUser();
   const { recentUnlock } = useGamification();
 
@@ -301,7 +301,7 @@ export default function NotificationCenter() {
       addNotification({
         type: 'achievement',
         title: 'Achievement Unlocked!',
-        titleAr: 'إنجاز جديد!',
+        titleAr: 'auto.NotificationCenter.k7',
         message: recentUnlock.title,
         messageAr: recentUnlock.titleAr,
         icon: recentUnlock.icon,
@@ -326,13 +326,13 @@ export default function NotificationCenter() {
           id: reminderId,
           type: 'reminder',
           title: 'Daily Session Reminder',
-          titleAr: 'تذكير الجلسة اليومية',
+          titleAr: 'auto.NotificationCenter.k8',
           message: "Don't forget to complete your daily session to maintain your streak!",
-          messageAr: 'لا تنس إكمال جلستك اليومية للحفاظ على استمراريتك!',
+          messageAr: 'auto.NotificationCenter.k9',
           icon: '⏰',
           action: {
             label: 'Start Session',
-            labelAr: 'ابدأ الجلسة',
+            labelAr: 'auto.NotificationCenter.k10',
             href: '#checklist',
           },
         });
@@ -346,13 +346,13 @@ export default function NotificationCenter() {
       addNotification({
         type: 'info',
         title: 'Welcome to Lotus × Bérard AIT!',
-        titleAr: 'مرحباً بك في Lotus × Bérard AIT!',
+        titleAr: 'auto.NotificationCenter.k11',
         message: 'Explore the platform and track your progress.',
-        messageAr: 'استكشف المنصة وتابع تقدمك.',
+        messageAr: 'auto.NotificationCenter.k12',
         icon: '👋',
         action: {
           label: 'Explore',
-          labelAr: 'استكشف',
+          labelAr: 'auto.NotificationCenter.k13',
           href: '#hero',
         },
       });
@@ -484,7 +484,7 @@ export default function NotificationCenter() {
                     color: colors.text.primary,
                   }}
                 >
-                  {isArabic ? 'الإشعارات' : 'Notifications'}
+                  {t('auto.NotificationCenter.k2', "Notifications")}
                 </span>
                 {unreadCount > 0 && (
                   <span
@@ -497,7 +497,7 @@ export default function NotificationCenter() {
                       color: brandCyan,
                     }}
                   >
-                    {unreadCount} {isArabic ? 'جديد' : 'new'}
+                    {unreadCount} {t('auto.NotificationCenter.k3', "new")}
                   </span>
                 )}
               </div>
@@ -515,7 +515,7 @@ export default function NotificationCenter() {
                       fontWeight: typography.weight.semibold,
                     }}
                   >
-                    {isArabic ? 'قراءة الكل' : 'Mark all read'}
+                    {t('auto.NotificationCenter.k4', "Mark all read")}
                   </button>
                 )}
               </div>
@@ -542,7 +542,7 @@ export default function NotificationCenter() {
                 >
                   <div style={{ fontSize: 32, marginBottom: spacing[2], opacity: 0.5 }}>🔕</div>
                   <div style={{ fontSize: typography.size.sm }}>
-                    {isArabic ? 'لا توجد إشعارات' : 'No notifications'}
+                    {t('auto.NotificationCenter.k5', "No notifications")}
                   </div>
                 </div>
               ) : (
@@ -578,7 +578,7 @@ export default function NotificationCenter() {
                     transition: transitions.fast,
                   }}
                 >
-                  {isArabic ? 'مسح كل الإشعارات' : 'Clear all notifications'}
+                  {t('auto.NotificationCenter.k6', "Clear all notifications")}
                 </button>
               </div>
             )}

@@ -7,9 +7,9 @@ const JOURNEY_STAGES = [
   {
     id: 'sound_wave',
     title: 'Sound Wave',
-    titleAr: 'الموجة الصوتية',
+    titleAr: 'auto.AudioJourney.k1',
     description: 'Sound travels through the air as vibrations',
-    descriptionAr: 'ينتقل الصوت عبر الهواء كاهتزازات',
+    descriptionAr: 'auto.AudioJourney.k2',
     icon: '🔊',
     color: brandCyan,
     frequency: 440, // A4 note
@@ -17,9 +17,9 @@ const JOURNEY_STAGES = [
   {
     id: 'ear_canal',
     title: 'Ear Canal',
-    titleAr: 'قناة الأذن',
+    titleAr: 'auto.AudioJourney.k3',
     description: 'Vibrations enter the ear and travel through the canal',
-    descriptionAr: 'تدخل الاهتزازات الأذن وتنتقل عبر القناة',
+    descriptionAr: 'auto.AudioJourney.k4',
     icon: '👂',
     color: brandPurple,
     frequency: 523.25, // C5
@@ -27,9 +27,9 @@ const JOURNEY_STAGES = [
   {
     id: 'cochlea',
     title: 'Cochlea',
-    titleAr: 'القوقعة',
+    titleAr: 'auto.AudioJourney.k5',
     description: 'Hair cells convert vibrations to electrical signals',
-    descriptionAr: 'تحول الخلايا الشعرية الاهتزازات إلى إشارات كهربائية',
+    descriptionAr: 'auto.AudioJourney.k6',
     icon: '🐚',
     color: brandPink,
     frequency: 659.25, // E5
@@ -37,9 +37,9 @@ const JOURNEY_STAGES = [
   {
     id: 'auditory_nerve',
     title: 'Auditory Nerve',
-    titleAr: 'العصب السمعي',
+    titleAr: 'auto.AudioJourney.k7',
     description: 'Signals travel along the auditory nerve to the brain',
-    descriptionAr: 'تنتقل الإشارات عبر العصب السمعي إلى الدماغ',
+    descriptionAr: 'auto.AudioJourney.k8',
     icon: '⚡',
     color: brandCyan,
     frequency: 783.99, // G5
@@ -47,9 +47,9 @@ const JOURNEY_STAGES = [
   {
     id: 'brain_processing',
     title: 'Brain Processing',
-    titleAr: 'معالجة الدماغ',
+    titleAr: 'auto.AudioJourney.k9',
     description: 'The auditory cortex interprets the sound',
-    descriptionAr: 'تفسر القشرة السمعية الصوت',
+    descriptionAr: 'auto.AudioJourney.k10',
     icon: '🧠',
     color: brandPurple,
     frequency: 880, // A5

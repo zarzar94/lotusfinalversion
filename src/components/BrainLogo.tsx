@@ -225,7 +225,7 @@ export const BrainLogoSVG = memo(({ size = 50, animated = false }: { size?: numb
 BrainLogoSVG.displayName = 'BrainLogoSVG';
 
 const BrainLogo = memo(({ size = 50, showText = true, textSize = 22 }: BrainLogoProps) => {
-  const { isArabic, direction } = useLanguage();
+  const { isArabic, direction, t } = useLanguage();
   const logoSrc = assetUrl('assets/images/sound_lab_logo.png');
 
   return (
@@ -246,7 +246,7 @@ const BrainLogo = memo(({ size = 50, showText = true, textSize = 22 }: BrainLogo
       >
         <img
           src={logoSrc}
-          alt={isArabic ? 'شعار مختبر الصوت' : 'Sound Lab logo'}
+          alt={t('auto.BrainLogo.k1', "Sound Lab logo")}
           width={size}
           height={size}
           style={{
@@ -273,7 +273,7 @@ const BrainLogo = memo(({ size = 50, showText = true, textSize = 22 }: BrainLogo
             color: 'rgba(255,255,255,0.5)',
             letterSpacing: 0.5,
           }}>
-            {isArabic ? 'معمل الصوت' : 'Sound Lab'}
+            {t('auto.BrainLogo.k2', "Sound Lab")}
           </div>
         </div>
       )}

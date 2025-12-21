@@ -367,7 +367,7 @@ export default function HeadphoneCheckPanel({
   onDone: (res: HeadphoneCheckResult) => void;
   onSkip?: () => void;
 }) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const audioRef = useRef<AudioContext | null>(null);
   const [phase, setPhase] = useState<'volume' | 'headphone'>('volume');
 

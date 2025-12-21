@@ -30,11 +30,11 @@ type AuthMode = 'login' | 'register' | 'demo';
 // ═══════════════════════════════════════════════════════════════════════════
 
 const DEMO_ACCOUNTS: { role: UserRole; email: string; label: string; labelAr: string; icon: string; color: string; description: string; descriptionAr: string }[] = [
-  { role: 'patient', email: 'demo@patient.com', label: 'Patient', labelAr: 'مريض', icon: '👤', color: brandCyan, description: 'Track your AIT sessions', descriptionAr: 'تتبع جلسات العلاج السمعي' },
-  { role: 'parent', email: 'demo@parent.com', label: 'Parent', labelAr: 'ولي أمر', icon: '👨‍👩‍👧', color: brandPurple, description: 'Monitor children progress', descriptionAr: 'مراقبة تقدم الأطفال' },
-  { role: 'clinician', email: 'demo@clinician.com', label: 'Clinician', labelAr: 'طبيب', icon: '👨‍⚕️', color: brandPink, description: 'Manage patient records', descriptionAr: 'إدارة سجلات المرضى' },
-  { role: 'school_admin', email: 'demo@school.com', label: 'School Admin', labelAr: 'مدير مدرسة', icon: '🏫', color: '#f59e0b', description: 'View school analytics', descriptionAr: 'عرض تحليلات المدرسة' },
-  { role: 'super_admin', email: 'demo@admin.com', label: 'Admin', labelAr: 'مشرف', icon: '⚙️', color: '#ef4444', description: 'Full system access', descriptionAr: 'الوصول الكامل للنظام' },
+  { role: 'patient', email: 'demo@patient.com', label: 'Patient', labelAr: 'auto.LoginModal.k17', icon: '👤', color: brandCyan, description: 'Track your AIT sessions', descriptionAr: 'auto.LoginModal.k18' },
+  { role: 'parent', email: 'demo@parent.com', label: 'Parent', labelAr: 'auto.LoginModal.k19', icon: '👨‍👩‍👧', color: brandPurple, description: 'Monitor children progress', descriptionAr: 'auto.LoginModal.k20' },
+  { role: 'clinician', email: 'demo@clinician.com', label: 'Clinician', labelAr: 'auto.LoginModal.k21', icon: '👨‍⚕️', color: brandPink, description: 'Manage patient records', descriptionAr: 'auto.LoginModal.k22' },
+  { role: 'school_admin', email: 'demo@school.com', label: 'School Admin', labelAr: 'auto.LoginModal.k23', icon: '🏫', color: '#f59e0b', description: 'View school analytics', descriptionAr: 'auto.LoginModal.k24' },
+  { role: 'super_admin', email: 'demo@admin.com', label: 'Admin', labelAr: 'auto.LoginModal.k25', icon: '⚙️', color: '#ef4444', description: 'Full system access', descriptionAr: 'auto.LoginModal.k26' },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -42,7 +42,7 @@ const DEMO_ACCOUNTS: { role: UserRole; email: string; label: string; labelAr: st
 // ═══════════════════════════════════════════════════════════════════════════
 
 function LoginModal({ isOpen, onClose }: LoginModalProps) {
-  const { isArabic, direction } = useLanguage();
+  const { isArabic, direction, t } = useLanguage();
   const { login, register, isLoading } = useUser();
 
   const [mode, setMode] = useState<AuthMode>('login');
@@ -106,18 +106,18 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
       if (success) {
         onClose();
       } else {
-        setError(isArabic ? 'بيانات الدخول غير صحيحة' : 'Invalid email or password');
+        setError(t('auto.LoginModal.k1', "Invalid email or password"));
       }
     } else if (mode === 'register') {
       if (!name.trim()) {
-        setError(isArabic ? 'الرجاء إدخال الاسم' : 'Please enter your name');
+        setError(t('auto.LoginModal.k2', "Please enter your name"));
         return;
       }
       const success = await register({ email, password, name });
       if (success) {
         onClose();
       } else {
-        setError(isArabic ? 'البريد الإلكتروني مستخدم بالفعل' : 'Email already in use');
+        setError(t('auto.LoginModal.k3', "Email already in use"));
       }
     }
   }, [mode, email, password, name, login, register, onClose, isArabic]);
@@ -133,17 +133,17 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
   if (!isOpen || typeof document === 'undefined') return null;
 
   const text = {
-    login: isArabic ? 'تسجيل الدخول' : 'Sign In',
-    register: isArabic ? 'إنشاء حساب' : 'Create Account',
-    demo: isArabic ? 'حسابات تجريبية' : 'Demo Accounts',
-    email: isArabic ? 'البريد الإلكتروني' : 'Email',
-    password: isArabic ? 'كلمة المرور' : 'Password',
-    name: isArabic ? 'الاسم' : 'Name',
-    submit: mode === 'login' ? (isArabic ? 'دخول' : 'Sign In') : (isArabic ? 'تسجيل' : 'Register'),
-    noAccount: isArabic ? 'ليس لديك حساب؟' : "Don't have an account?",
-    hasAccount: isArabic ? 'لديك حساب بالفعل؟' : 'Already have an account?',
-    tryDemo: isArabic ? 'جرب الحسابات التجريبية' : 'Try Demo Accounts',
-    backToLogin: isArabic ? 'العودة لتسجيل الدخول' : 'Back to Sign In',
+    login: t('auto.LoginModal.k4', "Sign In"),
+    register: t('auto.LoginModal.k5', "Create Account"),
+    demo: t('auto.LoginModal.k6', "Demo Accounts"),
+    email: t('auto.LoginModal.k7', "Email"),
+    password: t('auto.LoginModal.k8', "Password"),
+    name: t('auto.LoginModal.k9', "Name"),
+    submit: mode === 'login' ? (t('auto.LoginModal.k10', "Sign In")) : (t('auto.LoginModal.k11', "Register")),
+    noAccount: t('auto.LoginModal.k12', "Don't have an account?"),
+    hasAccount: t('auto.LoginModal.k13', "Already have an account?"),
+    tryDemo: t('auto.LoginModal.k14', "Try Demo Accounts"),
+    backToLogin: t('auto.LoginModal.k15', "Back to Sign In"),
   };
 
   return createPortal(
@@ -192,7 +192,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
         {/* Close button */}
         <button
           onClick={onClose}
-          aria-label={isArabic ? 'إغلاق' : 'Close'}
+          aria-label={t('auto.LoginModal.k16', "Close")}
           style={{
             position: 'absolute',
             top: spacing[3],
@@ -289,7 +289,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
                         color: colors.text.primary,
                       }}
                     >
-                      {isArabic ? account.labelAr : account.label}
+                      {isArabic ? t(account.labelAr, account.label) : account.label}
                     </div>
                     <div
                       style={{
@@ -298,7 +298,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
                         marginTop: 2,
                       }}
                     >
-                      {isArabic ? account.descriptionAr : account.description}
+                      {isArabic ? t(account.descriptionAr, account.description) : account.description}
                     </div>
                   </div>
                   <div

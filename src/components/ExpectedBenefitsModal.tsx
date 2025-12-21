@@ -38,54 +38,54 @@ const BENEFITS: BenefitItem[] = [
     id: 'listening',
     icon: <HeadphonesIcon size={22} color="#fff" />,
     titleEn: 'Improved Listening Skills',
-    titleAr: 'تحسين مهارات الاستماع',
+    titleAr: 'auto.ExpectedBenefitsModal.k7',
     descriptionEn: 'Enhanced ability to filter and process auditory information in noisy environments',
-    descriptionAr: 'قدرة محسنة على تصفية ومعالجة المعلومات السمعية في البيئات الصاخبة',
+    descriptionAr: 'auto.ExpectedBenefitsModal.k8',
     relevantModes: ['parent', 'school'],
   },
   {
     id: 'focus',
     icon: <BrainIcon size={22} color="#fff" />,
     titleEn: 'Better Focus & Attention',
-    titleAr: 'تركيز وانتباه أفضل',
+    titleAr: 'auto.ExpectedBenefitsModal.k9',
     descriptionEn: 'Reduced auditory hypersensitivity leads to improved concentration',
-    descriptionAr: 'تقليل الحساسية السمعية المفرطة يؤدي إلى تحسين التركيز',
+    descriptionAr: 'auto.ExpectedBenefitsModal.k10',
     relevantModes: ['parent', 'school', 'clinician'],
   },
   {
     id: 'communication',
     icon: <MessageIcon size={22} color="#fff" />,
     titleEn: 'Enhanced Communication',
-    titleAr: 'تواصل محسّن',
+    titleAr: 'auto.ExpectedBenefitsModal.k11',
     descriptionEn: 'Improvements in speech clarity, language processing, and social interaction',
-    descriptionAr: 'تحسينات في وضوح الكلام ومعالجة اللغة والتفاعل الاجتماعي',
+    descriptionAr: 'auto.ExpectedBenefitsModal.k12',
     relevantModes: ['parent', 'clinician'],
   },
   {
     id: 'academic',
     icon: <BookIcon size={22} color="#fff" />,
     titleEn: 'Academic Performance',
-    titleAr: 'الأداء الأكاديمي',
+    titleAr: 'auto.ExpectedBenefitsModal.k13',
     descriptionEn: 'Better auditory processing supports reading, spelling, and classroom learning',
-    descriptionAr: 'معالجة سمعية أفضل تدعم القراءة والإملاء والتعلم في الصف',
+    descriptionAr: 'auto.ExpectedBenefitsModal.k14',
     relevantModes: ['school', 'parent'],
   },
   {
     id: 'sensory',
     icon: <TargetIcon size={22} color="#fff" />,
     titleEn: 'Sensory Regulation',
-    titleAr: 'تنظيم حسي',
+    titleAr: 'auto.ExpectedBenefitsModal.k15',
     descriptionEn: 'Helps modulate sensory responses for improved emotional regulation',
-    descriptionAr: 'يساعد على تنظيم الاستجابات الحسية لتحسين التنظيم العاطفي',
+    descriptionAr: 'auto.ExpectedBenefitsModal.k16',
     relevantModes: ['parent', 'clinician'],
   },
   {
     id: 'evidence',
     icon: <ShieldIcon size={22} color="#fff" />,
     titleEn: 'Evidence-Based Protocol',
-    titleAr: 'بروتوكول قائم على الأدلة',
+    titleAr: 'auto.ExpectedBenefitsModal.k17',
     descriptionEn: 'Backed by decades of research and documented clinical outcomes',
-    descriptionAr: 'مدعوم بعقود من البحث والنتائج السريرية الموثقة',
+    descriptionAr: 'auto.ExpectedBenefitsModal.k18',
     relevantModes: ['clinician', 'school'],
   },
 ];
@@ -97,7 +97,7 @@ export default function ExpectedBenefitsModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const { mode: visitorMode, config: visitorConfig } = useVisitorMode();
   const [hoveredBenefit, setHoveredBenefit] = useState<string | null>(null);
 
@@ -131,14 +131,10 @@ export default function ExpectedBenefitsModal({
 
   if (!open) return null;
 
-  const title = isArabic ? 'الفوائد المتوقعة' : 'Expected Benefits';
-  const subtitle = isArabic
-    ? 'فوائد مختارة لك بناءً على احتياجاتك'
-    : 'Benefits highlighted for you based on your needs';
-  const question = isArabic
-    ? 'هل لديك أسئلة حول ما إذا كان برنامج بيرارد AIT مناسباً لك؟'
-    : 'Have questions about whether Berard AIT is right for you?';
-  const ctaLabel = isArabic ? 'احجز استشارة مجانية' : 'Book a Free Consultation';
+  const title = t('auto.ExpectedBenefitsModal.k1', "Expected Benefits");
+  const subtitle = t('auto.ExpectedBenefitsModal.k2', "Benefits highlighted for you based on your needs");
+  const question = t('auto.ExpectedBenefitsModal.k3', "Have questions about whether Berard AIT is right for you?");
+  const ctaLabel = t('auto.ExpectedBenefitsModal.k4', "Book a Free Consultation");
 
   const css = `
     @keyframes benefitsModalFade {
@@ -216,7 +212,7 @@ export default function ExpectedBenefitsModal({
       >
         <button
           onClick={onClose}
-          aria-label={isArabic ? 'إغلاق' : 'Close'}
+          aria-label={t('auto.ExpectedBenefitsModal.k5', "Close")}
           style={{
             position: 'absolute',
             top: spacing[3],
@@ -259,7 +255,7 @@ export default function ExpectedBenefitsModal({
                 textTransform: 'uppercase',
               }}
             >
-              {isArabic ? 'الفوائد المتوقعة' : 'Expected Benefits'}
+              {t('auto.ExpectedBenefitsModal.k6', "Expected Benefits")}
             </span>
           </div>
           <h2 style={{
@@ -359,7 +355,7 @@ export default function ExpectedBenefitsModal({
                     marginBottom: spacing[2],
                   }}
                 >
-                  {isArabic ? benefit.titleAr : benefit.titleEn}
+                  {isArabic ? t(benefit.titleAr, benefit.titleEn) : benefit.titleEn}
                 </div>
                 <div
                   style={{
@@ -368,7 +364,7 @@ export default function ExpectedBenefitsModal({
                     lineHeight: 1.6,
                   }}
                 >
-                  {isArabic ? benefit.descriptionAr : benefit.descriptionEn}
+                  {isArabic ? t(benefit.descriptionAr, benefit.descriptionEn) : benefit.descriptionEn}
                 </div>
               </div>
             );

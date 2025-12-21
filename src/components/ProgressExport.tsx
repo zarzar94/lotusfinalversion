@@ -55,39 +55,39 @@ const generateProgressPdf = async (
 
   // Text helpers
   const text = {
-    title: isArabic ? 'تقرير التقدم' : 'Progress Report',
-    generated: isArabic ? 'تم الإنشاء' : 'Generated',
-    userInfo: isArabic ? 'معلومات المستخدم' : 'User Information',
-    name: isArabic ? 'الاسم' : 'Name',
-    email: isArabic ? 'البريد الإلكتروني' : 'Email',
-    role: isArabic ? 'الدور' : 'Role',
-    clinicalProgress: isArabic ? 'التقدم السريري' : 'Clinical Progress',
-    sessions: isArabic ? 'الجلسات المكتملة' : 'Sessions Completed',
-    streak: isArabic ? 'الاستمرارية' : 'Current Streak',
-    phase: isArabic ? 'مرحلة العلاج' : 'Treatment Phase',
-    scores: isArabic ? 'الدرجات' : 'Scores',
-    attention: isArabic ? 'الانتباه' : 'Attention',
-    processing: isArabic ? 'سرعة المعالجة' : 'Processing Speed',
-    auditory: isArabic ? 'التمييز السمعي' : 'Auditory Discrimination',
-    gamification: isArabic ? 'الإنجازات والنشاط' : 'Achievements & Activity',
-    level: isArabic ? 'المستوى' : 'Level',
-    points: isArabic ? 'النقاط' : 'Points',
-    brainRegions: isArabic ? 'مناطق الدماغ المستكشفة' : 'Brain Regions Explored',
-    slidesViewed: isArabic ? 'الشرائح المشاهدة' : 'Slides Viewed',
-    gamesCompleted: isArabic ? 'الألعاب المكتملة' : 'Games Completed',
-    checklistStatus: isArabic ? 'قائمة التقييم' : 'Checklist Status',
-    completed: isArabic ? 'مكتمل' : 'Completed',
-    notCompleted: isArabic ? 'غير مكتمل' : 'Not Completed',
-    unlockedAchievements: isArabic ? 'الإنجازات المفتوحة' : 'Unlocked Achievements',
-    footer: isArabic ? 'Lotus × Bérard AIT - منصة التدريب السمعي' : 'Lotus × Bérard AIT - Auditory Training Platform',
-    days: isArabic ? 'أيام' : 'days',
+    title: t('auto.ProgressExport.k1', "Progress Report"),
+    generated: t('auto.ProgressExport.k2', "Generated"),
+    userInfo: t('auto.ProgressExport.k3', "User Information"),
+    name: t('auto.ProgressExport.k4', "Name"),
+    email: t('auto.ProgressExport.k5', "Email"),
+    role: t('auto.ProgressExport.k6', "Role"),
+    clinicalProgress: t('auto.ProgressExport.k7', "Clinical Progress"),
+    sessions: t('auto.ProgressExport.k8', "Sessions Completed"),
+    streak: t('auto.ProgressExport.k9', "Current Streak"),
+    phase: t('auto.ProgressExport.k10', "Treatment Phase"),
+    scores: t('auto.ProgressExport.k11', "Scores"),
+    attention: t('auto.ProgressExport.k12', "Attention"),
+    processing: t('auto.ProgressExport.k13', "Processing Speed"),
+    auditory: t('auto.ProgressExport.k14', "Auditory Discrimination"),
+    gamification: t('auto.ProgressExport.k15', "Achievements & Activity"),
+    level: t('auto.ProgressExport.k16', "Level"),
+    points: t('auto.ProgressExport.k17', "Points"),
+    brainRegions: t('auto.ProgressExport.k18', "Brain Regions Explored"),
+    slidesViewed: t('auto.ProgressExport.k19', "Slides Viewed"),
+    gamesCompleted: t('auto.ProgressExport.k20', "Games Completed"),
+    checklistStatus: t('auto.ProgressExport.k21', "Checklist Status"),
+    completed: t('auto.ProgressExport.k22', "Completed"),
+    notCompleted: t('auto.ProgressExport.k23', "Not Completed"),
+    unlockedAchievements: t('auto.ProgressExport.k24', "Unlocked Achievements"),
+    footer: t('auto.ProgressExport.k25', "Lotus × Bérard AIT - Auditory Training Platform"),
+    days: t('auto.ProgressExport.k26', "days"),
   };
 
   const phaseLabels: Record<string, { en: string; ar: string }> = {
-    assessment: { en: 'Assessment', ar: 'تقييم' },
-    active: { en: 'Active Treatment', ar: 'علاج نشط' },
-    maintenance: { en: 'Maintenance', ar: 'صيانة' },
-    completed: { en: 'Completed', ar: 'مكتمل' },
+    assessment: { en: 'Assessment', ar: 'auto.ProgressExport.k30' },
+    active: { en: 'Active Treatment', ar: 'auto.ProgressExport.k31' },
+    maintenance: { en: 'Maintenance', ar: 'auto.ProgressExport.k32' },
+    completed: { en: 'Completed', ar: 'auto.ProgressExport.k33' },
   };
 
   let y = 40;
@@ -149,7 +149,7 @@ const generateProgressPdf = async (
   // ════════════════════════════════════════════════════════════════════════
 
   y = drawSection(text.userInfo, y);
-  y = drawInfoRow(text.name, (isArabic ? user.nameAr : user.name) || 'N/A', y);
+  y = drawInfoRow(text.name, (isArabic ? t(user.nameAr, user.name) : user.name) || 'N/A', y);
   y = drawInfoRow(text.email, user.email || 'N/A', y);
   y = drawInfoRow(text.role, user.role.charAt(0).toUpperCase() + user.role.slice(1), y);
 
@@ -164,7 +164,7 @@ const generateProgressPdf = async (
     y = drawInfoRow(text.sessions, `${clinicalProgress.sessionsCompleted}/20`, y);
     y = drawInfoRow(text.streak, `${clinicalProgress.streak} ${text.days}`, y);
     const phaseLabel = phaseLabels[clinicalProgress.treatmentPhase] || phaseLabels.assessment;
-    y = drawInfoRow(text.phase, isArabic ? phaseLabel.ar : phaseLabel.en, y);
+    y = drawInfoRow(text.phase, isArabic ? t(phaseLabel.ar, phaseLabel.en) : phaseLabel.en, y);
 
     y += 10;
 
@@ -249,7 +249,7 @@ const generateProgressPdf = async (
       doc.setTextColor(60, 60, 80);
       doc.setFontSize(11);
       doc.setFont('Cairo', 'normal');
-      const achievementText = `${achievement.icon} ${isArabic ? achievement.titleAr : achievement.title}`;
+      const achievementText = `${achievement.icon} ${isArabic ? t(achievement.titleAr, achievement.title) : achievement.title}`;
       writePdfText(doc, achievementText, PDF_MARGIN_X, y);
       y += 18;
     });
@@ -265,7 +265,7 @@ const generateProgressPdf = async (
   doc.text(text.footer, pageWidth / 2, pageHeight - 30, { align: 'center' });
 
   // Download
-  const fileName = isArabic ? 'تقرير-التقدم.pdf' : 'progress-report.pdf';
+  const fileName = t('auto.ProgressExport.k27', "progress-report.pdf");
   doc.save(fileName);
 };
 
@@ -282,7 +282,7 @@ export const ProgressExportButton = memo(({
   variant = 'primary',
   size = 'md',
 }: ProgressExportButtonProps) => {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const { user, clinicalProgress } = useUser();
   const { state, getUnlockedAchievements } = useGamification();
 
@@ -374,8 +374,8 @@ export const ProgressExportButton = memo(({
     >
       <span>{isExporting ? '⏳' : '📄'}</span>
       {isExporting
-        ? (isArabic ? 'جاري التصدير...' : 'Exporting...')
-        : (isArabic ? 'تصدير التقرير' : 'Export Report')}
+        ? (t('auto.ProgressExport.k28', "Exporting..."))
+        : (t('auto.ProgressExport.k29', "Export Report"))}
     </button>
   );
 });

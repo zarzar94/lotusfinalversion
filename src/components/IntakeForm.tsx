@@ -189,7 +189,7 @@ const ImprovementSelector = memo(({ value, onChange, label }: {
 ImprovementSelector.displayName = 'ImprovementSelector';
 
 const IntakeForm: React.FC = () => {
-  const { isArabic, direction } = useLanguage();
+  const { isArabic, direction, t } = useLanguage();
   const fieldStyle = useMemo(() => ({
     ...notepadInputStyle,
     direction: isArabic ? 'rtl' : 'ltr',
@@ -622,7 +622,7 @@ ${isChild ? `*بيانات ولي الأمر:*
                 <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#c4b8a8', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }} />
               </div>
               <div style={{ fontSize: 12, color: '#8a7a6a', fontStyle: 'italic' }}>
-                {isArabic ? 'Berard AIT - معمل الصوت' : 'Berard AIT - Sound Lab'}
+                {t('auto.IntakeForm.k1', "Berard AIT - Sound Lab")}
               </div>
             </div>
 

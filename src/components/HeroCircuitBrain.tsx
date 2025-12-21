@@ -110,7 +110,7 @@ const InfoModal = memo(({
   isArabic: boolean;
 }) => {
   const navigate = useNavigate();
-  const text = isArabic ? heroText.ar : heroText.en;
+  const text = isArabic ? t(heroText.ar, heroText.en) : heroText.en;
 
   useEffect(() => {
     if (!node) return;
@@ -175,7 +175,7 @@ const InfoModal = memo(({
         {/* Close button */}
         <button
           onClick={onClose}
-          aria-label={isArabic ? 'إغلاق' : 'Close'}
+          aria-label={t('auto.HeroCircuitBrain.k1', "Close")}
           className="modal-close-btn"
           style={{
             position: 'absolute',
@@ -472,9 +472,9 @@ InfoModal.displayName = 'InfoModal';
 // ═══════════════════════════════════════════════════════════════════════════
 
 const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }: HeroCircuitBrainProps) {
-  const { isArabic, direction } = useLanguage();
+  const { isArabic, direction, t } = useLanguage();
   const navigate = useNavigate();
-  const text = isArabic ? heroText.ar : heroText.en;
+  const text = isArabic ? t(heroText.ar, heroText.en) : heroText.en;
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeNode, setActiveNode] = useState<BrainFunction | null>(null);
@@ -687,34 +687,34 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
   const platformFeatures: PlatformFeature[] = isArabic ? [
     {
       icon: <HeadphonesIcon size={24} color={brandCyan} />,
-      title: '????? ?????',
-      desc: '????? ????? ???????',
+      title: 'مختبر الصوت',
+      desc: 'جلسات سمعية تفاعلية',
       color: brandCyan,
     },
     {
       icon: <UsersIcon size={24} color={brandPurple} />,
-      title: '???????',
-      desc: '???? ????? ???????',
+      title: 'الشركاء',
+      desc: 'شبكة المدارس والعيادات',
       color: brandPurple,
     },
     {
       icon: <MessageIcon size={24} color={brandPink} />,
-      title: '????????',
-      desc: '??? ???? ?????',
+      title: 'الشهادات',
+      desc: 'قصص نجاح موثوقة',
       color: brandPink,
       onClick: openTestimonials,
     },
     {
       icon: <SparklesIcon size={24} color="#22c55e" />,
-      title: '??????? ????????',
-      desc: '?????? ???? ????????',
+      title: 'الفوائد المتوقعة',
+      desc: 'تحسينات قابلة للقياس',
       color: '#22c55e',
       onClick: openExpectedBenefits,
     },
     {
       icon: <ClipboardIcon size={24} color="#f59e0b" />,
-      title: '????????',
-      desc: '20 ???? ???? ?????',
+      title: 'بروتوكول',
+      desc: 'خطة من 20 جلسة',
       color: '#f59e0b',
     },
   ] : [
@@ -856,7 +856,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
               textTransform: 'uppercase',
               letterSpacing: 1,
             }}>
-              {isArabic ? 'منصة التدريب السمعي' : 'Auditory Training Platform'}
+              {t('auto.HeroCircuitBrain.k2', "Auditory Training Platform")}
             </span>
           </div>
 
@@ -890,9 +890,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
               lineHeight: typography.lineHeight.relaxed,
               maxWidth: 480,
             }}>
-              {isArabic
-                ? 'منصة متكاملة لتدريب التكامل السمعي. استكشف مناطق الدماغ واكتشف كيف يمكن للبرنامج تحسين المعالجة السمعية.'
-                : 'An integrated platform for auditory integration training. Explore brain regions and discover how the program can improve auditory processing.'}
+              {t('auto.HeroCircuitBrain.k3', "An integrated platform for auditory integration training. Explore brain regions and discover how the program can improve auditory processing.")}
             </p>
           </div>
 
@@ -972,7 +970,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
                 cursor: 'pointer',
               }}
             >
-              {isArabic ? 'ابدأ الآن' : 'Get Started'}
+              {t('auto.HeroCircuitBrain.k4', "Get Started")}
               <span style={{ transform: isArabic ? 'rotate(180deg)' : 'none' }}>→</span>
             </button>
             <button
@@ -993,7 +991,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
                 cursor: 'pointer',
               }}
             >
-              {isArabic ? 'قائمة التقييم' : 'Self Assessment'}
+              {t('auto.HeroCircuitBrain.k5', "Self Assessment")}
             </button>
           </div>
 
@@ -1009,13 +1007,13 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
             <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1.5] }}>
               <span style={{ color: brandCyan }}>✓</span>
               <span style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
-                {isArabic ? 'معتمد دولياً' : 'Internationally Certified'}
+                {t('auto.HeroCircuitBrain.k6', "Internationally Certified")}
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1.5] }}>
               <span style={{ color: brandPurple }}>✓</span>
               <span style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
-                {isArabic ? '+500 حالة ناجحة' : '500+ Success Cases'}
+                {t('auto.HeroCircuitBrain.k7', "500+ Success Cases")}
               </span>
             </div>
           </div>
@@ -1070,13 +1068,13 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
                     fontWeight: typography.weight.bold,
                     color: colors.text.primary,
                   }}>
-                    {isArabic ? 'خريطة الدماغ التفاعلية' : 'Interactive Brain Map'}
+                    {t('auto.HeroCircuitBrain.k8', "Interactive Brain Map")}
                   </div>
                   <div style={{
                     fontSize: typography.size.xs,
                     color: colors.text.muted,
                   }}>
-                    {isArabic ? '10 مناطق قابلة للاستكشاف' : '10 explorable regions'}
+                    {t('auto.HeroCircuitBrain.k9', "10 explorable regions")}
                   </div>
                 </div>
               </div>
@@ -1108,7 +1106,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
                     textTransform: 'uppercase',
                     letterSpacing: 0.5,
                   }}>
-                    {isArabic ? 'نشط' : 'NEURAL LINK ACTIVE'}
+                    {t('auto.HeroCircuitBrain.k10', "NEURAL LINK ACTIVE")}
                   </span>
                 </div>
                 {/* Traffic light dots */}
@@ -1847,7 +1845,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
               gap: spacing[1],
             }}>
               <span style={{ color: tooltipNode.color }}>→</span>
-              {isArabic ? 'انقر للمزيد' : 'Click to explore'}
+              {t('auto.HeroCircuitBrain.k11', "Click to explore")}
             </div>
           </div>
         )}

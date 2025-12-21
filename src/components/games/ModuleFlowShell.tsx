@@ -49,14 +49,14 @@ export default function ModuleFlowShell({
     }
   }, [phase, practiceIndex]);
 
-  const instructionFallback = isArabic ? instructions.ar : instructions.en;
+  const instructionFallback = isArabic ? t(instructions.ar, instructions.en) : instructions.en;
   const instructionText = t(`modules.${moduleId}.instructions`, instructionFallback);
-  const instructionTitle = t('modules.instructionsTitle', isArabic ? 'التعليمات' : 'Instructions');
+  const instructionTitle = t('modules.instructionsTitle', t('auto.ModuleFlowShell.k1', "Instructions"));
   const disclaimerText = t(
     'modules.disclaimer',
-    isArabic ? 'هذه أداة تقييم مبدئية، وليست تشخيصًا طبيًا.' : 'This is a screening tool, not a medical diagnosis.'
+    t('auto.ModuleFlowShell.k2', "This is a screening tool, not a medical diagnosis.")
   );
-  const nextLabel = t('modules.next', isArabic ? 'التالي' : 'Next');
+  const nextLabel = t('modules.next', t('auto.ModuleFlowShell.k3', "Next"));
 
   const advance = () => {
     if (!nextEnabled) return;

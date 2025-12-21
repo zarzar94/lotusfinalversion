@@ -1,3 +1,5 @@
+import { autoTranslations } from './autoTranslations';
+
 export const translations = {
   ar: {
     // Common
@@ -62,6 +64,25 @@ export const translations = {
       childrenDashboard: 'لوحة الأطفال',
       patientsDashboard: 'المرضى',
       schoolDashboard: 'المدرسة',
+    },
+
+    pageTitles: {
+      default: 'Lotus × Bérard AIT',
+      home: 'Lotus × Bérard AIT - تدريب التكامل السمعي',
+      assessment: 'التقييم الذاتي - Lotus × Bérard AIT',
+      program: 'البرنامج العلاجي - Lotus × Bérard AIT',
+      science: 'العلم والأبحاث - Lotus × Bérard AIT',
+      results: 'النتائج والشهادات - Lotus × Bérard AIT',
+      resources: 'الموارد - Lotus × Bérard AIT',
+      contact: 'تواصل معنا - Lotus × Bérard AIT',
+      partners: 'الشركاء - Lotus × Bérard AIT',
+      schoolDashboard: 'لوحة المدرسة - Lotus × Bérard AIT',
+      parentDashboard: 'لوحة أولياء الأمور - Lotus × Bérard AIT',
+      clinicianDashboard: 'لوحة الأخصائي - Lotus × Bérard AIT',
+      parentRoleDashboard: 'لوحة ولي الأمر - Lotus × Bérard AIT',
+      educatorDashboard: 'لوحة المعلّم - Lotus × Bérard AIT',
+      clinicianRoleDashboard: 'لوحة الأخصائي - Lotus × Bérard AIT',
+      settings: 'الإعدادات - Lotus × Bérard AIT',
     },
 
     // Hero Section
@@ -785,6 +806,7 @@ export const translations = {
       screeningDisclaimer: 'هذا ليس تقييمًا تشخيصيًا.',
       screeningOnly: 'للفحص فقط',
     },
+    auto: autoTranslations.ar,
   },
 
   en: {
@@ -850,6 +872,25 @@ export const translations = {
       childrenDashboard: 'Children',
       patientsDashboard: 'Patients',
       schoolDashboard: 'School',
+    },
+
+    pageTitles: {
+      default: 'Lotus × Bérard AIT',
+      home: 'Lotus × Bérard AIT - Auditory Integration Training',
+      assessment: 'Self Assessment - Lotus × Bérard AIT',
+      program: 'Treatment Program - Lotus × Bérard AIT',
+      science: 'Science & Research - Lotus × Bérard AIT',
+      results: 'Results & Testimonials - Lotus × Bérard AIT',
+      resources: 'Resources - Lotus × Bérard AIT',
+      contact: 'Contact Us - Lotus × Bérard AIT',
+      partners: 'Partners - Lotus × Bérard AIT',
+      schoolDashboard: 'School Dashboard - Lotus × Bérard AIT',
+      parentDashboard: 'Parent Dashboard - Lotus × Bérard AIT',
+      clinicianDashboard: 'Clinician Dashboard - Lotus × Bérard AIT',
+      parentRoleDashboard: 'Parent Dashboard - Lotus × Bérard AIT',
+      educatorDashboard: 'Educator Dashboard - Lotus × Bérard AIT',
+      clinicianRoleDashboard: 'Clinician Dashboard - Lotus × Bérard AIT',
+      settings: 'Settings - Lotus × Bérard AIT',
     },
 
     // Hero Section
@@ -1497,6 +1538,7 @@ export const translations = {
       screeningDisclaimer: 'This is not a diagnostic assessment.',
       screeningOnly: 'Screening Only',
     },
+    auto: autoTranslations.en,
   },
 } as const;
 

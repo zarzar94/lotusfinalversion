@@ -46,7 +46,7 @@ const ROLE_BADGES: Record<UserRole, RoleBadge> = {
 
 const ModeSwitcher = memo(function ModeSwitcher() {
   const { mode, setMode } = useVisitorMode();
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const { user, isAuthenticated } = useUser();
   const role = user?.role ?? 'guest';
 

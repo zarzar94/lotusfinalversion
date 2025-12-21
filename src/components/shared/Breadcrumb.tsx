@@ -23,21 +23,21 @@ interface BreadcrumbItem {
 
 // Route to breadcrumb mapping
 const ROUTE_BREADCRUMBS: Record<string, BreadcrumbItem> = {
-  '/': { label: 'Home', labelAr: 'الرئيسية', path: '/', icon: '🏠' },
-  '/assessment': { label: 'Assessment', labelAr: 'التقييم', path: '/assessment', icon: '🎯' },
-  '/program': { label: 'Program', labelAr: 'البرنامج', path: '/program', icon: '📋' },
-  '/science': { label: 'Science', labelAr: 'العلوم', path: '/science', icon: '🧠' },
-  '/results': { label: 'Results', labelAr: 'النتائج', path: '/results', icon: '📊' },
-  '/resources': { label: 'Resources', labelAr: 'الموارد', path: '/resources', icon: '📚' },
-  '/partners': { label: 'Partners', labelAr: 'الشركاء', path: '/partners', icon: '🤝' },
-  '/contact': { label: 'Contact', labelAr: 'تواصل', path: '/contact', icon: '✉️' },
-  '/school-dashboard': { label: 'School Dashboard', labelAr: 'لوحة المدرسة', path: '/school-dashboard', icon: '🏫' },
-  '/parent-dashboard': { label: 'Parent Dashboard', labelAr: 'لوحة الأولياء', path: '/parent-dashboard', icon: '👨‍👩‍👧' },
-  '/clinician-dashboard': { label: 'Clinician Dashboard', labelAr: 'لوحة الأخصائي', path: '/clinician-dashboard', icon: '🏥' },
-  '/dashboard/parent': { label: 'Parent Dashboard', labelAr: 'لوحة أولياء الأمور', path: '/dashboard/parent' },
-  '/dashboard/educator': { label: 'Educator Dashboard', labelAr: 'لوحة المعلم', path: '/dashboard/educator' },
-  '/dashboard/clinician': { label: 'Clinician Dashboard', labelAr: 'لوحة الأخصائي', path: '/dashboard/clinician' },
-  '/settings': { label: 'Settings', labelAr: 'الإعدادات', path: '/settings', icon: '⚙️' },
+  '/': { label: 'Home', labelAr: 'auto.Breadcrumb.k2', path: '/', icon: '🏠' },
+  '/assessment': { label: 'Assessment', labelAr: 'auto.Breadcrumb.k3', path: '/assessment', icon: '🎯' },
+  '/program': { label: 'Program', labelAr: 'auto.Breadcrumb.k4', path: '/program', icon: '📋' },
+  '/science': { label: 'Science', labelAr: 'auto.Breadcrumb.k5', path: '/science', icon: '🧠' },
+  '/results': { label: 'Results', labelAr: 'auto.Breadcrumb.k6', path: '/results', icon: '📊' },
+  '/resources': { label: 'Resources', labelAr: 'auto.Breadcrumb.k7', path: '/resources', icon: '📚' },
+  '/partners': { label: 'Partners', labelAr: 'auto.Breadcrumb.k8', path: '/partners', icon: '🤝' },
+  '/contact': { label: 'Contact', labelAr: 'auto.Breadcrumb.k9', path: '/contact', icon: '✉️' },
+  '/school-dashboard': { label: 'School Dashboard', labelAr: 'auto.Breadcrumb.k10', path: '/school-dashboard', icon: '🏫' },
+  '/parent-dashboard': { label: 'Parent Dashboard', labelAr: 'auto.Breadcrumb.k11', path: '/parent-dashboard', icon: '👨‍👩‍👧' },
+  '/clinician-dashboard': { label: 'Clinician Dashboard', labelAr: 'auto.Breadcrumb.k12', path: '/clinician-dashboard', icon: '🏥' },
+  '/dashboard/parent': { label: 'Parent Dashboard', labelAr: 'auto.Breadcrumb.k13', path: '/dashboard/parent' },
+  '/dashboard/educator': { label: 'Educator Dashboard', labelAr: 'auto.Breadcrumb.k14', path: '/dashboard/educator' },
+  '/dashboard/clinician': { label: 'Clinician Dashboard', labelAr: 'auto.Breadcrumb.k15', path: '/dashboard/clinician' },
+  '/settings': { label: 'Settings', labelAr: 'auto.Breadcrumb.k16', path: '/settings', icon: '⚙️' },
 };
 
 interface BreadcrumbProps {
@@ -46,7 +46,7 @@ interface BreadcrumbProps {
 }
 
 function Breadcrumb({ showHome = true, showIcon = true }: BreadcrumbProps) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const location = useLocation();
 
   const breadcrumbs = useMemo(() => {
@@ -84,7 +84,7 @@ function Breadcrumb({ showHome = true, showIcon = true }: BreadcrumbProps) {
 
   return (
     <nav
-      aria-label={isArabic ? 'مسار التنقل' : 'Breadcrumb'}
+      aria-label={t('auto.Breadcrumb.k1', "Breadcrumb")}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -96,7 +96,7 @@ function Breadcrumb({ showHome = true, showIcon = true }: BreadcrumbProps) {
     >
       {breadcrumbs.map((item, index) => {
         const isLast = index === breadcrumbs.length - 1;
-        const label = isArabic ? item.labelAr : item.label;
+        const label = isArabic ? t(item.labelAr, item.label) : item.label;
 
         return (
           <span

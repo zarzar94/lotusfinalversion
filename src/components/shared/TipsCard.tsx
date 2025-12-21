@@ -4,6 +4,7 @@
  */
 
 import { memo, useState, useCallback } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   brandCyan,
   brandPurple,
@@ -88,6 +89,7 @@ export const TipsCard = memo(({
   maxDisplay = 5,
   showBullets = true,
 }: TipsCardProps) => {
+  const { t } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const displayTips = tips.slice(0, maxDisplay);
 
@@ -326,6 +328,7 @@ export const InfoCard = memo(({
   isArabic = false,
   actions,
 }: InfoCardProps) => {
+  const { t } = useLanguage();
   const variants = {
     info: { color: brandCyan, icon: icon || 'ℹ️', bgOpacity: '08' },
     warning: { color: '#f59e0b', icon: icon || '⚠️', bgOpacity: '10' },
@@ -424,6 +427,7 @@ export const GuidanceSteps = memo(({
   isArabic = false,
   variant = 'numbered',
 }: GuidanceStepsProps) => {
+  const { t } = useLanguage();
   return (
     <div style={{
       padding: spacing[5],
@@ -438,7 +442,7 @@ export const GuidanceSteps = memo(({
           fontWeight: typography.weight.bold,
           color: colors.text.primary,
         }}>
-          {isArabic ? titleAr : title}
+          {isArabic ? t(titleAr, title) : title}
         </h3>
       )}
 
@@ -569,6 +573,7 @@ export const QuickActionsCard = memo(({
   isArabic = false,
   columns = 2,
 }: QuickActionsCardProps) => {
+  const { t } = useLanguage();
   return (
     <div style={{
       padding: spacing[4],
@@ -583,7 +588,7 @@ export const QuickActionsCard = memo(({
           fontWeight: typography.weight.bold,
           color: colors.text.primary,
         }}>
-          {isArabic ? titleAr : title}
+          {isArabic ? t(titleAr, title) : title}
         </h3>
       )}
       <div style={{

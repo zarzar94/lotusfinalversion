@@ -317,7 +317,7 @@ export default function SpeechInNoiseTestPanel({
 
     const outcome: TestOutcome = {
       key: 'speech_in_noise',
-      title: isArabic ? 'الكلام وسط الضجيج' : 'Speech in Noise',
+      title: t('auto.SpeechInNoiseTestPanel.k1', "Speech in Noise"),
       result,
       scoreLabel: `SNR ${formatSnr(threshold)} | ${accuracy}% | Score ${score}/100`,
       message: neutralSummary,
@@ -349,12 +349,10 @@ export default function SpeechInNoiseTestPanel({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <div>
           <div style={{ fontWeight: 900, color: brandCyan }}>
-            {isArabic ? 'اختبار الكلام وسط الضجيج' : 'Speech-in-Noise'}
+            {t('auto.SpeechInNoiseTestPanel.k2', "Speech-in-Noise")}
           </div>
           <div style={styles.muted}>
-            {isArabic
-              ? 'استمع للجملة واختر الكلمات التي سمعتها.'
-              : 'Listen to the sentence and select the words you heard.'}
+            {t('auto.SpeechInNoiseTestPanel.k3', "Listen to the sentence and select the words you heard.")}
           </div>
         </div>
         {progressLabel ? <span style={styles.chip}>{progressLabel}</span> : null}
@@ -363,19 +361,17 @@ export default function SpeechInNoiseTestPanel({
       {stage === 'intro' ? (
         <div style={{ marginTop: 12 }}>
           <div style={{ ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900 }}>{isArabic ? 'التعليمات' : 'Instructions'}</div>
+            <div style={{ fontWeight: 900 }}>{t('auto.SpeechInNoiseTestPanel.k4', "Instructions")}</div>
             <p style={{ ...styles.bodyText, marginTop: 8 }}>
-              {isArabic
-                ? 'ستسمع جملة مع ضجيج خلفي متغير. اختر الكلمات الصحيحة بعد الاستماع.'
-                : 'You will hear a sentence with background noise. Select the correct words after listening.'}
+              {t('auto.SpeechInNoiseTestPanel.k5', "You will hear a sentence with background noise. Select the correct words after listening.")}
             </p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
               <button onClick={startPractice} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}>
-                {isArabic ? 'ابدأ التدريب' : 'Start Practice'}
+                {t('auto.SpeechInNoiseTestPanel.k6', "Start Practice")}
               </button>
               {onCancel ? (
                 <button onClick={onCancel} style={styles.ghostBtn}>
-                  {isArabic ? 'إلغاء' : 'Cancel'}
+                  {t('auto.SpeechInNoiseTestPanel.k7', "Cancel")}
                 </button>
               ) : null}
             </div>
@@ -393,7 +389,7 @@ export default function SpeechInNoiseTestPanel({
             marginBottom: 12,
           }}>
             <div style={{ fontWeight: 700, marginBottom: 6 }}>
-              {isArabic ? 'اختر الكلمات التي سمعتها' : 'Select the words you heard'}
+              {t('auto.SpeechInNoiseTestPanel.k8', "Select the words you heard")}
             </div>
             {!('speechSynthesis' in window) && (
               <div style={{ ...styles.muted, marginBottom: 8 }}>
@@ -431,7 +427,7 @@ export default function SpeechInNoiseTestPanel({
               cursor: played ? 'pointer' : 'not-allowed',
             }}
           >
-            {isArabic ? 'تأكيد الإجابة' : 'Submit Response'}
+            {t('auto.SpeechInNoiseTestPanel.k9', "Submit Response")}
           </button>
         </div>
       ) : null}

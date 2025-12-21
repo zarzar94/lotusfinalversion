@@ -5,6 +5,7 @@
  */
 
 import { memo, useMemo, useState, useCallback } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   brandCyan,
   brandPurple,
@@ -138,24 +139,24 @@ interface LevelProgressDisplayProps {
 
 const MOTIVATIONAL_MESSAGES = {
   excellent: [
-    { message: "Outstanding performance! You're a true Sonic Master!", messageAr: "أداء متميز! أنت أستاذ صوتي حقيقي!", icon: "🌟" },
-    { message: "Incredible work! Your brain is getting stronger!", messageAr: "عمل رائع! عقلك يصبح أقوى!", icon: "🧠" },
-    { message: "Amazing! You're reaching new heights!", messageAr: "مذهل! أنت تصل لآفاق جديدة!", icon: "🚀" },
+    { message: "Outstanding performance! You're a true Sonic Master!", messageAr: 'auto.SessionSummary.k24', icon: "🌟" },
+    { message: "Incredible work! Your brain is getting stronger!", messageAr: 'auto.SessionSummary.k25', icon: "🧠" },
+    { message: "Amazing! You're reaching new heights!", messageAr: 'auto.SessionSummary.k26', icon: "🚀" },
   ],
   good: [
-    { message: "Great job! Keep up the excellent work!", messageAr: "عمل رائع! استمر!", icon: "⭐" },
-    { message: "Well done! You're making steady progress!", messageAr: "أحسنت! تحرز تقدماً ثابتاً!", icon: "📈" },
-    { message: "Nice work! Your dedication is paying off!", messageAr: "عمل جيد! تفانيك يؤتي ثماره!", icon: "💪" },
+    { message: "Great job! Keep up the excellent work!", messageAr: 'auto.SessionSummary.k27', icon: "⭐" },
+    { message: "Well done! You're making steady progress!", messageAr: 'auto.SessionSummary.k28', icon: "📈" },
+    { message: "Nice work! Your dedication is paying off!", messageAr: 'auto.SessionSummary.k29', icon: "💪" },
   ],
   improving: [
-    { message: "Good effort! Every session makes you stronger!", messageAr: "مجهود جيد! كل جلسة تجعلك أقوى!", icon: "💫" },
-    { message: "Keep going! Progress takes time!", messageAr: "استمر! التقدم يحتاج وقتاً!", icon: "🌱" },
-    { message: "You're on the right track! Don't give up!", messageAr: "أنت على الطريق الصحيح! لا تستسلم!", icon: "🎯" },
+    { message: "Good effort! Every session makes you stronger!", messageAr: 'auto.SessionSummary.k30', icon: "💫" },
+    { message: "Keep going! Progress takes time!", messageAr: 'auto.SessionSummary.k31', icon: "🌱" },
+    { message: "You're on the right track! Don't give up!", messageAr: 'auto.SessionSummary.k32', icon: "🎯" },
   ],
   needsWork: [
-    { message: "Every session counts! Keep practicing!", messageAr: "كل جلسة مهمة! استمر بالتدريب!", icon: "💪" },
-    { message: "Practice makes perfect! You've got this!", messageAr: "التدريب يصنع الكمال! يمكنك فعلها!", icon: "🌟" },
-    { message: "Don't worry! Growth happens step by step!", messageAr: "لا تقلق! النمو يحدث خطوة بخطوة!", icon: "🪜" },
+    { message: "Every session counts! Keep practicing!", messageAr: 'auto.SessionSummary.k33', icon: "💪" },
+    { message: "Practice makes perfect! You've got this!", messageAr: 'auto.SessionSummary.k34', icon: "🌟" },
+    { message: "Don't worry! Growth happens step by step!", messageAr: 'auto.SessionSummary.k35', icon: "🪜" },
   ],
 };
 
@@ -174,7 +175,7 @@ export const MOCK_SESSION_RESULT: SessionResult = {
   date: Date.now(),
   duration: 25,
   gameType: 'Sound Detective',
-  gameTypeAr: 'محقق الأصوات',
+  gameTypeAr: 'auto.SessionSummary.k36',
   pointsEarned: 180,
   bonusPoints: 45,
   metrics: {
@@ -190,8 +191,8 @@ export const MOCK_SESSION_RESULT: SessionResult = {
     consistency: 78,
   },
   achievements: [
-    { id: 'ach_1', title: 'Sharp Ears', titleAr: 'آذان حادة', description: '85%+ accuracy in a session', descriptionAr: 'دقة 85%+ في جلسة', icon: '👂', points: 50, isNew: true, category: 'performance' },
-    { id: 'ach_2', title: '5-Day Streak', titleAr: 'استمرارية 5 أيام', icon: '🔥', points: 100, isNew: true, category: 'streak' },
+    { id: 'ach_1', title: 'Sharp Ears', titleAr: 'auto.SessionSummary.k37', description: '85%+ accuracy in a session', descriptionAr: 'auto.SessionSummary.k38', icon: '👂', points: 50, isNew: true, category: 'performance' },
+    { id: 'ach_2', title: '5-Day Streak', titleAr: 'auto.SessionSummary.k39', icon: '🔥', points: 100, isNew: true, category: 'streak' },
   ],
   streakInfo: {
     current: 5,
@@ -205,13 +206,13 @@ export const MOCK_SESSION_RESULT: SessionResult = {
     leveledUp: false,
   },
   goalProgress: [
-    { goalId: 'g1', goalTitle: 'Weekly Points', goalTitleAr: 'نقاط الأسبوع', beforeSession: 520, afterSession: 745, target: 1000, completed: false },
-    { goalId: 'g2', goalTitle: 'Daily Session', goalTitleAr: 'جلسة اليوم', beforeSession: 0, afterSession: 1, target: 1, completed: true },
+    { goalId: 'g1', goalTitle: 'Weekly Points', goalTitleAr: 'auto.SessionSummary.k40', beforeSession: 520, afterSession: 745, target: 1000, completed: false },
+    { goalId: 'g2', goalTitle: 'Daily Session', goalTitleAr: 'auto.SessionSummary.k41', beforeSession: 0, afterSession: 1, target: 1, completed: true },
   ],
   recommendations: [
-    { id: 'r1', type: 'strength', title: 'Auditory Star', titleAr: 'نجم السمع', description: 'Your auditory discrimination is exceptional!', descriptionAr: 'تمييزك السمعي استثنائي!', icon: '⭐', priority: 1 },
-    { id: 'r2', type: 'improvement', title: 'Speed Training', titleAr: 'تدريب السرعة', description: 'Try Quick Response games to improve processing speed', descriptionAr: 'جرب ألعاب الاستجابة السريعة لتحسين سرعة المعالجة', icon: '⚡', priority: 2 },
-    { id: 'r3', type: 'challenge', title: 'New Challenge', titleAr: 'تحدي جديد', description: 'Ready for Frequency Master? It will challenge your skills!', descriptionAr: 'مستعد لـ Frequency Master؟ سيتحدى مهاراتك!', icon: '🎯', priority: 3 },
+    { id: 'r1', type: 'strength', title: 'Auditory Star', titleAr: 'auto.SessionSummary.k42', description: 'Your auditory discrimination is exceptional!', descriptionAr: 'auto.SessionSummary.k43', icon: '⭐', priority: 1 },
+    { id: 'r2', type: 'improvement', title: 'Speed Training', titleAr: 'auto.SessionSummary.k44', description: 'Try Quick Response games to improve processing speed', descriptionAr: 'auto.SessionSummary.k45', icon: '⚡', priority: 2 },
+    { id: 'r3', type: 'challenge', title: 'New Challenge', titleAr: 'auto.SessionSummary.k46', description: 'Ready for Frequency Master? It will challenge your skills!', descriptionAr: 'auto.SessionSummary.k47', icon: '🎯', priority: 3 },
   ],
 };
 
@@ -232,6 +233,7 @@ export const MetricDisplay = memo(({
   isArabic = false,
   showChange = true,
 }: MetricDisplayProps) => {
+  const { t } = useLanguage();
   const change = previousValue !== undefined ? value - previousValue : 0;
   const percentage = (value / maxValue) * 100;
 
@@ -259,7 +261,7 @@ export const MetricDisplay = memo(({
             fontWeight: typography.weight.bold,
             color: colors.text.secondary,
           }}>
-            {isArabic ? labelAr : label}
+            {isArabic ? t(labelAr, label) : label}
           </span>
         </div>
         {showChange && change !== 0 && (
@@ -326,20 +328,21 @@ export const PointsBreakdown = memo(({
   achievements,
   isArabic = false,
 }: PointsBreakdownProps) => {
+  const { t } = useLanguage();
   const achievementPoints = achievements.reduce((sum, a) => sum + a.points, 0);
   const totalPoints = basePoints + bonusPoints + (streakBonus || 0) + achievementPoints;
 
   const rows = [
-    { label: isArabic ? 'نقاط الجلسة' : 'Session Points', value: basePoints, icon: '🎮' },
-    { label: isArabic ? 'مكافأة الأداء' : 'Performance Bonus', value: bonusPoints, icon: '⭐' },
+    { label: t('auto.SessionSummary.k1', "Session Points"), value: basePoints, icon: '🎮' },
+    { label: t('auto.SessionSummary.k2', "Performance Bonus"), value: bonusPoints, icon: '⭐' },
   ];
 
   if (streakBonus) {
-    rows.push({ label: isArabic ? 'مكافأة الاستمرارية' : 'Streak Bonus', value: streakBonus, icon: '🔥' });
+    rows.push({ label: t('auto.SessionSummary.k3', "Streak Bonus"), value: streakBonus, icon: '🔥' });
   }
 
   if (achievementPoints > 0) {
-    rows.push({ label: isArabic ? 'إنجازات جديدة' : 'New Achievements', value: achievementPoints, icon: '🏆' });
+    rows.push({ label: t('auto.SessionSummary.k4', "New Achievements"), value: achievementPoints, icon: '🏆' });
   }
 
   return (
@@ -358,7 +361,7 @@ export const PointsBreakdown = memo(({
         alignItems: 'center',
         gap: spacing[2],
       }}>
-        💰 {isArabic ? 'تفصيل النقاط' : 'Points Breakdown'}
+        💰 {t('auto.SessionSummary.k5', "Points Breakdown")}
       </h4>
 
       <div style={{ marginBottom: spacing[3] }}>
@@ -410,7 +413,7 @@ export const PointsBreakdown = memo(({
           fontWeight: typography.weight.bold,
           color: colors.text.primary,
         }}>
-          {isArabic ? 'المجموع' : 'Total'}
+          {t('auto.SessionSummary.k6', "Total")}
         </span>
         <span style={{
           fontSize: typography.size.xl,
@@ -433,6 +436,7 @@ export const LevelProgressDisplay = memo(({
   levelProgress,
   isArabic = false,
 }: LevelProgressDisplayProps) => {
+  const { t } = useLanguage();
   const { currentLevel, currentXP, xpForNextLevel, leveledUp, newLevel } = levelProgress;
   const percentage = (currentXP / xpForNextLevel) * 100;
 
@@ -478,7 +482,7 @@ export const LevelProgressDisplay = memo(({
               textTransform: 'uppercase',
               letterSpacing: 2,
             }}>
-              {isArabic ? 'ارتقيت للمستوى!' : 'Level Up!'}
+              {t('auto.SessionSummary.k7', "Level Up!")}
             </div>
           </div>
         )}
@@ -571,6 +575,7 @@ const SessionAchievements = memo(({
   achievements: SessionAchievement[];
   isArabic: boolean;
 }) => {
+  const { t } = useLanguage();
   const newAchievements = achievements.filter(a => a.isNew);
 
   if (newAchievements.length === 0) return null;
@@ -609,7 +614,7 @@ const SessionAchievements = memo(({
           alignItems: 'center',
           gap: spacing[2],
         }}>
-          🏆 {isArabic ? 'إنجازات جديدة!' : 'New Achievements!'}
+          🏆 {t('auto.SessionSummary.k8', "New Achievements!")}
         </h4>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[2] }}>
@@ -647,14 +652,14 @@ const SessionAchievements = memo(({
                     fontWeight: typography.weight.bold,
                     color: colors.text.primary,
                   }}>
-                    {isArabic ? achievement.titleAr : achievement.title}
+                    {isArabic ? t(achievement.titleAr, achievement.title) : achievement.title}
                   </div>
                   {achievement.description && (
                     <div style={{
                       fontSize: typography.size.xs,
                       color: colors.text.secondary,
                     }}>
-                      {isArabic ? achievement.descriptionAr : achievement.description}
+                      {isArabic ? t(achievement.descriptionAr, achievement.description) : achievement.description}
                     </div>
                   )}
                 </div>
@@ -689,6 +694,7 @@ const GoalProgressSection = memo(({
   goalProgress: SessionResult['goalProgress'];
   isArabic: boolean;
 }) => {
+  const { t } = useLanguage();
   if (!goalProgress || goalProgress.length === 0) return null;
 
   return (
@@ -707,7 +713,7 @@ const GoalProgressSection = memo(({
         alignItems: 'center',
         gap: spacing[2],
       }}>
-        🎯 {isArabic ? 'تقدم الأهداف' : 'Goal Progress'}
+        🎯 {t('auto.SessionSummary.k9', "Goal Progress")}
       </h4>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[3] }}>
@@ -734,7 +740,7 @@ const GoalProgressSection = memo(({
                     fontWeight: typography.weight.bold,
                     color: goal.completed ? '#22c55e' : colors.text.primary,
                   }}>
-                    {isArabic ? goal.goalTitleAr : goal.goalTitle}
+                    {isArabic ? t(goal.goalTitleAr, goal.goalTitle) : goal.goalTitle}
                   </span>
                   {goal.completed && (
                     <span style={{
@@ -812,6 +818,7 @@ const RecommendationsSection = memo(({
   recommendations?: SessionRecommendation[];
   isArabic: boolean;
 }) => {
+  const { t } = useLanguage();
   if (!recommendations || recommendations.length === 0) return null;
 
   const typeStyles: Record<string, { color: string; bg: string }> = {
@@ -837,7 +844,7 @@ const RecommendationsSection = memo(({
         alignItems: 'center',
         gap: spacing[2],
       }}>
-        💡 {isArabic ? 'نصائح لك' : 'Recommendations'}
+        💡 {t('auto.SessionSummary.k10', "Recommendations")}
       </h4>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[2] }}>
@@ -863,14 +870,14 @@ const RecommendationsSection = memo(({
                   color: style.color,
                   marginBottom: 2,
                 }}>
-                  {isArabic ? rec.titleAr : rec.title}
+                  {isArabic ? t(rec.titleAr, rec.title) : rec.title}
                 </div>
                 <div style={{
                   fontSize: typography.size.xs,
                   color: colors.text.secondary,
                   lineHeight: typography.lineHeight.relaxed,
                 }}>
-                  {isArabic ? rec.descriptionAr : rec.description}
+                  {isArabic ? t(rec.descriptionAr, rec.description) : rec.description}
                 </div>
               </div>
             </div>
@@ -893,6 +900,7 @@ const StreakDisplay = memo(({
   streakInfo: SessionResult['streakInfo'];
   isArabic: boolean;
 }) => {
+  const { t } = useLanguage();
   const { current, isNewRecord, streakBonus } = streakInfo;
 
   if (current <= 0) return null;
@@ -929,15 +937,15 @@ const StreakDisplay = memo(({
           color: '#f59e0b',
           marginBottom: spacing[1],
         }}>
-          {current} {isArabic ? 'أيام' : 'Days'}
+          {current} {t('auto.SessionSummary.k11', "Days")}
         </div>
         <div style={{
           fontSize: typography.size.xs,
           color: colors.text.secondary,
         }}>
           {isNewRecord
-            ? (isArabic ? '🎉 رقم قياسي جديد!' : '🎉 New Record!')
-            : (isArabic ? 'استمر هكذا!' : 'Keep it up!')}
+            ? (t('auto.SessionSummary.k12', "🎉 New Record!"))
+            : (t('auto.SessionSummary.k13', "Keep it up!"))}
         </div>
         {streakBonus && (
           <div style={{
@@ -950,7 +958,7 @@ const StreakDisplay = memo(({
             color: 'white',
             display: 'inline-block',
           }}>
-            +{streakBonus} {isArabic ? 'مكافأة' : 'bonus'}
+            +{streakBonus} {t('auto.SessionSummary.k14', "bonus")}
           </div>
         )}
       </div>
@@ -971,6 +979,7 @@ export const SessionSummaryCard = memo(({
   onViewDetails,
   variant = 'modal',
 }: SessionSummaryCardProps) => {
+  const { t } = useLanguage();
   const motivationalMessage = session.motivationalMessage || getMotivationalMessage(session.metrics.attentionScore);
 
   const css = `
@@ -1031,7 +1040,7 @@ export const SessionSummaryCard = memo(({
             fontWeight: typography.weight.black,
             color: colors.text.primary,
           }}>
-            {isArabic ? 'جلسة مكتملة!' : 'Session Complete!'}
+            {t('auto.SessionSummary.k15', "Session Complete!")}
           </h2>
           <p style={{
             margin: 0,
@@ -1040,7 +1049,7 @@ export const SessionSummaryCard = memo(({
             maxWidth: 300,
             marginInline: 'auto',
           }}>
-            {isArabic ? motivationalMessage.messageAr : motivationalMessage.message}
+            {isArabic ? t(motivationalMessage.messageAr, motivationalMessage.message) : motivationalMessage.message}
           </p>
 
           {/* Quick stats */}
@@ -1062,7 +1071,7 @@ export const SessionSummaryCard = memo(({
                 fontSize: typography.size.xs,
                 color: colors.text.muted,
               }}>
-                {isArabic ? 'نقاط' : 'Points'}
+                {t('auto.SessionSummary.k16', "Points")}
               </div>
             </div>
             <div>
@@ -1077,7 +1086,7 @@ export const SessionSummaryCard = memo(({
                 fontSize: typography.size.xs,
                 color: colors.text.muted,
               }}>
-                {isArabic ? 'دقائق' : 'Minutes'}
+                {t('auto.SessionSummary.k17', "Minutes")}
               </div>
             </div>
             <div>
@@ -1092,7 +1101,7 @@ export const SessionSummaryCard = memo(({
                 fontSize: typography.size.xs,
                 color: colors.text.muted,
               }}>
-                {isArabic ? 'دقة' : 'Accuracy'}
+                {t('auto.SessionSummary.k18', "Accuracy")}
               </div>
             </div>
           </div>
@@ -1227,7 +1236,7 @@ export const SessionSummaryCard = memo(({
                 transition: transitions.fast,
               }}
             >
-              {isArabic ? 'العب مرة أخرى' : 'Play Again'}
+              {t('auto.SessionSummary.k19', "Play Again")}
             </button>
           )}
           {onViewDetails && (
@@ -1246,7 +1255,7 @@ export const SessionSummaryCard = memo(({
                 transition: transitions.fast,
               }}
             >
-              {isArabic ? 'عرض التفاصيل' : 'View Details'}
+              {t('auto.SessionSummary.k20', "View Details")}
             </button>
           )}
           {variant === 'modal' && onClose && !onPlayAgain && !onViewDetails && (
@@ -1265,7 +1274,7 @@ export const SessionSummaryCard = memo(({
                 transition: transitions.fast,
               }}
             >
-              {isArabic ? 'متابعة' : 'Continue'}
+              {t('auto.SessionSummary.k21', "Continue")}
             </button>
           )}
         </div>
@@ -1313,6 +1322,7 @@ export const QuickSessionStats = memo(({
   isArabic?: boolean;
   onClick?: () => void;
 }) => {
+  const { t } = useLanguage();
   const totalPoints = session.pointsEarned + session.bonusPoints + (session.streakInfo.streakBonus || 0);
 
   return (
@@ -1345,7 +1355,7 @@ export const QuickSessionStats = memo(({
               fontWeight: typography.weight.bold,
               color: colors.text.primary,
             }}>
-              {isArabic ? session.gameTypeAr : session.gameType}
+              {isArabic ? t(session.gameTypeAr, session.gameType) : session.gameType}
             </div>
             <div style={{
               fontSize: typography.size.xs,
@@ -1374,7 +1384,7 @@ export const QuickSessionStats = memo(({
         }}>
           <span style={{ color: brandCyan, fontWeight: typography.weight.bold }}>
             {session.metrics.attentionScore}%
-          </span> {isArabic ? 'انتباه' : 'attention'}
+          </span> {t('auto.SessionSummary.k22', "attention")}
         </div>
         <div style={{
           fontSize: typography.size.xs,
@@ -1382,7 +1392,7 @@ export const QuickSessionStats = memo(({
         }}>
           <span style={{ color: brandPurple, fontWeight: typography.weight.bold }}>
             {session.duration}
-          </span> {isArabic ? 'دقائق' : 'min'}
+          </span> {t('auto.SessionSummary.k23', "min")}
         </div>
         {session.streakInfo.current > 0 && (
           <div style={{

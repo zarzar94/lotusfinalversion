@@ -293,7 +293,7 @@ const QuickNavButton = memo(function QuickNavButton({
 QuickNavButton.displayName = 'QuickNavButton';
 
 const FAQSection = memo(function FAQSection() {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const audioRef = useRef<AudioContext | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -403,7 +403,7 @@ const FAQSection = memo(function FAQSection() {
           justifyContent: 'center',
         }}
         role="tablist"
-        aria-label={isArabic ? 'التنقل السريع إلى الأسئلة الشائعة' : 'Quick navigation to FAQ items'}
+        aria-label={t('auto.FAQSection.k1', "Quick navigation to FAQ items")}
       >
         {faqs.map((faq, index) => (
           <QuickNavButton

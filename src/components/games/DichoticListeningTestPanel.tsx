@@ -232,7 +232,7 @@ export default function DichoticListeningTestPanel({
 
     const outcome: TestOutcome = {
       key: 'dichotic_listening',
-      title: isArabic ? 'الاستماع الثنائي (تكامل/فصل)' : 'Dichotic Listening - Integration + Separation',
+      title: t('auto.DichoticListeningTestPanel.k1', "Dichotic Listening - Integration + Separation"),
       result,
       scoreLabel: `Score ${score}/100 · L ${leftPct}% R ${rightPct}% · Sep ${separationPct}%`,
       message,
@@ -273,12 +273,10 @@ export default function DichoticListeningTestPanel({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <div>
           <div style={{ fontWeight: 900, color: brandCyan }}>
-            {isArabic ? 'اختبار الاستماع الثنائي' : 'Dichotic Listening'}
+            {t('auto.DichoticListeningTestPanel.k2', "Dichotic Listening")}
           </div>
           <div style={styles.muted}>
-            {isArabic
-              ? 'أصوات مختلفة تُعرض لكل أذن.'
-              : 'Syllables or numbers are presented to each ear.'}
+            {t('auto.DichoticListeningTestPanel.k3', "Syllables or numbers are presented to each ear.")}
           </div>
         </div>
         {progressLabel ? <span style={styles.chip}>{progressLabel}</span> : null}
@@ -287,19 +285,17 @@ export default function DichoticListeningTestPanel({
       {stage === 'intro' ? (
         <div style={{ marginTop: 12 }}>
           <div style={{ ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900 }}>{isArabic ? 'التعليمات' : 'Instructions'}</div>
+            <div style={{ fontWeight: 900 }}>{t('auto.DichoticListeningTestPanel.k4', "Instructions")}</div>
             <p style={{ ...styles.bodyText, marginTop: 8 }}>
-              {isArabic
-                ? 'ستسمع مقطعاً مختلفاً في كل أذن. في التكامل اختر ما سمعته في اليسار واليمين. في الفصل ركّز على أذن واحدة.'
-                : 'You will hear different syllables or numbers in each ear. In integration, report both ears. In separation, focus on the instructed ear.'}
+              {t('auto.DichoticListeningTestPanel.k5', "You will hear different syllables or numbers in each ear. In integration, report both ears. In separation, focus on the instructed ear.")}
             </p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
               <button onClick={startPractice} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}>
-                {isArabic ? 'ابدأ التدريب' : 'Start Practice'}
+                {t('auto.DichoticListeningTestPanel.k6', "Start Practice")}
               </button>
               {onCancel ? (
                 <button onClick={onCancel} style={styles.ghostBtn}>
-                  {isArabic ? 'إلغاء' : 'Cancel'}
+                  {t('auto.DichoticListeningTestPanel.k7', "Cancel")}
                 </button>
               ) : null}
             </div>
@@ -318,18 +314,18 @@ export default function DichoticListeningTestPanel({
           }}>
             <div style={{ fontWeight: 700, marginBottom: 6 }}>
               {current.mode === 'integration'
-                ? (isArabic ? 'تكامل: أبلغ عن الأذنين' : 'Integration: report both ears')
+                ? (t('auto.DichoticListeningTestPanel.k8', "Integration: report both ears"))
                 : (isArabic ? `فصل: ركّز على الأذن ${current.focus === 'left' ? 'اليسرى' : 'اليمنى'}` : `Separation: focus ${current.focus === 'left' ? t('games.left') : t('games.right')}`)}
             </div>
             <div style={styles.muted}>
-              {isArabic ? 'استمع ثم اختر الإجابة.' : 'Listen, then choose the response.'}
+              {t('auto.DichoticListeningTestPanel.k9', "Listen, then choose the response.")}
             </div>
           </div>
 
           {current.mode === 'integration' ? (
             <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
               <div style={{ padding: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.2)' }}>
-                <div style={{ fontWeight: 700, marginBottom: 8 }}>{isArabic ? 'الأذن اليسرى' : 'Left ear'}</div>
+                <div style={{ fontWeight: 700, marginBottom: 8 }}>{t('auto.DichoticListeningTestPanel.k10', "Left ear")}</div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {STIMULI.map((s) => (
                     <button
@@ -351,7 +347,7 @@ export default function DichoticListeningTestPanel({
                 </div>
               </div>
               <div style={{ padding: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.2)' }}>
-                <div style={{ fontWeight: 700, marginBottom: 8 }}>{isArabic ? 'الأذن اليمنى' : 'Right ear'}</div>
+                <div style={{ fontWeight: 700, marginBottom: 8 }}>{t('auto.DichoticListeningTestPanel.k11', "Right ear")}</div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {STIMULI.map((s) => (
                     <button
@@ -408,7 +404,7 @@ export default function DichoticListeningTestPanel({
               cursor: played ? 'pointer' : 'not-allowed',
             }}
           >
-            {isArabic ? 'تأكيد الإجابة' : 'Submit Response'}
+            {t('auto.DichoticListeningTestPanel.k12', "Submit Response")}
           </button>
         </div>
       ) : null}

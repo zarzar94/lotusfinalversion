@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import CircuitDecoration from './CircuitDecoration';
 import FadeIn from './FadeIn';
 import { brandCyan, brandPurple, brandPink, colors, typography, spacing, radius } from './styles';
+import { useLanguage } from '../context/LanguageContext';
 
 // Enhanced Navigation Card Component
 const NavigationCard = memo(({
@@ -118,7 +119,7 @@ const NavigationCard = memo(({
           zIndex: 1,
         }}
       >
-        {isArabic ? page.titleAr : page.title}
+        {isArabic ? t(page.titleAr, page.title) : page.title}
       </h3>
 
       {/* Description */}
@@ -132,7 +133,7 @@ const NavigationCard = memo(({
           zIndex: 1,
         }}
       >
-        {isArabic ? page.descriptionAr : page.description}
+        {isArabic ? t(page.descriptionAr, page.description) : page.description}
       </p>
 
       {/* Arrow indicator with animation */}
@@ -178,14 +179,15 @@ NavigationCard.displayName = 'NavigationCard';
 // Quick Navigation Cards to other pages
 const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const pages = [
     {
       id: 'assessment',
       title: 'Self Assessment',
-      titleAr: 'التقييم الذاتي',
+      titleAr: 'auto.PageNavigationCards.k5',
       description: 'Interactive diagnostic tools and games',
-      descriptionAr: 'أدوات التشخيص التفاعلية والألعاب',
+      descriptionAr: 'auto.PageNavigationCards.k6',
       icon: '🎯',
       color: brandCyan,
       path: '/assessment',
@@ -193,9 +195,9 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
     {
       id: 'program',
       title: 'Treatment Program',
-      titleAr: 'البرنامج العلاجي',
+      titleAr: 'auto.PageNavigationCards.k7',
       description: 'Learn about our 20-session protocol',
-      descriptionAr: 'تعرف على برنامجنا ذو العشرين جلسة',
+      descriptionAr: 'auto.PageNavigationCards.k8',
       icon: '📋',
       color: brandPurple,
       path: '/program',
@@ -203,9 +205,9 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
     {
       id: 'science',
       title: 'Science & Research',
-      titleAr: 'العلم والأبحاث',
+      titleAr: 'auto.PageNavigationCards.k9',
       description: 'Neuroplasticity and audio processing',
-      descriptionAr: 'المرونة العصبية ومعالجة الصوت',
+      descriptionAr: 'auto.PageNavigationCards.k10',
       icon: '🧠',
       color: brandPink,
       path: '/science',
@@ -213,9 +215,9 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
     {
       id: 'results',
       title: 'Results & Evidence',
-      titleAr: 'النتائج والأدلة',
+      titleAr: 'auto.PageNavigationCards.k11',
       description: 'Success stories and testimonials',
-      descriptionAr: 'قصص النجاح والشهادات',
+      descriptionAr: 'auto.PageNavigationCards.k12',
       icon: '📊',
       color: '#22c55e',
       path: '/results',
@@ -223,9 +225,9 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
     {
       id: 'resources',
       title: 'Resources',
-      titleAr: 'الموارد',
+      titleAr: 'auto.PageNavigationCards.k13',
       description: 'Videos, presentations, and FAQs',
-      descriptionAr: 'الفيديوهات والعروض والأسئلة الشائعة',
+      descriptionAr: 'auto.PageNavigationCards.k14',
       icon: '📚',
       color: '#f59e0b',
       path: '/resources',
@@ -233,9 +235,9 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
     {
       id: 'about',
       title: 'About Us',
-      titleAr: 'من نحن',
+      titleAr: 'auto.PageNavigationCards.k15',
       description: 'Meet our specialist and learn about the centre',
-      descriptionAr: 'تعرف على الأخصائي والمركز',
+      descriptionAr: 'auto.PageNavigationCards.k16',
       icon: '🏛️',
       color: brandPurple,
       path: '/about',
@@ -243,9 +245,9 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
     {
       id: 'contact',
       title: 'Get Started',
-      titleAr: 'ابدأ الآن',
+      titleAr: 'auto.PageNavigationCards.k17',
       description: 'Contact us or fill out intake form',
-      descriptionAr: 'تواصل معنا أو املأ نموذج القبول',
+      descriptionAr: 'auto.PageNavigationCards.k18',
       icon: '✉️',
       color: brandCyan,
       path: '/contact',
@@ -315,7 +317,7 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
               letterSpacing: 1,
             }}
           >
-            {isArabic ? 'التنقل السريع' : 'Quick Navigation'}
+            {t('auto.PageNavigationCards.k1', "Quick Navigation")}
           </span>
         </div>
 
@@ -332,7 +334,7 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
             backgroundClip: 'text',
           }}
         >
-          {isArabic ? 'استكشف المنصة' : 'Explore the Platform'}
+          {t('auto.PageNavigationCards.k2', "Explore the Platform")}
         </h2>
         <p
           style={{
@@ -343,9 +345,7 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
             lineHeight: typography.lineHeight.relaxed,
           }}
         >
-          {isArabic
-            ? 'اختر القسم الذي يناسب احتياجاتك واستكشف جميع الموارد المتاحة'
-            : 'Choose the section that fits your needs and explore all available resources'}
+          {t('auto.PageNavigationCards.k3', "Choose the section that fits your needs and explore all available resources")}
         </p>
       </div>
 
@@ -394,9 +394,7 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
               color: colors.text.muted,
             }}
           >
-            {isArabic
-              ? 'نصيحة: ابدأ بالتقييم الذاتي لفهم احتياجاتك'
-              : 'Tip: Start with Self Assessment to understand your needs'}
+            {t('auto.PageNavigationCards.k4', "Tip: Start with Self Assessment to understand your needs")}
           </span>
         </div>
       </div>

@@ -11,7 +11,7 @@ export default function TestimonialsModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
 
   useEffect(() => {
     if (!open) return undefined;
@@ -47,7 +47,7 @@ export default function TestimonialsModal({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={isArabic ? 'قصص النجاح والشهادات' : 'Testimonials'}
+      aria-label={t('auto.TestimonialsModal.k1', "Testimonials")}
       onClick={onClose}
       style={{
         position: 'fixed',
@@ -83,7 +83,7 @@ export default function TestimonialsModal({
       >
         <button
           onClick={onClose}
-          aria-label={isArabic ? 'إغلاق' : 'Close'}
+          aria-label={t('auto.TestimonialsModal.k2', "Close")}
           style={{
             position: 'absolute',
             top: spacing[3],

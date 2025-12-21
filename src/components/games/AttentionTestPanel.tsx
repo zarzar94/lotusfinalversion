@@ -95,7 +95,7 @@ function AttentionHeader({ chipLabel }: { chipLabel?: string }) {
 }
 
 function AttentionPractice({ audioRef, noiseRef }: SharedAudioProps) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const { setNextEnabled } = useModuleFlow();
   const [stage, setStage] = useState<'idle' | 'running' | 'done'>('idle');
   const [trialIndex, setTrialIndex] = useState(0);
@@ -233,19 +233,17 @@ function AttentionPractice({ audioRef, noiseRef }: SharedAudioProps) {
         <div style={{ marginTop: 12 }}>
           <div style={{ ...styles.section, marginBottom: 0 }}>
             <div style={{ fontWeight: 900, color: brandCyan }}>
-              {isArabic ? 'تدريب سريع' : 'Quick Practice'}
+              {t('auto.AttentionTestPanel.k1', "Quick Practice")}
             </div>
             <p style={{ ...styles.muted, marginTop: 6 }}>
-              {isArabic
-                ? 'ستسمع 3 نغمات تدريبية قصيرة. اضغط فقط عند سماع النغمة العالية جداً.'
-                : 'You will hear 3 short practice tones. Tap only for the high target tone.'}
+              {t('auto.AttentionTestPanel.k2', "You will hear 3 short practice tones. Tap only for the high target tone.")}
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
               <button
                 onClick={startPractice}
                 style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}
               >
-                {isArabic ? 'ابدأ التدريب' : 'Start Practice'}
+                {t('auto.AttentionTestPanel.k3', "Start Practice")}
               </button>
             </div>
           </div>
@@ -278,7 +276,7 @@ function AttentionPractice({ audioRef, noiseRef }: SharedAudioProps) {
             </div>
             {feedback ? (
               <div style={{ marginTop: 10, color: feedback === 'hit' ? brandCyan : brandPink, fontWeight: 700, textAlign: 'center' }}>
-                {feedback === 'hit' ? (isArabic ? 'صحيح' : 'Correct') : (isArabic ? 'إنذار كاذب' : 'False alarm')}
+                {feedback === 'hit' ? (t('auto.AttentionTestPanel.k4', "Correct")) : (t('auto.AttentionTestPanel.k5', "False alarm"))}
               </div>
             ) : null}
           </div>
@@ -287,9 +285,9 @@ function AttentionPractice({ audioRef, noiseRef }: SharedAudioProps) {
 
       {stage === 'done' ? (
         <div style={{ marginTop: 12, textAlign: 'center' }}>
-          <div style={{ fontWeight: 900 }}>{isArabic ? 'اكتمل التدريب!' : 'Practice complete.'}</div>
+          <div style={{ fontWeight: 900 }}>{t('auto.AttentionTestPanel.k6', "Practice complete.")}</div>
           <p style={{ ...styles.muted, marginTop: 6 }}>
-            {isArabic ? 'اضغط التالي لبدء الاختبار.' : 'Click Next to begin the main test.'}
+            {t('auto.AttentionTestPanel.k7', "Click Next to begin the main test.")}
           </p>
         </div>
       ) : null}
@@ -298,7 +296,7 @@ function AttentionPractice({ audioRef, noiseRef }: SharedAudioProps) {
 }
 
 function AttentionMain({ audioRef, noiseRef, onDone }: SharedAudioProps & { onDone: (outcome: TestOutcome) => void }) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
 
   const [stage, setStage] = useState<'running' | 'done'>('running');
   const [trialIndex, setTrialIndex] = useState(0);
@@ -568,7 +566,7 @@ function AttentionMain({ audioRef, noiseRef, onDone }: SharedAudioProps & { onDo
 
   return (
     <div style={{ marginTop: 12 }}>
-      <AttentionHeader chipLabel={isArabic ? 'موضوعي' : 'Objective'} />
+      <AttentionHeader chipLabel={t('auto.AttentionTestPanel.k8', "Objective")} />
 
       {stage === 'running' ? (
         <div style={{ marginTop: 12 }}>
@@ -706,7 +704,7 @@ export default function AttentionTestPanel({
   }, []);
 
   const instructions = {
-    ar: 'استمع للنغمة العالية الهدف واضغط عند سماعها. تجاهل النغمات الأخرى قدر الإمكان.',
+    ar: 'auto.AttentionTestPanel.k9',
     en: 'Listen for the high-pitched target tone and tap when you hear it. Ignore the other tones.',
   };
 

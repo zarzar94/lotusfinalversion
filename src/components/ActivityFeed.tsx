@@ -33,11 +33,11 @@ interface Activity {
 
 // Pre-defined tips to show periodically
 const TIPS = [
-  { icon: '💡', messageAr: 'انقر على مناطق الدماغ لاستكشاف وظائفها', messageEn: 'Click brain regions to explore their functions' },
-  { icon: '🎧', messageAr: 'استخدم سماعات للحصول على أفضل تجربة صوتية', messageEn: 'Use headphones for the best audio experience' },
-  { icon: '📊', messageAr: 'أكمل قائمة التحقق للحصول على تقييم شخصي', messageEn: 'Complete the checklist for a personalized assessment' },
-  { icon: '🎮', messageAr: 'جرب ألعاب الفحص السمعي التفاعلية', messageEn: 'Try the interactive auditory screening games' },
-  { icon: '📚', messageAr: 'استعرض الشرائح التعليمية لمعرفة المزيد', messageEn: 'Browse educational slides to learn more' },
+  { icon: '💡', messageAr: 'auto.ActivityFeed.k9', messageEn: 'Click brain regions to explore their functions' },
+  { icon: '🎧', messageAr: 'auto.ActivityFeed.k10', messageEn: 'Use headphones for the best audio experience' },
+  { icon: '📊', messageAr: 'auto.ActivityFeed.k11', messageEn: 'Complete the checklist for a personalized assessment' },
+  { icon: '🎮', messageAr: 'auto.ActivityFeed.k12', messageEn: 'Try the interactive auditory screening games' },
+  { icon: '📚', messageAr: 'auto.ActivityFeed.k13', messageEn: 'Browse educational slides to learn more' },
 ];
 
 const ActivityItem = memo(function ActivityItem({
@@ -51,7 +51,7 @@ const ActivityItem = memo(function ActivityItem({
   isNew: boolean;
   prefersReducedMotion: boolean;
 }) {
-  const message = isArabic ? activity.messageAr : activity.messageEn;
+  const message = isArabic ? t(activity.messageAr, activity.messageEn) : activity.messageEn;
   const timeAgo = getTimeAgo(activity.timestamp, isArabic);
 
   return (
@@ -114,7 +114,7 @@ const ActivityItem = memo(function ActivityItem({
                 fontWeight: typography.weight.bold,
               }}
             >
-              +{activity.points} {isArabic ? 'نقطة' : 'pts'}
+              +{activity.points} {t('auto.ActivityFeed.k1', "pts")}
             </span>
           )}
         </div>
@@ -126,7 +126,7 @@ const ActivityItem = memo(function ActivityItem({
 function getTimeAgo(timestamp: number, isArabic: boolean): string {
   const seconds = Math.floor((Date.now() - timestamp) / 1000);
 
-  if (seconds < 10) return isArabic ? 'الآن' : 'Just now';
+  if (seconds < 10) return t('auto.ActivityFeed.k2', "Just now");
   if (seconds < 60) return isArabic ? `منذ ${seconds} ثانية` : `${seconds}s ago`;
 
   const minutes = Math.floor(seconds / 60);
@@ -340,7 +340,7 @@ export default function ActivityFeed() {
     addActivity({
       type: 'action',
       icon: '👋',
-      messageAr: 'مرحباً بك في منصة Lotus × Bérard AIT',
+      messageAr: 'auto.ActivityFeed.k14',
       messageEn: 'Welcome to Lotus × Bérard AIT platform',
       color: brandCyan,
     });
@@ -452,7 +452,7 @@ export default function ActivityFeed() {
                     color: colors.text.primary,
                   }}
                 >
-                  {isArabic ? 'سجل النشاط' : 'Activity Feed'}
+                  {t('auto.ActivityFeed.k3', "Activity Feed")}
                 </span>
               </div>
               <button
@@ -494,7 +494,7 @@ export default function ActivityFeed() {
                     fontSize: typography.size.sm,
                   }}
                 >
-                  {isArabic ? 'لا يوجد نشاط بعد...' : 'No activity yet...'}
+                  {t('auto.ActivityFeed.k4', "No activity yet...")}
                 </div>
               ) : (
                 activities.map((activity, index) => (
@@ -517,7 +517,7 @@ export default function ActivityFeed() {
           onClick={() => setIsExpanded(!isExpanded)}
           aria-expanded={isExpanded}
           aria-controls={panelId}
-          aria-label={isExpanded ? (isArabic ? 'إغلاق سجل النشاط' : 'Close activity feed') : isArabic ? 'فتح سجل النشاط' : 'Open activity feed'}
+          aria-label={isExpanded ? (t('auto.ActivityFeed.k5', "Close activity feed")) : t('auto.ActivityFeed.k6', "Open activity feed")}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -574,7 +574,7 @@ export default function ActivityFeed() {
                 color: colors.text.primary,
               }}
             >
-              {isArabic ? 'النشاط' : 'Activity'}
+              {t('auto.ActivityFeed.k7', "Activity")}
             </div>
             <div
               style={{
@@ -582,7 +582,7 @@ export default function ActivityFeed() {
                 color: colors.text.secondary,
               }}
             >
-              {activities.length} {isArabic ? 'حدث' : 'events'} • Lv.{state.level}
+              {activities.length} {t('auto.ActivityFeed.k8', "events")} • Lv.{state.level}
             </div>
           </div>
           <div

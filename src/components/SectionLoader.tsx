@@ -8,10 +8,10 @@ interface SectionLoaderProps {
 }
 
 export default function SectionLoader({ label, labelAr, height = 300 }: SectionLoaderProps) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const displayLabel = label || labelAr
     ? (isArabic ? (labelAr || 'جارٍ التحميل...') : (label || 'Loading...'))
-    : (isArabic ? 'جارٍ التحميل...' : 'Loading...');
+    : (t('auto.SectionLoader.k1', "Loading..."));
   return (
     <div style={{
       background: 'rgba(11,15,28,0.7)',
