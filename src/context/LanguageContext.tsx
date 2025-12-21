@@ -8,7 +8,7 @@ interface LanguageContextType {
   direction: Direction;
   setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
-  t: <T = string>(key: string, fallback?: T) => T;
+  t: <T = string>(key: string | T, fallback?: T) => T;
   isArabic: boolean;
   isEnglish: boolean;
   // Language-aware utilities
@@ -36,6 +36,7 @@ const LanguageContext = createContext<LanguageContextType | null>(null);
 import { translations } from '../i18n/translations';
 
 function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
+  if (typeof path !== 'string') return undefined;
   const keys = path.split('.');
   let current: unknown = obj;
 
@@ -127,7 +128,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLanguageState(prev => prev === 'ar' ? 'en' : 'ar');
   }, []);
 
-  const t = useCallback(<T,>(key: string, fallback?: T): T => {
+  const t = useCallback(<T,>(key: string | T, fallback?: T): T => {
+    if (typeof key !== 'string') {
+      return key as T;
+    }
     const langTranslations = translations[language];
     const value = getNestedValue(langTranslations as Record<string, unknown>, key);
     if (value === undefined) {
