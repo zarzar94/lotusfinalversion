@@ -1161,992 +1161,816 @@ export const workflowStyles: Record<string, CSSProperties> = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// ADVANCED TECH/LAB DESIGN SYSTEM - Futuristic & Interactive
+// FUTURISTIC SOUND LAB DESIGN SYSTEM
+// Advanced visual elements for an immersive auditory science experience
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// Extended Cyberpunk Color Palette
-export const cyberColors = {
-  // Neon accent colors
-  neonCyan: '#00f5ff',
-  neonPurple: '#bf00ff',
-  neonPink: '#ff0080',
-  neonGreen: '#00ff88',
-  neonOrange: '#ff6600',
-  neonYellow: '#ffff00',
+/**
+ * Sound Lab color extensions - frequencies mapped to colors
+ */
+export const soundLabColors = {
+  // Frequency-inspired color spectrum
+  lowFreq: '#FF6B6B',      // Bass - warm red
+  midFreq: '#4ECDC4',      // Mid - teal
+  highFreq: '#A855F7',     // Treble - purple
+  ultraFreq: '#F472B6',    // Ultra - pink
 
-  // Holographic tones
-  holoBlue: '#4fc3f7',
-  holoPurple: '#ce93d8',
-  holoPink: '#f48fb1',
-  holoGreen: '#80cbc4',
+  // Neural activity colors
+  alpha: '#22D3EE',        // Alpha waves - cyan
+  beta: '#A78BFA',         // Beta waves - violet
+  theta: '#34D399',        // Theta waves - emerald
+  delta: '#FB923C',        // Delta waves - orange
 
-  // Deep tech backgrounds
-  voidBlack: '#000308',
-  deepSpace: '#0a0e1a',
-  matrixGreen: '#003300',
-  terminalGreen: '#00ff41',
-
-  // Glitch effects
-  glitchRed: '#ff0033',
-  glitchBlue: '#0066ff',
-  glitchCyan: '#00ffff',
+  // Holographic spectrum
+  holoBase: 'rgba(143, 211, 204, 0.08)',
+  holoMid: 'rgba(175, 132, 186, 0.12)',
+  holoAccent: 'rgba(176, 18, 112, 0.10)',
 };
 
-// HUD (Heads-Up Display) Style Elements
-export const hudStyles: Record<string, CSSProperties> = {
-  // Main HUD container
-  hudContainer: {
-    position: 'relative',
-    padding: 24,
-    background: 'linear-gradient(135deg, rgba(0,5,15,0.95), rgba(10,20,40,0.9))',
-    border: `1px solid ${brandCyan}40`,
-    borderRadius: 4,
+/**
+ * Advanced glassmorphism effects for sound lab UI
+ */
+export const glassEffects = {
+  // Primary glass panel - for main content areas
+  panel: {
+    background: 'rgba(13, 17, 23, 0.75)',
+    backdropFilter: 'blur(20px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+    border: `1px solid rgba(143, 211, 204, 0.15)`,
     boxShadow: `
-      0 0 20px ${brandCyan}20,
-      inset 0 1px 0 ${brandCyan}20,
-      inset 0 -1px 0 ${brandPurple}20
+      0 8px 32px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.2)
     `,
   },
 
-  // HUD corner accents
-  hudCorner: {
-    position: 'absolute',
-    width: 20,
-    height: 20,
-    borderColor: brandCyan,
-    borderStyle: 'solid',
-    borderWidth: 0,
+  // Frosted glass - for overlays and modals
+  frosted: {
+    background: 'rgba(26, 31, 46, 0.85)',
+    backdropFilter: 'blur(40px) saturate(200%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+    border: `1px solid rgba(255, 255, 255, 0.08)`,
+    boxShadow: `
+      0 25px 50px -12px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1)
+    `,
   },
 
-  // HUD title bar
-  hudTitleBar: {
+  // Holographic glass - rainbow refraction effect
+  holographic: {
+    background: `
+      linear-gradient(135deg, rgba(143, 211, 204, 0.1) 0%, transparent 50%),
+      linear-gradient(225deg, rgba(175, 132, 186, 0.1) 0%, transparent 50%),
+      linear-gradient(315deg, rgba(176, 18, 112, 0.08) 0%, transparent 50%),
+      rgba(13, 17, 23, 0.8)
+    `,
+    backdropFilter: 'blur(24px) saturate(150%)',
+    WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+    border: `1px solid rgba(143, 211, 204, 0.2)`,
+  },
+
+  // Crystal clear - minimal blur for clarity
+  crystal: {
+    background: 'rgba(5, 6, 13, 0.6)',
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
+    border: `1px solid rgba(143, 211, 204, 0.25)`,
+  },
+};
+
+/**
+ * Sound wave and audio visualization styles
+ */
+export const soundWaveStyles = {
+  // Waveform container
+  waveformContainer: {
+    position: 'relative' as const,
+    height: 80,
+    background: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: 12,
+    overflow: 'hidden',
+    border: `1px solid ${brandCyan}20`,
+  },
+
+  // Frequency bar styling
+  frequencyBar: {
+    position: 'absolute' as const,
+    bottom: 0,
+    width: 3,
+    background: `linear-gradient(to top, ${brandCyan}, ${brandPurple})`,
+    borderRadius: '2px 2px 0 0',
+    transition: 'height 0.05s ease',
+    boxShadow: `0 0 8px ${brandCyan}50`,
+  },
+
+  // Audio meter container
+  audioMeter: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    gap: 2,
+    height: 40,
+    padding: '8px 12px',
+    background: 'rgba(0, 0, 0, 0.4)',
+    borderRadius: 8,
+  },
+
+  // Oscilloscope display
+  oscilloscope: {
+    position: 'relative' as const,
+    background: `
+      radial-gradient(ellipse at center, rgba(143, 211, 204, 0.03) 0%, transparent 70%),
+      rgba(5, 6, 13, 0.9)
+    `,
+    border: `2px solid ${brandCyan}30`,
+    borderRadius: 16,
+    overflow: 'hidden',
+    boxShadow: `
+      0 0 30px ${brandCyan}10,
+      inset 0 0 60px rgba(0, 0, 0, 0.5)
+    `,
+  },
+
+  // Spectrum analyzer
+  spectrumAnalyzer: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    height: 100,
+    padding: 12,
+    background: 'linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 100%)',
+    borderRadius: 12,
+    border: `1px solid ${brandCyan}15`,
+  },
+};
+
+/**
+ * Futuristic button variants for sound lab
+ */
+export const futuristicButtons: Record<string, CSSProperties> = {
+  // Neon glow button
+  neonButton: {
+    position: 'relative',
+    padding: '14px 28px',
+    background: 'transparent',
+    border: `2px solid ${brandCyan}`,
+    borderRadius: 8,
+    color: brandCyan,
+    fontSize: 14,
+    fontWeight: 700,
+    letterSpacing: 1,
+    textTransform: 'uppercase' as const,
+    cursor: 'pointer',
+    overflow: 'hidden',
+    transition: 'all 0.3s ease',
+    boxShadow: `
+      0 0 10px ${brandCyan}40,
+      inset 0 0 10px ${brandCyan}10
+    `,
+  },
+
+  // Holographic button
+  holoButton: {
+    position: 'relative',
+    padding: '16px 32px',
+    background: `linear-gradient(135deg,
+      ${brandCyan}20 0%,
+      ${brandPurple}20 50%,
+      ${brandPink}20 100%
+    )`,
+    border: `1px solid rgba(255, 255, 255, 0.2)`,
+    borderRadius: 12,
+    color: colors.text.primary,
+    fontSize: 15,
+    fontWeight: 700,
+    cursor: 'pointer',
+    backdropFilter: 'blur(10px)',
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+    boxShadow: `
+      0 4px 20px rgba(143, 211, 204, 0.15),
+      0 0 40px rgba(175, 132, 186, 0.1)
+    `,
+  },
+
+  // Pulse button - for primary actions
+  pulseButton: {
+    position: 'relative',
+    padding: '16px 36px',
+    background: `linear-gradient(135deg, ${brandCyan} 0%, ${brandPurple} 100%)`,
+    border: 'none',
+    borderRadius: 50,
+    color: brandInk,
+    fontSize: 15,
+    fontWeight: 800,
+    cursor: 'pointer',
+    boxShadow: `
+      0 4px 15px ${brandCyan}40,
+      0 0 30px ${brandCyan}20
+    `,
+    transition: 'all 0.3s ease',
+  },
+
+  // Audio control button (play/pause style)
+  audioControlButton: {
+    width: 64,
+    height: 64,
+    borderRadius: '50%',
+    background: `radial-gradient(circle at 30% 30%, ${brandCyan}30, transparent 70%),
+                 linear-gradient(135deg, rgba(26, 31, 46, 0.9), rgba(13, 17, 23, 0.9))`,
+    border: `2px solid ${brandCyan}50`,
+    color: brandCyan,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    boxShadow: `
+      0 0 20px ${brandCyan}30,
+      inset 0 -3px 10px rgba(0, 0, 0, 0.3),
+      inset 0 3px 10px rgba(255, 255, 255, 0.05)
+    `,
+    transition: 'all 0.2s ease',
+  },
+};
+
+/**
+ * Neural network visualization styles
+ */
+export const neuralStyles = {
+  // Node styling
+  node: {
+    width: 12,
+    height: 12,
+    borderRadius: '50%',
+    background: `radial-gradient(circle at 30% 30%, ${brandCyan}, ${brandPurple})`,
+    boxShadow: `0 0 15px ${brandCyan}60`,
+    animation: 'neuralPulse 2s ease-in-out infinite',
+  },
+
+  // Active node (highlighted)
+  nodeActive: {
+    width: 16,
+    height: 16,
+    borderRadius: '50%',
+    background: `radial-gradient(circle at 30% 30%, #fff, ${brandCyan})`,
+    boxShadow: `
+      0 0 20px ${brandCyan},
+      0 0 40px ${brandCyan}80,
+      0 0 60px ${brandCyan}40
+    `,
+  },
+
+  // Connection line
+  connection: {
+    stroke: brandCyan,
+    strokeWidth: 1,
+    opacity: 0.4,
+    strokeDasharray: '4 4',
+  },
+
+  // Active connection (data flowing)
+  connectionActive: {
+    stroke: `url(#neuralGradient)`,
+    strokeWidth: 2,
+    opacity: 0.8,
+    filter: `drop-shadow(0 0 4px ${brandCyan})`,
+  },
+};
+
+/**
+ * Data visualization panel styles
+ */
+export const dataPanelStyles: Record<string, CSSProperties> = {
+  // Main data panel
+  dataPanel: {
+    ...glassEffects.panel,
+    borderRadius: 16,
+    padding: 24,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+
+  // Panel header with status
+  panelHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '8px 16px',
-    background: `linear-gradient(90deg, ${brandCyan}15, transparent, ${brandPurple}15)`,
-    borderBottom: `1px solid ${brandCyan}30`,
-    marginBottom: 16,
+    marginBottom: 20,
+    paddingBottom: 16,
+    borderBottom: `1px solid ${brandCyan}20`,
   },
 
-  // HUD readout display
-  hudReadout: {
-    fontFamily: '"JetBrains Mono", "Fira Code", monospace',
-    fontSize: 11,
-    fontWeight: 700,
-    color: brandCyan,
-    letterSpacing: 2,
-    textTransform: 'uppercase' as const,
-    padding: '6px 12px',
-    background: 'rgba(143,211,204,0.08)',
-    borderLeft: `3px solid ${brandCyan}`,
-    animation: 'textFlicker 4s ease-in-out infinite',
-  },
-
-  // Status indicator
-  hudStatus: {
+  // Metric display
+  metricDisplay: {
     display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    padding: '4px 10px',
-    background: 'rgba(34,197,94,0.1)',
-    border: '1px solid rgba(34,197,94,0.3)',
-    borderRadius: 4,
-    fontSize: 10,
-    fontWeight: 800,
-    color: '#22c55e',
-    letterSpacing: 1.5,
-  },
-
-  // Processing indicator
-  hudProcessing: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    padding: '4px 10px',
-    background: `rgba(143,211,204,0.1)`,
-    border: `1px solid ${brandCyan}30`,
-    borderRadius: 4,
-    fontSize: 10,
-    fontWeight: 800,
-    color: brandCyan,
-    letterSpacing: 1.5,
-    animation: 'hudPulse 1.5s ease-in-out infinite',
-  },
-
-  // Data panel
-  hudDataPanel: {
-    padding: 16,
-    background: 'rgba(0,0,0,0.5)',
-    border: `1px solid ${brandCyan}20`,
-    borderRadius: 4,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-
-  // Scan line overlay
-  hudScanLine: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 2,
-    background: `linear-gradient(90deg, transparent, ${brandCyan}60, transparent)`,
-    animation: 'scanLineDown 3s linear infinite',
-    pointerEvents: 'none',
-  },
-};
-
-// Holographic Effect Styles
-export const holoStyles: Record<string, CSSProperties> = {
-  // Holographic card
-  holoCard: {
-    position: 'relative',
-    padding: 24,
-    background: `linear-gradient(
-      135deg,
-      rgba(143,211,204,0.1) 0%,
-      rgba(175,132,186,0.08) 25%,
-      rgba(176,18,112,0.06) 50%,
-      rgba(175,132,186,0.08) 75%,
-      rgba(143,211,204,0.1) 100%
-    )`,
-    backgroundSize: '400% 400%',
-    border: '1px solid rgba(255,255,255,0.15)',
-    borderRadius: 16,
-    backdropFilter: 'blur(20px)',
-    animation: 'holoShift 8s ease infinite',
-    boxShadow: `
-      0 8px 32px rgba(0,0,0,0.4),
-      0 0 60px rgba(143,211,204,0.1),
-      inset 0 1px 0 rgba(255,255,255,0.1)
-    `,
-  },
-
-  // Rainbow shimmer overlay
-  holoShimmer: {
-    position: 'absolute',
-    inset: 0,
-    background: `linear-gradient(
-      120deg,
-      transparent 0%,
-      rgba(255,255,255,0.1) 25%,
-      rgba(143,211,204,0.2) 50%,
-      rgba(175,132,186,0.2) 75%,
-      transparent 100%
-    )`,
-    backgroundSize: '200% 100%',
-    animation: 'shimmerSlide 3s ease-in-out infinite',
-    borderRadius: 'inherit',
-    pointerEvents: 'none',
-  },
-
-  // Holographic text
-  holoText: {
-    background: `linear-gradient(90deg, ${brandCyan}, ${brandPurple}, ${brandPink}, ${brandCyan})`,
-    backgroundSize: '300% 100%',
-    WebkitBackgroundClip: 'text',
-    backgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    animation: 'holoTextShift 4s ease infinite',
-    fontWeight: 900,
-    textShadow: `0 0 40px ${brandCyan}40`,
-  },
-
-  // Iridescent border
-  holoBorder: {
-    position: 'relative',
-    padding: 2,
-    background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple}, ${brandPink}, ${brandCyan})`,
-    backgroundSize: '300% 300%',
-    borderRadius: 18,
-    animation: 'borderFlow 4s ease infinite',
-  },
-};
-
-// Gamification System Styles
-export const gamificationStyles: Record<string, CSSProperties> = {
-  // XP Bar container
-  xpBarContainer: {
-    position: 'relative',
-    height: 8,
-    background: 'rgba(0,0,0,0.4)',
-    borderRadius: 4,
-    overflow: 'hidden',
-    border: `1px solid ${brandCyan}20`,
-    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)',
-  },
-
-  // XP Bar fill
-  xpBarFill: {
-    height: '100%',
-    background: `linear-gradient(90deg,
-      ${brandCyan},
-      ${brandPurple} 50%,
-      ${brandPink} 100%
-    )`,
-    borderRadius: 3,
-    transition: 'width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
-    position: 'relative',
-    boxShadow: `0 0 10px ${brandCyan}60`,
-  },
-
-  // XP Bar shimmer effect
-  xpBarShimmer: {
-    position: 'absolute',
-    top: 0,
-    left: '-100%',
-    width: '100%',
-    height: '100%',
-    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
-    animation: 'xpShimmer 2s ease-in-out infinite',
-  },
-
-  // Level badge
-  levelBadge: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 48,
-    height: 48,
-    borderRadius: '50%',
-    background: `linear-gradient(135deg, ${brandPurple}, ${brandCyan})`,
-    border: '3px solid rgba(255,255,255,0.2)',
-    boxShadow: `
-      0 0 20px ${brandCyan}40,
-      0 4px 15px rgba(0,0,0,0.3),
-      inset 0 2px 0 rgba(255,255,255,0.2)
-    `,
-    fontSize: 18,
-    fontWeight: 900,
-    color: '#fff',
-    textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-  },
-
-  // Level badge glow
-  levelBadgeGlow: {
-    position: 'absolute',
-    inset: -4,
-    borderRadius: '50%',
-    background: `radial-gradient(circle, ${brandCyan}30 0%, transparent 70%)`,
-    animation: 'levelPulse 2s ease-in-out infinite',
-    pointerEvents: 'none',
-  },
-
-  // Achievement badge
-  achievementBadge: {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-    background: `linear-gradient(135deg, rgba(143,211,204,0.2), rgba(175,132,186,0.2))`,
-    border: `2px solid ${brandCyan}40`,
-    boxShadow: `
-      0 8px 24px rgba(0,0,0,0.3),
-      0 0 30px ${brandCyan}15,
-      inset 0 1px 0 rgba(255,255,255,0.1)
-    `,
-    fontSize: 28,
-    transition: 'all 0.3s ease',
-  },
-
-  // Achievement badge unlocked
-  achievementUnlocked: {
-    background: `linear-gradient(135deg, ${brandCyan}30, ${brandPurple}30)`,
-    border: `2px solid ${brandCyan}`,
-    boxShadow: `
-      0 8px 24px ${brandCyan}30,
-      0 0 40px ${brandCyan}25,
-      inset 0 1px 0 rgba(255,255,255,0.2)
-    `,
-    animation: 'achievementShine 3s ease-in-out infinite',
-  },
-
-  // Achievement locked
-  achievementLocked: {
-    opacity: 0.4,
-    filter: 'grayscale(0.8)',
-    background: 'rgba(255,255,255,0.05)',
-    border: '2px solid rgba(255,255,255,0.1)',
-    boxShadow: 'none',
-  },
-
-  // Streak counter
-  streakCounter: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    padding: '8px 16px',
-    background: 'linear-gradient(135deg, rgba(255,165,0,0.15), rgba(255,69,0,0.15))',
-    border: '1px solid rgba(255,165,0,0.4)',
+    flexDirection: 'column',
+    gap: 4,
+    padding: '16px 20px',
+    background: 'rgba(0, 0, 0, 0.3)',
     borderRadius: 12,
-    fontSize: 14,
-    fontWeight: 800,
-    color: '#ffa500',
-    boxShadow: '0 4px 15px rgba(255,165,0,0.2)',
+    border: `1px solid ${brandCyan}15`,
   },
 
-  // Points popup animation
-  pointsPopup: {
-    position: 'absolute',
-    fontSize: 16,
-    fontWeight: 900,
-    color: brandCyan,
-    textShadow: `0 0 10px ${brandCyan}`,
-    animation: 'pointsFloat 1s ease-out forwards',
-    pointerEvents: 'none',
-  },
-
-  // Progress ring
-  progressRing: {
-    transform: 'rotate(-90deg)',
-    filter: `drop-shadow(0 0 10px ${brandCyan}40)`,
-  },
-
-  // Leaderboard row
-  leaderboardRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-    padding: '12px 16px',
-    background: 'rgba(255,255,255,0.03)',
-    borderRadius: 12,
-    border: '1px solid rgba(255,255,255,0.06)',
-    transition: 'all 0.2s ease',
-  },
-
-  // Leaderboard row highlight
-  leaderboardRowHighlight: {
-    background: `linear-gradient(135deg, ${brandCyan}10, ${brandPurple}08)`,
-    border: `1px solid ${brandCyan}30`,
-    boxShadow: `0 0 20px ${brandCyan}10`,
-  },
-
-  // Rank badge
-  rankBadge: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    fontSize: 14,
-    fontWeight: 900,
-  },
-
-  // Rank 1-3 special styles
-  rankGold: {
-    background: 'linear-gradient(135deg, #ffd700, #ffb300)',
-    color: '#1a1a1a',
-    boxShadow: '0 4px 15px rgba(255,215,0,0.4)',
-  },
-  rankSilver: {
-    background: 'linear-gradient(135deg, #c0c0c0, #a0a0a0)',
-    color: '#1a1a1a',
-    boxShadow: '0 4px 15px rgba(192,192,192,0.3)',
-  },
-  rankBronze: {
-    background: 'linear-gradient(135deg, #cd7f32, #a5642a)',
-    color: '#fff',
-    boxShadow: '0 4px 15px rgba(205,127,50,0.3)',
-  },
-
-  // Power-up effect
-  powerUp: {
-    position: 'relative',
-    padding: 16,
-    background: 'rgba(255,255,255,0.05)',
-    borderRadius: 16,
-    border: `2px solid ${brandCyan}`,
-    boxShadow: `
-      0 0 30px ${brandCyan}30,
-      0 0 60px ${brandCyan}15,
-      inset 0 0 30px ${brandCyan}10
-    `,
-    animation: 'powerUpGlow 1.5s ease-in-out infinite',
-  },
-
-  // Combo multiplier
-  comboMultiplier: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    padding: '4px 12px',
-    background: `linear-gradient(135deg, ${brandPink}, ${brandPurple})`,
-    borderRadius: 20,
-    fontSize: 12,
-    fontWeight: 900,
-    color: '#fff',
-    textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-    boxShadow: `0 4px 15px ${brandPink}40`,
-    animation: 'comboPulse 0.5s ease-in-out infinite',
-  },
-};
-
-// Circuit Board Pattern Styles
-export const circuitStyles: Record<string, CSSProperties> = {
-  // Circuit board background
-  circuitBackground: {
-    position: 'relative',
-    background: `
-      linear-gradient(90deg, ${brandCyan}05 1px, transparent 1px),
-      linear-gradient(${brandCyan}05 1px, transparent 1px),
-      radial-gradient(circle at 50% 50%, ${brandPurple}10 0%, transparent 50%)
-    `,
-    backgroundSize: '40px 40px, 40px 40px, 100% 100%',
-  },
-
-  // Circuit node
-  circuitNode: {
-    width: 8,
-    height: 8,
-    borderRadius: '50%',
-    background: brandCyan,
-    boxShadow: `0 0 10px ${brandCyan}, 0 0 20px ${brandCyan}60`,
-    animation: 'nodeGlow 2s ease-in-out infinite',
-  },
-
-  // Circuit line
-  circuitLine: {
-    height: 2,
-    background: `linear-gradient(90deg, transparent, ${brandCyan}60, transparent)`,
-    boxShadow: `0 0 5px ${brandCyan}40`,
-  },
-
-  // Data flow line
-  dataFlowLine: {
-    position: 'relative',
-    height: 2,
-    background: 'rgba(143,211,204,0.2)',
-    overflow: 'hidden',
-  },
-
-  // Data flow particle
-  dataFlowParticle: {
-    position: 'absolute',
-    top: -2,
-    width: 6,
-    height: 6,
-    borderRadius: '50%',
-    background: brandCyan,
-    boxShadow: `0 0 10px ${brandCyan}`,
-    animation: 'dataFlowMove 2s linear infinite',
-  },
-
-  // Terminal container
-  terminalContainer: {
-    background: 'rgba(0,0,0,0.8)',
-    borderRadius: 8,
-    border: `1px solid ${brandCyan}30`,
-    overflow: 'hidden',
-    fontFamily: '"JetBrains Mono", "Fira Code", monospace',
-    fontSize: 12,
-  },
-
-  // Terminal header
-  terminalHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    padding: '8px 12px',
-    background: 'rgba(255,255,255,0.05)',
-    borderBottom: '1px solid rgba(255,255,255,0.1)',
-  },
-
-  // Terminal dot
-  terminalDot: {
-    width: 10,
-    height: 10,
-    borderRadius: '50%',
-  },
-
-  // Terminal body
-  terminalBody: {
-    padding: 16,
-    color: brandCyan,
-    lineHeight: 1.6,
-  },
-
-  // Typing cursor
-  typingCursor: {
-    display: 'inline-block',
-    width: 8,
-    height: 16,
-    background: brandCyan,
-    marginLeft: 2,
-    animation: 'cursorBlink 1s step-end infinite',
-  },
-};
-
-// Data Visualization Styles
-export const dataVizStyles: Record<string, CSSProperties> = {
-  // Chart container
-  chartContainer: {
-    position: 'relative',
-    padding: 24,
-    background: 'rgba(0,0,0,0.3)',
-    borderRadius: 16,
-    border: `1px solid ${brandCyan}20`,
-  },
-
-  // Axis line
-  axisLine: {
-    background: 'rgba(255,255,255,0.2)',
-  },
-
-  // Bar chart bar
-  chartBar: {
-    background: `linear-gradient(180deg, ${brandCyan}, ${brandPurple})`,
-    borderRadius: '4px 4px 0 0',
-    boxShadow: `0 0 10px ${brandCyan}30`,
-    transition: 'height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
-  },
-
-  // Chart bar glow
-  chartBarGlow: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '50%',
-    background: `linear-gradient(to top, ${brandCyan}30, transparent)`,
-    filter: 'blur(4px)',
-    pointerEvents: 'none',
-  },
-
-  // Pie segment
-  pieSegment: {
-    transition: 'all 0.3s ease',
-    cursor: 'pointer',
-    filter: `drop-shadow(0 2px 4px rgba(0,0,0,0.3))`,
-  },
-
-  // Data point
-  dataPoint: {
-    width: 10,
-    height: 10,
-    borderRadius: '50%',
-    background: brandCyan,
-    border: '2px solid #fff',
-    boxShadow: `0 0 10px ${brandCyan}`,
-    transition: 'transform 0.2s ease',
-  },
-
-  // Tooltip
-  dataTooltip: {
-    position: 'absolute',
-    padding: '8px 12px',
-    background: 'rgba(0,0,0,0.9)',
-    border: `1px solid ${brandCyan}40`,
-    borderRadius: 8,
-    fontSize: 12,
-    fontWeight: 600,
-    color: '#fff',
-    boxShadow: `0 4px 20px rgba(0,0,0,0.4), 0 0 20px ${brandCyan}15`,
-    zIndex: 100,
-    pointerEvents: 'none',
-  },
-
-  // Metric card
-  metricCard: {
-    padding: 20,
-    background: `linear-gradient(135deg, rgba(143,211,204,0.08), rgba(175,132,186,0.05))`,
-    borderRadius: 16,
-    border: `1px solid ${brandCyan}20`,
-    textAlign: 'center' as const,
-  },
-
-  // Metric value
+  // Metric value (large number)
   metricValue: {
-    fontSize: 36,
-    fontWeight: 900,
-    background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
-    WebkitBackgroundClip: 'text',
-    backgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    lineHeight: 1.2,
+    fontSize: 32,
+    fontWeight: 800,
+    fontFamily: 'monospace',
+    color: brandCyan,
+    textShadow: `0 0 20px ${brandCyan}50`,
+    lineHeight: 1,
   },
 
   // Metric label
   metricLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 600,
-    color: 'rgba(255,255,255,0.6)',
+    color: colors.text.muted,
     textTransform: 'uppercase' as const,
-    letterSpacing: 1,
-    marginTop: 8,
+    letterSpacing: 1.5,
   },
 
-  // Trend indicator up
-  trendUp: {
+  // Real-time indicator
+  liveIndicator: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: 4,
-    padding: '2px 8px',
-    background: 'rgba(34,197,94,0.15)',
-    borderRadius: 4,
-    fontSize: 11,
+    gap: 6,
+    padding: '4px 10px',
+    background: 'rgba(34, 197, 94, 0.15)',
+    borderRadius: 20,
+    fontSize: 10,
     fontWeight: 700,
     color: '#22c55e',
-  },
-
-  // Trend indicator down
-  trendDown: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 4,
-    padding: '2px 8px',
-    background: 'rgba(239,68,68,0.15)',
-    borderRadius: 4,
-    fontSize: 11,
-    fontWeight: 700,
-    color: '#ef4444',
+    textTransform: 'uppercase' as const,
+    letterSpacing: 1,
   },
 };
 
-// Interactive Element Styles
-export const interactiveStyles: Record<string, CSSProperties> = {
-  // Magnetic button
-  magneticButton: {
+/**
+ * Futuristic card variants
+ */
+export const futuristicCards: Record<string, CSSProperties> = {
+  // Sound lab card - primary interactive element
+  soundLabCard: {
     position: 'relative',
-    padding: '14px 28px',
-    background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
-    border: 'none',
-    borderRadius: 14,
-    fontSize: 15,
-    fontWeight: 800,
-    color: '#fff',
-    cursor: 'pointer',
-    overflow: 'hidden',
-    transition: 'transform 0.2s ease, box-shadow 0.3s ease',
-    boxShadow: `
-      0 4px 20px ${brandCyan}40,
-      0 8px 40px ${brandPurple}20
-    `,
-  },
-
-  // Button ripple effect container
-  rippleContainer: {
-    position: 'absolute',
-    inset: 0,
-    overflow: 'hidden',
-    borderRadius: 'inherit',
-    pointerEvents: 'none',
-  },
-
-  // Button hover overlay
-  buttonHoverOverlay: {
-    position: 'absolute',
-    inset: 0,
-    background: 'rgba(255,255,255,0)',
-    transition: 'background 0.3s ease',
-    borderRadius: 'inherit',
-  },
-
-  // Glass card
-  glassCard: {
     padding: 24,
-    background: 'rgba(255,255,255,0.05)',
-    backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: 20,
-    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-  },
-
-  // Floating action
-  floatingAction: {
-    position: 'fixed',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 60,
-    height: 60,
-    borderRadius: '50%',
-    background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
-    border: 'none',
-    boxShadow: `
-      0 8px 30px ${brandCyan}40,
-      0 0 40px ${brandCyan}20
+    background: `
+      linear-gradient(135deg, rgba(143, 211, 204, 0.05) 0%, transparent 50%),
+      linear-gradient(225deg, rgba(175, 132, 186, 0.05) 0%, transparent 50%),
+      rgba(13, 17, 23, 0.85)
     `,
-    cursor: 'pointer',
-    transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-    animation: 'floatSoft 3s ease-in-out infinite',
-    zIndex: 50,
-  },
-
-  // Expandable card
-  expandableCard: {
-    position: 'relative',
-    background: 'rgba(11,15,28,0.95)',
     borderRadius: 20,
-    border: `1px solid ${brandCyan}20`,
+    border: `1px solid rgba(143, 211, 204, 0.2)`,
+    backdropFilter: 'blur(20px)',
     overflow: 'hidden',
     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+    cursor: 'pointer',
   },
 
-  // Card expand trigger
-  expandTrigger: {
-    position: 'absolute',
-    bottom: 12,
-    right: 12,
-    width: 32,
-    height: 32,
-    borderRadius: '50%',
-    background: 'rgba(143,211,204,0.2)',
-    border: `1px solid ${brandCyan}40`,
+  // Test module card
+  testModuleCard: {
+    position: 'relative',
+    padding: 20,
+    background: 'rgba(26, 31, 46, 0.8)',
+    borderRadius: 16,
+    border: `1px solid ${brandCyan}25`,
+    overflow: 'hidden',
+    transition: 'all 0.3s ease',
+  },
+
+  // Achievement card
+  achievementCard: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-  },
-
-  // Slider thumb
-  sliderThumb: {
-    width: 20,
-    height: 20,
-    borderRadius: '50%',
-    background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
-    border: '3px solid #fff',
-    boxShadow: `0 0 15px ${brandCyan}60`,
-    cursor: 'grab',
-  },
-
-  // Slider track
-  sliderTrack: {
-    height: 6,
-    background: 'rgba(255,255,255,0.1)',
-    borderRadius: 3,
-    position: 'relative',
-  },
-
-  // Slider fill
-  sliderFill: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    height: '100%',
-    background: `linear-gradient(90deg, ${brandCyan}, ${brandPurple})`,
-    borderRadius: 3,
-    boxShadow: `0 0 10px ${brandCyan}40`,
-  },
-
-  // Toggle switch
-  toggleSwitch: {
-    position: 'relative',
-    width: 52,
-    height: 28,
+    gap: 16,
+    padding: 16,
+    background: `linear-gradient(135deg, rgba(143, 211, 204, 0.08), rgba(175, 132, 186, 0.05))`,
     borderRadius: 14,
-    background: 'rgba(255,255,255,0.1)',
-    border: '1px solid rgba(255,255,255,0.2)',
-    cursor: 'pointer',
+    border: `1px solid ${brandCyan}20`,
     transition: 'all 0.3s ease',
   },
 
-  // Toggle switch active
-  toggleSwitchActive: {
-    background: `linear-gradient(90deg, ${brandCyan}, ${brandPurple})`,
-    border: `1px solid ${brandCyan}60`,
-    boxShadow: `0 0 20px ${brandCyan}30`,
-  },
-
-  // Toggle knob
-  toggleKnob: {
-    position: 'absolute',
-    top: 3,
-    width: 20,
-    height: 20,
-    borderRadius: '50%',
-    background: '#fff',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-    transition: 'all 0.3s ease',
+  // Stats card
+  statsCard: {
+    padding: 20,
+    background: 'rgba(0, 0, 0, 0.4)',
+    borderRadius: 14,
+    border: `1px solid rgba(255, 255, 255, 0.08)`,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 12,
   },
 };
 
-// Advanced Animation Keyframes (to be added to CSS)
-export const advancedKeyframes = `
-  /* HUD Pulse */
-  @keyframes hudPulse {
-    0%, 100% { opacity: 1; box-shadow: 0 0 10px ${brandCyan}30; }
-    50% { opacity: 0.7; box-shadow: 0 0 20px ${brandCyan}50; }
+/**
+ * Enhanced animation keyframes for sound lab
+ */
+export const soundLabAnimations = `
+  /* Sound wave animation - bars bouncing */
+  @keyframes soundWave {
+    0%, 100% { transform: scaleY(0.3); }
+    50% { transform: scaleY(1); }
   }
 
-  /* Text Flicker */
-  @keyframes textFlicker {
-    0%, 100% { opacity: 1; }
-    92% { opacity: 1; }
-    93% { opacity: 0.8; }
-    94% { opacity: 1; }
-    95% { opacity: 0.9; }
-    96% { opacity: 1; }
+  /* Frequency pulse - expanding rings */
+  @keyframes frequencyPulse {
+    0% {
+      transform: scale(0.8);
+      opacity: 1;
+      box-shadow: 0 0 0 0 ${brandCyan}60;
+    }
+    70% {
+      transform: scale(1);
+      opacity: 0.7;
+      box-shadow: 0 0 0 20px ${brandCyan}00;
+    }
+    100% {
+      transform: scale(0.8);
+      opacity: 1;
+      box-shadow: 0 0 0 0 ${brandCyan}00;
+    }
   }
 
-  /* Holographic Shift */
-  @keyframes holoShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+  /* Audio spectrum animation */
+  @keyframes spectrumBar {
+    0%, 100% { height: 20%; }
+    25% { height: 80%; }
+    50% { height: 40%; }
+    75% { height: 90%; }
   }
 
-  /* Holographic Text Shift */
-  @keyframes holoTextShift {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 300% 50%; }
+  /* Holographic shimmer - rainbow sweep */
+  @keyframes holoShimmer {
+    0% {
+      background-position: -200% 0;
+      filter: hue-rotate(0deg);
+    }
+    50% {
+      filter: hue-rotate(30deg);
+    }
+    100% {
+      background-position: 200% 0;
+      filter: hue-rotate(0deg);
+    }
   }
 
-  /* Shimmer Slide */
-  @keyframes shimmerSlide {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+  /* Neon flicker effect */
+  @keyframes neonFlicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+      opacity: 1;
+      text-shadow:
+        0 0 4px ${brandCyan},
+        0 0 11px ${brandCyan},
+        0 0 19px ${brandCyan},
+        0 0 40px ${brandCyan};
+    }
+    20%, 24%, 55% {
+      opacity: 0.8;
+      text-shadow: none;
+    }
   }
 
-  /* Border Flow */
-  @keyframes borderFlow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+  /* Data stream flowing */
+  @keyframes dataStreamFlow {
+    0% {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
   }
 
-  /* XP Bar Shimmer */
-  @keyframes xpShimmer {
-    0% { left: -100%; }
-    100% { left: 100%; }
+  /* Radar sweep */
+  @keyframes radarSweep {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
-  /* Level Pulse */
-  @keyframes levelPulse {
-    0%, 100% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.1); opacity: 0.8; }
+  /* Neural network pulse - node activation */
+  @keyframes nodeActivate {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 10px ${brandCyan}40;
+    }
+    50% {
+      transform: scale(1.3);
+      box-shadow: 0 0 30px ${brandCyan}80, 0 0 60px ${brandCyan}40;
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 10px ${brandCyan}40;
+    }
   }
 
-  /* Achievement Shine */
-  @keyframes achievementShine {
-    0%, 100% { box-shadow: 0 8px 24px ${brandCyan}30, 0 0 40px ${brandCyan}25; }
-    50% { box-shadow: 0 8px 32px ${brandCyan}50, 0 0 60px ${brandCyan}35; }
+  /* Connection data flow */
+  @keyframes connectionFlow {
+    0% {
+      stroke-dashoffset: 20;
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      stroke-dashoffset: 0;
+      opacity: 0.3;
+    }
   }
 
-  /* Points Float */
-  @keyframes pointsFloat {
-    0% { transform: translateY(0); opacity: 1; }
-    100% { transform: translateY(-40px); opacity: 0; }
+  /* Glitch effect for text */
+  @keyframes glitchText {
+    0%, 100% {
+      transform: translate(0);
+      text-shadow:
+        -2px 0 ${brandPink},
+        2px 0 ${brandCyan};
+    }
+    25% {
+      transform: translate(-2px, 1px);
+      text-shadow:
+        2px 0 ${brandPink},
+        -2px 0 ${brandCyan};
+    }
+    50% {
+      transform: translate(2px, -1px);
+      text-shadow:
+        -2px 0 ${brandCyan},
+        2px 0 ${brandPink};
+    }
+    75% {
+      transform: translate(-1px, 2px);
+      text-shadow:
+        2px 0 ${brandCyan},
+        -2px 0 ${brandPink};
+    }
   }
 
-  /* Power-up Glow */
-  @keyframes powerUpGlow {
-    0%, 100% { box-shadow: 0 0 30px ${brandCyan}30, 0 0 60px ${brandCyan}15, inset 0 0 30px ${brandCyan}10; }
-    50% { box-shadow: 0 0 50px ${brandCyan}50, 0 0 100px ${brandCyan}25, inset 0 0 50px ${brandCyan}20; }
-  }
-
-  /* Combo Pulse */
-  @keyframes comboPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-  }
-
-  /* Node Glow */
-  @keyframes nodeGlow {
-    0%, 100% { box-shadow: 0 0 10px ${brandCyan}, 0 0 20px ${brandCyan}60; }
-    50% { box-shadow: 0 0 20px ${brandCyan}, 0 0 40px ${brandCyan}80; }
-  }
-
-  /* Data Flow Move */
-  @keyframes dataFlowMove {
-    0% { left: -6px; }
-    100% { left: calc(100% + 6px); }
-  }
-
-  /* Cursor Blink */
+  /* Typing cursor blink */
   @keyframes cursorBlink {
     0%, 50% { opacity: 1; }
     51%, 100% { opacity: 0; }
   }
 
-  /* Scan Line Down */
-  @keyframes scanLineDown {
-    0% { top: -10%; }
-    100% { top: 110%; }
+  /* Card hover lift with glow */
+  @keyframes cardLift {
+    0% {
+      transform: translateY(0) scale(1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    100% {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 60px ${brandCyan}20;
+    }
   }
 
-  /* Float Soft */
-  @keyframes floatSoft {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+  /* Breathing glow for focus states */
+  @keyframes breathingGlow {
+    0%, 100% {
+      box-shadow:
+        0 0 5px ${brandCyan}30,
+        0 0 10px ${brandCyan}20,
+        0 0 15px ${brandCyan}10;
+    }
+    50% {
+      box-shadow:
+        0 0 10px ${brandCyan}50,
+        0 0 20px ${brandCyan}30,
+        0 0 30px ${brandCyan}20;
+    }
   }
 
-  /* Particle Orbit */
-  @keyframes particleOrbit {
-    0% { transform: rotate(0deg) translateX(100px) rotate(0deg); }
-    100% { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
+  /* Progress ring animation */
+  @keyframes progressRing {
+    0% {
+      stroke-dashoffset: 283;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
   }
 
-  /* Matrix Rain */
-  @keyframes matrixRain {
-    0% { transform: translateY(-100%); opacity: 1; }
-    100% { transform: translateY(100vh); opacity: 0; }
+  /* Particle float with 3D effect */
+  @keyframes particleFloat3D {
+    0%, 100% {
+      transform: translate3d(0, 0, 0) rotateX(0deg);
+    }
+    25% {
+      transform: translate3d(10px, -15px, 20px) rotateX(5deg);
+    }
+    50% {
+      transform: translate3d(-5px, -25px, 10px) rotateX(-5deg);
+    }
+    75% {
+      transform: translate3d(-15px, -10px, 30px) rotateX(3deg);
+    }
   }
 
-  /* Glitch Effect */
-  @keyframes glitchEffect {
-    0% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(-2px, -2px); }
-    60% { transform: translate(2px, 2px); }
-    80% { transform: translate(2px, -2px); }
-    100% { transform: translate(0); }
+  /* Scanner line effect */
+  @keyframes scannerLine {
+    0% {
+      top: 0;
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      top: 100%;
+      opacity: 1;
+    }
   }
 
-  /* Energy Pulse */
-  @keyframes energyPulse {
-    0%, 100% { transform: scale(1); filter: brightness(1); }
-    50% { transform: scale(1.02); filter: brightness(1.2); }
+  /* Energy charge animation */
+  @keyframes energyCharge {
+    0% {
+      background-size: 0% 100%;
+    }
+    100% {
+      background-size: 100% 100%;
+    }
   }
 
-  /* Radar Sweep */
-  @keyframes radarSweep {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  /* Rotate with glow */
+  @keyframes rotateGlow {
+    0% {
+      transform: rotate(0deg);
+      filter: drop-shadow(0 0 5px ${brandCyan}40);
+    }
+    50% {
+      filter: drop-shadow(0 0 15px ${brandCyan}80);
+    }
+    100% {
+      transform: rotate(360deg);
+      filter: drop-shadow(0 0 5px ${brandCyan}40);
+    }
   }
 
-  /* Heartbeat */
-  @keyframes heartbeat {
-    0%, 100% { transform: scale(1); }
-    10% { transform: scale(1.1); }
-    20% { transform: scale(1); }
-    30% { transform: scale(1.05); }
-    40% { transform: scale(1); }
-  }
+  /* Stagger animation delays for lists */
+  .stagger-delay-1 { animation-delay: 0.05s; }
+  .stagger-delay-2 { animation-delay: 0.1s; }
+  .stagger-delay-3 { animation-delay: 0.15s; }
+  .stagger-delay-4 { animation-delay: 0.2s; }
+  .stagger-delay-5 { animation-delay: 0.25s; }
+  .stagger-delay-6 { animation-delay: 0.3s; }
+  .stagger-delay-7 { animation-delay: 0.35s; }
+  .stagger-delay-8 { animation-delay: 0.4s; }
 
-  /* Bounce In */
-  @keyframes bounceIn {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.1); }
-    70% { transform: scale(0.95); }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  /* Slide In Right */
-  @keyframes slideInRight {
-    0% { transform: translateX(100%); opacity: 0; }
-    100% { transform: translateX(0); opacity: 1; }
-  }
-
-  /* Slide In Left */
-  @keyframes slideInLeft {
-    0% { transform: translateX(-100%); opacity: 0; }
-    100% { transform: translateX(0); opacity: 1; }
-  }
-
-  /* Scale Up */
-  @keyframes scaleUp {
-    0% { transform: scale(0.8); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  /* Rotate In */
-  @keyframes rotateIn {
-    0% { transform: rotate(-180deg) scale(0); opacity: 0; }
-    100% { transform: rotate(0) scale(1); opacity: 1; }
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 `;
+
+/**
+ * Interactive hover state styles
+ */
+export const hoverEffects = {
+  // Lift with glow
+  liftGlow: {
+    transform: 'translateY(-8px) scale(1.02)',
+    boxShadow: `
+      0 20px 40px rgba(0, 0, 0, 0.3),
+      0 0 60px ${brandCyan}15
+    `,
+    borderColor: `${brandCyan}40`,
+  },
+
+  // Neon border activation
+  neonActivate: {
+    borderColor: brandCyan,
+    boxShadow: `
+      0 0 10px ${brandCyan}50,
+      0 0 20px ${brandCyan}30,
+      inset 0 0 10px ${brandCyan}10
+    `,
+  },
+
+  // Holographic shift
+  holoShift: {
+    background: `
+      linear-gradient(135deg, ${brandCyan}15 0%, transparent 30%),
+      linear-gradient(225deg, ${brandPurple}15 0%, transparent 30%),
+      linear-gradient(315deg, ${brandPink}10 0%, transparent 30%),
+      rgba(13, 17, 23, 0.9)
+    `,
+  },
+
+  // Scale pulse
+  scalePulse: {
+    transform: 'scale(1.05)',
+    boxShadow: `0 0 30px ${brandCyan}30`,
+  },
+};
+
+/**
+ * Focus state styles for accessibility
+ */
+export const focusStyles = {
+  // Primary focus ring
+  primary: {
+    outline: 'none',
+    boxShadow: `
+      0 0 0 2px ${brandInk},
+      0 0 0 4px ${brandCyan},
+      0 0 20px ${brandCyan}30
+    `,
+  },
+
+  // Subtle focus
+  subtle: {
+    outline: 'none',
+    boxShadow: `0 0 0 2px ${brandCyan}60`,
+  },
+
+  // High contrast focus
+  highContrast: {
+    outline: `3px solid ${brandCyan}`,
+    outlineOffset: 2,
+  },
+};
+
+/**
+ * Loading and skeleton styles
+ */
+export const loadingStyles: Record<string, CSSProperties> = {
+  // Skeleton shimmer
+  skeleton: {
+    background: `linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.03) 100%
+    )`,
+    backgroundSize: '200% 100%',
+    animation: 'holoShimmer 1.5s ease-in-out infinite',
+    borderRadius: 8,
+  },
+
+  // Pulse loader
+  pulseLoader: {
+    width: 48,
+    height: 48,
+    borderRadius: '50%',
+    background: `radial-gradient(circle, ${brandCyan} 0%, transparent 70%)`,
+    animation: 'frequencyPulse 1.5s ease-in-out infinite',
+  },
+
+  // Scanning line loader
+  scanLoader: {
+    position: 'relative',
+    height: 4,
+    background: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+};
+
+/**
+ * Tooltip styles
+ */
+export const tooltipStyles: Record<string, CSSProperties> = {
+  tooltip: {
+    position: 'absolute',
+    padding: '8px 14px',
+    background: 'rgba(13, 17, 23, 0.95)',
+    border: `1px solid ${brandCyan}30`,
+    borderRadius: 8,
+    fontSize: 12,
+    fontWeight: 500,
+    color: colors.text.primary,
+    backdropFilter: 'blur(10px)',
+    boxShadow: `
+      0 10px 30px rgba(0, 0, 0, 0.4),
+      0 0 20px ${brandCyan}10
+    `,
+    zIndex: 1000,
+    whiteSpace: 'nowrap' as const,
+  },
+
+  tooltipArrow: {
+    position: 'absolute',
+    width: 8,
+    height: 8,
+    background: 'rgba(13, 17, 23, 0.95)',
+    border: `1px solid ${brandCyan}30`,
+    borderRight: 'none',
+    borderBottom: 'none',
+    transform: 'rotate(45deg)',
+  },
+};
