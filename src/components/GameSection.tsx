@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useRef, useCallback, memo } from 'react';
 
-import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, radius, spacing, typography, transitions } from './styles';
+import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, radius, spacing, typography, transitions, labTech } from './styles';
 
 import AssessmentSuiteModal from './games/AssessmentSuiteModal';
 import AttentionTestPanel from './games/AttentionTestPanel';
@@ -42,7 +42,7 @@ function Waveform({ color, type, active }: { color: string; type: 'ecg' | 'spo2'
       const height = canvas.height;
       const midY = height / 2;
 
-      ctx.fillStyle = 'rgba(30, 35, 45, 0.3)';
+      ctx.fillStyle = `${colors.surface.elevated}4D`;
       ctx.fillRect(0, 0, width, height);
 
       ctx.strokeStyle = color;
@@ -105,7 +105,7 @@ function Waveform({ color, type, active }: { color: string; type: 'ecg' | 'spo2'
         width: '100%',
         height: 60,
         borderRadius: 4,
-        background: 'rgba(30, 35, 45, 0.8)',
+        background: `${colors.surface.elevated}CC`,
       }}
     />
   );
@@ -232,13 +232,13 @@ function MedicalMonitor({
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                background: isActive ? '#22c55e' : 'rgba(255,255,255,0.3)',
-                boxShadow: isActive ? '0 0 8px #22c55e' : 'none',
+                background: isActive ? colors.success : 'rgba(255,255,255,0.3)',
+                boxShadow: isActive ? `0 0 8px ${colors.success}` : 'none',
                 animation: isActive ? 'blink 1s ease-in-out infinite' : 'none',
               }} />
               <span style={{
                 fontSize: 10,
-                color: isActive ? '#22c55e' : 'rgba(255,255,255,0.5)',
+                color: isActive ? colors.success : colors.text.muted,
                 fontWeight: 700,
               }}>
                 {statusText}
@@ -303,18 +303,18 @@ function MedicalMonitor({
               <div style={{
                 fontSize: 26,
                 fontWeight: 900,
-                color: '#22c55e',
+                color: colors.success,
                 fontFamily: 'system-ui',
               }}>
                 {statusText}
               </div>
             </div>
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginBottom: 3, letterSpacing: '0.5px' }}>MODE</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>SCREENING</div>
+              <div style={{ fontSize: 9, color: colors.text.disabled, marginBottom: 3, letterSpacing: '0.5px' }}>MODE</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: colors.text.primary }}>SCREENING</div>
             </div>
             <div>
-              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginBottom: 3, letterSpacing: '0.5px' }}>TYPE</div>
+              <div style={{ fontSize: 9, color: colors.text.disabled, marginBottom: 3, letterSpacing: '0.5px' }}>TYPE</div>
               <div style={{ fontSize: 13, fontWeight: 700, color: waveformColor }}>NON-DIAGNOSTIC</div>
             </div>
           </div>
@@ -441,13 +441,13 @@ function TestCard({
             width: 6,
             height: 6,
             borderRadius: '50%',
-            background: isHovered ? '#22c55e' : 'rgba(255,255,255,0.3)',
-            boxShadow: isHovered ? '0 0 8px #22c55e' : 'none',
+            background: isHovered ? colors.success : 'rgba(255,255,255,0.3)',
+            boxShadow: isHovered ? `0 0 8px ${colors.success}` : 'none',
             animation: isHovered ? 'blink 1s ease-in-out infinite' : 'none',
           }} />
           <span style={{
             fontSize: 9,
-            color: isHovered ? '#22c55e' : 'rgba(255,255,255,0.4)',
+            color: isHovered ? colors.success : colors.text.disabled,
             fontWeight: 600,
           }}>{isHovered ? 'READY' : 'STANDBY'}</span>
         </div>
@@ -465,13 +465,13 @@ function TestCard({
           }}>
             <span style={{
               fontSize: 10,
-              color: 'rgba(255,255,255,0.5)',
+              color: colors.text.muted,
               fontWeight: 600,
             }}>SIGNAL PREVIEW</span>
             <span style={{
               fontSize: 14,
               fontWeight: 900,
-              color: isHovered ? '#22c55e' : 'rgba(255,255,255,0.3)',
+              color: isHovered ? colors.success : 'rgba(255,255,255,0.3)',
               fontFamily: 'system-ui',
               transition: 'color 0.3s ease',
             }}>
@@ -629,7 +629,7 @@ const GameSection = memo(function GameSection() {
         fullTitle: '🧪 معمل الفحص السمعي (3 اختبارات) — تقرير PDF/CSV',
         desc: 'جلسة تفاعلية لقياس مؤشرات الانتباه + تمييز التردد + التسلسل',
         tag: 'FULL SUITE',
-        color: '#22c55e',
+        color: colors.success,
         waveType: 'ecg' as const,
       },
       {
@@ -638,7 +638,7 @@ const GameSection = memo(function GameSection() {
         fullTitle: '🎯 اختبار الانتباه السمعي تحت الضوضاء (Go/No-Go)',
         desc: 'قياس الانتباه الانتقائي + الاندفاعية وزمن الاستجابة',
         tag: 'ATTENTION',
-        color: '#3B82F6',
+        color: colors.info,
         waveType: 'spo2' as const,
       },
       {
@@ -647,7 +647,7 @@ const GameSection = memo(function GameSection() {
         fullTitle: '🎚️ اختبار تمييز التردد (Adaptive 2IFC)',
         desc: 'تقدير عتبة تمييز فروقات التردد عبر صعوبة تكيفية',
         tag: 'FREQUENCY',
-        color: '#8B5CF6',
+        color: brandPurple,
         waveType: 'audio' as const,
       },
       {
@@ -656,7 +656,7 @@ const GameSection = memo(function GameSection() {
         fullTitle: '🏫 محاكاة الصف الدراسي — تسلسل/ذاكرة سمعية تحت الضوضاء',
         desc: 'اتباع سلسلة أوامر صوتية مع ضوضاء متزايدة',
         tag: 'SEQUENCE',
-        color: '#F59E0B',
+        color: colors.warning,
         waveType: 'resp' as const,
       },
       {
@@ -769,10 +769,10 @@ const GameSection = memo(function GameSection() {
       <div style={{
         marginTop: 20,
         padding: 20,
-        background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+        background: labTech.backgrounds.primary,
         borderRadius: 20,
-        boxShadow: '0 15px 40px rgba(0,0,0,0.4), 0 0 60px rgba(143,211,204,0.08)',
-        border: '1px solid rgba(143,211,204,0.15)',
+        boxShadow: `0 15px 40px rgba(0,0,0,0.4), 0 0 60px ${brandCyan}14`,
+        border: `1px solid ${brandCyan}26`,
         position: 'relative',
         overflow: 'hidden',
       }}>
@@ -827,25 +827,25 @@ const GameSection = memo(function GameSection() {
               alignItems: 'center',
               gap: 6,
               padding: '6px 12px',
-              background: 'rgba(34,197,94,0.12)',
-              border: '1px solid rgba(34,197,94,0.3)',
-              borderRadius: 8,
+              background: colors.successLight,
+              border: `1px solid ${colors.success}4D`,
+              borderRadius: radius.md,
             }}>
               <div style={{
                 width: 8,
                 height: 8,
-                borderRadius: '50%',
-                background: '#22c55e',
+                borderRadius: radius.full,
+                background: colors.success,
                 animation: 'blink 2s ease-in-out infinite',
-                boxShadow: '0 0 8px #22c55e',
+                boxShadow: `0 0 8px ${colors.success}`,
               }} />
-              <span style={{ fontSize: 10, color: '#22c55e', fontWeight: 700 }}>SYSTEM READY</span>
+              <span style={{ fontSize: 10, color: colors.success, fontWeight: 700 }}>SYSTEM READY</span>
             </div>
             <div style={{
               padding: '6px 12px',
-              background: 'rgba(143,211,204,0.08)',
-              border: '1px solid rgba(143,211,204,0.2)',
-              borderRadius: 8,
+              background: `${brandCyan}14`,
+              border: `1px solid ${brandCyan}33`,
+              borderRadius: radius.md,
               fontSize: 10,
               color: brandCyan,
               fontWeight: 700,
@@ -857,10 +857,10 @@ const GameSection = memo(function GameSection() {
 
         {/* Main monitor display */}
         <div style={{
-          background: 'linear-gradient(180deg, rgba(26,31,46,0.9) 0%, rgba(13,17,23,0.95) 100%)',
-          borderRadius: 16,
-          padding: 24,
-          border: '1px solid rgba(143,211,204,0.1)',
+          background: labTech.backgrounds.card,
+          borderRadius: radius.xl,
+          padding: spacing[6],
+          border: `1px solid ${brandCyan}1A`,
           boxShadow: 'inset 0 0 60px rgba(0,0,0,0.4)',
           position: 'relative',
           overflow: 'hidden',
@@ -870,8 +870,8 @@ const GameSection = memo(function GameSection() {
             position: 'absolute',
             inset: 0,
             backgroundImage: `
-              linear-gradient(rgba(143,211,204,0.03) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(143,211,204,0.03) 1px, transparent 1px)
+              linear-gradient(${brandCyan}08 1px, transparent 1px),
+              linear-gradient(90deg, ${brandCyan}08 1px, transparent 1px)
             `,
             backgroundSize: '40px 40px',
             pointerEvents: 'none',
@@ -880,11 +880,11 @@ const GameSection = memo(function GameSection() {
 
           {/* Best experience notice - Lab Tech Style */}
           <div style={{
-            marginBottom: 24,
-            padding: 16,
-            background: 'linear-gradient(135deg, rgba(143,211,204,0.08), rgba(175,132,186,0.05))',
-            border: '1px solid rgba(143,211,204,0.2)',
-            borderRadius: 14,
+            marginBottom: spacing[6],
+            padding: spacing[4],
+            background: `linear-gradient(135deg, ${brandCyan}14, ${brandPurple}0D)`,
+            border: `1px solid ${brandCyan}33`,
+            borderRadius: radius.lg,
             display: 'flex',
             alignItems: 'center',
             gap: 16,
@@ -1002,10 +1002,10 @@ const GameSection = memo(function GameSection() {
             flexWrap: 'wrap',
           }}>
             {[
-              { color: '#22c55e', labelEn: 'FULL SUITE', labelAr: 'الباقة الكاملة', icon: '🧪' },
-              { color: '#3B82F6', labelEn: 'ATTENTION', labelAr: 'الانتباه', icon: '🎯' },
-              { color: '#8B5CF6', labelEn: 'FREQUENCY', labelAr: 'التردد', icon: '🎚️' },
-              { color: '#F59E0B', labelEn: 'SEQUENCE', labelAr: 'التسلسل', icon: '🏫' },
+              { color: colors.success, labelEn: 'FULL SUITE', labelAr: 'الباقة الكاملة', icon: '🧪' },
+              { color: colors.info, labelEn: 'ATTENTION', labelAr: 'الانتباه', icon: '🎯' },
+              { color: brandPurple, labelEn: 'FREQUENCY', labelAr: 'التردد', icon: '🎚️' },
+              { color: colors.warning, labelEn: 'SEQUENCE', labelAr: 'التسلسل', icon: '🏫' },
               { color: brandPink, labelEn: 'SURVEY', labelAr: 'الاستبيان', icon: '📝' },
             ].map((btn, i) => (
               <button
@@ -1057,11 +1057,11 @@ const GameSection = memo(function GameSection() {
       {lastOutcome && lastMeta && lastNext ? (
         <div style={{
           marginTop: 24,
-          padding: 20,
-          background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
-          borderRadius: 18,
+          padding: spacing[5],
+          background: labTech.backgrounds.primary,
+          borderRadius: radius.xl,
           boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
-          border: '1px solid rgba(143,211,204,0.12)',
+          border: `1px solid ${brandCyan}1F`,
           position: 'relative',
           overflow: 'hidden',
         }}>
@@ -1165,7 +1165,7 @@ const GameSection = memo(function GameSection() {
         open={mode === 'attention'}
         onClose={() => setMode(null)}
         title={isArabic ? '🎯 اختبار الانتباه' : '🎯 ATTENTION TEST'}
-        waveformColor="#3B82F6"
+        waveformColor={colors.info}
         waveformType="spo2"
         statusText={isTestActive ? (isArabic ? 'جارٍ الاختبار' : 'TESTING') : (isArabic ? 'جاهز' : 'READY')}
         isActive={isTestActive}
@@ -1201,7 +1201,7 @@ const GameSection = memo(function GameSection() {
         open={mode === 'frequency'}
         onClose={() => setMode(null)}
         title={isArabic ? '🎚️ اختبار التردد' : '🎚️ FREQUENCY TEST'}
-        waveformColor="#8B5CF6"
+        waveformColor={brandPurple}
         waveformType="audio"
         statusText={isTestActive ? (isArabic ? 'جارٍ الاختبار' : 'TESTING') : (isArabic ? 'جاهز' : 'READY')}
         isActive={isTestActive}
@@ -1237,7 +1237,7 @@ const GameSection = memo(function GameSection() {
         open={mode === 'sequence'}
         onClose={() => setMode(null)}
         title={isArabic ? '🏫 اختبار التسلسل' : '🏫 SEQUENCE TEST'}
-        waveformColor="#F59E0B"
+        waveformColor={colors.warning}
         waveformType="resp"
         statusText={isTestActive ? (isArabic ? 'جارٍ الاختبار' : 'TESTING') : (isArabic ? 'جاهز' : 'READY')}
         isActive={isTestActive}

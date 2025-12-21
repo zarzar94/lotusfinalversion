@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useCallback, memo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { brandPurple, brandCyan, brandPink, colors, radius, spacing, typography, transitions } from './styles';
+import { brandPurple, brandCyan, brandPink, brandPanel, colors, radius, spacing, typography, transitions } from './styles';
 import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon } from './Icons';
 import BrainLogo from './BrainLogo';
 import LanguageToggle from './LanguageToggle';
@@ -55,7 +55,7 @@ const NAV_ITEMS: NavItem[] = [
     translationKey: 'nav.results',
     path: '/results',
     icon: '📊',
-    color: '#22c55e',
+    color: colors.success,
     priority: { school: 2, parent: 3, clinician: 4 }, // Schools & Parents: want to see results
   },
   {
@@ -63,7 +63,7 @@ const NAV_ITEMS: NavItem[] = [
     translationKey: 'nav.resources',
     path: '/resources',
     icon: <HelpIcon size={16} />,
-    color: '#f59e0b',
+    color: colors.warning,
     priority: { school: 4, parent: 4, clinician: 5 },
   },
   {
@@ -154,16 +154,16 @@ const Header = memo(function Header() {
         50% { transform: translateY(-6px) rotate(2deg); }
       }
       @keyframes glow {
-        0%, 100% { filter: drop-shadow(0 0 15px rgba(143,211,204,0.4)) drop-shadow(0 0 30px rgba(175,132,186,0.3)); }
-        50% { filter: drop-shadow(0 0 25px rgba(143,211,204,0.6)) drop-shadow(0 0 50px rgba(175,132,186,0.5)); }
+        0%, 100% { filter: drop-shadow(0 0 15px ${brandCyan}66) drop-shadow(0 0 30px ${brandPurple}4D); }
+        50% { filter: drop-shadow(0 0 25px ${brandCyan}99) drop-shadow(0 0 50px ${brandPurple}80); }
       }
       @keyframes slideDown {
         from { opacity: 0; transform: translateY(-20px); }
         to { opacity: 1; transform: translateY(0); }
       }
       @keyframes activePulse {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(143,211,204,0.3); }
-        50% { box-shadow: 0 0 8px 2px rgba(143,211,204,0.2); }
+        0%, 100% { box-shadow: 0 0 0 0 ${brandCyan}4D; }
+        50% { box-shadow: 0 0 8px 2px ${brandCyan}33; }
       }
       @keyframes scanLine {
         0% { transform: translateX(-100%); }
@@ -203,24 +203,24 @@ const Header = memo(function Header() {
         50% { box-shadow: 0 0 25px ${brandCyan}40, inset 0 0 20px ${brandCyan}20; }
       }
       .brandGlow {
-        filter: drop-shadow(0 10px 30px rgba(143,211,204,0.18));
+        filter: drop-shadow(0 10px 30px ${brandCyan}2E);
       }
       .navPill:hover {
-        border-color: rgba(143,211,204,0.28);
-        background: rgba(143,211,204,0.08);
+        border-color: ${brandCyan}47;
+        background: ${brandCyan}14;
       }
       .headerBrainLogo {
         mix-blend-mode: screen;
-        filter: drop-shadow(0 0 15px rgba(143,211,204,0.5)) drop-shadow(0 0 30px rgba(175,132,186,0.3));
+        filter: drop-shadow(0 0 15px ${brandCyan}80) drop-shadow(0 0 30px ${brandPurple}4D);
       }
       .menuPanel {
         position: absolute;
-        right: 12px;
+        right: ${spacing[3]}px;
         top: 62px;
-        background: rgba(11,15,28,0.96);
-        border: 1px solid rgba(255,255,255,0.14);
-        border-radius: 16px;
-        padding: 12px;
+        background: ${brandPanel}F5;
+        border: 1px solid ${colors.border.emphasis};
+        border-radius: ${radius.xl}px;
+        padding: ${spacing[3]}px;
         min-width: 260px;
         box-shadow: 0 20px 70px rgba(0,0,0,0.45);
       }
@@ -252,7 +252,7 @@ const Header = memo(function Header() {
       }
       .nav-link.active {
         color: ${brandCyan};
-        background: rgba(143,211,204,0.1);
+        background: ${brandCyan}1A;
         text-shadow: 0 0 8px ${brandCyan}33;
         animation: energyPulse 2s ease-in-out infinite;
       }
@@ -415,29 +415,29 @@ const Header = memo(function Header() {
           <nav style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 6,
-            padding: '6px 10px',
-            background: 'rgba(13,17,23,0.5)',
-            borderRadius: 14,
-            border: '1px solid rgba(143,211,204,0.1)',
+            gap: spacing[1.5],
+            padding: `${spacing[1.5]}px ${spacing[2.5]}px`,
+            background: `${brandPanel}80`,
+            borderRadius: radius.lg,
+            border: `1px solid ${brandCyan}1A`,
           }}>
             {/* Lab status indicator */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 6,
-              padding: '4px 10px',
-              marginRight: isArabic ? undefined : 4,
-              marginLeft: isArabic ? 4 : undefined,
-              borderRight: isArabic ? undefined : '1px solid rgba(143,211,204,0.15)',
-              borderLeft: isArabic ? '1px solid rgba(143,211,204,0.15)' : undefined,
+              gap: spacing[1.5],
+              padding: `${spacing[1]}px ${spacing[2.5]}px`,
+              marginRight: isArabic ? undefined : spacing[1],
+              marginLeft: isArabic ? spacing[1] : undefined,
+              borderRight: isArabic ? undefined : `1px solid ${brandCyan}26`,
+              borderLeft: isArabic ? `1px solid ${brandCyan}26` : undefined,
             }}>
               <div style={{
                 width: 6,
                 height: 6,
-                borderRadius: '50%',
-                background: '#22c55e',
-                boxShadow: '0 0 8px #22c55e',
+                borderRadius: radius.full,
+                background: colors.success,
+                boxShadow: `0 0 8px ${colors.success}`,
                 animation: 'statusPulse 2s ease-in-out infinite',
               }} />
               <span style={{
@@ -542,19 +542,19 @@ const Header = memo(function Header() {
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
-            padding: '6px 10px',
-            background: 'rgba(13,17,23,0.5)',
-            borderRadius: 14,
-            border: '1px solid rgba(143,211,204,0.1)',
+            gap: spacing[2.5],
+            padding: `${spacing[1.5]}px ${spacing[2.5]}px`,
+            background: `${brandPanel}80`,
+            borderRadius: radius.lg,
+            border: `1px solid ${brandCyan}1A`,
           }}>
             {/* Mobile status dot */}
             <div style={{
               width: 6,
               height: 6,
-              borderRadius: '50%',
-              background: '#22c55e',
-              boxShadow: '0 0 6px #22c55e',
+              borderRadius: radius.full,
+              background: colors.success,
+              boxShadow: `0 0 6px ${colors.success}`,
               animation: 'statusPulse 2s ease-in-out infinite',
             }} />
             <ModeSwitcher />
@@ -632,9 +632,9 @@ const Header = memo(function Header() {
               <div style={{
                 width: 8,
                 height: 8,
-                borderRadius: '50%',
-                background: '#22c55e',
-                boxShadow: '0 0 8px #22c55e',
+                borderRadius: radius.full,
+                background: colors.success,
+                boxShadow: `0 0 8px ${colors.success}`,
               }} />
               <span style={{
                 fontSize: 10,
@@ -669,10 +669,10 @@ const Header = memo(function Header() {
               borderRadius: 12,
               background: isActivePath('/') && location.pathname === '/'
                 ? `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}10)`
-                : 'linear-gradient(135deg, rgba(143,211,204,0.05), rgba(175,132,186,0.05))',
+                : `linear-gradient(135deg, ${brandCyan}0D, ${brandPurple}0D)`,
               border: isActivePath('/') && location.pathname === '/'
                 ? `1px solid ${brandCyan}40`
-                : '1px solid rgba(255,255,255,0.08)',
+                : `1px solid ${colors.border.subtle}`,
               transition: 'all 0.2s ease',
             }}
           >
@@ -714,13 +714,13 @@ const Header = memo(function Header() {
                     ? `linear-gradient(135deg, ${brandCyan}15, ${brandPurple}10)`
                     : isPriority
                       ? `linear-gradient(135deg, ${visitorConfig.color}15, ${visitorConfig.color}08)`
-                      : `linear-gradient(135deg, rgba(143,211,204,${0.05 + index * 0.01}), rgba(175,132,186,${0.05 + index * 0.01}))`,
+                      : `linear-gradient(135deg, ${brandCyan}${Math.round((0.05 + index * 0.01) * 255).toString(16).padStart(2, '0')}, ${brandPurple}${Math.round((0.05 + index * 0.01) * 255).toString(16).padStart(2, '0')})`,
                   border: isActive
                     ? `1px solid ${brandCyan}40`
                     : isPriority
                       ? `1px solid ${visitorConfig.color}40`
-                      : '1px solid rgba(255,255,255,0.08)',
-                  transition: 'all 0.2s ease',
+                      : `1px solid ${colors.border.subtle}`,
+                  transition: transitions.fast,
                 }}
               >
                 {/* Priority badge */}
@@ -809,13 +809,13 @@ const Header = memo(function Header() {
 
           {/* Profile in Mobile Menu */}
           <div style={{
-            marginTop: 8,
-            paddingTop: 12,
-            borderTop: '1px solid rgba(255,255,255,0.08)',
+            marginTop: spacing[2],
+            paddingTop: spacing[3],
+            borderTop: `1px solid ${colors.border.subtle}`,
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            gap: 12,
+            gap: spacing[3],
           }}>
             <ProfileMenu onLoginClick={() => {
               setIsMobileMenuOpen(false);

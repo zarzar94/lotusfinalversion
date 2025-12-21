@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, memo } from 'react';
-import { brandCyan, brandPurple, brandPink } from './styles';
+import { brandCyan, brandPurple, brandPink, brandPanel, colors, labTech } from './styles';
 import { useLanguage } from '../context/LanguageContext';
 
 // Brain image component using the detailed PNG
@@ -11,7 +11,7 @@ const BrainImage = ({ size = 400 }: { size?: number }) => (
     height={size * 0.85}
     style={{
       objectFit: 'contain',
-      filter: 'drop-shadow(0 0 30px rgba(143,211,204,0.4)) drop-shadow(0 0 60px rgba(175,132,186,0.3))',
+      filter: `drop-shadow(0 0 30px ${brandCyan}66) drop-shadow(0 0 60px ${brandPurple}4D)`,
     }}
   />
 );
@@ -95,11 +95,11 @@ const HeroSection = memo(function HeroSection() {
     }
     @keyframes brainPulse {
       0%, 100% {
-        filter: drop-shadow(0 0 30px rgba(143,211,204,0.4)) drop-shadow(0 0 60px rgba(175,132,186,0.3));
+        filter: drop-shadow(0 0 30px ${brandCyan}66) drop-shadow(0 0 60px ${brandPurple}4D);
         transform: scale(1);
       }
       50% {
-        filter: drop-shadow(0 0 50px rgba(143,211,204,0.6)) drop-shadow(0 0 80px rgba(175,132,186,0.5));
+        filter: drop-shadow(0 0 50px ${brandCyan}99) drop-shadow(0 0 80px ${brandPurple}80);
         transform: scale(1.02);
       }
     }
@@ -339,7 +339,7 @@ const HeroSection = memo(function HeroSection() {
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 40%, rgba(8,10,18,1) 100%)',
+        background: labTech.backgrounds.hero,
       }}
     >
       <style>{css}</style>
@@ -367,8 +367,8 @@ const HeroSection = memo(function HeroSection() {
         position: 'absolute',
         inset: 0,
         backgroundImage: `
-          linear-gradient(rgba(143,211,204,0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(143,211,204,0.03) 1px, transparent 1px)
+          linear-gradient(${brandCyan}08 1px, transparent 1px),
+          linear-gradient(90deg, ${brandCyan}08 1px, transparent 1px)
         `,
         backgroundSize: '50px 50px',
         pointerEvents: 'none',
@@ -408,18 +408,18 @@ const HeroSection = memo(function HeroSection() {
           alignItems: 'center',
           gap: 8,
           padding: '10px 16px',
-          background: 'linear-gradient(135deg, rgba(13,17,23,0.9), rgba(20,25,35,0.85))',
+          background: `linear-gradient(135deg, ${brandPanel}E6, rgba(20,25,35,0.85))`,
           border: `1px solid ${brandCyan}40`,
           borderRadius: 8,
           backdropFilter: 'blur(15px)',
-          boxShadow: `0 4px 20px rgba(0,0,0,0.3), 0 0 30px ${brandCyan}10`,
+          boxShadow: `0 4px 20px rgba(0,0,0,0.3), 0 0 30px ${brandCyan}1A`,
         }}>
           <div style={{
             width: 10,
             height: 10,
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #22c55e, #10b981)',
-            boxShadow: '0 0 12px #22c55e, 0 0 24px #22c55e60',
+            background: `linear-gradient(135deg, ${colors.success}, #10b981)`,
+            boxShadow: `0 0 12px ${colors.success}, 0 0 24px ${colors.success}99`,
             animation: 'statusBlink 2s ease-in-out infinite',
           }} />
           <span style={{
@@ -436,7 +436,7 @@ const HeroSection = memo(function HeroSection() {
         </div>
         <div className="data-readout" style={{
           fontSize: 9,
-          color: 'rgba(255,255,255,0.4)',
+          color: colors.text.muted,
           fontFamily: '"JetBrains Mono", monospace',
           paddingLeft: 4,
           letterSpacing: 1,
@@ -461,11 +461,11 @@ const HeroSection = memo(function HeroSection() {
           alignItems: 'center',
           gap: 10,
           padding: '10px 16px',
-          background: 'linear-gradient(135deg, rgba(20,25,35,0.85), rgba(13,17,23,0.9))',
+          background: `linear-gradient(135deg, rgba(20,25,35,0.85), ${brandPanel}E6)`,
           border: `1px solid ${brandPurple}40`,
           borderRadius: 8,
           backdropFilter: 'blur(15px)',
-          boxShadow: `0 4px 20px rgba(0,0,0,0.3), 0 0 30px ${brandPurple}10`,
+          boxShadow: `0 4px 20px rgba(0,0,0,0.3), 0 0 30px ${brandPurple}1A`,
         }}>
           <span style={{
             fontSize: 10,
@@ -489,7 +489,7 @@ const HeroSection = memo(function HeroSection() {
         </div>
         <div className="data-readout" style={{
           fontSize: 9,
-          color: 'rgba(255,255,255,0.35)',
+          color: colors.text.disabled,
           fontFamily: '"JetBrains Mono", monospace',
           letterSpacing: 1,
         }}>
@@ -506,7 +506,7 @@ const HeroSection = memo(function HeroSection() {
         width: 500,
         height: 500,
         borderRadius: '50%',
-        border: `1px dashed rgba(143,211,204,0.1)`,
+        border: `1px dashed ${brandCyan}1A`,
         pointerEvents: 'none',
       }} className="orbit-trail" />
       <div style={{
@@ -517,7 +517,7 @@ const HeroSection = memo(function HeroSection() {
         width: 560,
         height: 560,
         borderRadius: '50%',
-        border: `1px dashed rgba(175,132,186,0.08)`,
+        border: `1px dashed ${brandPurple}14`,
         pointerEvents: 'none',
         animation: 'orbit 80s linear infinite',
       }} />
@@ -574,7 +574,7 @@ const HeroSection = memo(function HeroSection() {
           display: 'flex',
           justifyContent: 'center',
           paddingTop: 8,
-          background: 'rgba(13,17,23,0.5)',
+          background: `${brandPanel}80`,
         }}>
           <div style={{
             width: 4,
@@ -593,7 +593,7 @@ const HeroSection = memo(function HeroSection() {
         left: 0,
         right: 0,
         height: 100,
-        background: 'linear-gradient(to top, #0d1117, transparent)',
+        background: `linear-gradient(to top, ${brandPanel}, transparent)`,
         pointerEvents: 'none',
       }} />
     </section>

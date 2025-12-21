@@ -4,7 +4,7 @@ import { useFocusTrap } from '../hooks/useFocusTrap';
 import { pptxSlides } from '../data/pptxSlides';
 import { assetUrl } from '../utils/asset';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
-import { brandCyan, brandPink, brandPurple, styles, transitions, colors, radius, spacing, typography } from './styles';
+import { brandCyan, brandPink, brandPurple, brandPanel, styles, transitions, colors, radius, spacing, typography, labTech } from './styles';
 import { MicroscopeIcon, FlaskIcon, SearchIcon, DownloadIcon, XIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon } from './Icons';
 import { useLanguage } from '../context/LanguageContext';
 import { useVisitorMode, type VisitorMode } from '../context/VisitorModeContext';
@@ -183,8 +183,8 @@ const FlaskSlideCard = memo(({
         padding: '12px 12px 24px 12px',
         border: `2px solid ${isHovered ? brandCyan + '60' : 'rgba(100,100,120,0.2)'}`,
         boxShadow: isHovered
-          ? `0 15px 40px rgba(0,0,0,0.4), 0 0 30px ${brandCyan}20, inset 0 -10px 30px rgba(143,211,204,0.1)`
-          : '0 8px 25px rgba(0,0,0,0.3), inset 0 -10px 30px rgba(143,211,204,0.05)',
+          ? `0 15px 40px rgba(0,0,0,0.4), 0 0 30px ${brandCyan}20, inset 0 -10px 30px ${brandCyan}1A`
+          : '0 8px 25px rgba(0,0,0,0.3), inset 0 -10px 30px ${brandCyan}0D',
         transition: 'all 0.4s ease',
       }}>
         {/* Flask neck */}
@@ -236,8 +236,8 @@ const FlaskSlideCard = memo(({
             position: 'absolute',
             inset: 0,
             backgroundImage: `
-              linear-gradient(rgba(143,211,204,0.05) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(143,211,204,0.05) 1px, transparent 1px)
+              linear-gradient(${brandCyan}0D 1px, transparent 1px),
+              linear-gradient(90deg, ${brandCyan}0D 1px, transparent 1px)
             `,
             backgroundSize: '20px 20px',
             pointerEvents: 'none',
@@ -370,8 +370,8 @@ const MicroscopeModal = ({
           ...styles.modal,
           padding: 0,
           maxWidth: 900,
-          background: 'linear-gradient(180deg, #1a1f2e 0%, #0f1420 100%)',
-          border: '2px solid rgba(143,211,204,0.2)',
+          background: labTech.backgrounds.primary,
+          border: '2px solid ${brandCyan}33',
           borderRadius: 20,
           overflow: 'hidden',
         }}
@@ -380,7 +380,7 @@ const MicroscopeModal = ({
         <div style={{
           padding: '16px 20px',
           background: 'linear-gradient(90deg, rgba(40,45,60,0.9), rgba(30,35,50,0.9))',
-          borderBottom: '1px solid rgba(143,211,204,0.15)',
+          borderBottom: '1px solid ${brandCyan}26',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -461,7 +461,7 @@ const MicroscopeModal = ({
           <div style={{
             position: 'absolute',
             inset: 0,
-            background: isTransitioning ? 'rgba(143,211,204,0.1)' : 'transparent',
+            background: isTransitioning ? '${brandCyan}1A' : 'transparent',
             transition: 'background 0.2s ease',
             pointerEvents: 'none',
             zIndex: 10,
@@ -473,7 +473,7 @@ const MicroscopeModal = ({
             borderRadius: 16,
             overflow: 'hidden',
             border: '4px solid rgba(60,65,80,0.6)',
-            boxShadow: 'inset 0 0 50px rgba(0,0,0,0.8), 0 0 30px rgba(143,211,204,0.1)',
+            boxShadow: 'inset 0 0 50px rgba(0,0,0,0.8), 0 0 30px ${brandCyan}1A',
           }}>
             {/* Microscope circle overlay */}
             <div style={{
@@ -489,8 +489,8 @@ const MicroscopeModal = ({
               position: 'absolute',
               inset: 0,
               backgroundImage: `
-                linear-gradient(rgba(143,211,204,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(143,211,204,0.03) 1px, transparent 1px)
+                linear-gradient(${brandCyan}08 1px, transparent 1px),
+                linear-gradient(90deg, ${brandCyan}08 1px, transparent 1px)
               `,
               backgroundSize: '30px 30px',
               pointerEvents: 'none',
@@ -604,7 +604,7 @@ const MicroscopeModal = ({
               whiteSpace: 'pre-wrap',
               lineHeight: 1.7,
               background: 'rgba(15,22,41,0.7)',
-              border: '1px solid rgba(143,211,204,0.1)',
+              border: '1px solid ${brandCyan}1A',
               borderRadius: 12,
               padding: 14,
               fontFamily: 'inherit',
@@ -950,7 +950,7 @@ const SlideViewer = () => {
     }
     .category-filters {
       scrollbar-width: thin;
-      scrollbar-color: rgba(143,211,204,0.3) transparent;
+      scrollbar-color: ${brandCyan}4D transparent;
     }
     .category-filters::-webkit-scrollbar {
       height: 4px;
@@ -959,7 +959,7 @@ const SlideViewer = () => {
       background: transparent;
     }
     .category-filters::-webkit-scrollbar-thumb {
-      background: rgba(143,211,204,0.3);
+      background: ${brandCyan}4D;
       border-radius: 4px;
     }
     @media (max-width: 640px) {
@@ -1000,8 +1000,8 @@ const SlideViewer = () => {
         position: 'absolute',
         inset: 0,
         backgroundImage: `
-          linear-gradient(rgba(143,211,204,0.02) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(143,211,204,0.02) 1px, transparent 1px)
+          linear-gradient(${brandCyan}05 1px, transparent 1px),
+          linear-gradient(90deg, ${brandCyan}05 1px, transparent 1px)
         `,
         backgroundSize: '40px 40px',
         pointerEvents: 'none',
@@ -1017,8 +1017,8 @@ const SlideViewer = () => {
                 alignItems: 'center',
                 gap: 8,
                 padding: '8px 14px',
-                background: 'rgba(143,211,204,0.1)',
-                border: '1px solid rgba(143,211,204,0.2)',
+                background: '${brandCyan}1A',
+                border: '1px solid ${brandCyan}33',
                 borderRadius: 10,
               }}>
                 <FlaskIcon size={16} color={brandCyan} />
@@ -1184,7 +1184,7 @@ const SlideViewer = () => {
                       height: 12,
                       borderRadius: '50%',
                       background: visitorConfig.color,
-                      border: '2px solid #1a1f2e',
+                      border: `2px solid ${brandPanel}`,
                       animation: 'pulse 2s infinite',
                     }} />
                   )}
