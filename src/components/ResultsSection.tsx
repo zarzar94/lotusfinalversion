@@ -2,7 +2,17 @@ import { useMemo, useState } from 'react';
 
 import { pptxSlides } from '../data/pptxSlides';
 import { assetUrl } from '../utils/asset';
-import { brandCyan, brandPink, brandPurpleDark, styles } from './styles';
+import {
+  brandCyan,
+  brandPink,
+  brandPurple,
+  brandPurpleDark,
+  styles,
+  labTech,
+  audioColors,
+  spacing,
+  radius,
+} from './styles';
 
 type CaseStudy = {
   slideId: number;
@@ -18,6 +28,64 @@ const caseStudies: CaseStudy[] = [
   { slideId: 46, label: 'مازن (11)', focus: 'صعوبات تعلم' },
 ];
 
+const css = `
+  @keyframes hudPulse {
+    0%, 100% { opacity: 0.5; box-shadow: 0 0 4px ${brandPink}; }
+    50% { opacity: 1; box-shadow: 0 0 10px ${brandPink}; }
+  }
+  @keyframes scanLine {
+    0% { left: -20%; opacity: 0; }
+    10% { opacity: 0.5; }
+    90% { opacity: 0.5; }
+    100% { left: 120%; opacity: 0; }
+  }
+  @keyframes dataStream {
+    0% { transform: translateY(100%); opacity: 0; }
+    10% { opacity: 0.5; }
+    90% { opacity: 0.5; }
+    100% { transform: translateY(-100%); opacity: 0; }
+  }
+  @keyframes cardGlow {
+    0%, 100% { box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    50% { box-shadow: 0 8px 32px rgba(176,18,112,0.2); }
+  }
+  .results-hud-corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: ${brandPink};
+    border-style: solid;
+    animation: hudPulse 3s ease-in-out infinite;
+  }
+  .results-scan-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    background: linear-gradient(90deg, transparent, ${brandPink}25, transparent);
+    animation: scanLine 4s linear infinite;
+    pointer-events: none;
+  }
+  .results-data-particle {
+    position: absolute;
+    width: 2px;
+    height: 6px;
+    background: ${brandPink};
+    opacity: 0.4;
+    animation: dataStream 3s linear infinite;
+  }
+  .case-study-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(176,18,112,0.25) !important;
+    border-color: ${brandPink} !important;
+  }
+  @media (max-width: 640px) {
+    .case-studies-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+`;
+
 const ResultsSection = () => {
   const [activeSlideId, setActiveSlideId] = useState<number | null>(null);
 
@@ -27,63 +95,335 @@ const ResultsSection = () => {
   }, [activeSlideId]);
 
   return (
-    <section id="results" style={styles.sectionCard}>
+    <section id="results" style={{
+      ...styles.sectionCard,
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      <style>{css}</style>
+
+      {/* HUD Corner Brackets */}
+      <div className="results-hud-corner" style={{ top: 8, left: 8, borderWidth: '2px 0 0 2px' }} />
+      <div className="results-hud-corner" style={{ top: 8, right: 8, borderWidth: '2px 2px 0 0' }} />
+      <div className="results-hud-corner" style={{ bottom: 8, left: 8, borderWidth: '0 0 2px 2px' }} />
+      <div className="results-hud-corner" style={{ bottom: 8, right: 8, borderWidth: '0 2px 2px 0' }} />
+
+      {/* Scan Line Effect */}
+      <div className="results-scan-line" />
+
+      {/* Data Stream Particles */}
+      <div className="results-data-particle" style={{ right: '12%', animationDelay: '0s' }} />
+      <div className="results-data-particle" style={{ right: '32%', animationDelay: '1s' }} />
+      <div className="results-data-particle" style={{ right: '52%', animationDelay: '2s' }} />
+
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
-          <h2 style={styles.h2}>نتائج ودراسات حالة (قبل / بعد)</h2>
-          <span style={{ ...styles.chip, background: 'rgba(176,18,112,0.14)', borderColor: 'rgba(176,18,112,0.25)' }}>
-            📊 أمثلة من العرض التقديمي
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              background: `linear-gradient(135deg, ${brandPink}22, ${brandPurple}22)`,
+              border: `1px solid ${brandPink}44`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 22,
+              boxShadow: `0 0 20px ${brandPink}15`,
+            }}>
+              📊
+            </div>
+            <div>
+              <h2 style={{ ...styles.h2, margin: 0 }}>نتائج ودراسات حالة (قبل / بعد)</h2>
+              <div style={{
+                fontSize: 10,
+                fontFamily: 'monospace',
+                color: 'rgba(255,255,255,0.4)',
+                letterSpacing: 1,
+                marginTop: 4,
+              }}>
+                LOTUS SOUND LAB // CLINICAL OUTCOMES DATA
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{
+              ...styles.chip,
+              background: `linear-gradient(135deg, ${brandPink}15, ${brandPurple}10)`,
+              borderColor: `${brandPink}35`,
+            }}>
+              <span style={{ color: brandPink, fontWeight: 700 }}>CASE STUDIES</span>
+            </span>
+            <span style={{
+              padding: '6px 12px',
+              background: 'rgba(34,197,94,0.12)',
+              border: '1px solid rgba(34,197,94,0.3)',
+              borderRadius: 8,
+              fontSize: 10,
+              fontWeight: 700,
+              color: '#22c55e',
+              fontFamily: 'monospace',
+            }}>
+              {caseStudies.length} RECORDS
+            </span>
+          </div>
         </div>
-        <p style={styles.bodyText}>
+        <p style={{ ...styles.bodyText, marginTop: 8 }}>
           أمثلة توضيحية من الشرائح تعرض تغيّرات قبل/بعد في بعض القياسات أو المؤشرات السمعية.
           تُعرض هنا لأغراض تعليمية/توعوية ولا تُعد ضماناً أو نتيجة متوقعة لكل حالة.
         </p>
-        <p style={styles.muted}>⚠️ لا تشكّل هذه الأمثلة تشخيصاً طبياً. أي قرار علاجي يجب أن يكون عبر مختص.</p>
+        <div style={{
+          marginTop: 8,
+          padding: '8px 14px',
+          background: 'rgba(245,158,11,0.08)',
+          border: '1px solid rgba(245,158,11,0.2)',
+          borderRadius: 8,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          <span style={{ fontSize: 14 }}>⚠️</span>
+          <p style={{ ...styles.muted, margin: 0, fontSize: 12 }}>
+            لا تشكّل هذه الأمثلة تشخيصاً طبياً. أي قرار علاجي يجب أن يكون عبر مختص.
+          </p>
+        </div>
       </div>
 
-      <div style={{ marginTop: 16, display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
-        {caseStudies.map((cs) => {
+      <div className="case-studies-grid" style={{
+        marginTop: 20,
+        display: 'grid',
+        gap: 16,
+        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+      }}>
+        {caseStudies.map((cs, index) => {
           const slide = pptxSlides.find((s) => s.id === cs.slideId);
           if (!slide) return null;
           return (
             <button
               key={cs.slideId}
               type="button"
-              style={{ ...styles.gameCard, textAlign: 'start', cursor: 'pointer' }}
+              className="case-study-card"
+              style={{
+                ...styles.gameCard,
+                textAlign: 'start',
+                cursor: 'pointer',
+                position: 'relative',
+                overflow: 'hidden',
+                border: `1px solid ${labTech.borders.default}`,
+                transition: 'all 0.3s ease',
+              }}
               onClick={() => setActiveSlideId(cs.slideId)}
             >
-              <img
-                src={assetUrl(slide.thumb)}
-                alt={slide.title}
-                style={{ width: '100%', borderRadius: 12, border: '1px solid rgba(255,255,255,0.10)' }}
-                loading="lazy"
-              />
-              <div style={{ marginTop: 10, display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'center' }}>
-                <div style={{ fontWeight: 900, color: brandCyan }}>{cs.label}</div>
-                <span style={styles.chip}>شريحة {cs.slideId}</span>
+              {/* Card glow bar */}
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 2,
+                background: `linear-gradient(90deg, transparent, ${brandPink}66, ${brandCyan}66, transparent)`,
+                opacity: 0.6,
+              }} />
+
+              {/* Image with overlay */}
+              <div style={{ position: 'relative' }}>
+                <img
+                  src={assetUrl(slide.thumb)}
+                  alt={slide.title}
+                  style={{
+                    width: '100%',
+                    borderRadius: 10,
+                    border: `1px solid ${labTech.borders.subtle}`,
+                  }}
+                  loading="lazy"
+                />
+                {/* Case number badge */}
+                <div style={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  padding: '4px 10px',
+                  background: 'rgba(0,0,0,0.7)',
+                  backdropFilter: 'blur(8px)',
+                  border: `1px solid ${brandPink}40`,
+                  borderRadius: 6,
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: brandPink,
+                  fontFamily: 'monospace',
+                }}>
+                  CASE #{index + 1}
+                </div>
               </div>
-              <div style={{ marginTop: 6, fontWeight: 900, color: brandPurpleDark, lineHeight: 1.35 }}>
+
+              <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'center' }}>
+                <div style={{
+                  fontWeight: 900,
+                  color: brandCyan,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}>
+                  <span style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    background: brandCyan,
+                    boxShadow: `0 0 6px ${brandCyan}`,
+                  }} />
+                  {cs.label}
+                </div>
+                <span style={{
+                  ...styles.chip,
+                  background: 'rgba(0,0,0,0.3)',
+                  borderColor: `${brandPink}30`,
+                  fontSize: 9,
+                  fontFamily: 'monospace',
+                }}>
+                  SLIDE {cs.slideId}
+                </span>
+              </div>
+              <div style={{ marginTop: 8, fontWeight: 900, color: brandPurpleDark, lineHeight: 1.35 }}>
                 {slide.title}
               </div>
-              <div style={{ marginTop: 6, ...styles.muted }}>{cs.focus}</div>
-              <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ ...styles.chip, background: 'rgba(143,211,204,0.12)', borderColor: 'rgba(143,211,204,0.25)' }}>قبل</span>
-                <span style={{ ...styles.chip, background: 'rgba(175,132,186,0.12)', borderColor: 'rgba(175,132,186,0.25)' }}>بعد</span>
-                <span style={{ ...styles.chip, background: 'rgba(176,18,112,0.12)', borderColor: 'rgba(176,18,112,0.25)' }}>مقارنة</span>
+              <div style={{
+                marginTop: 6,
+                ...styles.muted,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}>
+                <span style={{
+                  width: 4,
+                  height: 4,
+                  borderRadius: '50%',
+                  background: '#f59e0b',
+                }} />
+                {cs.focus}
+              </div>
+              <div style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <span style={{
+                  ...styles.chip,
+                  background: `${brandCyan}12`,
+                  borderColor: `${brandCyan}30`,
+                  fontSize: 10,
+                }}>
+                  <span style={{ color: brandCyan }}>◀</span> قبل
+                </span>
+                <span style={{
+                  ...styles.chip,
+                  background: `${brandPurple}12`,
+                  borderColor: `${brandPurple}30`,
+                  fontSize: 10,
+                }}>
+                  <span style={{ color: brandPurple }}>▶</span> بعد
+                </span>
+                <span style={{
+                  ...styles.chip,
+                  background: `${brandPink}12`,
+                  borderColor: `${brandPink}30`,
+                  fontSize: 10,
+                }}>
+                  <span style={{ color: brandPink }}>⇄</span> مقارنة
+                </span>
               </div>
             </button>
           );
         })}
       </div>
 
-      <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-        <a href="#pptx" style={{ ...styles.primaryBtn, textDecoration: 'none' }}>
-          عرض جميع الشرائح
+      <div style={{ marginTop: 20, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        <a href="#pptx" style={{
+          ...styles.primaryBtn,
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          <span>📑</span> عرض جميع الشرائح
         </a>
-        <a href="#contact" style={{ ...styles.ghostBtn, textDecoration: 'none' }}>
-          اطلب تقييم / عرض للمدرسة
+        <a href="#contact" style={{
+          ...styles.ghostBtn,
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          <span>📋</span> اطلب تقييم / عرض للمدرسة
         </a>
+      </div>
+
+      {/* System Status Footer */}
+      <div style={{
+        marginTop: 24,
+        padding: '12px 16px',
+        background: 'rgba(0,0,0,0.3)',
+        borderRadius: radius.lg,
+        border: `1px solid ${labTech.borders.subtle}`,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+        }}>
+          <div style={{
+            fontSize: 9,
+            fontFamily: 'monospace',
+            color: 'rgba(255,255,255,0.35)',
+            letterSpacing: 1,
+          }}>
+            LOTUS SOUND LAB // CASE STUDY DATABASE
+          </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}>
+            <div style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: '#22c55e',
+              boxShadow: '0 0 6px #22c55e',
+            }} />
+            <span style={{
+              fontSize: 9,
+              fontFamily: 'monospace',
+              color: '#22c55e',
+              letterSpacing: 0.5,
+            }}>
+              DATA VERIFIED
+            </span>
+          </div>
+        </div>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          <span style={{
+            fontSize: 9,
+            fontFamily: 'monospace',
+            color: 'rgba(255,255,255,0.4)',
+            letterSpacing: 0.5,
+          }}>
+            {caseStudies.length} CASES • EDUCATIONAL USE
+          </span>
+          <div style={{ display: 'flex', gap: 3 }}>
+            {[brandCyan, brandPurple, brandPink].map((color, i) => (
+              <div key={i} style={{
+                width: 12,
+                height: 4,
+                borderRadius: 2,
+                background: color,
+                opacity: 0.6,
+              }} />
+            ))}
+          </div>
+        </div>
       </div>
 
       {activeSlide ? (

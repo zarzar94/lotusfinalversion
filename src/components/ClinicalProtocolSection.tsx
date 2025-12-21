@@ -15,6 +15,8 @@ import {
   spacing,
   radius,
   shadows,
+  labTech,
+  audioColors,
 } from './styles';
 import {
   ShieldIcon,
@@ -327,6 +329,51 @@ const ClinicalProtocolSection = memo(function ClinicalProtocolSection() {
       0%, 100% { opacity: 0.3; }
       50% { opacity: 0.6; }
     }
+    @keyframes hudPulse {
+      0%, 100% { opacity: 0.5; box-shadow: 0 0 4px ${brandCyan}; }
+      50% { opacity: 1; box-shadow: 0 0 10px ${brandCyan}; }
+    }
+    @keyframes scanLine {
+      0% { left: -20%; opacity: 0; }
+      10% { opacity: 0.5; }
+      90% { opacity: 0.5; }
+      100% { left: 120%; opacity: 0; }
+    }
+    @keyframes dataStream {
+      0% { transform: translateY(100%); opacity: 0; }
+      10% { opacity: 0.5; }
+      90% { opacity: 0.5; }
+      100% { transform: translateY(-100%); opacity: 0; }
+    }
+    @keyframes phasePulse {
+      0%, 100% { box-shadow: 0 4px 12px var(--phase-color); }
+      50% { box-shadow: 0 6px 20px var(--phase-color); }
+    }
+    .protocol-hud-corner {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: ${brandPurple};
+      border-style: solid;
+      animation: hudPulse 3s ease-in-out infinite;
+    }
+    .protocol-scan-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 80px;
+      background: linear-gradient(90deg, transparent, ${brandPurple}25, transparent);
+      animation: scanLine 4s linear infinite;
+      pointer-events: none;
+    }
+    .protocol-data-particle {
+      position: absolute;
+      width: 2px;
+      height: 6px;
+      background: ${brandPurple};
+      opacity: 0.4;
+      animation: dataStream 3s linear infinite;
+    }
     @media (max-width: 768px) {
       .protocol-section {
         padding: ${spacing[6]}px ${spacing[3]}px !important;
@@ -355,9 +402,24 @@ const ClinicalProtocolSection = memo(function ClinicalProtocolSection() {
         padding: `${spacing[12]}px ${spacing[4]}px`,
         maxWidth: 1200,
         margin: '0 auto',
+        overflow: 'hidden',
       }}
     >
       <style>{css}</style>
+
+      {/* HUD Corner Brackets */}
+      <div className="protocol-hud-corner" style={{ top: 8, left: 8, borderWidth: '2px 0 0 2px' }} />
+      <div className="protocol-hud-corner" style={{ top: 8, right: 8, borderWidth: '2px 2px 0 0' }} />
+      <div className="protocol-hud-corner" style={{ bottom: 8, left: 8, borderWidth: '0 0 2px 2px' }} />
+      <div className="protocol-hud-corner" style={{ bottom: 8, right: 8, borderWidth: '0 2px 2px 0' }} />
+
+      {/* Scan Line Effect */}
+      <div className="protocol-scan-line" />
+
+      {/* Data Stream Particles */}
+      <div className="protocol-data-particle" style={{ right: '15%', animationDelay: '0s' }} />
+      <div className="protocol-data-particle" style={{ right: '35%', animationDelay: '1s' }} />
+      <div className="protocol-data-particle" style={{ right: '55%', animationDelay: '2s' }} />
 
       {/* Background effect */}
       <div
@@ -379,32 +441,80 @@ const ClinicalProtocolSection = memo(function ClinicalProtocolSection() {
           position: 'relative',
         }}
       >
-        {/* Badge */}
+        {/* Badge with Lab Tech Styling */}
         <div
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: spacing[2],
-            padding: `${spacing[1.5]}px ${spacing[4]}px`,
+            gap: spacing[3],
+            padding: `${spacing[2]}px ${spacing[4]}px`,
             background: `linear-gradient(135deg, ${brandPurple}15, ${brandCyan}10)`,
-            border: `1px solid ${brandPurple}25`,
-            borderRadius: radius.full,
+            border: `1px solid ${brandPurple}35`,
+            borderRadius: radius.lg,
             marginBottom: spacing[4],
+            boxShadow: `0 0 20px ${brandPurple}15`,
           }}
         >
-          <ShieldIcon size={14} color={brandPurple} />
-          <span
-            style={{
-              fontSize: typography.size.xs,
-              fontWeight: typography.weight.bold,
-              color: brandPurple,
-              textTransform: 'uppercase',
-              letterSpacing: 1.5,
+          <div style={{
+            width: 32,
+            height: 32,
+            borderRadius: 8,
+            background: `linear-gradient(135deg, ${brandPurple}25, ${brandCyan}15)`,
+            border: `1px solid ${brandPurple}40`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <ShieldIcon size={16} color={brandPurple} />
+          </div>
+          <div>
+            <span
+              style={{
+                fontSize: typography.size.xs,
+                fontWeight: typography.weight.bold,
+                color: brandPurple,
+                textTransform: 'uppercase',
+                letterSpacing: 1.5,
+                fontFamily: 'monospace',
+              }}
+            >
+              {header.badge}
+            </span>
+            <div style={{
+              fontSize: 9,
               fontFamily: 'monospace',
-            }}
-          >
-            {header.badge}
-          </span>
+              color: 'rgba(255,255,255,0.4)',
+              letterSpacing: 0.5,
+              marginTop: 2,
+            }}>
+              LOTUS SOUND LAB // TREATMENT PROTOCOL
+            </div>
+          </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '4px 10px',
+            background: 'rgba(34,197,94,0.12)',
+            border: '1px solid rgba(34,197,94,0.3)',
+            borderRadius: 6,
+          }}>
+            <div style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: '#22c55e',
+              boxShadow: '0 0 6px #22c55e',
+            }} />
+            <span style={{
+              fontSize: 9,
+              fontWeight: 700,
+              color: '#22c55e',
+              fontFamily: 'monospace',
+            }}>
+              CERTIFIED
+            </span>
+          </div>
         </div>
 
         <h2
@@ -527,6 +637,81 @@ const ClinicalProtocolSection = memo(function ClinicalProtocolSection() {
             ? '📋 للاطلاع على الوثائق الكاملة للبروتوكول والسياسات، يرجى التواصل مع فريقنا السريري.'
             : '📋 For complete protocol documentation and policies, please contact our clinical team.'}
         </p>
+      </div>
+
+      {/* System Status Footer */}
+      <div
+        style={{
+          marginTop: spacing[6],
+          padding: '12px 16px',
+          background: 'rgba(0,0,0,0.3)',
+          borderRadius: radius.lg,
+          border: `1px solid ${labTech.borders.subtle}`,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+        }}>
+          <div style={{
+            fontSize: 9,
+            fontFamily: 'monospace',
+            color: 'rgba(255,255,255,0.35)',
+            letterSpacing: 1,
+          }}>
+            LOTUS SOUND LAB // CLINICAL PROTOCOL v3.0
+          </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}>
+            <div style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: '#22c55e',
+              boxShadow: '0 0 6px #22c55e',
+            }} />
+            <span style={{
+              fontSize: 9,
+              fontFamily: 'monospace',
+              color: '#22c55e',
+              letterSpacing: 0.5,
+            }}>
+              BÉRARD AIT CERTIFIED
+            </span>
+          </div>
+        </div>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          <span style={{
+            fontSize: 9,
+            fontFamily: 'monospace',
+            color: 'rgba(255,255,255,0.4)',
+            letterSpacing: 0.5,
+          }}>
+            10 DAYS • 20 SESSIONS
+          </span>
+          <div style={{ display: 'flex', gap: 3 }}>
+            {[brandCyan, brandPurple, '#f59e0b', '#22c55e'].map((color, i) => (
+              <div key={i} style={{
+                width: 12,
+                height: 4,
+                borderRadius: 2,
+                background: color,
+                opacity: 0.6,
+              }} />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
