@@ -16,6 +16,7 @@ import {
   transitions,
   shadows,
 } from '../styles';
+import { useLanguage } from '../../context/LanguageContext';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -102,12 +103,12 @@ export const PRESET_GOALS: Omit<Goal, 'id' | 'status' | 'current' | 'startDate' 
   {
     type: 'points',
     title: 'Point Collector',
-    titleAr: 'جامع النقاط',
+    titleAr: 'auto.GoalSetting.k22',
     description: 'Earn 500 points this week',
-    descriptionAr: 'اجمع 500 نقطة هذا الأسبوع',
+    descriptionAr: 'auto.GoalSetting.k23',
     target: 500,
     unit: 'points',
-    unitAr: 'نقطة',
+    unitAr: 'auto.GoalSetting.k24',
     period: 'weekly',
     icon: '⭐',
     reward: { type: 'points', value: 50, icon: '🎁' },
@@ -115,12 +116,12 @@ export const PRESET_GOALS: Omit<Goal, 'id' | 'status' | 'current' | 'startDate' 
   {
     type: 'sessions',
     title: 'Daily Champion',
-    titleAr: 'بطل اليوم',
+    titleAr: 'auto.GoalSetting.k25',
     description: 'Complete 1 session today',
-    descriptionAr: 'أكمل جلسة واحدة اليوم',
+    descriptionAr: 'auto.GoalSetting.k26',
     target: 1,
     unit: 'sessions',
-    unitAr: 'جلسة',
+    unitAr: 'auto.GoalSetting.k27',
     period: 'daily',
     icon: '🎯',
     reward: { type: 'points', value: 10, icon: '✨' },
@@ -128,12 +129,12 @@ export const PRESET_GOALS: Omit<Goal, 'id' | 'status' | 'current' | 'startDate' 
   {
     type: 'sessions',
     title: 'Weekly Warrior',
-    titleAr: 'محارب الأسبوع',
+    titleAr: 'auto.GoalSetting.k28',
     description: 'Complete 5 sessions this week',
-    descriptionAr: 'أكمل 5 جلسات هذا الأسبوع',
+    descriptionAr: 'auto.GoalSetting.k29',
     target: 5,
     unit: 'sessions',
-    unitAr: 'جلسات',
+    unitAr: 'auto.GoalSetting.k30',
     period: 'weekly',
     icon: '⚔️',
     reward: { type: 'badge', value: 'Weekly Warrior', icon: '🏅' },
@@ -141,12 +142,12 @@ export const PRESET_GOALS: Omit<Goal, 'id' | 'status' | 'current' | 'startDate' 
   {
     type: 'streak',
     title: 'Streak Builder',
-    titleAr: 'بناء الاستمرارية',
+    titleAr: 'auto.GoalSetting.k31',
     description: 'Maintain a 7-day streak',
-    descriptionAr: 'حافظ على استمرارية 7 أيام',
+    descriptionAr: 'auto.GoalSetting.k32',
     target: 7,
     unit: 'days',
-    unitAr: 'أيام',
+    unitAr: 'auto.GoalSetting.k33',
     period: 'weekly',
     icon: '🔥',
     reward: { type: 'badge', value: 'Fire Keeper', icon: '🔥' },
@@ -154,9 +155,9 @@ export const PRESET_GOALS: Omit<Goal, 'id' | 'status' | 'current' | 'startDate' 
   {
     type: 'score',
     title: 'Score Improver',
-    titleAr: 'محسن الدرجات',
+    titleAr: 'auto.GoalSetting.k34',
     description: 'Reach 80% attention score',
-    descriptionAr: 'وصول لدرجة انتباه 80%',
+    descriptionAr: 'auto.GoalSetting.k35',
     target: 80,
     unit: '%',
     unitAr: '%',
@@ -167,12 +168,12 @@ export const PRESET_GOALS: Omit<Goal, 'id' | 'status' | 'current' | 'startDate' 
   {
     type: 'points',
     title: 'Monthly Master',
-    titleAr: 'سيد الشهر',
+    titleAr: 'auto.GoalSetting.k36',
     description: 'Earn 2000 points this month',
-    descriptionAr: 'اجمع 2000 نقطة هذا الشهر',
+    descriptionAr: 'auto.GoalSetting.k37',
     target: 2000,
     unit: 'points',
-    unitAr: 'نقطة',
+    unitAr: 'auto.GoalSetting.k38',
     period: 'monthly',
     icon: '👑',
     reward: { type: 'badge', value: 'Monthly Master', icon: '👑' },
@@ -180,12 +181,12 @@ export const PRESET_GOALS: Omit<Goal, 'id' | 'status' | 'current' | 'startDate' 
   {
     type: 'time',
     title: 'Practice Pro',
-    titleAr: 'محترف التدريب',
+    titleAr: 'auto.GoalSetting.k39',
     description: 'Practice for 30 minutes daily',
-    descriptionAr: 'تدرب لمدة 30 دقيقة يومياً',
+    descriptionAr: 'auto.GoalSetting.k40',
     target: 30,
     unit: 'min',
-    unitAr: 'دقيقة',
+    unitAr: 'auto.GoalSetting.k41',
     period: 'daily',
     icon: '⏱️',
     reward: { type: 'points', value: 25, icon: '⏱️' },
@@ -201,13 +202,13 @@ export const MOCK_GOALS: Goal[] = [
     id: 'goal_1',
     type: 'points',
     title: 'Weekly Points',
-    titleAr: 'نقاط الأسبوع',
+    titleAr: 'auto.GoalSetting.k42',
     description: 'Earn 1000 points this week',
-    descriptionAr: 'اجمع 1000 نقطة هذا الأسبوع',
+    descriptionAr: 'auto.GoalSetting.k43',
     target: 1000,
     current: 720,
     unit: 'points',
-    unitAr: 'نقطة',
+    unitAr: 'auto.GoalSetting.k44',
     period: 'weekly',
     startDate: Date.now() - 86400000 * 3,
     createdBy: 'self',
@@ -220,11 +221,11 @@ export const MOCK_GOALS: Goal[] = [
     id: 'goal_2',
     type: 'sessions',
     title: 'Daily Session',
-    titleAr: 'جلسة اليوم',
+    titleAr: 'auto.GoalSetting.k45',
     target: 1,
     current: 1,
     unit: 'session',
-    unitAr: 'جلسة',
+    unitAr: 'auto.GoalSetting.k46',
     period: 'daily',
     startDate: Date.now(),
     createdBy: 'self',
@@ -238,11 +239,11 @@ export const MOCK_GOALS: Goal[] = [
     id: 'goal_3',
     type: 'streak',
     title: '7-Day Streak',
-    titleAr: 'استمرارية 7 أيام',
+    titleAr: 'auto.GoalSetting.k47',
     target: 7,
     current: 5,
     unit: 'days',
-    unitAr: 'أيام',
+    unitAr: 'auto.GoalSetting.k48',
     period: 'weekly',
     startDate: Date.now() - 86400000 * 5,
     createdBy: 'parent',
@@ -254,9 +255,9 @@ export const MOCK_GOALS: Goal[] = [
     id: 'goal_4',
     type: 'score',
     title: 'Attention Target',
-    titleAr: 'هدف الانتباه',
+    titleAr: 'auto.GoalSetting.k49',
     description: 'Reach 85% attention score',
-    descriptionAr: 'وصول لدرجة انتباه 85%',
+    descriptionAr: 'auto.GoalSetting.k50',
     target: 85,
     current: 78,
     unit: '%',
@@ -380,21 +381,22 @@ export const GoalCard = memo(({
   onDelete,
   variant = 'default',
 }: GoalCardProps) => {
+  const { t } = useLanguage();
   const progress = Math.min((goal.current / goal.target) * 100, 100);
   const isComplete = goal.status === 'completed' || goal.current >= goal.target;
   const color = goal.color || brandCyan;
 
   const periodLabels = {
-    daily: { en: 'Today', ar: 'اليوم' },
-    weekly: { en: 'This Week', ar: 'هذا الأسبوع' },
-    monthly: { en: 'This Month', ar: 'هذا الشهر' },
-    custom: { en: 'Custom', ar: 'مخصص' },
+    daily: { en: 'Today', ar: 'auto.GoalSetting.k51' },
+    weekly: { en: 'This Week', ar: 'auto.GoalSetting.k52' },
+    monthly: { en: 'This Month', ar: 'auto.GoalSetting.k53' },
+    custom: { en: 'Custom', ar: 'auto.GoalSetting.k54' },
   };
 
   const creatorLabels = {
-    self: { en: 'Personal', ar: 'شخصي' },
-    parent: { en: 'Set by Parent', ar: 'من الوالدين' },
-    clinician: { en: 'Clinical Target', ar: 'هدف علاجي' },
+    self: { en: 'Personal', ar: 'auto.GoalSetting.k55' },
+    parent: { en: 'Set by Parent', ar: 'auto.GoalSetting.k56' },
+    clinician: { en: 'Clinical Target', ar: 'auto.GoalSetting.k57' },
   };
 
   if (variant === 'compact') {
@@ -423,13 +425,13 @@ export const GoalCard = memo(({
             fontWeight: typography.weight.bold,
             color: isComplete ? color : colors.text.primary,
           }}>
-            {isArabic ? goal.titleAr : goal.title}
+            {isArabic ? t(goal.titleAr, goal.title) : goal.title}
           </div>
           <div style={{
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {goal.current}/{goal.target} {isArabic ? goal.unitAr : goal.unit}
+            {goal.current}/{goal.target} {isArabic ? t(goal.unitAr, goal.unit) : goal.unit}
           </div>
         </div>
         {isComplete && (
@@ -461,7 +463,7 @@ export const GoalCard = memo(({
           fontWeight: typography.weight.bold,
           color: 'white',
         }}>
-          ✓ {isArabic ? 'مكتمل' : 'Complete'}
+          ✓ {t('auto.GoalSetting.k1', "Complete")}
         </div>
       )}
 
@@ -491,7 +493,7 @@ export const GoalCard = memo(({
             fontWeight: typography.weight.bold,
             color: colors.text.primary,
           }}>
-            {isArabic ? goal.titleAr : goal.title}
+            {isArabic ? t(goal.titleAr, goal.title) : goal.title}
           </h4>
           {goal.description && (
             <p style={{
@@ -499,7 +501,7 @@ export const GoalCard = memo(({
               fontSize: typography.size.xs,
               color: colors.text.secondary,
             }}>
-              {isArabic ? goal.descriptionAr : goal.description}
+              {isArabic ? t(goal.descriptionAr, goal.description) : goal.description}
             </p>
           )}
         </div>
@@ -523,7 +525,7 @@ export const GoalCard = memo(({
             fontSize: typography.size.sm,
             color: colors.text.muted,
           }}>
-            / {goal.target} {isArabic ? goal.unitAr : goal.unit}
+            / {goal.target} {isArabic ? t(goal.unitAr, goal.unit) : goal.unit}
           </span>
         </div>
         <div style={{
@@ -590,7 +592,7 @@ export const GoalCard = memo(({
             <span>
               {goal.reward.type === 'points'
                 ? `+${goal.reward.value}`
-                : isArabic ? 'مكافأة' : 'Reward'}
+                : t('auto.GoalSetting.k2', "Reward")}
             </span>
           </div>
         )}
@@ -617,7 +619,7 @@ export const GoalCard = memo(({
                 cursor: 'pointer',
               }}
             >
-              {isArabic ? 'تعديل' : 'Edit'}
+              {t('auto.GoalSetting.k3', "Edit")}
             </button>
           )}
           {onDelete && (
@@ -633,7 +635,7 @@ export const GoalCard = memo(({
                 cursor: 'pointer',
               }}
             >
-              {isArabic ? 'حذف' : 'Delete'}
+              {t('auto.GoalSetting.k4', "Delete")}
             </button>
           )}
         </div>
@@ -657,6 +659,7 @@ export const GoalList = memo(({
   title,
   titleAr,
 }: GoalListProps) => {
+  const { t } = useLanguage();
   const filteredGoals = useMemo(() => {
     if (showCompleted) return goals;
     return goals.filter(g => g.status !== 'completed');
@@ -678,7 +681,7 @@ export const GoalList = memo(({
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-            <span>{isArabic ? titleAr : title}</span>
+            <span>{isArabic ? t(titleAr, title) : title}</span>
             <span style={{
               fontSize: typography.size.xs,
               fontWeight: typography.weight.normal,
@@ -717,14 +720,14 @@ export const GoalList = memo(({
             fontWeight: typography.weight.bold,
             color: colors.text.primary,
           }}>
-            🎯 {isArabic ? titleAr : title}
+            🎯 {isArabic ? t(titleAr, title) : title}
           </h3>
           <span style={{
             fontSize: typography.size.sm,
             color: brandCyan,
             fontWeight: typography.weight.bold,
           }}>
-            {completedGoals.length}/{goals.length} {isArabic ? 'مكتمل' : 'completed'}
+            {completedGoals.length}/{goals.length} {t('auto.GoalSetting.k5', "completed")}
           </span>
         </div>
       )}
@@ -740,7 +743,7 @@ export const GoalList = memo(({
             textTransform: 'uppercase',
             letterSpacing: 1,
           }}>
-            {isArabic ? 'أهداف نشطة' : 'Active Goals'}
+            {t('auto.GoalSetting.k6', "Active Goals")}
           </h4>
           <div style={{
             display: variant === 'grid' ? 'grid' : 'flex',
@@ -771,7 +774,7 @@ export const GoalList = memo(({
             fontWeight: typography.weight.bold,
             color: colors.text.muted,
           }}>
-            ✅ {isArabic ? 'أهداف مكتملة' : 'Completed'}
+            ✅ {t('auto.GoalSetting.k7', "Completed")}
           </h4>
           <div style={{
             display: 'flex',
@@ -799,7 +802,7 @@ export const GoalList = memo(({
         }}>
           <div style={{ fontSize: 48, marginBottom: spacing[3] }}>🎯</div>
           <p style={{ margin: 0 }}>
-            {isArabic ? 'لا توجد أهداف حالية. أنشئ هدفاً جديداً!' : 'No goals yet. Create one to get started!'}
+            {t('auto.GoalSetting.k8', "No goals yet. Create one to get started!")}
           </p>
         </div>
       )}
@@ -817,6 +820,7 @@ export const GoalCreator = memo(({
   isArabic = false,
   creatorRole = 'self',
 }: GoalCreatorProps) => {
+  const { t } = useLanguage();
   const [showForm, setShowForm] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<typeof PRESET_GOALS[0] | null>(null);
   const [customTarget, setCustomTarget] = useState('');
@@ -863,7 +867,7 @@ export const GoalCreator = memo(({
         }}
       >
         <span style={{ fontSize: 20 }}>➕</span>
-        {isArabic ? 'إنشاء هدف جديد' : 'Create New Goal'}
+        {t('auto.GoalSetting.k9', "Create New Goal")}
       </button>
     );
   }
@@ -887,7 +891,7 @@ export const GoalCreator = memo(({
           fontWeight: typography.weight.bold,
           color: colors.text.primary,
         }}>
-          {isArabic ? 'اختر هدفاً' : 'Choose a Goal'}
+          {t('auto.GoalSetting.k10', "Choose a Goal")}
         </h4>
         <button
           onClick={() => {
@@ -935,14 +939,14 @@ export const GoalCreator = memo(({
                 fontWeight: typography.weight.bold,
                 color: isSelected ? brandCyan : colors.text.primary,
               }}>
-                {isArabic ? preset.titleAr : preset.title}
+                {isArabic ? t(preset.titleAr, preset.title) : preset.title}
               </div>
               <div style={{
                 fontSize: typography.size.xs,
                 color: colors.text.muted,
                 marginTop: 2,
               }}>
-                {preset.target} {isArabic ? preset.unitAr : preset.unit}
+                {preset.target} {isArabic ? t(preset.unitAr, preset.unit) : preset.unit}
               </div>
             </button>
           );
@@ -959,7 +963,7 @@ export const GoalCreator = memo(({
             color: colors.text.secondary,
             marginBottom: spacing[2],
           }}>
-            {isArabic ? 'تخصيص الهدف' : 'Customize Target'}
+            {t('auto.GoalSetting.k11', "Customize Target")}
           </label>
           <div style={{
             display: 'flex',
@@ -984,7 +988,7 @@ export const GoalCreator = memo(({
               fontSize: typography.size.sm,
               color: colors.text.muted,
             }}>
-              {isArabic ? selectedPreset.unitAr : selectedPreset.unit}
+              {isArabic ? t(selectedPreset.unitAr, selectedPreset.unit) : selectedPreset.unit}
             </span>
           </div>
         </div>
@@ -1009,7 +1013,7 @@ export const GoalCreator = memo(({
           transition: transitions.fast,
         }}
       >
-        {isArabic ? 'إنشاء الهدف' : 'Create Goal'}
+        {t('auto.GoalSetting.k12', "Create Goal")}
       </button>
     </div>
   );
@@ -1024,6 +1028,7 @@ export const GoalSummary = memo(({
   goals,
   isArabic = false,
 }: GoalSummaryProps) => {
+  const { t } = useLanguage();
   const stats = useMemo(() => {
     const active = goals.filter(g => g.status === 'active');
     const completed = goals.filter(g => g.status === 'completed');
@@ -1058,7 +1063,7 @@ export const GoalSummary = memo(({
           fontWeight: typography.weight.bold,
           color: colors.text.primary,
         }}>
-          {isArabic ? 'ملخص الأهداف' : 'Goal Summary'}
+          {t('auto.GoalSetting.k13', "Goal Summary")}
         </h4>
       </div>
 
@@ -1079,7 +1084,7 @@ export const GoalSummary = memo(({
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {isArabic ? 'نشط' : 'Active'}
+            {t('auto.GoalSetting.k14', "Active")}
           </div>
         </div>
         <div style={{ textAlign: 'center' }}>
@@ -1094,7 +1099,7 @@ export const GoalSummary = memo(({
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {isArabic ? 'مكتمل' : 'Done'}
+            {t('auto.GoalSetting.k15', "Done")}
           </div>
         </div>
         <div style={{ textAlign: 'center' }}>
@@ -1109,7 +1114,7 @@ export const GoalSummary = memo(({
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {isArabic ? 'متوسط التقدم' : 'Avg Progress'}
+            {t('auto.GoalSetting.k16', "Avg Progress")}
           </div>
         </div>
         <div style={{ textAlign: 'center' }}>
@@ -1124,7 +1129,7 @@ export const GoalSummary = memo(({
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {isArabic ? 'قريب من الإنجاز' : 'Almost Done'}
+            {t('auto.GoalSetting.k17', "Almost Done")}
           </div>
         </div>
       </div>
@@ -1142,6 +1147,7 @@ export const GoalCelebration = memo(({
   isArabic = false,
   onClose,
 }: GoalCelebrationProps) => {
+  const { t } = useLanguage();
   const css = `
     @keyframes goalCelebrate {
       0% { opacity: 0; transform: scale(0.5) rotate(-10deg); }
@@ -1250,7 +1256,7 @@ export const GoalCelebration = memo(({
             letterSpacing: 2,
             marginBottom: spacing[2],
           }}>
-            {isArabic ? '🎉 هدف مكتمل!' : '🎉 Goal Complete!'}
+            {t('auto.GoalSetting.k18', "🎉 Goal Complete!")}
           </div>
           <h2 style={{
             margin: `0 0 ${spacing[3]}px`,
@@ -1258,7 +1264,7 @@ export const GoalCelebration = memo(({
             fontWeight: typography.weight.black,
             color: colors.text.primary,
           }}>
-            {isArabic ? goal.titleAr : goal.title}
+            {isArabic ? t(goal.titleAr, goal.title) : goal.title}
           </h2>
           <p style={{
             margin: `0 0 ${spacing[5]}px`,
@@ -1285,7 +1291,7 @@ export const GoalCelebration = memo(({
                 fontWeight: typography.weight.bold,
                 marginBottom: spacing[2],
               }}>
-                🎁 {isArabic ? 'مكافأتك' : 'Your Reward'}
+                🎁 {t('auto.GoalSetting.k19', "Your Reward")}
               </div>
               <div style={{
                 display: 'flex',
@@ -1300,7 +1306,7 @@ export const GoalCelebration = memo(({
                   color: colors.text.primary,
                 }}>
                   {goal.reward.type === 'points'
-                    ? `+${goal.reward.value} ${isArabic ? 'نقطة' : 'points'}`
+                    ? `+${goal.reward.value} ${t('auto.GoalSetting.k20', "points")}`
                     : goal.reward.value}
                 </span>
               </div>
@@ -1323,7 +1329,7 @@ export const GoalCelebration = memo(({
               transition: transitions.fast,
             }}
           >
-            {isArabic ? 'استمر!' : 'Keep Going!'}
+            {t('auto.GoalSetting.k21', "Keep Going!")}
           </button>
         </div>
       </div>

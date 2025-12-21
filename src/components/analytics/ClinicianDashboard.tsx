@@ -31,6 +31,7 @@ import {
   shadows,
   transitions,
 } from '../styles';
+import LongitudinalCharts from '../dashboards/LongitudinalCharts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -66,7 +67,7 @@ const MOCK_PATIENTS: PatientData[] = [
   {
     id: 'patient_1',
     name: 'Ahmed Hassan',
-    nameAr: 'أحمد حسن',
+    nameAr: 'auto.ClinicianDashboard.k34',
     email: 'ahmed@example.com',
     age: 9,
     startDate: Date.now() - 86400000 * 35,
@@ -87,7 +88,7 @@ const MOCK_PATIENTS: PatientData[] = [
   {
     id: 'patient_2',
     name: 'Sara Ali',
-    nameAr: 'سارة علي',
+    nameAr: 'auto.ClinicianDashboard.k35',
     email: 'sara@example.com',
     age: 7,
     startDate: Date.now() - 86400000 * 50,
@@ -107,7 +108,7 @@ const MOCK_PATIENTS: PatientData[] = [
   {
     id: 'patient_3',
     name: 'Omar Khalid',
-    nameAr: 'عمر خالد',
+    nameAr: 'auto.ClinicianDashboard.k36',
     email: 'omar@example.com',
     age: 11,
     startDate: Date.now() - 86400000 * 10,
@@ -128,7 +129,7 @@ const MOCK_PATIENTS: PatientData[] = [
   {
     id: 'patient_4',
     name: 'Fatima Mohammed',
-    nameAr: 'فاطمة محمد',
+    nameAr: 'auto.ClinicianDashboard.k37',
     email: 'fatima@example.com',
     age: 8,
     startDate: Date.now() - 86400000 * 25,
@@ -161,13 +162,14 @@ const PatientRow = memo(({
   isArabic: boolean;
   onSelect: () => void;
 }) => {
+  const { t } = useLanguage();
   const progressPercent = Math.round((patient.sessionsCompleted / patient.totalSessions) * 100);
 
   const phaseConfig = {
-    assessment: { color: brandPurple, label: { en: 'Assessment', ar: 'تقييم' } },
-    active: { color: brandCyan, label: { en: 'Active', ar: 'نشط' } },
-    maintenance: { color: '#f59e0b', label: { en: 'Maintenance', ar: 'صيانة' } },
-    completed: { color: '#22c55e', label: { en: 'Completed', ar: 'مكتمل' } },
+    assessment: { color: brandPurple, label: { en: 'Assessment', ar: 'auto.ClinicianDashboard.k49' } },
+    active: { color: brandCyan, label: { en: 'Active', ar: 'auto.ClinicianDashboard.k50' } },
+    maintenance: { color: '#f59e0b', label: { en: 'Maintenance', ar: 'auto.ClinicianDashboard.k51' } },
+    completed: { color: '#22c55e', label: { en: 'Completed', ar: 'auto.ClinicianDashboard.k52' } },
   };
 
   const phase = phaseConfig[patient.treatmentPhase];
@@ -175,8 +177,8 @@ const PatientRow = memo(({
   const getTimeAgo = (timestamp: number): string => {
     const diff = Date.now() - timestamp;
     const days = Math.floor(diff / 86400000);
-    if (days === 0) return isArabic ? 'اليوم' : 'Today';
-    if (days === 1) return isArabic ? 'أمس' : 'Yesterday';
+    if (days === 0) return t('auto.ClinicianDashboard.k1', "Today");
+    if (days === 1) return t('auto.ClinicianDashboard.k2', "Yesterday");
     return isArabic ? `منذ ${days} أيام` : `${days}d ago`;
   };
 
@@ -223,7 +225,7 @@ const PatientRow = memo(({
                 color: colors.text.primary,
               }}
             >
-              {isArabic ? patient.nameAr : patient.name}
+              {isArabic ? t(patient.nameAr, patient.name) : patient.name}
             </div>
             <div
               style={{
@@ -231,7 +233,7 @@ const PatientRow = memo(({
                 color: colors.text.muted,
               }}
             >
-              {patient.age} {isArabic ? 'سنوات' : 'y/o'}
+              {patient.age} {t('auto.ClinicianDashboard.k3', "y/o")}
             </div>
           </div>
         </div>
@@ -299,7 +301,7 @@ const PatientRow = memo(({
             fontWeight: typography.weight.bold,
           }}
         >
-          {isArabic ? phase.label.ar : phase.label.en}
+          {isArabic ? t(phase.label.ar, phase.label.en) : phase.label.en}
         </span>
       </td>
       <td
@@ -339,6 +341,7 @@ const PatientDetailModal = memo(({
   isArabic: boolean;
   onClose: () => void;
 }) => {
+  const { t } = useLanguage();
   const progressPercent = Math.round((patient.sessionsCompleted / patient.totalSessions) * 100);
 
   const formatDate = (timestamp: number) => {
@@ -448,7 +451,7 @@ const PatientDetailModal = memo(({
                   color: colors.text.primary,
                 }}
               >
-                {isArabic ? patient.nameAr : patient.name}
+                {isArabic ? t(patient.nameAr, patient.name) : patient.name}
               </h2>
               <p
                 style={{
@@ -457,7 +460,7 @@ const PatientDetailModal = memo(({
                   color: colors.text.secondary,
                 }}
               >
-                {patient.age} {isArabic ? 'سنوات' : 'years old'} • {patient.email}
+                {patient.age} {t('auto.ClinicianDashboard.k4', "years old")} • {patient.email}
               </p>
               <p
                 style={{
@@ -466,7 +469,7 @@ const PatientDetailModal = memo(({
                   color: colors.text.muted,
                 }}
               >
-                {isArabic ? 'بدأ العلاج: ' : 'Started: '}
+                {t('auto.ClinicianDashboard.k5', "Started: ")}
                 {formatDate(patient.startDate)}
               </p>
             </div>
@@ -489,7 +492,7 @@ const PatientDetailModal = memo(({
               }}
             >
               <span style={{ fontSize: typography.size.sm, color: colors.text.secondary }}>
-                {isArabic ? 'تقدم العلاج' : 'Treatment Progress'}
+                {t('auto.ClinicianDashboard.k6', "Treatment Progress")}
               </span>
               <span
                 style={{
@@ -498,7 +501,7 @@ const PatientDetailModal = memo(({
                   color: brandCyan,
                 }}
               >
-                {patient.sessionsCompleted}/{patient.totalSessions} {isArabic ? 'جلسات' : 'sessions'}
+                {patient.sessionsCompleted}/{patient.totalSessions} {t('auto.ClinicianDashboard.k7', "sessions")}
               </span>
             </div>
             <div
@@ -529,7 +532,7 @@ const PatientDetailModal = memo(({
               color: colors.text.primary,
             }}
           >
-            {isArabic ? 'تحسن الدرجات' : 'Score Improvement'}
+            {t('auto.ClinicianDashboard.k8', "Score Improvement")}
           </h3>
           <div
             style={{
@@ -540,19 +543,19 @@ const PatientDetailModal = memo(({
             }}
           >
             <ScoreComparisonCard
-              label={isArabic ? 'الانتباه' : 'Attention'}
+              label={t('auto.ClinicianDashboard.k9', "Attention")}
               baseline={patient.attentionBaseline}
               current={patient.attentionScore}
               color={brandCyan}
             />
             <ScoreComparisonCard
-              label={isArabic ? 'سرعة المعالجة' : 'Processing'}
+              label={t('auto.ClinicianDashboard.k10', "Processing")}
               baseline={patient.processingBaseline}
               current={patient.processingSpeed}
               color={brandPurple}
             />
             <ScoreComparisonCard
-              label={isArabic ? 'التمييز السمعي' : 'Auditory'}
+              label={t('auto.ClinicianDashboard.k11', "Auditory")}
               baseline={patient.auditoryBaseline}
               current={patient.auditoryDiscrimination}
               color={brandPink}
@@ -569,7 +572,7 @@ const PatientDetailModal = memo(({
                 color: colors.text.primary,
               }}
             >
-              {isArabic ? 'مرحلة العلاج' : 'Treatment Phase'}
+              {t('auto.ClinicianDashboard.k12', "Treatment Phase")}
             </h3>
             <TreatmentPhaseIndicator
               phase={patient.treatmentPhase}
@@ -590,7 +593,7 @@ const PatientDetailModal = memo(({
                   color: colors.text.primary,
                 }}
               >
-                {isArabic ? 'ملاحظات سريرية' : 'Clinical Notes'}
+                {t('auto.ClinicianDashboard.k13', "Clinical Notes")}
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[2] }}>
                 {patient.notes.map((note, i) => (
@@ -636,7 +639,7 @@ const PatientDetailModal = memo(({
                     letterSpacing: 0.5,
                   }}
                 >
-                  {isArabic ? 'الموعد القادم' : 'Next Appointment'}
+                  {t('auto.ClinicianDashboard.k14', "Next Appointment")}
                 </div>
                 <div
                   style={{
@@ -743,12 +746,13 @@ ScoreComparisonCard.displayName = 'ScoreComparisonCard';
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function ClinicianDashboard() {
-  const { isArabic, direction } = useLanguage();
+  const { isArabic, direction, t } = useLanguage();
   const { user } = useUser();
   const hasAccess = usePermission('view_patient_reports');
   const [selectedPatient, setSelectedPatient] = useState<PatientData | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPhase, setFilterPhase] = useState<string>('all');
+  const [trendModule, setTrendModule] = useState<'attention' | 'frequency' | 'sequence' | 'questionnaire'>('attention');
 
   const filteredPatients = useMemo(() => {
     return MOCK_PATIENTS.filter((patient) => {
@@ -781,12 +785,10 @@ export default function ClinicianDashboard() {
       >
         <div style={{ fontSize: 48, marginBottom: spacing[4] }}>🔒</div>
         <h2 style={{ color: colors.text.primary, marginBottom: spacing[2] }}>
-          {isArabic ? 'الوصول مقيد' : 'Access Restricted'}
+          {t('auto.ClinicianDashboard.k15', "Access Restricted")}
         </h2>
         <p>
-          {isArabic
-            ? 'يجب أن تكون طبيباً للوصول إلى هذه اللوحة'
-            : 'You must be a clinician to access this dashboard'}
+          {t('auto.ClinicianDashboard.k16', "You must be a clinician to access this dashboard")}
         </p>
       </div>
     );
@@ -838,10 +840,10 @@ export default function ClinicianDashboard() {
                 fontFamily: typography.fontFamily,
               }}
             >
-              {isArabic ? 'لوحة الطبيب' : 'Clinician Dashboard'}
+              {t('auto.ClinicianDashboard.k17', "Clinician Dashboard")}
             </h1>
             <p style={{ margin: 0, color: colors.text.secondary, fontSize: typography.size.sm }}>
-              {user?.clinic || (isArabic ? 'مركز لوتس AIT' : 'Lotus AIT Center')}
+              {user?.clinic || (t('auto.ClinicianDashboard.k18', "Lotus AIT Center"))}
             </p>
           </div>
         </div>
@@ -852,34 +854,93 @@ export default function ClinicianDashboard() {
         <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
           <StatCard
             variant="horizontal"
-            label={isArabic ? 'إجمالي المرضى' : 'Total Patients'}
+            label={t('auto.ClinicianDashboard.k19', "Total Patients")}
             value={stats.total}
             icon="👥"
             color={brandCyan}
           />
           <StatCard
             variant="horizontal"
-            label={isArabic ? 'علاج نشط' : 'Active Treatment'}
+            label={t('auto.ClinicianDashboard.k20', "Active Treatment")}
             value={stats.active}
             icon="🏥"
             color={brandPurple}
           />
           <StatCard
             variant="horizontal"
-            label={isArabic ? 'أكملوا البرنامج' : 'Completed'}
+            label={t('auto.ClinicianDashboard.k21', "Completed")}
             value={stats.completed}
             icon="✅"
             color="#22c55e"
           />
           <StatCard
             variant="horizontal"
-            label={isArabic ? 'متوسط التحسن' : 'Avg Improvement'}
+            label={t('auto.ClinicianDashboard.k22', "Avg Improvement")}
             value={`+${stats.avgImprovement}%`}
             icon="📈"
             color="#f59e0b"
           />
         </div>
       </PageTransition>
+
+      {/* Longitudinal Analytics */}
+      <div style={{ marginBottom: spacing[8] }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], flexWrap: 'wrap' }}>
+          <h2
+            style={{
+              margin: 0,
+              fontSize: typography.size.xl,
+              fontWeight: typography.weight.bold,
+              color: colors.text.primary,
+            }}
+          >
+            {t('dashboard.trends', 'Trends')}
+          </h2>
+          <div style={{ display: 'flex', gap: spacing[2], flexWrap: 'wrap' }}>
+            {(['attention', 'frequency', 'sequence', 'questionnaire'] as const).map((key) => {
+              const isActive = trendModule === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setTrendModule(key)}
+                  style={{
+                    padding: `${spacing[1.5]}px ${spacing[3]}px`,
+                    borderRadius: radius.md,
+                    border: `1px solid ${isActive ? brandCyan : colors.border.default}`,
+                    background: isActive ? `${brandCyan}20` : 'transparent',
+                    color: isActive ? brandCyan : colors.text.secondary,
+                    fontSize: typography.size.xs,
+                    fontWeight: typography.weight.bold,
+                    cursor: 'pointer',
+                    transition: transitions.fast,
+                  }}
+                >
+                  {key === 'attention' && t('games.attention', 'Attention Test')}
+                  {key === 'frequency' && t('games.frequency', 'Frequency')}
+                  {key === 'sequence' && t('games.sequence', 'Sequence')}
+                  {key === 'questionnaire' && t('games.questionnaire', 'Questionnaire')}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <div style={{ marginTop: spacing[4] }}>
+          <LongitudinalCharts
+            moduleId={trendModule}
+            variant="clinician"
+            title={
+              trendModule === 'attention'
+                ? t('games.attention', 'Attention Test')
+                : trendModule === 'frequency'
+                  ? t('games.frequency', 'Frequency')
+                  : trendModule === 'sequence'
+                    ? t('games.sequence', 'Sequence')
+                    : t('games.questionnaire', 'Questionnaire')
+            }
+          />
+        </div>
+      </div>
 
       {/* Filters */}
       <div
@@ -892,7 +953,7 @@ export default function ClinicianDashboard() {
       >
         <input
           type="text"
-          placeholder={isArabic ? 'بحث عن مريض...' : 'Search patients...'}
+          placeholder={t('auto.ClinicianDashboard.k23', "Search patients...")}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
@@ -910,10 +971,10 @@ export default function ClinicianDashboard() {
         <div style={{ display: 'flex', gap: spacing[2] }}>
           {['all', 'active', 'completed', 'assessment'].map((phase) => {
             const labels: Record<string, { en: string; ar: string }> = {
-              all: { en: 'All', ar: 'الكل' },
-              active: { en: 'Active', ar: 'نشط' },
-              completed: { en: 'Completed', ar: 'مكتمل' },
-              assessment: { en: 'Assessment', ar: 'تقييم' },
+              all: { en: 'All', ar: 'auto.ClinicianDashboard.k53' },
+              active: { en: 'Active', ar: 'auto.ClinicianDashboard.k54' },
+              completed: { en: 'Completed', ar: 'auto.ClinicianDashboard.k55' },
+              assessment: { en: 'Assessment', ar: 'auto.ClinicianDashboard.k56' },
             };
             const isActive = filterPhase === phase;
 
@@ -973,7 +1034,7 @@ export default function ClinicianDashboard() {
                   letterSpacing: 0.5,
                 }}
               >
-                {isArabic ? 'المريض' : 'Patient'}
+                {t('auto.ClinicianDashboard.k24', "Patient")}
               </th>
               <th
                 style={{
@@ -986,7 +1047,7 @@ export default function ClinicianDashboard() {
                   letterSpacing: 0.5,
                 }}
               >
-                {isArabic ? 'التقدم' : 'Progress'}
+                {t('auto.ClinicianDashboard.k25', "Progress")}
               </th>
               <th
                 style={{
@@ -999,7 +1060,7 @@ export default function ClinicianDashboard() {
                   letterSpacing: 0.5,
                 }}
               >
-                {isArabic ? 'الانتباه' : 'Attention'}
+                {t('auto.ClinicianDashboard.k26', "Attention")}
               </th>
               <th
                 style={{
@@ -1012,7 +1073,7 @@ export default function ClinicianDashboard() {
                   letterSpacing: 0.5,
                 }}
               >
-                {isArabic ? 'الحالة' : 'Status'}
+                {t('auto.ClinicianDashboard.k27', "Status")}
               </th>
               <th
                 style={{
@@ -1025,7 +1086,7 @@ export default function ClinicianDashboard() {
                   letterSpacing: 0.5,
                 }}
               >
-                {isArabic ? 'آخر نشاط' : 'Last Active'}
+                {t('auto.ClinicianDashboard.k28', "Last Active")}
               </th>
               <th
                 style={{
@@ -1038,7 +1099,7 @@ export default function ClinicianDashboard() {
                   letterSpacing: 0.5,
                 }}
               >
-                {isArabic ? 'الاستمرارية' : 'Streak'}
+                {t('auto.ClinicianDashboard.k29', "Streak")}
               </th>
             </tr>
           </thead>
@@ -1062,7 +1123,7 @@ export default function ClinicianDashboard() {
               color: colors.text.muted,
             }}
           >
-            {isArabic ? 'لا يوجد مرضى مطابقين' : 'No matching patients'}
+            {t('auto.ClinicianDashboard.k30', "No matching patients")}
           </div>
         )}
       </div>
@@ -1095,13 +1156,13 @@ export default function ClinicianDashboard() {
           }}
         >
           <BarChart
-            title={isArabic ? 'توزيع درجات الانتباه' : 'Attention Score Distribution'}
+            title={t('auto.ClinicianDashboard.k31', "Attention Score Distribution")}
             titleAr="توزيع درجات الانتباه"
             data={[
-              { label: '<50', labelAr: '<٥٠', value: MOCK_PATIENTS.filter(p => p.attentionScore < 50).length * 25, color: '#ef4444' },
-              { label: '50-69', labelAr: '٥٠-٦٩', value: MOCK_PATIENTS.filter(p => p.attentionScore >= 50 && p.attentionScore < 70).length * 25, color: '#f59e0b' },
-              { label: '70-84', labelAr: '٧٠-٨٤', value: MOCK_PATIENTS.filter(p => p.attentionScore >= 70 && p.attentionScore < 85).length * 25, color: brandCyan },
-              { label: '85+', labelAr: '٨٥+', value: MOCK_PATIENTS.filter(p => p.attentionScore >= 85).length * 25, color: '#22c55e' },
+              { label: '<50', labelAr: 'auto.ClinicianDashboard.k38', value: MOCK_PATIENTS.filter(p => p.attentionScore < 50).length * 25, color: '#ef4444' },
+              { label: '50-69', labelAr: 'auto.ClinicianDashboard.k39', value: MOCK_PATIENTS.filter(p => p.attentionScore >= 50 && p.attentionScore < 70).length * 25, color: '#f59e0b' },
+              { label: '70-84', labelAr: 'auto.ClinicianDashboard.k40', value: MOCK_PATIENTS.filter(p => p.attentionScore >= 70 && p.attentionScore < 85).length * 25, color: brandCyan },
+              { label: '85+', labelAr: 'auto.ClinicianDashboard.k41', value: MOCK_PATIENTS.filter(p => p.attentionScore >= 85).length * 25, color: '#22c55e' },
             ]}
             isArabic={isArabic}
             height={140}
@@ -1120,23 +1181,23 @@ export default function ClinicianDashboard() {
             {
               id: '1',
               title: 'Monitor Streaks',
-              titleAr: 'راقب الاستمرارية',
+              titleAr: 'auto.ClinicianDashboard.k42',
               content: 'Patients with consistent daily practice show 40% better outcomes. Follow up with patients whose streaks have broken.',
-              contentAr: 'المرضى الذين يمارسون بانتظام يومياً يظهرون نتائج أفضل بنسبة 40٪. تابع مع المرضى الذين انقطعت استمراريتهم.',
+              contentAr: 'auto.ClinicianDashboard.k43',
             },
             {
               id: '2',
               title: 'Weekly Check-ins',
-              titleAr: 'متابعة أسبوعية',
+              titleAr: 'auto.ClinicianDashboard.k44',
               content: 'Schedule brief check-ins during weeks 2 and 3 when patients commonly experience plateaus.',
-              contentAr: 'جدولة متابعات قصيرة خلال الأسبوعين الثاني والثالث عندما يعاني المرضى عادة من الثبات.',
+              contentAr: 'auto.ClinicianDashboard.k45',
             },
             {
               id: '3',
               title: 'Parent Communication',
-              titleAr: 'التواصل مع الأهل',
+              titleAr: 'auto.ClinicianDashboard.k46',
               content: 'Share progress reports with parents weekly to maintain engagement and support at home.',
-              contentAr: 'شارك تقارير التقدم مع الأهل أسبوعياً للحفاظ على المشاركة والدعم في المنزل.',
+              contentAr: 'auto.ClinicianDashboard.k47',
             },
           ]}
           variant="carousel"
@@ -1147,16 +1208,16 @@ export default function ClinicianDashboard() {
       {MOCK_PATIENTS.some(p => p.streak === 0 && p.treatmentPhase === 'active') && (
         <div style={{ marginTop: spacing[4] }}>
           <InfoCard
-            title={isArabic ? 'تنبيه: مرضى غير نشطين' : 'Alert: Inactive Patients'}
+            title={t('auto.ClinicianDashboard.k32', "Alert: Inactive Patients")}
             titleAr="تنبيه: مرضى غير نشطين"
-            content={`${MOCK_PATIENTS.filter(p => p.streak === 0 && p.treatmentPhase === 'active').length} ${isArabic ? 'مرضى في العلاج النشط لم يمارسوا منذ أكثر من يومين' : 'patients in active treatment haven\'t practiced in over 2 days'}`}
+            content={`${MOCK_PATIENTS.filter(p => p.streak === 0 && p.treatmentPhase === 'active').length} ${t('auto.ClinicianDashboard.k33', "patients in active treatment haven't practiced in over 2 days")}`}
             contentAr={`${MOCK_PATIENTS.filter(p => p.streak === 0 && p.treatmentPhase === 'active').length} مرضى في العلاج النشط لم يمارسوا منذ أكثر من يومين`}
             variant="warning"
             isArabic={isArabic}
             actions={[
               {
                 label: 'View Details',
-                labelAr: 'عرض التفاصيل',
+                labelAr: 'auto.ClinicianDashboard.k48',
                 onClick: () => setFilterPhase('active'),
               },
             ]}

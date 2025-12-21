@@ -34,51 +34,51 @@ const SECTIONS: SectionItem[] = [
     id: 'overview',
     href: '/#overview',
     labelEn: 'Program',
-    labelAr: 'البرنامج',
+    labelAr: 'auto.SectionNav.k1',
     icon: '🎧',
     color: brandCyan,
     description: 'Learn about AIT therapy',
-    descriptionAr: 'تعرف على علاج AIT',
+    descriptionAr: 'auto.SectionNav.k2',
   },
   {
     id: 'checklist',
     href: '/#checklist',
     labelEn: 'Neural Scanner',
-    labelAr: 'الماسح العصبي',
+    labelAr: 'auto.SectionNav.k3',
     icon: '🧠',
     color: brandPurple,
     description: 'Auditory processing assessment',
-    descriptionAr: 'تقييم المعالجة السمعية',
+    descriptionAr: 'auto.SectionNav.k4',
   },
   {
     id: 'games',
     href: '/#games',
     labelEn: 'Games',
-    labelAr: 'الألعاب',
+    labelAr: 'auto.SectionNav.k5',
     icon: '🎮',
     color: brandPink,
     description: 'Brain training activities',
-    descriptionAr: 'أنشطة تدريب الدماغ',
+    descriptionAr: 'auto.SectionNav.k6',
   },
   {
     id: 'faq',
     href: '/#faq',
     labelEn: 'FAQ',
-    labelAr: 'الأسئلة الشائعة',
+    labelAr: 'auto.SectionNav.k7',
     icon: '❓',
     color: '#f59e0b',
     description: 'Frequently asked questions',
-    descriptionAr: 'الأسئلة المتكررة',
+    descriptionAr: 'auto.SectionNav.k8',
   },
   {
     id: 'contact',
     href: '/#contact',
     labelEn: 'Contact',
-    labelAr: 'تواصل معنا',
+    labelAr: 'auto.SectionNav.k9',
     icon: '📞',
     color: '#22c55e',
     description: 'Get in touch with us',
-    descriptionAr: 'تواصل معنا',
+    descriptionAr: 'auto.SectionNav.k10',
   },
 ];
 
@@ -104,7 +104,7 @@ function SectionNav({
   title,
   titleAr,
 }: SectionNavProps) {
-  const { isArabic, direction } = useLanguage();
+  const { isArabic, direction, t } = useLanguage();
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -226,7 +226,7 @@ function SectionNav({
                   color: colors.text.primary,
                 }}
               >
-                {isArabic ? section.labelAr : section.labelEn}
+                {isArabic ? t(section.labelAr, section.labelEn) : section.labelEn}
               </div>
               {showDescriptions && (
                 <div
@@ -236,7 +236,7 @@ function SectionNav({
                     lineHeight: typography.lineHeight.relaxed,
                   }}
                 >
-                  {isArabic ? section.descriptionAr : section.description}
+                  {isArabic ? t(section.descriptionAr, section.description) : section.description}
                 </div>
               )}
             </a>
@@ -302,7 +302,7 @@ function SectionNav({
             >
               {section.icon}
             </span>
-            {isArabic ? section.labelAr : section.labelEn}
+            {isArabic ? t(section.labelAr, section.labelEn) : section.labelEn}
           </a>
         ))}
       </div>

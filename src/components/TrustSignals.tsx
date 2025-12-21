@@ -38,41 +38,41 @@ interface RoleProposition {
 const ROLE_PROPOSITIONS: Record<VisitorMode, RoleProposition> = {
   school: {
     titleEn: 'Why Schools Trust Us',
-    titleAr: 'لماذا تثق بنا المدارس',
+    titleAr: 'auto.TrustSignals.k2',
     bulletPoints: [
-      { en: 'Group screening programs for classrooms', ar: 'برامج فحص جماعية للفصول الدراسية' },
-      { en: 'Teacher training workshops included', ar: 'ورش تدريبية للمعلمين مشمولة' },
-      { en: 'Detailed reports for each student', ar: 'تقارير مفصلة لكل طالب' },
-      { en: 'Flexible scheduling around school calendar', ar: 'جدولة مرنة حسب التقويم المدرسي' },
+      { en: 'Group screening programs for classrooms', ar: 'auto.TrustSignals.k12' },
+      { en: 'Teacher training workshops included', ar: 'auto.TrustSignals.k13' },
+      { en: 'Detailed reports for each student', ar: 'auto.TrustSignals.k14' },
+      { en: 'Flexible scheduling around school calendar', ar: 'auto.TrustSignals.k15' },
     ],
     ctaEn: 'Request School Partnership',
-    ctaAr: 'طلب شراكة مدرسية',
+    ctaAr: 'auto.TrustSignals.k3',
     ctaLink: '#contact',
   },
   parent: {
     titleEn: 'Why Families Choose Us',
-    titleAr: 'لماذا تختارنا العائلات',
+    titleAr: 'auto.TrustSignals.k4',
     bulletPoints: [
-      { en: 'Child-friendly assessment environment', ar: 'بيئة تقييم صديقة للأطفال' },
-      { en: 'Clear explanations in simple terms', ar: 'شروحات واضحة بعبارات بسيطة' },
-      { en: 'Home practice guidance provided', ar: 'إرشادات للممارسة المنزلية' },
-      { en: 'Ongoing support throughout the program', ar: 'دعم مستمر طوال البرنامج' },
+      { en: 'Child-friendly assessment environment', ar: 'auto.TrustSignals.k16' },
+      { en: 'Clear explanations in simple terms', ar: 'auto.TrustSignals.k17' },
+      { en: 'Home practice guidance provided', ar: 'auto.TrustSignals.k18' },
+      { en: 'Ongoing support throughout the program', ar: 'auto.TrustSignals.k19' },
     ],
     ctaEn: 'Book Family Consultation',
-    ctaAr: 'حجز استشارة عائلية',
+    ctaAr: 'auto.TrustSignals.k5',
     ctaLink: '#contact',
   },
   clinician: {
     titleEn: 'Clinical Excellence',
-    titleAr: 'التميز السريري',
+    titleAr: 'auto.TrustSignals.k6',
     bulletPoints: [
-      { en: 'Evidence-based Bérard AIT protocol', ar: 'بروتوكول بيرارد AIT القائم على الأدلة' },
-      { en: 'Comprehensive audiometric assessments', ar: 'تقييمات سمعية شاملة' },
-      { en: 'Professional referral network', ar: 'شبكة إحالات مهنية' },
-      { en: 'Detailed clinical documentation', ar: 'توثيق سريري مفصل' },
+      { en: 'Evidence-based Bérard AIT protocol', ar: 'auto.TrustSignals.k20' },
+      { en: 'Comprehensive audiometric assessments', ar: 'auto.TrustSignals.k21' },
+      { en: 'Professional referral network', ar: 'auto.TrustSignals.k22' },
+      { en: 'Detailed clinical documentation', ar: 'auto.TrustSignals.k23' },
     ],
     ctaEn: 'Professional Inquiry',
-    ctaAr: 'استفسار مهني',
+    ctaAr: 'auto.TrustSignals.k7',
     ctaLink: '#contact',
   },
 };
@@ -91,7 +91,7 @@ export default function TrustSignals() {
       color: colors.success,
       relevantModes: ['parent', 'clinician'],
       detailsEn: 'Families and individuals helped through our programs',
-      detailsAr: 'عائلات وأفراد تمت مساعدتهم من خلال برامجنا',
+      detailsAr: 'auto.TrustSignals.k8',
     },
     {
       id: 'certified',
@@ -101,7 +101,7 @@ export default function TrustSignals() {
       color: brandCyan,
       relevantModes: ['clinician', 'school'],
       detailsEn: 'All practitioners certified by Bérard AIT International',
-      detailsAr: 'جميع الممارسين معتمدون من بيرارد AIT الدولية',
+      detailsAr: 'auto.TrustSignals.k9',
     },
     {
       id: 'rating',
@@ -111,7 +111,7 @@ export default function TrustSignals() {
       color: '#f59e0b',
       relevantModes: ['parent'],
       detailsEn: 'Based on verified family reviews',
-      detailsAr: 'بناءً على تقييمات العائلات الموثقة',
+      detailsAr: 'auto.TrustSignals.k10',
     },
     {
       id: 'schools',
@@ -121,7 +121,7 @@ export default function TrustSignals() {
       color: brandPurple,
       relevantModes: ['school'],
       detailsEn: 'Schools in our screening partnership program',
-      detailsAr: 'مدرسة في برنامج شراكة الفحص لدينا',
+      detailsAr: 'auto.TrustSignals.k11',
     },
   ], [t]);
 
@@ -265,7 +265,7 @@ export default function TrustSignals() {
                     fontWeight: 700,
                     color: visitorConfig.color,
                   }}>
-                    {visitorConfig.icon} {isArabic ? 'مهم لك' : 'For you'}
+                    {visitorConfig.icon} {t('auto.TrustSignals.k1', "For you")}
                   </div>
                 )}
 
@@ -315,7 +315,7 @@ export default function TrustSignals() {
                     color: colors.text.muted,
                     lineHeight: 1.4,
                   }}>
-                    {isArabic ? signal.detailsAr : signal.detailsEn}
+                    {isArabic ? t(signal.detailsAr, signal.detailsEn) : signal.detailsEn}
                   </div>
                 )}
               </div>
@@ -382,7 +382,7 @@ export default function TrustSignals() {
                 border: `1px solid ${visitorConfig.color}40`,
               }}
             >
-              {visitorConfig.icon} {isArabic ? visitorConfig.labelAr : visitorConfig.label}
+              {visitorConfig.icon} {isArabic ? t(visitorConfig.labelAr, visitorConfig.label) : visitorConfig.label}
             </div>
             <h3 style={{
               margin: 0,
@@ -390,7 +390,7 @@ export default function TrustSignals() {
               fontWeight: typography.weight.bold,
               color: colors.text.primary,
             }}>
-              {isArabic ? roleProposition.titleAr : roleProposition.titleEn}
+              {isArabic ? t(roleProposition.titleAr, roleProposition.titleEn) : roleProposition.titleEn}
             </h3>
           </div>
 
@@ -417,7 +417,7 @@ export default function TrustSignals() {
                   color: colors.text.secondary,
                   lineHeight: 1.5,
                 }}>
-                  {isArabic ? point.ar : point.en}
+                  {isArabic ? t(point.ar, point.en) : point.en}
                 </span>
               </div>
             ))}
@@ -442,7 +442,7 @@ export default function TrustSignals() {
               boxShadow: `0 4px 15px ${visitorConfig.color}30`,
             }}
           >
-            {isArabic ? roleProposition.ctaAr : roleProposition.ctaEn}
+            {isArabic ? t(roleProposition.ctaAr, roleProposition.ctaEn) : roleProposition.ctaEn}
             <span style={{ fontSize: 16 }}>→</span>
           </a>
         </div>

@@ -1,7 +1,14 @@
 import { brandCyan, brandPink, brandPurple } from '../styles';
 
 export type GameResult = 'high' | 'medium' | 'low';
-export type TestKey = 'attention' | 'frequency' | 'sequence' | 'questionnaire';
+export type TestKey =
+  | 'attention'
+  | 'focused_attention'
+  | 'frequency'
+  | 'sequence'
+  | 'dichotic_listening'
+  | 'speech_in_noise'
+  | 'questionnaire';
 
 // Base metrics that can have additional properties
 export interface BaseMetrics {
@@ -27,6 +34,27 @@ export interface AttentionMetrics extends BaseMetrics {
   gamePoints?: number;
   starRating?: number;
   maxComboStreak?: number;
+}
+
+// Focused attention (CPT / odd-one-out) metrics
+export interface FocusedAttentionMetrics extends BaseMetrics {
+  trials: number;
+  targets: number;
+  hits: number;
+  misses: number;
+  falseAlarms: number;
+  correctRejects: number;
+  accuracyPct: number;
+  avgReactionMs: number;
+  rtStdMs: number;
+  lapses: number;
+  rtVariability: number;
+  consistencyScore: number;
+  fatigueScore: number;
+  fatigueIndex: 'low' | 'moderate' | 'high';
+  fatigueSlope: number;
+  score100: number;
+  stimulusMode: 'visual' | 'audio';
 }
 
 // Frequency discrimination test metrics
@@ -58,6 +86,28 @@ export interface SequenceMetrics extends BaseMetrics {
   note?: string;
 }
 
+// Dichotic listening test metrics
+export interface DichoticListeningMetrics extends BaseMetrics {
+  trials: number;
+  leftAccuracyPct: number;
+  rightAccuracyPct: number;
+  separationAccuracyPct: number;
+  balanceIndex: number;
+  intrusions: number;
+  score100: number;
+}
+
+// Speech-in-noise test metrics
+export interface SpeechInNoiseMetrics extends BaseMetrics {
+  trials: number;
+  accuracyPct: number;
+  snrThresholdDb: number;
+  snrScore: number;
+  reversals: number;
+  score100: number;
+  fatigueScore?: number;
+}
+
 // Questionnaire metrics
 export interface QuestionnaireMetrics extends BaseMetrics {
   totalQuestions: number;
@@ -66,7 +116,14 @@ export interface QuestionnaireMetrics extends BaseMetrics {
 }
 
 // Union of all metric types - allows indexed access while providing specific types
-export type TestMetrics = AttentionMetrics | FrequencyMetrics | SequenceMetrics | QuestionnaireMetrics;
+export type TestMetrics =
+  | AttentionMetrics
+  | FocusedAttentionMetrics
+  | FrequencyMetrics
+  | SequenceMetrics
+  | DichoticListeningMetrics
+  | SpeechInNoiseMetrics
+  | QuestionnaireMetrics;
 
 // Trial types for each test
 export interface AttentionTrial {
@@ -78,6 +135,19 @@ export interface AttentionTrial {
   responded: boolean;
   responseType?: 'hit' | 'fa' | 'miss' | 'cr';
   rtMs?: number | null;
+}
+
+export interface FocusedAttentionTrial {
+  i: number;
+  isTarget: boolean;
+  stimulus: {
+    mode: 'visual' | 'audio';
+    label: string;
+    freq?: number;
+  };
+  responded: boolean;
+  responseType?: 'hit' | 'fa' | 'miss' | 'cr';
+  rtMs?: number;
 }
 
 export interface FrequencyTrial {
@@ -100,6 +170,45 @@ export interface SequenceTrial {
   rtMs: number[];
 }
 
+export interface DichoticListeningTrial {
+  i: number;
+  mode: 'integration' | 'separation';
+  focus?: 'left' | 'right';
+  left: {
+    label: string;
+    freq: number;
+    group: 'syllable' | 'number';
+  };
+  right: {
+    label: string;
+    freq: number;
+    group: 'syllable' | 'number';
+  };
+  responseLeft?: string;
+  responseRight?: string;
+  responseSingle?: string;
+  correctLeft?: boolean;
+  correctRight?: boolean;
+  correctSingle?: boolean;
+  intrusion?: boolean;
+  rtMs?: number;
+}
+
+export interface SpeechInNoiseTrial {
+  i: number;
+  snrDb: number;
+  sentence: {
+    text: string;
+    keywords: string[];
+  };
+  options: string[];
+  selected: string[];
+  correct: boolean;
+  rtMs: number;
+  reversal?: boolean;
+  stepDb?: number;
+}
+
 export interface QuestionnaireTrial {
   question: string;
   answer: string;
@@ -107,7 +216,14 @@ export interface QuestionnaireTrial {
 }
 
 // Union of all trial types
-export type TestTrial = AttentionTrial | FrequencyTrial | SequenceTrial | QuestionnaireTrial;
+export type TestTrial =
+  | AttentionTrial
+  | FocusedAttentionTrial
+  | FrequencyTrial
+  | SequenceTrial
+  | DichoticListeningTrial
+  | SpeechInNoiseTrial
+  | QuestionnaireTrial;
 
 export type TestOutcome = {
   key: TestKey;

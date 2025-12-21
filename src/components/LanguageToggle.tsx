@@ -8,7 +8,7 @@ interface LanguageToggleProps {
 
 // Memoized language toggle for performance in Header/Footer
 const LanguageToggle = memo(function LanguageToggle({ compact = false }: LanguageToggleProps) {
-  const { language, toggleLanguage, isArabic } = useLanguage();
+  const { language, toggleLanguage, isArabic, t } = useLanguage();
   const [showFeedback, setShowFeedback] = useState(false);
 
   const handleToggle = useCallback(() => {
@@ -132,7 +132,7 @@ const LanguageToggle = memo(function LanguageToggle({ compact = false }: Languag
           animation: 'fadeInUp 0.3s ease-out',
           boxShadow: `0 8px 20px rgba(0,0,0,0.4), 0 0 20px ${brandCyan}22`,
         }}>
-          {isArabic ? 'تم التغيير للعربية' : 'Changed to English'}
+          {t('auto.LanguageToggle.k1', "Changed to English")}
         </div>
       )}
 

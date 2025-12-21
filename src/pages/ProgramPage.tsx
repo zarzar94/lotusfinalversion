@@ -1,6 +1,6 @@
 /**
  * Program Page - Treatment Protocol Information
- * Overview, Timeline, Remote Protocol, Comparison
+ * Overview, Timeline, Remote Protocol
  */
 
 import { lazy, Suspense, memo } from 'react';
@@ -27,14 +27,13 @@ import {
 const ProgramOverview = lazy(() => import('../components/ProgramOverview'));
 const TreatmentTimeline = lazy(() => import('../components/TreatmentTimeline'));
 const RemoteProtocolSection = lazy(() => import('../components/RemoteProtocolSection'));
-const ComparisonSection = lazy(() => import('../components/ComparisonSection'));
 
 // Page header component
 const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
   <div
     style={{
       textAlign: 'center',
-      padding: `${spacing[12]}px ${spacing[4]}px ${spacing[8]}px`,
+      padding: `0 ${spacing[4]}px ${spacing[8]}px`,
       maxWidth: 800,
       margin: '0 auto',
     }}
@@ -126,13 +125,6 @@ function ProgramPage() {
         <FadeIn delay={200} direction="right" distance={30}>
           <Suspense fallback={<SectionLoader label={t('common.loadingRemote')} height={400} />}>
             <RemoteProtocolSection />
-          </Suspense>
-        </FadeIn>
-
-        {/* Comparison */}
-        <FadeIn delay={250} scale blur blurAmount={5}>
-          <Suspense fallback={<SectionLoader label={t('common.loading')} height={350} />}>
-            <ComparisonSection />
           </Suspense>
         </FadeIn>
 

@@ -13,7 +13,7 @@ interface ScrollToTopButtonProps {
 }
 
 function ScrollToTopButton({ threshold = 400, bottom = 220 }: ScrollToTopButtonProps) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -37,7 +37,7 @@ function ScrollToTopButton({ threshold = 400, bottom = 220 }: ScrollToTopButtonP
 
   if (!isVisible) return null;
 
-  const label = isArabic ? 'العودة للأعلى' : 'Scroll to top';
+  const label = t('auto.ScrollToTopButton.k1', "Scroll to top");
 
   return (
     <button

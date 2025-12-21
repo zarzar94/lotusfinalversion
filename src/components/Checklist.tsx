@@ -469,87 +469,87 @@ const VISITOR_RECOMMENDATIONS = {
   school: {
     low: {
       titleEn: 'Screening Complete',
-      titleAr: 'اكتمل الفحص',
+      titleAr: 'auto.Checklist.k1',
       messageEn: 'This student shows typical auditory processing indicators. Consider periodic rescreening.',
-      messageAr: 'يُظهر هذا الطالب مؤشرات معالجة سمعية نموذجية. فكر في إعادة الفحص الدوري.',
+      messageAr: 'auto.Checklist.k2',
       actionEn: 'Continue to Sound Lab',
-      actionAr: 'تابع إلى معمل الصوت',
+      actionAr: 'auto.Checklist.k3',
       actionPath: '#games',
     },
     medium: {
       titleEn: 'Monitor Recommended',
-      titleAr: 'يُوصى بالمتابعة',
+      titleAr: 'auto.Checklist.k4',
       messageEn: 'Consider classroom accommodations and follow-up screening in 3-6 months.',
-      messageAr: 'فكر في تعديلات الفصل ومتابعة الفحص خلال 3-6 أشهر.',
+      messageAr: 'auto.Checklist.k5',
       actionEn: 'View Accommodations Guide',
-      actionAr: 'عرض دليل التعديلات',
+      actionAr: 'auto.Checklist.k6',
       actionPath: '/resources#accommodations',
     },
     high: {
       titleEn: 'Professional Evaluation Advised',
-      titleAr: 'يُنصح بتقييم مهني',
+      titleAr: 'auto.Checklist.k7',
       messageEn: 'Results suggest this student may benefit from professional auditory processing evaluation.',
-      messageAr: 'النتائج تشير إلى أن هذا الطالب قد يستفيد من تقييم مهني للمعالجة السمعية.',
+      messageAr: 'auto.Checklist.k8',
       actionEn: 'Request School Demo',
-      actionAr: 'اطلب عرض مدرسي',
+      actionAr: 'auto.Checklist.k9',
       actionPath: '/contact?mode=school',
     },
   },
   parent: {
     low: {
       titleEn: 'Good Indicators',
-      titleAr: 'مؤشرات جيدة',
+      titleAr: 'auto.Checklist.k10',
       messageEn: 'Your child shows typical auditory processing patterns. Continue with the interactive games for more insights.',
-      messageAr: 'طفلك يُظهر أنماط معالجة سمعية نموذجية. تابع مع الألعاب التفاعلية لمزيد من الرؤى.',
+      messageAr: 'auto.Checklist.k11',
       actionEn: 'Try Screening Games',
-      actionAr: 'جرب ألعاب الفحص',
+      actionAr: 'auto.Checklist.k12',
       actionPath: '#games',
     },
     medium: {
       titleEn: 'Further Screening Suggested',
-      titleAr: 'يُقترح مزيد من الفحص',
+      titleAr: 'auto.Checklist.k13',
       messageEn: 'These indicators suggest completing the interactive screening tests would be beneficial.',
-      messageAr: 'هذه المؤشرات تشير إلى أن إكمال اختبارات الفحص التفاعلية سيكون مفيداً.',
+      messageAr: 'auto.Checklist.k14',
       actionEn: 'Start Full Assessment',
-      actionAr: 'ابدأ التقييم الكامل',
+      actionAr: 'auto.Checklist.k15',
       actionPath: '#games',
     },
     high: {
       titleEn: 'Book Professional Screening',
-      titleAr: 'احجز فحصاً مهنياً',
+      titleAr: 'auto.Checklist.k16',
       messageEn: 'Based on these indicators, we recommend booking a professional screening with our team.',
-      messageAr: 'بناءً على هذه المؤشرات، نوصي بحجز فحص مهني مع فريقنا.',
+      messageAr: 'auto.Checklist.k17',
       actionEn: 'Book Screening',
-      actionAr: 'احجز فحصاً',
+      actionAr: 'auto.Checklist.k18',
       actionPath: '/contact?mode=parent',
     },
   },
   clinician: {
     low: {
       titleEn: 'WNL - Screening Indicators',
-      titleAr: 'ضمن الحدود الطبيعية - مؤشرات الفحص',
+      titleAr: 'auto.Checklist.k19',
       messageEn: 'Few behavioral indicators noted. Consider contextual factors before final determination.',
-      messageAr: 'مؤشرات سلوكية قليلة ملحوظة. ضع في الاعتبار العوامل السياقية قبل التحديد النهائي.',
+      messageAr: 'auto.Checklist.k20',
       actionEn: 'Proceed to Objective Tests',
-      actionAr: 'تابع للاختبارات الموضوعية',
+      actionAr: 'auto.Checklist.k21',
       actionPath: '#games',
     },
     medium: {
       titleEn: 'Borderline - Further Evaluation',
-      titleAr: 'حدودي - تقييم إضافي',
+      titleAr: 'auto.Checklist.k22',
       messageEn: 'Moderate behavioral indicators. Objective testing recommended to clarify auditory processing status.',
-      messageAr: 'مؤشرات سلوكية متوسطة. يُوصى بالاختبار الموضوعي لتوضيح حالة المعالجة السمعية.',
+      messageAr: 'auto.Checklist.k23',
       actionEn: 'View Clinical Protocol',
-      actionAr: 'عرض البروتوكول السريري',
+      actionAr: 'auto.Checklist.k24',
       actionPath: '/clinician-dashboard',
     },
     high: {
       titleEn: 'Significant Indicators - Comprehensive Eval',
-      titleAr: 'مؤشرات مهمة - تقييم شامل',
+      titleAr: 'auto.Checklist.k25',
       messageEn: 'Multiple behavioral markers present. Full audiological and APD battery recommended.',
-      messageAr: 'وجود علامات سلوكية متعددة. يُوصى ببطارية سمعية كاملة و APD.',
+      messageAr: 'auto.Checklist.k26',
       actionEn: 'Access Clinical Tools',
-      actionAr: 'الوصول للأدوات السريرية',
+      actionAr: 'auto.Checklist.k27',
       actionPath: '/clinician-dashboard',
     },
   },
@@ -1197,7 +1197,7 @@ const Checklist = () => {
                       color: visitorConfig.color,
                       marginBottom: spacing[1],
                     }}>
-                      {isArabic ? visitorRec.titleAr : visitorRec.titleEn}
+                      {isArabic ? t(visitorRec.titleAr, visitorRec.titleEn) : visitorRec.titleEn}
                     </div>
                     <p style={{
                       margin: 0,
@@ -1205,7 +1205,7 @@ const Checklist = () => {
                       color: colors.text.secondary,
                       lineHeight: typography.lineHeight.relaxed,
                     }}>
-                      {isArabic ? visitorRec.messageAr : visitorRec.messageEn}
+                      {isArabic ? t(visitorRec.messageAr, visitorRec.messageEn) : visitorRec.messageEn}
                     </p>
                   </div>
                   <a
@@ -1223,7 +1223,7 @@ const Checklist = () => {
                       transition: transitions.fast,
                     }}
                   >
-                    {isArabic ? visitorRec.actionAr : visitorRec.actionEn}
+                    {isArabic ? t(visitorRec.actionAr, visitorRec.actionEn) : visitorRec.actionEn}
                   </a>
                 </div>
               </div>

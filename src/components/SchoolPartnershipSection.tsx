@@ -203,7 +203,7 @@ const SchoolPartnershipSection = () => {
             <p style={{ ...styles.muted, marginTop: 6 }}>
               {t('schools.demoInstructions')}
             </p>
-            <a href="#games" style={{ ...styles.primaryBtn, textDecoration: 'none', marginTop: 10, display: 'inline-flex' }}>
+            <a href="/assessment#games" style={{ ...styles.primaryBtn, textDecoration: 'none', marginTop: 10, display: 'inline-flex' }}>
               {t('schools.runSimulation')}
             </a>
           </div>
@@ -270,7 +270,7 @@ const SchoolPartnershipSection = () => {
 
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
               <a
-                href="#contact"
+                href="/contact#contact"
                 style={{
                   ...styles.primaryBtn,
                   textDecoration: 'none',
@@ -279,7 +279,7 @@ const SchoolPartnershipSection = () => {
               >
                 {t('schools.requestQuote')}
               </a>
-              <a href="#comparison" style={{ ...styles.ghostBtn, textDecoration: 'none', borderColor: `${tier.color}44` }}>
+              <a href="/faq#comparison" style={{ ...styles.ghostBtn, textDecoration: 'none', borderColor: `${tier.color}44` }}>
                 {t('schools.comparePrograms')}
               </a>
             </div>
@@ -373,7 +373,7 @@ const SchoolPartnershipSection = () => {
             💬 {t('schools.cta.whatsappButton')}
           </button>
           <a
-            href="#contact"
+            href="/contact#contact"
             style={{
               ...styles.ghostBtn,
               textDecoration: 'none',

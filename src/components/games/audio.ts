@@ -46,6 +46,84 @@ const makeNoiseBuffer = (audio: AudioContext, seconds = 1.6, amp = 0.22): AudioB
   return buffer;
 };
 
+const calcLowPassAlpha = (freq: number, sampleRate: number) => {
+  const rc = 1 / (2 * Math.PI * freq);
+  const dt = 1 / sampleRate;
+  return dt / (rc + dt);
+};
+
+const calcHighPassAlpha = (freq: number, sampleRate: number) => {
+  const rc = 1 / (2 * Math.PI * freq);
+  const dt = 1 / sampleRate;
+  return rc / (rc + dt);
+};
+
+const applyFade = (data: Float32Array, sampleRate: number, seconds: number) => {
+  const fadeSamples = Math.min(Math.floor(sampleRate * seconds), Math.floor(data.length / 2));
+  for (let i = 0; i < fadeSamples; i++) {
+    const fade = i / fadeSamples;
+    data[i] *= fade;
+    data[data.length - 1 - i] *= fade;
+  }
+};
+
+const makeBabbleBuffer = (audio: AudioContext, seconds = 2.4, amp = 0.6, talkers = 6) => {
+  const length = Math.max(1, Math.floor(audio.sampleRate * seconds));
+  const buffer = audio.createBuffer(1, length, audio.sampleRate);
+  const data = buffer.getChannelData(0);
+  const sampleRate = audio.sampleRate;
+
+  const minSegment = Math.floor(sampleRate * 0.05);
+  const maxSegment = Math.floor(sampleRate * 0.12);
+  const talkerAmp = amp / Math.max(1, talkers);
+
+  for (let t = 0; t < talkers; t++) {
+    const lowCut = 200 + Math.random() * 200;
+    const highCut = 2500 + Math.random() * 2000;
+    const hpAlpha = calcHighPassAlpha(lowCut, sampleRate);
+    const lpAlpha = calcLowPassAlpha(highCut, sampleRate);
+
+    let hp = 0;
+    let lp = 0;
+    let prevX = 0;
+    let env = 0.3 + Math.random() * 0.4;
+    let envTarget = env;
+    let envSamplesLeft = 0;
+    let envStep = 0;
+
+    for (let i = 0; i < length; i++) {
+      if (envSamplesLeft <= 0) {
+        envTarget = 0.2 + Math.random() * 0.8;
+        envSamplesLeft = minSegment + Math.floor(Math.random() * (maxSegment - minSegment + 1));
+        envStep = (envTarget - env) / envSamplesLeft;
+      }
+
+      env += envStep;
+      envSamplesLeft -= 1;
+
+      const x = Math.random() * 2 - 1;
+      hp = hpAlpha * (hp + x - prevX);
+      prevX = x;
+      lp += lpAlpha * (hp - lp);
+      data[i] += lp * env * talkerAmp;
+    }
+  }
+
+  let peak = 0;
+  for (let i = 0; i < length; i++) {
+    peak = Math.max(peak, Math.abs(data[i]));
+  }
+  if (peak > 1) {
+    const scale = 0.98 / peak;
+    for (let i = 0; i < length; i++) {
+      data[i] *= scale;
+    }
+  }
+
+  applyFade(data, sampleRate, 0.02);
+  return buffer;
+};
+
 export const stopNoise = (noiseRef: NoiseRef): void => {
   try {
     noiseRef.current?.src.stop();
@@ -64,6 +142,31 @@ export const setNoiseLevel = (audio: AudioContext, noiseRef: NoiseRef, level: nu
   if (!noiseRef.current) {
     const src = audio.createBufferSource();
     src.buffer = makeNoiseBuffer(audio, 1.8, 0.22);
+    src.loop = true;
+
+    const gain = audio.createGain();
+    gain.gain.value = gainValue;
+
+    src.connect(gain);
+    gain.connect(audio.destination);
+    src.start();
+
+    noiseRef.current = { src, gain };
+    return;
+  }
+
+  noiseRef.current.gain.gain.setTargetAtTime(gainValue, audio.currentTime, 0.12);
+};
+
+/**
+ * Starts (or updates) a looping multitalker babble bed. The level is clamped for comfort.
+ */
+export const setBabbleNoiseLevel = (audio: AudioContext, noiseRef: NoiseRef, level: number) => {
+  const gainValue = Math.max(0, Math.min(0.22, level));
+
+  if (!noiseRef.current) {
+    const src = audio.createBufferSource();
+    src.buffer = makeBabbleBuffer(audio, 2.4, 0.6, 6);
     src.loop = true;
 
     const gain = audio.createGain();
