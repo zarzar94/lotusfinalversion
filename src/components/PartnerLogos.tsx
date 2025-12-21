@@ -80,37 +80,47 @@ export default function PartnerLogos() {
   const [hoveredPartner, setHoveredPartner] = useState<string | null>(null);
   const [animatedStats, setAnimatedStats] = useState<string[]>(['0', '0', '0', '0']);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const intervalsRef = useRef<number[]>([]);
+  const hasAnimatedRef = useRef(false);
 
-  useEffect(() => {
+    useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          // Animate stats
-          stats.forEach((stat, i) => {
-            const targetNum = parseInt(stat.value);
-            let current = 0;
-            const increment = targetNum / 40;
-            const interval = setInterval(() => {
-              current += increment;
-              if (current >= targetNum) {
-                current = targetNum;
-                clearInterval(interval);
-              }
-              setAnimatedStats(prev => {
-                const newStats = [...prev];
-                newStats[i] = Math.floor(current) + (stat.value.includes('+') ? '+' : '');
-                return newStats;
-              });
-            }, 30);
-          });
-        }
+        if (!entry.isIntersecting || hasAnimatedRef.current) return;
+        hasAnimatedRef.current = true;
+        setIsVisible(true);
+        // Animate stats
+        stats.forEach((stat, i) => {
+          const targetNum = parseInt(stat.value);
+          let current = 0;
+          const increment = targetNum / 40;
+          const intervalId = window.setInterval(() => {
+            current += increment;
+            if (current >= targetNum) {
+              current = targetNum;
+              window.clearInterval(intervalId);
+              intervalsRef.current = intervalsRef.current.filter(id => id !== intervalId);
+            }
+            setAnimatedStats(prev => {
+              const newStats = [...prev];
+              newStats[i] = Math.floor(current) + (stat.value.includes('+') ? '+' : '');
+              return newStats;
+            });
+          }, 30);
+          intervalsRef.current.push(intervalId);
+        });
+        observer.unobserve(entry.target);
       },
       { threshold: 0.2 }
     );
 
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
+    const current = sectionRef.current;
+    if (current) observer.observe(current);
+    return () => {
+      observer.disconnect();
+      intervalsRef.current.forEach((intervalId) => window.clearInterval(intervalId));
+      intervalsRef.current = [];
+    };
   }, []);
 
   return (

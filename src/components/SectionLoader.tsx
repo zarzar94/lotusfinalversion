@@ -12,7 +12,19 @@ export default function SectionLoader({ label, labelAr, height = 300 }: SectionL
   const displayLabel = label || labelAr
     ? (isArabic ? (labelAr || 'جارٍ التحميل...') : (label || 'Loading...'))
     : (t('auto.SectionLoader.k1', "Loading..."));
-  return (
+  const skeletonBaseStyle = {
+    borderRadius: radius.sm,
+    backgroundSize: '200% 100%',
+    animation: 'skeleton 1.5s ease-in-out infinite',
+  };
+  const skeletonPrimaryStyle = {
+    ...skeletonBaseStyle,
+    background: 'linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
+  };
+  const skeletonSecondaryStyle = {
+    ...skeletonBaseStyle,
+    background: 'linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
+  };  return (
     <div style={{
       background: 'rgba(11,15,28,0.7)',
       backdropFilter: 'blur(12px)',
@@ -81,28 +93,21 @@ export default function SectionLoader({ label, labelAr, height = 300 }: SectionL
       }}>
         <div style={{
           height: spacing[4],
-          background: 'linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-          borderRadius: radius.sm,
-          animation: 'skeleton 1.5s ease-in-out infinite',
-          backgroundSize: '200% 100%',
+          ...skeletonPrimaryStyle,
         }} />
         <div style={{
           height: spacing[3],
           width: '70%',
           margin: '0 auto',
-          background: 'linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
-          borderRadius: radius.sm,
+          ...skeletonSecondaryStyle,
           animation: 'skeleton 1.5s ease-in-out infinite 0.2s',
-          backgroundSize: '200% 100%',
         }} />
         <div style={{
           height: spacing[3],
           width: '50%',
           margin: '0 auto',
-          background: 'linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
-          borderRadius: radius.sm,
+          ...skeletonSecondaryStyle,
           animation: 'skeleton 1.5s ease-in-out infinite 0.4s',
-          backgroundSize: '200% 100%',
         }} />
       </div>
 

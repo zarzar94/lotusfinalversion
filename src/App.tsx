@@ -17,6 +17,7 @@ import { useClinicalSync } from './hooks/useClinicalSync';
 import StickySmartCTA from './components/StickySmartCTA';
 import RequireAuth from './components/auth/RequireAuth';
 import RequirePermission from './components/auth/RequirePermission';
+import { detectPreferredLanguage } from './utils/language';
 
 // Respect Vite base for subpath deployments (e.g., GitHub Pages)
 const rawBase = import.meta.env.BASE_URL ?? '/';
@@ -74,7 +75,7 @@ function getStoredLanguage(): 'ar' | 'en' {
 }
 
 function PageLoader() {
-  const isArabic = getStoredLanguage() === 'ar';
+  const isArabic = detectPreferredLanguage() === 'ar';
   const loadingText = isArabic ? 'جارٍ التحميل...' : 'Loading...';
 
   return (

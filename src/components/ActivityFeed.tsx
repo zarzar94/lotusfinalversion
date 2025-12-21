@@ -45,14 +45,16 @@ const ActivityItem = memo(function ActivityItem({
   isArabic,
   isNew,
   prefersReducedMotion,
+  t,
 }: {
   activity: Activity;
   isArabic: boolean;
   isNew: boolean;
   prefersReducedMotion: boolean;
+  t: (key: string, fallback?: string) => string;
 }) {
   const message = isArabic ? t(activity.messageAr, activity.messageEn) : activity.messageEn;
-  const timeAgo = getTimeAgo(activity.timestamp, isArabic);
+  const timeAgo = getTimeAgo(activity.timestamp, isArabic, t);
 
   return (
     <div
@@ -123,7 +125,7 @@ const ActivityItem = memo(function ActivityItem({
   );
 });
 
-function getTimeAgo(timestamp: number, isArabic: boolean): string {
+function getTimeAgo(timestamp: number, isArabic: boolean, t: (key: string, fallback?: string) => string): string {
   const seconds = Math.floor((Date.now() - timestamp) / 1000);
 
   if (seconds < 10) return t('auto.ActivityFeed.k2', "Just now");
@@ -504,6 +506,7 @@ export default function ActivityFeed() {
                     isArabic={isArabic}
                     isNew={index === 0 && hasNewActivity}
                     prefersReducedMotion={prefersReducedMotion}
+                    t={t}
                   />
                 ))
               )}
