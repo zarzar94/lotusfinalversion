@@ -12,7 +12,7 @@ export function useParallax({
   direction = 'up',
   startOffset = 0,
   disabled = false,
-}: ParallaxConfig = {}) {
+}: ParallaxConfig = {}): { ref: React.RefObject<HTMLDivElement>; offset: number } {
   const [offset, setOffset] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -52,7 +52,7 @@ export function useScrollReveal({
   threshold = 0.2,
   rootMargin = '0px',
   once = true,
-}: ScrollRevealConfig = {}) {
+}: ScrollRevealConfig = {}): { ref: React.RefObject<HTMLDivElement>; isVisible: boolean; progress: number } {
   const [isVisible, setIsVisible] = useState(false);
   const [progress, setProgress] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
@@ -81,7 +81,7 @@ export function useScrollReveal({
   return { ref, isVisible, progress };
 }
 
-export function useMouseParallax(intensity: number = 0.02) {
+export function useMouseParallax(intensity: number = 0.02): { ref: React.RefObject<HTMLDivElement>; position: { x: number; y: number } } {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const ref = useRef<HTMLDivElement>(null);
 
@@ -106,7 +106,12 @@ export function useMouseParallax(intensity: number = 0.02) {
   return { ref, position };
 }
 
-export function useTilt(maxTilt: number = 10) {
+export function useTilt(maxTilt: number = 10): {
+  ref: React.RefObject<HTMLDivElement>;
+  tilt: { rotateX: number; rotateY: number };
+  handleMouseMove: (e: React.MouseEvent) => void;
+  handleMouseLeave: () => void;
+} {
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 });
   const ref = useRef<HTMLDivElement>(null);
 
@@ -133,7 +138,7 @@ export function useTilt(maxTilt: number = 10) {
   return { ref, tilt, handleMouseMove, handleMouseLeave };
 }
 
-export function useScrollProgress() {
+export function useScrollProgress(): number {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {

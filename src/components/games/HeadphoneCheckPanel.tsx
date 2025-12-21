@@ -373,8 +373,9 @@ export default function HeadphoneCheckPanel({
 
   const supported = useMemo(() => {
     try {
-      const tmp = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const ok = Boolean((tmp as any).createStereoPanner);
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      const tmp = new AudioContextClass();
+      const ok = typeof tmp.createStereoPanner === 'function';
       tmp.close();
       return ok;
     } catch {
