@@ -42,22 +42,22 @@ const RECOMMENDATIONS: Record<GameResult, Record<string, Recommendation[]>> = {
     school: [
       {
         titleEn: 'Schedule Individual Assessment',
-        titleAr: 'جدولة تقييم فردي',
+        titleAr: 'auto.PostTestSummary.k7',
         descriptionEn: 'This student may benefit from a comprehensive auditory processing evaluation.',
-        descriptionAr: 'قد يستفيد هذا الطالب من تقييم شامل للمعالجة السمعية.',
+        descriptionAr: 'auto.PostTestSummary.k8',
         actionEn: 'Request Evaluation',
-        actionAr: 'طلب تقييم',
+        actionAr: 'auto.PostTestSummary.k9',
         actionPath: '/contact?mode=school&type=evaluation',
         icon: '📋',
         priority: 'high',
       },
       {
         titleEn: 'Classroom Accommodations',
-        titleAr: 'تعديلات الفصل الدراسي',
+        titleAr: 'auto.PostTestSummary.k10',
         descriptionEn: 'Consider preferential seating and reduced background noise during instruction.',
-        descriptionAr: 'فكر في الجلوس المفضل وتقليل الضوضاء أثناء التدريس.',
+        descriptionAr: 'auto.PostTestSummary.k11',
         actionEn: 'View Accommodations Guide',
-        actionAr: 'عرض دليل التعديلات',
+        actionAr: 'auto.PostTestSummary.k12',
         actionPath: '/resources#accommodations',
         icon: '🏫',
         priority: 'medium',
@@ -66,22 +66,22 @@ const RECOMMENDATIONS: Record<GameResult, Record<string, Recommendation[]>> = {
     parent: [
       {
         titleEn: 'Book Professional Screening',
-        titleAr: 'احجز فحصاً مهنياً',
+        titleAr: 'auto.PostTestSummary.k13',
         descriptionEn: 'These results suggest your child may benefit from a professional auditory processing evaluation.',
-        descriptionAr: 'تشير هذه النتائج إلى أن طفلك قد يستفيد من تقييم مهني للمعالجة السمعية.',
+        descriptionAr: 'auto.PostTestSummary.k14',
         actionEn: 'Book Screening',
-        actionAr: 'احجز فحصاً',
+        actionAr: 'auto.PostTestSummary.k15',
         actionPath: '/contact?mode=parent',
         icon: '📅',
         priority: 'high',
       },
       {
         titleEn: 'Learn About Bérard AIT',
-        titleAr: 'تعرف على Bérard AIT',
+        titleAr: 'auto.PostTestSummary.k16',
         descriptionEn: 'Auditory Integration Training may help improve auditory processing abilities.',
-        descriptionAr: 'تدريب التكامل السمعي قد يساعد في تحسين قدرات المعالجة السمعية.',
+        descriptionAr: 'auto.PostTestSummary.k17',
         actionEn: 'View Program Details',
-        actionAr: 'عرض تفاصيل البرنامج',
+        actionAr: 'auto.PostTestSummary.k18',
         actionPath: '/program',
         icon: '🎧',
         priority: 'medium',
@@ -90,22 +90,22 @@ const RECOMMENDATIONS: Record<GameResult, Record<string, Recommendation[]>> = {
     clinician: [
       {
         titleEn: 'Access Clinical Protocol',
-        titleAr: 'الوصول للبروتوكول السريري',
+        titleAr: 'auto.PostTestSummary.k19',
         descriptionEn: 'Results indicate potential auditory processing concerns warranting clinical evaluation.',
-        descriptionAr: 'تشير النتائج إلى مخاوف محتملة في المعالجة السمعية تستدعي تقييماً سريرياً.',
+        descriptionAr: 'auto.PostTestSummary.k20',
         actionEn: 'View Protocol',
-        actionAr: 'عرض البروتوكول',
+        actionAr: 'auto.PostTestSummary.k21',
         actionPath: '/clinician-dashboard',
         icon: '📊',
         priority: 'high',
       },
       {
         titleEn: 'Export Data for Records',
-        titleAr: 'تصدير البيانات للسجلات',
+        titleAr: 'auto.PostTestSummary.k22',
         descriptionEn: 'Download raw data and detailed metrics for clinical documentation.',
-        descriptionAr: 'تحميل البيانات الخام والمقاييس التفصيلية للتوثيق السريري.',
+        descriptionAr: 'auto.PostTestSummary.k23',
         actionEn: 'Export Data',
-        actionAr: 'تصدير البيانات',
+        actionAr: 'auto.PostTestSummary.k24',
         actionPath: '#export',
         icon: '💾',
         priority: 'medium',
@@ -116,22 +116,22 @@ const RECOMMENDATIONS: Record<GameResult, Record<string, Recommendation[]>> = {
     school: [
       {
         titleEn: 'Monitor Progress',
-        titleAr: 'متابعة التقدم',
+        titleAr: 'auto.PostTestSummary.k25',
         descriptionEn: 'Consider periodic re-screening to track changes over time.',
-        descriptionAr: 'فكر في إعادة الفحص الدوري لتتبع التغييرات مع الوقت.',
+        descriptionAr: 'auto.PostTestSummary.k26',
         actionEn: 'Schedule Follow-up',
-        actionAr: 'جدولة متابعة',
+        actionAr: 'auto.PostTestSummary.k27',
         actionPath: '/contact?mode=school&type=followup',
         icon: '📈',
         priority: 'medium',
       },
       {
         titleEn: 'Explore School Partnership',
-        titleAr: 'استكشف الشراكة المدرسية',
+        titleAr: 'auto.PostTestSummary.k28',
         descriptionEn: 'Learn how our school screening program can benefit your students.',
-        descriptionAr: 'تعرف على كيف يمكن لبرنامج الفحص المدرسي أن يفيد طلابك.',
+        descriptionAr: 'auto.PostTestSummary.k29',
         actionEn: 'View Partnership Details',
-        actionAr: 'عرض تفاصيل الشراكة',
+        actionAr: 'auto.PostTestSummary.k30',
         actionPath: '/contact?mode=school',
         icon: '🤝',
         priority: 'low',
@@ -140,22 +140,22 @@ const RECOMMENDATIONS: Record<GameResult, Record<string, Recommendation[]>> = {
     parent: [
       {
         titleEn: 'Complete Full Assessment',
-        titleAr: 'أكمل التقييم الكامل',
+        titleAr: 'auto.PostTestSummary.k31',
         descriptionEn: 'Try the complete screening suite for a more comprehensive picture.',
-        descriptionAr: 'جرب مجموعة الفحص الكاملة للحصول على صورة أشمل.',
+        descriptionAr: 'auto.PostTestSummary.k32',
         actionEn: 'Start Full Suite',
-        actionAr: 'ابدأ المجموعة الكاملة',
+        actionAr: 'auto.PostTestSummary.k33',
         actionPath: '#games',
         icon: '🧪',
         priority: 'medium',
       },
       {
         titleEn: 'Review Checklist',
-        titleAr: 'راجع قائمة التحقق',
+        titleAr: 'auto.PostTestSummary.k34',
         descriptionEn: 'Complete our APD checklist for additional behavioral indicators.',
-        descriptionAr: 'أكمل قائمة التحقق من APD للحصول على مؤشرات سلوكية إضافية.',
+        descriptionAr: 'auto.PostTestSummary.k35',
         actionEn: 'View Checklist',
-        actionAr: 'عرض القائمة',
+        actionAr: 'auto.PostTestSummary.k36',
         actionPath: '#checklist',
         icon: '✅',
         priority: 'low',
@@ -164,22 +164,22 @@ const RECOMMENDATIONS: Record<GameResult, Record<string, Recommendation[]>> = {
     clinician: [
       {
         titleEn: 'Review Detailed Metrics',
-        titleAr: 'مراجعة المقاييس التفصيلية',
+        titleAr: 'auto.PostTestSummary.k37',
         descriptionEn: 'Access granular performance data for clinical interpretation.',
-        descriptionAr: 'الوصول إلى بيانات الأداء الدقيقة للتفسير السريري.',
+        descriptionAr: 'auto.PostTestSummary.k38',
         actionEn: 'View Metrics',
-        actionAr: 'عرض المقاييس',
+        actionAr: 'auto.PostTestSummary.k39',
         actionPath: '/clinician-dashboard',
         icon: '📊',
         priority: 'medium',
       },
       {
         titleEn: 'Compare with Norms',
-        titleAr: 'المقارنة مع المعايير',
+        titleAr: 'auto.PostTestSummary.k40',
         descriptionEn: 'Results fall within variable range - consider context factors.',
-        descriptionAr: 'النتائج تقع ضمن النطاق المتغير - ضع في الاعتبار عوامل السياق.',
+        descriptionAr: 'auto.PostTestSummary.k41',
         actionEn: 'View Normative Data',
-        actionAr: 'عرض البيانات المعيارية',
+        actionAr: 'auto.PostTestSummary.k42',
         actionPath: '/science#norms',
         icon: '📐',
         priority: 'low',
@@ -190,11 +190,11 @@ const RECOMMENDATIONS: Record<GameResult, Record<string, Recommendation[]>> = {
     school: [
       {
         titleEn: 'Great Results!',
-        titleAr: 'نتائج رائعة!',
+        titleAr: 'auto.PostTestSummary.k43',
         descriptionEn: 'This student shows strong auditory processing abilities.',
-        descriptionAr: 'يُظهر هذا الطالب قدرات قوية في المعالجة السمعية.',
+        descriptionAr: 'auto.PostTestSummary.k44',
         actionEn: 'Continue Screening',
-        actionAr: 'متابعة الفحص',
+        actionAr: 'auto.PostTestSummary.k45',
         actionPath: '#games',
         icon: '⭐',
         priority: 'low',
@@ -203,11 +203,11 @@ const RECOMMENDATIONS: Record<GameResult, Record<string, Recommendation[]>> = {
     parent: [
       {
         titleEn: 'Excellent Performance',
-        titleAr: 'أداء ممتاز',
+        titleAr: 'auto.PostTestSummary.k46',
         descriptionEn: 'Your child demonstrated strong auditory processing skills in this test.',
-        descriptionAr: 'أظهر طفلك مهارات قوية في المعالجة السمعية في هذا الاختبار.',
+        descriptionAr: 'auto.PostTestSummary.k47',
         actionEn: 'Try Other Tests',
-        actionAr: 'جرب اختبارات أخرى',
+        actionAr: 'auto.PostTestSummary.k48',
         actionPath: '#games',
         icon: '🎉',
         priority: 'low',
@@ -216,11 +216,11 @@ const RECOMMENDATIONS: Record<GameResult, Record<string, Recommendation[]>> = {
     clinician: [
       {
         titleEn: 'Within Normal Limits',
-        titleAr: 'ضمن الحدود الطبيعية',
+        titleAr: 'auto.PostTestSummary.k49',
         descriptionEn: 'Results indicate typical auditory processing abilities for this measure.',
-        descriptionAr: 'تشير النتائج إلى قدرات معالجة سمعية نموذجية لهذا المقياس.',
+        descriptionAr: 'auto.PostTestSummary.k50',
         actionEn: 'Document Results',
-        actionAr: 'توثيق النتائج',
+        actionAr: 'auto.PostTestSummary.k51',
         actionPath: '/clinician-dashboard',
         icon: '✓',
         priority: 'low',
@@ -239,7 +239,7 @@ const PostTestSummary = memo(function PostTestSummary({
   onRetry,
 }: PostTestSummaryProps) {
   const { mode, config } = useVisitorMode();
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
 
   const meta = resultMeta[outcome.result];
   const recommendations = RECOMMENDATIONS[outcome.result][mode] || [];
@@ -389,7 +389,7 @@ const PostTestSummary = memo(function PostTestSummary({
               letterSpacing: 1,
               marginBottom: spacing[1],
             }}>
-              {isArabic ? 'النتيجة' : 'SCORE'}
+              {t('auto.PostTestSummary.k1', "SCORE")}
             </div>
             <div style={{
               fontSize: typography.size['3xl'],
@@ -414,7 +414,7 @@ const PostTestSummary = memo(function PostTestSummary({
                 letterSpacing: 1,
                 marginBottom: spacing[1],
               }}>
-                {isArabic ? 'النقاط المكتسبة' : 'POINTS EARNED'}
+                {t('auto.PostTestSummary.k2', "POINTS EARNED")}
               </div>
               <div style={{
                 fontSize: typography.size['3xl'],
@@ -483,7 +483,7 @@ const PostTestSummary = memo(function PostTestSummary({
                         fontWeight: typography.weight.bold,
                         color: colors.text.primary,
                       }}>
-                        {isArabic ? rec.titleAr : rec.titleEn}
+                        {isArabic ? t(rec.titleAr, rec.titleEn) : rec.titleEn}
                       </span>
                       {rec.priority === 'high' && (
                         <span style={{
@@ -494,7 +494,7 @@ const PostTestSummary = memo(function PostTestSummary({
                           fontWeight: typography.weight.bold,
                           color: brandPink,
                         }}>
-                          {isArabic ? 'مُوصى به' : 'RECOMMENDED'}
+                          {t('auto.PostTestSummary.k3', "RECOMMENDED")}
                         </span>
                       )}
                     </div>
@@ -504,7 +504,7 @@ const PostTestSummary = memo(function PostTestSummary({
                       color: colors.text.secondary,
                       lineHeight: typography.lineHeight.relaxed,
                     }}>
-                      {isArabic ? rec.descriptionAr : rec.descriptionEn}
+                      {isArabic ? t(rec.descriptionAr, rec.descriptionEn) : rec.descriptionEn}
                     </p>
                   </div>
 
@@ -524,7 +524,7 @@ const PostTestSummary = memo(function PostTestSummary({
                       transition: transitions.fast,
                     }}
                   >
-                    {isArabic ? rec.actionAr : rec.actionEn}
+                    {isArabic ? t(rec.actionAr, rec.actionEn) : rec.actionEn}
                   </Link>
                 </div>
               ))}
@@ -546,9 +546,7 @@ const PostTestSummary = memo(function PostTestSummary({
             textAlign: 'center',
             lineHeight: typography.lineHeight.relaxed,
           }}>
-            {isArabic
-              ? '⚕️ هذه نتائج فحص غير تشخيصية. استشر أخصائياً للتقييم السريري الكامل.'
-              : '⚕️ These are non-diagnostic screening results. Consult a specialist for complete clinical evaluation.'}
+            {t('auto.PostTestSummary.k4', "⚕️ These are non-diagnostic screening results. Consult a specialist for complete clinical evaluation.")}
           </p>
         </div>
 
@@ -576,7 +574,7 @@ const PostTestSummary = memo(function PostTestSummary({
               gap: spacing[2],
             }}
           >
-            🔄 {isArabic ? 'أعد الاختبار' : 'Retry Test'}
+            🔄 {t('auto.PostTestSummary.k5', "Retry Test")}
           </button>
 
           <button
@@ -597,7 +595,7 @@ const PostTestSummary = memo(function PostTestSummary({
               gap: spacing[2],
             }}
           >
-            ✓ {isArabic ? 'تم' : 'Done'}
+            ✓ {t('auto.PostTestSummary.k6', "Done")}
           </button>
         </div>
       </div>

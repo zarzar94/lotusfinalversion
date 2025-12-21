@@ -19,7 +19,7 @@ interface LocalizedTextProps {
   /** English text */
   en: string;
   /** Optional tag name (default: span) */
-  as?: keyof JSX.IntrinsicElements;
+  as?: 'span' | 'div' | 'p' | 'strong' | 'em' | 'small' | 'label' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   /** Optional style */
   style?: CSSProperties;
   /** Optional className */
@@ -33,7 +33,7 @@ export const LocalizedText = memo(function LocalizedText({
   style,
   className,
 }: LocalizedTextProps) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   return <Tag style={style} className={className}>{isArabic ? ar : en}</Tag>;
 });
 
@@ -53,7 +53,7 @@ export const LocalizedContent = memo(function LocalizedContent({
   ar,
   en,
 }: LocalizedContentProps) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   return <>{isArabic ? ar : en}</>;
 });
 
@@ -79,7 +79,7 @@ export const LanguageAwareContainer = memo(function LanguageAwareContainer({
   alignText = false,
   flexReverse = false,
 }: LanguageAwareContainerProps) {
-  const { direction, isArabic } = useLanguage();
+  const { direction, isArabic, t } = useLanguage();
 
   const containerStyle: CSSProperties = {
     ...style,
@@ -105,7 +105,7 @@ interface LanguageOnlyProps {
 }
 
 export const ArabicOnly = memo(function ArabicOnly({ children }: LanguageOnlyProps) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   if (!isArabic) return null;
   return <>{children}</>;
 });
@@ -116,7 +116,7 @@ export const ArabicOnly = memo(function ArabicOnly({ children }: LanguageOnlyPro
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const EnglishOnly = memo(function EnglishOnly({ children }: LanguageOnlyProps) {
-  const { isEnglish } = useLanguage();
+  const { isEnglish, t } = useLanguage();
   if (!isEnglish) return null;
   return <>{children}</>;
 });
@@ -144,7 +144,7 @@ export const DirectionalSpacer = memo(function DirectionalSpacer({
   children,
   style,
 }: DirectionalSpacerProps) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
 
   const getStyle = (): CSSProperties => {
     const isStart = direction === 'start';
@@ -185,8 +185,8 @@ export interface BilingualNode {
 export function useBilingual<T extends { ar: unknown; en: unknown }>(
   content: T
 ): T['ar'] | T['en'] {
-  const { isArabic } = useLanguage();
-  return isArabic ? content.ar : content.en;
+  const { isArabic, t } = useLanguage();
+  return isArabic ? t(content.ar, content.en) : content.en;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -195,7 +195,7 @@ export function useBilingual<T extends { ar: unknown; en: unknown }>(
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function useDirectionalValue<T>(rtlValue: T, ltrValue: T): T {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   return isArabic ? rtlValue : ltrValue;
 }
 
@@ -211,7 +211,7 @@ interface LanguageBadgeProps {
 export const LanguageBadge = memo(function LanguageBadge({
   showInProduction = false,
 }: LanguageBadgeProps) {
-  const { language, direction } = useLanguage();
+  const { language, direction, t } = useLanguage();
 
   // Hide in production unless explicitly shown
   if (!showInProduction && import.meta.env.PROD) return null;

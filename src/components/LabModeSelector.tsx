@@ -36,14 +36,14 @@ const MODE_CONFIGS: Record<VisitorMode, {
     color: brandPurple,
     gradient: `linear-gradient(135deg, ${brandPurple}25, ${brandPurple}10)`,
     titleEn: 'Parents & Families',
-    titleAr: 'الأهالي والعائلات',
+    titleAr: 'auto.LabModeSelector.k8',
     descEn: 'Check your child\'s auditory processing and get personalized guidance',
-    descAr: 'افحص المعالجة السمعية لطفلك واحصل على إرشادات مخصصة',
+    descAr: 'auto.LabModeSelector.k9',
     ctaEn: 'Start Screening',
-    ctaAr: 'ابدأ الفحص',
+    ctaAr: 'auto.LabModeSelector.k10',
     metrics: [
-      { labelEn: 'Assessment', labelAr: 'التقييم', value: '5 min' },
-      { labelEn: 'Report', labelAr: 'التقرير', value: 'PDF' },
+      { labelEn: 'Assessment', labelAr: 'auto.LabModeSelector.k11', value: '5 min' },
+      { labelEn: 'Report', labelAr: 'auto.LabModeSelector.k12', value: 'PDF' },
     ],
   },
   school: {
@@ -51,14 +51,14 @@ const MODE_CONFIGS: Record<VisitorMode, {
     color: '#f59e0b',
     gradient: `linear-gradient(135deg, #f59e0b25, #f59e0b10)`,
     titleEn: 'Schools & Universities',
-    titleAr: 'المدارس والجامعات',
+    titleAr: 'auto.LabModeSelector.k13',
     descEn: 'Run classroom screening demos and build student support plans',
-    descAr: 'أجرِ عروض فحص الفصول وابنِ خطط دعم الطلاب',
+    descAr: 'auto.LabModeSelector.k14',
     ctaEn: 'Request Demo',
-    ctaAr: 'اطلب تجربة',
+    ctaAr: 'auto.LabModeSelector.k15',
     metrics: [
-      { labelEn: 'Partners', labelAr: 'الشراكات', value: '25+' },
-      { labelEn: 'Cohort', labelAr: 'المجموعة', value: 'Batch' },
+      { labelEn: 'Partners', labelAr: 'auto.LabModeSelector.k16', value: '25+' },
+      { labelEn: 'Cohort', labelAr: 'auto.LabModeSelector.k17', value: 'Batch' },
     ],
   },
   clinician: {
@@ -66,14 +66,14 @@ const MODE_CONFIGS: Record<VisitorMode, {
     color: brandPink,
     gradient: `linear-gradient(135deg, ${brandPink}25, ${brandPink}10)`,
     titleEn: 'Clinicians & Practitioners',
-    titleAr: 'الأخصائيون والممارسون',
+    titleAr: 'auto.LabModeSelector.k18',
     descEn: 'Evidence-based protocol, dashboards, and clinical reporting',
-    descAr: 'بروتوكول مبني على الأدلة ولوحات تحكم وتقارير سريرية',
+    descAr: 'auto.LabModeSelector.k19',
     ctaEn: 'View Protocol',
-    ctaAr: 'عرض البروتوكول',
+    ctaAr: 'auto.LabModeSelector.k20',
     metrics: [
-      { labelEn: 'Protocol', labelAr: 'البروتوكول', value: '20 sessions' },
-      { labelEn: 'Export', labelAr: 'التصدير', value: 'Clinical' },
+      { labelEn: 'Protocol', labelAr: 'auto.LabModeSelector.k21', value: '20 sessions' },
+      { labelEn: 'Export', labelAr: 'auto.LabModeSelector.k22', value: 'Clinical' },
     ],
   },
 };
@@ -91,6 +91,7 @@ const ModeCard = memo(({
   onSelect: () => void;
   onNavigate: () => void;
 }) => {
+  const { t } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
   const config = MODE_CONFIGS[mode];
 
@@ -103,7 +104,7 @@ const ModeCard = memo(({
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && onSelect()}
       aria-pressed={isActive}
-      aria-label={isArabic ? config.titleAr : config.titleEn}
+      aria-label={isArabic ? t(config.titleAr, config.titleEn) : config.titleEn}
       style={{
         position: 'relative',
         padding: spacing[5],
@@ -172,7 +173,7 @@ const ModeCard = memo(({
             letterSpacing: 1,
           }}
         >
-          {isActive ? (isArabic ? 'نشط' : 'ACTIVE') : (isArabic ? 'اختر' : 'SELECT')}
+          {isActive ? (t('auto.LabModeSelector.k1', "ACTIVE")) : (t('auto.LabModeSelector.k2', "SELECT"))}
         </span>
       </div>
 
@@ -209,7 +210,7 @@ const ModeCard = memo(({
           transition: 'color 0.3s ease',
         }}
       >
-        {isArabic ? config.titleAr : config.titleEn}
+        {isArabic ? t(config.titleAr, config.titleEn) : config.titleEn}
       </h3>
 
       {/* Description */}
@@ -223,7 +224,7 @@ const ModeCard = memo(({
           minHeight: 44,
         }}
       >
-        {isArabic ? config.descAr : config.descEn}
+        {isArabic ? t(config.descAr, config.descEn) : config.descEn}
       </p>
 
       {/* Metrics row */}
@@ -255,7 +256,7 @@ const ModeCard = memo(({
                 fontFamily: 'monospace',
               }}
             >
-              {isArabic ? metric.labelAr : metric.labelEn}:
+              {isArabic ? t(metric.labelAr, metric.labelEn) : metric.labelEn}:
             </span>
             <span
               style={{
@@ -296,7 +297,7 @@ const ModeCard = memo(({
           gap: 8,
         }}
       >
-        {isArabic ? config.ctaAr : config.ctaEn}
+        {isArabic ? t(config.ctaAr, config.ctaEn) : config.ctaEn}
         <span style={{ fontSize: 14 }}>{isArabic ? '←' : '→'}</span>
       </button>
     </div>
@@ -352,7 +353,7 @@ const LabModeSelector = memo(function LabModeSelector() {
   return (
     <section
       className="mode-selector-section"
-      aria-label={isArabic ? 'اختر مسارك' : 'Choose Your Path'}
+      aria-label={t('auto.LabModeSelector.k3', "Choose Your Path")}
       style={{
         position: 'relative',
         padding: `${spacing[10]}px ${spacing[4]}px`,
@@ -413,7 +414,7 @@ const LabModeSelector = memo(function LabModeSelector() {
               fontFamily: 'monospace',
             }}
           >
-            {isArabic ? 'محطة التحديد' : 'MODE SELECT'}
+            {t('auto.LabModeSelector.k4', "MODE SELECT")}
           </span>
         </div>
 
@@ -429,7 +430,7 @@ const LabModeSelector = memo(function LabModeSelector() {
             backgroundClip: 'text',
           }}
         >
-          {isArabic ? 'اختر مسارك' : 'Choose Your Path'}
+          {t('auto.LabModeSelector.k5', "Choose Your Path")}
         </h2>
 
         <p
@@ -441,9 +442,7 @@ const LabModeSelector = memo(function LabModeSelector() {
             lineHeight: typography.lineHeight.relaxed,
           }}
         >
-          {isArabic
-            ? 'نخصص تجربتك بناءً على احتياجاتك. اختر المسار الأنسب لك.'
-            : 'We personalize your experience based on your needs. Select the path that fits you.'}
+          {t('auto.LabModeSelector.k6', "We personalize your experience based on your needs. Select the path that fits you.")}
         </p>
       </div>
 
@@ -483,9 +482,7 @@ const LabModeSelector = memo(function LabModeSelector() {
             fontFamily: 'monospace',
           }}
         >
-          {isArabic
-            ? '💡 يمكنك تغيير المسار في أي وقت من الإعدادات'
-            : '💡 You can change your path anytime from settings'}
+          {t('auto.LabModeSelector.k7', "💡 You can change your path anytime from settings")}
         </p>
       </div>
     </section>

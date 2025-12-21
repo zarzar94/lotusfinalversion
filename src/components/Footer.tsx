@@ -17,6 +17,7 @@ import {
   PhoneIcon,
   BrainIcon,
   HelpIcon,
+  UsersIcon,
 } from './Icons';
 import BrainLogo from './BrainLogo';
 import { useLanguage } from '../context/LanguageContext';
@@ -47,8 +48,10 @@ const QUICK_LINKS: QuickLink[] = [
   { translationKey: 'nav.program', to: '/program', icon: <HeadphonesIcon size={16} /> },
   { translationKey: 'nav.assessment', to: '/assessment', icon: <GamepadIcon size={16} /> },
   { translationKey: 'nav.results', to: '/results', icon: <ChartIcon size={16} /> },
+  { translationKey: 'nav.partners', to: '/partners', icon: <UsersIcon size={16} /> },
   { translationKey: 'nav.science', to: '/science', icon: <BrainIcon size={16} /> },
   { translationKey: 'nav.resources', to: '/resources', icon: <HelpIcon size={16} /> },
+  { translationKey: 'nav.faq', to: '/faq', icon: <HelpIcon size={16} /> },
   { translationKey: 'nav.about', to: '/about', icon: '🏛️' },
   { translationKey: 'nav.contact', to: '/contact', icon: <PhoneIcon size={16} /> },
 ];

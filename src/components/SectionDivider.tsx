@@ -37,63 +37,63 @@ type CategoryConfig = {
 const CATEGORY_CONFIG: Record<SectionCategory, CategoryConfig> = {
   diagnostic: {
     icon: '🔬',
-    labelAr: 'أدوات التشخيص',
+    labelAr: 'auto.SectionDivider.k1',
     labelEn: 'Diagnostic Tools',
-    descAr: 'أدوات التقييم الذاتي والتحليل التفاعلي',
+    descAr: 'auto.SectionDivider.k2',
     descEn: 'Self-assessment tools & interactive analysis',
     color: brandCyan,
     gradient: `linear-gradient(135deg, ${brandCyan}20, ${brandCyan}05)`,
   },
   protocol: {
     icon: '📋',
-    labelAr: 'بروتوكول العلاج',
+    labelAr: 'auto.SectionDivider.k3',
     labelEn: 'Treatment Protocol',
-    descAr: 'نظرة شاملة على البرنامج والجدول الزمني',
+    descAr: 'auto.SectionDivider.k4',
     descEn: 'Program overview & treatment timeline',
     color: brandPurple,
     gradient: `linear-gradient(135deg, ${brandPurple}20, ${brandPurple}05)`,
   },
   science: {
     icon: '🧬',
-    labelAr: 'البحث العلمي',
+    labelAr: 'auto.SectionDivider.k5',
     labelEn: 'Research & Science',
-    descAr: 'الأسس العلمية والتقنيات المستخدمة',
+    descAr: 'auto.SectionDivider.k6',
     descEn: 'Scientific foundations & technologies',
     color: brandPink,
     gradient: `linear-gradient(135deg, ${brandPink}20, ${brandPink}05)`,
   },
   evidence: {
     icon: '📊',
-    labelAr: 'النتائج والأدلة',
+    labelAr: 'auto.SectionDivider.k7',
     labelEn: 'Results & Evidence',
-    descAr: 'شهادات ونتائج موثقة',
+    descAr: 'auto.SectionDivider.k8',
     descEn: 'Testimonials & documented results',
     color: brandCyan,
     gradient: `linear-gradient(135deg, ${brandCyan}20, ${brandPurple}05)`,
   },
   resources: {
     icon: '📚',
-    labelAr: 'المصادر التعليمية',
+    labelAr: 'auto.SectionDivider.k9',
     labelEn: 'Learning Resources',
-    descAr: 'عروض تقديمية وفيديوهات ومقالات',
+    descAr: 'auto.SectionDivider.k10',
     descEn: 'Presentations, videos & articles',
     color: brandPurple,
     gradient: `linear-gradient(135deg, ${brandPurple}20, ${brandCyan}05)`,
   },
   network: {
     icon: '🤝',
-    labelAr: 'الشراكات والشبكة',
+    labelAr: 'auto.SectionDivider.k11',
     labelEn: 'Partnerships & Network',
-    descAr: 'المدارس والجامعات والعيادات الشريكة',
+    descAr: 'auto.SectionDivider.k12',
     descEn: 'Partner schools, universities & clinics',
     color: brandPink,
     gradient: `linear-gradient(135deg, ${brandPink}15, ${brandPurple}05)`,
   },
   connect: {
     icon: '💬',
-    labelAr: 'تواصل معنا',
+    labelAr: 'auto.SectionDivider.k13',
     labelEn: 'Get Connected',
-    descAr: 'ابدأ رحلتك مع Berard AIT',
+    descAr: 'auto.SectionDivider.k14',
     descEn: 'Start your journey with Berard AIT',
     color: brandCyan,
     gradient: `linear-gradient(135deg, ${brandCyan}15, ${brandPink}05)`,
@@ -111,7 +111,7 @@ type SectionDividerProps = {
 };
 
 function SectionDivider({ category, showNumber = true, number }: SectionDividerProps) {
-  const { isArabic, direction } = useLanguage();
+  const { isArabic, direction, t } = useLanguage();
   const config = CATEGORY_CONFIG[category];
 
   // Calculate section number based on category order
@@ -239,7 +239,7 @@ function SectionDivider({ category, showNumber = true, number }: SectionDividerP
               fontFamily: typography.fontFamily,
               letterSpacing: 0.5,
             }}>
-              {isArabic ? config.labelAr : config.labelEn}
+              {isArabic ? t(config.labelAr, config.labelEn) : config.labelEn}
             </div>
             <div style={{
               fontSize: typography.size.xs,
@@ -247,7 +247,7 @@ function SectionDivider({ category, showNumber = true, number }: SectionDividerP
               fontFamily: typography.fontFamily,
               marginTop: 2,
             }}>
-              {isArabic ? config.descAr : config.descEn}
+              {isArabic ? t(config.descAr, config.descEn) : config.descEn}
             </div>
           </div>
 

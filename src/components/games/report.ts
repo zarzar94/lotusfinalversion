@@ -4,7 +4,7 @@ import { translations } from '../../i18n/translations';
 import { brandCyan, brandInk, brandPink, brandPurple, brandPurpleDark } from '../styles';
 import { AssessmentSession, TestOutcome, TestKey } from './types';
 
-const downloadBlob = (blob: Blob, filename: string) => {
+export const downloadBlob = (blob: Blob, filename: string): void => {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = filename;
@@ -12,7 +12,7 @@ const downloadBlob = (blob: Blob, filename: string) => {
   URL.revokeObjectURL(a.href);
 };
 
-const safeJson = (value: unknown) => {
+const safeJson = (value: unknown): string => {
   try {
     return JSON.stringify(value);
   } catch {
@@ -212,7 +212,15 @@ export const downloadSessionPdf = async (session: AssessmentSession, options: Re
   y = ensurePage(doc, y);
   y = writeSectionHeading(doc, copy.resultsHeading, y + 16, contentWidth, brandPurpleDark);
 
-  const ordered: TestKey[] = ['attention', 'frequency', 'sequence', 'questionnaire'];
+  const ordered: TestKey[] = [
+    'attention',
+    'focused_attention',
+    'frequency',
+    'sequence',
+    'dichotic_listening',
+    'speech_in_noise',
+    'questionnaire',
+  ];
   ordered.forEach((key, index) => {
     const o = session.outcomes[key];
     if (!o) return;

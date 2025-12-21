@@ -26,8 +26,6 @@ import {
 // Lazy load sections
 const IntakeForm = lazy(() => import('../components/IntakeForm'));
 const ContactForm = lazy(() => import('../components/ContactForm'));
-const SchoolPartnershipSection = lazy(() => import('../components/SchoolPartnershipSection'));
-const PartnerLogos = lazy(() => import('../components/PartnerLogos'));
 
 // Page header component
 const PageHeader = memo(() => {
@@ -120,20 +118,6 @@ function ContactPage() {
         <FadeIn delay={150} scale blur blurAmount={4}>
           <Suspense fallback={<SectionLoader label={t('common.loadingContact')} height={700} />}>
             <ContactForm />
-          </Suspense>
-        </FadeIn>
-
-        {/* School Partnership */}
-        <FadeIn delay={200} direction="right" distance={25}>
-          <Suspense fallback={<SectionLoader label={t('common.loading')} height={300} />}>
-            <SchoolPartnershipSection />
-          </Suspense>
-        </FadeIn>
-
-        {/* Partner Logos */}
-        <FadeIn delay={250} direction="none" scale scaleFrom={0.97}>
-          <Suspense fallback={<SectionLoader label={t('common.loading')} height={150} />}>
-            <PartnerLogos />
           </Suspense>
         </FadeIn>
 

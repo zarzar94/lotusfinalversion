@@ -4,7 +4,7 @@ import { assetUrl } from './asset';
 export const PDF_MARGIN_X = 48;
 
 // Includes Arabic + Arabic presentation forms (some PDFs export with presentation forms)
-const isArabicText = (value: string) => /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(value);
+const isArabicText = (value: string): boolean => /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(value);
 
 const rtlBaseOptions: TextOptionsLight = {
   align: 'right',
@@ -42,7 +42,7 @@ const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
 // Lazy-load jsPDF only when needed (saves ~385KB from initial bundle)
 let jsPDFModule: typeof import('jspdf') | null = null;
 
-const getJsPDF = async () => {
+const getJsPDF = async (): Promise<typeof import('jspdf').jsPDF> => {
   if (!jsPDFModule) {
     jsPDFModule = await import('jspdf');
   }

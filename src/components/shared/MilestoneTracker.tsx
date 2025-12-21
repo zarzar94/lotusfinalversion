@@ -4,6 +4,7 @@
  */
 
 import { memo, useMemo } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   brandCyan,
   brandPurple,
@@ -80,6 +81,7 @@ export const MilestoneTracker = memo(({
   title,
   titleAr,
 }: MilestoneTrackerProps) => {
+  const { t } = useLanguage();
   const css = `
     @keyframes milestoneUnlock {
       0% { transform: scale(0.8); opacity: 0; }
@@ -112,7 +114,7 @@ export const MilestoneTracker = memo(({
             fontWeight: typography.weight.bold,
             color: colors.text.primary,
           }}>
-            {isArabic ? titleAr : title}
+            {isArabic ? t(titleAr, title) : title}
           </h4>
         )}
         <div style={{ display: 'flex', gap: spacing[2], flexWrap: 'wrap' }}>
@@ -163,7 +165,7 @@ export const MilestoneTracker = memo(({
             fontWeight: typography.weight.bold,
             color: colors.text.primary,
           }}>
-            {isArabic ? titleAr : title}
+            {isArabic ? t(titleAr, title) : title}
           </h4>
         )}
         <div style={{ position: 'relative', paddingLeft: isArabic ? 0 : spacing[8], paddingRight: isArabic ? spacing[8] : 0 }}>
@@ -270,7 +272,7 @@ export const MilestoneTracker = memo(({
           fontWeight: typography.weight.bold,
           color: colors.text.primary,
         }}>
-          {isArabic ? titleAr : title}
+          {isArabic ? t(titleAr, title) : title}
         </h4>
       )}
 
@@ -368,6 +370,7 @@ export const AchievementBadge = memo(({
   showDetails = false,
   onClick,
 }: AchievementBadgeProps) => {
+  const { t } = useLanguage();
   const sizes = {
     sm: { badge: 36, icon: 18, font: typography.size.xs },
     md: { badge: 48, icon: 24, font: typography.size.sm },
@@ -477,7 +480,7 @@ export const AchievementBadge = memo(({
                   fontWeight: typography.weight.bold,
                   color,
                 }}>
-                  +{points} {isArabic ? 'نقطة' : 'pts'}
+                  +{points} {t('auto.MilestoneTracker.k1', "pts")}
                 </span>
               )}
               {unlockedAt && (
@@ -525,6 +528,7 @@ export const AchievementGrid = memo(({
   title,
   titleAr,
 }: AchievementGridProps) => {
+  const { t } = useLanguage();
   const displayedAchievements = useMemo(() => {
     if (showLocked) return achievements;
     return achievements.filter(a => a.achieved);
@@ -547,7 +551,7 @@ export const AchievementGrid = memo(({
             fontWeight: typography.weight.bold,
             color: colors.text.primary,
           }}>
-            {isArabic ? titleAr : title}
+            {isArabic ? t(titleAr, title) : title}
           </h4>
           <span style={{
             fontSize: typography.size.xs,
@@ -603,11 +607,12 @@ export const TreatmentPhaseIndicator = memo(({
   totalSessions = 20,
   isArabic = false,
 }: TreatmentPhaseProps) => {
+  const { t } = useLanguage();
   const phases = [
-    { key: 'assessment', label: 'Assessment', labelAr: 'تقييم', icon: '📋', range: [0, 0] },
-    { key: 'active', label: 'Active', labelAr: 'نشط', icon: '🎯', range: [1, 14] },
-    { key: 'maintenance', label: 'Maintenance', labelAr: 'صيانة', icon: '🔄', range: [15, 19] },
-    { key: 'completed', label: 'Completed', labelAr: 'مكتمل', icon: '🎓', range: [20, 20] },
+    { key: 'assessment', label: 'Assessment', labelAr: 'auto.MilestoneTracker.k3', icon: '📋', range: [0, 0] },
+    { key: 'active', label: 'Active', labelAr: 'auto.MilestoneTracker.k4', icon: '🎯', range: [1, 14] },
+    { key: 'maintenance', label: 'Maintenance', labelAr: 'auto.MilestoneTracker.k5', icon: '🔄', range: [15, 19] },
+    { key: 'completed', label: 'Completed', labelAr: 'auto.MilestoneTracker.k6', icon: '🎓', range: [20, 20] },
   ];
 
   const currentPhaseIndex = phases.findIndex(p => p.key === phase);
@@ -682,7 +687,7 @@ export const TreatmentPhaseIndicator = memo(({
                 fontWeight: isActive ? typography.weight.bold : typography.weight.medium,
                 color: isActive ? brandCyan : isCompleted ? brandPurple : colors.text.muted,
               }}>
-                {isArabic ? p.labelAr : p.label}
+                {isArabic ? t(p.labelAr, p.label) : p.label}
               </div>
             </div>
           );
@@ -705,7 +710,7 @@ export const TreatmentPhaseIndicator = memo(({
           fontSize: typography.size.sm,
           color: colors.text.secondary,
         }}>
-          /{totalSessions} {isArabic ? 'جلسة' : 'sessions'}
+          /{totalSessions} {t('auto.MilestoneTracker.k2', "sessions")}
         </span>
       </div>
     </div>

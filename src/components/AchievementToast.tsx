@@ -15,7 +15,7 @@ import {
 
 export default function AchievementToast() {
   const { recentUnlock, clearRecentUnlock, state } = useGamification();
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
 
@@ -177,7 +177,7 @@ export default function AchievementToast() {
             letterSpacing: typography.letterSpacing.wider,
             marginBottom: spacing[1],
           }}>
-            {isArabic ? 'إنجاز جديد!' : 'Achievement Unlocked!'}
+            {t('auto.AchievementToast.k1', "Achievement Unlocked!")}
           </div>
 
           {/* Title */}
@@ -188,7 +188,7 @@ export default function AchievementToast() {
             marginBottom: spacing[1],
             lineHeight: typography.lineHeight.tight,
           }}>
-            {isArabic ? recentUnlock.titleAr : recentUnlock.title}
+            {isArabic ? t(recentUnlock.titleAr, recentUnlock.title) : recentUnlock.title}
           </div>
 
           {/* Description */}
@@ -197,7 +197,7 @@ export default function AchievementToast() {
             color: colors.text.secondary,
             marginBottom: spacing[2],
           }}>
-            {isArabic ? recentUnlock.descriptionAr : recentUnlock.description}
+            {isArabic ? t(recentUnlock.descriptionAr, recentUnlock.description) : recentUnlock.description}
           </div>
 
           {/* Points badge */}
@@ -214,7 +214,7 @@ export default function AchievementToast() {
               color: colors.text.primary,
             }}
           >
-            +{recentUnlock.points} {isArabic ? 'نقطة' : 'pts'}
+            +{recentUnlock.points} {t('auto.AchievementToast.k2', "pts")}
           </div>
         </div>
 

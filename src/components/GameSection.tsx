@@ -4,8 +4,11 @@ import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, rad
 
 import AssessmentSuiteModal from './games/AssessmentSuiteModal';
 import AttentionTestPanel from './games/AttentionTestPanel';
+import FocusedAttentionTestPanel from './games/FocusedAttentionTestPanel';
 import FrequencyDiscriminationTestPanel from './games/FrequencyDiscriminationTestPanel';
 import SequencingTestPanel from './games/SequencingTestPanel';
+import DichoticListeningTestPanel from './games/DichoticListeningTestPanel';
+import SpeechInNoiseTestPanel from './games/SpeechInNoiseTestPanel';
 import QuestionnairePanel from './games/QuestionnairePanel';
 import GamePortal from './games/GamePortal';
 import PreTestBriefing from './games/PreTestBriefing';
@@ -14,15 +17,25 @@ import ScreeningDashboard from './games/ScreeningDashboard';
 import type { GameResult, TestOutcome } from './games/types';
 import { resultMeta } from './games/types';
 import { saveSession, type StoredSession } from './games/scoring';
+import { saveSession as saveLabSession } from '../utils/sessionStorage';
+import { buildLabMetrics } from '../utils/labMetrics';
 import { useVisitorMode } from '../context/VisitorModeContext';
 import { useLanguage } from '../context/LanguageContext';
 
-type GameMode = 'suite' | 'attention' | 'frequency' | 'sequence' | 'questionnaire';
+type GameMode =
+  | 'suite'
+  | 'attention'
+  | 'focused_attention'
+  | 'frequency'
+  | 'sequence'
+  | 'dichotic_listening'
+  | 'speech_in_noise'
+  | 'questionnaire';
 
 const nextStepFrom = (r: GameResult, t: (key: string) => string) => {
-  if (r === 'low') return { label: t('games.nextStep.low'), hash: '#contact', tone: brandPink };
+  if (r === 'low') return { label: t('games.nextStep.low'), hash: '/contact#contact', tone: brandPink };
   if (r === 'medium') return { label: t('games.nextStep.medium'), hash: '#games', tone: brandPurple };
-  return { label: t('games.nextStep.high'), hash: '#schools', tone: brandCyan };
+  return { label: t('games.nextStep.high'), hash: '/partners#schools', tone: brandCyan };
 };
 
 type CardLabels = {
@@ -145,7 +158,6 @@ function MedicalMonitor({
   isActive: boolean;
 }) {
   const { t, direction } = useLanguage();
-
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -341,6 +353,7 @@ function MedicalMonitor({
           maxHeight: '50vh',
           overflowY: 'auto',
           direction,
+          textAlign: direction === 'rtl' ? 'right' : 'left',
           background: 'linear-gradient(180deg, rgba(26,31,46,0.5) 0%, rgba(13,17,23,0.5) 100%)',
         }}>
           {children}
@@ -388,7 +401,6 @@ function TestCard({
   tag,
   outputs,
   labels,
-  isArabic,
   waveformColor,
   waveformType,
   onClick,
@@ -399,12 +411,12 @@ function TestCard({
   tag: string;
   outputs: string[];
   labels: CardLabels;
-  isArabic: boolean;
   waveformColor: string;
   waveformType: 'ecg' | 'spo2' | 'resp' | 'audio';
   onClick: () => void;
   index: number;
 }) {
+  const { isArabic, t } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -680,6 +692,9 @@ const GameSection = memo(function GameSection() {
       totalPoints,
     };
     saveSession(session);
+
+    const labMetrics = buildLabMetrics(outcome);
+    saveLabSession(labMetrics);
   }, []);
 
   // Handle retry from summary
@@ -746,6 +761,16 @@ const GameSection = memo(function GameSection() {
         waveType: 'spo2' as const,
       },
       {
+        mode: 'focused_attention' as const,
+        title: t('games.cards.focusedAttention.title', 'Focused Attention Test'),
+        fullTitle: t('games.cards.focusedAttention.fullTitle', 'Focused Attention Test (CPT / Odd-One-Out)'),
+        desc: t('games.cards.focusedAttention.desc', 'Measures sustained attention consistency over time'),
+        outputs: [outputLabels.rt, outputLabels.accuracy],
+        tag: t('games.focusedAttention'),
+        color: '#0EA5E9',
+        waveType: 'spo2' as const,
+      },
+      {
         mode: 'frequency' as const,
         title: t('games.modules.frequency.name'),
         fullTitle: t('games.cards.frequency.fullTitle'),
@@ -766,6 +791,26 @@ const GameSection = memo(function GameSection() {
         waveType: 'resp' as const,
       },
       {
+        mode: 'dichotic_listening' as const,
+        title: t('games.cards.dichotic.title', 'Dichotic Listening Test'),
+        fullTitle: t('games.cards.dichotic.fullTitle', 'Dichotic listening + integration/separation'),
+        desc: t('games.cards.dichotic.desc', 'Assesses ear balance and separation accuracy'),
+        outputs: [outputLabels.accuracy, outputLabels.profile],
+        tag: t('games.dichoticListening'),
+        color: '#10B981',
+        waveType: 'audio' as const,
+      },
+      {
+        mode: 'speech_in_noise' as const,
+        title: t('games.cards.speechInNoise.title', 'Speech in Noise'),
+        fullTitle: t('games.cards.speechInNoise.fullTitle', 'Speech-in-noise + adaptive SNR'),
+        desc: t('games.cards.speechInNoise.desc', 'Measures speech understanding with changing noise'),
+        outputs: [outputLabels.threshold, outputLabels.accuracy],
+        tag: t('games.speechInNoise'),
+        color: '#F97316',
+        waveType: 'resp' as const,
+      },
+      {
         mode: 'questionnaire' as const,
         title: t('games.modules.questionnaire.name'),
         fullTitle: t('games.cards.questionnaire.fullTitle'),
@@ -778,10 +823,10 @@ const GameSection = memo(function GameSection() {
     ],
     [outputLabels, t]
   );
-
   const activeCard = cards.find(c => c.mode === mode);
   const lastMeta = lastOutcome ? resultMeta[lastOutcome.result] : null;
   const lastNext = lastOutcome ? nextStepFrom(lastOutcome.result, t) : null;
+  const modulesAvailableLabel = t('gameSection.modulesAvailable', '{count} Modules Available');
 
   const handleTestStart = useCallback(() => {
     setIsTestActive(true);
@@ -1095,7 +1140,6 @@ const GameSection = memo(function GameSection() {
                 tag={c.tag}
                 outputs={c.outputs}
                 labels={cardLabels}
-                isArabic={isArabic}
                 waveformColor={c.color}
                 waveformType={c.waveType}
                 onClick={() => handleModeSelect(c.mode)}
@@ -1123,7 +1167,7 @@ const GameSection = memo(function GameSection() {
               {t('games.quickAccessLabel')}
             </span>
             <span style={{ fontSize: 10, color: brandCyan, fontWeight: 600 }}>
-              {t('games.modulesAvailable')}
+              {modulesAvailableLabel.replace('{count}', String(cards.length))}
             </span>
           </div>
           <div style={{
@@ -1134,16 +1178,19 @@ const GameSection = memo(function GameSection() {
             flexWrap: 'wrap',
           }}>
             {[
-              { color: '#22c55e', label: t('games.tags.suite'), icon: '\u{1F9EA}' },
-              { color: '#3B82F6', label: t('games.tags.attention'), icon: '\u{1F3AF}' },
-              { color: '#8B5CF6', label: t('games.tags.frequency'), icon: '\u{1F39A}' },
-              { color: '#F59E0B', label: t('games.tags.sequence'), icon: '\u{1F3EB}' },
-              { color: brandPink, label: t('games.tags.questionnaire'), icon: '\u{1F4DD}' },
-            ].map((btn, i) => (
+              { mode: 'suite', color: '#22c55e', label: t('games.tags.suite'), icon: '\u{1F9EA}' },
+              { mode: 'attention', color: '#3B82F6', label: t('games.tags.attention'), icon: '\u{1F3AF}' },
+              { mode: 'focused_attention', color: '#0EA5E9', label: t('games.focusedAttention'), icon: '\u{1F9E0}' },
+              { mode: 'frequency', color: '#8B5CF6', label: t('games.tags.frequency'), icon: '\u{1F39A}' },
+              { mode: 'sequence', color: '#F59E0B', label: t('games.tags.sequence'), icon: '\u{1F3EB}' },
+              { mode: 'dichotic_listening', color: '#10B981', label: t('games.dichoticListening'), icon: '\u{1F442}' },
+              { mode: 'speech_in_noise', color: '#F97316', label: t('games.speechInNoise'), icon: '\u{1F50A}' },
+              { mode: 'questionnaire', color: brandPink, label: t('games.tags.questionnaire'), icon: '\u{1F4DD}' },
+            ].map((btn) => (
               <button
-                key={i}
+                key={btn.mode}
                 type="button"
-                onClick={() => handleModeSelect(cards[i].mode)}
+                onClick={() => handleModeSelect(btn.mode as GameMode)}
                 aria-label={`${t('games.startModule')}: ${btn.label}`}
                 style={{
                   padding: '8px 16px',
@@ -1500,9 +1547,7 @@ const GameSection = memo(function GameSection() {
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {isArabic
-              ? 'النتائج والتوصيات مخصصة لاحتياجاتك'
-              : 'Results and recommendations personalized for your needs'}
+            {t('auto.GameSection.k30', "Results and recommendations personalized for your needs")}
           </div>
         </div>
         <a
@@ -1519,7 +1564,7 @@ const GameSection = memo(function GameSection() {
             transition: transitions.fast,
           }}
         >
-          {isArabic ? visitorConfig.ctaLabelAr : visitorConfig.ctaLabel}
+          {isArabic ? t(visitorConfig.ctaLabelAr, visitorConfig.ctaLabel) : visitorConfig.ctaLabel}
         </a>
       </div>
     </section>

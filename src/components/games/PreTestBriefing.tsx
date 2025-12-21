@@ -31,7 +31,7 @@ interface TestBriefing {
 }
 
 interface PreTestBriefingProps {
-  testType: 'suite' | 'attention' | 'frequency' | 'sequence' | 'questionnaire';
+  testType: 'suite' | 'attention' | 'focused_attention' | 'frequency' | 'sequence' | 'dichotic_listening' | 'speech_in_noise' | 'questionnaire';
   open: boolean;
   onClose: () => void;
   onStart: () => void;
@@ -46,11 +46,11 @@ const TEST_BRIEFINGS: Record<string, TestBriefing> = {
     id: 'suite',
     icon: '🧪',
     titleEn: 'Complete Auditory Screening Suite',
-    titleAr: 'معمل الفحص السمعي الشامل',
+    titleAr: 'auto.PreTestBriefing.k8',
     durationEn: '15-20 minutes',
-    durationAr: '١٥-٢٠ دقيقة',
-    descriptionEn: 'A comprehensive 3-test battery measuring attention, frequency discrimination, and auditory sequencing.',
-    descriptionAr: 'مجموعة شاملة من 3 اختبارات لقياس الانتباه وتمييز التردد والتسلسل السمعي.',
+    durationAr: 'auto.PreTestBriefing.k9',
+    descriptionEn: 'A comprehensive 6-test battery measuring attention, frequency discrimination, sequencing, dichotic listening, and speech in noise.',
+    descriptionAr: 'auto.PreTestBriefing.k10',
     protocolEn: [
       'Standardized adaptive testing methodology',
       'Results calibrated against normative data',
@@ -93,11 +93,11 @@ const TEST_BRIEFINGS: Record<string, TestBriefing> = {
     id: 'attention',
     icon: '🎯',
     titleEn: 'Auditory Attention Test',
-    titleAr: 'اختبار الانتباه السمعي',
+    titleAr: 'auto.PreTestBriefing.k11',
     durationEn: '5-7 minutes',
-    durationAr: '٥-٧ دقائق',
+    durationAr: 'auto.PreTestBriefing.k12',
     descriptionEn: 'Measures selective attention and impulse control under auditory noise conditions using Go/No-Go paradigm.',
-    descriptionAr: 'يقيس الانتباه الانتقائي والتحكم في الاندفاعية تحت ظروف الضوضاء باستخدام نموذج استجب/لا تستجب.',
+    descriptionAr: 'auto.PreTestBriefing.k13',
     protocolEn: [
       'Go/No-Go response paradigm',
       'Background noise conditions',
@@ -140,11 +140,11 @@ const TEST_BRIEFINGS: Record<string, TestBriefing> = {
     id: 'frequency',
     icon: '🎚️',
     titleEn: 'Frequency Discrimination Test',
-    titleAr: 'اختبار تمييز التردد',
+    titleAr: 'auto.PreTestBriefing.k14',
     durationEn: '4-6 minutes',
-    durationAr: '٤-٦ دقائق',
+    durationAr: 'auto.PreTestBriefing.k15',
     descriptionEn: 'Estimates your frequency discrimination threshold using adaptive 2-interval forced choice (2IFC) methodology.',
-    descriptionAr: 'يُقدر عتبة تمييز التردد لديك باستخدام منهجية الاختيار القسري ذات الفاصلين (2IFC).',
+    descriptionAr: 'auto.PreTestBriefing.k16',
     protocolEn: [
       'Adaptive 2IFC methodology',
       'Staircase threshold estimation',
@@ -187,11 +187,11 @@ const TEST_BRIEFINGS: Record<string, TestBriefing> = {
     id: 'sequence',
     icon: '🏫',
     titleEn: 'Classroom Simulation Test',
-    titleAr: 'محاكاة الصف الدراسي',
+    titleAr: 'auto.PreTestBriefing.k17',
     durationEn: '5-8 minutes',
-    durationAr: '٥-٨ دقائق',
+    durationAr: 'auto.PreTestBriefing.k18',
     descriptionEn: 'Simulates classroom conditions to assess auditory memory and sequencing under increasing noise levels.',
-    descriptionAr: 'يحاكي ظروف الفصل الدراسي لتقييم الذاكرة السمعية والتسلسل تحت مستويات ضوضاء متزايدة.',
+    descriptionAr: 'auto.PreTestBriefing.k19',
     protocolEn: [
       'Multi-step verbal instructions',
       'Progressive background noise',
@@ -230,15 +230,156 @@ const TEST_BRIEFINGS: Record<string, TestBriefing> = {
     ],
     color: '#F59E0B',
   },
+  focused_attention: {
+    id: 'focused_attention',
+    icon: '🎯',
+    titleEn: 'Focused Attention (CPT)',
+    titleAr: 'اختبار الانتباه المركز (CPT)',
+    durationEn: '4-6 minutes',
+    durationAr: '4-6 دقائق',
+    descriptionEn: 'Continuous performance task measuring sustained attention and response consistency.',
+    descriptionAr: 'مهمة أداء مستمرة تقيس الانتباه المستمر واتساق الاستجابة.',
+    protocolEn: [
+      'Continuous performance (CPT) paradigm',
+      'Target detection among distractors',
+      'Reaction time and lapse tracking',
+      'Non-diagnostic screening indicators',
+    ],
+    protocolAr: [
+      'نموذج الأداء المستمر (CPT)',
+      'اكتشاف الهدف بين المشتتات',
+      'تتبع زمن الاستجابة وفترات التشتت',
+      'مؤشرات فحص غير تشخيصية',
+    ],
+    requirementsEn: [
+      'Headphones recommended',
+      'Quiet environment',
+      'Respond only to the target symbol',
+      'Stay focused and still',
+    ],
+    requirementsAr: [
+      'يُنصح بسماعات',
+      'بيئة هادئة',
+      'استجب للرمز الهدف فقط',
+      'حافظ على التركيز والثبات',
+    ],
+    whatToExpectEn: [
+      'Symbols appear in a rapid stream',
+      'Respond to the target only',
+      'Practice trials first',
+      'Summary shown at the end',
+    ],
+    whatToExpectAr: [
+      'ظهور رموز في تسلسل سريع',
+      'استجب للهدف فقط',
+      'تجارب تدريبية أولاً',
+      'عرض ملخص في النهاية',
+    ],
+    color: '#0EA5E9',
+  },
+  dichotic_listening: {
+    id: 'dichotic_listening',
+    icon: '🎧',
+    titleEn: 'Dichotic Listening (Integration + Separation)',
+    titleAr: 'اختبار الاستماع الثنائي (التكامل + الفصل)',
+    durationEn: '6-8 minutes',
+    durationAr: '6-8 دقائق',
+    descriptionEn: 'Different syllables or numbers are presented to each ear to assess binaural integration and separation.',
+    descriptionAr: 'تُعرض مقاطع لفظية أو أرقام مختلفة على كل أذن لقياس التكامل والفصل السمعي الثنائي.',
+    protocolEn: [
+      'Simultaneous left/right stimuli',
+      'Integration and separation blocks',
+      'Ear-specific accuracy tracking',
+      'Balance index calculation',
+    ],
+    protocolAr: [
+      'منبهات متزامنة لليسار/اليمين',
+      'كتل تكامل وفصل',
+      'تتبع الدقة لكل أذن',
+      'حساب مؤشر التوازن',
+    ],
+    requirementsEn: [
+      'Stereo headphones required',
+      'Confirm left/right orientation',
+      'Quiet room',
+      'Follow focus ear prompts',
+    ],
+    requirementsAr: [
+      'سماعات ستيريو مطلوبة',
+      'تأكد من اتجاه اليسار/اليمين',
+      'غرفة هادئة',
+      'اتبع توجيهات الأذن المستهدفة',
+    ],
+    whatToExpectEn: [
+      'Two sounds at the same time',
+      'Report both ears or focus one',
+      'Short practice set',
+      'Results after completion',
+    ],
+    whatToExpectAr: [
+      'صوتان في الوقت نفسه',
+      'أبلغ عن الأذنين أو ركّز على واحدة',
+      'مجموعة تدريب قصيرة',
+      'النتائج بعد الانتهاء',
+    ],
+    color: '#10B981',
+  },
+  speech_in_noise: {
+    id: 'speech_in_noise',
+    icon: '🔊',
+    titleEn: 'Speech in Noise (Adaptive SNR)',
+    titleAr: 'اختبار الكلام وسط الضجيج (SNR تكيفي)',
+    durationEn: '5-7 minutes',
+    durationAr: '5-7 دقائق',
+    descriptionEn: 'Adaptive speech-in-noise task estimating your SNR threshold.',
+    descriptionAr: 'مهمة كلام وسط الضجيج تكيفية لتقدير عتبة نسبة الإشارة إلى الضجيج (SNR).',
+    protocolEn: [
+      'Speech with multitalker noise',
+      'Adaptive SNR adjustment',
+      'Word recognition scoring',
+      'Non-diagnostic screening indicators',
+    ],
+    protocolAr: [
+      'كلام مع ضجيج متعدد المتحدثين',
+      'تعديل تكيفي لنسبة الإشارة إلى الضجيج',
+      'تقييم التعرف على الكلمات',
+      'مؤشرات فحص غير تشخيصية',
+    ],
+    requirementsEn: [
+      'Good headphones',
+      'Quiet environment',
+      'Set a comfortable volume',
+      'Listen to the full sentence',
+    ],
+    requirementsAr: [
+      'سماعات جيدة',
+      'بيئة هادئة',
+      'اضبط مستوى صوت مريح',
+      'استمع للجملة كاملة',
+    ],
+    whatToExpectEn: [
+      'Sentences in background noise',
+      'Select the words you heard',
+      'Noise adapts to performance',
+      'Summary shown at the end',
+    ],
+    whatToExpectAr: [
+      'جُمل مع ضجيج خلفي',
+      'اختر الكلمات التي سمعتها',
+      'يتكيف الضجيج مع الأداء',
+      'عرض ملخص في النهاية',
+    ],
+    color: '#F97316',
+  },
   questionnaire: {
     id: 'questionnaire',
     icon: '📝',
     titleEn: 'Parent/Caregiver Questionnaire',
-    titleAr: 'استبيان الأهل/مقدم الرعاية',
+    titleAr: 'auto.PreTestBriefing.k20',
     durationEn: '3-5 minutes',
-    durationAr: '٣-٥ دقائق',
+    durationAr: 'auto.PreTestBriefing.k21',
     descriptionEn: 'Structured questionnaire to gather behavioral observations and history relevant to auditory processing.',
-    descriptionAr: 'استبيان منظم لجمع الملاحظات السلوكية والتاريخ المتعلق بالمعالجة السمعية.',
+    descriptionAr: 'auto.PreTestBriefing.k22',
     protocolEn: [
       'Standardized screening questions',
       'Behavioral observation prompts',
@@ -286,21 +427,21 @@ const TEST_BRIEFINGS: Record<string, TestBriefing> = {
 const VISITOR_MESSAGES = {
   school: {
     noteEn: 'For school screening programs, results can be aggregated for classroom-level insights.',
-    noteAr: 'لبرامج الفحص المدرسي، يمكن تجميع النتائج للحصول على رؤى على مستوى الفصل.',
+    noteAr: 'auto.PreTestBriefing.k23',
     ctaEn: 'Ideal for identifying students who may benefit from further evaluation.',
-    ctaAr: 'مثالي لتحديد الطلاب الذين قد يستفيدون من مزيد من التقييم.',
+    ctaAr: 'auto.PreTestBriefing.k24',
   },
   parent: {
     noteEn: 'This screening helps identify areas that may warrant professional evaluation.',
-    noteAr: 'هذا الفحص يساعد في تحديد المجالات التي قد تستدعي تقييماً مهنياً.',
+    noteAr: 'auto.PreTestBriefing.k25',
     ctaEn: 'Results do not replace clinical diagnosis but provide valuable indicators.',
-    ctaAr: 'النتائج لا تحل محل التشخيص السريري لكنها توفر مؤشرات قيمة.',
+    ctaAr: 'auto.PreTestBriefing.k26',
   },
   clinician: {
     noteEn: 'Protocol documentation and raw data available for clinical interpretation.',
-    noteAr: 'توثيق البروتوكول والبيانات الخام متاحة للتفسير السريري.',
+    noteAr: 'auto.PreTestBriefing.k27',
     ctaEn: 'Export options include PDF reports and CSV data for integration with clinical records.',
-    ctaAr: 'خيارات التصدير تشمل تقارير PDF وبيانات CSV للتكامل مع السجلات السريرية.',
+    ctaAr: 'auto.PreTestBriefing.k28',
   },
 };
 
@@ -315,12 +456,19 @@ const PreTestBriefing = memo(function PreTestBriefing({
   onStart,
 }: PreTestBriefingProps) {
   const { mode, config, isSchool, isParent, isClinician } = useVisitorMode();
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const [isReady, setIsReady] = useState(false);
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
 
   const briefing = TEST_BRIEFINGS[testType];
   const visitorMessage = VISITOR_MESSAGES[mode];
+  const resolveArText = useCallback((value: string) => (
+    value.startsWith('auto.') ? t(value, value) : value
+  ), [t]);
+  const resolveArList = useCallback(
+    (values: string[]) => values.map(resolveArText),
+    [resolveArText],
+  );
 
   // Reset state when modal opens
   useEffect(() => {
@@ -330,7 +478,7 @@ const PreTestBriefing = memo(function PreTestBriefing({
     }
   }, [open]);
 
-  const requirements = isArabic ? briefing.requirementsAr : briefing.requirementsEn;
+  const requirements = isArabic ? resolveArList(briefing.requirementsAr) : briefing.requirementsEn;
 
   // Check if all requirements are checked
   useEffect(() => {
@@ -400,7 +548,7 @@ const PreTestBriefing = memo(function PreTestBriefing({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={isArabic ? briefing.titleAr : briefing.titleEn}
+        aria-label={isArabic ? resolveArText(briefing.titleAr) : briefing.titleEn}
         onClick={onClose}
         style={{
           position: 'fixed',
@@ -455,7 +603,7 @@ const PreTestBriefing = memo(function PreTestBriefing({
                   fontWeight: typography.weight.black,
                   color: colors.text.primary,
                 }}>
-                  {isArabic ? briefing.titleAr : briefing.titleEn}
+                  {isArabic ? resolveArText(briefing.titleAr) : briefing.titleEn}
                 </h2>
                 <div style={{
                   display: 'flex',
@@ -471,7 +619,7 @@ const PreTestBriefing = memo(function PreTestBriefing({
                     fontWeight: typography.weight.bold,
                     color: briefing.color,
                   }}>
-                    ⏱ {isArabic ? briefing.durationAr : briefing.durationEn}
+                    ⏱ {isArabic ? resolveArText(briefing.durationAr) : briefing.durationEn}
                   </span>
                   <span style={{
                     padding: `${spacing[1]}px ${spacing[2.5]}px`,
@@ -481,13 +629,13 @@ const PreTestBriefing = memo(function PreTestBriefing({
                     fontWeight: typography.weight.bold,
                     color: config.color,
                   }}>
-                    {config.icon} {isArabic ? config.labelAr : config.label}
+                    {config.icon} {isArabic ? t(config.labelAr, config.label) : config.label}
                   </span>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                aria-label={isArabic ? 'إغلاق' : 'Close'}
+                aria-label={t('auto.PreTestBriefing.k1', "Close")}
                 style={{
                   width: 40,
                   height: 40,
@@ -514,7 +662,7 @@ const PreTestBriefing = memo(function PreTestBriefing({
               lineHeight: typography.lineHeight.relaxed,
               direction: isArabic ? 'rtl' : 'ltr',
             }}>
-              {isArabic ? briefing.descriptionAr : briefing.descriptionEn}
+              {isArabic ? resolveArText(briefing.descriptionAr) : briefing.descriptionEn}
             </p>
           </div>
 
@@ -530,14 +678,14 @@ const PreTestBriefing = memo(function PreTestBriefing({
                 textTransform: 'uppercase',
                 letterSpacing: 1,
               }}>
-                {isArabic ? '📋 البروتوكول' : '📋 PROTOCOL'}
+                {t('auto.PreTestBriefing.k2', "📋 PROTOCOL")}
               </h3>
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                 gap: spacing[2],
               }}>
-                {(isArabic ? briefing.protocolAr : briefing.protocolEn).map((item, i) => (
+                {(isArabic ? resolveArList(briefing.protocolAr) : briefing.protocolEn).map((item, i) => (
                   <div key={i} style={{
                     padding: spacing[3],
                     background: 'rgba(255,255,255,0.03)',
@@ -565,7 +713,7 @@ const PreTestBriefing = memo(function PreTestBriefing({
                 textTransform: 'uppercase',
                 letterSpacing: 1,
               }}>
-                {isArabic ? '✓ المتطلبات (اضغط للتأكيد)' : '✓ REQUIREMENTS (Click to confirm)'}
+                {t('auto.PreTestBriefing.k3', "✓ REQUIREMENTS (Click to confirm)")}
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[2] }}>
                 {requirements.map((item, i) => (
@@ -620,14 +768,14 @@ const PreTestBriefing = memo(function PreTestBriefing({
                 textTransform: 'uppercase',
                 letterSpacing: 1,
               }}>
-                {isArabic ? '👁 ماذا تتوقع' : '👁 WHAT TO EXPECT'}
+                {t('auto.PreTestBriefing.k4', "👁 WHAT TO EXPECT")}
               </h3>
               <div style={{
                 display: 'flex',
                 flexWrap: 'wrap',
                 gap: spacing[2],
               }}>
-                {(isArabic ? briefing.whatToExpectAr : briefing.whatToExpectEn).map((item, i) => (
+                {(isArabic ? resolveArList(briefing.whatToExpectAr) : briefing.whatToExpectEn).map((item, i) => (
                   <div key={i} style={{
                     padding: `${spacing[2]}px ${spacing[3]}px`,
                     background: `${brandPurple}15`,
@@ -672,14 +820,14 @@ const PreTestBriefing = memo(function PreTestBriefing({
                     color: colors.text.secondary,
                     lineHeight: typography.lineHeight.relaxed,
                   }}>
-                    {isArabic ? visitorMessage.noteAr : visitorMessage.noteEn}
+                    {isArabic ? resolveArText(visitorMessage.noteAr) : visitorMessage.noteEn}
                   </p>
                   <p style={{
                     margin: `${spacing[2]}px 0 0`,
                     fontSize: typography.size.xs,
                     color: colors.text.muted,
                   }}>
-                    {isArabic ? visitorMessage.ctaAr : visitorMessage.ctaEn}
+                    {isArabic ? resolveArText(visitorMessage.ctaAr) : visitorMessage.ctaEn}
                   </p>
                 </div>
               </div>
@@ -702,9 +850,7 @@ const PreTestBriefing = memo(function PreTestBriefing({
                 color: colors.text.muted,
                 lineHeight: typography.lineHeight.relaxed,
               }}>
-                {isArabic
-                  ? 'هذا فحص غير تشخيصي ولا يحل محل التقييم السريري المهني. استشر أخصائياً مؤهلاً للتشخيص.'
-                  : 'This is a non-diagnostic screening and does not replace professional clinical evaluation. Consult a qualified specialist for diagnosis.'}
+                {t('auto.PreTestBriefing.k5', "This is a non-diagnostic screening and does not replace professional clinical evaluation. Consult a qualified specialist for diagnosis.")}
               </p>
             </div>
 
@@ -728,7 +874,7 @@ const PreTestBriefing = memo(function PreTestBriefing({
                   transition: transitions.fast,
                 }}
               >
-                {isArabic ? 'إلغاء' : 'Cancel'}
+                {t('auto.PreTestBriefing.k6', "Cancel")}
               </button>
               <button
                 onClick={handleStart}
@@ -753,7 +899,7 @@ const PreTestBriefing = memo(function PreTestBriefing({
                 }}
               >
                 {isReady ? '▶' : '○'}
-                {isArabic ? 'ابدأ الاختبار' : 'Start Test'}
+                {t('auto.PreTestBriefing.k7', "Start Test")}
               </button>
             </div>
           </div>

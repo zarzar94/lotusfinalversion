@@ -18,7 +18,7 @@ const programs: Program[] = [
   {
     id: 'berard',
     name: 'Berard AIT',
-    nameAr: 'برنامج بيرار',
+    nameAr: 'auto.ComparisonSection.k1',
     icon: '🎧',
     goal: 'تدريب سمعي مكثّف عبر موسيقى مُعدّلة لتحسين تحمل/انتباه الدماغ للأصوات',
     format: 'بروتوكول جلسات متقاربة + متابعة قياسات حسب البرتوكول',
@@ -30,7 +30,7 @@ const programs: Program[] = [
   {
     id: 'tomatis',
     name: 'Tomatis',
-    nameAr: 'توماتيس',
+    nameAr: 'auto.ComparisonSection.k2',
     icon: '🎵',
     goal: 'تحفيز سمعي/حسي باستخدام معالجة صوتية وأساليب تدريب متعددة',
     format: 'جلسات/مراحل متعددة (قد تتضمن صوت/لغة/غناء)',
@@ -41,7 +41,7 @@ const programs: Program[] = [
   {
     id: 'ils',
     name: 'iLS',
-    nameAr: 'نظام الاستماع المتكامل',
+    nameAr: 'auto.ComparisonSection.k3',
     icon: '🔊',
     goal: 'دمج الاستماع مع تمارين حسية/حركية لدعم التعلم والتنظيم',
     format: 'جلسات في المركز أو برامج منزلية بإشراف مختص',
@@ -52,7 +52,7 @@ const programs: Program[] = [
   {
     id: 'ssp',
     name: 'SSP',
-    nameAr: 'بروتوكول الأمان الصوتي',
+    nameAr: 'auto.ComparisonSection.k4',
     icon: '🛡️',
     goal: 'بروتوكول استماع مُفلتر موجه لتنظيم الاستجابة العصبية/التهدئة',
     format: 'جلسات استماع مُقسمة مع إرشادات تنظيمية',
@@ -63,7 +63,7 @@ const programs: Program[] = [
   {
     id: 'generic',
     name: 'Listening Therapy',
-    nameAr: 'علاج الاستماع العام',
+    nameAr: 'auto.ComparisonSection.k5',
     icon: '🎼',
     goal: 'استخدام موسيقى/أصوات (غير معيارية) للاسترخاء أو التركيز',
     format: 'متنوع وغير موحّد',

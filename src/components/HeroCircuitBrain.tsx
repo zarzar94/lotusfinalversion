@@ -16,6 +16,9 @@ import { BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
 import { useLanguage } from '../context/LanguageContext';
 import { useVisitorMode } from '../context/VisitorModeContext';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { ClipboardIcon, HeadphonesIcon, MessageIcon, SparklesIcon, UsersIcon } from './Icons';
+import ExpectedBenefitsModal from './ExpectedBenefitsModal';
+import TestimonialsModal from './TestimonialsModal';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -45,6 +48,18 @@ type Particle = {
   color: string;
   size: number;
   speed: number;
+};
+
+type HeroCircuitBrainProps = {
+  onOpenCertifications?: () => void;
+};
+
+type PlatformFeature = {
+  icon: JSX.Element;
+  title: string;
+  desc: string;
+  color: string;
+  onClick?: () => void;
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -94,6 +109,9 @@ const InfoModal = memo(({
   }, [node, onClose]);
 
   if (!node) return null;
+
+  const content = isArabic && node.contentAr ? node.contentAr : node.content;
+  const showArabicLabel = isArabic && !node.contentAr?.title;
 
   return (
     <div
@@ -200,9 +218,9 @@ const InfoModal = memo(({
                   lineHeight: typography.lineHeight.tight,
                 }}
               >
-                {node.content.title}
+                {content.title}
               </h2>
-              {isArabic && (
+              {showArabicLabel && (
                 <div
                   style={{
                     margin: `${spacing[1]}px 0 0`,
@@ -222,7 +240,7 @@ const InfoModal = memo(({
                 color: node.color,
                 fontWeight: typography.weight.semibold,
               }}>
-                {node.content.subtitle}
+                {content.subtitle}
               </p>
             </div>
           </div>
@@ -257,7 +275,7 @@ const InfoModal = memo(({
             }}>
               {text.doYouExperience}
             </div>
-            {node.content.questions.map((q, i) => (
+            {content.questions.map((q, i) => (
               <p
                 key={i}
                 style={{
@@ -299,7 +317,7 @@ const InfoModal = memo(({
               lineHeight: typography.lineHeight.loose,
               color: colors.text.secondary,
             }}>
-              {node.content.explanation}
+              {content.explanation}
             </p>
           </div>
 
@@ -321,7 +339,7 @@ const InfoModal = memo(({
               {text.expectedBenefits}
             </h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2] }}>
-              {node.content.benefits.map((benefit, i) => (
+              {content.benefits.map((benefit, i) => (
                 <span
                   key={i}
                   style={{
@@ -436,7 +454,7 @@ InfoModal.displayName = 'InfoModal';
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════
 
-const HeroCircuitBrain = memo(function HeroCircuitBrain() {
+const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }: HeroCircuitBrainProps) {
   const { isArabic, direction, t } = useLanguage();
   const { setMode } = useVisitorMode();
   const navigate = useNavigate();
@@ -464,6 +482,12 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
   const reducedMotion = usePrefersReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
   const [tooltipNode, setTooltipNode] = useState<BrainFunction | null>(null);
+  const [showExpectedBenefits, setShowExpectedBenefits] = useState(false);
+  const openExpectedBenefits = useCallback(() => setShowExpectedBenefits(true), []);
+  const closeExpectedBenefits = useCallback(() => setShowExpectedBenefits(false), []);
+  const [showTestimonials, setShowTestimonials] = useState(false);
+  const openTestimonials = useCallback(() => setShowTestimonials(true), []);
+  const closeTestimonials = useCallback(() => setShowTestimonials(false), []);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
@@ -656,6 +680,17 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
     .status-dot {
       animation: ${reducedMotion ? 'none' : 'statusPulse 2s ease-in-out infinite'};
     }
+    .platform-feature-card[data-clickable="true"] {
+      cursor: pointer;
+    }
+    .platform-feature-card[data-clickable="true"]:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    }
+    .platform-feature-card[data-clickable="true"]:focus-visible {
+      outline: 2px solid ${brandCyan};
+      outline-offset: 3px;
+    }
   `, [reducedMotion]);
 
   // Platform feature cards data
@@ -672,11 +707,11 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
         position: 'relative',
         minHeight: '100vh',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
         overflow: 'hidden',
         background: `linear-gradient(180deg, ${colors.surface.base} 0%, rgba(15,20,35,1) 50%, ${colors.surface.base} 100%)`,
-        padding: `${spacing[16]}px ${spacing[4]}px ${spacing[10]}px`,
+        padding: `0 ${spacing[4]}px ${spacing[10]}px`,
         direction,
       }}
     >
@@ -810,35 +845,51 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
           {/* Platform Feature Cards */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
             gap: spacing[3],
             marginTop: spacing[2],
           }}>
-            {platformFeatures.map((feature, i) => (
-              <div
-                key={i}
-                style={{
-                  padding: spacing[3],
-                  background: `linear-gradient(135deg, ${feature.color}10, transparent)`,
-                  border: `1px solid ${feature.color}25`,
-                  borderRadius: radius.lg,
-                  textAlign: 'center',
-                  transition: transitions.normal,
-                }}
-              >
-                <div style={{ fontSize: 24, marginBottom: spacing[1.5] }}>{feature.icon}</div>
-                <div style={{
-                  fontSize: typography.size.sm,
-                  fontWeight: typography.weight.bold,
-                  color: feature.color,
-                }}>{feature.title}</div>
-                <div style={{
-                  fontSize: typography.size.xs,
-                  color: colors.text.muted,
-                  marginTop: 2,
-                }}>{feature.desc}</div>
-              </div>
-            ))}
+            {platformFeatures.map((feature, i) => {
+              const isClickable = Boolean(feature.onClick);
+
+              return (
+                <div
+                  key={i}
+                  role={isClickable ? 'button' : undefined}
+                  tabIndex={isClickable ? 0 : undefined}
+                  aria-label={isClickable ? feature.title : undefined}
+                  onClick={feature.onClick}
+                  onKeyDown={isClickable ? (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      feature.onClick?.();
+                    }
+                  } : undefined}
+                  className="platform-feature-card"
+                  data-clickable={isClickable ? 'true' : 'false'}
+                  style={{
+                    padding: spacing[3],
+                    background: `linear-gradient(135deg, ${feature.color}10, transparent)`,
+                    border: `1px solid ${feature.color}25`,
+                    borderRadius: radius.lg,
+                    textAlign: 'center',
+                    transition: transitions.normal,
+                  }}
+                >
+                  <div style={{ fontSize: 24, marginBottom: spacing[1.5] }}>{feature.icon}</div>
+                  <div style={{
+                    fontSize: typography.size.sm,
+                    fontWeight: typography.weight.bold,
+                    color: feature.color,
+                  }}>{feature.title}</div>
+                  <div style={{
+                    fontSize: typography.size.xs,
+                    color: colors.text.muted,
+                    marginTop: 2,
+                  }}>{feature.desc}</div>
+                </div>
+              );
+            })}
           </div>
 
           {/* CTA Buttons */}
@@ -1733,7 +1784,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
             }}>
-              {tooltipNode.content.subtitle}
+              {(isArabic && tooltipNode.contentAr ? tooltipNode.contentAr : tooltipNode.content).subtitle}
             </p>
 
             {/* Click hint */}
@@ -1816,6 +1867,8 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
 
       {/* Info Modal */}
       <InfoModal node={activeNode} onClose={closeModal} isArabic={isArabic} text={text} closeLabel={closeLabel} />
+      <ExpectedBenefitsModal open={showExpectedBenefits} onClose={closeExpectedBenefits} />
+      <TestimonialsModal open={showTestimonials} onClose={closeTestimonials} />
     </section>
   );
 });

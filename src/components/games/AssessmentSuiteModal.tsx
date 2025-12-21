@@ -7,17 +7,22 @@ import type { AssessmentSession, GameResult, TestKey, TestOutcome } from './type
 import { resultMeta } from './types';
 import HeadphoneCheckPanel, { HeadphoneCheckResult } from './HeadphoneCheckPanel';
 import AttentionTestPanel from './AttentionTestPanel';
+import FocusedAttentionTestPanel from './FocusedAttentionTestPanel';
 import FrequencyDiscriminationTestPanel from './FrequencyDiscriminationTestPanel';
 import SequencingTestPanel from './SequencingTestPanel';
+import DichoticListeningTestPanel from './DichoticListeningTestPanel';
+import SpeechInNoiseTestPanel from './SpeechInNoiseTestPanel';
 import QuestionnairePanel from './QuestionnairePanel';
 import { downloadSessionCsv, downloadSessionPdf } from './report';
+import { saveSession as saveLabSession } from '../../utils/sessionStorage';
+import { buildLabMetrics } from '../../utils/labMetrics';
 
 const genId = () => `S${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`.toUpperCase();
 
 const scoreMap: Record<GameResult, number> = { low: 0, medium: 1, high: 2 };
 
 const compositeFrom = (outcomes: Partial<Record<TestKey, TestOutcome>>): { result: GameResult; score: number } => {
-  const keys: TestKey[] = ['attention', 'frequency', 'sequence'];
+  const keys: TestKey[] = ['attention', 'focused_attention', 'frequency', 'sequence', 'dichotic_listening', 'speech_in_noise'];
   const available = keys.map((k) => outcomes[k]).filter(Boolean) as TestOutcome[];
   if (!available.length) return { result: 'medium', score: 1 };
   const avg = available.reduce((s, o) => s + scoreMap[o.result], 0) / available.length;
@@ -32,7 +37,18 @@ export default function AssessmentSuiteModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const [step, setStep] = useState<'intro' | 'headphone' | 'attention' | 'frequency' | 'sequence' | 'questionnaire' | 'summary'>('intro');
+  const [step, setStep] = useState<
+    | 'intro'
+    | 'headphone'
+    | 'attention'
+    | 'focused_attention'
+    | 'frequency'
+    | 'sequence'
+    | 'dichotic_listening'
+    | 'speech_in_noise'
+    | 'questionnaire'
+    | 'summary'
+  >('intro');
   const [session, setSession] = useState<AssessmentSession>(() => ({ id: genId(), startedAt: Date.now(), outcomes: {} }));
   const [reportTemplate, setReportTemplate] = useState<'parent' | 'school'>('parent');
   const { isArabic, direction, t } = useLanguage();
@@ -48,6 +64,11 @@ export default function AssessmentSuiteModal({
 
   const upsertOutcome = (outcome: TestOutcome) => {
     setSession((s) => ({ ...s, outcomes: { ...s.outcomes, [outcome.key]: outcome } }));
+  };
+
+  const persistOutcome = (outcome: TestOutcome) => {
+    upsertOutcome(outcome);
+    saveLabSession(buildLabMetrics(outcome));
   };
 
   const setHeadphone = (hc: HeadphoneCheckResult) => {
@@ -79,16 +100,16 @@ export default function AssessmentSuiteModal({
   }, [session.outcomes, resultText]);
 
   const cta = useMemo(() => {
-    if (composite.result === 'low') return { title: t('games.nextStep.low'), hash: '#contact', color: brandPink };
+    if (composite.result === 'low') return { title: t('games.nextStep.low'), hash: '/contact#contact', color: brandPink };
     if (composite.result === 'medium') return { title: t('games.nextStep.medium'), hash: '#games', color: brandPurpleDark };
-    return { title: t('games.nextStep.high'), hash: '#schools', color: brandCyan };
+    return { title: t('games.nextStep.high'), hash: '/partners#schools', color: brandCyan };
   }, [composite.result, t]);
 
   if (!open) return null;
 
   const stepLabel = () => {
     if (step === 'questionnaire') return t('games.questionnaire');
-    const order = ['intro', 'headphone', 'attention', 'frequency', 'sequence', 'summary'];
+    const order = ['intro', 'headphone', 'attention', 'focused_attention', 'frequency', 'sequence', 'dichotic_listening', 'speech_in_noise', 'summary'];
     const idx = order.indexOf(step);
     return idx >= 0 ? `${idx + 1}/${order.length}` : '';
   };
@@ -164,17 +185,28 @@ export default function AssessmentSuiteModal({
         {step === 'attention' ? (
           <AttentionTestPanel
             onDone={(o) => {
-              upsertOutcome(o);
+              persistOutcome(o);
+              setStep('focused_attention');
+            }}
+            onCancel={() => setStep('summary')}
+          />
+        ) : null}
+
+        {step === 'focused_attention' ? (
+          <FocusedAttentionTestPanel
+            onDone={(o) => {
+              persistOutcome(o);
               setStep('frequency');
             }}
             onCancel={() => setStep('summary')}
+            stimulusMode="audio"
           />
         ) : null}
 
         {step === 'frequency' ? (
           <FrequencyDiscriminationTestPanel
             onDone={(o) => {
-              upsertOutcome(o);
+              persistOutcome(o);
               setStep('sequence');
             }}
             onCancel={() => setStep('summary')}
@@ -185,7 +217,27 @@ export default function AssessmentSuiteModal({
           <SequencingTestPanel
             enableExports={false}
             onDone={(o) => {
-              upsertOutcome(o);
+              persistOutcome(o);
+              setStep('dichotic_listening');
+            }}
+            onCancel={() => setStep('summary')}
+          />
+        ) : null}
+
+        {step === 'dichotic_listening' ? (
+          <DichoticListeningTestPanel
+            onDone={(o) => {
+              persistOutcome(o);
+              setStep('speech_in_noise');
+            }}
+            onCancel={() => setStep('summary')}
+          />
+        ) : null}
+
+        {step === 'speech_in_noise' ? (
+          <SpeechInNoiseTestPanel
+            onDone={(o) => {
+              persistOutcome(o);
               setStep('summary');
             }}
             onCancel={() => setStep('summary')}
@@ -195,7 +247,7 @@ export default function AssessmentSuiteModal({
         {step === 'questionnaire' ? (
           <QuestionnairePanel
             onDone={(o) => {
-              upsertOutcome(o);
+              persistOutcome(o);
               setStep('headphone');
             }}
             onCancel={() => setStep('intro')}

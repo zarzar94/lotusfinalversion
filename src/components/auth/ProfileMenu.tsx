@@ -19,12 +19,12 @@ import {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const ROLE_INFO: Record<UserRole, { label: string; labelAr: string; icon: string; color: string }> = {
-  guest: { label: 'Guest', labelAr: 'ضيف', icon: '👤', color: colors.text.muted },
-  patient: { label: 'Patient', labelAr: 'مريض', icon: '👤', color: brandCyan },
-  parent: { label: 'Parent', labelAr: 'ولي أمر', icon: '👨‍👩‍👧', color: brandPurple },
-  clinician: { label: 'Clinician', labelAr: 'طبيب', icon: '👨‍⚕️', color: brandPurple },
-  school_admin: { label: 'School Admin', labelAr: 'مدير مدرسة', icon: '🏫', color: brandPink },
-  super_admin: { label: 'Admin', labelAr: 'مشرف', icon: '⚙️', color: '#f59e0b' },
+  guest: { label: 'Guest', labelAr: 'auto.ProfileMenu.k17', icon: '👤', color: colors.text.muted },
+  patient: { label: 'Patient', labelAr: 'auto.ProfileMenu.k18', icon: '👤', color: brandCyan },
+  parent: { label: 'Parent', labelAr: 'auto.ProfileMenu.k19', icon: '👨‍👩‍👧', color: brandPurple },
+  clinician: { label: 'Clinician', labelAr: 'auto.ProfileMenu.k20', icon: '👨‍⚕️', color: brandPurple },
+  school_admin: { label: 'School Admin', labelAr: 'auto.ProfileMenu.k21', icon: '🏫', color: brandPink },
+  super_admin: { label: 'Admin', labelAr: 'auto.ProfileMenu.k22', icon: '⚙️', color: '#f59e0b' },
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -37,7 +37,7 @@ interface ProfileMenuProps {
 
 function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
   const navigate = useNavigate();
-  const { isArabic, direction } = useLanguage();
+  const { isArabic, direction, t } = useLanguage();
   const { user, isAuthenticated, logout, hasPermission, clinicalProgress } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -83,7 +83,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
         }}
       >
         <span>👤</span>
-        {isArabic ? 'تسجيل الدخول' : 'Sign In'}
+        {t('auto.ProfileMenu.k1', "Sign In")}
       </button>
     );
   }
@@ -96,7 +96,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        aria-label={isArabic ? 'قائمة الملف الشخصي' : 'Profile menu'}
+        aria-label={t('auto.ProfileMenu.k2', "Profile menu")}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -144,7 +144,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
               fontWeight: typography.weight.semibold,
             }}
           >
-            {isArabic ? roleInfo.labelAr : roleInfo.label}
+            {isArabic ? t(roleInfo.labelAr, roleInfo.label) : roleInfo.label}
           </div>
         </div>
 
@@ -166,7 +166,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
       {isOpen && (
         <div
           role="menu"
-          aria-label={isArabic ? 'قائمة الملف الشخصي' : 'Profile menu'}
+          aria-label={t('auto.ProfileMenu.k3', "Profile menu")}
           className="profile-dropdown"
           style={{
             position: 'absolute',
@@ -230,7 +230,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                   }}
                 >
                   <span style={{ color: colors.text.secondary }}>
-                    {isArabic ? 'التقدم' : 'Progress'}
+                    {t('auto.ProfileMenu.k4', "Progress")}
                   </span>
                   <span style={{ color: brandCyan, fontWeight: typography.weight.bold }}>
                     {clinicalProgress.sessionsCompleted}/20
@@ -264,7 +264,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                       gap: spacing[1],
                     }}
                   >
-                    🔥 {clinicalProgress.streak} {isArabic ? 'يوم متتالي' : 'day streak'}
+                    🔥 {clinicalProgress.streak} {t('auto.ProfileMenu.k5', "day streak")}
                   </div>
                 )}
               </div>
@@ -276,7 +276,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             {/* View Profile / Settings */}
             <MenuItem
               icon="👤"
-              label={isArabic ? 'الملف الشخصي' : 'My Profile'}
+              label={t('auto.ProfileMenu.k6', "My Profile")}
               onClick={() => {
                 setIsOpen(false);
                 window.location.href = '/settings';
@@ -287,7 +287,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             {user?.role === 'patient' && (
               <MenuItem
                 icon="📈"
-                label={isArabic ? 'تقدمي' : 'My Progress'}
+                label={t('auto.ProfileMenu.k7', "My Progress")}
                 onClick={() => {
                   setIsOpen(false);
                   // Navigate to the games/checklist section for progress
@@ -300,10 +300,10 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             {hasPermission('view_child_reports') && (
               <MenuItem
                 icon="👨‍👩‍👧"
-                label={isArabic ? 'تقدم الأطفال' : 'Children Progress'}
+                label={t('auto.ProfileMenu.k8', "Children Progress")}
                 onClick={() => {
                   setIsOpen(false);
-                  navigate('/parent-dashboard');
+                  navigate('/dashboard/parent');
                 }}
               />
             )}
@@ -312,10 +312,10 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             {hasPermission('view_patient_reports') && (
               <MenuItem
                 icon="🏥"
-                label={isArabic ? 'لوحة المرضى' : 'Patients Dashboard'}
+                label={t('auto.ProfileMenu.k9', "Patients Dashboard")}
                 onClick={() => {
                   setIsOpen(false);
-                  navigate('/clinician-dashboard');
+                  navigate('/dashboard/clinician');
                 }}
               />
             )}
@@ -324,10 +324,10 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             {hasPermission('school_analytics') && !hasPermission('global_analytics') && (
               <MenuItem
                 icon="📊"
-                label={isArabic ? 'تحليلات المدرسة' : 'School Analytics'}
+                label={t('auto.ProfileMenu.k10', "School Analytics")}
                 onClick={() => {
                   setIsOpen(false);
-                  navigate('/school-dashboard');
+                  navigate('/dashboard/educator');
                 }}
               />
             )}
@@ -337,26 +337,26 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
               <>
                 <MenuItem
                   icon="🏥"
-                  label={isArabic ? 'لوحة الأطباء' : 'Clinician Dashboard'}
+                  label={t('auto.ProfileMenu.k11', "Clinician Dashboard")}
                   onClick={() => {
                     setIsOpen(false);
-                    window.location.href = '/clinician-dashboard';
+                    window.location.href = '/dashboard/clinician';
                   }}
                 />
                 <MenuItem
                   icon="🏫"
-                  label={isArabic ? 'لوحة المدرسة' : 'School Dashboard'}
+                  label={t('auto.ProfileMenu.k12', "School Dashboard")}
                   onClick={() => {
                     setIsOpen(false);
-                    window.location.href = '/school-dashboard';
+                    window.location.href = '/dashboard/educator';
                   }}
                 />
                 <MenuItem
                   icon="👨‍👩‍👧"
-                  label={isArabic ? 'لوحة الأولياء' : 'Parent Dashboard'}
+                  label={t('auto.ProfileMenu.k13', "Parent Dashboard")}
                   onClick={() => {
                     setIsOpen(false);
-                    window.location.href = '/parent-dashboard';
+                    window.location.href = '/dashboard/parent';
                   }}
                 />
               </>
@@ -365,7 +365,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             {/* Settings */}
             <MenuItem
               icon="⚙️"
-              label={isArabic ? 'الإعدادات' : 'Settings'}
+              label={t('auto.ProfileMenu.k14', "Settings")}
               onClick={() => {
                 setIsOpen(false);
                 navigate('/settings');
@@ -376,7 +376,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             {user?.role === 'patient' && (
               <MenuItem
                 icon="📄"
-                label={isArabic ? 'تصدير التقرير' : 'Export Report'}
+                label={t('auto.ProfileMenu.k15', "Export Report")}
                 onClick={() => {
                   setIsOpen(false);
                   // Trigger export from ProgressExport component
@@ -397,7 +397,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             {/* Logout */}
             <MenuItem
               icon="🚪"
-              label={isArabic ? 'تسجيل الخروج' : 'Sign Out'}
+              label={t('auto.ProfileMenu.k16', "Sign Out")}
               onClick={handleLogout}
               danger
             />

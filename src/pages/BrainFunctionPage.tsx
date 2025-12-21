@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState, memo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getBrainFunctionBySlug, BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
 import { brandCyan, brandPurple, brandPink, brandInk } from '../components/styles';
+import { useLanguage } from '../context/LanguageContext';
 
 // Mini circuit brain for navigation
 function MiniCircuitBrain({ currentSlug }: { currentSlug: string }) {
   const navigate = useNavigate();
+  const { isArabic } = useLanguage();
 
   return (
     <div style={{
@@ -21,7 +23,7 @@ function MiniCircuitBrain({ currentSlug }: { currentSlug: string }) {
         textAlign: 'center',
         fontWeight: 600,
       }}>
-        Explore Other Functions
+        {isArabic ? 'استكشف وظائف أخرى' : 'Explore Other Functions'}
       </h3>
       <svg
         width="200"
@@ -59,7 +61,7 @@ function MiniCircuitBrain({ currentSlug }: { currentSlug: string }) {
                   transition: 'all 0.2s ease',
                 }}
               />
-              <title>{bf.labelEn}</title>
+              <title>{isArabic ? bf.labelAr : bf.labelEn}</title>
             </g>
           );
         })}
@@ -71,6 +73,7 @@ function MiniCircuitBrain({ currentSlug }: { currentSlug: string }) {
 // Related functions sidebar
 function RelatedFunctions({ currentSlug }: { currentSlug: string }) {
   const others = BRAIN_FUNCTIONS.filter((bf) => bf.slug !== currentSlug).slice(0, 4);
+  const { isArabic } = useLanguage();
 
   return (
     <div style={{
@@ -85,7 +88,7 @@ function RelatedFunctions({ currentSlug }: { currentSlug: string }) {
         color: brandCyan,
         fontWeight: 700,
       }}>
-        Related Functions
+        {isArabic ? 'وظائف ذات صلة' : 'Related Functions'}
       </h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {others.map((bf) => (
@@ -114,7 +117,7 @@ function RelatedFunctions({ currentSlug }: { currentSlug: string }) {
           >
             <span style={{ fontSize: 24 }}>{bf.icon}</span>
             <span style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>
-              {bf.labelEn}
+              {isArabic ? bf.labelAr : bf.labelEn}
             </span>
           </Link>
         ))}
@@ -124,6 +127,7 @@ function RelatedFunctions({ currentSlug }: { currentSlug: string }) {
 }
 
 const BrainFunctionPage = memo(function BrainFunctionPage() {
+  const { isArabic } = useLanguage();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [brainFunction, setBrainFunction] = useState<BrainFunction | null>(null);
@@ -171,12 +175,21 @@ const BrainFunctionPage = memo(function BrainFunctionPage() {
         background: brandInk,
         color: '#fff',
       }}>
-        Loading...
+        {isArabic ? 'جارٍ التحميل...' : 'Loading...'}
       </div>
     );
   }
 
-  const { content, color, icon, labelEn } = brainFunction;
+  const { color, icon, labelEn, labelAr } = brainFunction;
+  const content = isArabic && brainFunction.contentAr ? brainFunction.contentAr : brainFunction.content;
+  const questionsTitle = isArabic ? 'هل تواجه أياً مما يلي؟' : 'Do any of these sound familiar?';
+  const helpTitle = isArabic ? 'كيف يساعد Berard AIT' : 'How Berard AIT Can Help';
+  const benefitsTitle = isArabic ? 'الفوائد المتوقعة' : 'Expected Benefits';
+  const ctaTitle = isArabic ? `هل أنت مستعد لتحسين ${labelAr}؟` : `Ready to Improve Your ${labelEn}?`;
+  const ctaSubtitle = isArabic ? 'ابدأ رحلتك مع Berard AIT اليوم' : 'Start your journey with Berard AIT today';
+  const ctaButton = isArabic ? 'تواصل معنا اليوم' : 'Contact Us Today';
+  const exploreAllTitle = isArabic ? 'استكشف جميع وظائف الدماغ' : 'Explore All Brain Functions';
+  const backLabel = isArabic ? 'العودة إلى خريطة الدماغ' : 'Back to Brain Map';
 
   return (
     <div style={{
@@ -208,12 +221,12 @@ const BrainFunctionPage = memo(function BrainFunctionPage() {
             gap: 8,
             color: brandCyan,
             textDecoration: 'none',
-            fontSize: 14,
-            fontWeight: 600,
-          }}
-        >
-          <span style={{ fontSize: 20 }}>←</span>
-          Back to Brain Map
+          fontSize: 14,
+          fontWeight: 600,
+        }}
+      >
+        <span style={{ fontSize: 20 }}>←</span>
+          {backLabel}
         </Link>
         <Link
           to="/#contact"
@@ -301,7 +314,7 @@ const BrainFunctionPage = memo(function BrainFunctionPage() {
                 color: color,
                 fontWeight: 700,
               }}>
-                Do any of these sound familiar?
+                {questionsTitle}
               </h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {content.questions.map((q, i) => (
@@ -344,7 +357,7 @@ const BrainFunctionPage = memo(function BrainFunctionPage() {
                 color: '#fff',
                 fontWeight: 700,
               }}>
-                How Berard AIT Can Help
+                {helpTitle}
               </h2>
               <p style={{
                 margin: 0,
@@ -364,7 +377,7 @@ const BrainFunctionPage = memo(function BrainFunctionPage() {
                 color: '#fff',
                 fontWeight: 700,
               }}>
-                Expected Benefits
+                {benefitsTitle}
               </h2>
               <div style={{
                 display: 'grid',
@@ -424,14 +437,14 @@ const BrainFunctionPage = memo(function BrainFunctionPage() {
                 fontSize: 24,
                 fontWeight: 700,
               }}>
-                Ready to Improve Your {labelEn}?
+                {ctaTitle}
               </h3>
               <p style={{
                 margin: '0 0 24px',
                 color: 'rgba(255,255,255,0.7)',
                 fontSize: 16,
               }}>
-                Start your journey with Berard AIT today
+                {ctaSubtitle}
               </p>
               <Link
                 to="/#contact"
@@ -447,7 +460,7 @@ const BrainFunctionPage = memo(function BrainFunctionPage() {
                   boxShadow: `0 8px 32px ${brandCyan}40`,
                 }}
               >
-                Contact Us Today
+                {ctaButton}
               </Link>
             </div>
           </div>
@@ -465,7 +478,7 @@ const BrainFunctionPage = memo(function BrainFunctionPage() {
             fontWeight: 700,
             textAlign: 'center',
           }}>
-            Explore All Brain Functions
+            {exploreAllTitle}
           </h2>
           <div style={{
             display: 'grid',

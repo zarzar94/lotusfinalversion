@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from './styles';
+import { useState, useEffect, useRef, type CSSProperties } from 'react';
+import { brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
 
 interface Partner {
   id: string;
@@ -75,42 +75,153 @@ const stats = [
   { value: '8+', label: 'عيادات متعاونة', icon: '🏥' },
 ];
 
+const particleBaseStyle: CSSProperties = {
+  position: 'absolute',
+  width: 4,
+  height: 4,
+  borderRadius: '50%',
+  opacity: 0.3,
+};
+
+const statsRowStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'center',
+  gap: 24,
+  marginBottom: 40,
+  flexWrap: 'wrap',
+};
+
+const statCardBaseStyle: CSSProperties = {
+  padding: '16px 28px',
+  background: 'rgba(255,255,255,0.03)',
+  borderRadius: 16,
+  border: '1px solid rgba(255,255,255,0.08)',
+  textAlign: 'center',
+  minWidth: 120,
+};
+
+const statValueStyle: CSSProperties = {
+  fontSize: 32,
+  fontWeight: 900,
+  color: brandCyan,
+  fontFamily: 'monospace',
+  marginBottom: 4,
+};
+
+const statLabelStyle: CSSProperties = {
+  fontSize: 12,
+  color: 'rgba(255,255,255,0.7)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 6,
+};
+
+const partnerGridStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+  gap: 16,
+  marginBottom: 32,
+};
+
+const partnerCardBaseStyle: CSSProperties = {
+  padding: 20,
+  borderRadius: 18,
+  cursor: 'default',
+  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+  textAlign: 'center',
+};
+
+const partnerIconBaseStyle: CSSProperties = {
+  width: 60,
+  height: 60,
+  margin: '0 auto 14px',
+  borderRadius: 16,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: 28,
+};
+
+const partnerNameBaseStyle: CSSProperties = {
+  fontWeight: 800,
+  fontSize: 14,
+  marginBottom: 4,
+  transition: 'color 0.3s ease',
+};
+
+const partnerNameEnBaseStyle: CSSProperties = {
+  fontSize: 10,
+  color: 'rgba(255,255,255,0.5)',
+};
+
+const partnerDescriptionBaseStyle: CSSProperties = {
+  marginTop: 10,
+  padding: '8px 10px',
+  background: 'rgba(0,0,0,0.3)',
+  borderRadius: 8,
+  fontSize: 11,
+  color: 'rgba(255,255,255,0.7)',
+  animation: 'partnerEnter 0.3s ease-out',
+};
+
+const partnerBadgeBaseStyle: CSSProperties = {
+  marginTop: 10,
+  display: 'inline-flex',
+  padding: '4px 10px',
+  borderRadius: 6,
+  fontSize: 9,
+  textTransform: 'uppercase' as const,
+  fontWeight: 700,
+  letterSpacing: 0.5,
+};
+
+
 export default function PartnerLogos() {
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredPartner, setHoveredPartner] = useState<string | null>(null);
   const [animatedStats, setAnimatedStats] = useState<string[]>(['0', '0', '0', '0']);
   const sectionRef = useRef<HTMLDivElement>(null);
-
+  const intervalsRef = useRef<number[]>([]);
+  const hasAnimatedRef = useRef(false);
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          // Animate stats
-          stats.forEach((stat, i) => {
-            const targetNum = parseInt(stat.value);
-            let current = 0;
-            const increment = targetNum / 40;
-            const interval = setInterval(() => {
-              current += increment;
-              if (current >= targetNum) {
-                current = targetNum;
-                clearInterval(interval);
-              }
-              setAnimatedStats(prev => {
-                const newStats = [...prev];
-                newStats[i] = Math.floor(current) + (stat.value.includes('+') ? '+' : '');
-                return newStats;
-              });
-            }, 30);
-          });
-        }
+        if (!entry.isIntersecting || hasAnimatedRef.current) return;
+        hasAnimatedRef.current = true;
+        setIsVisible(true);
+        // Animate stats
+        stats.forEach((stat, i) => {
+          const targetNum = parseInt(stat.value);
+          let current = 0;
+          const increment = targetNum / 40;
+          const intervalId = window.setInterval(() => {
+            current += increment;
+            if (current >= targetNum) {
+              current = targetNum;
+              window.clearInterval(intervalId);
+              intervalsRef.current = intervalsRef.current.filter(id => id !== intervalId);
+            }
+            setAnimatedStats(prev => {
+              const newStats = [...prev];
+              newStats[i] = Math.floor(current) + (stat.value.includes('+') ? '+' : '');
+              return newStats;
+            });
+          }, 30);
+          intervalsRef.current.push(intervalId);
+        });
+        observer.unobserve(entry.target);
       },
       { threshold: 0.2 }
     );
 
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
+    const current = sectionRef.current;
+    if (current) observer.observe(current);
+    return () => {
+      observer.disconnect();
+      intervalsRef.current.forEach((intervalId) => window.clearInterval(intervalId));
+      intervalsRef.current = [];
+    };
   }, []);
 
   return (
@@ -156,12 +267,8 @@ export default function PartnerLogos() {
       {/* Floating particles */}
       {isVisible && [...Array(8)].map((_, i) => (
         <div key={i} style={{
-          position: 'absolute',
-          width: 4,
-          height: 4,
-          borderRadius: '50%',
+          ...particleBaseStyle,
           background: i % 2 === 0 ? brandCyan : brandPurple,
-          opacity: 0.3,
           top: `${20 + (i * 10)}%`,
           left: `${10 + (i * 12)}%`,
           animation: `float ${3 + i * 0.5}s ease-in-out infinite ${i * 0.2}s`,
@@ -205,43 +312,19 @@ export default function PartnerLogos() {
         </div>
 
         {/* Stats Row */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: 24,
-          marginBottom: 40,
-          flexWrap: 'wrap',
-        }}>
+        <div style={statsRowStyle}>
           {stats.map((stat, index) => (
             <div
               key={stat.label}
               style={{
-                padding: '16px 28px',
-                background: 'rgba(255,255,255,0.03)',
-                borderRadius: 16,
-                border: '1px solid rgba(255,255,255,0.08)',
-                textAlign: 'center',
-                minWidth: 120,
+                ...statCardBaseStyle,
                 animation: isVisible ? `partnerEnter 0.5s ease-out ${index * 0.1}s backwards` : 'none',
               }}
             >
-              <div style={{
-                fontSize: 32,
-                fontWeight: 900,
-                color: brandCyan,
-                fontFamily: 'monospace',
-                marginBottom: 4,
-              }}>
+              <div style={statValueStyle}>
                 {animatedStats[index]}
               </div>
-              <div style={{
-                fontSize: 12,
-                color: 'rgba(255,255,255,0.7)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
-              }}>
+              <div style={statLabelStyle}>
                 <span>{stat.icon}</span>
                 {stat.label}
               </div>
@@ -250,44 +333,28 @@ export default function PartnerLogos() {
         </div>
 
         {/* Partner Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: 16,
-          marginBottom: 32,
-        }}>
+        <div style={partnerGridStyle}>
           {partners.map((partner, index) => (
             <div
               key={partner.id}
               onMouseEnter={() => setHoveredPartner(partner.id)}
               onMouseLeave={() => setHoveredPartner(null)}
               style={{
-                padding: 20,
+                ...partnerCardBaseStyle,
                 background: hoveredPartner === partner.id
                   ? `linear-gradient(135deg, ${partner.color}15, ${partner.color}08)`
                   : 'rgba(255,255,255,0.02)',
-                borderRadius: 18,
                 border: `1px solid ${hoveredPartner === partner.id ? partner.color : 'rgba(255,255,255,0.06)'}`,
-                cursor: 'default',
-                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                 transform: hoveredPartner === partner.id ? 'translateY(-6px) scale(1.02)' : 'translateY(0)',
                 boxShadow: hoveredPartner === partner.id ? `0 20px 40px ${partner.color}15` : 'none',
                 animation: isVisible ? `partnerEnter 0.6s ease-out ${0.2 + index * 0.08}s backwards` : 'none',
-                textAlign: 'center',
               }}
             >
               {/* Icon */}
               <div style={{
-                width: 60,
-                height: 60,
-                margin: '0 auto 14px',
-                borderRadius: 16,
+                ...partnerIconBaseStyle,
                 background: `linear-gradient(135deg, ${partner.color}25, ${partner.color}10)`,
                 border: `2px solid ${partner.color}40`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 28,
                 animation: hoveredPartner === partner.id ? 'float 2s ease-in-out infinite' : 'none',
                 boxShadow: hoveredPartner === partner.id ? `0 0 30px ${partner.color}30` : 'none',
               }}>
@@ -296,17 +363,13 @@ export default function PartnerLogos() {
 
               {/* Name */}
               <div style={{
-                fontWeight: 800,
-                fontSize: 14,
+                ...partnerNameBaseStyle,
                 color: hoveredPartner === partner.id ? partner.color : '#fff',
-                marginBottom: 4,
-                transition: 'color 0.3s ease',
               }}>
                 {partner.name}
               </div>
               <div style={{
-                fontSize: 10,
-                color: 'rgba(255,255,255,0.5)',
+                ...partnerNameEnBaseStyle,
                 marginBottom: hoveredPartner === partner.id ? 10 : 0,
               }}>
                 {partner.nameEn}
@@ -314,31 +377,16 @@ export default function PartnerLogos() {
 
               {/* Description on hover */}
               {hoveredPartner === partner.id && (
-                <div style={{
-                  marginTop: 10,
-                  padding: '8px 10px',
-                  background: 'rgba(0,0,0,0.3)',
-                  borderRadius: 8,
-                  fontSize: 11,
-                  color: 'rgba(255,255,255,0.7)',
-                  animation: 'partnerEnter 0.3s ease-out',
-                }}>
+                <div style={partnerDescriptionBaseStyle}>
                   {partner.description}
                 </div>
               )}
 
               {/* Type badge */}
               <div style={{
-                marginTop: 10,
-                display: 'inline-flex',
-                padding: '4px 10px',
+                ...partnerBadgeBaseStyle,
                 background: `${partner.color}15`,
-                borderRadius: 6,
-                fontSize: 9,
                 color: partner.color,
-                textTransform: 'uppercase',
-                fontWeight: 700,
-                letterSpacing: 0.5,
               }}>
                 {partner.type === 'school' && 'مدرسة'}
                 {partner.type === 'clinic' && 'عيادة'}
@@ -372,7 +420,7 @@ export default function PartnerLogos() {
           }}>
             هل أنت مؤسسة تعليمية أو صحية مهتمة بالشراكة؟
           </p>
-          <a href="#contact" style={{
+          <a href="/contact#contact" style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: 8,

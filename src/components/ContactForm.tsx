@@ -400,6 +400,7 @@ const IOSTextarea = memo(({
   maxLength?: number;
   dir?: 'rtl' | 'ltr';
 }) => {
+  const { isArabic, t } = useLanguage();
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(maxLength ? e.target.value.slice(0, maxLength) : e.target.value);
   }, [onChange, maxLength]);
@@ -744,7 +745,7 @@ const ContactForm = () => {
           fontWeight: 700,
           color: visitorConfig.color,
         }}>
-          {visitorConfig.icon} {isArabic ? visitorConfig.labelAr : visitorConfig.label}
+          {visitorConfig.icon} {isArabic ? t(visitorConfig.labelAr, visitorConfig.label) : visitorConfig.label}
         </div>
         <h2 className="contact-header-text" style={headerStyle}>{t('contactForm.headerTitle')}</h2>
         <p className="contact-subtext" style={{ margin: 0, opacity: 0.7, fontSize: 14, lineHeight: 1.6 }}>
