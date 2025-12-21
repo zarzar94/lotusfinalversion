@@ -319,7 +319,7 @@ export const ProgressExportButton = memo(({
     } finally {
       setIsExporting(false);
     }
-  }, [user, clinicalProgress, state, getUnlockedAchievements, isArabic, isExporting]);
+  }, [user, clinicalProgress, state, getUnlockedAchievements, isArabic, t, isExporting]);
 
   // Listen for export-progress event from ProfileMenu
   useEffect(() => {
