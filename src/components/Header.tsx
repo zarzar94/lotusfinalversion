@@ -229,6 +229,31 @@ const Header = memo(function Header() {
         0%, 100% { opacity: 0.6; }
         50% { opacity: 1; }
       }
+      @keyframes holoBorderFlow {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 200% 50%; }
+      }
+      @keyframes dataStream {
+        0% { left: -20%; opacity: 0; }
+        10% { opacity: 0.6; }
+        90% { opacity: 0.6; }
+        100% { left: 100%; opacity: 0; }
+      }
+      @keyframes circuitPulse {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.8; }
+      }
+      @keyframes navGlitch {
+        0%, 100% { transform: translateX(0); opacity: 1; }
+        92% { transform: translateX(0); opacity: 1; }
+        93% { transform: translateX(-2px); opacity: 0.8; }
+        94% { transform: translateX(2px); opacity: 1; }
+        95% { transform: translateX(0); opacity: 0.9; }
+      }
+      @keyframes energyPulse {
+        0%, 100% { box-shadow: 0 0 10px ${brandCyan}20, inset 0 0 10px ${brandCyan}10; }
+        50% { box-shadow: 0 0 25px ${brandCyan}40, inset 0 0 20px ${brandCyan}20; }
+      }
       .brandGlow {
         filter: drop-shadow(0 10px 30px rgba(143,211,204,0.18));
       }
@@ -281,12 +306,26 @@ const Header = memo(function Header() {
         color: ${brandCyan};
         background: rgba(143,211,204,0.1);
         text-shadow: 0 0 8px ${brandCyan}33;
+        animation: energyPulse 2s ease-in-out infinite;
       }
       .mobile-menu {
         animation: slideDown 0.3s ease forwards;
       }
       .menu-btn {
         transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .menu-btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, ${brandCyan}20, ${brandPurple}20);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .menu-btn:hover::before {
+        opacity: 1;
       }
       .menu-btn:hover {
         transform: scale(1.1);
@@ -296,6 +335,7 @@ const Header = memo(function Header() {
       .header-container {
         position: relative;
       }
+      /* Top glow bar with holographic effect */
       .header-container::before {
         content: '';
         position: absolute;
@@ -303,8 +343,20 @@ const Header = memo(function Header() {
         left: 0;
         right: 0;
         height: 2px;
-        background: linear-gradient(90deg, transparent, ${brandCyan}66, ${brandPurple}66, transparent);
-        animation: headerGlow 3s ease-in-out infinite;
+        background: linear-gradient(90deg, transparent, ${brandCyan}66, ${brandPurple}66, ${brandPink}44, transparent);
+        background-size: 200% 100%;
+        animation: holoBorderFlow 4s linear infinite, headerGlow 3s ease-in-out infinite;
+      }
+      /* Bottom accent line */
+      .header-container::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 20%;
+        right: 20%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, ${brandCyan}30, transparent);
+        opacity: 0.5;
       }
       .header-scan-line {
         position: absolute;
@@ -324,6 +376,40 @@ const Header = memo(function Header() {
         height: 100%;
         background: linear-gradient(90deg, transparent, ${brandCyan}08, transparent);
         animation: scanLine 4s linear infinite;
+      }
+      /* Data stream effect */
+      .header-data-stream {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 15%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, ${brandCyan}40, transparent);
+        animation: dataStream 6s linear infinite;
+        pointer-events: none;
+      }
+      /* Corner circuit nodes */
+      .header-circuit-node {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: ${brandCyan};
+        box-shadow: 0 0 8px ${brandCyan};
+        animation: circuitPulse 2s ease-in-out infinite;
+      }
+      /* HUD corner brackets */
+      .header-bracket {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        border-color: ${brandCyan}40;
+        border-style: solid;
+        pointer-events: none;
+      }
+      /* Glitch effect on nav hover */
+      .nav-link:hover .nav-icon {
+        animation: navGlitch 0.5s ease-in-out;
       }
     `,
     [],
@@ -351,6 +437,16 @@ const Header = memo(function Header() {
         }}>
         {/* Scan line effect */}
         <div className="header-scan-line" />
+        {/* Data stream effect */}
+        <div className="header-data-stream" />
+        {/* HUD corner brackets */}
+        <div className="header-bracket" style={{ top: 4, left: 4, borderWidth: '2px 0 0 2px' }} />
+        <div className="header-bracket" style={{ top: 4, right: 4, borderWidth: '2px 2px 0 0' }} />
+        <div className="header-bracket" style={{ bottom: 4, left: 4, borderWidth: '0 0 2px 2px' }} />
+        <div className="header-bracket" style={{ bottom: 4, right: 4, borderWidth: '0 2px 2px 0' }} />
+        {/* Circuit nodes */}
+        <div className="header-circuit-node" style={{ top: 10, left: '25%' }} />
+        <div className="header-circuit-node" style={{ top: 10, right: '25%', animationDelay: '0.5s' }} />
         <div style={{
           width: '100%',
           maxWidth: 1180,

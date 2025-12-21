@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback, useEffect, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
+import { authApi, clinicalApi, getToken, clearTokens } from '../services/api';
 import { safeStorage } from '../utils/storage';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -54,6 +55,8 @@ interface UserState {
   isAuthenticated: boolean;
   isLoading: boolean;
   clinicalProgress: ClinicalProgress | null;
+  isOnline: boolean;
+  authError: string | null;
 }
 
 interface UserContextValue extends UserState {
@@ -65,6 +68,8 @@ interface UserContextValue extends UserState {
   hasPermission: (permission: Permission) => boolean;
   getPermissions: () => Permission[];
   switchRole: (role: UserRole) => void; // Dev mode only
+  refreshUser: () => Promise<void>;
+  clearAuthError: () => void;
 }
 
 interface RegisterData {
@@ -99,7 +104,7 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// STORAGE
+// STORAGE (Offline fallback)
 // ═══════════════════════════════════════════════════════════════════════════
 
 const STORAGE_KEY = 'lotus_user_state';
@@ -112,9 +117,11 @@ const loadUserState = (): UserState => {
       const parsed = JSON.parse(stored);
       return {
         user: parsed.user || null,
-        isAuthenticated: !!parsed.user,
+        isAuthenticated: !!parsed.user && !!getToken(),
         isLoading: false,
         clinicalProgress: null,
+        isOnline: navigator.onLine,
+        authError: null,
       };
     } catch {
       console.warn('Failed to load user state');
@@ -125,6 +132,8 @@ const loadUserState = (): UserState => {
     isAuthenticated: false,
     isLoading: false,
     clinicalProgress: null,
+    isOnline: navigator.onLine,
+    authError: null,
   };
 };
 const loadClinicalProgress = (): ClinicalProgress | null => {
@@ -139,6 +148,10 @@ const loadClinicalProgress = (): ClinicalProgress | null => {
   return null;
 };
 const saveUserState = (user: User | null) => {
+  if (!user) {
+    safeStorage.removeItem(STORAGE_KEY);
+    return;
+  }
   const payload = JSON.stringify({ user });
   if (!safeStorage.setItem(STORAGE_KEY, payload)) {
     console.warn('Failed to save user state');
@@ -157,79 +170,6 @@ const saveClinicalProgress = (progress: ClinicalProgress | null) => {
   }
 };
 // ═══════════════════════════════════════════════════════════════════════════
-// MOCK AUTH (Replace with real API later)
-// ═══════════════════════════════════════════════════════════════════════════
-
-const generateId = () => `user_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-
-// Mock user database for demo
-const MOCK_USERS: Record<string, { user: User; password: string }> = {
-  'demo@patient.com': {
-    password: 'demo123',
-    user: {
-      id: 'demo_patient_1',
-      email: 'demo@patient.com',
-      name: 'Demo Patient',
-      nameAr: 'مريض تجريبي',
-      role: 'patient',
-      createdAt: Date.now() - 86400000 * 30,
-      lastLogin: Date.now(),
-    },
-  },
-  'demo@clinician.com': {
-    password: 'demo123',
-    user: {
-      id: 'demo_clinician_1',
-      email: 'demo@clinician.com',
-      name: 'Dr. Demo Clinician',
-      nameAr: 'د. طبيب تجريبي',
-      role: 'clinician',
-      clinic: 'Lotus AIT Center',
-      createdAt: Date.now() - 86400000 * 90,
-      lastLogin: Date.now(),
-    },
-  },
-  'demo@school.com': {
-    password: 'demo123',
-    user: {
-      id: 'demo_school_1',
-      email: 'demo@school.com',
-      name: 'School Administrator',
-      nameAr: 'مدير المدرسة',
-      role: 'school_admin',
-      school: 'International Academy',
-      createdAt: Date.now() - 86400000 * 60,
-      lastLogin: Date.now(),
-    },
-  },
-  'demo@admin.com': {
-    password: 'demo123',
-    user: {
-      id: 'demo_admin_1',
-      email: 'demo@admin.com',
-      name: 'Super Admin',
-      nameAr: 'المشرف العام',
-      role: 'super_admin',
-      createdAt: Date.now() - 86400000 * 180,
-      lastLogin: Date.now(),
-    },
-  },
-  'demo@parent.com': {
-    password: 'demo123',
-    user: {
-      id: 'demo_parent_1',
-      email: 'demo@parent.com',
-      name: 'Demo Parent',
-      nameAr: 'ولي أمر تجريبي',
-      role: 'parent',
-      children: ['child_1', 'child_2'],
-      createdAt: Date.now() - 86400000 * 45,
-      lastLogin: Date.now(),
-    },
-  },
-};
-
-// ═══════════════════════════════════════════════════════════════════════════
 // CONTEXT
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -240,6 +180,61 @@ export function UserProvider({ children }: { children: ReactNode }) {
     ...loadUserState(),
     clinicalProgress: loadClinicalProgress(),
   }));
+
+  const updateTimeoutRef = useRef<number | null>(null);
+
+  // Handle online/offline status
+  useEffect(() => {
+    const handleOnline = () => setState(prev => ({ ...prev, isOnline: true }));
+    const handleOffline = () => setState(prev => ({ ...prev, isOnline: false }));
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Check for existing token on mount
+  useEffect(() => {
+    const token = getToken();
+    if (token && !state.user) {
+      // Try to restore session from API
+      authApi.getCurrentUser().then(user => {
+        if (user) {
+          setState(prev => ({
+            ...prev,
+            user,
+            isAuthenticated: true,
+          }));
+          saveUserState(user);
+
+          // Also fetch clinical progress
+          if (user.role === 'patient') {
+            clinicalApi.getProgress().then(response => {
+              if (response.success && response.progress) {
+                setState(prev => ({
+                  ...prev,
+                  clinicalProgress: response.progress,
+                }));
+                saveClinicalProgress(response.progress);
+              }
+            });
+          }
+        } else {
+          // Invalid token, clear it
+          clearTokens();
+          setState(prev => ({
+            ...prev,
+            user: null,
+            isAuthenticated: false,
+          }));
+        }
+      });
+    }
+  }, []);
 
   // Update streak on activity
   useEffect(() => {
@@ -270,25 +265,66 @@ export function UserProvider({ children }: { children: ReactNode }) {
     saveUserState(state.user);
   }, [state.user]);
 
-  // Persist clinical progress
+  // Persist and sync clinical progress
   useEffect(() => {
     saveClinicalProgress(state.clinicalProgress);
-  }, [state.clinicalProgress]);
+
+    // Debounce API sync
+    if (state.isAuthenticated && state.clinicalProgress && state.isOnline) {
+      if (updateTimeoutRef.current) {
+        window.clearTimeout(updateTimeoutRef.current);
+      }
+
+      updateTimeoutRef.current = window.setTimeout(() => {
+        clinicalApi.updateProgress(state.clinicalProgress!).catch(() => {
+          // Silently fail - data is saved locally
+        });
+      }, 2000);
+    }
+
+    return () => {
+      if (updateTimeoutRef.current) {
+        window.clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, [state.clinicalProgress, state.isAuthenticated, state.isOnline]);
+
+  // Listen for sync events
+  useEffect(() => {
+    const handleDataSync = (event: CustomEvent) => {
+      const { clinicalProgress } = event.detail || {};
+      if (clinicalProgress) {
+        setState(prev => ({
+          ...prev,
+          clinicalProgress,
+        }));
+      }
+    };
+
+    window.addEventListener('lotus-data-synced', handleDataSync as EventListener);
+    return () => window.removeEventListener('lotus-data-synced', handleDataSync as EventListener);
+  }, []);
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
-    setState(prev => ({ ...prev, isLoading: true }));
+    setState(prev => ({ ...prev, isLoading: true, authError: null }));
 
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 800));
+    try {
+      const response = await authApi.login({ email, password });
 
-    const mockEntry = MOCK_USERS[email.toLowerCase()];
-    if (mockEntry && mockEntry.password === password) {
-      const user = { ...mockEntry.user, lastLogin: Date.now() };
+      if (response.success && response.user) {
+        const user = response.user;
 
-      // Initialize clinical progress for patients
-      const clinicalProgress: ClinicalProgress | null =
-        user.role === 'patient'
-          ? {
+        // Fetch clinical progress for patients
+        let clinicalProgress: ClinicalProgress | null = null;
+        if (user.role === 'patient') {
+          try {
+            const progressResponse = await clinicalApi.getProgress();
+            if (progressResponse.success && progressResponse.progress) {
+              clinicalProgress = progressResponse.progress;
+            }
+          } catch {
+            // Use default progress if API fails
+            clinicalProgress = {
               sessionsCompleted: 0,
               sessionDates: [],
               attentionScore: 0,
@@ -298,92 +334,135 @@ export function UserProvider({ children }: { children: ReactNode }) {
               treatmentPhase: 'assessment',
               streak: 1,
               lastActivityDate: Date.now(),
-            }
-          : null;
+            };
+          }
+        }
 
-      setState({
-        user,
-        isAuthenticated: true,
+        setState({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+          clinicalProgress,
+          isOnline: navigator.onLine,
+          authError: null,
+        });
+
+        return true;
+      }
+
+      setState(prev => ({
+        ...prev,
         isLoading: false,
-        clinicalProgress,
-      });
-      return true;
+        authError: response.error || 'Login failed',
+      }));
+      return false;
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        authError: error instanceof Error ? error.message : 'Login failed',
+      }));
+      return false;
     }
-
-    setState(prev => ({ ...prev, isLoading: false }));
-    return false;
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } catch {
+      // Continue with local logout even if API fails
+    }
+
     setState({
       user: null,
       isAuthenticated: false,
       isLoading: false,
       clinicalProgress: null,
+      isOnline: navigator.onLine,
+      authError: null,
     });
+    clearTokens();
     safeStorage.removeItem(STORAGE_KEY);
     safeStorage.removeItem(CLINICAL_STORAGE_KEY);
   }, []);
 
   const register = useCallback(async (data: RegisterData): Promise<boolean> => {
-    setState(prev => ({ ...prev, isLoading: true }));
+    setState(prev => ({ ...prev, isLoading: true, authError: null }));
 
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const response = await authApi.register({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        nameAr: data.nameAr,
+        role: data.role,
+      });
 
-    // Check if email already exists
-    if (MOCK_USERS[data.email.toLowerCase()]) {
-      setState(prev => ({ ...prev, isLoading: false }));
+      if (response.success && response.user) {
+        const user = response.user;
+
+        const clinicalProgress: ClinicalProgress | null =
+          user.role === 'patient'
+            ? {
+                sessionsCompleted: 0,
+                sessionDates: [],
+                attentionScore: 0,
+                processingSpeed: 0,
+                auditoryDiscrimination: 0,
+                weeklyGoalsMet: 0,
+                treatmentPhase: 'assessment',
+                streak: 1,
+                lastActivityDate: Date.now(),
+              }
+            : null;
+
+        setState({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+          clinicalProgress,
+          isOnline: navigator.onLine,
+          authError: null,
+        });
+
+        return true;
+      }
+
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        authError: response.error || 'Registration failed',
+      }));
+      return false;
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        authError: error instanceof Error ? error.message : 'Registration failed',
+      }));
       return false;
     }
-
-    const newUser: User = {
-      id: generateId(),
-      email: data.email,
-      name: data.name,
-      nameAr: data.nameAr,
-      role: data.role || 'patient',
-      createdAt: Date.now(),
-      lastLogin: Date.now(),
-    };
-
-    // Add to mock database
-    MOCK_USERS[data.email.toLowerCase()] = {
-      password: data.password,
-      user: newUser,
-    };
-
-    const clinicalProgress: ClinicalProgress | null =
-      newUser.role === 'patient'
-        ? {
-            sessionsCompleted: 0,
-            sessionDates: [],
-            attentionScore: 0,
-            processingSpeed: 0,
-            auditoryDiscrimination: 0,
-            weeklyGoalsMet: 0,
-            treatmentPhase: 'assessment',
-            streak: 1,
-            lastActivityDate: Date.now(),
-          }
-        : null;
-
-    setState({
-      user: newUser,
-      isAuthenticated: true,
-      isLoading: false,
-      clinicalProgress,
-    });
-
-    return true;
   }, []);
 
-  const updateProfile = useCallback((data: Partial<User>) => {
+  const updateProfile = useCallback(async (data: Partial<User>) => {
     setState(prev => ({
       ...prev,
       user: prev.user ? { ...prev.user, ...data } : null,
     }));
-  }, []);
+
+    // Sync to API if online
+    if (state.isOnline && state.isAuthenticated) {
+      try {
+        await authApi.updateProfile({
+          name: data.name,
+          nameAr: data.nameAr,
+          avatar: data.avatar,
+        });
+      } catch {
+        // Data is saved locally, will sync later
+      }
+    }
+  }, [state.isOnline, state.isAuthenticated]);
 
   const updateClinicalProgress = useCallback((data: Partial<ClinicalProgress>) => {
     setState(prev => ({
@@ -392,6 +471,23 @@ export function UserProvider({ children }: { children: ReactNode }) {
         ? { ...prev.clinicalProgress, ...data, lastActivityDate: Date.now() }
         : null,
     }));
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    if (!state.isAuthenticated) return;
+
+    try {
+      const user = await authApi.getCurrentUser();
+      if (user) {
+        setState(prev => ({ ...prev, user }));
+      }
+    } catch {
+      // Silently fail - use cached user
+    }
+  }, [state.isAuthenticated]);
+
+  const clearAuthError = useCallback(() => {
+    setState(prev => ({ ...prev, authError: null }));
   }, []);
 
   const hasPermission = useCallback(
@@ -457,6 +553,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       hasPermission,
       getPermissions,
       switchRole,
+      refreshUser,
+      clearAuthError,
     }),
     [
       state,
@@ -468,6 +566,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       hasPermission,
       getPermissions,
       switchRole,
+      refreshUser,
+      clearAuthError,
     ]
   );
 
@@ -514,4 +614,9 @@ export function useIsParent(): boolean {
 export function useIsClinician(): boolean {
   const { user } = useUser();
   return user?.role === 'clinician';
+}
+
+export function useAuthError(): string | null {
+  const { authError } = useUser();
+  return authError;
 }

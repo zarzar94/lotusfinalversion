@@ -505,6 +505,14 @@ function App() {
                         </Suspense>
                       }
                     />
+                    <Route
+                      path="/home"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <LandingPage />
+                        </Suspense>
+                      }
+                    />
 
                     <Route
                       path="/login"

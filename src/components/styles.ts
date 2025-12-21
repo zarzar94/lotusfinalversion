@@ -1159,3 +1159,994 @@ export const workflowStyles: Record<string, CSSProperties> = {
     margin: '32px 0',
   },
 };
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ADVANCED TECH/LAB DESIGN SYSTEM - Futuristic & Interactive
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Extended Cyberpunk Color Palette
+export const cyberColors = {
+  // Neon accent colors
+  neonCyan: '#00f5ff',
+  neonPurple: '#bf00ff',
+  neonPink: '#ff0080',
+  neonGreen: '#00ff88',
+  neonOrange: '#ff6600',
+  neonYellow: '#ffff00',
+
+  // Holographic tones
+  holoBlue: '#4fc3f7',
+  holoPurple: '#ce93d8',
+  holoPink: '#f48fb1',
+  holoGreen: '#80cbc4',
+
+  // Deep tech backgrounds
+  voidBlack: '#000308',
+  deepSpace: '#0a0e1a',
+  matrixGreen: '#003300',
+  terminalGreen: '#00ff41',
+
+  // Glitch effects
+  glitchRed: '#ff0033',
+  glitchBlue: '#0066ff',
+  glitchCyan: '#00ffff',
+};
+
+// HUD (Heads-Up Display) Style Elements
+export const hudStyles: Record<string, CSSProperties> = {
+  // Main HUD container
+  hudContainer: {
+    position: 'relative',
+    padding: 24,
+    background: 'linear-gradient(135deg, rgba(0,5,15,0.95), rgba(10,20,40,0.9))',
+    border: `1px solid ${brandCyan}40`,
+    borderRadius: 4,
+    boxShadow: `
+      0 0 20px ${brandCyan}20,
+      inset 0 1px 0 ${brandCyan}20,
+      inset 0 -1px 0 ${brandPurple}20
+    `,
+  },
+
+  // HUD corner accents
+  hudCorner: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    borderColor: brandCyan,
+    borderStyle: 'solid',
+    borderWidth: 0,
+  },
+
+  // HUD title bar
+  hudTitleBar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '8px 16px',
+    background: `linear-gradient(90deg, ${brandCyan}15, transparent, ${brandPurple}15)`,
+    borderBottom: `1px solid ${brandCyan}30`,
+    marginBottom: 16,
+  },
+
+  // HUD readout display
+  hudReadout: {
+    fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+    fontSize: 11,
+    fontWeight: 700,
+    color: brandCyan,
+    letterSpacing: 2,
+    textTransform: 'uppercase' as const,
+    padding: '6px 12px',
+    background: 'rgba(143,211,204,0.08)',
+    borderLeft: `3px solid ${brandCyan}`,
+    animation: 'textFlicker 4s ease-in-out infinite',
+  },
+
+  // Status indicator
+  hudStatus: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '4px 10px',
+    background: 'rgba(34,197,94,0.1)',
+    border: '1px solid rgba(34,197,94,0.3)',
+    borderRadius: 4,
+    fontSize: 10,
+    fontWeight: 800,
+    color: '#22c55e',
+    letterSpacing: 1.5,
+  },
+
+  // Processing indicator
+  hudProcessing: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '4px 10px',
+    background: `rgba(143,211,204,0.1)`,
+    border: `1px solid ${brandCyan}30`,
+    borderRadius: 4,
+    fontSize: 10,
+    fontWeight: 800,
+    color: brandCyan,
+    letterSpacing: 1.5,
+    animation: 'hudPulse 1.5s ease-in-out infinite',
+  },
+
+  // Data panel
+  hudDataPanel: {
+    padding: 16,
+    background: 'rgba(0,0,0,0.5)',
+    border: `1px solid ${brandCyan}20`,
+    borderRadius: 4,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+
+  // Scan line overlay
+  hudScanLine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    background: `linear-gradient(90deg, transparent, ${brandCyan}60, transparent)`,
+    animation: 'scanLineDown 3s linear infinite',
+    pointerEvents: 'none',
+  },
+};
+
+// Holographic Effect Styles
+export const holoStyles: Record<string, CSSProperties> = {
+  // Holographic card
+  holoCard: {
+    position: 'relative',
+    padding: 24,
+    background: `linear-gradient(
+      135deg,
+      rgba(143,211,204,0.1) 0%,
+      rgba(175,132,186,0.08) 25%,
+      rgba(176,18,112,0.06) 50%,
+      rgba(175,132,186,0.08) 75%,
+      rgba(143,211,204,0.1) 100%
+    )`,
+    backgroundSize: '400% 400%',
+    border: '1px solid rgba(255,255,255,0.15)',
+    borderRadius: 16,
+    backdropFilter: 'blur(20px)',
+    animation: 'holoShift 8s ease infinite',
+    boxShadow: `
+      0 8px 32px rgba(0,0,0,0.4),
+      0 0 60px rgba(143,211,204,0.1),
+      inset 0 1px 0 rgba(255,255,255,0.1)
+    `,
+  },
+
+  // Rainbow shimmer overlay
+  holoShimmer: {
+    position: 'absolute',
+    inset: 0,
+    background: `linear-gradient(
+      120deg,
+      transparent 0%,
+      rgba(255,255,255,0.1) 25%,
+      rgba(143,211,204,0.2) 50%,
+      rgba(175,132,186,0.2) 75%,
+      transparent 100%
+    )`,
+    backgroundSize: '200% 100%',
+    animation: 'shimmerSlide 3s ease-in-out infinite',
+    borderRadius: 'inherit',
+    pointerEvents: 'none',
+  },
+
+  // Holographic text
+  holoText: {
+    background: `linear-gradient(90deg, ${brandCyan}, ${brandPurple}, ${brandPink}, ${brandCyan})`,
+    backgroundSize: '300% 100%',
+    WebkitBackgroundClip: 'text',
+    backgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    animation: 'holoTextShift 4s ease infinite',
+    fontWeight: 900,
+    textShadow: `0 0 40px ${brandCyan}40`,
+  },
+
+  // Iridescent border
+  holoBorder: {
+    position: 'relative',
+    padding: 2,
+    background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple}, ${brandPink}, ${brandCyan})`,
+    backgroundSize: '300% 300%',
+    borderRadius: 18,
+    animation: 'borderFlow 4s ease infinite',
+  },
+};
+
+// Gamification System Styles
+export const gamificationStyles: Record<string, CSSProperties> = {
+  // XP Bar container
+  xpBarContainer: {
+    position: 'relative',
+    height: 8,
+    background: 'rgba(0,0,0,0.4)',
+    borderRadius: 4,
+    overflow: 'hidden',
+    border: `1px solid ${brandCyan}20`,
+    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)',
+  },
+
+  // XP Bar fill
+  xpBarFill: {
+    height: '100%',
+    background: `linear-gradient(90deg,
+      ${brandCyan},
+      ${brandPurple} 50%,
+      ${brandPink} 100%
+    )`,
+    borderRadius: 3,
+    transition: 'width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+    position: 'relative',
+    boxShadow: `0 0 10px ${brandCyan}60`,
+  },
+
+  // XP Bar shimmer effect
+  xpBarShimmer: {
+    position: 'absolute',
+    top: 0,
+    left: '-100%',
+    width: '100%',
+    height: '100%',
+    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
+    animation: 'xpShimmer 2s ease-in-out infinite',
+  },
+
+  // Level badge
+  levelBadge: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: '50%',
+    background: `linear-gradient(135deg, ${brandPurple}, ${brandCyan})`,
+    border: '3px solid rgba(255,255,255,0.2)',
+    boxShadow: `
+      0 0 20px ${brandCyan}40,
+      0 4px 15px rgba(0,0,0,0.3),
+      inset 0 2px 0 rgba(255,255,255,0.2)
+    `,
+    fontSize: 18,
+    fontWeight: 900,
+    color: '#fff',
+    textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+  },
+
+  // Level badge glow
+  levelBadgeGlow: {
+    position: 'absolute',
+    inset: -4,
+    borderRadius: '50%',
+    background: `radial-gradient(circle, ${brandCyan}30 0%, transparent 70%)`,
+    animation: 'levelPulse 2s ease-in-out infinite',
+    pointerEvents: 'none',
+  },
+
+  // Achievement badge
+  achievementBadge: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    background: `linear-gradient(135deg, rgba(143,211,204,0.2), rgba(175,132,186,0.2))`,
+    border: `2px solid ${brandCyan}40`,
+    boxShadow: `
+      0 8px 24px rgba(0,0,0,0.3),
+      0 0 30px ${brandCyan}15,
+      inset 0 1px 0 rgba(255,255,255,0.1)
+    `,
+    fontSize: 28,
+    transition: 'all 0.3s ease',
+  },
+
+  // Achievement badge unlocked
+  achievementUnlocked: {
+    background: `linear-gradient(135deg, ${brandCyan}30, ${brandPurple}30)`,
+    border: `2px solid ${brandCyan}`,
+    boxShadow: `
+      0 8px 24px ${brandCyan}30,
+      0 0 40px ${brandCyan}25,
+      inset 0 1px 0 rgba(255,255,255,0.2)
+    `,
+    animation: 'achievementShine 3s ease-in-out infinite',
+  },
+
+  // Achievement locked
+  achievementLocked: {
+    opacity: 0.4,
+    filter: 'grayscale(0.8)',
+    background: 'rgba(255,255,255,0.05)',
+    border: '2px solid rgba(255,255,255,0.1)',
+    boxShadow: 'none',
+  },
+
+  // Streak counter
+  streakCounter: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '8px 16px',
+    background: 'linear-gradient(135deg, rgba(255,165,0,0.15), rgba(255,69,0,0.15))',
+    border: '1px solid rgba(255,165,0,0.4)',
+    borderRadius: 12,
+    fontSize: 14,
+    fontWeight: 800,
+    color: '#ffa500',
+    boxShadow: '0 4px 15px rgba(255,165,0,0.2)',
+  },
+
+  // Points popup animation
+  pointsPopup: {
+    position: 'absolute',
+    fontSize: 16,
+    fontWeight: 900,
+    color: brandCyan,
+    textShadow: `0 0 10px ${brandCyan}`,
+    animation: 'pointsFloat 1s ease-out forwards',
+    pointerEvents: 'none',
+  },
+
+  // Progress ring
+  progressRing: {
+    transform: 'rotate(-90deg)',
+    filter: `drop-shadow(0 0 10px ${brandCyan}40)`,
+  },
+
+  // Leaderboard row
+  leaderboardRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    padding: '12px 16px',
+    background: 'rgba(255,255,255,0.03)',
+    borderRadius: 12,
+    border: '1px solid rgba(255,255,255,0.06)',
+    transition: 'all 0.2s ease',
+  },
+
+  // Leaderboard row highlight
+  leaderboardRowHighlight: {
+    background: `linear-gradient(135deg, ${brandCyan}10, ${brandPurple}08)`,
+    border: `1px solid ${brandCyan}30`,
+    boxShadow: `0 0 20px ${brandCyan}10`,
+  },
+
+  // Rank badge
+  rankBadge: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    fontSize: 14,
+    fontWeight: 900,
+  },
+
+  // Rank 1-3 special styles
+  rankGold: {
+    background: 'linear-gradient(135deg, #ffd700, #ffb300)',
+    color: '#1a1a1a',
+    boxShadow: '0 4px 15px rgba(255,215,0,0.4)',
+  },
+  rankSilver: {
+    background: 'linear-gradient(135deg, #c0c0c0, #a0a0a0)',
+    color: '#1a1a1a',
+    boxShadow: '0 4px 15px rgba(192,192,192,0.3)',
+  },
+  rankBronze: {
+    background: 'linear-gradient(135deg, #cd7f32, #a5642a)',
+    color: '#fff',
+    boxShadow: '0 4px 15px rgba(205,127,50,0.3)',
+  },
+
+  // Power-up effect
+  powerUp: {
+    position: 'relative',
+    padding: 16,
+    background: 'rgba(255,255,255,0.05)',
+    borderRadius: 16,
+    border: `2px solid ${brandCyan}`,
+    boxShadow: `
+      0 0 30px ${brandCyan}30,
+      0 0 60px ${brandCyan}15,
+      inset 0 0 30px ${brandCyan}10
+    `,
+    animation: 'powerUpGlow 1.5s ease-in-out infinite',
+  },
+
+  // Combo multiplier
+  comboMultiplier: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    padding: '4px 12px',
+    background: `linear-gradient(135deg, ${brandPink}, ${brandPurple})`,
+    borderRadius: 20,
+    fontSize: 12,
+    fontWeight: 900,
+    color: '#fff',
+    textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+    boxShadow: `0 4px 15px ${brandPink}40`,
+    animation: 'comboPulse 0.5s ease-in-out infinite',
+  },
+};
+
+// Circuit Board Pattern Styles
+export const circuitStyles: Record<string, CSSProperties> = {
+  // Circuit board background
+  circuitBackground: {
+    position: 'relative',
+    background: `
+      linear-gradient(90deg, ${brandCyan}05 1px, transparent 1px),
+      linear-gradient(${brandCyan}05 1px, transparent 1px),
+      radial-gradient(circle at 50% 50%, ${brandPurple}10 0%, transparent 50%)
+    `,
+    backgroundSize: '40px 40px, 40px 40px, 100% 100%',
+  },
+
+  // Circuit node
+  circuitNode: {
+    width: 8,
+    height: 8,
+    borderRadius: '50%',
+    background: brandCyan,
+    boxShadow: `0 0 10px ${brandCyan}, 0 0 20px ${brandCyan}60`,
+    animation: 'nodeGlow 2s ease-in-out infinite',
+  },
+
+  // Circuit line
+  circuitLine: {
+    height: 2,
+    background: `linear-gradient(90deg, transparent, ${brandCyan}60, transparent)`,
+    boxShadow: `0 0 5px ${brandCyan}40`,
+  },
+
+  // Data flow line
+  dataFlowLine: {
+    position: 'relative',
+    height: 2,
+    background: 'rgba(143,211,204,0.2)',
+    overflow: 'hidden',
+  },
+
+  // Data flow particle
+  dataFlowParticle: {
+    position: 'absolute',
+    top: -2,
+    width: 6,
+    height: 6,
+    borderRadius: '50%',
+    background: brandCyan,
+    boxShadow: `0 0 10px ${brandCyan}`,
+    animation: 'dataFlowMove 2s linear infinite',
+  },
+
+  // Terminal container
+  terminalContainer: {
+    background: 'rgba(0,0,0,0.8)',
+    borderRadius: 8,
+    border: `1px solid ${brandCyan}30`,
+    overflow: 'hidden',
+    fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+    fontSize: 12,
+  },
+
+  // Terminal header
+  terminalHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '8px 12px',
+    background: 'rgba(255,255,255,0.05)',
+    borderBottom: '1px solid rgba(255,255,255,0.1)',
+  },
+
+  // Terminal dot
+  terminalDot: {
+    width: 10,
+    height: 10,
+    borderRadius: '50%',
+  },
+
+  // Terminal body
+  terminalBody: {
+    padding: 16,
+    color: brandCyan,
+    lineHeight: 1.6,
+  },
+
+  // Typing cursor
+  typingCursor: {
+    display: 'inline-block',
+    width: 8,
+    height: 16,
+    background: brandCyan,
+    marginLeft: 2,
+    animation: 'cursorBlink 1s step-end infinite',
+  },
+};
+
+// Data Visualization Styles
+export const dataVizStyles: Record<string, CSSProperties> = {
+  // Chart container
+  chartContainer: {
+    position: 'relative',
+    padding: 24,
+    background: 'rgba(0,0,0,0.3)',
+    borderRadius: 16,
+    border: `1px solid ${brandCyan}20`,
+  },
+
+  // Axis line
+  axisLine: {
+    background: 'rgba(255,255,255,0.2)',
+  },
+
+  // Bar chart bar
+  chartBar: {
+    background: `linear-gradient(180deg, ${brandCyan}, ${brandPurple})`,
+    borderRadius: '4px 4px 0 0',
+    boxShadow: `0 0 10px ${brandCyan}30`,
+    transition: 'height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+  },
+
+  // Chart bar glow
+  chartBarGlow: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    background: `linear-gradient(to top, ${brandCyan}30, transparent)`,
+    filter: 'blur(4px)',
+    pointerEvents: 'none',
+  },
+
+  // Pie segment
+  pieSegment: {
+    transition: 'all 0.3s ease',
+    cursor: 'pointer',
+    filter: `drop-shadow(0 2px 4px rgba(0,0,0,0.3))`,
+  },
+
+  // Data point
+  dataPoint: {
+    width: 10,
+    height: 10,
+    borderRadius: '50%',
+    background: brandCyan,
+    border: '2px solid #fff',
+    boxShadow: `0 0 10px ${brandCyan}`,
+    transition: 'transform 0.2s ease',
+  },
+
+  // Tooltip
+  dataTooltip: {
+    position: 'absolute',
+    padding: '8px 12px',
+    background: 'rgba(0,0,0,0.9)',
+    border: `1px solid ${brandCyan}40`,
+    borderRadius: 8,
+    fontSize: 12,
+    fontWeight: 600,
+    color: '#fff',
+    boxShadow: `0 4px 20px rgba(0,0,0,0.4), 0 0 20px ${brandCyan}15`,
+    zIndex: 100,
+    pointerEvents: 'none',
+  },
+
+  // Metric card
+  metricCard: {
+    padding: 20,
+    background: `linear-gradient(135deg, rgba(143,211,204,0.08), rgba(175,132,186,0.05))`,
+    borderRadius: 16,
+    border: `1px solid ${brandCyan}20`,
+    textAlign: 'center' as const,
+  },
+
+  // Metric value
+  metricValue: {
+    fontSize: 36,
+    fontWeight: 900,
+    background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
+    WebkitBackgroundClip: 'text',
+    backgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    lineHeight: 1.2,
+  },
+
+  // Metric label
+  metricLabel: {
+    fontSize: 12,
+    fontWeight: 600,
+    color: 'rgba(255,255,255,0.6)',
+    textTransform: 'uppercase' as const,
+    letterSpacing: 1,
+    marginTop: 8,
+  },
+
+  // Trend indicator up
+  trendUp: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: '2px 8px',
+    background: 'rgba(34,197,94,0.15)',
+    borderRadius: 4,
+    fontSize: 11,
+    fontWeight: 700,
+    color: '#22c55e',
+  },
+
+  // Trend indicator down
+  trendDown: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: '2px 8px',
+    background: 'rgba(239,68,68,0.15)',
+    borderRadius: 4,
+    fontSize: 11,
+    fontWeight: 700,
+    color: '#ef4444',
+  },
+};
+
+// Interactive Element Styles
+export const interactiveStyles: Record<string, CSSProperties> = {
+  // Magnetic button
+  magneticButton: {
+    position: 'relative',
+    padding: '14px 28px',
+    background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
+    border: 'none',
+    borderRadius: 14,
+    fontSize: 15,
+    fontWeight: 800,
+    color: '#fff',
+    cursor: 'pointer',
+    overflow: 'hidden',
+    transition: 'transform 0.2s ease, box-shadow 0.3s ease',
+    boxShadow: `
+      0 4px 20px ${brandCyan}40,
+      0 8px 40px ${brandPurple}20
+    `,
+  },
+
+  // Button ripple effect container
+  rippleContainer: {
+    position: 'absolute',
+    inset: 0,
+    overflow: 'hidden',
+    borderRadius: 'inherit',
+    pointerEvents: 'none',
+  },
+
+  // Button hover overlay
+  buttonHoverOverlay: {
+    position: 'absolute',
+    inset: 0,
+    background: 'rgba(255,255,255,0)',
+    transition: 'background 0.3s ease',
+    borderRadius: 'inherit',
+  },
+
+  // Glass card
+  glassCard: {
+    padding: 24,
+    background: 'rgba(255,255,255,0.05)',
+    backdropFilter: 'blur(20px)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: 20,
+    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+  },
+
+  // Floating action
+  floatingAction: {
+    position: 'fixed',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 60,
+    height: 60,
+    borderRadius: '50%',
+    background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
+    border: 'none',
+    boxShadow: `
+      0 8px 30px ${brandCyan}40,
+      0 0 40px ${brandCyan}20
+    `,
+    cursor: 'pointer',
+    transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+    animation: 'floatSoft 3s ease-in-out infinite',
+    zIndex: 50,
+  },
+
+  // Expandable card
+  expandableCard: {
+    position: 'relative',
+    background: 'rgba(11,15,28,0.95)',
+    borderRadius: 20,
+    border: `1px solid ${brandCyan}20`,
+    overflow: 'hidden',
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+  },
+
+  // Card expand trigger
+  expandTrigger: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    width: 32,
+    height: 32,
+    borderRadius: '50%',
+    background: 'rgba(143,211,204,0.2)',
+    border: `1px solid ${brandCyan}40`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+  },
+
+  // Slider thumb
+  sliderThumb: {
+    width: 20,
+    height: 20,
+    borderRadius: '50%',
+    background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
+    border: '3px solid #fff',
+    boxShadow: `0 0 15px ${brandCyan}60`,
+    cursor: 'grab',
+  },
+
+  // Slider track
+  sliderTrack: {
+    height: 6,
+    background: 'rgba(255,255,255,0.1)',
+    borderRadius: 3,
+    position: 'relative',
+  },
+
+  // Slider fill
+  sliderFill: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    height: '100%',
+    background: `linear-gradient(90deg, ${brandCyan}, ${brandPurple})`,
+    borderRadius: 3,
+    boxShadow: `0 0 10px ${brandCyan}40`,
+  },
+
+  // Toggle switch
+  toggleSwitch: {
+    position: 'relative',
+    width: 52,
+    height: 28,
+    borderRadius: 14,
+    background: 'rgba(255,255,255,0.1)',
+    border: '1px solid rgba(255,255,255,0.2)',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+  },
+
+  // Toggle switch active
+  toggleSwitchActive: {
+    background: `linear-gradient(90deg, ${brandCyan}, ${brandPurple})`,
+    border: `1px solid ${brandCyan}60`,
+    boxShadow: `0 0 20px ${brandCyan}30`,
+  },
+
+  // Toggle knob
+  toggleKnob: {
+    position: 'absolute',
+    top: 3,
+    width: 20,
+    height: 20,
+    borderRadius: '50%',
+    background: '#fff',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+    transition: 'all 0.3s ease',
+  },
+};
+
+// Advanced Animation Keyframes (to be added to CSS)
+export const advancedKeyframes = `
+  /* HUD Pulse */
+  @keyframes hudPulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 10px ${brandCyan}30; }
+    50% { opacity: 0.7; box-shadow: 0 0 20px ${brandCyan}50; }
+  }
+
+  /* Text Flicker */
+  @keyframes textFlicker {
+    0%, 100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.8; }
+    94% { opacity: 1; }
+    95% { opacity: 0.9; }
+    96% { opacity: 1; }
+  }
+
+  /* Holographic Shift */
+  @keyframes holoShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Holographic Text Shift */
+  @keyframes holoTextShift {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+  }
+
+  /* Shimmer Slide */
+  @keyframes shimmerSlide {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Border Flow */
+  @keyframes borderFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* XP Bar Shimmer */
+  @keyframes xpShimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+
+  /* Level Pulse */
+  @keyframes levelPulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+  }
+
+  /* Achievement Shine */
+  @keyframes achievementShine {
+    0%, 100% { box-shadow: 0 8px 24px ${brandCyan}30, 0 0 40px ${brandCyan}25; }
+    50% { box-shadow: 0 8px 32px ${brandCyan}50, 0 0 60px ${brandCyan}35; }
+  }
+
+  /* Points Float */
+  @keyframes pointsFloat {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-40px); opacity: 0; }
+  }
+
+  /* Power-up Glow */
+  @keyframes powerUpGlow {
+    0%, 100% { box-shadow: 0 0 30px ${brandCyan}30, 0 0 60px ${brandCyan}15, inset 0 0 30px ${brandCyan}10; }
+    50% { box-shadow: 0 0 50px ${brandCyan}50, 0 0 100px ${brandCyan}25, inset 0 0 50px ${brandCyan}20; }
+  }
+
+  /* Combo Pulse */
+  @keyframes comboPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  /* Node Glow */
+  @keyframes nodeGlow {
+    0%, 100% { box-shadow: 0 0 10px ${brandCyan}, 0 0 20px ${brandCyan}60; }
+    50% { box-shadow: 0 0 20px ${brandCyan}, 0 0 40px ${brandCyan}80; }
+  }
+
+  /* Data Flow Move */
+  @keyframes dataFlowMove {
+    0% { left: -6px; }
+    100% { left: calc(100% + 6px); }
+  }
+
+  /* Cursor Blink */
+  @keyframes cursorBlink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  /* Scan Line Down */
+  @keyframes scanLineDown {
+    0% { top: -10%; }
+    100% { top: 110%; }
+  }
+
+  /* Float Soft */
+  @keyframes floatSoft {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* Particle Orbit */
+  @keyframes particleOrbit {
+    0% { transform: rotate(0deg) translateX(100px) rotate(0deg); }
+    100% { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
+  }
+
+  /* Matrix Rain */
+  @keyframes matrixRain {
+    0% { transform: translateY(-100%); opacity: 1; }
+    100% { transform: translateY(100vh); opacity: 0; }
+  }
+
+  /* Glitch Effect */
+  @keyframes glitchEffect {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+  }
+
+  /* Energy Pulse */
+  @keyframes energyPulse {
+    0%, 100% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.02); filter: brightness(1.2); }
+  }
+
+  /* Radar Sweep */
+  @keyframes radarSweep {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Heartbeat */
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    10% { transform: scale(1.1); }
+    20% { transform: scale(1); }
+    30% { transform: scale(1.05); }
+    40% { transform: scale(1); }
+  }
+
+  /* Bounce In */
+  @keyframes bounceIn {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.1); }
+    70% { transform: scale(0.95); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Slide In Right */
+  @keyframes slideInRight {
+    0% { transform: translateX(100%); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+
+  /* Slide In Left */
+  @keyframes slideInLeft {
+    0% { transform: translateX(-100%); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+
+  /* Scale Up */
+  @keyframes scaleUp {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Rotate In */
+  @keyframes rotateIn {
+    0% { transform: rotate(-180deg) scale(0); opacity: 0; }
+    100% { transform: rotate(0) scale(1); opacity: 1; }
+  }
+`;
