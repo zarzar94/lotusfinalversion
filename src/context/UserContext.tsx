@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback, useEffect, useMemo, type ReactNode } from 'react';\nimport { safeStorage } from '../utils/storage';
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, type ReactNode } from 'react';
+import { safeStorage } from '../utils/storage';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -320,8 +321,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       isLoading: false,
       clinicalProgress: null,
     });
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(CLINICAL_STORAGE_KEY);
+    safeStorage.removeItem(STORAGE_KEY);
+    safeStorage.removeItem(CLINICAL_STORAGE_KEY);
   }, []);
 
   const register = useCallback(async (data: RegisterData): Promise<boolean> => {

@@ -7,12 +7,6 @@ import { GamificationProvider } from './context/GamificationContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { UserProvider, useUser } from './context/UserContext';
 import { VisitorModeProvider } from './context/VisitorModeContext';
-import AchievementToast from './components/AchievementToast';
-import ProgressDashboard from './components/ProgressDashboard';
-import ScrollProgressTracker from './components/ScrollProgressTracker';
-import ActivityFeed from './components/ActivityFeed';
-import NotificationCenter from './components/NotificationCenter';
-import { ProgressExportButton } from './components/ProgressExport';
 import { useClinicalSync } from './hooks/useClinicalSync';
 import StickySmartCTA from './components/StickySmartCTA';
 import RequireAuth from './components/auth/RequireAuth';
@@ -54,6 +48,7 @@ const EducatorDashboard = lazy(() => import('./pages/EducatorDashboard'));
 const ClinicianRoleDashboard = lazy(() => import('./pages/ClinicianDashboard'));
 const SettingsPage = lazy(() => import('./components/SettingsPage'));
 const DebugSessionPage = lazy(() => import('./pages/DebugSessionPage'));
+const GamificationUI = lazy(() => import('./components/GamificationUI'));
 
 const HomeGate = memo(function HomeGate() {
   const { isAuthenticated } = useUser();
@@ -65,15 +60,6 @@ const HomeGate = memo(function HomeGate() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Get language from localStorage (same key as LanguageContext)
-function getStoredLanguage(): 'ar' | 'en' {
-  if (typeof window === 'undefined') return 'ar';
-  const saved = localStorage.getItem('lotus_language');
-  if (saved === 'ar' || saved === 'en') return saved;
-  const browserLang = navigator.language.toLowerCase();
-  if (browserLang.startsWith('en')) return 'en';
-  return 'ar';
-}
-
 function PageLoader() {
   const isArabic = detectPreferredLanguage() === 'ar';
   const loadingText = isArabic ? 'جارٍ التحميل...' : 'Loading...';
@@ -445,21 +431,6 @@ PageTransitionStyles.displayName = 'PageTransitionStyles';
 // GAMIFICATION UI WRAPPER
 // ═══════════════════════════════════════════════════════════════════════════
 
-const GamificationUI = memo(() => (
-  <>
-    <AchievementToast />
-    <ProgressDashboard />
-    <ScrollProgressTracker />
-    <ActivityFeed />
-    <NotificationCenter />
-    {/* Hidden export button that listens for export-progress event */}
-    <div style={{ position: 'fixed', bottom: -100, left: -100, opacity: 0, pointerEvents: 'none' }}>
-      <ProgressExportButton />
-    </div>
-  </>
-));
-GamificationUI.displayName = 'GamificationUI';
-
 const ClinicalSync = memo(() => {
   useClinicalSync();
   return null;
@@ -751,7 +722,9 @@ function App() {
                 </div>
 
                 {/* Gamification UI (always visible) */}
-                <GamificationUI />
+                <Suspense fallback={null}>
+                  <GamificationUI />
+                </Suspense>
 
                 {/* Sticky Smart CTA (mode-aware) */}
                 <StickySmartCTA />

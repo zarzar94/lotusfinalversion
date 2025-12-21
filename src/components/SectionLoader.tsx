@@ -24,7 +24,8 @@ export default function SectionLoader({ label, labelAr, height = 300 }: SectionL
   const skeletonSecondaryStyle = {
     ...skeletonBaseStyle,
     background: 'linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
-  };  return (
+  };
+  return (
     <div style={{
       background: 'rgba(11,15,28,0.7)',
       backdropFilter: 'blur(12px)',

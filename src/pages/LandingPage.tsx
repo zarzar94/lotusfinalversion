@@ -15,7 +15,6 @@ import FadeIn from '../components/FadeIn';
 import { useLanguage } from '../context/LanguageContext';
 import { useClinicalSync } from '../hooks/useClinicalSync';
 import { usePageTitle } from '../hooks/usePageTitle';
-import ExperienceJourney from '../components/ExperienceJourney';
 import ClinicalProtocolSection from '../components/ClinicalProtocolSection';
 import { styles } from '../components/styles';
 
@@ -62,11 +61,6 @@ function LandingPage() {
         {/* HERO - Interactive Brain Dashboard */}
         <FadeIn duration={1000} scale blur blurAmount={8}>
           <HeroCircuitBrain onOpenCertifications={openCertifications} />
-        </FadeIn>
-
-        {/* Guided journey section */}
-        <FadeIn delay={200} direction="none" scale>
-          <ExperienceJourney isArabic={isArabic} />
         </FadeIn>
 
         {/* Quick Actions Panel - Role-specific CTAs */}
