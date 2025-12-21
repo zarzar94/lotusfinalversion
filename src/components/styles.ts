@@ -1161,8 +1161,362 @@ export const workflowStyles: Record<string, CSSProperties> = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// ADVANCED TECH/LAB DESIGN SYSTEM - Futuristic & Interactive
+// SOUND LAB / AUDITORY THERAPY DESIGN SYSTEM
+// Futuristic audio therapy lab aesthetic for Bérard AIT treatment center
 // ═══════════════════════════════════════════════════════════════════════════════
+
+// Audio Waveform Colors
+export const audioColors = {
+  // Frequency spectrum colors (low to high)
+  bass: '#774E87',        // Deep bass - purple
+  lowMid: '#AF84BA',      // Low-mid frequencies - lavender
+  mid: '#8FD3CC',         // Mid frequencies (speech range) - cyan
+  highMid: '#22c55e',     // High-mid frequencies - green
+  high: '#B01270',        // High frequencies - pink
+
+  // Signal colors
+  signalActive: '#00ff88',
+  signalIdle: '#3b4a6b',
+  signalWarning: '#f59e0b',
+  signalPeak: '#ff0080',
+
+  // Neural pathway colors
+  neuralCore: brandCyan,
+  neuralGlow: `${brandCyan}40`,
+  synapseActive: '#00f5ff',
+  synapseIdle: '#1a3a4a',
+};
+
+// Sound Lab HUD Styles
+export const soundLabStyles: Record<string, CSSProperties> = {
+  // Main lab container
+  labContainer: {
+    position: 'relative',
+    background: 'linear-gradient(180deg, #0a0e1a 0%, #050810 100%)',
+    borderRadius: 6,
+    border: `1px solid ${brandCyan}30`,
+    overflow: 'hidden',
+    boxShadow: `
+      0 0 40px ${brandCyan}10,
+      inset 0 1px 0 ${brandCyan}15,
+      inset 0 -1px 0 ${brandPurple}10
+    `,
+  },
+
+  // Frequency analyzer display
+  frequencyDisplay: {
+    background: 'rgba(0,5,15,0.95)',
+    padding: 20,
+    borderRadius: 4,
+    border: `1px solid ${brandCyan}20`,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+
+  // Audio waveform container
+  waveformContainer: {
+    height: 80,
+    background: 'linear-gradient(180deg, rgba(0,5,15,0.9), rgba(10,20,40,0.8))',
+    borderRadius: 4,
+    border: `1px solid ${brandCyan}15`,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+
+  // Signal meter
+  signalMeter: {
+    display: 'flex',
+    gap: 2,
+    alignItems: 'flex-end',
+    height: 40,
+    padding: '0 8px',
+  },
+
+  // Signal bar
+  signalBar: {
+    flex: 1,
+    background: `linear-gradient(180deg, ${brandCyan}, ${brandPurple})`,
+    borderRadius: '2px 2px 0 0',
+    transition: 'height 0.1s ease',
+    boxShadow: `0 0 8px ${brandCyan}40`,
+  },
+
+  // Lab readout display (monospace)
+  labReadout: {
+    fontFamily: '"JetBrains Mono", "Fira Code", "SF Mono", monospace',
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: 1.5,
+    color: brandCyan,
+    textTransform: 'uppercase' as const,
+    textShadow: `0 0 10px ${brandCyan}60`,
+  },
+
+  // Treatment status panel
+  treatmentStatus: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    padding: '10px 16px',
+    background: 'rgba(34,197,94,0.08)',
+    border: '1px solid rgba(34,197,94,0.25)',
+    borderRadius: 6,
+    fontFamily: 'monospace',
+    fontSize: 10,
+    fontWeight: 700,
+    color: '#22c55e',
+    letterSpacing: 1,
+  },
+
+  // Frequency band indicator
+  frequencyBand: {
+    padding: '8px 14px',
+    background: 'rgba(0,0,0,0.4)',
+    borderRadius: 6,
+    border: `1px solid ${brandCyan}20`,
+    textAlign: 'center' as const,
+  },
+
+  // Neural pathway line
+  neuralPath: {
+    height: 2,
+    background: `linear-gradient(90deg, transparent, ${brandCyan}60, ${brandPurple}60, transparent)`,
+    boxShadow: `0 0 8px ${brandCyan}40`,
+  },
+
+  // Brain wave indicator
+  brainWaveIndicator: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '6px 12px',
+    background: 'rgba(143,211,204,0.1)',
+    border: `1px solid ${brandCyan}30`,
+    borderRadius: 20,
+    fontSize: 10,
+    fontWeight: 700,
+    color: brandCyan,
+  },
+
+  // Audio spectrum bar
+  spectrumBar: {
+    background: `linear-gradient(180deg,
+      ${brandCyan} 0%,
+      ${brandPurple} 40%,
+      ${brandPink} 100%
+    )`,
+    borderRadius: '2px 2px 0 0',
+    boxShadow: `0 0 6px ${brandCyan}50`,
+    transition: 'height 0.05s linear',
+  },
+
+  // Lab module header
+  labModuleHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '12px 16px',
+    background: 'rgba(0,0,0,0.4)',
+    borderBottom: `1px solid ${brandCyan}20`,
+  },
+
+  // Lab badge
+  labBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '5px 12px',
+    background: 'rgba(0,5,15,0.9)',
+    border: `1px solid ${brandCyan}40`,
+    borderRadius: 4,
+    fontSize: 9,
+    fontWeight: 800,
+    color: brandCyan,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase' as const,
+    boxShadow: `0 0 10px ${brandCyan}15`,
+  },
+
+  // Treatment progress ring
+  treatmentRing: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // Sound wave pulse effect
+  soundPulse: {
+    position: 'absolute',
+    borderRadius: '50%',
+    border: `2px solid ${brandCyan}40`,
+    animation: 'soundPulseExpand 2s ease-out infinite',
+    pointerEvents: 'none',
+  },
+
+  // Clinic status bar
+  clinicStatusBar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '8px 16px',
+    background: 'rgba(0,0,0,0.5)',
+    borderTop: `1px solid ${brandCyan}15`,
+    fontFamily: 'monospace',
+    fontSize: 9,
+    letterSpacing: 1,
+  },
+};
+
+// Sound Lab Animation Keyframes
+export const soundLabAnimations = `
+  /* Sound pulse expand effect */
+  @keyframes soundPulseExpand {
+    0% {
+      transform: scale(0.8);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(2);
+      opacity: 0;
+    }
+  }
+
+  /* Audio signal flow */
+  @keyframes audioSignalFlow {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 200% 50%;
+    }
+  }
+
+  /* Frequency bar bounce */
+  @keyframes freqBarBounce {
+    0%, 100% { transform: scaleY(0.3); }
+    50% { transform: scaleY(1); }
+  }
+
+  /* Neural pulse */
+  @keyframes neuralPulseFlow {
+    0% {
+      opacity: 0.3;
+      box-shadow: 0 0 5px ${brandCyan}20;
+    }
+    50% {
+      opacity: 1;
+      box-shadow: 0 0 20px ${brandCyan}60;
+    }
+    100% {
+      opacity: 0.3;
+      box-shadow: 0 0 5px ${brandCyan}20;
+    }
+  }
+
+  /* Brain wave oscillation */
+  @keyframes brainWaveOscillate {
+    0%, 100% { transform: translateY(0); }
+    25% { transform: translateY(-3px); }
+    75% { transform: translateY(3px); }
+  }
+
+  /* Treatment progress glow */
+  @keyframes treatmentGlow {
+    0%, 100% {
+      filter: drop-shadow(0 0 5px ${brandCyan}40);
+    }
+    50% {
+      filter: drop-shadow(0 0 15px ${brandCyan}80);
+    }
+  }
+
+  /* Sound lab scan line */
+  @keyframes labScanLine {
+    0% {
+      top: -5%;
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.8;
+    }
+    90% {
+      opacity: 0.8;
+    }
+    100% {
+      top: 105%;
+      opacity: 0;
+    }
+  }
+
+  /* Audio meter blink */
+  @keyframes audioMeterBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Waveform draw */
+  @keyframes waveformDraw {
+    0% {
+      stroke-dashoffset: 1000;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* Status indicator pulse */
+  @keyframes statusPulseGlow {
+    0%, 100% {
+      box-shadow: 0 0 4px currentColor;
+    }
+    50% {
+      box-shadow: 0 0 12px currentColor, 0 0 20px currentColor;
+    }
+  }
+
+  .sound-pulse {
+    animation: soundPulseExpand 2s ease-out infinite;
+  }
+
+  .audio-signal-flow {
+    animation: audioSignalFlow 3s linear infinite;
+  }
+
+  .freq-bar-animate {
+    animation: freqBarBounce 0.4s ease-in-out infinite;
+  }
+
+  .neural-pulse {
+    animation: neuralPulseFlow 2s ease-in-out infinite;
+  }
+
+  .brain-wave {
+    animation: brainWaveOscillate 3s ease-in-out infinite;
+  }
+
+  .treatment-glow {
+    animation: treatmentGlow 2s ease-in-out infinite;
+  }
+
+  .lab-scan-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, ${brandCyan}80, transparent);
+    animation: labScanLine 4s linear infinite;
+    pointer-events: none;
+  }
+
+  .audio-meter-blink {
+    animation: audioMeterBlink 1s ease-in-out infinite;
+  }
+
+  .status-pulse {
+    animation: statusPulseGlow 2s ease-in-out infinite;
+  }
+`;
 
 // Extended Cyberpunk Color Palette
 export const cyberColors = {

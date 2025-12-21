@@ -177,6 +177,28 @@ const HeroSection = memo(function HeroSection() {
       0% { transform: translate(-50%, -50%) rotate(0deg); }
       100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
+    /* Sound wave rings - for audio therapy */
+    @keyframes soundWaveRing {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.8; }
+      100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+    }
+    /* Audio frequency bars */
+    @keyframes freqBar1 { 0%, 100% { height: 20%; } 50% { height: 80%; } }
+    @keyframes freqBar2 { 0%, 100% { height: 40%; } 50% { height: 60%; } }
+    @keyframes freqBar3 { 0%, 100% { height: 60%; } 50% { height: 100%; } }
+    @keyframes freqBar4 { 0%, 100% { height: 30%; } 50% { height: 70%; } }
+    @keyframes freqBar5 { 0%, 100% { height: 50%; } 50% { height: 90%; } }
+    /* Audio signal pulse */
+    @keyframes audioSignalPulse {
+      0%, 100% { opacity: 0.3; transform: scaleX(1); }
+      50% { opacity: 0.8; transform: scaleX(1.1); }
+    }
+    /* Treatment beam */
+    @keyframes treatmentBeam {
+      0% { opacity: 0; transform: translateY(-20px); }
+      50% { opacity: 0.6; }
+      100% { opacity: 0; transform: translateY(20px); }
+    }
     .brain-container {
       animation: fadeInScale 1.2s ease-out forwards, brainPulse 4s ease-in-out infinite;
       animation-delay: 0s, 1.2s;
@@ -263,6 +285,46 @@ const HeroSection = memo(function HeroSection() {
       transform-origin: left center;
       animation: radarSweep 8s linear infinite;
       opacity: 0.4;
+    }
+    /* Sound wave rings emanating from brain */
+    .sound-wave-ring {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      border-radius: 50%;
+      border: 2px solid ${brandCyan}40;
+      animation: soundWaveRing 3s ease-out infinite;
+      pointer-events: none;
+    }
+    /* Audio frequency visualization */
+    .audio-freq-display {
+      position: absolute;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      padding: 8px 12px;
+      background: rgba(0,5,15,0.8);
+      border: 1px solid ${brandCyan}30;
+      border-radius: 6px;
+      backdrop-filter: blur(10px);
+    }
+    .freq-bar {
+      width: 4px;
+      background: linear-gradient(180deg, ${brandCyan}, ${brandPurple});
+      border-radius: 2px;
+      box-shadow: 0 0 6px ${brandCyan}40;
+    }
+    /* Treatment signal indicator */
+    .treatment-signal {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(0,5,15,0.85);
+      border: 1px solid rgba(34,197,94,0.4);
+      border-radius: 6px;
+      backdrop-filter: blur(10px);
     }
     /* Data readout animation */
     .data-readout {
@@ -386,6 +448,49 @@ const HeroSection = memo(function HeroSection() {
 
       {/* Radar sweep */}
       <div className="radar-sweep" />
+
+      {/* Sound wave rings - emanating from brain for audio therapy visualization */}
+      <div className="sound-wave-ring" style={{ width: 350, height: 350 }} />
+      <div className="sound-wave-ring" style={{ width: 350, height: 350, animationDelay: '1s' }} />
+      <div className="sound-wave-ring" style={{ width: 350, height: 350, animationDelay: '2s' }} />
+
+      {/* Audio frequency display - bottom left */}
+      <div className="audio-freq-display lab-badge" style={{ bottom: 120, left: 40 }}>
+        <div style={{ marginRight: 8 }}>
+          <div style={{ fontSize: 8, color: brandCyan, fontWeight: 700, letterSpacing: 1, marginBottom: 4 }}>
+            AUDIO FREQ
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 30 }}>
+            <div className="freq-bar" style={{ animation: 'freqBar1 0.8s ease-in-out infinite' }} />
+            <div className="freq-bar" style={{ animation: 'freqBar2 0.6s ease-in-out infinite 0.1s' }} />
+            <div className="freq-bar" style={{ animation: 'freqBar3 0.7s ease-in-out infinite 0.2s' }} />
+            <div className="freq-bar" style={{ animation: 'freqBar4 0.5s ease-in-out infinite 0.15s' }} />
+            <div className="freq-bar" style={{ animation: 'freqBar5 0.9s ease-in-out infinite 0.25s' }} />
+            <div className="freq-bar" style={{ animation: 'freqBar2 0.65s ease-in-out infinite 0.3s' }} />
+            <div className="freq-bar" style={{ animation: 'freqBar1 0.75s ease-in-out infinite 0.35s' }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Treatment signal indicator - bottom right */}
+      <div className="treatment-signal lab-badge" style={{ bottom: 120, right: 40 }}>
+        <div style={{
+          width: 8,
+          height: 8,
+          borderRadius: '50%',
+          background: '#22c55e',
+          boxShadow: '0 0 10px #22c55e',
+          animation: 'statusBlink 1.5s ease-in-out infinite',
+        }} />
+        <div>
+          <div style={{ fontSize: 8, color: '#22c55e', fontWeight: 800, letterSpacing: 1 }}>
+            TREATMENT READY
+          </div>
+          <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.4)', letterSpacing: 0.5 }}>
+            BÉRARD AIT PROTOCOL
+          </div>
+        </div>
+      </div>
 
       {/* Corner brackets for tech aesthetic */}
       <div className="corner-bracket" style={{ top: 40, left: 40, borderWidth: '2px 0 0 2px' }} />
