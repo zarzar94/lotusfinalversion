@@ -4,7 +4,7 @@ import { translations } from '../../i18n/translations';
 import type { Language } from '../../context/LanguageContext';
 import { AssessmentSession, TestOutcome, TestKey } from './types';
 
-export const downloadBlob = (blob: Blob, filename: string) => {
+export const downloadBlob = (blob: Blob, filename: string): void => {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = filename;
@@ -12,7 +12,7 @@ export const downloadBlob = (blob: Blob, filename: string) => {
   URL.revokeObjectURL(a.href);
 };
 
-export const safeJson = (value: unknown) => {
+const safeJson = (value: unknown): string => {
   try {
     return JSON.stringify(value);
   } catch {
@@ -41,7 +41,7 @@ const getReportLabels = (language: Language) => {
 };
 
 
-export const downloadSessionCsv = (session: AssessmentSession) => {
+export const downloadSessionCsv = (session: AssessmentSession): void => {
   const rows: string[] = [];
   rows.push(['session_id', 'started_at', 'test_key', 'title', 'result', 'score_label', 'message', 'metrics_json'].join(','));
 
@@ -65,7 +65,7 @@ export const downloadSessionCsv = (session: AssessmentSession) => {
   downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `Berard-AIT-Screening-${Date.now()}.csv`);
 };
 
-const writeMetrics = (doc: jsPDF, metrics: TestOutcome['metrics'], yStart: number) => {
+const writeMetrics = (doc: jsPDF, metrics: TestOutcome['metrics'], yStart: number): number => {
   let y = yStart;
   doc.setFont('Cairo', 'normal');
   doc.setFontSize(11);
@@ -83,7 +83,7 @@ export const downloadSessionPdf = async (
   session: AssessmentSession,
   composite?: { label: string; message: string },
   language: Language = 'ar',
-) => {
+) : Promise<void> => {
   const labels = getReportLabels(language);
   const doc = await createPdfDoc();
   doc.setFont('Cairo', 'bold');

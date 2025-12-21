@@ -4,12 +4,10 @@
  * Automatically handles browser autoplay restrictions
  */
 
-type AudioContextType = typeof AudioContext;
-
 // Get the correct AudioContext constructor (cross-browser)
-const getAudioContextClass = (): AudioContextType | null => {
-  if (typeof window === 'undefined') return null;
-  return window.AudioContext || (window as unknown as { webkitAudioContext: AudioContextType }).webkitAudioContext || null;
+const getAudioContextClass = (): typeof AudioContext | undefined => {
+  if (typeof window === 'undefined') return undefined;
+  return window.AudioContext || window.webkitAudioContext;
 };
 
 // Singleton AudioContext instance

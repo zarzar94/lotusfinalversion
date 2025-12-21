@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import { ensureAudio, safeCloseAudio, setBabbleNoiseLevel, stopNoise, type NoiseRef } from './audio';
-import type { GameResult, TestOutcome } from './types';
+import type { GameResult, SpeechInNoiseMetrics, TestOutcome } from './types';
 import { calculateFatigueIndex } from './scoring';
 import { mean } from './stats';
 
@@ -305,7 +305,7 @@ export default function SpeechInNoiseTestPanel({
     const noiseTolerance =
       threshold <= 0 ? t('speechInNoise.noiseStrong') : threshold <= 8 ? t('speechInNoise.noiseModerate') : t('speechInNoise.noiseNeedsQuiet');
 
-    const metrics: Record<string, number | string | boolean> = {
+    const metrics: SpeechInNoiseMetrics = {
       trials: results.length,
       accuracyPct: accuracy,
       snrThresholdDb: threshold,

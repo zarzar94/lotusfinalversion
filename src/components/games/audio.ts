@@ -27,7 +27,7 @@ export const ensureAudio = (ref: AudioRef): AudioContext => {
   return ref.current;
 };
 
-export const safeCloseAudio = async (ref: AudioRef) => {
+export const safeCloseAudio = async (ref: AudioRef): Promise<void> => {
   try {
     await ref.current?.close();
   } catch {
@@ -36,7 +36,7 @@ export const safeCloseAudio = async (ref: AudioRef) => {
   ref.current = null;
 };
 
-const makeNoiseBuffer = (audio: AudioContext, seconds = 1.6, amp = 0.22) => {
+const makeNoiseBuffer = (audio: AudioContext, seconds = 1.6, amp = 0.22): AudioBuffer => {
   const length = Math.max(1, Math.floor(audio.sampleRate * seconds));
   const buffer = audio.createBuffer(1, length, audio.sampleRate);
   const data = buffer.getChannelData(0);
@@ -124,7 +124,7 @@ const makeBabbleBuffer = (audio: AudioContext, seconds = 2.4, amp = 0.6, talkers
   return buffer;
 };
 
-export const stopNoise = (noiseRef: NoiseRef) => {
+export const stopNoise = (noiseRef: NoiseRef): void => {
   try {
     noiseRef.current?.src.stop();
   } catch {
@@ -136,7 +136,7 @@ export const stopNoise = (noiseRef: NoiseRef) => {
 /**
  * Starts (or updates) a looping white-noise bed. The level is clamped for comfort.
  */
-export const setNoiseLevel = (audio: AudioContext, noiseRef: NoiseRef, level: number) => {
+export const setNoiseLevel = (audio: AudioContext, noiseRef: NoiseRef, level: number): void => {
   const gainValue = Math.max(0, Math.min(0.22, level));
 
   if (!noiseRef.current) {
