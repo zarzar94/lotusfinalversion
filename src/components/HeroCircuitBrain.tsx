@@ -110,7 +110,8 @@ const InfoModal = memo(({
   isArabic: boolean;
 }) => {
   const navigate = useNavigate();
-  const text = isArabic ? t(heroText.ar, heroText.en) : heroText.en;
+  const { t } = useLanguage();
+  const text = isArabic ? heroText.ar : heroText.en;
 
   useEffect(() => {
     if (!node) return;
