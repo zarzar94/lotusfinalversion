@@ -569,7 +569,7 @@ const AchievementCard = memo(function AchievementCard({
           lineHeight: 1.3,
         }}
       >
-        {isUnlocked ? (isArabic ? t(achievement.titleAr, achievement.title) : achievement.title) : '???'}
+        {isUnlocked ? (isArabic ? t(achievement.titleAr, achievement.title) : achievement.title) : (isArabic ? 'مقفل' : 'Locked')}
       </div>
       {isUnlocked && (
         <div
