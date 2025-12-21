@@ -137,6 +137,7 @@ const PhaseCard = memo(({
   phase: typeof PROTOCOL_PHASES[0];
   isArabic: boolean;
 }) => {
+  const { t } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -240,63 +241,67 @@ const SafetyCard = memo(({
 }: {
   item: typeof SAFETY_ITEMS[0];
   isArabic: boolean;
-}) => (
-  <div
-    style={{
-      display: 'flex',
-      gap: spacing[4],
-      padding: spacing[4],
-      background: 'rgba(13,17,23,0.6)',
-      border: `1px solid ${colors.border.subtle}`,
-      borderRadius: radius.lg,
-      alignItems: 'flex-start',
-      flexDirection: isArabic ? 'row-reverse' : 'row',
-      textAlign: isArabic ? 'right' : 'left',
-    }}
-  >
-    {/* Icon */}
+}) => {
+  const { t } = useLanguage();
+
+  return (
     <div
       style={{
-        width: 44,
-        height: 44,
-        borderRadius: radius.lg,
-        background: `${item.color}15`,
-        border: `1px solid ${item.color}30`,
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
+        gap: spacing[4],
+        padding: spacing[4],
+        background: 'rgba(13,17,23,0.6)',
+        border: `1px solid ${colors.border.subtle}`,
+        borderRadius: radius.lg,
+        alignItems: 'flex-start',
+        flexDirection: isArabic ? 'row-reverse' : 'row',
+        textAlign: isArabic ? 'right' : 'left',
       }}
     >
-      {getIcon(item.iconType, item.color)}
-    </div>
+      {/* Icon */}
+      <div
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: radius.lg,
+          background: `${item.color}15`,
+          border: `1px solid ${item.color}30`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+        }}
+      >
+        {getIcon(item.iconType, item.color)}
+      </div>
 
-    {/* Content */}
-    <div style={{ flex: 1 }}>
-      <h5
-        style={{
-          margin: 0,
-          fontSize: typography.size.md,
-          fontWeight: typography.weight.semibold,
-          color: colors.text.primary,
-          marginBottom: spacing[1],
-        }}
-      >
-        {isArabic ? t(item.titleAr, item.titleEn) : item.titleEn}
-      </h5>
-      <p
-        style={{
-          margin: 0,
-          fontSize: typography.size.sm,
-          color: colors.text.muted,
-          lineHeight: typography.lineHeight.relaxed,
-        }}
-      >
-        {isArabic ? t(item.descAr, item.descEn) : item.descEn}
-      </p>
+      {/* Content */}
+      <div style={{ flex: 1 }}>
+        <h5
+          style={{
+            margin: 0,
+            fontSize: typography.size.md,
+            fontWeight: typography.weight.semibold,
+            color: colors.text.primary,
+            marginBottom: spacing[1],
+          }}
+        >
+          {isArabic ? t(item.titleAr, item.titleEn) : item.titleEn}
+        </h5>
+        <p
+          style={{
+            margin: 0,
+            fontSize: typography.size.sm,
+            color: colors.text.muted,
+            lineHeight: typography.lineHeight.relaxed,
+          }}
+        >
+          {isArabic ? t(item.descAr, item.descEn) : item.descEn}
+        </p>
+      </div>
     </div>
-  </div>
-));
+  );
+});
 SafetyCard.displayName = 'SafetyCard';
 
 const ClinicalProtocolSection = memo(function ClinicalProtocolSection() {
