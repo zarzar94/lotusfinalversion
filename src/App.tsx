@@ -5,7 +5,8 @@ import ErrorBoundary from './components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
 import { GamificationProvider } from './context/GamificationContext';
 import { LanguageProvider } from './context/LanguageContext';
-import { UserProvider } from './context/UserContext';
+import { SyncProvider } from './context/SyncContext';
+import { UserProvider, useUser } from './context/UserContext';
 import { VisitorModeProvider } from './context/VisitorModeContext';
 import AchievementToast from './components/AchievementToast';
 import ProgressDashboard from './components/ProgressDashboard';
@@ -15,6 +16,8 @@ import NotificationCenter from './components/NotificationCenter';
 import { ProgressExportButton } from './components/ProgressExport';
 import { useClinicalSync } from './hooks/useClinicalSync';
 import StickySmartCTA from './components/StickySmartCTA';
+import RequireAuth from './components/auth/RequireAuth';
+import RequirePermission from './components/auth/RequirePermission';
 
 // UX Enhancement imports
 import WelcomeModal from './components/WelcomeModal';
@@ -38,23 +41,36 @@ const appBase = (rawBase === './' ? '/' : rawBase).replace(/\/+$/, '') || '/';
 
 // Main 7 Pages
 const LandingPage = lazy(() => import('./pages/LandingPage'));
+const ExplorePage = lazy(() => import('./pages/ExplorePage'));
 const AssessmentPage = lazy(() => import('./pages/AssessmentPage'));
 const ProgramPage = lazy(() => import('./pages/ProgramPage'));
 const SciencePage = lazy(() => import('./pages/SciencePage'));
 const ResultsPage = lazy(() => import('./pages/ResultsPage'));
 const ResourcesPage = lazy(() => import('./pages/ResourcesPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
+const PartnersPage = lazy(() => import('./pages/PartnersPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
+const FAQPage = lazy(() => import('./pages/FAQPage'));
 
 // Special Pages
 const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
 
 // Dashboard Pages
 const SchoolDashboard = lazy(() => import('./components/analytics/SchoolDashboard'));
 const ParentDashboard = lazy(() => import('./components/analytics/ParentDashboard'));
 const ClinicianDashboard = lazy(() => import('./components/analytics/ClinicianDashboard'));
+const ParentRoleDashboard = lazy(() => import('./pages/ParentDashboard'));
+const EducatorDashboard = lazy(() => import('./pages/EducatorDashboard'));
+const ClinicianRoleDashboard = lazy(() => import('./pages/ClinicianDashboard'));
 const SettingsPage = lazy(() => import('./components/SettingsPage'));
+const DebugSessionPage = lazy(() => import('./pages/DebugSessionPage'));
+
+const HomeGate = memo(function HomeGate() {
+  const { isAuthenticated } = useUser();
+  return isAuthenticated ? <ExplorePage /> : <LandingPage />;
+});
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PAGE LOADER - Enhanced with brain-themed animation (bilingual)
@@ -684,11 +700,12 @@ function App() {
           <ScrollToTop />
           <PageTransitionStyles />
           <LanguageProvider>
-          <VisitorModeProvider>
-            <UserProvider>
-              <GamificationProvider>
-                <TourProvider>
-                <ClinicalSync />
+            <VisitorModeProvider>
+              <UserProvider>
+                <SyncProvider>
+                  <GamificationProvider>
+                    <TourProvider>
+                    <ClinicalSync />
 
                 <div id="main-content" className="page-transition-wrapper">
                   <Routes>
@@ -701,17 +718,44 @@ function App() {
                       path="/"
                       element={
                         <Suspense fallback={<PageLoader />}>
+                          <HomeGate />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/home"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
                           <LandingPage />
                         </Suspense>
                       }
                     />
 
-                    {/* 2. Assessment Page - Diagnostic Tools */}
                     <Route
-                      path="/assessment"
+                      path="/login"
                       element={
                         <Suspense fallback={<PageLoader />}>
-                          <AssessmentPage />
+                          <LoginPage />
+                        </Suspense>
+                      }
+                    />
+
+                    {/* Contact/Get Started Page */}
+                    <Route
+                      path="/contact"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ContactPage />
+                        </Suspense>
+                      }
+                    />
+
+                    {/* Partners Page - Schools & Organizations */}
+                    <Route
+                      path="/partners"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <PartnersPage />
                         </Suspense>
                       }
                     />
@@ -722,6 +766,37 @@ function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <ProgramPage />
+                        </Suspense>
+                      }
+                    />
+
+                    {/* FAQ Page - Common Questions */}
+                    <Route
+                      path="/faq"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <FAQPage />
+                        </Suspense>
+                      }
+                    />
+
+                    {/* 7. About Page - Centre & Specialist Info */}
+                    <Route
+                      path="/about"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <AboutPage />
+                        </Suspense>
+                      }
+                    />
+
+                    <Route element={<RequireAuth />}>
+                    {/* 2. Assessment Page - Diagnostic Tools */}
+                    <Route
+                      path="/assessment"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <AssessmentPage />
                         </Suspense>
                       }
                     />
@@ -756,29 +831,9 @@ function App() {
                       }
                     />
 
-                    {/* Contact/Get Started Page */}
-                    <Route
-                      path="/contact"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ContactPage />
-                        </Suspense>
-                      }
-                    />
-
                     {/* ═════════════════════════════════════════════════════==
                         SPECIAL PAGES
                         ═══════════════════════════════════════════════════════ */}
-                    {/* 7. About Page - Centre & Specialist Info */}
-                    <Route
-                      path="/about"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <AboutPage />
-                        </Suspense>
-                      }
-                    />
-
                     {/* ═══════════════════════════════════════════════════════
                         SPECIAL PAGES
                         ═══════════════════════════════════════════════════════ */}
@@ -800,25 +855,61 @@ function App() {
                     <Route
                       path="/school-dashboard"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <SchoolDashboard />
-                        </Suspense>
+                        <RequirePermission permission="school_analytics">
+                          <Suspense fallback={<PageLoader />}>
+                            <SchoolDashboard />
+                          </Suspense>
+                        </RequirePermission>
                       }
                     />
                     <Route
                       path="/parent-dashboard"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ParentDashboard />
-                        </Suspense>
+                        <RequirePermission permission="view_child_reports">
+                          <Suspense fallback={<PageLoader />}>
+                            <ParentDashboard />
+                          </Suspense>
+                        </RequirePermission>
                       }
                     />
                     <Route
                       path="/clinician-dashboard"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ClinicianDashboard />
-                        </Suspense>
+                        <RequirePermission permission="view_patient_reports">
+                          <Suspense fallback={<PageLoader />}>
+                            <ClinicianDashboard />
+                          </Suspense>
+                        </RequirePermission>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/parent"
+                      element={
+                        <RequirePermission permission="view_child_reports">
+                          <Suspense fallback={<PageLoader />}>
+                            <ParentRoleDashboard />
+                          </Suspense>
+                        </RequirePermission>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/educator"
+                      element={
+                        <RequirePermission permission="school_analytics">
+                          <Suspense fallback={<PageLoader />}>
+                            <EducatorDashboard />
+                          </Suspense>
+                        </RequirePermission>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/clinician"
+                      element={
+                        <RequirePermission permission="view_patient_reports">
+                          <Suspense fallback={<PageLoader />}>
+                            <ClinicianRoleDashboard />
+                          </Suspense>
+                        </RequirePermission>
                       }
                     />
                     <Route
@@ -827,6 +918,16 @@ function App() {
                         <Suspense fallback={<PageLoader />}>
                           <SettingsPage />
                         </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/debug/session"
+                      element={
+                        <RequirePermission permission="system_config">
+                          <Suspense fallback={<PageLoader />}>
+                            <DebugSessionPage />
+                          </Suspense>
+                        </RequirePermission>
                       }
                     />
 
@@ -841,6 +942,7 @@ function App() {
                         </Suspense>
                       }
                     />
+                    </Route>
                   </Routes>
                 </div>
 
@@ -854,6 +956,7 @@ function App() {
                 <StickySmartCTA />
                 </TourProvider>
               </GamificationProvider>
+            </SyncProvider>
             </UserProvider>
           </VisitorModeProvider>
         </LanguageProvider>

@@ -7,17 +7,22 @@ import type { AssessmentSession, GameResult, TestKey, TestOutcome } from './type
 import { resultMeta } from './types';
 import HeadphoneCheckPanel, { HeadphoneCheckResult } from './HeadphoneCheckPanel';
 import AttentionTestPanel from './AttentionTestPanel';
+import FocusedAttentionTestPanel from './FocusedAttentionTestPanel';
 import FrequencyDiscriminationTestPanel from './FrequencyDiscriminationTestPanel';
 import SequencingTestPanel from './SequencingTestPanel';
+import DichoticListeningTestPanel from './DichoticListeningTestPanel';
+import SpeechInNoiseTestPanel from './SpeechInNoiseTestPanel';
 import QuestionnairePanel from './QuestionnairePanel';
 import { downloadSessionCsv, downloadSessionPdf } from './report';
+import { saveSession as saveLabSession } from '../../utils/sessionStorage';
+import { buildLabMetrics } from '../../utils/labMetrics';
 
 const genId = () => `S${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`.toUpperCase();
 
 const scoreMap: Record<GameResult, number> = { low: 0, medium: 1, high: 2 };
 
 const compositeFrom = (outcomes: Partial<Record<TestKey, TestOutcome>>): { result: GameResult; score: number } => {
-  const keys: TestKey[] = ['attention', 'frequency', 'sequence'];
+  const keys: TestKey[] = ['attention', 'focused_attention', 'frequency', 'sequence', 'dichotic_listening', 'speech_in_noise'];
   const available = keys.map((k) => outcomes[k]).filter(Boolean) as TestOutcome[];
   if (!available.length) return { result: 'medium', score: 1 };
   const avg = available.reduce((s, o) => s + scoreMap[o.result], 0) / available.length;
@@ -32,9 +37,22 @@ export default function AssessmentSuiteModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const [step, setStep] = useState<'intro' | 'headphone' | 'attention' | 'frequency' | 'sequence' | 'questionnaire' | 'summary'>('intro');
+  const [step, setStep] = useState<
+    | 'intro'
+    | 'headphone'
+    | 'attention'
+    | 'focused_attention'
+    | 'frequency'
+    | 'sequence'
+    | 'dichotic_listening'
+    | 'speech_in_noise'
+    | 'questionnaire'
+    | 'summary'
+  >('intro');
   const [session, setSession] = useState<AssessmentSession>(() => ({ id: genId(), startedAt: Date.now(), outcomes: {} }));
-  const { isArabic, direction } = useLanguage();
+  const [reportTemplate, setReportTemplate] = useState<'parent' | 'school'>('parent');
+  const { isArabic, direction, t } = useLanguage();
+  const reportLang = isArabic ? 'ar' : 'en';
   const modalRef = useFocusTrap<HTMLDivElement>(open);
 
   useEffect(() => {
@@ -48,30 +66,50 @@ export default function AssessmentSuiteModal({
     setSession((s) => ({ ...s, outcomes: { ...s.outcomes, [outcome.key]: outcome } }));
   };
 
+  const persistOutcome = (outcome: TestOutcome) => {
+    upsertOutcome(outcome);
+    saveLabSession(buildLabMetrics(outcome));
+  };
+
   const setHeadphone = (hc: HeadphoneCheckResult) => {
     setSession((s) => ({ ...s, headphoneCheck: hc }));
   };
+
+  const resultText = useMemo(() => ({
+    high: {
+      label: t('games.resultMeta.high.label'),
+      hint: t('games.resultMeta.high.hint'),
+    },
+    medium: {
+      label: t('games.resultMeta.medium.label'),
+      hint: t('games.resultMeta.medium.hint'),
+    },
+    low: {
+      label: t('games.resultMeta.low.label'),
+      hint: t('games.resultMeta.low.hint'),
+    },
+  }), [t]);
 
   const composite = useMemo(() => {
     const { result } = compositeFrom(session.outcomes);
     return {
       result,
-      label: resultMeta[result].label,
-      message: resultMeta[result].hint,
+      label: resultText[result].label,
+      message: resultText[result].hint,
     };
-  }, [session.outcomes]);
+  }, [session.outcomes, resultText]);
 
   const cta = useMemo(() => {
-    if (composite.result === 'low') return { title: isArabic ? 'احجز تقييماً' : 'Book Assessment', hash: '#contact', color: brandPink };
-    if (composite.result === 'medium') return { title: isArabic ? 'ابدأ بالاستبيان' : 'Start Questionnaire', hash: '#games', color: brandPurpleDark };
-    return { title: isArabic ? 'خيار المدارس/الجامعات' : 'Schools/Universities', hash: '#schools', color: brandCyan };
-  }, [composite.result, isArabic]);
+    if (composite.result === 'low') return { title: t('games.nextStep.low'), hash: '/contact#contact', color: brandPink };
+    if (composite.result === 'medium') return { title: t('games.nextStep.medium'), hash: '#games', color: brandPurpleDark };
+    return { title: t('games.nextStep.high'), hash: '/partners#schools', color: brandCyan };
+  }, [composite.result, t]);
 
   if (!open) return null;
 
   const stepLabel = () => {
-    if (step === 'questionnaire') return isArabic ? 'استبيان' : 'Questionnaire';
-    const order = ['intro', 'headphone', 'attention', 'frequency', 'sequence', 'summary'];
+    if (step === 'questionnaire') return t('games.questionnaire');
+    const order = ['intro', 'headphone', 'attention', 'focused_attention', 'frequency', 'sequence', 'dichotic_listening', 'speech_in_noise', 'summary'];
     const idx = order.indexOf(step);
     return idx >= 0 ? `${idx + 1}/${order.length}` : '';
   };
@@ -85,43 +123,50 @@ export default function AssessmentSuiteModal({
       <div ref={modalRef} style={styles.modal} dir={direction} onClick={(e) => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
           <div>
-            <div style={{ fontWeight: 900, color: brandCyan }}>🧪 {isArabic ? 'معمل الفحص السمعي — 3 اختبارات موضوعية' : 'Auditory Screening Lab — 3 Objective Tests'}</div>
-            <div style={styles.muted}>{isArabic ? 'جلسة تفاعلية قصيرة + تقرير PDF/CSV (للأهل والمدارس).' : 'Quick interactive session + PDF/CSV report (for parents & schools).'}</div>
+            <div style={{ fontWeight: 900, color: brandCyan }}>{'\u{1F9E0}'} {t('games.title')} {'\u2022'} {t('games.subtitle')}</div>
+            <div style={styles.muted}>{t('games.suite.headerSubtitle')}</div>
           </div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
             <span style={styles.chip}>{stepLabel()}</span>
-            <button onClick={close} style={styles.ghostBtn}>{isArabic ? 'إغلاق' : 'Close'}</button>
+            <button onClick={close} style={styles.ghostBtn}>{t('games.close')}</button>
           </div>
         </div>
 
         {step === 'intro' ? (
           <div style={{ marginTop: 12 }}>
             <div style={styles.section}>
-              <div style={{ fontWeight: 900, color: brandPurpleDark }}>{isArabic ? 'قبل البدء' : 'Before Starting'}</div>
+              <div style={{ fontWeight: 900, color: brandPurpleDark }}>{t('games.suite.beforeTitle')}</div>
               <p style={{ ...styles.bodyText, marginTop: 8 }}>
-                {isArabic
-                  ? <>هذا "فحص تفاعلي" (Screening) يساعد على قياس مؤشرات مرتبطة بـ <b>الانتباه السمعي</b> و<b>تمييز التردد</b> و<b>التسلسل/الذاكرة السمعية</b> تحت الضوضاء.</>
-                  : <>This is an interactive screening that helps measure indicators related to <b>auditory attention</b>, <b>frequency discrimination</b>, and <b>sequencing/auditory memory</b> in noise.</>
-                }
+                {t('games.suite.beforeIntro')}
+                <b>{t('games.suite.beforeAttention')}</b>
+                {t('games.suite.beforeSeparator1')}
+                <b>{t('games.suite.beforeFrequency')}</b>
+                {t('games.suite.beforeSeparator2')}
+                <b>{t('games.suite.beforeSequence')}</b>
+                {t('games.suite.beforeOutro')}
               </p>
               <ul style={{ marginTop: 10, opacity: 0.9, lineHeight: 1.7 }}>
-                <li>{isArabic ? <>يفضل استخدام <b style={{ color: brandPink }}>سماعات</b> وفي مكان هادئ.</> : <>Using <b style={{ color: brandPink }}>headphones</b> in a quiet environment is recommended.</>}</li>
-                <li>{isArabic ? 'النتائج ليست تشخيصاً طبياً، ولا تغني عن تقييم أخصائي بأدوات معيارية.' : 'Results are not a medical diagnosis and do not replace professional assessment with standardized tools.'}</li>
-                <li>{isArabic ? 'يمكن تنزيل تقرير تجريبي للمدارس (PDF/CSV) بدون بيانات شخصية.' : 'You can download a demo report for schools (PDF/CSV) without personal data.'}</li>
+                <li>
+                  {t('games.suite.bullets.headphonesIntro')}
+                  <b style={{ color: brandPink }}>{t('games.suite.bullets.headphonesLabel')}</b>
+                  {t('games.suite.bullets.headphonesOutro')}
+                </li>
+                <li>{t('games.suite.bullets.nonDiagnostic')}</li>
+                <li>{t('games.suite.bullets.demoReport')}</li>
               </ul>
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
                 <button onClick={() => setStep('headphone')} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}>
-                  {isArabic ? 'ابدأ الجلسة' : 'Start Session'}
+                  {t('games.suite.startSession')}
                 </button>
                 <button onClick={() => setStep('questionnaire')} style={{ ...styles.ghostBtn, borderColor: 'rgba(175,132,186,0.25)' }}>
-                  {isArabic ? 'أو ابدأ بالاستبيان' : 'Or Start with Questionnaire'}
+                  {t('games.suite.startWithQuestionnaire')}
                 </button>
               </div>
             </div>
 
             <div style={{ ...styles.section, marginBottom: 0 }}>
-              <div style={{ fontWeight: 900, color: brandCyan }}>{isArabic ? 'معرف الجلسة' : 'Session ID'}</div>
+              <div style={{ fontWeight: 900, color: brandCyan }}>{t('games.sessionId')}</div>
               <div style={styles.muted}>{session.id}</div>
             </div>
           </div>
@@ -140,17 +185,28 @@ export default function AssessmentSuiteModal({
         {step === 'attention' ? (
           <AttentionTestPanel
             onDone={(o) => {
-              upsertOutcome(o);
+              persistOutcome(o);
+              setStep('focused_attention');
+            }}
+            onCancel={() => setStep('summary')}
+          />
+        ) : null}
+
+        {step === 'focused_attention' ? (
+          <FocusedAttentionTestPanel
+            onDone={(o) => {
+              persistOutcome(o);
               setStep('frequency');
             }}
             onCancel={() => setStep('summary')}
+            stimulusMode="audio"
           />
         ) : null}
 
         {step === 'frequency' ? (
           <FrequencyDiscriminationTestPanel
             onDone={(o) => {
-              upsertOutcome(o);
+              persistOutcome(o);
               setStep('sequence');
             }}
             onCancel={() => setStep('summary')}
@@ -161,7 +217,27 @@ export default function AssessmentSuiteModal({
           <SequencingTestPanel
             enableExports={false}
             onDone={(o) => {
-              upsertOutcome(o);
+              persistOutcome(o);
+              setStep('dichotic_listening');
+            }}
+            onCancel={() => setStep('summary')}
+          />
+        ) : null}
+
+        {step === 'dichotic_listening' ? (
+          <DichoticListeningTestPanel
+            onDone={(o) => {
+              persistOutcome(o);
+              setStep('speech_in_noise');
+            }}
+            onCancel={() => setStep('summary')}
+          />
+        ) : null}
+
+        {step === 'speech_in_noise' ? (
+          <SpeechInNoiseTestPanel
+            onDone={(o) => {
+              persistOutcome(o);
               setStep('summary');
             }}
             onCancel={() => setStep('summary')}
@@ -171,7 +247,7 @@ export default function AssessmentSuiteModal({
         {step === 'questionnaire' ? (
           <QuestionnairePanel
             onDone={(o) => {
-              upsertOutcome(o);
+              persistOutcome(o);
               setStep('headphone');
             }}
             onCancel={() => setStep('intro')}
@@ -183,7 +259,7 @@ export default function AssessmentSuiteModal({
             <div style={styles.section}>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontWeight: 900, color: resultMeta[composite.result].color }}>{isArabic ? 'الخلاصة:' : 'Summary:'} {composite.label}</div>
+                  <div style={{ fontWeight: 900, color: resultMeta[composite.result].color }}>{t('games.suite.summaryTitle')} {composite.label}</div>
                   <p style={{ ...styles.muted, marginTop: 6 }}>{composite.message}</p>
                 </div>
                 <a
@@ -196,7 +272,7 @@ export default function AssessmentSuiteModal({
               </div>
 
               <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
-                <div style={{ fontWeight: 900, color: brandPurpleDark }}>{isArabic ? 'نتائج الاختبارات' : 'Test Results'}</div>
+                <div style={{ fontWeight: 900, color: brandPurpleDark }}>{t('games.results')}</div>
                 <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', marginTop: 10 }}>
                   {(Object.values(session.outcomes) as TestOutcome[]).map((o) => (
                     <div key={o.key} style={{ padding: 12, borderRadius: 14, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(0,0,0,0.18)' }}>
@@ -208,29 +284,68 @@ export default function AssessmentSuiteModal({
                 </div>
               </div>
 
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                flexWrap: 'wrap',
+                marginTop: 12,
+                direction: isArabic ? 'rtl' : 'ltr',
+              }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>
+                  {t('games.report.typeLabel')}
+                </span>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {(['parent', 'school'] as const).map((type) => {
+                    const isActive = reportTemplate === type;
+                    return (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setReportTemplate(type)}
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: 999,
+                          border: `1px solid ${isActive ? brandCyan : 'rgba(255,255,255,0.12)'}`,
+                          background: isActive ? 'rgba(143,211,204,0.15)' : 'rgba(255,255,255,0.02)',
+                          color: isActive ? brandCyan : 'rgba(255,255,255,0.6)',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        {type === 'parent' ? t('games.report.typeParent') : t('games.report.typeSchool')}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
                 <button
-                  onClick={() => downloadSessionCsv(session)}
+                  onClick={() => downloadSessionCsv(session, { lang: reportLang, template: reportTemplate })}
                   style={{ ...styles.ghostBtn, borderColor: 'rgba(143,211,204,0.25)' }}
                 >
-                  {isArabic ? 'تنزيل CSV (ملخص)' : 'Download CSV (Summary)'}
+                  {t('games.exportCsvSummary')}
                 </button>
                 <button
-                  onClick={() => downloadSessionPdf(session, { label: composite.label, message: composite.message })}
+                  onClick={() => downloadSessionPdf(session, { lang: reportLang, template: reportTemplate }, { label: composite.label, message: composite.message })}
                   style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}
                 >
-                  {isArabic ? 'تنزيل PDF (تقرير)' : 'Download PDF (Report)'}
+                  {t('games.exportPdfReport')}
                 </button>
-                <button onClick={() => setStep('attention')} style={styles.ghostBtn}>{isArabic ? 'إعادة الاختبارات' : 'Retry Tests'}</button>
+                <button onClick={() => setStep('attention')} style={styles.ghostBtn}>{t('games.suite.retryTests')}</button>
               </div>
+              <p style={{ ...styles.muted, marginTop: 8 }}>
+                {t('clinical.disclaimer')}
+              </p>
             </div>
 
             <div style={{ ...styles.section, marginBottom: 0 }}>
-              <div style={{ fontWeight: 900, color: brandPink }}>{isArabic ? 'تنبيه امتثال' : 'Compliance Notice'}</div>
+              <div style={{ fontWeight: 900, color: brandPink }}>{t('games.suite.complianceTitle')}</div>
               <p style={{ ...styles.muted, marginTop: 6 }}>
-                {isArabic
-                  ? 'هذا التقرير توعوي وغير تشخيصي. للحصول على تشخيص/خطة علاج، يجب تقييم سريري ومعايرة سماعات واستخدام أدوات معيارية.'
-                  : 'This report is educational and non-diagnostic. For a diagnosis or treatment plan, clinical evaluation with calibrated equipment and standardized tools is required.'}
+                {t('games.suite.complianceText')}
               </p>
             </div>
           </div>

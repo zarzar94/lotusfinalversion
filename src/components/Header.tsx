@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useCallback, memo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { brandPurple, brandCyan, brandPink, brandPanel, colors, radius, spacing, typography, transitions } from './styles';
-import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, GamepadIcon, PhoneIcon, HelpIcon } from './Icons';
+import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, PhoneIcon, HelpIcon, HomeIcon, UsersIcon } from './Icons';
 import BrainLogo from './BrainLogo';
 import LanguageToggle from './LanguageToggle';
 import ModeSwitcher from './ModeSwitcher';
@@ -26,6 +26,14 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
+  {
+    id: 'home',
+    translationKey: 'nav.home',
+    path: '/',
+    icon: <HomeIcon size={16} />,
+    color: brandCyan,
+    priority: { school: 0, parent: 0, clinician: 0 },
+  },
   {
     id: 'assessment',
     translationKey: 'nav.assessment',
@@ -57,6 +65,14 @@ const NAV_ITEMS: NavItem[] = [
     icon: '📊',
     color: colors.success,
     priority: { school: 2, parent: 3, clinician: 4 }, // Schools & Parents: want to see results
+  },
+  {
+    id: 'partners',
+    translationKey: 'nav.partners',
+    path: '/partners',
+    icon: <UsersIcon size={16} />,
+    color: brandPurple,
+    priority: { school: 2, parent: 5, clinician: 6 },
   },
   {
     id: 'resources',
@@ -99,12 +115,29 @@ const Header = memo(function Header() {
   const { mode: visitorMode, config: visitorConfig } = useVisitorMode();
   const { isMobile, isTablet } = useBreakpoints();
   const location = useLocation();
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [loginRedirect, setLoginRedirect] = useState<string | null>(null);
+  const handleHomeClick = useCallback(() => {
+    if (location.pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [location.pathname]);
 
   // Get sorted nav items based on visitor mode
   const sortedNavItems = useMemo(() => getSortedNavItems(visitorMode), [visitorMode]);
+  const visibleNavItems = useMemo(() => {
+    if (isAuthenticated) return sortedNavItems;
+    return sortedNavItems.filter((item) => (
+      item.id === 'home'
+      || item.id === 'program'
+      || item.id === 'partners'
+      || item.id === 'about'
+      || item.id === 'contact'
+    ));
+  }, [isAuthenticated, sortedNavItems]);
 
   // Check if current path matches nav item
   const isActivePath = useCallback((path: string) => {
@@ -116,19 +149,38 @@ const Header = memo(function Header() {
   const dashboardLink = useMemo(() => {
     if (!isAuthenticated || !user) return null;
     if (hasPermission('view_child_reports')) {
-      return { path: '/parent-dashboard', translationKey: 'nav.childrenDashboard', icon: '👨‍👩‍👧' };
+      return { path: '/dashboard/parent', translationKey: 'nav.childrenDashboard', icon: '👨‍👩‍👧' };
     }
     if (hasPermission('view_patient_reports')) {
-      return { path: '/clinician-dashboard', translationKey: 'nav.patientsDashboard', icon: '🏥' };
+      return { path: '/dashboard/clinician', translationKey: 'nav.patientsDashboard', icon: '🏥' };
     }
     if (hasPermission('school_analytics')) {
-      return { path: '/school-dashboard', translationKey: 'nav.schoolDashboard', icon: '📊' };
+      return { path: '/dashboard/educator', translationKey: 'nav.schoolDashboard', icon: '📊' };
     }
     return null;
   }, [isAuthenticated, user, hasPermission]);
 
   const openLoginModal = useCallback(() => setIsLoginModalOpen(true), []);
   const closeLoginModal = useCallback(() => setIsLoginModalOpen(false), []);
+
+  useEffect(() => {
+    if (isAuthenticated) return;
+    const params = new URLSearchParams(location.search);
+    if (params.get('login') !== '1') return;
+    const next = params.get('next');
+    if (next && next.startsWith('/')) {
+      navigate(`/login?next=${encodeURIComponent(next)}`, { replace: true });
+    } else {
+      navigate('/login', { replace: true });
+    }
+  }, [isAuthenticated, location.search, navigate]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !loginRedirect) return;
+    const target = loginRedirect;
+    setLoginRedirect(null);
+    navigate(target);
+  }, [isAuthenticated, loginRedirect, navigate]);
 
   // Close mobile menu when switching to desktop or route changes
   useEffect(() => {
@@ -402,7 +454,7 @@ const Header = memo(function Header() {
         <div className="header-circuit-node" style={{ top: 10, left: '25%' }} />
         <div className="header-circuit-node" style={{ top: 10, right: '25%', animationDelay: '0.5s' }} />
         {/* Logo Section */}
-        <Link to="/" style={{ textDecoration: 'none', transition: 'all 0.3s ease' }}>
+        <Link to="/" onClick={handleHomeClick} style={{ textDecoration: 'none', transition: 'all 0.3s ease' }}>
           <BrainLogo
             size={isScrolled ? 45 : 55}
             textSize={isScrolled ? 20 : 24}
@@ -448,7 +500,7 @@ const Header = memo(function Header() {
                 textTransform: 'uppercase',
               }}>{t('nav.lab')}</span>
             </div>
-            {sortedNavItems.map((item) => {
+            {visibleNavItems.map((item) => {
               const isActive = isActivePath(item.path);
               const isPriority = item.priority?.[visitorMode] === 1; // Top priority for current mode
               return (
@@ -456,6 +508,7 @@ const Header = memo(function Header() {
                   key={item.id}
                   to={item.path}
                   className={`nav-link ${isActive ? 'active' : ''}`}
+                  onClick={item.id === 'home' ? handleHomeClick : undefined}
                   style={{
                     position: 'relative',
                     display: 'flex',
@@ -657,6 +710,10 @@ const Header = memo(function Header() {
           {/* Home Link */}
           <Link
             to="/"
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              handleHomeClick();
+            }}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -692,7 +749,7 @@ const Header = memo(function Header() {
           </Link>
 
           {/* Nav Items - Sorted by visitor mode priority */}
-          {sortedNavItems.map((item, index) => {
+          {visibleNavItems.filter((item) => item.id !== 'home').map((item, index) => {
             const isActive = isActivePath(item.path);
             const isPriority = item.priority?.[visitorMode] === 1;
             return (
