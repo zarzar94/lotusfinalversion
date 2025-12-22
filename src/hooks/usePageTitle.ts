@@ -10,12 +10,15 @@ import { useLanguage } from '../context/LanguageContext';
 // Page title mapping
 const PAGE_TITLE_KEYS: Record<string, string> = {
   '/': 'pageTitles.home',
+  '/home': 'pageTitles.home',
   '/assessment': 'pageTitles.assessment',
   '/program': 'pageTitles.program',
   '/science': 'pageTitles.science',
   '/results': 'pageTitles.results',
   '/resources': 'pageTitles.resources',
+  '/faq': 'pageTitles.faq',
   '/contact': 'pageTitles.contact',
+  '/about': 'pageTitles.about',
   '/partners': 'pageTitles.partners',
   '/school-dashboard': 'pageTitles.schoolDashboard',
   '/parent-dashboard': 'pageTitles.parentDashboard',

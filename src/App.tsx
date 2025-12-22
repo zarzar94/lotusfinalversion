@@ -33,6 +33,9 @@ const ResultsPage = lazy(() => import('./pages/ResultsPage'));
 const ResourcesPage = lazy(() => import('./pages/ResourcesPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
+const PartnersPage = lazy(() => import('./pages/PartnersPage'));
+const FAQPage = lazy(() => import('./pages/FAQPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
 
 // Special Pages
 const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
@@ -567,12 +570,32 @@ function App() {
                       }
                     />
 
+                    {/* Partners Page - Schools & Organizations */}
+                    <Route
+                      path="/partners"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <PartnersPage />
+                        </Suspense>
+                      }
+                    />
+
                     {/* 6. Resources Page - Videos, Slides, FAQ */}
                     <Route
                       path="/resources"
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <ResourcesPage />
+                        </Suspense>
+                      }
+                    />
+
+                    {/* FAQ Page */}
+                    <Route
+                      path="/faq"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <FAQPage />
                         </Suspense>
                       }
                     />
@@ -614,6 +637,16 @@ function App() {
                       }
                     />
 
+                    {/* Auth */}
+                    <Route
+                      path="/login"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <LoginPage />
+                        </Suspense>
+                      }
+                    />
+
                     {/* ═════════════════════════════════════════════════════==
                         DASHBOARD PAGES
                         ═══════════════════════════════════════════════════════ */}
@@ -639,6 +672,32 @@ function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <ClinicianDashboard />
+                        </Suspense>
+                      }
+                    />
+
+                    {/* Legacy/role dashboard paths used by Header/ProfileMenu */}
+                    <Route
+                      path="/dashboard/parent"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ParentDashboard />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/clinician"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ClinicianDashboard />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/educator"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <SchoolDashboard />
                         </Suspense>
                       }
                     />
