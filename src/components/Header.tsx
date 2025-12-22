@@ -634,7 +634,6 @@ const Header = memo(function Header() {
             </button>
           </div>
         )}
-        </div>
       </header>
 
       {/* Mobile Menu Dropdown */}
