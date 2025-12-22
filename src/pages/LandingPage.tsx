@@ -3,11 +3,12 @@
  * Clean, focused entry point to the platform
  */
 
-import { lazy, Suspense, memo, useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import BackgroundFX from '../components/BackgroundFX';
 import HeroCircuitBrain from '../components/HeroCircuitBrain';
+import CircuitDecoration from '../components/CircuitDecoration';
 import Footer from '../components/Footer';
 import WhatsAppFab from '../components/WhatsAppFab';
 import ScrollToTopButton from '../components/ScrollToTopButton';
@@ -16,11 +17,19 @@ import FadeIn from '../components/FadeIn';
 import { useLanguage } from '../context/LanguageContext';
 import { useClinicalSync } from '../hooks/useClinicalSync';
 import { usePageTitle } from '../hooks/usePageTitle';
-import ClinicalProtocolSection from '../components/ClinicalProtocolSection';
-import LabModeSelector from '../components/LabModeSelector';
 import ExperienceJourney from '../components/ExperienceJourney';
-import CircuitDecoration from '../components/CircuitDecoration';
-import { brandCyan, brandPink, brandPurple, colors, radius, spacing, styles, typography } from '../components/styles';
+import LabModeSelector from '../components/LabModeSelector';
+import ClinicalProtocolSection from '../components/ClinicalProtocolSection';
+import {
+  brandCyan,
+  brandPurple,
+  brandPink,
+  colors,
+  typography,
+  spacing,
+  radius,
+  styles,
+} from '../components/styles';
 
 // Lazy load credentials
 const CredentialsBanner = lazy(() => import('../components/CredentialsBanner'));
@@ -37,7 +46,9 @@ const NavigationCard = memo(({
   page: {
     id: string;
     title: string;
+    titleAr: string;
     description: string;
+    descriptionAr: string;
     icon: string;
     color: string;
     path: string;
@@ -61,8 +72,7 @@ const NavigationCard = memo(({
         border: `1px solid ${isHovered ? page.color : colors.border.default}`,
         borderRadius: radius.xl,
         cursor: 'pointer',
-        textAlign: 'start',
-        direction: isArabic ? 'rtl' : 'ltr',
+        textAlign: isArabic ? 'right' : 'left',
         transition: 'all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
         position: 'relative',
         overflow: 'hidden',
@@ -137,7 +147,7 @@ const NavigationCard = memo(({
           zIndex: 1,
         }}
       >
-        {page.title}
+        {isArabic ? page.titleAr : page.title}
       </h3>
 
       {/* Description */}
@@ -151,7 +161,7 @@ const NavigationCard = memo(({
           zIndex: 1,
         }}
       >
-        {page.description}
+        {isArabic ? page.descriptionAr : page.description}
       </p>
 
       {/* Arrow indicator with animation */}
@@ -195,63 +205,76 @@ const NavigationCard = memo(({
 NavigationCard.displayName = 'NavigationCard';
 
 // Quick Navigation Cards to other pages
-const PageNavigationCards = memo(() => {
+const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
   const navigate = useNavigate();
-  const { isArabic, t } = useLanguage();
 
   const pages = [
     {
       id: 'assessment',
-      title: t('landing.cards.assessment.title'),
-      description: t('landing.cards.assessment.description'),
+      title: 'Self Assessment',
+      titleAr: 'التقييم الذاتي',
+      description: 'Interactive diagnostic tools and games',
+      descriptionAr: 'أدوات التشخيص التفاعلية والألعاب',
       icon: '🎯',
       color: brandCyan,
       path: '/assessment',
     },
     {
       id: 'program',
-      title: t('landing.cards.program.title'),
-      description: t('landing.cards.program.description'),
+      title: 'Treatment Program',
+      titleAr: 'البرنامج العلاجي',
+      description: 'Learn about our 20-session protocol',
+      descriptionAr: 'تعرف على برنامجنا ذو العشرين جلسة',
       icon: '📋',
       color: brandPurple,
       path: '/program',
     },
     {
       id: 'science',
-      title: t('landing.cards.science.title'),
-      description: t('landing.cards.science.description'),
+      title: 'Science & Research',
+      titleAr: 'العلم والأبحاث',
+      description: 'Neuroplasticity and audio processing',
+      descriptionAr: 'المرونة العصبية ومعالجة الصوت',
       icon: '🧠',
       color: brandPink,
       path: '/science',
     },
     {
       id: 'results',
-      title: t('landing.cards.results.title'),
-      description: t('landing.cards.results.description'),
+      title: 'Results & Evidence',
+      titleAr: 'النتائج والأدلة',
+      description: 'Success stories and testimonials',
+      descriptionAr: 'قصص النجاح والشهادات',
       icon: '📊',
       color: '#22c55e',
       path: '/results',
     },
     {
       id: 'resources',
-      title: t('landing.cards.resources.title'),
-      description: t('landing.cards.resources.description'),
+      title: 'Resources',
+      titleAr: 'الموارد',
+      description: 'Videos, presentations, and FAQs',
+      descriptionAr: 'الفيديوهات والعروض والأسئلة الشائعة',
       icon: '📚',
       color: '#f59e0b',
       path: '/resources',
     },
     {
       id: 'about',
-      title: t('landing.cards.about.title'),
-      description: t('landing.cards.about.description'),
+      title: 'About Us',
+      titleAr: 'من نحن',
+      description: 'Meet our specialist and learn about the centre',
+      descriptionAr: 'تعرف على الأخصائي والمركز',
       icon: '🏛️',
       color: brandPurple,
       path: '/about',
     },
     {
       id: 'contact',
-      title: t('landing.cards.contact.title'),
-      description: t('landing.cards.contact.description'),
+      title: 'Get Started',
+      titleAr: 'ابدأ الآن',
+      description: 'Contact us or fill out intake form',
+      descriptionAr: 'تواصل معنا أو املأ نموذج القبول',
       icon: '✉️',
       color: brandCyan,
       path: '/contact',
@@ -321,7 +344,7 @@ const PageNavigationCards = memo(() => {
               letterSpacing: 1,
             }}
           >
-            {t('landing.quickNavigationBadge')}
+            {isArabic ? 'التنقل السريع' : 'Quick Navigation'}
           </span>
         </div>
 
@@ -338,7 +361,7 @@ const PageNavigationCards = memo(() => {
             backgroundClip: 'text',
           }}
         >
-          {t('landing.quickNavigationTitle')}
+          {isArabic ? 'استكشف المنصة' : 'Explore the Platform'}
         </h2>
         <p
           style={{
@@ -349,7 +372,9 @@ const PageNavigationCards = memo(() => {
             lineHeight: typography.lineHeight.relaxed,
           }}
         >
-          {t('landing.quickNavigationSubtitle')}
+          {isArabic
+            ? 'اختر القسم الذي يناسب احتياجاتك واستكشف جميع الموارد المتاحة'
+            : 'Choose the section that fits your needs and explore all available resources'}
         </p>
       </div>
 
@@ -398,7 +423,9 @@ const PageNavigationCards = memo(() => {
               color: colors.text.muted,
             }}
           >
-            {t('landing.quickNavigationTip')}
+            {isArabic
+              ? 'نصيحة: ابدأ بالتقييم الذاتي لفهم احتياجاتك'
+              : 'Tip: Start with Self Assessment to understand your needs'}
           </span>
         </div>
       </div>
@@ -408,28 +435,7 @@ const PageNavigationCards = memo(() => {
 PageNavigationCards.displayName = 'PageNavigationCards';
 
 function LandingPage() {
-  const { isArabic, t } = useLanguage();
-  const [isCertificationsOpen, setIsCertificationsOpen] = useState(false);
-
-  const openCertifications = useCallback(() => setIsCertificationsOpen(true), []);
-  const closeCertifications = useCallback(() => setIsCertificationsOpen(false), []);
-
-  useEffect(() => {
-    if (!isCertificationsOpen) return;
-
-    const previousOverflow = document.body.style.overflow;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeCertifications();
-    };
-
-    document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isCertificationsOpen, closeCertifications]);
+  const { isArabic } = useLanguage();
   useClinicalSync();
   usePageTitle();
 
@@ -441,7 +447,7 @@ function LandingPage() {
       <main style={styles.container}>
         {/* HERO - Interactive Brain Dashboard */}
         <FadeIn duration={1000} scale blur blurAmount={8}>
-          <HeroCircuitBrain onOpenCertifications={openCertifications} />
+          <HeroCircuitBrain />
         </FadeIn>
 
         {/* MODE SELECTOR - Choose Your Path */}
@@ -451,7 +457,7 @@ function LandingPage() {
 
         {/* Credentials Banner - Trust signals */}
         <FadeIn delay={200} direction="none" scale scaleFrom={0.98}>
-          <Suspense fallback={<SectionLoader label={t('common.loading')} height={100} />}>
+          <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={100} />}>
             <CredentialsBanner />
           </Suspense>
         </FadeIn>
@@ -463,7 +469,7 @@ function LandingPage() {
 
         {/* Quick Actions Panel - Role-specific CTAs */}
         <FadeIn delay={300} direction="up" distance={30}>
-          <Suspense fallback={<SectionLoader label={t('common.loading')} height={200} />}>
+          <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={200} />}>
             <QuickActionsPanel />
           </Suspense>
         </FadeIn>
@@ -475,20 +481,20 @@ function LandingPage() {
 
         {/* What is AIT - Medical trust content */}
         <FadeIn delay={400} direction="up" distance={30}>
-          <Suspense fallback={<SectionLoader label={t('common.loading')} height={400} />}>
+          <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={400} />}>
             <WhatIsAIT />
           </Suspense>
         </FadeIn>
 
         {/* Trust Signals - Role-aware metrics */}
         <FadeIn delay={500} direction="up" distance={30}>
-          <Suspense fallback={<SectionLoader label={t('common.loading')} height={300} />}>
+          <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={300} />}>
             <TrustSignals />
           </Suspense>
         </FadeIn>
 
         {/* Page Navigation Cards */}
-        <PageNavigationCards />
+        <PageNavigationCards isArabic={isArabic} />
 
         <FadeIn delay={100} direction="none" scale scaleFrom={0.98}>
           <Footer />
@@ -497,58 +503,6 @@ function LandingPage() {
 
       <WhatsAppFab />
       <ScrollToTopButton />
-
-      {isCertificationsOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label={isArabic ? 'الاعتمادات والشهادات' : 'Certifications & Credentials'}
-          onClick={closeCertifications}
-          style={{
-            ...styles.modalBackdrop,
-            zIndex: 1000,
-            background: 'rgba(5,6,13,0.88)',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          <div
-            onClick={(event) => event.stopPropagation()}
-            style={{
-              ...styles.modal,
-              maxWidth: 1100,
-              width: '100%',
-              padding: 0,
-              background: 'transparent',
-              border: 'none',
-            }}
-          >
-            <div style={{ position: 'relative' }}>
-              <button
-                onClick={closeCertifications}
-                aria-label={isArabic ? 'إغلاق' : 'Close'}
-                style={{
-                  position: 'absolute',
-                  top: 12,
-                  [isArabic ? 'left' : 'right']: 12,
-                  zIndex: 2,
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  background: 'rgba(0,0,0,0.4)',
-                  color: '#fff',
-                  cursor: 'pointer',
-                }}
-              >
-                X
-              </button>
-              <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={200} />}>
-                <CredentialsBanner />
-              </Suspense>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

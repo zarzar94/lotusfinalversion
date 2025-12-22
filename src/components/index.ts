@@ -3,18 +3,5 @@ export { default as BrandedSkeleton, SkeletonText, SkeletonAvatar, SkeletonCard,
 export { default as ScrollToTopButton } from './ScrollToTopButton';
 export { default as QuickActionsPanel } from './QuickActionsPanel';
 export { default as WhatIsAIT } from './WhatIsAIT';
-// Language consistency utilities
-export {
-  LocalizedText,
-  LocalizedContent,
-  LanguageAwareContainer,
-  ArabicOnly,
-  EnglishOnly,
-  DirectionalSpacer,
-  LanguageBadge,
-  useBilingual,
-  useDirectionalValue,
-} from './LanguageGuard';
-export type { BilingualContent, BilingualNode } from './LanguageGuard';
 // SlideViewer, Checklist, GameSection, ContactForm are lazy-loaded in App.tsx
-export { styles, brandPurple, brandCyan, brandPink, labTechAdvanced, advancedAnimations, workflowStyles } from './styles';
+export { styles, brandPurple, brandCyan, brandPink } from './styles';

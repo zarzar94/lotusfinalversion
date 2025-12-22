@@ -39,17 +39,17 @@ interface ModeQuickActions {
 const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
   school: {
     titleEn: 'School Quick Actions',
-    titleAr: 'auto.QuickActionsPanel.k3',
+    titleAr: 'إجراءات سريعة للمدارس',
     subtitleEn: 'Get started with your school screening program',
-    subtitleAr: 'auto.QuickActionsPanel.k4',
+    subtitleAr: 'ابدأ برنامج الفحص المدرسي الخاص بك',
     actions: [
       {
         id: 'demo',
         icon: <HeadphonesIcon size={24} color="#fff" />,
         titleEn: 'Request School Demo',
-        titleAr: 'auto.QuickActionsPanel.k5',
+        titleAr: 'طلب عرض تجريبي للمدرسة',
         descriptionEn: 'Schedule a presentation for your administration',
-        descriptionAr: 'auto.QuickActionsPanel.k6',
+        descriptionAr: 'جدولة عرض تقديمي للإدارة',
         linkTo: '/contact',
         isPrimary: true,
       },
@@ -57,9 +57,9 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
         id: 'pilot',
         icon: <DownloadIcon size={24} color="#fff" />,
         titleEn: 'Download Pilot Kit',
-        titleAr: 'auto.QuickActionsPanel.k7',
+        titleAr: 'تحميل ملف البرنامج التجريبي',
         descriptionEn: 'Get our school partnership materials',
-        descriptionAr: 'auto.QuickActionsPanel.k8',
+        descriptionAr: 'احصل على مواد شراكة المدارس',
         linkTo: '/downloads/school-pilot-kit.pdf',
         isExternal: true,
         downloadFile: 'school-pilot-kit.pdf',
@@ -68,35 +68,35 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
         id: 'assess',
         icon: <BrainIcon size={24} color="#fff" />,
         titleEn: 'Try Group Screening',
-        titleAr: 'auto.QuickActionsPanel.k9',
+        titleAr: 'جرب الفحص الجماعي',
         descriptionEn: 'Preview our classroom assessment tools',
-        descriptionAr: 'auto.QuickActionsPanel.k10',
+        descriptionAr: 'معاينة أدوات التقييم الصفي',
         linkTo: '/assessment',
       },
       {
         id: 'results',
         icon: '📊',
         titleEn: 'View Sample Reports',
-        titleAr: 'auto.QuickActionsPanel.k11',
+        titleAr: 'عرض تقارير نموذجية',
         descriptionEn: 'See what school reports look like',
-        descriptionAr: 'auto.QuickActionsPanel.k12',
+        descriptionAr: 'شاهد شكل التقارير المدرسية',
         linkTo: '/results',
       },
     ],
   },
   parent: {
     titleEn: 'Parent Quick Actions',
-    titleAr: 'auto.QuickActionsPanel.k13',
+    titleAr: 'إجراءات سريعة للأهل',
     subtitleEn: 'Start your child\'s auditory assessment journey',
-    subtitleAr: 'auto.QuickActionsPanel.k14',
+    subtitleAr: 'ابدأ رحلة التقييم السمعي لطفلك',
     actions: [
       {
         id: 'screening',
         icon: <BrainIcon size={24} color="#fff" />,
         titleEn: 'Book Free Screening',
-        titleAr: 'auto.QuickActionsPanel.k15',
+        titleAr: 'حجز فحص مجاني',
         descriptionEn: 'Schedule your child\'s initial assessment',
-        descriptionAr: 'auto.QuickActionsPanel.k16',
+        descriptionAr: 'جدولة التقييم الأولي لطفلك',
         linkTo: '/contact',
         isPrimary: true,
       },
@@ -104,44 +104,44 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
         id: 'checklist',
         icon: <CheckCircleIcon size={24} color="#fff" />,
         titleEn: 'Take Checklist',
-        titleAr: 'auto.QuickActionsPanel.k17',
+        titleAr: 'إجراء قائمة الفحص',
         descriptionEn: 'Complete our auditory processing questionnaire',
-        descriptionAr: 'auto.QuickActionsPanel.k18',
+        descriptionAr: 'أكمل استبيان المعالجة السمعية',
         linkTo: '/assessment#checklist',
       },
       {
         id: 'soundlab',
         icon: <HeadphonesIcon size={24} color="#fff" />,
         titleEn: 'Try Sound Lab',
-        titleAr: 'auto.QuickActionsPanel.k19',
+        titleAr: 'جرب مختبر الصوت',
         descriptionEn: 'Interactive auditory exploration games',
-        descriptionAr: 'auto.QuickActionsPanel.k20',
+        descriptionAr: 'ألعاب استكشاف سمعي تفاعلية',
         linkTo: '/assessment#games',
       },
       {
         id: 'program',
         icon: '📖',
         titleEn: 'Learn About Program',
-        titleAr: 'auto.QuickActionsPanel.k21',
+        titleAr: 'تعرف على البرنامج',
         descriptionEn: 'Understand how Bérard AIT works',
-        descriptionAr: 'auto.QuickActionsPanel.k22',
+        descriptionAr: 'افهم كيف يعمل برنامج بيرارد',
         linkTo: '/program',
       },
     ],
   },
   clinician: {
     titleEn: 'Clinician Quick Actions',
-    titleAr: 'auto.QuickActionsPanel.k23',
+    titleAr: 'إجراءات سريعة للمختصين',
     subtitleEn: 'Professional resources and referral pathways',
-    subtitleAr: 'auto.QuickActionsPanel.k24',
+    subtitleAr: 'موارد مهنية ومسارات الإحالة',
     actions: [
       {
         id: 'protocol',
         icon: '📋',
         titleEn: 'View Clinical Protocol',
-        titleAr: 'auto.QuickActionsPanel.k25',
+        titleAr: 'عرض البروتوكول السريري',
         descriptionEn: 'Review our evidence-based methodology',
-        descriptionAr: 'auto.QuickActionsPanel.k26',
+        descriptionAr: 'مراجعة منهجيتنا القائمة على الأدلة',
         linkTo: '/science',
         isPrimary: true,
       },
@@ -149,27 +149,27 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
         id: 'referral',
         icon: <PhoneIcon size={24} color="#fff" />,
         titleEn: 'Referral Partnership',
-        titleAr: 'auto.QuickActionsPanel.k27',
+        titleAr: 'شراكة الإحالة',
         descriptionEn: 'Establish a professional referral relationship',
-        descriptionAr: 'auto.QuickActionsPanel.k28',
+        descriptionAr: 'إنشاء علاقة إحالة مهنية',
         linkTo: '/contact',
       },
       {
         id: 'research',
         icon: '🔬',
         titleEn: 'Research & Evidence',
-        titleAr: 'auto.QuickActionsPanel.k29',
+        titleAr: 'الأبحاث والأدلة',
         descriptionEn: 'Access studies and clinical documentation',
-        descriptionAr: 'auto.QuickActionsPanel.k30',
+        descriptionAr: 'الوصول للدراسات والتوثيق السريري',
         linkTo: '/science',
       },
       {
         id: 'results',
         icon: '📊',
         titleEn: 'Clinical Outcomes',
-        titleAr: 'auto.QuickActionsPanel.k31',
+        titleAr: 'النتائج السريرية',
         descriptionEn: 'Review documented improvement metrics',
-        descriptionAr: 'auto.QuickActionsPanel.k32',
+        descriptionAr: 'مراجعة مقاييس التحسن الموثقة',
         linkTo: '/results',
       },
     ],
@@ -178,7 +178,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
 
 export default function QuickActionsPanel() {
   const { mode: visitorMode, config: visitorConfig } = useVisitorMode();
-  const { isArabic, t } = useLanguage();
+  const { isArabic } = useLanguage();
   const [hoveredAction, setHoveredAction] = useState<string | null>(null);
 
   const modeActions = QUICK_ACTIONS[visitorMode];
@@ -266,7 +266,7 @@ export default function QuickActionsPanel() {
               fontWeight: typography.weight.bold,
               color: visitorConfig.color,
             }}>
-              {isArabic ? t(visitorConfig.labelAr, visitorConfig.label) : visitorConfig.label}
+              {isArabic ? visitorConfig.labelAr : visitorConfig.label}
             </span>
           </div>
 
@@ -277,14 +277,14 @@ export default function QuickActionsPanel() {
             color: colors.text.primary,
             marginBottom: spacing[2],
           }}>
-            {isArabic ? t(modeActions.titleAr, modeActions.titleEn) : modeActions.titleEn}
+            {isArabic ? modeActions.titleAr : modeActions.titleEn}
           </h2>
           <p style={{
             margin: 0,
             fontSize: typography.size.base,
             color: colors.text.secondary,
           }}>
-            {isArabic ? t(modeActions.subtitleAr, modeActions.subtitleEn) : modeActions.subtitleEn}
+            {isArabic ? modeActions.subtitleAr : modeActions.subtitleEn}
           </p>
         </div>
 
@@ -358,7 +358,7 @@ export default function QuickActionsPanel() {
                   color: isPrimary ? '#fff' : colors.text.primary,
                   lineHeight: 1.3,
                 }}>
-                  {isArabic ? t(action.titleAr, action.titleEn) : action.titleEn}
+                  {isArabic ? action.titleAr : action.titleEn}
                 </div>
 
                 {/* Description */}
@@ -368,7 +368,7 @@ export default function QuickActionsPanel() {
                   lineHeight: 1.5,
                   flex: 1,
                 }}>
-                  {isArabic ? t(action.descriptionAr, action.descriptionEn) : action.descriptionEn}
+                  {isArabic ? action.descriptionAr : action.descriptionEn}
                 </div>
 
                 {/* Arrow indicator */}
@@ -396,7 +396,7 @@ export default function QuickActionsPanel() {
                     color: visitorConfig.color,
                     boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
                   }}>
-                    {t('auto.QuickActionsPanel.k1', "Recommended")}
+                    {isArabic ? 'موصى به' : 'Recommended'}
                   </div>
                 )}
               </div>
@@ -437,7 +437,9 @@ export default function QuickActionsPanel() {
           fontSize: typography.size.xs,
           color: colors.text.muted,
         }}>
-          {t('auto.QuickActionsPanel.k2', "You can switch browsing mode from the top navigation")
+          {isArabic
+            ? 'يمكنك تغيير وضع التصفح من القائمة العلوية'
+            : 'You can switch browsing mode from the top navigation'
           }
         </div>
       </div>
