@@ -1,19 +1,24 @@
 /**
- * @fileoverview Parallax and scroll animation hooks for creating dynamic visual effects.
+ * @fileoverview Parallax and Scroll Animation Hooks
  *
- * This module provides a collection of React hooks for implementing various scroll-based
- * and mouse-based animation effects commonly used in modern web interfaces:
- *
- * - **useParallax**: Scroll-based vertical parallax movement
- * - **useScrollReveal**: Intersection Observer-based visibility detection
- * - **useMouseParallax**: Mouse position-based element displacement
- * - **useTilt**: 3D card tilt effect on hover
- * - **useScrollProgress**: Global page scroll progress tracking
- *
- * All hooks are optimized for performance with passive event listeners and
- * proper cleanup on unmount.
+ * A collection of React hooks for creating engaging scroll-based and mouse-based
+ * visual effects. These hooks are designed for performance with passive event
+ * listeners and optimized state updates.
  *
  * @module hooks/useParallax
+ *
+ * @example
+ * // Basic parallax effect on a hero section
+ * import { useParallax } from './hooks/useParallax';
+ *
+ * function HeroSection() {
+ *   const { ref, offset } = useParallax({ speed: 0.3 });
+ *   return (
+ *     <div ref={ref} style={{ transform: `translateY(${offset}px)` }}>
+ *       <h1>Welcome</h1>
+ *     </div>
+ *   );
+ * }
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -22,72 +27,56 @@ import { useState, useEffect, useRef, useCallback } from 'react';
  * Configuration options for the useParallax hook.
  *
  * @interface ParallaxConfig
+ * @property {number} [speed=0.5] - Parallax intensity multiplier (0-1 recommended).
+ *   Higher values create more dramatic movement. Use values < 1 for subtle effects.
+ * @property {'up' | 'down'} [direction='up'] - Direction of parallax movement.
+ *   'up' moves element upward as user scrolls down (traditional parallax).
+ *   'down' moves element downward as user scrolls down (reverse parallax).
+ * @property {number} [startOffset=0] - Initial offset value in pixels.
+ *   Use to position element before any scroll interaction.
+ * @property {boolean} [disabled=false] - Disable parallax effect entirely.
+ *   Useful for reduced motion preferences or mobile devices.
  */
 interface ParallaxConfig {
-  /**
-   * Speed multiplier for the parallax effect.
-   * Higher values create more pronounced movement.
-   * - `0.5` (default): Subtle, natural parallax
-   * - `1.0`: Moderate movement
-   * - `2.0+`: Dramatic, exaggerated effect
-   * @default 0.5
-   */
   speed?: number;
-
-  /**
-   * Direction of parallax movement relative to scroll.
-   * - `'up'`: Element moves upward as user scrolls down (classic parallax)
-   * - `'down'`: Element moves downward as user scrolls down (inverse parallax)
-   * @default 'up'
-   */
   direction?: 'up' | 'down';
-
-  /**
-   * Initial offset in pixels applied before any scroll-based calculation.
-   * Useful for staggering multiple parallax elements.
-   * @default 0
-   */
   startOffset?: number;
-
-  /**
-   * When true, disables the parallax effect entirely.
-   * Useful for reduced motion preferences or mobile optimization.
-   * @default false
-   */
   disabled?: boolean;
 }
 
 /**
- * Creates a scroll-based vertical parallax effect for an element.
+ * Creates a scroll-based parallax effect for an element.
  *
- * The parallax offset is calculated based on the element's position within
- * the viewport. When the element is at the center of the viewport, offset is
- * near zero. As it moves above or below center, the offset increases.
+ * This hook calculates a vertical offset based on the element's position
+ * relative to the viewport as the user scrolls. The offset can be applied
+ * to CSS transforms for smooth parallax animations.
  *
- * @param config - Configuration options for the parallax effect
- * @returns An object containing:
- *   - `ref`: React ref to attach to the target element
- *   - `offset`: Current calculated offset in pixels (use with transform: translateY)
- *
- * @example
- * ```tsx
- * function ParallaxImage() {
- *   const { ref, offset } = useParallax({ speed: 0.3, direction: 'up' });
- *
- *   return (
- *     <div ref={ref} style={{ transform: `translateY(${offset}px)` }}>
- *       <img src="/hero.jpg" alt="Hero" />
- *     </div>
- *   );
- * }
- * ```
+ * @param {ParallaxConfig} [config={}] - Configuration options
+ * @returns {{ ref: React.RefObject<HTMLDivElement>, offset: number }}
+ *   - `ref`: Attach to the target element
+ *   - `offset`: Current parallax offset in pixels (apply to translateY)
  *
  * @example
- * ```tsx
- * // Respect user's reduced motion preference
- * const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
- * const { ref, offset } = useParallax({ disabled: prefersReducedMotion });
- * ```
+ * // Subtle background parallax
+ * const { ref, offset } = useParallax({ speed: 0.2, direction: 'up' });
+ * return (
+ *   <div
+ *     ref={ref}
+ *     style={{ transform: `translateY(${offset}px)` }}
+ *   >
+ *     <img src="/background.jpg" alt="Background" />
+ *   </div>
+ * );
+ *
+ * @example
+ * // Respecting reduced motion preferences
+ * const prefersReducedMotion = usePrefersReducedMotion();
+ * const { ref, offset } = useParallax({
+ *   speed: 0.5,
+ *   disabled: prefersReducedMotion,
+ * });
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
  */
 export function useParallax({
   speed = 0.5,
@@ -128,81 +117,62 @@ export function useParallax({
  * Configuration options for the useScrollReveal hook.
  *
  * @interface ScrollRevealConfig
+ * @property {number} [threshold=0.2] - Visibility threshold (0-1).
+ *   0.2 means element is visible when 20% is in viewport.
+ * @property {string} [rootMargin='0px'] - Margin around the viewport root.
+ *   Use negative values to trigger earlier (e.g., '-100px').
+ * @property {boolean} [once=true] - If true, element stays visible after first reveal.
+ *   Set to false for elements that should hide when scrolled out of view.
  */
 interface ScrollRevealConfig {
-  /**
-   * Visibility threshold (0-1) at which the element is considered "visible".
-   * - `0.0`: Visible as soon as any part enters viewport
-   * - `0.2` (default): Visible when 20% is in viewport
-   * - `1.0`: Visible only when fully in viewport
-   *
-   * Note: The hook internally uses 10 threshold points (0, 0.1, 0.2, ... 1.0)
-   * for smooth progress tracking, regardless of this setting.
-   * @default 0.2
-   */
   threshold?: number;
-
-  /**
-   * Margin around the root (viewport) for intersection calculation.
-   * Uses CSS margin syntax (e.g., "100px", "-50px 0px").
-   * Positive values trigger earlier; negative values delay triggering.
-   * @default '0px'
-   */
   rootMargin?: string;
-
-  /**
-   * When true, the element stays "visible" once revealed and won't reset.
-   * When false, visibility toggles as element enters/exits viewport.
-   * @default true
-   */
   once?: boolean;
 }
 
 /**
- * Detects when an element becomes visible in the viewport using Intersection Observer.
+ * Detects when an element enters the viewport for scroll-triggered animations.
  *
- * This hook is ideal for scroll-triggered animations, lazy loading, and
- * analytics tracking. It provides both a boolean visibility state and a
- * continuous progress value (0-1) representing how much of the element is visible.
+ * Uses IntersectionObserver API for performant visibility detection.
+ * Returns both a boolean visibility state and a continuous progress value
+ * (0-1) indicating how much of the element is visible.
  *
- * @param config - Configuration options for visibility detection
- * @returns An object containing:
- *   - `ref`: React ref to attach to the target element
- *   - `isVisible`: Boolean indicating if element has been revealed
- *   - `progress`: Number (0-1) representing intersection ratio
- *
- * @example
- * ```tsx
- * function FadeInSection({ children }) {
- *   const { ref, isVisible } = useScrollReveal({ threshold: 0.3 });
- *
- *   return (
- *     <section
- *       ref={ref}
- *       style={{
- *         opacity: isVisible ? 1 : 0,
- *         transition: 'opacity 0.6s ease-out'
- *       }}
- *     >
- *       {children}
- *     </section>
- *   );
- * }
- * ```
+ * @param {ScrollRevealConfig} [config={}] - Configuration options
+ * @returns {{
+ *   ref: React.RefObject<HTMLDivElement>,
+ *   isVisible: boolean,
+ *   progress: number
+ * }}
+ *   - `ref`: Attach to the target element
+ *   - `isVisible`: True when element is in viewport (stays true if `once` is enabled)
+ *   - `progress`: Visibility ratio from 0 (not visible) to 1 (fully visible)
  *
  * @example
- * ```tsx
- * // Continuous progress-based animation
- * function ProgressBar() {
- *   const { ref, progress } = useScrollReveal({ once: false });
+ * // Fade-in animation on scroll
+ * const { ref, isVisible } = useScrollReveal({ threshold: 0.3 });
+ * return (
+ *   <section
+ *     ref={ref}
+ *     style={{
+ *       opacity: isVisible ? 1 : 0,
+ *       transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+ *       transition: 'opacity 0.6s, transform 0.6s',
+ *     }}
+ *   >
+ *     <h2>Feature Section</h2>
+ *   </section>
+ * );
  *
- *   return (
- *     <div ref={ref}>
- *       <div style={{ width: `${progress * 100}%` }} className="progress-fill" />
- *     </div>
- *   );
- * }
- * ```
+ * @example
+ * // Progressive reveal based on visibility percentage
+ * const { ref, progress } = useScrollReveal({ once: false });
+ * return (
+ *   <div ref={ref} style={{ opacity: progress }}>
+ *     Fades in/out based on scroll position
+ *   </div>
+ * );
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
  */
 export function useScrollReveal({
   threshold = 0.2,
@@ -238,43 +208,44 @@ export function useScrollReveal({
 }
 
 /**
- * Creates a mouse-following parallax effect where an element subtly shifts
- * based on the cursor's position relative to the element's center.
+ * Creates a mouse-following parallax effect for an element.
  *
- * This creates an interactive, responsive feel commonly used for hero sections,
- * cards, or decorative elements. The displacement is calculated from the
- * distance between the mouse cursor and the element's center point.
+ * Tracks mouse position relative to the element's center and returns
+ * x/y offsets that can be applied to transforms. Creates an interactive
+ * "floating" effect where elements subtly follow the cursor.
  *
- * @param intensity - Multiplier for mouse displacement effect.
- *   - `0.02` (default): Subtle, professional movement
- *   - `0.05`: Noticeable but not distracting
- *   - `0.1+`: Dramatic, playful effect
- * @returns An object containing:
- *   - `ref`: React ref to attach to the target element
- *   - `position`: Object with `x` and `y` displacement values in pixels
+ * @param {number} [intensity=0.02] - Movement intensity multiplier.
+ *   Lower values (0.01-0.05) create subtle effects.
+ *   Higher values (0.1+) create more dramatic movement.
+ *
+ * @returns {{
+ *   ref: React.RefObject<HTMLDivElement>,
+ *   position: { x: number, y: number }
+ * }}
+ *   - `ref`: Attach to the container element (defines center point)
+ *   - `position`: Current x/y offset in pixels (apply to translate)
  *
  * @example
- * ```tsx
- * function FloatingCard() {
- *   const { ref, position } = useMouseParallax(0.03);
+ * // Floating card effect
+ * const { ref, position } = useMouseParallax(0.03);
+ * return (
+ *   <div
+ *     ref={ref}
+ *     style={{
+ *       transform: `translate(${position.x}px, ${position.y}px)`,
+ *       transition: 'transform 0.1s ease-out',
+ *     }}
+ *   >
+ *     <Card>Hover over me!</Card>
+ *   </div>
+ * );
  *
- *   return (
- *     <div
- *       ref={ref}
- *       style={{
- *         transform: `translate(${position.x}px, ${position.y}px)`
- *       }}
- *     >
- *       <h2>Interactive Card</h2>
- *     </div>
- *   );
- * }
- * ```
- *
- * @remarks
- * This hook listens to global mouse movement, which can impact performance
- * on pages with many instances. Consider using {@link useTilt} for
- * hover-only effects on individual elements.
+ * @example
+ * // Layered parallax with different intensities
+ * const layer1 = useMouseParallax(0.01);
+ * const layer2 = useMouseParallax(0.03);
+ * const layer3 = useMouseParallax(0.05);
+ * // Apply different intensities to foreground/background layers
  */
 export function useMouseParallax(intensity: number = 0.02) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -302,50 +273,60 @@ export function useMouseParallax(intensity: number = 0.02) {
 }
 
 /**
- * Creates a 3D card tilt effect that responds to mouse position over an element.
+ * Creates a 3D tilt effect on mouse hover.
  *
- * When the user hovers over the element, it tilts toward the cursor position,
- * creating a perspective-based 3D effect. The tilt resets to neutral when
- * the mouse leaves the element.
+ * Calculates rotateX and rotateY values based on mouse position within
+ * the element, creating a perspective-aware tilt effect. Returns handlers
+ * for mouse events that should be attached to the target element.
  *
- * Unlike {@link useMouseParallax}, this hook only responds when the mouse is
- * directly over the element, making it more performant for card-based UIs.
+ * @param {number} [maxTilt=10] - Maximum tilt angle in degrees.
+ *   10-15 degrees creates a subtle effect.
+ *   20+ degrees creates more dramatic tilting.
  *
- * @param maxTilt - Maximum tilt angle in degrees.
- *   - `10` (default): Subtle, elegant tilt
- *   - `15-20`: Noticeable 3D effect
- *   - `30+`: Dramatic, gaming-style effect
- * @returns An object containing:
- *   - `ref`: React ref to attach to the target element
- *   - `tilt`: Object with `rotateX` and `rotateY` values in degrees
- *   - `handleMouseMove`: Event handler to attach to onMouseMove
- *   - `handleMouseLeave`: Event handler to attach to onMouseLeave
+ * @returns {{
+ *   ref: React.RefObject<HTMLDivElement>,
+ *   tilt: { rotateX: number, rotateY: number },
+ *   handleMouseMove: (e: React.MouseEvent) => void,
+ *   handleMouseLeave: () => void
+ * }}
+ *   - `ref`: Attach to the element (used for dimension calculations)
+ *   - `tilt`: Current rotation values in degrees (apply to rotateX/rotateY)
+ *   - `handleMouseMove`: Attach to onMouseMove event
+ *   - `handleMouseLeave`: Attach to onMouseLeave event (resets tilt)
  *
  * @example
- * ```tsx
- * function TiltCard() {
- *   const { ref, tilt, handleMouseMove, handleMouseLeave } = useTilt(15);
+ * // 3D card tilt effect
+ * const { ref, tilt, handleMouseMove, handleMouseLeave } = useTilt(15);
+ * return (
+ *   <div
+ *     ref={ref}
+ *     onMouseMove={handleMouseMove}
+ *     onMouseLeave={handleMouseLeave}
+ *     style={{
+ *       transform: `perspective(1000px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
+ *       transition: 'transform 0.1s ease-out',
+ *     }}
+ *   >
+ *     <Card>Interactive 3D Card</Card>
+ *   </div>
+ * );
  *
- *   return (
- *     <div
- *       ref={ref}
- *       onMouseMove={handleMouseMove}
- *       onMouseLeave={handleMouseLeave}
- *       style={{
- *         transform: `perspective(1000px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
- *         transition: 'transform 0.1s ease-out'
- *       }}
- *     >
- *       <h3>Hover me!</h3>
- *     </div>
- *   );
- * }
- * ```
- *
- * @remarks
- * For the 3D effect to work properly, ensure the parent container has
- * `perspective` set (either via inline style or CSS class). The returned
- * transform values assume the element is viewed from the front.
+ * @example
+ * // Combined with shadow for depth effect
+ * const { ref, tilt, handleMouseMove, handleMouseLeave } = useTilt(12);
+ * const shadowX = tilt.rotateY * 2;
+ * const shadowY = -tilt.rotateX * 2;
+ * return (
+ *   <div
+ *     ref={ref}
+ *     onMouseMove={handleMouseMove}
+ *     onMouseLeave={handleMouseLeave}
+ *     style={{
+ *       transform: `perspective(1000px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
+ *       boxShadow: `${shadowX}px ${shadowY}px 20px rgba(0,0,0,0.2)`,
+ *     }}
+ *   />
+ * );
  */
 export function useTilt(maxTilt: number = 10) {
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 });
@@ -375,56 +356,51 @@ export function useTilt(maxTilt: number = 10) {
 }
 
 /**
- * Tracks the overall scroll progress of the page as a value between 0 and 1.
+ * Tracks overall page scroll progress as a value from 0 to 1.
  *
- * This hook is useful for creating progress indicators, scroll-based navigation
- * highlights, or animations that depend on how far the user has scrolled through
- * the entire document.
+ * Returns a normalized progress value representing how far the user
+ * has scrolled through the entire document. Useful for scroll-driven
+ * animations like progress bars, navigation indicators, or page-wide effects.
  *
- * @returns A number from 0 (top of page) to 1 (bottom of page) representing
- *   the current scroll position. The value is clamped to [0, 1] to handle
- *   edge cases like elastic scrolling on mobile.
- *
- * @example
- * ```tsx
- * function ReadingProgressBar() {
- *   const progress = useScrollProgress();
- *
- *   return (
- *     <div
- *       style={{
- *         position: 'fixed',
- *         top: 0,
- *         left: 0,
- *         width: `${progress * 100}%`,
- *         height: '3px',
- *         background: 'linear-gradient(90deg, #00a86b, #00d4aa)',
- *         zIndex: 1000
- *       }}
- *     />
- *   );
- * }
- * ```
+ * @returns {number} Progress value from 0 (top of page) to 1 (bottom of page).
+ *   Value is clamped between 0-1 and updates on every scroll event.
  *
  * @example
- * ```tsx
- * // Trigger animation at specific scroll points
- * function ScrollTriggeredAnimation() {
- *   const progress = useScrollProgress();
- *   const isHalfwayDown = progress > 0.5;
+ * // Page scroll progress bar
+ * const progress = useScrollProgress();
+ * return (
+ *   <div
+ *     style={{
+ *       position: 'fixed',
+ *       top: 0,
+ *       left: 0,
+ *       width: `${progress * 100}%`,
+ *       height: '4px',
+ *       background: 'linear-gradient(to right, #00c6ff, #0072ff)',
+ *     }}
+ *   />
+ * );
  *
- *   return (
- *     <div className={isHalfwayDown ? 'animate-in' : ''}>
- *       Content that animates halfway through the page
- *     </div>
- *   );
- * }
- * ```
+ * @example
+ * // Fade out header on scroll
+ * const progress = useScrollProgress();
+ * return (
+ *   <header style={{ opacity: 1 - Math.min(progress * 3, 1) }}>
+ *     <h1>Fades as you scroll</h1>
+ *   </header>
+ * );
  *
- * @remarks
- * This hook calculates progress based on the entire document height minus
- * the viewport height. On very short pages where content fits within the
- * viewport, the progress will always be 0.
+ * @example
+ * // Change background color based on scroll
+ * const progress = useScrollProgress();
+ * const hue = Math.round(progress * 360);
+ * return (
+ *   <div style={{ background: `hsl(${hue}, 70%, 50%)` }}>
+ *     Color shifts as you scroll through the page
+ *   </div>
+ * );
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollY
  */
 export function useScrollProgress() {
   const [progress, setProgress] = useState(0);
