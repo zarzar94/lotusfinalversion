@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, memo } from 'react';
-import { brandCyan, brandPurple, brandPink } from './styles';
+import { brandCyan, brandPurple, brandPink, gradients, shadows, transitions, typography, spacing, radius } from './styles';
 import { useLanguage } from '../context/LanguageContext';
 import { assetUrl } from '../utils/asset';
 
