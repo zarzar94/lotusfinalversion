@@ -27,6 +27,9 @@ const bandBackgrounds = [
   { min: 0, max: 40, color: 'rgba(239, 68, 68, 0.08)' },
 ];
 
+const MIN_TREND_SESSIONS = 3;
+const ROLLING_WINDOW = 3;
+
 const clampScore = (value: number) => Math.max(0, Math.min(100, value));
 
 const computeSlope = (values: number[]): number => {
@@ -107,6 +110,18 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   }, [moduleId]);
 
   const lineHeight = variant === 'parent' ? 160 : 190;
+  const trendReady = sessions.length >= MIN_TREND_SESSIONS;
+  const baselineScore = sessions.length ? clampScore(sessions[0].score100) : null;
+
+  const rollingScores = useMemo(() => {
+    if (!sessions.length) return [];
+    return sessions.map((session, index) => {
+      const start = Math.max(0, index - (ROLLING_WINDOW - 1));
+      const window = sessions.slice(start, index + 1);
+      const avg = window.reduce((sum, entry) => sum + clampScore(entry.score100), 0) / window.length;
+      return Math.round(avg);
+    });
+  }, [sessions]);
 
   const scorePoints = useMemo<ChartPoint[]>(() => {
     const paddingX = 8;
@@ -139,6 +154,27 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     return scorePoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
   }, [scorePoints]);
 
+  const rollingPoints = useMemo(() => {
+    if (!rollingScores.length) return [];
+    const paddingX = 8;
+    const paddingY = 16;
+    const chartHeight = lineHeight - 40;
+    const width = 100;
+
+    return rollingScores.map((value, index) => {
+      const x = rollingScores.length === 1
+        ? 50
+        : paddingX + (index * (width - paddingX * 2)) / Math.max(rollingScores.length - 1, 1);
+      const y = paddingY + chartHeight - (value / 100) * chartHeight;
+      return { x, y, value };
+    });
+  }, [rollingScores, lineHeight]);
+
+  const rollingPath = useMemo(() => {
+    if (rollingPoints.length === 0) return '';
+    return rollingPoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
+  }, [rollingPoints]);
+
   const fatiguePoints = useMemo(() => {
     return sessions
       .filter((session) => typeof session.fatigueIndex === 'number')
@@ -158,6 +194,8 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     const average = Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
     const best = Math.max(...scores);
     const slope = computeSlope(scores);
+    const baseline = baselineScore ?? scores[0];
+    const recentAverage = rollingScores.length ? rollingScores[rollingScores.length - 1] : null;
 
     const fatigueValues = sessions
       .filter((session) => typeof session.fatigueIndex === 'number')
@@ -172,9 +210,11 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
       average,
       best,
       slope,
+      baseline,
+      recentAverage,
       fatigueDirection,
     };
-  }, [sessions]);
+  }, [baselineScore, rollingScores, sessions]);
 
   if (sessions.length === 0) {
     return (
@@ -256,6 +296,30 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             );
           })}
 
+          {baselineScore !== null ? (
+            <line
+              x1={8}
+              y1={valueToY(baselineScore, lineHeight)}
+              x2={92}
+              y2={valueToY(baselineScore, lineHeight)}
+              stroke={brandPurple}
+              strokeWidth={1}
+              strokeDasharray="4,4"
+              opacity={0.7}
+            />
+          ) : null}
+
+          {rollingPoints.length > 1 ? (
+            <path
+              d={rollingPath}
+              fill="none"
+              stroke={brandPurple}
+              strokeWidth={1.4}
+              strokeDasharray="5,4"
+              opacity={0.85}
+            />
+          ) : null}
+
           <path
             d={scorePath}
             fill="none"
@@ -294,6 +358,11 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             ) : null
           ))}
         </svg>
+        {!trendReady ? (
+          <div style={{ marginTop: spacing[2], fontSize: typography.size.xs, color: colors.text.muted }}>
+            {t('dashboard.trendNeedsMore', 'Complete more sessions to see trend insights.')} ({MIN_TREND_SESSIONS}+)
+          </div>
+        ) : null}
       </div>
 
       {variant === 'clinician' && fatiguePoints.length > 0 && (
@@ -390,14 +459,27 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             value={`${stats.average}`}
           />
           <MetricCard
+            label={`${t('dashboard.baselineScore', 'Baseline Score')}`}
+            value={stats.baseline === null ? '--' : `${stats.baseline}`}
+            tone={brandPurple}
+          />
+          <MetricCard
+            label={`${t('dashboard.rollingAverage', 'Rolling Avg')} (${ROLLING_WINDOW})`}
+            value={stats.recentAverage === null ? '--' : `${stats.recentAverage}`}
+          />
+          <MetricCard
             label={t('dashboard.bestScore', 'Best Score')}
             value={`${stats.best}`}
             tone={brandPurple}
           />
           <MetricCard
             label={t('dashboard.scoreSlope', 'Score Slope')}
-            value={`${stats.slope >= 0 ? '+' : ''}${stats.slope.toFixed(1)} ${t('dashboard.perSession', 'per session')}`}
-            tone={stats.slope >= 0 ? '#22c55e' : '#ef4444'}
+            value={
+              trendReady
+                ? `${stats.slope >= 0 ? '+' : ''}${stats.slope.toFixed(1)} ${t('dashboard.perSession', 'per session')}`
+                : '--'
+            }
+            tone={trendReady ? (stats.slope >= 0 ? '#22c55e' : '#ef4444') : colors.text.muted}
           />
           <MetricCard
             label={t('dashboard.fatigueDirection', 'Fatigue Direction')}

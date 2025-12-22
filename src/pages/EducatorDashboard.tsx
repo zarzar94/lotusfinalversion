@@ -10,6 +10,7 @@ import {
   average,
   formatTimestamp,
   getBandMeta,
+  getSessionMetric,
   normalizeFatigue01,
   sortSessionsByTime,
 } from '../components/dashboards/roleDashboardUtils';
@@ -28,6 +29,10 @@ type StudentRow = {
   averageScore: number | null;
   latestBandLabel: string;
   fatigueLabel: string;
+  avgAccuracy: number | null;
+  avgThresholdHz: number | null;
+  avgSpan: number | null;
+  avgSnrThreshold: number | null;
   modulesCovered: number;
   flagged: boolean;
 };
@@ -90,6 +95,13 @@ const EducatorDashboard = memo(function EducatorDashboard() {
       const fatigueLabel = fatigueNormalized === null
         ? '--'
         : `${Math.round(fatigueNormalized * 100)}%`;
+      const metricValues = (key: string) => sorted
+        .map((session) => getSessionMetric(session, key))
+        .filter((value): value is number => typeof value === 'number');
+      const avgAccuracyValues = metricValues('accuracyPct');
+      const avgThresholdValues = metricValues('thresholdHz');
+      const avgSpanValues = metricValues('workingMemorySpan');
+      const avgSnrValues = metricValues('snrThresholdDb');
       const bandLabel = latest ? getBandMeta(latest.band)[isArabic ? 'labelAr' : 'label'] : '--';
       const lastSessionLabel = latest
         ? formatTimestamp(latest.timestamp, locale)
@@ -104,6 +116,10 @@ const EducatorDashboard = memo(function EducatorDashboard() {
         averageScore,
         latestBandLabel: bandLabel,
         fatigueLabel,
+        avgAccuracy: avgAccuracyValues.length ? Math.round(average(avgAccuracyValues)) : null,
+        avgThresholdHz: avgThresholdValues.length ? Math.round(average(avgThresholdValues)) : null,
+        avgSpan: avgSpanValues.length ? Math.round(average(avgSpanValues)) : null,
+        avgSnrThreshold: avgSnrValues.length ? Math.round(average(avgSnrValues)) : null,
         modulesCovered,
         flagged,
       };
@@ -113,13 +129,29 @@ const EducatorDashboard = memo(function EducatorDashboard() {
   const handleExportCsv = useMemo(() => () => {
     if (!studentRows.length) return;
     const rows = [
-      ['token', 'last_session', 'average_score', 'latest_band', 'fatigue_index', 'modules_covered', 'flagged'],
+      [
+        'token',
+        'last_session',
+        'average_score',
+        'latest_band',
+        'fatigue_index',
+        'avg_accuracy_pct',
+        'avg_threshold_hz',
+        'avg_span',
+        'avg_snr_threshold_db',
+        'modules_covered',
+        'flagged',
+      ],
       ...studentRows.map((row) => ([
         row.token,
         row.lastSessionLabel,
         row.averageScore ?? '',
         row.latestBandLabel,
         row.fatigueLabel,
+        row.avgAccuracy ?? '',
+        row.avgThresholdHz ?? '',
+        row.avgSpan ?? '',
+        row.avgSnrThreshold ?? '',
         row.modulesCovered,
         row.flagged ? '1' : '0',
       ])),

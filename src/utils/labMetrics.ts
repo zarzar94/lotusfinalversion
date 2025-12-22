@@ -100,15 +100,19 @@ export const buildLabMetrics = (outcome: TestOutcome): LabModuleMetrics => {
   const metrics = outcome.metrics as Record<string, unknown>;
   const rawMetrics = extractNumericMetrics(metrics);
   const fatigueScore = getNumericMetric(metrics, 'fatigueScore');
+  const fatigueSlope = getNumericMetric(metrics, 'fatigueSlope');
   const notes = typeof metrics.note === 'string' ? metrics.note : undefined;
 
   return {
     moduleId: outcome.key,
     timestamp: new Date().toISOString(),
     rawMetrics,
+    metrics: outcome.metrics,
+    trials: outcome.trials,
     score100: deriveScore100(outcome),
     band: resultToBand(outcome.result),
     fatigueIndex: fatigueScore !== null ? clampScore(fatigueScore) : undefined,
+    fatigueSlope: fatigueSlope !== null ? fatigueSlope : undefined,
     consistency: deriveConsistency(metrics),
     notes,
   };

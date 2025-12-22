@@ -217,3 +217,19 @@ export const getLatestLeftRightSplit = (sessions: LabModuleMetrics[]) => {
   }
   return null;
 };
+
+export const getSessionMetric = (
+  session: LabModuleMetrics,
+  key: string,
+): string | number | null => {
+  const metrics = session.metrics as Record<string, unknown>;
+  const metricValue = metrics?.[key];
+  if (typeof metricValue === 'number' || typeof metricValue === 'string') {
+    return metricValue;
+  }
+  const rawValue = session.rawMetrics?.[key];
+  if (typeof rawValue === 'number') {
+    return rawValue;
+  }
+  return null;
+};

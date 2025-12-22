@@ -19,6 +19,7 @@ import {
   getLatestByModule,
   getLatestLeftRightSplit,
   getModuleLabel,
+  getSessionMetric,
   normalizeFatigue01,
   sortSessionsByTime,
 } from '../components/dashboards/roleDashboardUtils';
@@ -119,16 +120,48 @@ const ClinicianDashboard = memo(function ClinicianDashboard() {
 
   const handleExportCsv = useMemo(() => () => {
     if (!sessions.length) return;
+    const metricKeys = [
+      'accuracyPct',
+      'avgReactionMs',
+      'thresholdHz',
+      'thresholdPercent',
+      'maxSpan',
+      'workingMemorySpan',
+      'leftAccuracyPct',
+      'rightAccuracyPct',
+      'separationAccuracyPct',
+      'balanceIndex',
+      'intrusions',
+      'snrThresholdDb',
+      'snrScore',
+      'fatigueScore',
+      'fatigueSlope',
+    ];
     const rows = [
-      ['timestamp', 'module', 'score100', 'band', 'fatigue_index', 'consistency', 'notes', 'raw_metrics'],
+      [
+        'timestamp',
+        'module',
+        'score100',
+        'band',
+        'fatigue_index',
+        'fatigue_slope',
+        'consistency',
+        ...metricKeys,
+        'notes',
+        'metrics_json',
+        'raw_metrics',
+      ],
       ...sessions.map((session) => ([
         session.timestamp,
         session.moduleId,
         session.score100,
         session.band,
         session.fatigueIndex ?? '',
+        session.fatigueSlope ?? '',
         session.consistency ?? '',
+        ...metricKeys.map((key) => getSessionMetric(session, key) ?? ''),
         session.notes ?? '',
+        JSON.stringify(session.metrics ?? {}),
         JSON.stringify(session.rawMetrics),
       ])),
     ];
