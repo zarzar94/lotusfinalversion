@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback, memo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useUser } from '../context/UserContext';
 import { useGamification } from '../context/GamificationContext';
+import { positionInlineStart } from '../utils/rtl';
 import {
   brandCyan,
   brandPurple,
@@ -123,7 +124,7 @@ const NotificationItem = memo(({
           style={{
             position: 'absolute',
             top: spacing[3],
-            [isArabic ? 'left' : 'right']: spacing[3],
+            ...positionInlineStart(isArabic, spacing[3]),
             width: 8,
             height: 8,
             borderRadius: '50%',
@@ -395,7 +396,7 @@ export default function NotificationCenter() {
         style={{
           position: 'fixed',
           top: spacing[4],
-          [isArabic ? 'left' : 'right']: spacing[20],
+          ...positionInlineStart(isArabic, spacing[20]),
           zIndex: 90,
         }}
       >
@@ -428,7 +429,7 @@ export default function NotificationCenter() {
               style={{
                 position: 'absolute',
                 top: -4,
-                [isArabic ? 'left' : 'right']: -4,
+                ...positionInlineStart(isArabic, -4),
                 minWidth: 18,
                 height: 18,
                 borderRadius: radius.full,
@@ -454,7 +455,7 @@ export default function NotificationCenter() {
             style={{
               position: 'absolute',
               top: 'calc(100% + 8px)',
-              [isArabic ? 'left' : 'right']: 0,
+              ...positionInlineStart(isArabic, 0),
               width: 360,
               maxHeight: 480,
               background: 'linear-gradient(135deg, rgba(11,15,28,0.98), rgba(5,6,13,0.98))',

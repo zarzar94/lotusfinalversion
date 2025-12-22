@@ -4,6 +4,15 @@ import { useFocusTrap } from '../hooks/useFocusTrap';
 import { pptxSlides } from '../data/pptxSlides';
 import { assetUrl } from '../utils/asset';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
+import {
+  normalizeForSearch,
+  parseSearchGroups,
+  parseIdQuery as parseSlideIdQuery,
+  matchesAllTokens,
+  clamp,
+  loadImageElement,
+  type IdQuery as SlideIdQuery,
+} from '../utils/search';
 import { brandCyan, brandPink, brandPurple, styles, transitions, colors, radius, spacing, typography } from './styles';
 import { MicroscopeIcon, FlaskIcon, SearchIcon, DownloadIcon, XIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon } from './Icons';
 import { useLanguage } from '../context/LanguageContext';
@@ -28,120 +37,6 @@ const SLIDE_CATEGORIES: SlideCategoryConfig[] = [
   { id: 'clinician', labelEn: 'Clinical Data', labelAr: 'auto.SlideViewer.k12', icon: '🔬', color: brandPurple, slideIds: [4, 8, 13, 17, 21, 26, 31, 36, 40] },
   { id: 'science', labelEn: 'Research', labelAr: 'auto.SlideViewer.k13', icon: '📊', color: brandPink, slideIds: [6, 9, 14, 16, 19, 23, 27, 32, 37, 39] },
 ];
-
-const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
-
-type SlideIdQuery =
-  | { kind: 'ids'; ids: number[] }
-  | { kind: 'range'; from: number; to: number };
-
-const normalizeQueryDigits = (value: string): string =>
-  value
-    .replace(/[\u0660-\u0669]/g, (digit) => String(digit.charCodeAt(0) - 0x0660))
-    .replace(/[\u06F0-\u06F9]/g, (digit) => String(digit.charCodeAt(0) - 0x06F0));
-
-const parseSlideIdQuery = (raw: string): SlideIdQuery | null => {
-  const q = normalizeQueryDigits(raw).trim();
-  if (!q) return null;
-
-  const single = q.match(/^#?\s*(\d{1,4})\s*$/);
-  if (single) {
-    return { kind: 'ids', ids: [Number(single[1])] };
-  }
-
-  const range = q.match(/^#?\s*(\d{1,4})\s*[-–—]\s*#?\s*(\d{1,4})\s*$/);
-  if (range) {
-    const a = Number(range[1]);
-    const b = Number(range[2]);
-    return { kind: 'range', from: Math.min(a, b), to: Math.max(a, b) };
-  }
-
-  const list = q.match(/^\s*#?\s*\d+(?:\s*[,،]\s*#?\s*\d+)+\s*$/);
-  if (list) {
-    const ids = q
-      .split(/[,،]/)
-      .map((part) => part.replace(/[^\d]/g, ''))
-      .map((part) => Number(part))
-      .filter((n) => Number.isFinite(n));
-    if (ids.length) return { kind: 'ids', ids };
-  }
-
-  const spaceList = q.match(/^\s*#?\s*\d+(?:\s+#?\s*\d+)+\s*$/);
-  if (spaceList) {
-    const ids = q
-      .split(/\s+/)
-      .map((part) => part.replace(/[^\d]/g, ''))
-      .map((part) => Number(part))
-      .filter((n) => Number.isFinite(n));
-    if (ids.length) return { kind: 'ids', ids };
-  }
-
-  return null;
-};
-
-const normalizeForSearch = (value: string): string =>
-  normalizeQueryDigits(value)
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '') // strip Latin combining marks
-    .replace(/[\u0640\u064B-\u065F\u0670\u06D6-\u06ED]/g, '') // strip Arabic diacritics + tatweel
-    .replace(/[^\p{L}\p{N}]+/gu, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-const tokenizeQuery = (raw: string): string[] => {
-  const tokens: string[] = [];
-  const re = /"([^"]+)"|'([^']+)'|(\S+)/g;
-  let match: RegExpExecArray | null;
-  while ((match = re.exec(raw)) !== null) {
-    const token = match[1] ?? match[2] ?? match[3] ?? '';
-    if (!token) continue;
-
-    // Allow OR groups using pipes: apd|hyperacusis
-    if (token.includes('|')) {
-      const parts = token.split('|');
-      parts.forEach((part, idx) => {
-        if (part) tokens.push(part);
-        if (idx < parts.length - 1) tokens.push('|');
-      });
-      continue;
-    }
-
-    tokens.push(token);
-  }
-  return tokens;
-};
-
-const parseSearchGroups = (raw: string): string[][] => {
-  const rawTokens = tokenizeQuery(raw);
-  const groups: string[][] = [];
-  let current: string[] = [];
-
-  for (const token of rawTokens) {
-    if (token === '|') {
-      if (current.length) groups.push(current);
-      current = [];
-      continue;
-    }
-
-    const normalized = normalizeForSearch(token.replace(/^#+/, ''));
-    if (normalized) current.push(normalized);
-  }
-
-  if (current.length) groups.push(current);
-  return groups;
-};
-
-const matchesAllTokens = (haystack: string, tokens: string[]) =>
-  tokens.every((token) => haystack.includes(token));
-
-const loadImageElement = (src: string): Promise<HTMLImageElement> => new Promise((resolve, reject) => {
-  const img = new Image();
-  img.crossOrigin = 'anonymous';
-  img.onload = () => resolve(img);
-  img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
-  img.src = src;
-});
 
 // Flask/Test Tube Slide Card - like a sample being viewed (memoized for performance)
 const FlaskSlideCard = memo(({

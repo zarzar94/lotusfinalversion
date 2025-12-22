@@ -3,6 +3,7 @@ import { useGamification } from '../context/GamificationContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useIsPatient } from '../context/UserContext';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { positionInlineEnd } from '../utils/rtl';
 import {
   brandCyan,
   brandPurple,
@@ -121,7 +122,7 @@ export default function ProgressDashboard() {
         style={{
           position: 'fixed',
           top: spacing[20],
-          [isArabic ? 'right' : 'left']: spacing[4],
+          ...positionInlineEnd(isArabic, spacing[4]),
           zIndex: 70,
           display: 'flex',
           alignItems: 'center',

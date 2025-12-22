@@ -1,32 +1,33 @@
-import { memo, useState, useEffect, useCallback, useMemo } from 'react';
+import { memo, useState, useCallback, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useVisitorMode } from '../context/VisitorModeContext';
 import { useLanguage } from '../context/LanguageContext';
-import { brandCyan, brandPurple, brandPink, colors, radius, spacing, typography, transitions, shadows } from './styles';
+import { useScrollState } from '../hooks/useScrollManager';
+import { positionInlineStart, positionInlineEnd } from '../utils/rtl';
+import { colors, radius, spacing, typography, transitions } from './styles';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STICKY SMART CTA
 // An adaptive floating CTA that changes based on visitor mode
+// Uses consolidated scroll manager for better performance
 // ═══════════════════════════════════════════════════════════════════════════
 
 const StickySmartCTA = memo(function StickySmartCTA() {
   const { config, isSchool, isParent, isClinician } = useVisitorMode();
-  const { isArabic, t } = useLanguage();
-  const [isVisible, setIsVisible] = useState(false);
+  const { isArabic } = useLanguage();
+  const { scrollY } = useScrollState();
   const [isMinimized, setIsMinimized] = useState(false);
+  const [threshold, setThreshold] = useState(400);
+
+  // Calculate threshold on mount (window.innerHeight not available in SSR)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setThreshold(window.innerHeight * 0.5);
+    }
+  }, []);
 
   // Show CTA after scrolling past hero section
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const threshold = window.innerHeight * 0.5;
-      setIsVisible(scrollY > threshold);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const isVisible = scrollY > threshold;
 
   const toggleMinimize = useCallback(() => {
     setIsMinimized(prev => !prev);
@@ -44,15 +45,15 @@ const StickySmartCTA = memo(function StickySmartCTA() {
   const secondaryText = useMemo(() => {
     if (isSchool) return {
       en: 'Free classroom demo available',
-      ar: 'auto.StickySmartCTA.k4',
+      ar: 'عرض مجاني للفصول متاح',
     };
     if (isParent) return {
       en: 'Quick 15-min screening',
-      ar: 'auto.StickySmartCTA.k5',
+      ar: 'فحص سريع ١٥ دقيقة',
     };
     if (isClinician) return {
       en: 'Protocol documentation included',
-      ar: 'auto.StickySmartCTA.k6',
+      ar: 'توثيق البروتوكول متضمن',
     };
     return { en: '', ar: '' };
   }, [isSchool, isParent, isClinician]);
@@ -95,8 +96,7 @@ const StickySmartCTA = memo(function StickySmartCTA() {
         style={{
           position: 'fixed',
           bottom: spacing[5],
-          left: isArabic ? spacing[5] : 'auto',
-          right: isArabic ? 'auto' : spacing[5],
+          ...positionInlineStart(isArabic, spacing[5]),
           zIndex: 90,
           maxWidth: isMinimized ? 56 : 380,
           transition: 'max-width 0.3s ease',
@@ -106,7 +106,7 @@ const StickySmartCTA = memo(function StickySmartCTA() {
           // Minimized state - just icon
           <button
             onClick={toggleMinimize}
-            aria-label={t('auto.StickySmartCTA.k1', "Expand")}
+            aria-label={isArabic ? 'توسيع' : 'Expand'}
             style={{
               width: 56,
               height: 56,
@@ -137,12 +137,11 @@ const StickySmartCTA = memo(function StickySmartCTA() {
             {/* Close/Minimize button */}
             <button
               onClick={toggleMinimize}
-              aria-label={t('auto.StickySmartCTA.k2', "Minimize")}
+              aria-label={isArabic ? 'تصغير' : 'Minimize'}
               style={{
                 position: 'absolute',
                 top: -8,
-                right: isArabic ? 'auto' : -8,
-                left: isArabic ? -8 : 'auto',
+                ...positionInlineEnd(isArabic, -8),
                 width: 24,
                 height: 24,
                 borderRadius: '50%',
@@ -187,7 +186,7 @@ const StickySmartCTA = memo(function StickySmartCTA() {
                   fontWeight: typography.weight.semibold,
                   marginBottom: 2,
                 }}>
-                  {isArabic ? t(secondaryText.ar, secondaryText.en) : secondaryText.en}
+                  {isArabic ? secondaryText.ar : secondaryText.en}
                 </div>
                 <Link
                   to={config.ctaPath}
@@ -209,7 +208,7 @@ const StickySmartCTA = memo(function StickySmartCTA() {
                     boxShadow: `0 4px 15px ${config.color}30`,
                   }}
                 >
-                  {isArabic ? t(config.ctaLabelAr, config.ctaLabel) : config.ctaLabel}
+                  {isArabic ? config.ctaLabelAr : config.ctaLabel}
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d={isArabic ? "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" : "M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"} />
                   </svg>
@@ -229,7 +228,7 @@ const StickySmartCTA = memo(function StickySmartCTA() {
               color: colors.text.muted,
             }}>
               <span style={{ color: '#22c55e' }}>●</span>
-              {t('auto.StickySmartCTA.k3', "Clinician-supervised service")}
+              {isArabic ? 'خدمة موجهة بإشراف مختصين' : 'Clinician-supervised service'}
             </div>
           </div>
         )}

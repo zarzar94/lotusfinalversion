@@ -15,6 +15,8 @@ export default defineConfig({
     target: 'es2020',
     // Chunk size warnings at 500KB
     chunkSizeWarningLimit: 500,
+    // Minify and drop console/debugger in production
+    minify: 'esbuild',
     rollupOptions: {
       input: {
         main: resolve(rootDir, 'index.html'),
@@ -26,12 +28,13 @@ export default defineConfig({
           'vendor-react': ['react', 'react-dom'],
           'vendor-three': ['three', '@react-three/fiber', '@react-three/drei'],
           'vendor-pdf': ['jspdf'],
-          // Separate heavy dependencies
-          'vendor-html2canvas': ['html2canvas'],
-          'vendor-purify': ['dompurify'],
         },
       },
     },
+  },
+  // Drop console and debugger in production builds
+  esbuild: {
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
   },
   // Optimize dependencies
   optimizeDeps: {

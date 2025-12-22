@@ -1,10 +1,14 @@
 /**
  * ScrollToTopButton - Floating button to scroll back to top
  * Shows after scrolling down a certain amount
+ * Uses consolidated scroll manager for better performance
  */
 
-import { memo, useState, useEffect, useCallback } from 'react';
+import { memo, useState, useCallback } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useScrollPastThreshold } from '../hooks/useScrollManager';
+import { positionInlineStart } from '../utils/rtl';
+import { keyframes } from '../utils/animations';
 import { brandCyan, brandPurple, radius, transitions } from './styles';
 
 interface ScrollToTopButtonProps {
@@ -13,20 +17,9 @@ interface ScrollToTopButtonProps {
 }
 
 function ScrollToTopButton({ threshold = 400, bottom = 220 }: ScrollToTopButtonProps) {
-  const { isArabic, t } = useLanguage();
-  const [isVisible, setIsVisible] = useState(false);
+  const { isArabic } = useLanguage();
+  const isVisible = useScrollPastThreshold(threshold);
   const [isHovered, setIsHovered] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsVisible(window.scrollY > threshold);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Check initial position
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [threshold]);
 
   const scrollToTop = useCallback(() => {
     window.scrollTo({
@@ -37,7 +30,7 @@ function ScrollToTopButton({ threshold = 400, bottom = 220 }: ScrollToTopButtonP
 
   if (!isVisible) return null;
 
-  const label = t('auto.ScrollToTopButton.k1', "Scroll to top");
+  const label = isArabic ? 'العودة للأعلى' : 'Scroll to top';
 
   return (
     <button
@@ -51,8 +44,7 @@ function ScrollToTopButton({ threshold = 400, bottom = 220 }: ScrollToTopButtonP
       style={{
         position: 'fixed',
         bottom,
-        right: isArabic ? 'auto' : 24,
-        left: isArabic ? 24 : 'auto',
+        ...positionInlineStart(isArabic, 24),
         width: 48,
         height: 48,
         borderRadius: radius.lg,
@@ -96,22 +88,10 @@ function ScrollToTopButton({ threshold = 400, bottom = 220 }: ScrollToTopButtonP
       </svg>
 
       <style>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
+        ${keyframes.fadeInUp}
         @media (prefers-reduced-motion: reduce) {
           @keyframes fadeInUp {
-            from, to {
-              opacity: 1;
-              transform: none;
-            }
+            from, to { opacity: 1; transform: none; }
           }
         }
       `}</style>
