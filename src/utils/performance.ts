@@ -58,46 +58,35 @@ export function throttle<T extends (...args: any[]) => any>(
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
   let lastArgs: Parameters<T> | null = null;
   let lastThis: unknown;
-  let lastCallTime = 0;
+
+  const invoke = () => {
+    if (!lastArgs) return;
+    fn.apply(lastThis, lastArgs);
+    lastArgs = null;
+    lastThis = undefined;
+  };
+
+  const startWindow = () => {
+    timeoutId = setTimeout(() => {
+      timeoutId = null;
+      if (trailing) {
+        invoke();
+      } else {
+        lastArgs = null;
+        lastThis = undefined;
+      }
+    }, wait);
+  };
 
   const throttled = function (this: unknown, ...args: Parameters<T>) {
-    lastThis = this;
-    const now = Date.now();
-    const remaining = wait - (now - lastCallTime);
-
     lastArgs = args;
+    lastThis = this;
 
-    if (!leading) {
-      if (!timeoutId && trailing) {
-        timeoutId = setTimeout(() => {
-          timeoutId = null;
-          if (lastArgs) {
-            fn.apply(lastThis, lastArgs);
-            lastArgs = null;
-          }
-        }, wait);
-      }
-      return;
-    }
-
-    if (remaining <= 0 || remaining > wait) {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-        timeoutId = null;
-      }
-      lastCallTime = now;
+    if (!timeoutId) {
       if (leading) {
-        fn.apply(this, args);
+        invoke();
       }
-    } else if (!timeoutId && trailing) {
-      timeoutId = setTimeout(() => {
-        lastCallTime = leading ? Date.now() : 0;
-        timeoutId = null;
-        if (lastArgs) {
-          fn.apply(lastThis, lastArgs);
-          lastArgs = null;
-        }
-      }, remaining);
+      startWindow();
     }
   } as T & { cancel: () => void };
 
@@ -107,7 +96,7 @@ export function throttle<T extends (...args: any[]) => any>(
       timeoutId = null;
     }
     lastArgs = null;
-    lastCallTime = 0;
+    lastThis = undefined;
   };
 
   return throttled;
