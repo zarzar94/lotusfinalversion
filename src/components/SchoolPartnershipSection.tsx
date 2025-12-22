@@ -98,12 +98,17 @@ const buildDemoSession = (t: (key: string) => string): { session: AssessmentSess
     metrics: {
       trials: 36,
       targets: 12,
+      hits: 9,
+      falseAlarms: 2,
+      impulsiveTaps: 1,
       hitRate: '0.78',
       falseAlarmRate: '0.12',
+      dPrime: '1.45',
       avgReactionMs: 620,
-      sustainedAttention: t('schools.demoSession.attention.metrics.sustainedAttention'),
-      rtVariability: t('schools.demoSession.attention.metrics.rtVariability'),
-      fatigueIndex: t('schools.demoSession.attention.metrics.fatigueIndex'),
+      impulsePenaltyPoints: 3,
+      sustainedAttention: 'moderate',
+      rtVariability: 140,
+      fatigueIndex: 'low',
       maxNoiseLevel: '0.62',
     },
   };
@@ -119,9 +124,12 @@ const buildDemoSession = (t: (key: string) => string): { session: AssessmentSess
       trials: 24,
       accuracyPct: 88,
       thresholdHz: 45,
-      thresholdPercent: '4.5%',
+      thresholdPercent: 4.5,
       consistencyStdHz: 12,
       avgReactionMs: 520,
+      gamePoints: 420,
+      starRating: 4,
+      note: t('schools.demoSession.frequency.message'),
     },
   };
 
@@ -137,6 +145,10 @@ const buildDemoSession = (t: (key: string) => string): { session: AssessmentSess
       accuracyPct: 75,
       maxSpan: 5,
       avgReactionMs: 690,
+      maxNoiseLevel: '0.62',
+      replayPolicy: 'standard',
+      gamePoints: 360,
+      starRating: 3,
       workingMemorySpan: 5,
     },
   };
@@ -263,9 +275,10 @@ const SchoolPartnershipSection = () => {
     setIsDownloading(true);
     try {
       const { session, composite } = buildDemoSession(t);
-      await downloadSessionPdf(session, composite);
+      const options = { lang: isArabic ? 'ar' : 'en', template: 'school' } as const;
+      await downloadSessionPdf(session, options, composite);
       await wait(350);
-      downloadSessionCsv(session);
+      downloadSessionCsv(session, options);
       await wait(350);
       await downloadInterpretationGuide(t, isArabic);
     } finally {

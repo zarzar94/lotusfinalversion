@@ -693,8 +693,16 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
     }
   `, [reducedMotion]);
 
+  type PlatformFeature = {
+    icon: string;
+    title: string;
+    desc: string;
+    color: string;
+    onClick?: () => void;
+  };
+
   // Platform feature cards data
-  const platformFeatures = useMemo(() => [
+  const platformFeatures = useMemo<PlatformFeature[]>(() => [
     { icon: '\u{1F3A7}', title: t('hero.features.sessions.title'), desc: t('hero.features.sessions.desc'), color: brandCyan },
     { icon: '\u{1F4CA}', title: t('hero.features.tracking.title'), desc: t('hero.features.tracking.desc'), color: brandPurple },
     { icon: '\u{1F9E0}', title: t('hero.features.areas.title'), desc: t('hero.features.areas.desc'), color: brandPink },
