@@ -15,6 +15,12 @@ const testOutcomeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  title: {
+    type: String,
+  },
+  message: {
+    type: String,
+  },
   metrics: {
     type: mongoose.Schema.Types.Mixed,
   },

@@ -5,6 +5,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
 import { GamificationProvider } from './context/GamificationContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { SyncProvider } from './context/SyncContext';
 import { UserProvider, useUser } from './context/UserContext';
 import { VisitorModeProvider } from './context/VisitorModeContext';
 import { useClinicalSync } from './hooks/useClinicalSync';
@@ -487,8 +488,9 @@ function App() {
         <LanguageProvider>
           <VisitorModeProvider>
             <UserProvider>
-              <GamificationProvider>
-                <ClinicalSync />
+              <SyncProvider>
+                <GamificationProvider>
+                  <ClinicalSync />
 
                 <div className="page-transition-wrapper">
                   <Routes>
@@ -735,8 +737,9 @@ function App() {
                 </Suspense>
 
                 {/* Sticky Smart CTA (mode-aware) */}
-                <StickySmartCTA />
-              </GamificationProvider>
+                  <StickySmartCTA />
+                </GamificationProvider>
+              </SyncProvider>
             </UserProvider>
           </VisitorModeProvider>
         </LanguageProvider>

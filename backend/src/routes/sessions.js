@@ -45,8 +45,11 @@ router.post('/',
 
       const session = await Session.findOneAndUpdate(
         { userId: req.userId, clientId },
-        { outcomes, compositeResult, totalPoints, achievements, duration },
-        { new: true, upsert: true, setDefaultsOnInsert: true },
+        {
+          $set: { outcomes, compositeResult, totalPoints, achievements, duration },
+          $setOnInsert: { userId: req.userId, clientId },
+        },
+        { new: true, upsert: true, setDefaultsOnInsert: true, runValidators: true },
       );
 
       res.status(201).json({

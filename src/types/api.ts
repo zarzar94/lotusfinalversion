@@ -225,6 +225,8 @@ export type GameResult = 'high' | 'medium' | 'low';
 export interface TestOutcome {
   result: GameResult;
   scoreLabel: string;
+  title?: string;
+  message?: string;
   metrics?: Record<string, unknown>;
 }
 

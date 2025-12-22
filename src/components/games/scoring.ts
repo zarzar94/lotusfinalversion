@@ -30,6 +30,7 @@
 
 import type { GameResult, TestOutcome } from './types';
 import { mean, stdDev } from './stats';
+import { notifyLocalChange } from '../../utils/sync';
 
 // ==================== POINTS SYSTEM ====================
 
@@ -707,6 +708,7 @@ export const saveSession = (session: StoredSession): void => {
     const existing = getSessions();
     const updated = [session, ...existing.filter((s) => s.id !== session.id)].slice(0, MAX_STORED_SESSIONS);
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updated));
+    notifyLocalChange();
   } catch (e) {
     console.warn('Failed to save session:', e);
   }

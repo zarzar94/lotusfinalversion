@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from 'react';
+import { notifyLocalChange } from '../utils/sync';
 
 // Achievement definitions
 export interface Achievement {
@@ -529,6 +530,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
           totalTimeSpent: snapshot.totalTimeSpent + Math.floor((Date.now() - snapshot.sessionStartTime) / 1000),
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+        notifyLocalChange();
       } catch {
         // Ignore quota/availability errors
       }

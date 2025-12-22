@@ -153,13 +153,16 @@ router.post('/', async (req, res) => {
         await Session.findOneAndUpdate(
           { userId, clientId },
           {
-            outcomes: localSession.outcomes,
-            compositeResult: localSession.compositeResult,
-            totalPoints: localSession.totalPoints,
-            achievements: localSession.achievements,
-            duration: localSession.duration,
+            $set: {
+              outcomes: localSession.outcomes,
+              compositeResult: localSession.compositeResult,
+              totalPoints: localSession.totalPoints,
+              achievements: localSession.achievements,
+              duration: localSession.duration,
+            },
+            $setOnInsert: { userId, clientId },
           },
-          { new: true, upsert: true, setDefaultsOnInsert: true },
+          { new: true, upsert: true, setDefaultsOnInsert: true, runValidators: true },
         );
 
         existingClientIds.add(clientId);
