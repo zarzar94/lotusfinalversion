@@ -1,7 +1,7 @@
 import { ReactNode, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { CLINIC } from '../data/clinic';
-import { styles, brandCyan, brandPurple, brandPink } from './styles';
+import { styles, brandCyan, brandPurple, brandPink, brandPanel, colors, radius, spacing, typography, labTech } from './styles';
 import {
   MapPinIcon,
   CompassIcon,
@@ -98,7 +98,7 @@ const Footer = () => {
     }
     .social-icon:hover {
       transform: translateY(-4px) scale(1.05);
-      box-shadow: 0 8px 25px var(--icon-color, rgba(143,211,204,0.3));
+      box-shadow: 0 8px 25px var(--icon-color, ${brandCyan}4D);
     }
     .social-icon:hover::after {
       transform: translateX(100%);
@@ -133,7 +133,7 @@ const Footer = () => {
     }
     .location-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 15px 40px rgba(143,211,204,0.15), 0 0 30px ${brandCyan}10;
+      box-shadow: 0 15px 40px ${brandCyan}26, 0 0 30px ${brandCyan}10;
       border-color: ${brandCyan}30;
     }
     .contact-card:hover {
@@ -234,7 +234,7 @@ const Footer = () => {
 
   return (
     <footer className="footer-main" style={{
-      background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 50%, rgba(5,6,13,1) 100%)',
+      background: labTech.backgrounds.footer,
       borderTop: `1px solid ${brandCyan}20`,
       padding: '40px 20px 24px',
       position: 'relative',
@@ -329,8 +329,8 @@ const Footer = () => {
               alignItems: 'center',
               gap: 16,
               padding: '20px 24px',
-              background: 'rgba(143,211,204,0.06)',
-              border: '1px solid rgba(143,211,204,0.15)',
+              background: '${brandCyan}0F',
+              border: '1px solid ${brandCyan}26',
               borderRadius: 16,
               textDecoration: 'none',
               color: '#fff',
@@ -361,7 +361,7 @@ const Footer = () => {
               alignItems: 'center',
               gap: 6,
               padding: '8px 14px',
-              background: 'rgba(143,211,204,0.15)',
+              background: '${brandCyan}26',
               borderRadius: 10,
               fontSize: 12,
               fontWeight: 700,
@@ -511,7 +511,7 @@ const Footer = () => {
               alignItems: 'center',
               gap: 6,
               padding: '4px 10px',
-              background: 'rgba(143,211,204,0.08)',
+              background: '${brandCyan}14',
               border: `1px solid ${brandCyan}20`,
               borderRadius: 6,
             }}>
