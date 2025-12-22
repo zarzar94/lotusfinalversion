@@ -197,6 +197,235 @@ export const transitions = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// AUDIO COLORS
+// Frequency-based color palette for audio visualization
+// ─────────────────────────────────────────────────────────────────────────────
+export const audioColors = {
+  // Low frequencies (bass) - warm tones
+  low: '#ef4444',
+  lowMid: '#f97316',
+  // Mid frequencies (speech) - neutral tones
+  mid: '#eab308',
+  midHigh: '#22c55e',
+  // High frequencies (treble) - cool tones
+  high: '#06b6d4',
+  ultraHigh: '#8b5cf6',
+  // Semantic audio colors
+  active: brandCyan,
+  inactive: 'rgba(143, 211, 204, 0.3)',
+  peak: brandPink,
+  warning: '#f59e0b',
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SOUND LAB STYLES
+// Styles for audio visualization and spectrum components
+// ─────────────────────────────────────────────────────────────────────────────
+export const soundLabStyles = {
+  spectrumBar: {
+    position: 'relative' as const,
+    background: `linear-gradient(180deg, ${brandCyan}, ${brandPurple})`,
+    borderRadius: '4px 4px 0 0',
+    transition: 'height 0.1s ease-out',
+  },
+  frequencyLabel: {
+    fontSize: typography.size.xs,
+    color: colors.text.muted,
+    textAlign: 'center' as const,
+    marginTop: spacing[1],
+  },
+  waveformContainer: {
+    position: 'relative' as const,
+    width: '100%',
+    height: 120,
+    background: colors.surface.card,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+    border: `1px solid ${colors.border.default}`,
+  },
+  playButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: radius.full,
+    background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
+    border: 'none',
+    cursor: 'pointer',
+    color: '#fff',
+    fontSize: typography.size.lg,
+    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+    boxShadow: shadows.glow.cyan,
+  },
+  volumeSlider: {
+    width: 100,
+    height: 4,
+    background: colors.border.default,
+    borderRadius: radius.full,
+    appearance: 'none' as const,
+    cursor: 'pointer',
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LAB-TECH DESIGN SYSTEM
+// Futuristic lab-tech aesthetic with consistent dark theme
+// ─────────────────────────────────────────────────────────────────────────────
+export const labTech = {
+  // Dark theme gradients
+  backgrounds: {
+    primary: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+    hero: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 40%, rgba(8,10,18,1) 100%)',
+    footer: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 50%, rgba(5,6,13,1) 100%)',
+    card: 'linear-gradient(180deg, rgba(26,31,46,0.95) 0%, rgba(13,17,23,0.95) 100%)',
+    glass: 'rgba(13,17,23,0.8)',
+  },
+  // Border colors
+  borders: {
+    subtle: 'rgba(143,211,204,0.1)',
+    default: 'rgba(143,211,204,0.2)',
+    emphasis: 'rgba(143,211,204,0.35)',
+    glow: 'rgba(143,211,204,0.5)',
+  },
+  // Status colors
+  status: {
+    online: '#22c55e',
+    active: brandCyan,
+    warning: '#f59e0b',
+    error: '#ef4444',
+  },
+};
+
+// Consolidated animation keyframes for lab-tech aesthetic
+export const labTechAnimations = `
+  @keyframes statusPulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px #22c55e; }
+    50% { opacity: 0.6; box-shadow: 0 0 10px #22c55e; }
+  }
+  @keyframes glowBar {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+  @keyframes scanLine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  @keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+`;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ANALYTICS DASHBOARD STYLES
+// Styles for charts, metrics, and data visualization
+// ─────────────────────────────────────────────────────────────────────────────
+export const analytics = {
+  metricCard: {
+    padding: spacing[4],
+    borderRadius: radius.lg,
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: spacing[1],
+  },
+  metricLabel: {
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.semibold,
+    color: colors.text.muted,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.5,
+  },
+  metricValue: {
+    fontSize: typography.size['2xl'],
+    fontWeight: typography.weight.bold,
+    lineHeight: typography.lineHeight.tight,
+  },
+  chartContainer: {
+    position: 'relative' as const,
+    width: '100%',
+    height: 300,
+    background: colors.surface.card,
+    borderRadius: radius.lg,
+    border: `1px solid ${colors.border.default}`,
+    padding: spacing[4],
+  },
+  fatigueZone: {
+    position: 'absolute' as const,
+    left: 0,
+    right: 0,
+    background: 'rgba(245, 158, 11, 0.08)',
+    borderTop: '1px dashed rgba(245, 158, 11, 0.3)',
+    borderBottom: '1px dashed rgba(245, 158, 11, 0.3)',
+  },
+  legendItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing[2],
+    fontSize: typography.size.sm,
+    color: colors.text.secondary,
+  },
+  legendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: '50%',
+  },
+};
+
+// Lab-tech component styles
+export const labTechStyles = {
+  glowBar: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    background: `linear-gradient(90deg, transparent, ${brandCyan}66, ${brandPurple}66, transparent)`,
+    animation: 'glowBar 3s ease-in-out infinite',
+  },
+  gridPattern: {
+    position: 'absolute' as const,
+    inset: 0,
+    opacity: 0.03,
+    backgroundImage: `linear-gradient(${brandCyan}20 1px, transparent 1px), linear-gradient(90deg, ${brandCyan}20 1px, transparent 1px)`,
+    backgroundSize: '40px 40px',
+    pointerEvents: 'none' as const,
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: '50%',
+    background: '#22c55e',
+    boxShadow: '0 0 8px #22c55e',
+    animation: 'statusPulse 2s ease-in-out infinite',
+  },
+  labBadge: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '8px 14px',
+    background: 'rgba(13,17,23,0.8)',
+    border: `1px solid ${brandCyan}30`,
+    borderRadius: 8,
+    backdropFilter: 'blur(10px)',
+  },
+  monoText: {
+    fontFamily: 'monospace',
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: 1,
+    textTransform: 'uppercase' as const,
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // RESPONSIVE BREAKPOINTS
 // Mobile-first breakpoint system
 // ─────────────────────────────────────────────────────────────────────────────
