@@ -18,8 +18,6 @@ import { useLanguage } from '../context/LanguageContext';
 import { useClinicalSync } from '../hooks/useClinicalSync';
 import { usePageTitle } from '../hooks/usePageTitle';
 import ExperienceJourney from '../components/ExperienceJourney';
-import LabModeSelector from '../components/LabModeSelector';
-import ClinicalProtocolSection from '../components/ClinicalProtocolSection';
 import {
   brandCyan,
   brandPurple,
@@ -33,9 +31,6 @@ import {
 
 // Lazy load credentials
 const CredentialsBanner = lazy(() => import('../components/CredentialsBanner'));
-const QuickActionsPanel = lazy(() => import('../components/QuickActionsPanel'));
-const WhatIsAIT = lazy(() => import('../components/WhatIsAIT'));
-const TrustSignals = lazy(() => import('../components/TrustSignals'));
 
 // Enhanced Navigation Card Component
 const NavigationCard = memo(({
@@ -450,11 +445,6 @@ function LandingPage() {
           <HeroCircuitBrain />
         </FadeIn>
 
-        {/* MODE SELECTOR - Choose Your Path */}
-        <FadeIn delay={300} direction="up" distance={30}>
-          <LabModeSelector />
-        </FadeIn>
-
         {/* Credentials Banner - Trust signals */}
         <FadeIn delay={200} direction="none" scale scaleFrom={0.98}>
           <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={100} />}>
@@ -465,32 +455,6 @@ function LandingPage() {
         {/* Guided journey section */}
         <FadeIn delay={200} direction="none" scale>
           <ExperienceJourney isArabic={isArabic} />
-        </FadeIn>
-
-        {/* Quick Actions Panel - Role-specific CTAs */}
-        <FadeIn delay={300} direction="up" distance={30}>
-          <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={200} />}>
-            <QuickActionsPanel />
-          </Suspense>
-        </FadeIn>
-
-        {/* Clinical Protocol - Trust Kit */}
-        <FadeIn delay={350} direction="up" distance={20}>
-          <ClinicalProtocolSection />
-        </FadeIn>
-
-        {/* What is AIT - Medical trust content */}
-        <FadeIn delay={400} direction="up" distance={30}>
-          <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={400} />}>
-            <WhatIsAIT />
-          </Suspense>
-        </FadeIn>
-
-        {/* Trust Signals - Role-aware metrics */}
-        <FadeIn delay={500} direction="up" distance={30}>
-          <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={300} />}>
-            <TrustSignals />
-          </Suspense>
         </FadeIn>
 
         {/* Page Navigation Cards */}
