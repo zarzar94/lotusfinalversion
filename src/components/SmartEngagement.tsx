@@ -28,6 +28,7 @@ interface ScrollMilestone {
   icon: string;
   action?: { path: string; label: { ar: string; en: string } };
   showOnce?: boolean;
+  requiresFooter?: boolean;
 }
 
 interface EngagementMilestone {
@@ -61,18 +62,9 @@ export const ScrollBasedCTA = memo(() => {
       case '/':
         baseMilestones.push(
           {
-            id: 'home-25',
-            threshold: 25,
-            message: {
-              ar: 'هل أنت مستعد لتقييم احتياجاتك؟',
-              en: 'Ready to assess your needs?',
-            },
-            icon: '🎯',
-            action: { path: '/assessment', label: { ar: 'ابدأ التقييم', en: 'Start Assessment' } },
-          },
-          {
             id: 'home-50',
             threshold: 50,
+            requiresFooter: true,
             message: {
               ar: 'اكتشف كيف يعمل البرنامج',
               en: 'Discover how the program works',
@@ -81,8 +73,9 @@ export const ScrollBasedCTA = memo(() => {
             action: { path: '/program', label: { ar: 'تعرف على البرنامج', en: 'Learn About Program' } },
           },
           {
-            id: 'home-75',
-            threshold: 75,
+            id: 'home-90',
+            threshold: 90,
+            requiresFooter: true,
             message: {
               ar: 'شاهد قصص النجاح الملهمة',
               en: 'See inspiring success stories',
@@ -173,6 +166,12 @@ export const ScrollBasedCTA = memo(() => {
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       const scrollPercent = (scrollTop / docHeight) * 100;
+      const footer = document.querySelector<HTMLElement>('.footer-main, footer');
+      const footerTop = footer ? footer.getBoundingClientRect().top + window.scrollY : null;
+      const viewportBottom = scrollTop + window.innerHeight;
+      const isNearFooter = footerTop === null
+        ? scrollPercent >= 50
+        : viewportBottom >= footerTop - window.innerHeight * 0.5;
 
       const milestones = getMilestones();
 
@@ -180,6 +179,9 @@ export const ScrollBasedCTA = memo(() => {
       for (let i = milestones.length - 1; i >= 0; i--) {
         const milestone = milestones[i];
         if (scrollPercent >= milestone.threshold) {
+          if (milestone.requiresFooter && !isNearFooter) {
+            continue;
+          }
           // Check if already shown (for showOnce milestones)
           if (milestone.showOnce && shownMilestones.has(milestone.id)) {
             continue;
