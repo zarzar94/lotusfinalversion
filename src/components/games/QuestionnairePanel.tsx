@@ -26,7 +26,7 @@ export default function QuestionnairePanel({
   onDone: (outcome: TestOutcome) => void;
   onCancel?: () => void;
 }) {
-  const { isArabic, t } = useLanguage();
+  const { isArabic } = useLanguage();
   const [answers, setAnswers] = useState<Answer[]>(Array(questions.length).fill(0));
   const [submitted, setSubmitted] = useState(false);
 
@@ -67,7 +67,7 @@ export default function QuestionnairePanel({
           <div style={{ fontWeight: 900, color: brandCyan }}>استبيان مؤشرات للأهل (غير تشخيصي)</div>
           <div style={styles.muted}>يدعم نتائج الاختبارات الموضوعية لكنه لا يكفي وحده لاتخاذ قرار.</div>
         </div>
-        <span style={styles.chip}>{t('auto.QuestionnairePanel.k1', "Subjective")}</span>
+        <span style={styles.chip}>{isArabic ? 'ذاتي' : 'Subjective'}</span>
       </div>
 
       <div style={{ marginTop: 12, display: 'grid', gap: 12 }}>

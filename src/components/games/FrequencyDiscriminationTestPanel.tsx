@@ -25,17 +25,14 @@ export default function FrequencyDiscriminationTestPanel({
   onDone: (outcome: TestOutcome) => void;
   onCancel?: () => void;
 }) {
-  const { t } = useLanguage();
+  const { isArabic } = useLanguage();
   const audioRef = useRef<AudioContext | null>(null);
   const ensure = () => ensureAudio(audioRef);
 
   const TRIALS = 20;
-  const PRACTICE_TRIALS = 3;
-  const PRACTICE_DELTA = 120;
   const REF = 500;
 
-  const [stage, setStage] = useState<'intro' | 'practice' | 'running' | 'done'>('intro');
-  const [practiceIndex, setPracticeIndex] = useState(0);
+  const [stage, setStage] = useState<'intro' | 'running' | 'done'>('intro');
   const [i, setI] = useState(1);
   const [delta, setDelta] = useState(120);
   const [correctStreak, setCorrectStreak] = useState(0);
@@ -79,36 +76,6 @@ export default function FrequencyDiscriminationTestPanel({
     playTone(audio, { freq: hz, duration: 0.35, volume: 0.24 });
   };
 
-  const startPractice = () => {
-    rowsRef.current = [];
-    deltasRef.current = [];
-    setPracticeIndex(0);
-    setI(1);
-    setDelta(PRACTICE_DELTA);
-    setCorrectStreak(0);
-    setOrder(nextOrder());
-    setPlayed(false);
-    setPoints(0);
-    setLastFeedback(null);
-    setFeedbackPoints(0);
-    setStage('practice');
-  };
-
-  const startTest = () => {
-    rowsRef.current = [];
-    deltasRef.current = [];
-    setPracticeIndex(0);
-    setI(1);
-    setDelta(PRACTICE_DELTA);
-    setCorrectStreak(0);
-    setOrder(nextOrder());
-    setPlayed(false);
-    setPoints(0);
-    setLastFeedback(null);
-    setFeedbackPoints(0);
-    setStage('running');
-  };
-
   const playTrial = useCallback(async () => {
     const audio = ensure();
     try {
@@ -146,19 +113,6 @@ export default function FrequencyDiscriminationTestPanel({
 
     const rt = Math.round(performance.now() - trialStartRef.current);
     const correct = (order === 'ref-first' && choice === 2) || (order === 'hi-first' && choice === 1);
-
-    if (stage === 'practice') {
-      showFeedback(correct ? 'correct' : 'incorrect', 0);
-      const nextPractice = practiceIndex + 1;
-      if (nextPractice >= PRACTICE_TRIALS) {
-        startTest();
-        return;
-      }
-      setPracticeIndex(nextPractice);
-      setOrder(nextOrder());
-      setPlayed(false);
-      return;
-    }
 
     rowsRef.current.push({ i, deltaHz: delta, order, correct, answer: choice, rtMs: rt });
     deltasRef.current.push(delta);
@@ -230,16 +184,16 @@ export default function FrequencyDiscriminationTestPanel({
 
     const message =
       result === 'high'
-        ? t('frequency.summaryHigh', 'Strong tone discrimination in this screening snapshot.')
+        ? 'تمييز قوي لفروقات التردد الصغيرة (ضمن هذا الفحص).'
         : result === 'medium'
-          ? t('frequency.summaryMid', 'Moderate discrimination with room to refine.')
-          : t('frequency.summaryLow', 'Lower discrimination detected; consider repeating in a quiet setting.');
+          ? 'تمييز متوسط — قد تظهر الصعوبة أكثر مع الضوضاء أو الكلام السريع.'
+          : 'تمييز ضعيف نسبيًا ضمن هذا الفحص. إذا كان هناك صعوبات مستمرة في الواقع، يفضل تقييم متخصص.';
 
     const outcome: TestOutcome = {
       key: 'frequency',
-      title: t('games.frequencyTest', 'Frequency Discrimination Test'),
+      title: 'اختبار تمييز التردد (2IFC Adaptive)',
       result,
-      scoreLabel: `${getStarEmoji(starRating)} Threshold ${thresholdHz}Hz | ${accuracy}% | ${finalPoints}pts`,
+      scoreLabel: `${getStarEmoji(starRating)} Threshold≈${thresholdHz}Hz • ${accuracy}% • ${finalPoints}pts`,
       message,
       metrics: {
         referenceHz: REF,
@@ -251,7 +205,7 @@ export default function FrequencyDiscriminationTestPanel({
         avgReactionMs: avgRt,
         gamePoints: finalPoints,
         starRating,
-        note: t('frequency.note', 'Threshold here is a screening estimate (no normative calibration).'),
+        note: 'Threshold here is a rough estimate (no normative calibration).',
       },
       trials: rows,
     };
@@ -266,82 +220,63 @@ export default function FrequencyDiscriminationTestPanel({
     <div style={styles.section}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
         <div>
-          <div style={{ fontWeight: 900, color: brandCyan }}>
-            {t('games.frequencyTest', 'Frequency Discrimination Test')}
-          </div>
-          <div style={styles.muted}>
-            {t('games.frequencyTestDesc', 'Test your ability to distinguish between different frequencies')}
-          </div>
+          <div style={{ fontWeight: 900, color: brandCyan }}>اختبار تمييز التردد (Frequency Discrimination)</div>
+          <div style={styles.muted}>اختبار موضوعي بنمط 2IFC مع صعوبة تكيفية لتقدير "عتبة التمييز".</div>
         </div>
-        <span style={styles.chip}>{t('frequency.objective', 'Adaptive 2IFC')}</span>
+        <span style={styles.chip}>{isArabic ? 'موضوعي' : 'Objective'}</span>
       </div>
 
       {stage === 'intro' ? (
         <div style={{ marginTop: 12 }}>
           <p style={styles.bodyText}>
-            {t(
-              'frequency.instructions',
-              'Listen to two tones and choose which interval had the higher pitch. The difference adapts based on your answers.'
-            )}
+            ستسمع نغمتين (الأولى ثم الثانية). اختر أيهما أعلى ترددًا. سيضبط النظام الصعوبة تلقائيًا ليقدّر
+            <b style={{ color: brandPink }}> أصغر فرق يمكن تمييزه</b> ضمن هذا الفحص.
           </p>
-          <div style={{
-            marginTop: 12,
-            padding: 12,
-            borderRadius: 12,
-            border: '1px solid rgba(255,255,255,0.08)',
-            background: 'rgba(0,0,0,0.2)',
-          }}>
-            <p style={{ ...styles.muted, margin: 0 }}>
-              {t('modules.disclaimer', 'This is a screening tool, not a medical diagnosis.')}
-            </p>
-          </div>
 
           <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', marginTop: 12 }}>
             <div style={styles.section}>
-              <div style={{ fontWeight: 900 }}>{t('frequency.referenceTone', 'Reference tone')}</div>
+              <div style={{ fontWeight: 900 }}>مثال (مرجع)</div>
               <div style={styles.muted}>{REF} Hz</div>
-              <button onClick={() => playExample(REF)} style={{ ...styles.primaryBtn, marginTop: 10 }}>
-                {t('games.play', 'Play')}
-              </button>
+              <button onClick={() => playExample(REF)} style={{ ...styles.primaryBtn, marginTop: 10 }}>استمع</button>
             </div>
             <div style={styles.section}>
-              <div style={{ fontWeight: 900 }}>{t('frequency.higherTone', 'Higher tone')}</div>
+              <div style={{ fontWeight: 900 }}>مثال (أعلى)</div>
               <div style={styles.muted}>{REF + 80} Hz</div>
-              <button
-                onClick={() => playExample(REF + 80)}
-                style={{ ...styles.ghostBtn, marginTop: 10, borderColor: 'rgba(143,211,204,0.25)' }}
-              >
-                {t('games.play', 'Play')}
-              </button>
+              <button onClick={() => playExample(REF + 80)} style={{ ...styles.ghostBtn, marginTop: 10, borderColor: 'rgba(143,211,204,0.25)' }}>استمع</button>
             </div>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, gap: 10, flexWrap: 'wrap' }}>
             <button
-              onClick={startPractice}
+              onClick={() => {
+                rowsRef.current = [];
+                deltasRef.current = [];
+                setI(1);
+                setDelta(120);
+                setCorrectStreak(0);
+                setOrder(nextOrder());
+                setPlayed(false);
+                setPoints(0);
+                setLastFeedback(null);
+                setStage('running');
+              }}
               style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}
             >
-              {t('frequency.startPractice', 'Start Practice')}
+              ابدأ الاختبار
             </button>
             {onCancel ? (
-              <button onClick={onCancel} style={styles.ghostBtn}>{t('games.close', 'Close')}</button>
+              <button onClick={onCancel} style={styles.ghostBtn}>إغلاق</button>
             ) : null}
           </div>
         </div>
       ) : null}
 
-      {stage === 'practice' || stage === 'running' ? (
+      {stage === 'running' ? (
         <div style={{ marginTop: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
             <div>
-              <div style={{ fontWeight: 900 }}>
-                {stage === 'practice'
-                  ? `${t('frequency.practiceLabel', 'Practice')} ${practiceIndex + 1}/${PRACTICE_TRIALS}`
-                  : `${t('frequency.trialLabel', 'Trial')} ${i}/${TRIALS}`}
-              </div>
-              <div style={styles.muted}>
-                {t('frequency.deltaLabel', 'Difference')}: {delta} Hz
-              </div>
+              <div style={{ fontWeight: 900 }}>Trial {i}/{TRIALS}</div>
+              <div style={styles.muted}>Delta الحالي: {delta} Hz {delta < 30 && '🎯'}</div>
             </div>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
               <span style={{
@@ -351,7 +286,7 @@ export default function FrequencyDiscriminationTestPanel({
               }}>
                 {points} pts
               </span>
-              <span style={styles.chip}>{t('frequency.objective', 'Adaptive 2IFC')}</span>
+              <span style={styles.chip}>{isArabic ? '2IFC • تكيفي' : '2IFC • Adaptive'}</span>
             </div>
           </div>
 
@@ -365,11 +300,7 @@ export default function FrequencyDiscriminationTestPanel({
             textAlign: 'center',
           }}>
             <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>
-              {t('frequency.difficultyLabel', 'Difficulty')}: {delta < 30
-                ? t('frequency.difficultyHard', 'Hard')
-                : delta < 60
-                  ? t('frequency.difficultyMedium', 'Medium')
-                  : t('frequency.difficultyEasy', 'Easy')} ({delta}Hz)
+              Difficulty: {delta < 30 ? '🔥 Hard' : delta < 60 ? '⚡ Medium' : '📊 Easy'} ({delta}Hz difference)
             </span>
           </div>
 
@@ -386,38 +317,34 @@ export default function FrequencyDiscriminationTestPanel({
               background: lastFeedback === 'correct' ? 'rgba(143,211,204,0.2)' : 'rgba(176,18,112,0.2)',
               color: lastFeedback === 'correct' ? brandCyan : brandPink,
             }}>
-              {lastFeedback === 'correct'
-                ? `${t('frequency.feedbackCorrect', 'Correct')} ${feedbackPoints ? `+${feedbackPoints}` : ''}`
-                : t('frequency.feedbackIncorrect', 'Try again')}
+              {lastFeedback === 'correct' ? `✓ Correct! +${feedbackPoints}` : `✗ Wrong ${feedbackPoints}`}
             </div>
           )}
 
           <div style={{ marginTop: 12, ...styles.section }}>
-            <div style={{ fontWeight: 900, color: brandPurpleDark }}>{t('frequency.intervalOne', 'Interval 1')}</div>
-            <p style={{ ...styles.muted, marginTop: 6 }}>{t('frequency.playPrompt', 'Press play to hear the tones.')}</p>
+            <div style={{ fontWeight: 900, color: brandPurpleDark }}>الخطوة 1</div>
+            <p style={{ ...styles.muted, marginTop: 6 }}>اضغط "استمع" لتشغيل النغمتين.</p>
             <button
               onClick={playTrial}
               disabled={busy}
               style={busy ? styles.disabledBtn : { ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}
             >
-              {t('frequency.playTones', 'Play tones')}
+              ▶︎ استمع
             </button>
           </div>
 
           <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900, color: brandPurpleDark }}>{t('frequency.intervalTwo', 'Interval 2')}</div>
-            <p style={{ ...styles.muted, marginTop: 6 }}>{t('frequency.whichHigher', 'Which interval had the higher pitch?')}</p>
+            <div style={{ fontWeight: 900, color: brandPurpleDark }}>الخطوة 2</div>
+            <p style={{ ...styles.muted, marginTop: 6 }}>اختر: أيهما أعلى؟</p>
             <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', marginTop: 10 }}>
               <button onClick={() => answer(1)} disabled={!canAnswer} style={!canAnswer ? styles.disabledBtn : styles.primaryBtn}>
-                {t('frequency.choiceFirst', 'First tone')}
+                الأولى أعلى
               </button>
               <button onClick={() => answer(2)} disabled={!canAnswer} style={!canAnswer ? styles.disabledBtn : styles.primaryBtn}>
-                {t('frequency.choiceSecond', 'Second tone')}
+                الثانية أعلى
               </button>
             </div>
-            <div style={{ marginTop: 10, ...styles.muted }}>
-              {t('frequency.adaptiveHint', 'The difficulty adapts based on your answers.')}
-            </div>
+            <div style={{ marginTop: 10, ...styles.muted }}>لا تظهر الإجابة الصحيحة أثناء الاختبار لتقليل التحيّز.</div>
           </div>
 
           <style>{`
@@ -432,11 +359,10 @@ export default function FrequencyDiscriminationTestPanel({
 
       {stage === 'done' ? (
         <div style={{ marginTop: 12, textAlign: 'center' }}>
-          <div style={{ fontWeight: 900 }}>{t('frequency.summaryTitle', 'Frequency discrimination complete')}</div>
-          <p style={{ ...styles.muted, marginTop: 6 }}>{t('clinical.screeningDisclaimer')}</p>
+          <div style={{ fontWeight: 900 }}>تم حفظ النتيجة ✅</div>
+          <p style={{ ...styles.muted, marginTop: 6 }}>يمكنك الآن الانتقال للاختبار التالي.</p>
         </div>
       ) : null}
-
     </div>
   );
 }

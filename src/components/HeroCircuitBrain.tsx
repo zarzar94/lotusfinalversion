@@ -14,11 +14,7 @@ import {
 } from './styles';
 import { BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
 import { useLanguage } from '../context/LanguageContext';
-import { useVisitorMode } from '../context/VisitorModeContext';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
-import { ClipboardIcon, HeadphonesIcon, MessageIcon, SparklesIcon, UsersIcon } from './Icons';
-import ExpectedBenefitsModal from './ExpectedBenefitsModal';
-import TestimonialsModal from './TestimonialsModal';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -26,7 +22,7 @@ import TestimonialsModal from './TestimonialsModal';
 
 type Pulse = {
   id: string;
-  path: 'c1' | 'c2' | 'c3';
+  path: 'c1' | 'c2' | 'c3' | 'c4' | 'c5';
   color: string;
   dur: number;
   begin: number;
@@ -50,18 +46,6 @@ type Particle = {
   speed: number;
 };
 
-type HeroCircuitBrainProps = {
-  onOpenCertifications?: () => void;
-};
-
-type PlatformFeature = {
-  icon: JSX.Element;
-  title: string;
-  desc: string;
-  color: string;
-  onClick?: () => void;
-};
-
 // ═══════════════════════════════════════════════════════════════════════════
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════════════════
@@ -71,6 +55,32 @@ const COLORS = [brandCyan, brandPurple, brandPink];
 const uid = () =>
   globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
 
+// Hero translations
+const heroText = {
+  ar: {
+    title: 'استكشف قدرات دماغك',
+    subtitle: 'اكتشف كيف يمكن لتدريب Berard AIT أن يُحسّن وظائف الدماغ المختلفة',
+    instruction: 'انقر على أي نقطة متوهجة للاستكشاف',
+    instructionMobile: 'اضغط على أي نقطة للاستكشاف',
+    learnMore: 'تعرف على Berard AIT',
+    howItHelps: 'كيف يساعد Berard AIT؟',
+    expectedBenefits: 'الفوائد المتوقعة',
+    getStarted: 'ابدأ رحلتك مع Berard AIT',
+    doYouExperience: 'هل تواجه...',
+  },
+  en: {
+    title: 'Explore Your Brain\'s Potential',
+    subtitle: 'Discover how Berard AIT can help optimize different areas of brain function',
+    instruction: 'Click any glowing node to explore',
+    instructionMobile: 'Tap any node to explore',
+    learnMore: 'Learn About Berard AIT',
+    howItHelps: 'How Berard AIT Helps',
+    expectedBenefits: 'Expected Benefits',
+    getStarted: 'Get Started with Berard AIT',
+    doYouExperience: 'Do you experience...',
+  },
+};
+
 // ═══════════════════════════════════════════════════════════════════════════
 // INFO MODAL COMPONENT - Matches site design patterns
 // ═══════════════════════════════════════════════════════════════════════════
@@ -79,21 +89,13 @@ const InfoModal = memo(({
   node,
   onClose,
   isArabic,
-  text,
-  closeLabel,
 }: {
   node: BrainFunction | null;
   onClose: () => void;
   isArabic: boolean;
-  text: {
-    doYouExperience: string;
-    howItHelps: string;
-    expectedBenefits: string;
-    getStarted: string;
-  };
-  closeLabel: string;
 }) => {
   const navigate = useNavigate();
+  const text = isArabic ? heroText.ar : heroText.en;
 
   useEffect(() => {
     if (!node) return;
@@ -109,9 +111,6 @@ const InfoModal = memo(({
   }, [node, onClose]);
 
   if (!node) return null;
-
-  const content = isArabic && node.contentAr ? node.contentAr : node.content;
-  const showArabicLabel = isArabic && !node.contentAr?.title;
 
   return (
     <div
@@ -158,7 +157,7 @@ const InfoModal = memo(({
         {/* Close button */}
         <button
           onClick={onClose}
-          aria-label={closeLabel}
+          aria-label={isArabic ? 'إغلاق' : 'Close'}
           className="modal-close-btn"
           style={{
             position: 'absolute',
@@ -218,9 +217,9 @@ const InfoModal = memo(({
                   lineHeight: typography.lineHeight.tight,
                 }}
               >
-                {content.title}
+                {node.content.title}
               </h2>
-              {showArabicLabel && (
+              {isArabic && (
                 <div
                   style={{
                     margin: `${spacing[1]}px 0 0`,
@@ -240,7 +239,7 @@ const InfoModal = memo(({
                 color: node.color,
                 fontWeight: typography.weight.semibold,
               }}>
-                {content.subtitle}
+                {node.content.subtitle}
               </p>
             </div>
           </div>
@@ -275,7 +274,7 @@ const InfoModal = memo(({
             }}>
               {text.doYouExperience}
             </div>
-            {content.questions.map((q, i) => (
+            {node.content.questions.map((q, i) => (
               <p
                 key={i}
                 style={{
@@ -317,7 +316,7 @@ const InfoModal = memo(({
               lineHeight: typography.lineHeight.loose,
               color: colors.text.secondary,
             }}>
-              {content.explanation}
+              {node.content.explanation}
             </p>
           </div>
 
@@ -339,7 +338,7 @@ const InfoModal = memo(({
               {text.expectedBenefits}
             </h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2] }}>
-              {content.benefits.map((benefit, i) => (
+              {node.content.benefits.map((benefit, i) => (
                 <span
                   key={i}
                   style={{
@@ -454,24 +453,10 @@ InfoModal.displayName = 'InfoModal';
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════
 
-const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }: HeroCircuitBrainProps) {
-  const { isArabic, direction, t } = useLanguage();
-  const { setMode } = useVisitorMode();
+const HeroCircuitBrain = memo(function HeroCircuitBrain() {
+  const { isArabic, direction } = useLanguage();
   const navigate = useNavigate();
-  const text = useMemo(() => ({
-    instruction: t('hero.instructions.desktop'),
-    instructionMobile: t('hero.instructions.mobile'),
-    howItHelps: t('hero.modal.howItHelps'),
-    expectedBenefits: t('hero.modal.expectedBenefits'),
-    getStarted: t('hero.modal.cta'),
-    doYouExperience: t('hero.modal.doYouExperience'),
-  }), [t]);
-  const heroTitle = useMemo(() => ({
-    prefix: t('hero.titlePrefix'),
-    highlight: t('hero.titleHighlight'),
-    suffix: t('hero.titleSuffix'),
-  }), [t]);
-  const closeLabel = t('games.close');
+  const text = isArabic ? heroText.ar : heroText.en;
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeNode, setActiveNode] = useState<BrainFunction | null>(null);
@@ -482,12 +467,6 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
   const reducedMotion = usePrefersReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
   const [tooltipNode, setTooltipNode] = useState<BrainFunction | null>(null);
-  const [showExpectedBenefits, setShowExpectedBenefits] = useState(false);
-  const openExpectedBenefits = useCallback(() => setShowExpectedBenefits(true), []);
-  const closeExpectedBenefits = useCallback(() => setShowExpectedBenefits(false), []);
-  const [showTestimonials, setShowTestimonials] = useState(false);
-  const openTestimonials = useCallback(() => setShowTestimonials(true), []);
-  const closeTestimonials = useCallback(() => setShowTestimonials(false), []);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
@@ -505,7 +484,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
     rippleColors.forEach((color, i) => {
       const rippleId = uid();
       setTimeout(() => {
-        setRipples((prev) => [...prev.slice(-12), { id: rippleId, x, y, color }]);
+        setRipples((prev) => [...prev.slice(-6), { id: rippleId, x, y, color }]);
         setTimeout(() => {
           setRipples((prev) => prev.filter((r) => r.id !== rippleId));
         }, 800);
@@ -534,40 +513,27 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
       setParticles((prev) => prev.filter((p) => !newParticles.find((np) => np.id === p.id)));
     }, 1000);
 
-    const waves = 3;
-    const baseDur = 1.7;
+    const waves = 2;
+    const baseDur = 2;
     const all: Pulse[] = [];
-    const paths: Pulse['path'][] = ['c1', 'c2', 'c3'];
+    const paths = ['c1', 'c2', 'c3', 'c4', 'c5'] as const;
 
     for (let w = 0; w < waves; w++) {
-      const waveDelay = w * 0.12;
+      const waveDelay = w * 0.15;
       paths.forEach((path, i) => {
-        const trailCount = 2;
-        for (let trail = 0; trail < trailCount; trail++) {
-          all.push({
-            id: uid(),
-            path,
-            color: COLORS[(w + i + trail) % COLORS.length],
-            dur: baseDur + Math.random() * 0.9,
-            begin: waveDelay + i * 0.07 + trail * 0.1,
-            r: 3.25 + Math.random() * 2,
-          });
-        }
+        const color = COLORS[(w + i) % COLORS.length];
+        all.push({
+          id: uid(),
+          path,
+          color,
+          dur: baseDur + Math.random() * 1,
+          begin: waveDelay + i * 0.05,
+          r: 3 + Math.random() * 1.5,
+        });
       });
     }
 
-    const idsToRemove = new Set(all.map((p) => p.id));
-    const maxEndSeconds = all.reduce((max, p) => Math.max(max, p.begin + p.dur), 0);
-
-    setPulses((prev) => {
-      const maxPulses = 60;
-      const keep = Math.max(0, maxPulses - all.length);
-      return [...prev.slice(-keep), ...all];
-    });
-
-    window.setTimeout(() => {
-      setPulses((prev) => prev.filter((p) => !idsToRemove.has(p.id)));
-    }, Math.ceil((maxEndSeconds + 0.1) * 1000));
+    setPulses((prev) => [...prev.slice(-40), ...all]);
   }, [reducedMotion]);
 
   const handleNodeClick = useCallback((node: BrainFunction) => {
@@ -680,33 +646,18 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
     .status-dot {
       animation: ${reducedMotion ? 'none' : 'statusPulse 2s ease-in-out infinite'};
     }
-    .platform-feature-card[data-clickable="true"] {
-      cursor: pointer;
-    }
-    .platform-feature-card[data-clickable="true"]:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
-    }
-    .platform-feature-card[data-clickable="true"]:focus-visible {
-      outline: 2px solid ${brandCyan};
-      outline-offset: 3px;
-    }
   `, [reducedMotion]);
 
-  type PlatformFeature = {
-    icon: string;
-    title: string;
-    desc: string;
-    color: string;
-    onClick?: () => void;
-  };
-
   // Platform feature cards data
-  const platformFeatures = useMemo<PlatformFeature[]>(() => [
-    { icon: '\u{1F3A7}', title: t('hero.features.sessions.title'), desc: t('hero.features.sessions.desc'), color: brandCyan },
-    { icon: '\u{1F4CA}', title: t('hero.features.tracking.title'), desc: t('hero.features.tracking.desc'), color: brandPurple },
-    { icon: '\u{1F9E0}', title: t('hero.features.areas.title'), desc: t('hero.features.areas.desc'), color: brandPink },
-  ], [t]);
+  const platformFeatures = isArabic ? [
+    { icon: '🎧', title: '20 جلسة', desc: 'برنامج مكثف', color: brandCyan },
+    { icon: '📊', title: 'تتبع التقدم', desc: 'نتائج موثقة', color: brandPurple },
+    { icon: '🧠', title: '10 مناطق', desc: 'تحفيز شامل', color: brandPink },
+  ] : [
+    { icon: '🎧', title: '20 Sessions', desc: 'Intensive Program', color: brandCyan },
+    { icon: '📊', title: 'Track Progress', desc: 'Documented Results', color: brandPurple },
+    { icon: '🧠', title: '10 Areas', desc: 'Comprehensive', color: brandPink },
+  ];
 
   return (
     <section
@@ -715,11 +666,11 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
         position: 'relative',
         minHeight: '100vh',
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
         background: `linear-gradient(180deg, ${colors.surface.base} 0%, rgba(15,20,35,1) 50%, ${colors.surface.base} 100%)`,
-        padding: `0 ${spacing[4]}px ${spacing[10]}px`,
+        padding: `${spacing[16]}px ${spacing[4]}px ${spacing[10]}px`,
         direction,
       }}
     >
@@ -812,7 +763,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
               textTransform: 'uppercase',
               letterSpacing: 1,
             }}>
-              {t('hero.platformBadge')}
+              {isArabic ? 'منصة التدريب السمعي' : 'Auditory Training Platform'}
             </span>
           </div>
 
@@ -827,16 +778,16 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
               lineHeight: typography.lineHeight.tight,
               letterSpacing: typography.letterSpacing.tight,
             }}>
-              {heroTitle.prefix}
+              {isArabic ? 'Lotus' : 'Lotus'}
               <span style={{
                 background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
               }}>
-                {' '}{heroTitle.highlight}
+                {' '}× Bérard
               </span>
-              {' '}{heroTitle.suffix}
+              {' '}AIT
             </h1>
             <p style={{
               margin: `${spacing[3]}px 0 0`,
@@ -846,58 +797,44 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
               lineHeight: typography.lineHeight.relaxed,
               maxWidth: 480,
             }}>
-              {t('hero.neuralLabDescription')}
+              {isArabic
+                ? 'منصة متكاملة لتدريب التكامل السمعي. استكشف مناطق الدماغ واكتشف كيف يمكن للبرنامج تحسين المعالجة السمعية.'
+                : 'An integrated platform for auditory integration training. Explore brain regions and discover how the program can improve auditory processing.'}
             </p>
           </div>
 
           {/* Platform Feature Cards */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gridTemplateColumns: 'repeat(3, 1fr)',
             gap: spacing[3],
             marginTop: spacing[2],
           }}>
-            {platformFeatures.map((feature, i) => {
-              const isClickable = Boolean(feature.onClick);
-
-              return (
-                <div
-                  key={i}
-                  role={isClickable ? 'button' : undefined}
-                  tabIndex={isClickable ? 0 : undefined}
-                  aria-label={isClickable ? feature.title : undefined}
-                  onClick={feature.onClick}
-                  onKeyDown={isClickable ? (event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault();
-                      feature.onClick?.();
-                    }
-                  } : undefined}
-                  className="platform-feature-card"
-                  data-clickable={isClickable ? 'true' : 'false'}
-                  style={{
-                    padding: spacing[3],
-                    background: `linear-gradient(135deg, ${feature.color}10, transparent)`,
-                    border: `1px solid ${feature.color}25`,
-                    borderRadius: radius.lg,
-                    textAlign: 'center',
-                    transition: transitions.normal,
-                  }}
-                >
-                  <div style={{ fontSize: 24, marginBottom: spacing[1.5] }}>{feature.icon}</div>
-                  <div style={{
-                    fontSize: typography.size.sm,
-                    fontWeight: typography.weight.bold,
-                    color: feature.color,
-                  }}>{feature.title}</div>
-                  <div style={{
-                    fontSize: typography.size.xs,
-                    color: colors.text.muted,
-                    marginTop: 2,
-                  }}>{feature.desc}</div>
-                </div>
-              );
-            })}
+            {platformFeatures.map((feature, i) => (
+              <div
+                key={i}
+                style={{
+                  padding: spacing[3],
+                  background: `linear-gradient(135deg, ${feature.color}10, transparent)`,
+                  border: `1px solid ${feature.color}25`,
+                  borderRadius: radius.lg,
+                  textAlign: 'center',
+                  transition: transitions.normal,
+                }}
+              >
+                <div style={{ fontSize: 24, marginBottom: spacing[1.5] }}>{feature.icon}</div>
+                <div style={{
+                  fontSize: typography.size.sm,
+                  fontWeight: typography.weight.bold,
+                  color: feature.color,
+                }}>{feature.title}</div>
+                <div style={{
+                  fontSize: typography.size.xs,
+                  color: colors.text.muted,
+                  marginTop: 2,
+                }}>{feature.desc}</div>
+              </div>
+            ))}
           </div>
 
           {/* CTA Buttons */}
@@ -908,10 +845,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
             marginTop: spacing[2],
           }}>
             <button
-              onClick={() => {
-                setMode('school');
-                navigate('/contact');
-              }}
+              onClick={() => navigate('/contact')}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -929,14 +863,11 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
                 cursor: 'pointer',
               }}
             >
-              {t('hero.ctaSchools')}
+              {isArabic ? 'ابدأ الآن' : 'Get Started'}
               <span style={{ transform: isArabic ? 'rotate(180deg)' : 'none' }}>→</span>
             </button>
             <button
-              onClick={() => {
-                setMode('parent');
-                navigate('/assessment');
-              }}
+              onClick={() => navigate('/assessment')}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -953,7 +884,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
                 cursor: 'pointer',
               }}
             >
-              {t('hero.ctaAssessment')}
+              {isArabic ? 'قائمة التقييم' : 'Self Assessment'}
             </button>
           </div>
 
@@ -969,13 +900,13 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
             <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1.5] }}>
               <span style={{ color: brandCyan }}>✓</span>
               <span style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
-                {t('hero.trustCertified')}
+                {isArabic ? 'معتمد دولياً' : 'Internationally Certified'}
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1.5] }}>
               <span style={{ color: brandPurple }}>✓</span>
               <span style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
-                {t('hero.trustCases')}
+                {isArabic ? '+500 حالة ناجحة' : '500+ Success Cases'}
               </span>
             </div>
           </div>
@@ -1030,13 +961,13 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
                     fontWeight: typography.weight.bold,
                     color: colors.text.primary,
                   }}>
-                    {t('hero.mapTitle')}
+                    {isArabic ? 'خريطة الدماغ التفاعلية' : 'Interactive Brain Map'}
                   </div>
                   <div style={{
                     fontSize: typography.size.xs,
                     color: colors.text.muted,
                   }}>
-                    {t('hero.mapSubtitle')}
+                    {isArabic ? '10 مناطق قابلة للاستكشاف' : '10 explorable regions'}
                   </div>
                 </div>
               </div>
@@ -1068,7 +999,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
                     textTransform: 'uppercase',
                     letterSpacing: 0.5,
                   }}>
-                    {t('hero.neuralLinkActive')}
+                    {isArabic ? 'نشط' : 'NEURAL LINK ACTIVE'}
                   </span>
                 </div>
                 {/* Traffic light dots */}
@@ -1501,69 +1432,65 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
             )}
           </g>
 
-          {!reducedMotion && (
-            <>
-              {/* Ripples - Enhanced multi-ring explosion */}
-              <g>
-                {ripples.map((r) => (
-                  <circle
-                    key={r.id}
-                    cx={r.x}
-                    cy={r.y}
-                    r="2"
-                    fill="transparent"
-                    stroke={r.color}
-                    strokeWidth="2"
-                    style={{ filter: `drop-shadow(0 0 12px ${r.color})` }}
-                  >
-                    <animate attributeName="r" values="2;50" dur="0.8s" fill="freeze" />
-                    <animate attributeName="opacity" values="0.8;0" dur="0.8s" fill="freeze" />
-                    <animate attributeName="stroke-width" values="3;0.5" dur="0.8s" fill="freeze" />
-                  </circle>
-                ))}
-              </g>
+          {/* Ripples - Enhanced multi-ring explosion */}
+          <g>
+            {ripples.map((r) => (
+              <circle
+                key={r.id}
+                cx={r.x}
+                cy={r.y}
+                r="2"
+                fill="transparent"
+                stroke={r.color}
+                strokeWidth="2"
+                style={{ filter: `drop-shadow(0 0 12px ${r.color})` }}
+              >
+                <animate attributeName="r" values="2;50" dur="0.8s" fill="freeze" />
+                <animate attributeName="opacity" values="0.8;0" dur="0.8s" fill="freeze" />
+                <animate attributeName="stroke-width" values="3;0.5" dur="0.8s" fill="freeze" />
+              </circle>
+            ))}
+          </g>
 
-              {/* Particle Burst - Synaptic Explosion */}
-              <g>
-                {particles.map((p) => {
-                  const tx = Math.cos(p.angle) * p.speed;
-                  const ty = Math.sin(p.angle) * p.speed;
-                  return (
-                    <circle
-                      key={p.id}
-                      cx={p.x}
-                      cy={p.y}
-                      r={p.size}
-                      fill={p.color}
-                      style={{
-                        filter: `drop-shadow(0 0 6px ${p.color})`,
-                        animation: 'particleBurst 0.8s ease-out forwards',
-                        ['--tx' as string]: `${tx}px`,
-                        ['--ty' as string]: `${ty}px`,
-                      }}
-                    />
-                  );
-                })}
-              </g>
+          {/* Particle Burst - Synaptic Explosion */}
+          <g>
+            {particles.map((p) => {
+              const tx = Math.cos(p.angle) * p.speed;
+              const ty = Math.sin(p.angle) * p.speed;
+              return (
+                <circle
+                  key={p.id}
+                  cx={p.x}
+                  cy={p.y}
+                  r={p.size}
+                  fill={p.color}
+                  style={{
+                    filter: `drop-shadow(0 0 6px ${p.color})`,
+                    animation: 'particleBurst 0.8s ease-out forwards',
+                    ['--tx' as string]: `${tx}px`,
+                    ['--ty' as string]: `${ty}px`,
+                  }}
+                />
+              );
+            })}
+          </g>
 
-              {/* Pulses */}
-              <g opacity="0.9">
-                {pulses.map((p) => (
-                  <circle
-                    key={p.id}
-                    r={p.r}
-                    fill={p.color}
-                    style={{ filter: `drop-shadow(0 0 6px ${p.color})` }}
-                  >
-                    <animate attributeName="opacity" values="0;1;0.2;0" dur={`${p.dur}s`} begin={`${p.begin}s`} fill="freeze" />
-                    <animateMotion dur={`${p.dur}s`} begin={`${p.begin}s`} repeatCount="1" fill="freeze">
-                      <mpath href={`#${p.path}`} />
-                    </animateMotion>
-                  </circle>
-                ))}
-              </g>
-            </>
-          )}
+          {/* Pulses */}
+          <g opacity="0.8">
+            {pulses.map((p) => (
+              <circle
+                key={p.id}
+                r={p.r}
+                fill={p.color}
+                style={{ filter: `drop-shadow(0 0 6px ${p.color})` }}
+              >
+                <animate attributeName="opacity" values="0;1;0.2;0" dur={`${p.dur}s`} begin={`${p.begin}s`} fill="freeze" />
+                <animateMotion dur={`${p.dur}s`} begin={`${p.begin}s`} repeatCount="1" fill="freeze">
+                  <mpath href={`#${p.path}`} />
+                </animateMotion>
+              </circle>
+            ))}
+          </g>
 
           {/* Interactive nodes */}
           <g filter="url(#nodeGlow)">
@@ -1604,7 +1531,11 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
                   onTouchStart={() => setHoveredNode(node.id)}
                   tabIndex={0}
                   role="button"
-                  aria-label={isArabic ? `${labelPrimary} (${labelSecondary}) - ${t('hero.ariaLearnMore')}` : `${labelPrimary} - ${t('hero.ariaLearnMore')}`}
+                  aria-label={
+                    isArabic
+                      ? `${labelPrimary} (${labelSecondary}) - اضغط لمعرفة المزيد`
+                      : `${labelPrimary} - Click to learn more`
+                  }
                   style={{
                     animation: reducedMotion ? 'none' : `nodeFloat ${2.5 + index * 0.15}s ease-in-out infinite`,
                   }}
@@ -1792,7 +1723,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
             }}>
-              {(isArabic && tooltipNode.contentAr ? tooltipNode.contentAr : tooltipNode.content).subtitle}
+              {tooltipNode.content.subtitle}
             </p>
 
             {/* Click hint */}
@@ -1807,7 +1738,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
               gap: spacing[1],
             }}>
               <span style={{ color: tooltipNode.color }}>→</span>
-              {t('hero.tooltipHint')}
+              {isArabic ? 'انقر للمزيد' : 'Click to explore'}
             </div>
           </div>
         )}
@@ -1874,9 +1805,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain({ onOpenCertifications }
       </div>
 
       {/* Info Modal */}
-      <InfoModal node={activeNode} onClose={closeModal} isArabic={isArabic} text={text} closeLabel={closeLabel} />
-      <ExpectedBenefitsModal open={showExpectedBenefits} onClose={closeExpectedBenefits} />
-      <TestimonialsModal open={showTestimonials} onClose={closeTestimonials} />
+      <InfoModal node={activeNode} onClose={closeModal} isArabic={isArabic} />
     </section>
   );
 });

@@ -4,15 +4,6 @@ import { useFocusTrap } from '../hooks/useFocusTrap';
 import { pptxSlides } from '../data/pptxSlides';
 import { assetUrl } from '../utils/asset';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
-import {
-  normalizeForSearch,
-  parseSearchGroups,
-  parseIdQuery as parseSlideIdQuery,
-  matchesAllTokens,
-  clamp,
-  loadImageElement,
-  type IdQuery as SlideIdQuery,
-} from '../utils/search';
 import { brandCyan, brandPink, brandPurple, styles, transitions, colors, radius, spacing, typography } from './styles';
 import { MicroscopeIcon, FlaskIcon, SearchIcon, DownloadIcon, XIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon } from './Icons';
 import { useLanguage } from '../context/LanguageContext';
@@ -31,12 +22,126 @@ interface SlideCategoryConfig {
 }
 
 const SLIDE_CATEGORIES: SlideCategoryConfig[] = [
-  { id: 'all', labelEn: 'All Samples', labelAr: 'auto.SlideViewer.k9', icon: '🧪', color: brandCyan, slideIds: [] },
-  { id: 'school', labelEn: 'School Focus', labelAr: 'auto.SlideViewer.k10', icon: '🏫', color: '#f59e0b', slideIds: [1, 2, 5, 10, 15, 20, 25, 30, 35] },
-  { id: 'parent', labelEn: 'Parent Guide', labelAr: 'auto.SlideViewer.k11', icon: '👨‍👩‍👧', color: '#22c55e', slideIds: [3, 7, 12, 18, 22, 28, 33, 38, 42, 43, 44, 45, 46] },
-  { id: 'clinician', labelEn: 'Clinical Data', labelAr: 'auto.SlideViewer.k12', icon: '🔬', color: brandPurple, slideIds: [4, 8, 13, 17, 21, 26, 31, 36, 40] },
-  { id: 'science', labelEn: 'Research', labelAr: 'auto.SlideViewer.k13', icon: '📊', color: brandPink, slideIds: [6, 9, 14, 16, 19, 23, 27, 32, 37, 39] },
+  { id: 'all', labelEn: 'All Samples', labelAr: 'جميع العينات', icon: '🧪', color: brandCyan, slideIds: [] },
+  { id: 'school', labelEn: 'School Focus', labelAr: 'تركيز مدرسي', icon: '🏫', color: '#f59e0b', slideIds: [1, 2, 5, 10, 15, 20, 25, 30, 35] },
+  { id: 'parent', labelEn: 'Parent Guide', labelAr: 'دليل الأهل', icon: '👨‍👩‍👧', color: '#22c55e', slideIds: [3, 7, 12, 18, 22, 28, 33, 38, 42, 43, 44, 45, 46] },
+  { id: 'clinician', labelEn: 'Clinical Data', labelAr: 'بيانات سريرية', icon: '🔬', color: brandPurple, slideIds: [4, 8, 13, 17, 21, 26, 31, 36, 40] },
+  { id: 'science', labelEn: 'Research', labelAr: 'أبحاث', icon: '📊', color: brandPink, slideIds: [6, 9, 14, 16, 19, 23, 27, 32, 37, 39] },
 ];
+
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+
+type SlideIdQuery =
+  | { kind: 'ids'; ids: number[] }
+  | { kind: 'range'; from: number; to: number };
+
+const normalizeQueryDigits = (value: string): string =>
+  value
+    .replace(/[\u0660-\u0669]/g, (digit) => String(digit.charCodeAt(0) - 0x0660))
+    .replace(/[\u06F0-\u06F9]/g, (digit) => String(digit.charCodeAt(0) - 0x06F0));
+
+const parseSlideIdQuery = (raw: string): SlideIdQuery | null => {
+  const q = normalizeQueryDigits(raw).trim();
+  if (!q) return null;
+
+  const single = q.match(/^#?\s*(\d{1,4})\s*$/);
+  if (single) {
+    return { kind: 'ids', ids: [Number(single[1])] };
+  }
+
+  const range = q.match(/^#?\s*(\d{1,4})\s*[-–—]\s*#?\s*(\d{1,4})\s*$/);
+  if (range) {
+    const a = Number(range[1]);
+    const b = Number(range[2]);
+    return { kind: 'range', from: Math.min(a, b), to: Math.max(a, b) };
+  }
+
+  const list = q.match(/^\s*#?\s*\d+(?:\s*[,،]\s*#?\s*\d+)+\s*$/);
+  if (list) {
+    const ids = q
+      .split(/[,،]/)
+      .map((part) => part.replace(/[^\d]/g, ''))
+      .map((part) => Number(part))
+      .filter((n) => Number.isFinite(n));
+    if (ids.length) return { kind: 'ids', ids };
+  }
+
+  const spaceList = q.match(/^\s*#?\s*\d+(?:\s+#?\s*\d+)+\s*$/);
+  if (spaceList) {
+    const ids = q
+      .split(/\s+/)
+      .map((part) => part.replace(/[^\d]/g, ''))
+      .map((part) => Number(part))
+      .filter((n) => Number.isFinite(n));
+    if (ids.length) return { kind: 'ids', ids };
+  }
+
+  return null;
+};
+
+const normalizeForSearch = (value: string): string =>
+  normalizeQueryDigits(value)
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '') // strip Latin combining marks
+    .replace(/[\u0640\u064B-\u065F\u0670\u06D6-\u06ED]/g, '') // strip Arabic diacritics + tatweel
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const tokenizeQuery = (raw: string): string[] => {
+  const tokens: string[] = [];
+  const re = /"([^"]+)"|'([^']+)'|(\S+)/g;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(raw)) !== null) {
+    const token = match[1] ?? match[2] ?? match[3] ?? '';
+    if (!token) continue;
+
+    // Allow OR groups using pipes: apd|hyperacusis
+    if (token.includes('|')) {
+      const parts = token.split('|');
+      parts.forEach((part, idx) => {
+        if (part) tokens.push(part);
+        if (idx < parts.length - 1) tokens.push('|');
+      });
+      continue;
+    }
+
+    tokens.push(token);
+  }
+  return tokens;
+};
+
+const parseSearchGroups = (raw: string): string[][] => {
+  const rawTokens = tokenizeQuery(raw);
+  const groups: string[][] = [];
+  let current: string[] = [];
+
+  for (const token of rawTokens) {
+    if (token === '|') {
+      if (current.length) groups.push(current);
+      current = [];
+      continue;
+    }
+
+    const normalized = normalizeForSearch(token.replace(/^#+/, ''));
+    if (normalized) current.push(normalized);
+  }
+
+  if (current.length) groups.push(current);
+  return groups;
+};
+
+const matchesAllTokens = (haystack: string, tokens: string[]) =>
+  tokens.every((token) => haystack.includes(token));
+
+const loadImageElement = (src: string): Promise<HTMLImageElement> => new Promise((resolve, reject) => {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => resolve(img);
+  img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+  img.src = src;
+});
 
 // Flask/Test Tube Slide Card - like a sample being viewed (memoized for performance)
 const FlaskSlideCard = memo(({
@@ -540,7 +645,7 @@ const getDefaultCategory = (mode: VisitorMode): SlideCategory => {
 };
 
 const SlideViewer = () => {
-  const { isArabic, t } = useLanguage();
+  const { isArabic } = useLanguage();
   const { mode: visitorMode, config: visitorConfig } = useVisitorMode();
   const [query, setQuery] = useState('');
   const [activeSlideId, setActiveSlideId] = useState<number | null>(null);
@@ -982,7 +1087,7 @@ const SlideViewer = () => {
                 }}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={t('auto.SlideViewer.k1', "Search samples (e.g., APD, #12, 5-10...)")}
+                placeholder={isArabic ? 'ابحث في العينات (مثال: APD، #12، 5-10...)' : 'Search samples (e.g., APD, #12, 5-10...)'}
               />
             </div>
             <a
@@ -999,7 +1104,7 @@ const SlideViewer = () => {
               }}
             >
               <MicroscopeIcon size={16} />
-              {t('auto.SlideViewer.k2', "Lab Profile")}
+              {isArabic ? 'ملف المختبر' : 'Lab Profile'}
             </a>
           </div>
 
@@ -1024,7 +1129,7 @@ const SlideViewer = () => {
               color: 'rgba(255,255,255,0.5)',
               marginLeft: 8,
             }}>
-              {t('auto.SlideViewer.k3', "Filter:")}
+              {isArabic ? 'تصنيف:' : 'Filter:'}
             </span>
             {SLIDE_CATEGORIES.map((category) => {
               const isActive = activeCategory === category.id;
@@ -1057,10 +1162,10 @@ const SlideViewer = () => {
                     boxShadow: isActive ? `0 0 20px ${category.color}30` : 'none',
                   }}
                   aria-pressed={isActive}
-                  aria-label={isArabic ? t(category.labelAr, category.labelEn) : category.labelEn}
+                  aria-label={isArabic ? category.labelAr : category.labelEn}
                 >
                   <span style={{ fontSize: 14 }}>{category.icon}</span>
-                  <span>{isArabic ? t(category.labelAr, category.labelEn) : category.labelEn}</span>
+                  <span>{isArabic ? category.labelAr : category.labelEn}</span>
                   <span style={{
                     padding: '2px 6px',
                     borderRadius: 6,
@@ -1105,10 +1210,18 @@ const SlideViewer = () => {
                 {SLIDE_CATEGORIES.find(c => c.id === activeCategory)?.icon}
               </span>
               <span style={{ color: 'rgba(255,255,255,0.7)' }}>
-                {activeCategory === 'school' && (t('auto.SlideViewer.k4', "Showing samples related to educational environment and learning difficulties"))}
-                {activeCategory === 'parent' && (t('auto.SlideViewer.k5', "Showing samples important for parents to understand child condition and results"))}
-                {activeCategory === 'clinician' && (t('auto.SlideViewer.k6', "Showing clinical and technical data for specialists"))}
-                {activeCategory === 'science' && (t('auto.SlideViewer.k7', "Showing supporting research and scientific studies"))}
+                {activeCategory === 'school' && (isArabic
+                  ? 'عرض العينات المتعلقة بالبيئة التعليمية وصعوبات التعلم'
+                  : 'Showing samples related to educational environment and learning difficulties')}
+                {activeCategory === 'parent' && (isArabic
+                  ? 'عرض العينات المهمة لفهم الأهل لحالة الطفل والنتائج'
+                  : 'Showing samples important for parents to understand child condition and results')}
+                {activeCategory === 'clinician' && (isArabic
+                  ? 'عرض البيانات السريرية والتقنية للمختصين'
+                  : 'Showing clinical and technical data for specialists')}
+                {activeCategory === 'science' && (isArabic
+                  ? 'عرض الأبحاث والدراسات العلمية الداعمة'
+                  : 'Showing supporting research and scientific studies')}
               </span>
               <button
                 type="button"
@@ -1124,7 +1237,7 @@ const SlideViewer = () => {
                   cursor: 'pointer',
                 }}
               >
-                {t('auto.SlideViewer.k8', "Show All")}
+                {isArabic ? 'عرض الكل' : 'Show All'}
               </button>
             </div>
           )}

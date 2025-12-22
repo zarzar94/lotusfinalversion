@@ -21,20 +21,18 @@ type RoundRow = {
   rtMs: number[]; // per click reaction
 };
 
-const SHAPE_META: Record<ShapeId, { freq: number; color: string }> = {
-  circle: { freq: 440, color: brandCyan },
-  square: { freq: 660, color: brandPurple },
-  triangle: { freq: 880, color: brandPink },
-};
-
-const SHAPE_IDS: ShapeId[] = ['circle', 'square', 'triangle'];
+const shapes: Array<{ id: ShapeId; label: string; freq: number; color: string }> = [
+  { id: 'circle', label: 'دائرة', freq: 440, color: brandCyan },
+  { id: 'square', label: 'مربع', freq: 660, color: brandPurple },
+  { id: 'triangle', label: 'مثلث', freq: 880, color: brandPink },
+];
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const seqEqual = (a: ShapeId[], b: ShapeId[]) => a.length === b.length && a.every((x, i) => x === b[i]);
 
 const randomSeq = (len: number): ShapeId[] => {
-  const ids = SHAPE_IDS;
+  const ids = shapes.map((s) => s.id);
   const out: ShapeId[] = [];
   for (let i = 0; i < len; i++) {
     out.push(ids[Math.floor(Math.random() * ids.length)] as ShapeId);
@@ -51,25 +49,21 @@ export default function SequencingTestPanel({
   onCancel?: () => void;
   enableExports?: boolean;
 }) {
-  const { t } = useLanguage();
+  const { isArabic } = useLanguage();
   const audioRef = useRef<AudioContext | null>(null);
   const noiseRef: NoiseRef = useRef(null);
 
   const ROUNDS = 8;
-  const PRACTICE_ROUNDS = 2;
-  const MIN_LENGTH = 2;
-  const MAX_LENGTH = 5;
 
   const [stage, setStage] = useState<'intro' | 'listening' | 'responding' | 'done'>('intro');
-  const [mode, setMode] = useState<'practice' | 'test'>('practice');
   const [round, setRound] = useState(1);
   const [length, setLength] = useState(2);
   const [target, setTarget] = useState<ShapeId[]>([]);
   const [chosen, setChosen] = useState<ShapeId[]>([]);
   const [score, setScore] = useState(0);
   const [replays, setReplays] = useState(0);
+  const [maxSpan, setMaxSpan] = useState(0);
   const [noiseLevel, setNoiseLevelState] = useState(0.03);
-  const [correctStreak, setCorrectStreak] = useState(0);
 
   // Enhanced gamification state
   const [gamePoints, setGamePoints] = useState(0);
@@ -81,12 +75,6 @@ export default function SequencingTestPanel({
   const feedbackTimerRef = useRef<number | null>(null);
 
   const ensure = () => ensureAudio(audioRef);
-  const shapes = useMemo(() => ([
-    { id: 'circle' as const, label: t('sequence.shapeCircle', 'Circle'), ...SHAPE_META.circle },
-    { id: 'square' as const, label: t('sequence.shapeSquare', 'Square'), ...SHAPE_META.square },
-    { id: 'triangle' as const, label: t('sequence.shapeTriangle', 'Triangle'), ...SHAPE_META.triangle },
-  ]), [t]);
-  const maxReplays = mode === 'practice' ? 2 : 1;
 
   const showFeedback = (type: 'correct' | 'incorrect', pts: number) => {
     if (feedbackTimerRef.current) {
@@ -130,7 +118,7 @@ export default function SequencingTestPanel({
       const dur = 0.28;
 
       seq.forEach((id, idx) => {
-        const s = SHAPE_META[id];
+        const s = shapes.find((x) => x.id === id)!;
         playTone(audio, { freq: s.freq, duration: dur, volume: 0.22, when: t0 + idx * gap });
       });
 
@@ -141,16 +129,13 @@ export default function SequencingTestPanel({
   );
 
   const startRound = useCallback(
-    async (r: number, len: number, activeMode: 'practice' | 'test') => {
+    async (r: number, len: number) => {
       const seq = randomSeq(len);
       setTarget(seq);
       setChosen([]);
       clickTimesRef.current = [];
 
-      const baseNoise = activeMode === 'practice'
-        ? 0.02 + (len - 2) * 0.01
-        : 0.04 + (r / ROUNDS) * 0.14 + (len - 2) * 0.01;
-      const nl = Math.min(0.22, Math.max(0.02, baseNoise));
+      const nl = 0.04 + (r / ROUNDS) * 0.14 + (len - 2) * 0.01;
       setNoiseLevelState(Number(nl.toFixed(3)));
       setReplays(0);
 
@@ -161,35 +146,20 @@ export default function SequencingTestPanel({
     [ROUNDS, playSequence]
   );
 
-  const startPractice = async () => {
+  const begin = async () => {
     rowsRef.current = [];
-    setMode('practice');
     setRound(1);
-    setLength(MIN_LENGTH);
+    setLength(2);
     setScore(0);
+    setMaxSpan(0);
     setGamePoints(0);
-    setCorrectStreak(0);
     setLastFeedback(null);
-    setFeedbackPoints(0);
-    await startRound(1, MIN_LENGTH, 'practice');
-  };
-
-  const startTest = async () => {
-    rowsRef.current = [];
-    setMode('test');
-    setRound(1);
-    setLength(MIN_LENGTH);
-    setScore(0);
-    setGamePoints(0);
-    setCorrectStreak(0);
-    setLastFeedback(null);
-    setFeedbackPoints(0);
-    await startRound(1, MIN_LENGTH, 'test');
+    await startRound(1, 2);
   };
 
   const replay = async () => {
     if (stage !== 'responding') return;
-    if (replays >= maxReplays) return; // limit replays for assessment integrity
+    if (replays >= 1) return; // limit replays for assessment integrity
     setReplays((x) => x + 1);
     setStage('listening');
     await playSequence(target, noiseLevel);
@@ -217,26 +187,6 @@ export default function SequencingTestPanel({
       rts.push(Math.round(i === 0 ? 0 : t - base));
     }
 
-    if (mode === 'practice') {
-      showFeedback(correct ? 'correct' : 'incorrect', 0);
-
-      if (round >= PRACTICE_ROUNDS) {
-        startTest();
-        return;
-      }
-
-      const nextRoundIndex = round + 1;
-      const nextLen = correct
-        ? Math.min(MAX_LENGTH, length + 1)
-        : Math.max(MIN_LENGTH, length - 1);
-      setRound(nextRoundIndex);
-      setLength(nextLen);
-      setTimeout(() => {
-        startRound(nextRoundIndex, nextLen, 'practice');
-      }, 520);
-      return;
-    }
-
     rowsRef.current.push({
       round,
       length,
@@ -254,6 +204,7 @@ export default function SequencingTestPanel({
     let pointChange = 0;
     if (correct) {
       setScore(nextScore);
+      setMaxSpan((m) => Math.max(m, length));
 
       pointChange = SEQUENCE_POINTS.correctSequence;
 
@@ -275,16 +226,7 @@ export default function SequencingTestPanel({
       showFeedback('incorrect', pointChange);
     }
 
-    let nextLen = length;
-    let nextStreak = correct ? correctStreak + 1 : 0;
-    if (correct && nextStreak >= 2) {
-      nextLen = Math.min(MAX_LENGTH, length + 1);
-      nextStreak = 0;
-    }
-    if (!correct) {
-      nextLen = Math.max(MIN_LENGTH, length - 1);
-    }
-    setCorrectStreak(nextStreak);
+    const nextLen = correct ? Math.min(5, length + 1) : Math.max(2, length - 1);
 
     if (round >= ROUNDS) {
       finish(nextScore);
@@ -295,7 +237,7 @@ export default function SequencingTestPanel({
     setRound(nextRoundIndex);
     setLength(nextLen);
     setTimeout(() => {
-      startRound(nextRoundIndex, nextLen, 'test');
+      startRound(nextRoundIndex, nextLen);
     }, 520);
   };
 
@@ -318,16 +260,16 @@ export default function SequencingTestPanel({
 
     const message =
       result === 'high'
-        ? t('sequence.summaryHigh', 'Strong sequencing performance in this screening snapshot.')
+        ? 'ذاكرة/تسلسل سمعي قوي حتى مع ضوضاء متزايدة (ضمن هذا الفحص).'
         : result === 'medium'
-          ? t('sequence.summaryMid', 'Moderate sequencing with room to strengthen working memory.')
-          : t('sequence.summaryLow', 'Lower sequencing accuracy; consider repeating in a quiet setting.');
+          ? 'تسلسل سمعي متوسط — قد تتأثر الذاكرة السمعية عند زيادة الضوضاء أو طول التعليمات.'
+          : 'تسلسل سمعي منخفض ضمن هذا الفحص. إذا كان ذلك ينعكس على اتباع التعليمات داخل الصف، ننصح بتقييم متخصص.';
 
     const outcome: TestOutcome = {
       key: 'sequence',
-            title: t('games.sequenceTest', 'Sound Sequence Test'),
+      title: 'اختبار التسلسل/الذاكرة السمعية تحت الضوضاء (Classroom Sequencing)',
       result,
-            scoreLabel: `${getStarEmoji(starRating)} ${t('sequence.spanLabel', 'Span')} ${span} | ${accuracy}% | ${finalPoints}pts`,
+      scoreLabel: `${getStarEmoji(starRating)} Span=${span} • ${accuracy}% • ${finalPoints}pts`,
       message,
       metrics: {
         rounds: ROUNDS,
@@ -336,11 +278,10 @@ export default function SequencingTestPanel({
         maxSpan: span,
         avgReactionMs: avgRt,
         maxNoiseLevel: Math.max(...rows.map((r) => r.noiseLevel)).toFixed(2),
-                replayPolicy: t('sequence.replayPolicy', 'one replay max per round'),
+        replayPolicy: 'one replay max per round',
         gamePoints: finalPoints,
         starRating,
-                workingMemorySpan: span,
-        note: t('sequence.note', 'Span is a screening estimate (non-diagnostic).'),
+        workingMemorySpan: span,
       },
       trials: rows,
     };
@@ -379,16 +320,16 @@ export default function SequencingTestPanel({
 
     let y = 62;
     doc.setFontSize(16);
-    y = writePdfText(doc, t('sequence.reportTitle', 'Sequence Demo Report'), PDF_MARGIN_X, y, { maxWidth: 520, lineHeight: 20 });
+    y = writePdfText(doc, 'تقرير Demo — اختبار التسلسل/الذاكرة السمعية', PDF_MARGIN_X, y, { maxWidth: 520, lineHeight: 20 });
 
     doc.setFontSize(11);
-    y = writePdfText(doc, t('sequence.reportDisclaimer', 'This export is a non-diagnostic screening summary.'), PDF_MARGIN_X, y + 10, { maxWidth: 520, lineHeight: 16 });
+    y = writePdfText(doc, 'ملاحظة: التقرير توضيحي وغير تشخيصي. يُستخدم للعرض داخل المدرسة بدون بيانات شخصية.', PDF_MARGIN_X, y + 10, { maxWidth: 520, lineHeight: 16 });
 
     y += 12;
     doc.setFontSize(10);
 
     for (const r of rows) {
-      const line = `#${r.round} | len:${r.length} | target:${r.target.join('-')} | chosen:${r.chosen.join('-')} | ${r.correct ? 'OK' : 'MISS'} | noise:${r.noiseLevel.toFixed(2)} | replay:${r.replayCount}`;
+      const line = `#${r.round} | len:${r.length} | target:${r.target.join('-')} | chosen:${r.chosen.join('-')} | ${r.correct ? '✓' : '✗'} | noise:${r.noiseLevel.toFixed(2)} | replay:${r.replayCount}`;
       y = writePdfText(doc, line, PDF_MARGIN_X, y, { maxWidth: 520, lineHeight: 14 });
       if (y > 760) {
         doc.addPage();
@@ -399,64 +340,41 @@ export default function SequencingTestPanel({
     doc.save(`Classroom-Sequencing-${Date.now()}.pdf`);
   };
 
-  const progressLabel = useMemo(() => (
-    mode === 'practice'
-      ? `${t('sequence.practiceLabel', 'Practice')} ${round}/${PRACTICE_ROUNDS}`
-      : `${t('sequence.roundLabel', 'Round')} ${round}/${ROUNDS}`
-  ), [mode, round, PRACTICE_ROUNDS, ROUNDS, t]);
+  const roundProgress = useMemo(() => `${round}/${ROUNDS}`, [round, ROUNDS]);
 
   return (
     <div style={styles.section}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
         <div>
-          <div style={{ fontWeight: 900, color: brandCyan }}>{t('games.sequenceTest', 'Sound Sequence Test')}</div>
-          <div style={styles.muted}>{t('games.sequenceTestDesc', 'Test your auditory memory and sequence recall ability')}</div>
+          <div style={{ fontWeight: 900, color: brandCyan }}>اختبار التسلسل/الذاكرة السمعية تحت الضوضاء</div>
+          <div style={styles.muted}>اختبار موضوعي يحاكي اتباع تعليمات متعددة داخل الصف مع ضوضاء متزايدة.</div>
         </div>
-        <span style={styles.chip}>{t('sequence.objective', 'Working memory sequencing')}</span>
+        <span style={styles.chip}>{isArabic ? 'موضوعي • عرض مدرسي' : 'Objective • School Demo'}</span>
       </div>
 
       {stage === 'intro' ? (
         <div style={{ marginTop: 12 }}>
           <p style={styles.bodyText}>
-            {t('sequence.instructions', 'Listen to the sequence and tap the shapes in the same order.')}
-            <span style={{ color: brandPink, fontWeight: 700 }}> {t('sequence.instructionsEmphasis', 'Focus on the order you hear.')}</span>{' '}
-            {t('sequence.instructionsSuffix', 'Practice first, then the adaptive test begins.')}
+            ستسمع سلسلة من النغمات (تمثل أوامر/أشكال). بعد ذلك اضغط الأشكال <b style={{ color: brandPink }}>بالترتيب نفسه</b>. سيزداد طول السلسلة تدريجياً.
           </p>
-          <div
-            style={{
-              marginTop: 12,
-              padding: 12,
-              borderRadius: 12,
-              border: '1px solid rgba(255,255,255,0.08)',
-              background: 'rgba(0,0,0,0.2)',
-            }}
-          >
-            <p style={{ ...styles.muted, margin: 0 }}>{t('modules.disclaimer', 'This is a screening tool, not a medical diagnosis.')}</p>
-          </div>
 
           <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', marginTop: 12 }}>
             {shapes.map((s) => (
               <div key={s.id} style={styles.section}>
                 <div style={{ fontWeight: 900 }}>{s.label}</div>
                 <div style={styles.muted}>{Math.round(s.freq)} Hz</div>
-                <button
-                  onClick={() => playTone(ensure(), { freq: s.freq, duration: 0.30, volume: 0.22 })}
-                  style={{ ...styles.ghostBtn, marginTop: 10, borderColor: 'rgba(143,211,204,0.25)' }}
-                >
-                  {t('games.play', 'Play')}
+                <button onClick={() => playTone(ensure(), { freq: s.freq, duration: 0.30, volume: 0.22 })} style={{ ...styles.ghostBtn, marginTop: 10, borderColor: 'rgba(143,211,204,0.25)' }}>
+                  استمع
                 </button>
               </div>
             ))}
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, gap: 10, flexWrap: 'wrap' }}>
-            <button
-              onClick={startPractice}
-              style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}
-            >
-              {t('sequence.startPractice', 'Start Practice')}
+            <button onClick={begin} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}>
+              ابدأ الاختبار
             </button>
-            {onCancel ? <button onClick={onCancel} style={styles.ghostBtn}>{t('games.close', 'Close')}</button> : null}
+            {onCancel ? <button onClick={onCancel} style={styles.ghostBtn}>إغلاق</button> : null}
           </div>
         </div>
       ) : null}
@@ -465,18 +383,14 @@ export default function SequencingTestPanel({
         <div style={{ marginTop: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
             <div>
-              <div style={{ fontWeight: 900 }}>{progressLabel}</div>
-              <div style={styles.muted}>
-                {t('sequence.lengthLabel', 'Sequence length')}: {length} | {t('sequence.noiseLabel', 'Noise')}: {noiseLevel.toFixed(2)}
-              </div>
+              <div style={{ fontWeight: 900 }}>Round {roundProgress}</div>
+              <div style={styles.muted}>الطول الحالي: {length} • Noise: {noiseLevel.toFixed(2)}</div>
             </div>
-            <span style={styles.chip}>
-              {mode === 'practice' ? t('sequence.practiceChip', 'Practice') : t('sequence.listeningChip', 'Listening')}
-            </span>
+            <span style={styles.chip}>استمع…</span>
           </div>
           <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900, color: brandPurpleDark }}>{t('sequence.listeningTitle', 'Listen to the sequence')}</div>
-            <p style={{ ...styles.muted, marginTop: 6 }}>{t('sequence.listeningBody', 'Focus on the order. You will tap the shapes next.')}</p>
+            <div style={{ fontWeight: 900, color: brandPurpleDark }}>تشغيل السلسلة</div>
+            <p style={{ ...styles.muted, marginTop: 6 }}>استمع جيدًا. ستظهر أزرار الإدخال بعد انتهاء التشغيل.</p>
           </div>
         </div>
       ) : null}
@@ -485,49 +399,40 @@ export default function SequencingTestPanel({
         <div style={{ marginTop: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
             <div>
-              <div style={{ fontWeight: 900 }}>{progressLabel}</div>
-              <div style={styles.muted}>
-                {t('sequence.progressLabel', 'Selections')}: {chosen.length}/{target.length} | {t('sequence.noiseLabel', 'Noise')}: {noiseLevel.toFixed(2)}
-              </div>
+              <div style={{ fontWeight: 900 }}>Round {roundProgress}</div>
+              <div style={styles.muted}>أدخل التسلسل: {chosen.length}/{target.length} • Noise: {noiseLevel.toFixed(2)}</div>
             </div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-              <span
-                style={{
-                  ...styles.chip,
-                  background: 'rgba(143,211,204,0.15)',
-                  borderColor: 'rgba(143,211,204,0.4)',
-                }}
-              >
+              <span style={{
+                ...styles.chip,
+                background: 'rgba(143,211,204,0.15)',
+                borderColor: 'rgba(143,211,204,0.4)',
+              }}>
                 {gamePoints} pts
               </span>
-              {mode === 'test' ? (
-                <span style={styles.chip}>
-                  {t('sequence.scoreLabel', 'Score')}: {score}/{Math.max(0, round - 1)}
-                </span>
-              ) : null}
-              <button onClick={replay} disabled={replays >= maxReplays} style={replays >= maxReplays ? styles.disabledBtn : styles.ghostBtn}>
-                {t('sequence.replayLabel', 'Replay sequence')} ({Math.max(0, maxReplays - replays)}/{maxReplays})
+              <span style={styles.chip}>✅ {score}/{round - 1}</span>
+              <button onClick={replay} disabled={replays >= 1} style={replays >= 1 ? styles.disabledBtn : styles.ghostBtn}>
+                🔁 إعادة تشغيل (مرة واحدة)
               </button>
             </div>
           </div>
 
+          {/* Real-time feedback */}
           {lastFeedback && (
-            <div
-              style={{
-                marginTop: 12,
-                textAlign: 'center',
-                padding: '10px 16px',
-                borderRadius: 12,
-                fontWeight: 900,
-                fontSize: 18,
-                animation: 'feedbackPop 0.3s ease-out',
-                background: lastFeedback === 'correct' ? 'rgba(143,211,204,0.2)' : 'rgba(176,18,112,0.2)',
-                color: lastFeedback === 'correct' ? brandCyan : brandPink,
-              }}
-            >
+            <div style={{
+              marginTop: 12,
+              textAlign: 'center',
+              padding: '10px 16px',
+              borderRadius: 12,
+              fontWeight: 900,
+              fontSize: 18,
+              animation: 'feedbackPop 0.3s ease-out',
+              background: lastFeedback === 'correct' ? 'rgba(143,211,204,0.2)' : 'rgba(176,18,112,0.2)',
+              color: lastFeedback === 'correct' ? brandCyan : brandPink,
+            }}>
               {lastFeedback === 'correct'
-                ? `${t('sequence.feedbackCorrect', 'Correct!')}${feedbackPoints ? ` +${feedbackPoints}` : ''}${mode === 'test' && replays === 0 && feedbackPoints ? ` | ${t('sequence.noReplayBonus', 'No replay bonus')}` : ''}`
-                : t('sequence.feedbackIncorrect', 'Try again')}
+                ? `✓ Correct! +${feedbackPoints}${replays === 0 ? ' (No Replay Bonus!)' : ''}`
+                : `✗ Wrong sequence ${feedbackPoints}`}
             </div>
           )}
 
@@ -566,9 +471,9 @@ export default function SequencingTestPanel({
           </div>
 
           <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900, color: brandPurpleDark }}>{t('sequence.reminderTitle', 'Remember the order')}</div>
+            <div style={{ fontWeight: 900, color: brandPurpleDark }}>ملاحظة جودة</div>
             <p style={{ ...styles.muted, marginTop: 6 }}>
-              {t('sequence.reminderBody', 'Tap the shapes in the same order you heard them.')}
+              إعادة التشغيل تقلل من دقة القياس. تم السماح بها مرة واحدة لكل جولة فقط.
             </p>
           </div>
         </div>
@@ -577,18 +482,17 @@ export default function SequencingTestPanel({
       {stage === 'done' ? (
         <div style={{ marginTop: 12 }}>
           <div style={{ ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900, color: brandCyan }}>{t('sequence.doneTitle', 'Sequence complete')}</div>
+            <div style={{ fontWeight: 900, color: brandCyan }}>تم حفظ النتيجة ✅</div>
             <p style={{ ...styles.muted, marginTop: 6 }}>
-              {t('sequence.doneBody', 'Download the session details for review.')}
+              يمكنك تنزيل تقرير المدارس (PDF/CSV) أو الانتقال للخلاصة.
             </p>
-            <p style={{ ...styles.muted, marginTop: 6 }}>{t('clinical.screeningDisclaimer')}</p>
             {enableExports ? (
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
                 <button onClick={downloadPdf} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}>
-                  {t('games.exportPdf', 'Export PDF')}
+                  تنزيل PDF
                 </button>
                 <button onClick={downloadCsv} style={{ ...styles.ghostBtn, borderColor: 'rgba(143,211,204,0.25)' }}>
-                  {t('games.exportCsv', 'Export CSV')}
+                  تنزيل CSV
                 </button>
               </div>
             ) : null}
@@ -605,5 +509,4 @@ export default function SequencingTestPanel({
       `}</style>
     </div>
   );
-
 }
