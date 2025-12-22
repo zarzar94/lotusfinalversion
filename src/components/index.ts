@@ -13,6 +13,27 @@ export { ReportsExport } from './ReportsExport';
 // Booking system
 export { BookingSystem } from './booking';
 
+// Treatment components
+export { TreatmentProtocolDashboard, SoundLabSimulation } from './treatment';
+
+// Assessment components
+export { VirtualAssessmentFlow, FeedbackSystem } from './assessment';
+
+// Intake/Signup
+export { SignupIntakeForm } from './intake';
+
+// Analytics
+export { AnalyticsDashboard } from './analytics';
+
+// About section
+export { AboutUsSection } from './about';
+
+// Navigation
+export { MainNavigation } from './navigation';
+
+// Games
+export { PracticeTrials } from './games/PracticeTrials';
+
 // Language consistency utilities
 export {
   LocalizedText,
