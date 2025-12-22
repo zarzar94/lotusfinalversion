@@ -5,14 +5,28 @@ import ErrorBoundary from './components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
 import { GamificationProvider } from './context/GamificationContext';
 import { LanguageProvider } from './context/LanguageContext';
-import { SyncProvider } from './context/SyncContext';
-import { UserProvider, useUser } from './context/UserContext';
+import { UserProvider } from './context/UserContext';
 import { VisitorModeProvider } from './context/VisitorModeContext';
+import AchievementToast from './components/AchievementToast';
+import ProgressDashboard from './components/ProgressDashboard';
+import ScrollProgressTracker from './components/ScrollProgressTracker';
+import ActivityFeed from './components/ActivityFeed';
+import NotificationCenter from './components/NotificationCenter';
+import { ProgressExportButton } from './components/ProgressExport';
 import { useClinicalSync } from './hooks/useClinicalSync';
 import StickySmartCTA from './components/StickySmartCTA';
-import RequireAuth from './components/auth/RequireAuth';
-import RequirePermission from './components/auth/RequirePermission';
-import { detectPreferredLanguage } from './utils/language';
+
+// UX Enhancement imports
+import WelcomeModal from './components/WelcomeModal';
+import JourneyProgressIndicator from './components/JourneyProgressIndicator';
+import FloatingTrustBar from './components/FloatingTrustBar';
+import { ReadingProgressBar } from './components/ScrollSectionIndicator';
+import { ReturningUserBanner, EngagementStreak } from './components/PersonalizedGreeting';
+import KeyboardShortcuts, { SkipToContent } from './components/KeyboardShortcuts';
+import { ScrollBasedCTA, EngagementCelebration, TimeOnPageTracker } from './components/SmartEngagement';
+import { FeedbackProvider } from './components/VisualFeedback';
+import SmartNavigationDrawer, { BreadcrumbNav, ContinueWhereYouLeftOff } from './components/SmartNavigation';
+import { TourProvider, StartTourButton } from './components/InteractiveOnboarding';
 
 // Respect Vite base for subpath deployments (e.g., GitHub Pages)
 const rawBase = import.meta.env.BASE_URL ?? '/';
@@ -24,45 +38,40 @@ const appBase = (rawBase === './' ? '/' : rawBase).replace(/\/+$/, '') || '/';
 
 // Main 7 Pages
 const LandingPage = lazy(() => import('./pages/LandingPage'));
-const ExplorePage = lazy(() => import('./pages/ExplorePage'));
 const AssessmentPage = lazy(() => import('./pages/AssessmentPage'));
 const ProgramPage = lazy(() => import('./pages/ProgramPage'));
 const SciencePage = lazy(() => import('./pages/SciencePage'));
 const ResultsPage = lazy(() => import('./pages/ResultsPage'));
 const ResourcesPage = lazy(() => import('./pages/ResourcesPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
-const PartnersPage = lazy(() => import('./pages/PartnersPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
-const FAQPage = lazy(() => import('./pages/FAQPage'));
 
 // Special Pages
 const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
-const LoginPage = lazy(() => import('./pages/LoginPage'));
 
 // Dashboard Pages
 const SchoolDashboard = lazy(() => import('./components/analytics/SchoolDashboard'));
 const ParentDashboard = lazy(() => import('./components/analytics/ParentDashboard'));
 const ClinicianDashboard = lazy(() => import('./components/analytics/ClinicianDashboard'));
-const ParentRoleDashboard = lazy(() => import('./pages/ParentDashboard'));
-const EducatorDashboard = lazy(() => import('./pages/EducatorDashboard'));
-const ClinicianRoleDashboard = lazy(() => import('./pages/ClinicianDashboard'));
 const SettingsPage = lazy(() => import('./components/SettingsPage'));
-const DebugSessionPage = lazy(() => import('./pages/DebugSessionPage'));
-const GamificationUI = lazy(() => import('./components/GamificationUI'));
-
-const HomeGate = memo(function HomeGate() {
-  const { isAuthenticated } = useUser();
-  return isAuthenticated ? <ExplorePage /> : <LandingPage />;
-});
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PAGE LOADER - Enhanced with brain-themed animation (bilingual)
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Get language from localStorage (same key as LanguageContext)
+function getStoredLanguage(): 'ar' | 'en' {
+  if (typeof window === 'undefined') return 'ar';
+  const saved = localStorage.getItem('lotus_language');
+  if (saved === 'ar' || saved === 'en') return saved;
+  const browserLang = navigator.language.toLowerCase();
+  if (browserLang.startsWith('en')) return 'en';
+  return 'ar';
+}
+
 function PageLoader() {
-  const isArabic = detectPreferredLanguage() === 'ar';
+  const isArabic = getStoredLanguage() === 'ar';
   const loadingText = isArabic ? 'جارٍ التحميل...' : 'Loading...';
 
   return (
@@ -405,6 +414,120 @@ const PageTransitionStyles = memo(() => (
       transition: direction 0s, text-align 0.2s ease;
     }
 
+    /* Enhanced UX micro-interactions */
+
+    /* Smooth link transitions */
+    a {
+      transition: color 0.2s ease, opacity 0.2s ease;
+    }
+
+    /* Focus ring for accessibility */
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 2px solid #8FD3CC;
+      outline-offset: 2px;
+      box-shadow: 0 0 0 4px rgba(143, 211, 204, 0.15);
+    }
+
+    /* Touch feedback for mobile */
+    @media (hover: none) {
+      button:active,
+      a:active {
+        opacity: 0.8;
+        transform: scale(0.98);
+      }
+    }
+
+    /* Smooth section scrolling */
+    section {
+      scroll-margin-top: 100px;
+    }
+
+    /* Loading skeleton animation */
+    .skeleton-loading {
+      background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0.05) 0%,
+        rgba(255,255,255,0.1) 50%,
+        rgba(255,255,255,0.05) 100%
+      );
+      background-size: 200% 100%;
+      animation: skeletonShimmer 1.5s ease-in-out infinite;
+    }
+
+    @keyframes skeletonShimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Entrance animations for content */
+    .animate-fade-in {
+      animation: contentFadeIn 0.5s ease-out forwards;
+    }
+
+    @keyframes contentFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Attention-grabbing pulse for CTAs */
+    .cta-pulse {
+      animation: ctaPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes ctaPulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(143, 211, 204, 0.4);
+      }
+      50% {
+        box-shadow: 0 0 0 10px rgba(143, 211, 204, 0);
+      }
+    }
+
+    /* Tooltip fade animation */
+    .tooltip-enter {
+      animation: tooltipFade 0.2s ease-out forwards;
+    }
+
+    @keyframes tooltipFade {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Success checkmark animation */
+    .success-check {
+      animation: successPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes successPop {
+      0% {
+        transform: scale(0);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.2);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
     /* Reduced motion support */
     @media (prefers-reduced-motion: reduce) {
       .page-transition-wrapper,
@@ -415,7 +538,12 @@ const PageTransitionStyles = memo(() => (
       .status-online::after,
       .glow-bar,
       .data-stream,
-      .fade-in-up {
+      .fade-in-up,
+      .skeleton-loading,
+      .animate-fade-in,
+      .cta-pulse,
+      .tooltip-enter,
+      .success-check {
         animation: none !important;
         transition: none !important;
       }
@@ -431,6 +559,75 @@ PageTransitionStyles.displayName = 'PageTransitionStyles';
 // ═══════════════════════════════════════════════════════════════════════════
 // GAMIFICATION UI WRAPPER
 // ═══════════════════════════════════════════════════════════════════════════
+
+const GamificationUI = memo(() => (
+  <>
+    <AchievementToast />
+    <ProgressDashboard />
+    <ScrollProgressTracker />
+    <ActivityFeed />
+    <NotificationCenter />
+    {/* Hidden export button that listens for export-progress event */}
+    <div style={{ position: 'fixed', bottom: -100, left: -100, opacity: 0, pointerEvents: 'none' }}>
+      <ProgressExportButton />
+    </div>
+  </>
+));
+GamificationUI.displayName = 'GamificationUI';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UX ENHANCEMENTS WRAPPER - All user experience improvements
+// ═══════════════════════════════════════════════════════════════════════════
+
+const UXEnhancements = memo(() => (
+  <>
+    {/* Skip to content link for accessibility */}
+    <SkipToContent />
+
+    {/* Reading progress bar at top */}
+    <ReadingProgressBar />
+
+    {/* Welcome modal for first-time visitors */}
+    <WelcomeModal />
+
+    {/* Returning user welcome banner */}
+    <ReturningUserBanner />
+
+    {/* Engagement streak indicator */}
+    <EngagementStreak />
+
+    {/* Journey progress indicator (navigation compass) */}
+    <JourneyProgressIndicator />
+
+    {/* Social proof floating bar */}
+    <FloatingTrustBar />
+
+    {/* Keyboard shortcuts system */}
+    <KeyboardShortcuts />
+
+    {/* Smart navigation drawer (⌘K) */}
+    <SmartNavigationDrawer />
+
+    {/* Continue where you left off prompt */}
+    <ContinueWhereYouLeftOff />
+
+    {/* Breadcrumb navigation */}
+    <BreadcrumbNav />
+
+    {/* Interactive onboarding tour button */}
+    <StartTourButton />
+
+    {/* Smart scroll-based CTAs */}
+    <ScrollBasedCTA />
+
+    {/* Engagement celebration effects */}
+    <EngagementCelebration />
+
+    {/* Time on page tracker rewards */}
+    <TimeOnPageTracker />
+  </>
+));
+UXEnhancements.displayName = 'UXEnhancements';
 
 const ClinicalSync = memo(() => {
   useClinicalSync();
@@ -482,17 +679,18 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <BrowserRouter basename={appBase}>
-        <ScrollToTop />
-        <PageTransitionStyles />
-        <LanguageProvider>
+      <FeedbackProvider>
+        <BrowserRouter basename={appBase}>
+          <ScrollToTop />
+          <PageTransitionStyles />
+          <LanguageProvider>
           <VisitorModeProvider>
             <UserProvider>
-              <SyncProvider>
-                <GamificationProvider>
-                  <ClinicalSync />
+              <GamificationProvider>
+                <TourProvider>
+                <ClinicalSync />
 
-                <div className="page-transition-wrapper">
+                <div id="main-content" className="page-transition-wrapper">
                   <Routes>
                     {/* ═══════════════════════════════════════════════════════
                         MAIN 6 PAGES
@@ -503,44 +701,17 @@ function App() {
                       path="/"
                       element={
                         <Suspense fallback={<PageLoader />}>
-                          <HomeGate />
-                        </Suspense>
-                      }
-                    />
-                    <Route
-                      path="/home"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
                           <LandingPage />
                         </Suspense>
                       }
                     />
 
+                    {/* 2. Assessment Page - Diagnostic Tools */}
                     <Route
-                      path="/login"
+                      path="/assessment"
                       element={
                         <Suspense fallback={<PageLoader />}>
-                          <LoginPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* Contact/Get Started Page */}
-                    <Route
-                      path="/contact"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ContactPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* Partners Page - Schools & Organizations */}
-                    <Route
-                      path="/partners"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <PartnersPage />
+                          <AssessmentPage />
                         </Suspense>
                       }
                     />
@@ -551,37 +722,6 @@ function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <ProgramPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* FAQ Page - Common Questions */}
-                    <Route
-                      path="/faq"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <FAQPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* 7. About Page - Centre & Specialist Info */}
-                    <Route
-                      path="/about"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <AboutPage />
-                        </Suspense>
-                      }
-                    />
-
-                    <Route element={<RequireAuth />}>
-                    {/* 2. Assessment Page - Diagnostic Tools */}
-                    <Route
-                      path="/assessment"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <AssessmentPage />
                         </Suspense>
                       }
                     />
@@ -616,9 +756,29 @@ function App() {
                       }
                     />
 
+                    {/* Contact/Get Started Page */}
+                    <Route
+                      path="/contact"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ContactPage />
+                        </Suspense>
+                      }
+                    />
+
                     {/* ═════════════════════════════════════════════════════==
                         SPECIAL PAGES
                         ═══════════════════════════════════════════════════════ */}
+                    {/* 7. About Page - Centre & Specialist Info */}
+                    <Route
+                      path="/about"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <AboutPage />
+                        </Suspense>
+                      }
+                    />
+
                     {/* ═══════════════════════════════════════════════════════
                         SPECIAL PAGES
                         ═══════════════════════════════════════════════════════ */}
@@ -640,61 +800,25 @@ function App() {
                     <Route
                       path="/school-dashboard"
                       element={
-                        <RequirePermission permission="school_analytics">
-                          <Suspense fallback={<PageLoader />}>
-                            <SchoolDashboard />
-                          </Suspense>
-                        </RequirePermission>
+                        <Suspense fallback={<PageLoader />}>
+                          <SchoolDashboard />
+                        </Suspense>
                       }
                     />
                     <Route
                       path="/parent-dashboard"
                       element={
-                        <RequirePermission permission="view_child_reports">
-                          <Suspense fallback={<PageLoader />}>
-                            <ParentDashboard />
-                          </Suspense>
-                        </RequirePermission>
+                        <Suspense fallback={<PageLoader />}>
+                          <ParentDashboard />
+                        </Suspense>
                       }
                     />
                     <Route
                       path="/clinician-dashboard"
                       element={
-                        <RequirePermission permission="view_patient_reports">
-                          <Suspense fallback={<PageLoader />}>
-                            <ClinicianDashboard />
-                          </Suspense>
-                        </RequirePermission>
-                      }
-                    />
-                    <Route
-                      path="/dashboard/parent"
-                      element={
-                        <RequirePermission permission="view_child_reports">
-                          <Suspense fallback={<PageLoader />}>
-                            <ParentRoleDashboard />
-                          </Suspense>
-                        </RequirePermission>
-                      }
-                    />
-                    <Route
-                      path="/dashboard/educator"
-                      element={
-                        <RequirePermission permission="school_analytics">
-                          <Suspense fallback={<PageLoader />}>
-                            <EducatorDashboard />
-                          </Suspense>
-                        </RequirePermission>
-                      }
-                    />
-                    <Route
-                      path="/dashboard/clinician"
-                      element={
-                        <RequirePermission permission="view_patient_reports">
-                          <Suspense fallback={<PageLoader />}>
-                            <ClinicianRoleDashboard />
-                          </Suspense>
-                        </RequirePermission>
+                        <Suspense fallback={<PageLoader />}>
+                          <ClinicianDashboard />
+                        </Suspense>
                       }
                     />
                     <Route
@@ -703,16 +827,6 @@ function App() {
                         <Suspense fallback={<PageLoader />}>
                           <SettingsPage />
                         </Suspense>
-                      }
-                    />
-                    <Route
-                      path="/debug/session"
-                      element={
-                        <RequirePermission permission="system_config">
-                          <Suspense fallback={<PageLoader />}>
-                            <DebugSessionPage />
-                          </Suspense>
-                        </RequirePermission>
                       }
                     />
 
@@ -727,23 +841,24 @@ function App() {
                         </Suspense>
                       }
                     />
-                    </Route>
                   </Routes>
                 </div>
 
                 {/* Gamification UI (always visible) */}
-                <Suspense fallback={null}>
-                  <GamificationUI />
-                </Suspense>
+                <GamificationUI />
+
+                {/* UX Enhancements (welcome, progress, trust) */}
+                <UXEnhancements />
 
                 {/* Sticky Smart CTA (mode-aware) */}
-                  <StickySmartCTA />
-                </GamificationProvider>
-              </SyncProvider>
+                <StickySmartCTA />
+                </TourProvider>
+              </GamificationProvider>
             </UserProvider>
           </VisitorModeProvider>
         </LanguageProvider>
-      </BrowserRouter>
+        </BrowserRouter>
+      </FeedbackProvider>
     </ErrorBoundary>
   );
 }
