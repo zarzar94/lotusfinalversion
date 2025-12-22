@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAllSessions } from '../../utils/sessionStorage';
 import type { LabModuleMetrics } from '../../types/moduleMetrics';
-import { brandCyan, brandPurple, colors, spacing, radius, typography } from '../styles';
+import { brandCyan, brandPurple, colors, spacing, radius, typography, analytics } from '../styles';
 
 type ChartVariant = 'parent' | 'clinician';
 
@@ -74,16 +74,15 @@ const MetricCard = memo(({
 }) => (
   <div
     style={{
-      padding: spacing[3],
-      borderRadius: radius.lg,
+      ...analytics.metricCard,
       background: `${tone}12`,
       border: `1px solid ${tone}30`,
     }}
   >
-    <div style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
+    <div style={analytics.metricLabel}>
       {label}
     </div>
-    <div style={{ fontSize: typography.size.lg, fontWeight: typography.weight.bold, color: tone }}>
+    <div style={{ ...analytics.metricValue, color: tone }}>
       {value}
     </div>
   </div>
@@ -247,12 +246,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   return (
     <div style={{ display: 'grid', gap: spacing[4] }}>
       <div
-        style={{
-          padding: spacing[4],
-          borderRadius: radius.xl,
-          border: `1px solid ${colors.border.default}`,
-          background: colors.surface.card,
-        }}
+        style={analytics.chartContainer}
       >
         <div
           style={{
@@ -367,12 +361,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
 
       {variant === 'clinician' && fatiguePoints.length > 0 && (
         <div
-          style={{
-            padding: spacing[4],
-            borderRadius: radius.xl,
-            border: `1px solid ${colors.border.default}`,
-            background: colors.surface.card,
-          }}
+          style={analytics.fatigueZone}
         >
           <div
             style={{

@@ -640,3 +640,524 @@ export const focusStyles = {
     outlineOffset: 2,
   },
 } as const;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE METRICS & SESSION STORAGE STYLES (Issue #37)
+// Styles for module metrics schema and session storage UI
+// ─────────────────────────────────────────────────────────────────────────────
+export const moduleMetrics: StyleRecord = {
+  sessionCard: {
+    padding: spacing[5],
+    background: 'linear-gradient(135deg, rgba(143,211,204,0.08), rgba(175,132,186,0.05))',
+    borderRadius: radius.xl,
+    border: `1px solid ${brand.cyan}22`,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  metricGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+    gap: spacing[4],
+  },
+  metricItem: {
+    padding: spacing[4],
+    background: 'rgba(0,0,0,0.3)',
+    borderRadius: radius.lg,
+    border: `1px solid ${brand.cyan}18`,
+    textAlign: 'center',
+  },
+  metricValue: {
+    fontSize: typography.size['2xl'],
+    fontWeight: typography.weight.black,
+    fontFamily: typography.fontFamily.mono,
+    color: brand.cyan,
+    textShadow: `0 0 15px ${brand.cyan}44`,
+  },
+  metricLabel: {
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.semibold,
+    color: semantic.text.muted,
+    textTransform: 'uppercase',
+    letterSpacing: typography.letterSpacing.widest,
+    marginTop: spacing[1],
+  },
+  sessionTimeline: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing[2],
+    padding: `${spacing[3]}px ${spacing[4]}px`,
+    background: 'rgba(0,0,0,0.2)',
+    borderRadius: radius.md,
+  },
+  storageIndicator: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing[2],
+    padding: `${spacing[2]}px ${spacing[3]}px`,
+    background: `${brand.success}15`,
+    borderRadius: radius.full,
+    fontSize: typography.size.xs,
+    color: brand.success,
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FOCUSED ATTENTION MODULE STYLES (Issue #38)
+// CPT/odd-one-out attention task UI
+// ─────────────────────────────────────────────────────────────────────────────
+export const attentionModule: StyleRecord = {
+  targetZone: {
+    width: '100%',
+    aspectRatio: '16/9',
+    background: 'radial-gradient(ellipse at center, rgba(143,211,204,0.08) 0%, rgba(5,6,13,0.95) 70%)',
+    borderRadius: radius.xl,
+    border: `2px solid ${brand.cyan}33`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  stimulus: {
+    width: 120,
+    height: 120,
+    borderRadius: radius.xl,
+    background: gradients.cyanPurple,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 48,
+    boxShadow: `0 0 40px ${brand.cyan}44`,
+    transition: transitions.spring,
+  },
+  stimulusTarget: {
+    boxShadow: `0 0 60px ${brand.success}66, 0 0 100px ${brand.success}33`,
+    border: `3px solid ${brand.success}`,
+  },
+  stimulusDistractor: {
+    opacity: 0.6,
+    filter: 'grayscale(0.3)',
+  },
+  responseButton: {
+    width: 80,
+    height: 80,
+    borderRadius: '50%',
+    background: gradients.primary,
+    border: `3px solid ${brand.cyan}`,
+    cursor: 'pointer',
+    transition: transitions.fast,
+    boxShadow: `0 0 20px ${brand.cyan}33`,
+  },
+  reactionTimer: {
+    position: 'absolute',
+    top: spacing[4],
+    right: spacing[4],
+    padding: `${spacing[2]}px ${spacing[4]}px`,
+    background: 'rgba(0,0,0,0.6)',
+    borderRadius: radius.full,
+    fontFamily: typography.fontFamily.mono,
+    fontSize: typography.size.lg,
+    color: brand.cyan,
+    border: `1px solid ${brand.cyan}44`,
+  },
+  streakCounter: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing[2],
+    padding: `${spacing[2]}px ${spacing[3]}px`,
+    background: `linear-gradient(135deg, ${brand.purple}22, ${brand.pink}15)`,
+    borderRadius: radius.lg,
+    border: `1px solid ${brand.purple}33`,
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BINAURAL/DICHOTIC LISTENING MODULE STYLES (Issue #39)
+// Left/right ear discrimination and integration tasks
+// ─────────────────────────────────────────────────────────────────────────────
+export const binauralModule: StyleRecord = {
+  earDisplay: {
+    display: 'grid',
+    gridTemplateColumns: '1fr auto 1fr',
+    gap: spacing[6],
+    alignItems: 'center',
+    padding: spacing[6],
+    background: 'linear-gradient(180deg, rgba(26,31,46,0.95) 0%, rgba(13,17,23,0.98) 100%)',
+    borderRadius: radius['2xl'],
+    border: `1px solid ${brand.purple}22`,
+  },
+  earChannel: {
+    padding: spacing[5],
+    background: 'rgba(0,0,0,0.4)',
+    borderRadius: radius.xl,
+    textAlign: 'center',
+    position: 'relative',
+  },
+  earChannelLeft: {
+    borderLeft: `4px solid ${brand.cyan}`,
+    boxShadow: `-10px 0 40px ${brand.cyan}22`,
+  },
+  earChannelRight: {
+    borderRight: `4px solid ${brand.purple}`,
+    boxShadow: `10px 0 40px ${brand.purple}22`,
+  },
+  earIcon: {
+    width: 64,
+    height: 64,
+    margin: '0 auto',
+    marginBottom: spacing[3],
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 32,
+  },
+  brainCenter: {
+    width: 100,
+    height: 100,
+    borderRadius: '50%',
+    background: `radial-gradient(circle at 40% 40%, ${brand.cyan}33, ${brand.purple}22, transparent 70%)`,
+    border: `2px dashed ${brand.cyan}44`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    animation: 'brainPulse 3s ease-in-out infinite',
+  },
+  integrationIndicator: {
+    padding: `${spacing[3]}px ${spacing[5]}px`,
+    background: `linear-gradient(90deg, ${brand.cyan}22, ${brand.purple}22)`,
+    borderRadius: radius.full,
+    textAlign: 'center',
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+  },
+  channelSelector: {
+    display: 'flex',
+    gap: spacing[3],
+    padding: spacing[3],
+    background: 'rgba(0,0,0,0.3)',
+    borderRadius: radius.lg,
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SPEECH-IN-NOISE SNR MODULE STYLES (Issue #40)
+// Adaptive signal-to-noise ratio testing UI
+// ─────────────────────────────────────────────────────────────────────────────
+export const snrModule: StyleRecord = {
+  noiseField: {
+    position: 'relative',
+    padding: spacing[8],
+    background: `
+      repeating-radial-gradient(circle at 50% 50%, transparent 0, rgba(255,255,255,0.02) 1px, transparent 2px),
+      linear-gradient(180deg, rgba(13,17,23,0.98) 0%, rgba(5,6,13,0.99) 100%)
+    `,
+    borderRadius: radius['2xl'],
+    border: `1px solid rgba(255,255,255,0.08)`,
+    overflow: 'hidden',
+  },
+  noiseOverlay: {
+    position: 'absolute',
+    inset: 0,
+    background: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E")`,
+    pointerEvents: 'none',
+  },
+  signalBubble: {
+    position: 'relative',
+    zIndex: 2,
+    padding: `${spacing[6]}px ${spacing[8]}px`,
+    background: `linear-gradient(135deg, ${brand.cyan}15, ${brand.purple}10)`,
+    borderRadius: radius.xl,
+    border: `2px solid ${brand.cyan}44`,
+    textAlign: 'center',
+    boxShadow: `0 0 40px ${brand.cyan}22`,
+  },
+  snrMeter: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing[4],
+    padding: spacing[4],
+    background: 'rgba(0,0,0,0.5)',
+    borderRadius: radius.lg,
+    marginTop: spacing[4],
+  },
+  snrBar: {
+    flex: 1,
+    height: 8,
+    background: 'rgba(255,255,255,0.1)',
+    borderRadius: radius.full,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  snrLevel: {
+    height: '100%',
+    background: `linear-gradient(90deg, ${brand.success}, ${brand.warning}, ${brand.error})`,
+    borderRadius: radius.full,
+    transition: 'width 0.3s ease',
+  },
+  wordDisplay: {
+    fontSize: typography.size['3xl'],
+    fontWeight: typography.weight.black,
+    color: semantic.text.primary,
+    textShadow: `0 0 30px ${brand.cyan}55`,
+    letterSpacing: typography.letterSpacing.wide,
+  },
+  responseOptions: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: spacing[3],
+    marginTop: spacing[5],
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LONGITUDINAL ANALYTICS STYLES (Issue #41)
+// Fatigue slope and progress tracking charts
+// ─────────────────────────────────────────────────────────────────────────────
+export const analytics: StyleRecord = {
+  chartContainer: {
+    padding: spacing[5],
+    background: 'linear-gradient(180deg, rgba(26,31,46,0.9) 0%, rgba(13,17,23,0.95) 100%)',
+    borderRadius: radius.xl,
+    border: `1px solid ${brand.cyan}18`,
+  },
+  chartHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing[4],
+    paddingBottom: spacing[3],
+    borderBottom: `1px solid ${brand.cyan}15`,
+  },
+  chartTitle: {
+    fontSize: typography.size.lg,
+    fontWeight: typography.weight.extrabold,
+    color: semantic.text.primary,
+  },
+  chartLegend: {
+    display: 'flex',
+    gap: spacing[4],
+    flexWrap: 'wrap',
+  },
+  legendItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing[2],
+    fontSize: typography.size.sm,
+    color: semantic.text.secondary,
+  },
+  legendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: '50%',
+  },
+  trendIndicator: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: spacing[1],
+    padding: `${spacing[1]}px ${spacing[2.5]}px`,
+    borderRadius: radius.full,
+    fontSize: typography.size.xs,
+    fontWeight: typography.weight.bold,
+  },
+  trendUp: {
+    background: `${brand.success}18`,
+    color: brand.success,
+  },
+  trendDown: {
+    background: `${brand.error}18`,
+    color: brand.error,
+  },
+  fatigueZone: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: '20%',
+    background: `linear-gradient(90deg, transparent, ${brand.warning}15)`,
+    borderLeft: `1px dashed ${brand.warning}44`,
+    pointerEvents: 'none',
+  },
+  sessionMarker: {
+    width: 8,
+    height: 8,
+    borderRadius: '50%',
+    background: brand.cyan,
+    boxShadow: `0 0 8px ${brand.cyan}66`,
+    cursor: 'pointer',
+    transition: transitions.fast,
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ROLE DASHBOARD EXPORT STYLES (Issue #42)
+// Parent/school/clinician dashboard and report export UI
+// ─────────────────────────────────────────────────────────────────────────────
+export const dashboardExport: StyleRecord = {
+  exportPanel: {
+    padding: spacing[5],
+    background: gradients.panel,
+    borderRadius: radius.xl,
+    border: `1px solid ${brand.purple}22`,
+  },
+  exportHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing[4],
+  },
+  exportButton: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing[2],
+    padding: `${spacing[3]}px ${spacing[5]}px`,
+    background: gradients.primary,
+    border: 'none',
+    borderRadius: radius.lg,
+    color: brand.ink,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    cursor: 'pointer',
+    boxShadow: shadows.glow.cyan,
+    transition: transitions.bounce,
+  },
+  reportPreview: {
+    padding: spacing[4],
+    background: 'rgba(255,255,255,0.02)',
+    borderRadius: radius.lg,
+    border: `1px solid ${brand.cyan}15`,
+    marginBottom: spacing[4],
+  },
+  roleTab: {
+    padding: `${spacing[2.5]}px ${spacing[4]}px`,
+    background: 'transparent',
+    border: `1px solid ${brand.cyan}22`,
+    borderRadius: radius.md,
+    color: semantic.text.secondary,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.semibold,
+    cursor: 'pointer',
+    transition: transitions.fast,
+  },
+  roleTabActive: {
+    background: `linear-gradient(135deg, ${brand.cyan}22, ${brand.purple}15)`,
+    borderColor: brand.cyan,
+    color: brand.cyan,
+  },
+  childCard: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing[4],
+    padding: spacing[4],
+    background: 'rgba(0,0,0,0.3)',
+    borderRadius: radius.lg,
+    border: `1px solid ${brand.cyan}15`,
+    transition: transitions.smooth,
+  },
+  progressRing: {
+    width: 48,
+    height: 48,
+    borderRadius: '50%',
+    background: `conic-gradient(${brand.cyan} var(--progress), rgba(255,255,255,0.1) 0)`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INSTRUCTION FLOW & PRACTICE TRIAL STYLES (Issue #43)
+// Onboarding instructions and practice mode UI
+// ─────────────────────────────────────────────────────────────────────────────
+export const instructionFlow: StyleRecord = {
+  instructionOverlay: {
+    position: 'fixed',
+    inset: 0,
+    background: 'rgba(5,6,13,0.92)',
+    backdropFilter: 'blur(8px)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 50,
+  },
+  instructionCard: {
+    maxWidth: 600,
+    padding: spacing[8],
+    background: gradients.card,
+    borderRadius: radius['2xl'],
+    border: `1px solid ${brand.cyan}33`,
+    textAlign: 'center',
+    boxShadow: `0 30px 80px rgba(0,0,0,0.5), 0 0 60px ${brand.cyan}15`,
+  },
+  stepIndicator: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: spacing[2],
+    marginBottom: spacing[6],
+  },
+  stepDot: {
+    width: 10,
+    height: 10,
+    borderRadius: '50%',
+    background: 'rgba(255,255,255,0.2)',
+    transition: transitions.fast,
+  },
+  stepDotActive: {
+    background: brand.cyan,
+    boxShadow: `0 0 10px ${brand.cyan}`,
+  },
+  stepDotComplete: {
+    background: brand.success,
+  },
+  instructionIcon: {
+    width: 80,
+    height: 80,
+    margin: '0 auto',
+    marginBottom: spacing[4],
+    borderRadius: radius.xl,
+    background: `linear-gradient(135deg, ${brand.cyan}22, ${brand.purple}15)`,
+    border: `2px solid ${brand.cyan}44`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 36,
+  },
+  practiceLabel: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: spacing[2],
+    padding: `${spacing[2]}px ${spacing[4]}px`,
+    background: `${brand.warning}20`,
+    borderRadius: radius.full,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    color: brand.warning,
+    marginBottom: spacing[4],
+  },
+  actionButtons: {
+    display: 'flex',
+    gap: spacing[3],
+    justifyContent: 'center',
+    marginTop: spacing[6],
+  },
+  skipButton: {
+    padding: `${spacing[3]}px ${spacing[5]}px`,
+    background: 'transparent',
+    border: `1px solid rgba(255,255,255,0.2)`,
+    borderRadius: radius.lg,
+    color: semantic.text.secondary,
+    fontSize: typography.size.sm,
+    cursor: 'pointer',
+  },
+  continueButton: {
+    padding: `${spacing[3]}px ${spacing[6]}px`,
+    background: gradients.primary,
+    border: 'none',
+    borderRadius: radius.lg,
+    color: brand.ink,
+    fontSize: typography.size.sm,
+    fontWeight: typography.weight.bold,
+    cursor: 'pointer',
+    boxShadow: shadows.glow.cyan,
+  },
+};

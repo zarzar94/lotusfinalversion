@@ -78,6 +78,17 @@ export const colors = {
 export { hud as labTechStyles } from './components';
 export { layout, text, buttons, forms, cards, badges, hud, audioViz, dataPanel, modal, progress, tooltip } from './components';
 
+// Module-specific styles (Issues #37-43)
+export {
+  moduleMetrics,      // #37 - Session storage
+  attentionModule,    // #38 - CPT/odd-one-out
+  binauralModule,     // #39 - Dichotic listening
+  snrModule,          // #40 - Speech-in-noise
+  analytics,          // #41 - Longitudinal charts
+  dashboardExport,    // #42 - Role dashboards
+  instructionFlow,    // #43 - Practice trials
+} from './components';
+
 // Combine all styles for legacy 'styles' object
 import { layout, text, buttons, forms, cards, badges, hud, modal, progress } from './components';
 import type { CSSProperties } from 'react';
