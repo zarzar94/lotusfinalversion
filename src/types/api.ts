@@ -230,6 +230,7 @@ export interface TestOutcome {
 
 export interface AssessmentSession {
   id: string;
+  clientId?: string;
   userId: string;
   date: number;
   outcomes: Record<string, TestOutcome>;
@@ -241,6 +242,7 @@ export interface AssessmentSession {
 }
 
 export interface SaveSessionRequest {
+  clientId?: string;
   outcomes: Record<string, TestOutcome>;
   compositeResult?: GameResult;
   totalPoints?: number;

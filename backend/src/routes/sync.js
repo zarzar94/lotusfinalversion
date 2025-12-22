@@ -142,19 +142,27 @@ router.post('/', async (req, res) => {
 
     // Sync sessions (merge unique sessions)
     if (localData?.sessions?.length > 0) {
-      const existingIds = new Set(sessions.map(s => s._id.toString()));
+      const existingClientIds = new Set(sessions.map((s) => s.clientId).filter(Boolean));
 
       for (const localSession of localData.sessions) {
-        if (!localSession.id || !existingIds.has(localSession.id)) {
-          await Session.create({
-            userId,
+        const clientId = typeof localSession.clientId === 'string'
+          ? localSession.clientId
+          : localSession.id;
+        if (!clientId) continue;
+
+        await Session.findOneAndUpdate(
+          { userId, clientId },
+          {
             outcomes: localSession.outcomes,
             compositeResult: localSession.compositeResult,
             totalPoints: localSession.totalPoints,
             achievements: localSession.achievements,
             duration: localSession.duration,
-          });
-        }
+          },
+          { new: true, upsert: true, setDefaultsOnInsert: true },
+        );
+
+        existingClientIds.add(clientId);
       }
 
       // Refetch sessions

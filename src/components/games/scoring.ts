@@ -683,7 +683,8 @@ export interface StoredSession {
 /**
  * Saves a completed session to localStorage.
  *
- * New sessions are prepended to the list (most recent first).
+ * Sessions are prepended to the list (most recent first). If a session with the same
+ * `id` already exists, it is replaced (upsert) to avoid duplicates during multi-test runs.
  * If the list exceeds MAX_STORED_SESSIONS, oldest sessions are pruned.
  *
  * @param {StoredSession} session - The session data to save
@@ -704,7 +705,7 @@ export interface StoredSession {
 export const saveSession = (session: StoredSession): void => {
   try {
     const existing = getSessions();
-    const updated = [session, ...existing].slice(0, MAX_STORED_SESSIONS);
+    const updated = [session, ...existing.filter((s) => s.id !== session.id)].slice(0, MAX_STORED_SESSIONS);
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updated));
   } catch (e) {
     console.warn('Failed to save session:', e);
