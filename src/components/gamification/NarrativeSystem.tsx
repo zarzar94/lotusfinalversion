@@ -73,31 +73,31 @@ export const STORY_CHAPTERS: Omit<StoryChapter, 'unlocked' | 'completedAt'>[] = 
     id: 'awakening',
     number: 1,
     title: 'The Awakening',
-    titleAr: 'الاستيقاظ',
+    titleAr: 'auto.NarrativeSystem.k11',
     description: 'You discover you have the gift of Sonic Sense - the ability to hear what others cannot. Your journey to master this power begins.',
-    descriptionAr: 'تكتشف أن لديك هبة الإحساس الصوتي - القدرة على سماع ما لا يستطيع الآخرون سماعه. تبدأ رحلتك لإتقان هذه القوة.',
+    descriptionAr: 'auto.NarrativeSystem.k12',
     unlockCondition: { type: 'sessions', value: 1 },
     icon: '✨',
-    reward: { type: 'title', name: 'Sonic Initiate', nameAr: 'مبتدئ صوتي', icon: '🎵' },
+    reward: { type: 'title', name: 'Sonic Initiate', nameAr: 'auto.NarrativeSystem.k13', icon: '🎵' },
   },
   {
     id: 'training_begins',
     number: 2,
     title: 'Training Begins',
-    titleAr: 'بداية التدريب',
+    titleAr: 'auto.NarrativeSystem.k14',
     description: 'The Sound Masters of Lotus Academy take you under their wing. Each session strengthens your sonic abilities.',
-    descriptionAr: 'أساتذة الصوت في أكاديمية لوتس يأخذونك تحت جناحهم. كل جلسة تقوي قدراتك الصوتية.',
+    descriptionAr: 'auto.NarrativeSystem.k15',
     unlockCondition: { type: 'sessions', value: 5 },
     icon: '🎯',
-    reward: { type: 'badge', name: 'Dedicated Trainee', nameAr: 'متدرب مجتهد', icon: '📚' },
+    reward: { type: 'badge', name: 'Dedicated Trainee', nameAr: 'auto.NarrativeSystem.k16', icon: '📚' },
   },
   {
     id: 'first_challenge',
     number: 3,
     title: 'The First Challenge',
-    titleAr: 'التحدي الأول',
+    titleAr: 'auto.NarrativeSystem.k17',
     description: 'A mysterious fog of confusion descends upon the kingdom. Only your growing Sonic Sense can pierce through it.',
-    descriptionAr: 'ضباب غامض من الارتباك يهبط على المملكة. فقط إحساسك الصوتي المتنامي يمكنه اختراقه.',
+    descriptionAr: 'auto.NarrativeSystem.k18',
     unlockCondition: { type: 'streak', value: 3 },
     icon: '🌫️',
   },
@@ -105,20 +105,20 @@ export const STORY_CHAPTERS: Omit<StoryChapter, 'unlocked' | 'completedAt'>[] = 
     id: 'halfway_hero',
     number: 4,
     title: 'Halfway Hero',
-    titleAr: 'بطل منتصف الطريق',
+    titleAr: 'auto.NarrativeSystem.k19',
     description: 'Your powers have grown remarkably! The kingdom notices your progress. The Sound Masters are proud.',
-    descriptionAr: 'قدراتك نمت بشكل ملحوظ! المملكة تلاحظ تقدمك. أساتذة الصوت فخورون بك.',
+    descriptionAr: 'auto.NarrativeSystem.k20',
     unlockCondition: { type: 'sessions', value: 10 },
     icon: '⭐',
-    reward: { type: 'avatar', name: 'Sonic Warrior', nameAr: 'محارب صوتي', icon: '🦸' },
+    reward: { type: 'avatar', name: 'Sonic Warrior', nameAr: 'auto.NarrativeSystem.k21', icon: '🦸' },
   },
   {
     id: 'dark_silence',
     number: 5,
     title: 'The Dark Silence',
-    titleAr: 'الصمت المظلم',
+    titleAr: 'auto.NarrativeSystem.k22',
     description: 'An ancient entity threatens to steal all sound from the world. Your training intensifies.',
-    descriptionAr: 'كيان قديم يهدد بسرقة كل الأصوات من العالم. تدريبك يصبح أكثر حدة.',
+    descriptionAr: 'auto.NarrativeSystem.k23',
     unlockCondition: { type: 'score', value: 70 },
     icon: '🌑',
   },
@@ -126,20 +126,20 @@ export const STORY_CHAPTERS: Omit<StoryChapter, 'unlocked' | 'completedAt'>[] = 
     id: 'breakthrough',
     number: 6,
     title: 'The Breakthrough',
-    titleAr: 'الاختراق',
+    titleAr: 'auto.NarrativeSystem.k24',
     description: 'Something clicks! Your mind processes sounds with crystal clarity. Even the masters are impressed.',
-    descriptionAr: 'شيء ما ينقر! عقلك يعالج الأصوات بوضوح كريستالي. حتى الأساتذة معجبون.',
+    descriptionAr: 'auto.NarrativeSystem.k25',
     unlockCondition: { type: 'sessions', value: 15 },
     icon: '💎',
-    reward: { type: 'theme', name: 'Crystal Resonance', nameAr: 'صدى كريستالي', icon: '🔮' },
+    reward: { type: 'theme', name: 'Crystal Resonance', nameAr: 'auto.NarrativeSystem.k26', icon: '🔮' },
   },
   {
     id: 'final_trial',
     number: 7,
     title: 'The Final Trial',
-    titleAr: 'الاختبار النهائي',
+    titleAr: 'auto.NarrativeSystem.k27',
     description: 'The ultimate test awaits. Can you use all you\'ve learned to restore harmony to the kingdom?',
-    descriptionAr: 'الاختبار النهائي ينتظر. هل يمكنك استخدام كل ما تعلمته لاستعادة الانسجام للمملكة؟',
+    descriptionAr: 'auto.NarrativeSystem.k28',
     unlockCondition: { type: 'sessions', value: 18 },
     icon: '⚔️',
   },
@@ -147,12 +147,12 @@ export const STORY_CHAPTERS: Omit<StoryChapter, 'unlocked' | 'completedAt'>[] = 
     id: 'sonic_master',
     number: 8,
     title: 'Sonic Master',
-    titleAr: 'أستاذ الصوت',
+    titleAr: 'auto.NarrativeSystem.k29',
     description: 'You have completed your training and become a true Sonic Master! The kingdom celebrates your achievement.',
-    descriptionAr: 'لقد أكملت تدريبك وأصبحت أستاذ صوت حقيقي! المملكة تحتفل بإنجازك.',
+    descriptionAr: 'auto.NarrativeSystem.k30',
     unlockCondition: { type: 'sessions', value: 20 },
     icon: '🎓',
-    reward: { type: 'title', name: 'Sonic Master', nameAr: 'أستاذ الصوت', icon: '👑' },
+    reward: { type: 'title', name: 'Sonic Master', nameAr: 'auto.NarrativeSystem.k31', icon: '👑' },
   },
 ];
 
@@ -207,6 +207,7 @@ export const NarrativeCard = memo(({
   isArabic = false,
   onViewStory,
 }: NarrativeCardProps) => {
+  const { t } = useLanguage();
   const progress = ((currentChapter.number) / totalChapters) * 100;
 
   return (
@@ -266,7 +267,7 @@ export const NarrativeCard = memo(({
             fontWeight: typography.weight.black,
             color: colors.text.primary,
           }}>
-            {isArabic ? currentChapter.titleAr : currentChapter.title}
+            {isArabic ? t(currentChapter.titleAr, currentChapter.title) : currentChapter.title}
           </h3>
         </div>
       </div>
@@ -278,7 +279,7 @@ export const NarrativeCard = memo(({
         color: colors.text.secondary,
         lineHeight: typography.lineHeight.relaxed,
       }}>
-        {isArabic ? currentChapter.descriptionAr : currentChapter.description}
+        {isArabic ? t(currentChapter.descriptionAr, currentChapter.description) : currentChapter.description}
       </p>
 
       {/* Progress bar */}
@@ -290,7 +291,7 @@ export const NarrativeCard = memo(({
           color: colors.text.muted,
           marginBottom: spacing[1],
         }}>
-          <span>{isArabic ? 'تقدم القصة' : 'Story Progress'}</span>
+          <span>{t('auto.NarrativeSystem.k1', "Story Progress")}</span>
           <span>{Math.round(progress)}%</span>
         </div>
         <div style={{
@@ -327,13 +328,13 @@ export const NarrativeCard = memo(({
               fontSize: typography.size.xs,
               color: colors.text.muted,
             }}>
-              {isArabic ? 'الفصل التالي' : 'Next Chapter'}
+              {t('auto.NarrativeSystem.k2', "Next Chapter")}
             </div>
             <div style={{
               fontSize: typography.size.sm,
               color: colors.text.secondary,
             }}>
-              {isArabic ? nextChapter.titleAr : nextChapter.title}
+              {isArabic ? t(nextChapter.titleAr, nextChapter.title) : nextChapter.title}
             </div>
           </div>
         </div>
@@ -358,13 +359,13 @@ export const NarrativeCard = memo(({
               color: brandCyan,
               fontWeight: typography.weight.bold,
             }}>
-              {isArabic ? 'مكافأة مفتوحة' : 'Reward Unlocked'}
+              {t('auto.NarrativeSystem.k3', "Reward Unlocked")}
             </div>
             <div style={{
               fontSize: typography.size.sm,
               color: colors.text.primary,
             }}>
-              {isArabic ? currentChapter.reward.nameAr : currentChapter.reward.name}
+              {isArabic ? t(currentChapter.reward.nameAr, currentChapter.reward.name) : currentChapter.reward.name}
             </div>
           </div>
         </div>
@@ -388,7 +389,7 @@ export const NarrativeCard = memo(({
             transition: transitions.fast,
           }}
         >
-          {isArabic ? 'عرض القصة الكاملة' : 'View Full Story'}
+          {t('auto.NarrativeSystem.k4', "View Full Story")}
         </button>
       )}
     </div>
@@ -406,6 +407,7 @@ export const StoryProgress = memo(({
   isArabic = false,
   variant = 'compact',
 }: StoryProgressProps) => {
+  const { t } = useLanguage();
   if (variant === 'compact') {
     return (
       <div style={{
@@ -435,7 +437,7 @@ export const StoryProgress = memo(({
               fontSize: 12,
               transition: transitions.fast,
             }}
-            title={isArabic ? chapter.titleAr : chapter.title}
+            title={isArabic ? t(chapter.titleAr, chapter.title) : chapter.title}
           >
             {chapter.unlocked ? chapter.icon : '🔒'}
           </div>
@@ -458,7 +460,7 @@ export const StoryProgress = memo(({
         fontWeight: typography.weight.bold,
         color: colors.text.primary,
       }}>
-        {isArabic ? 'رحلتك' : 'Your Journey'}
+        {t('auto.NarrativeSystem.k5', "Your Journey")}
       </h3>
 
       <div style={{
@@ -536,7 +538,7 @@ export const StoryProgress = memo(({
                   fontWeight: typography.weight.semibold,
                   color: chapter.unlocked ? colors.text.primary : colors.text.muted,
                 }}>
-                  {isArabic ? chapter.titleAr : chapter.title}
+                  {isArabic ? t(chapter.titleAr, chapter.title) : chapter.title}
                 </div>
                 {chapter.reward && chapter.unlocked && (
                   <div style={{
@@ -548,7 +550,7 @@ export const StoryProgress = memo(({
                     gap: spacing[1],
                   }}>
                     <span>{chapter.reward.icon}</span>
-                    {isArabic ? chapter.reward.nameAr : chapter.reward.name}
+                    {isArabic ? t(chapter.reward.nameAr, chapter.reward.name) : chapter.reward.name}
                   </div>
                 )}
               </div>
@@ -570,6 +572,7 @@ export const ChapterUnlockModal = memo(({
   isArabic = false,
   onClose,
 }: ChapterUnlockModalProps) => {
+  const { t } = useLanguage();
   const css = `
     @keyframes chapterReveal {
       0% { opacity: 0; transform: scale(0.8) rotate(-10deg); }
@@ -655,7 +658,7 @@ export const ChapterUnlockModal = memo(({
             letterSpacing: 2,
             marginBottom: spacing[2],
           }}>
-            {isArabic ? 'فصل جديد مفتوح!' : 'New Chapter Unlocked!'}
+            {t('auto.NarrativeSystem.k6', "New Chapter Unlocked!")}
           </div>
           <h2 style={{
             margin: `0 0 ${spacing[3]}px`,
@@ -663,7 +666,7 @@ export const ChapterUnlockModal = memo(({
             fontWeight: typography.weight.black,
             color: colors.text.primary,
           }}>
-            {isArabic ? chapter.titleAr : chapter.title}
+            {isArabic ? t(chapter.titleAr, chapter.title) : chapter.title}
           </h2>
           <p style={{
             margin: `0 0 ${spacing[5]}px`,
@@ -671,7 +674,7 @@ export const ChapterUnlockModal = memo(({
             color: colors.text.secondary,
             lineHeight: typography.lineHeight.relaxed,
           }}>
-            {isArabic ? chapter.descriptionAr : chapter.description}
+            {isArabic ? t(chapter.descriptionAr, chapter.description) : chapter.description}
           </p>
 
           {/* Reward */}
@@ -689,7 +692,7 @@ export const ChapterUnlockModal = memo(({
                 fontWeight: typography.weight.bold,
                 marginBottom: spacing[2],
               }}>
-                🎁 {isArabic ? 'مكافأة خاصة' : 'Special Reward'}
+                🎁 {t('auto.NarrativeSystem.k7', "Special Reward")}
               </div>
               <div style={{
                 display: 'flex',
@@ -703,7 +706,7 @@ export const ChapterUnlockModal = memo(({
                   fontWeight: typography.weight.bold,
                   color: colors.text.primary,
                 }}>
-                  {isArabic ? chapter.reward.nameAr : chapter.reward.name}
+                  {isArabic ? t(chapter.reward.nameAr, chapter.reward.name) : chapter.reward.name}
                 </span>
               </div>
             </div>
@@ -725,7 +728,7 @@ export const ChapterUnlockModal = memo(({
               transition: transitions.fast,
             }}
           >
-            {isArabic ? 'متابعة المغامرة' : 'Continue Adventure'}
+            {t('auto.NarrativeSystem.k8', "Continue Adventure")}
           </button>
         </div>
       </div>
@@ -751,6 +754,7 @@ export const StoryMotivation = memo(({
   attentionScore,
   isArabic = false,
 }: StoryMotivationProps) => {
+  const { t } = useLanguage();
   const chapters = getUnlockedChapters(sessionsCompleted, currentStreak, attentionScore);
   const currentIndex = getCurrentChapter(chapters);
   const nextChapter = chapters[currentIndex + 1];
@@ -766,9 +770,7 @@ export const StoryMotivation = memo(({
         color: colors.text.secondary,
         textAlign: 'center',
       }}>
-        🎓 {isArabic
-          ? 'أنت أستاذ صوتي حقيقي! استمر في التدريب للحفاظ على قدراتك.'
-          : "You're a true Sonic Master! Keep training to maintain your powers."}
+        🎓 {t('auto.NarrativeSystem.k9', "You're a true Sonic Master! Keep training to maintain your powers.")}
       </div>
     );
   }
@@ -816,7 +818,7 @@ export const StoryMotivation = memo(({
           fontWeight: typography.weight.bold,
           marginBottom: 2,
         }}>
-          {isArabic ? 'الفصل التالي' : 'Next Chapter'}
+          {t('auto.NarrativeSystem.k10', "Next Chapter")}
         </div>
         <div style={{
           fontSize: typography.size.sm,

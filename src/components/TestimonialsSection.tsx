@@ -45,7 +45,7 @@ const testimonials: Testimonial[] = [
     role: 'والدة',
     age: 15,
     condition: 'Hyperacusis',
-    conditionAr: 'فرط حساسية السمع',
+    conditionAr: 'auto.TestimonialsSection.k1',
     quote: 'كانت ابنتي تعاني من صعوبة شديدة في تحمل الأصوات العالية في المدرسة. بعد البرنامج، أصبحت قادرة على المشاركة في الفصل بدون ألم أو انزعاج.',
     improvement: 'تحسن في تحمل الأصوات',
     improvementPercent: 85,
@@ -65,7 +65,7 @@ const testimonials: Testimonial[] = [
     role: 'والد',
     age: 11,
     condition: 'Learning Difficulties',
-    conditionAr: 'صعوبات تعلم',
+    conditionAr: 'auto.TestimonialsSection.k2',
     quote: 'كان ابني يعاني من صعوبة في التركيز والفهم في الصف. لاحظنا تحسناً ملحوظاً في قدرته على متابعة التعليمات والقراءة بعد البرنامج.',
     improvement: 'تحسن في القراءة والانتباه',
     improvementPercent: 70,
@@ -84,7 +84,7 @@ const testimonials: Testimonial[] = [
     role: 'والدة',
     age: 5,
     condition: 'APD/CAPD',
-    conditionAr: 'اضطراب المعالجة السمعية',
+    conditionAr: 'auto.TestimonialsSection.k3',
     quote: 'ابنتي كانت تسمع ولكن لا تفهم. الآن أصبحت تستجيب بشكل أفضل وتتواصل معنا بوضوح أكبر.',
     improvement: 'تحسن كبير في فهم الكلام',
     improvementPercent: 90,
@@ -104,7 +104,7 @@ const testimonials: Testimonial[] = [
     role: 'مريضة',
     age: 72,
     condition: 'Tinnitus',
-    conditionAr: 'طنين الأذن',
+    conditionAr: 'auto.TestimonialsSection.k4',
     quote: 'كنت أعاني من طنين مزعج لسنوات. بعد البرنامج، انخفضت حدة الطنين بشكل ملحوظ وأصبحت أنام بشكل أفضل.',
     improvement: 'تخفيف ملحوظ في الطنين',
     improvementPercent: 60,
@@ -123,7 +123,7 @@ const testimonials: Testimonial[] = [
     role: 'والدة',
     age: 11,
     condition: 'Attention Issues',
-    conditionAr: 'صعوبات انتباه',
+    conditionAr: 'auto.TestimonialsSection.k5',
     quote: 'التغيير في قدرة ابني على التركيز كان مذهلاً. معلمته لاحظت الفرق في الأسبوع الأول بعد البرنامج.',
     improvement: 'تحسن في التركيز',
     improvementPercent: 75,
@@ -429,8 +429,8 @@ function CaseStudyCard({
               overflow: 'hidden',
             }}>
               <img
-                src={assetUrl('assets/images/brain_logo.png')}
-                alt="Berard AIT"
+                src={assetUrl('assets/images/sound_lab_logo.png')}
+                alt="Sound Lab"
                 style={{
                   width: 42,
                   height: 42,

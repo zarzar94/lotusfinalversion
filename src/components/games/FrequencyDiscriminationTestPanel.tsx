@@ -25,7 +25,7 @@ export default function FrequencyDiscriminationTestPanel({
   onDone: (outcome: TestOutcome) => void;
   onCancel?: () => void;
 }) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const audioRef = useRef<AudioContext | null>(null);
   const ensure = () => ensureAudio(audioRef);
 
@@ -223,7 +223,7 @@ export default function FrequencyDiscriminationTestPanel({
           <div style={{ fontWeight: 900, color: brandCyan }}>اختبار تمييز التردد (Frequency Discrimination)</div>
           <div style={styles.muted}>اختبار موضوعي بنمط 2IFC مع صعوبة تكيفية لتقدير "عتبة التمييز".</div>
         </div>
-        <span style={styles.chip}>{isArabic ? 'موضوعي' : 'Objective'}</span>
+        <span style={styles.chip}>{t('auto.FrequencyDiscriminationTestPanel.k1', "Objective")}</span>
       </div>
 
       {stage === 'intro' ? (
@@ -286,7 +286,7 @@ export default function FrequencyDiscriminationTestPanel({
               }}>
                 {points} pts
               </span>
-              <span style={styles.chip}>{isArabic ? '2IFC • تكيفي' : '2IFC • Adaptive'}</span>
+              <span style={styles.chip}>{t('auto.FrequencyDiscriminationTestPanel.k2', "2IFC • Adaptive")}</span>
             </div>
           </div>
 

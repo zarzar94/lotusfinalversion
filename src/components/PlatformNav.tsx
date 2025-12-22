@@ -33,20 +33,20 @@ const PLATFORM_MODULES: PlatformModule[] = [
   {
     id: 'diagnostic',
     icon: '🔬',
-    labelAr: 'أدوات التشخيص',
+    labelAr: 'auto.PlatformNav.k5',
     labelEn: 'Diagnostic Tools',
-    descAr: 'قائمة التقييم الذاتي والألعاب التفاعلية',
+    descAr: 'auto.PlatformNav.k6',
     descEn: 'Self-assessment checklist & interactive games',
     color: brandCyan,
     targetId: 'checklist',
-    badge: { ar: 'تفاعلي', en: 'Interactive' },
+    badge: { ar: 'auto.PlatformNav.k21', en: 'Interactive' },
   },
   {
     id: 'protocol',
     icon: '📋',
-    labelAr: 'بروتوكول العلاج',
+    labelAr: 'auto.PlatformNav.k7',
     labelEn: 'Treatment Protocol',
-    descAr: 'نظرة شاملة على البرنامج والجدول الزمني',
+    descAr: 'auto.PlatformNav.k8',
     descEn: 'Program overview & treatment timeline',
     color: brandPurple,
     targetId: 'overview',
@@ -54,9 +54,9 @@ const PLATFORM_MODULES: PlatformModule[] = [
   {
     id: 'science',
     icon: '🧬',
-    labelAr: 'البحث العلمي',
+    labelAr: 'auto.PlatformNav.k9',
     labelEn: 'Research & Science',
-    descAr: 'المرونة العصبية وتقنية الصوت',
+    descAr: 'auto.PlatformNav.k10',
     descEn: 'Neuroplasticity & audio technology',
     color: brandPink,
     targetId: 'neuroplasticity',
@@ -64,9 +64,9 @@ const PLATFORM_MODULES: PlatformModule[] = [
   {
     id: 'evidence',
     icon: '📊',
-    labelAr: 'النتائج والأدلة',
+    labelAr: 'auto.PlatformNav.k11',
     labelEn: 'Results & Evidence',
-    descAr: 'شهادات وإحصائيات النجاح',
+    descAr: 'auto.PlatformNav.k12',
     descEn: 'Testimonials & success statistics',
     color: brandCyan,
     targetId: 'results',
@@ -74,9 +74,9 @@ const PLATFORM_MODULES: PlatformModule[] = [
   {
     id: 'resources',
     icon: '📚',
-    labelAr: 'المصادر التعليمية',
+    labelAr: 'auto.PlatformNav.k13',
     labelEn: 'Learning Resources',
-    descAr: 'عروض تقديمية وفيديوهات تعليمية',
+    descAr: 'auto.PlatformNav.k14',
     descEn: 'Presentations & educational videos',
     color: brandPurple,
     targetId: 'slides',
@@ -84,13 +84,13 @@ const PLATFORM_MODULES: PlatformModule[] = [
   {
     id: 'connect',
     icon: '💬',
-    labelAr: 'تواصل معنا',
+    labelAr: 'auto.PlatformNav.k15',
     labelEn: 'Get Started',
-    descAr: 'استمارة التسجيل والتواصل',
+    descAr: 'auto.PlatformNav.k16',
     descEn: 'Intake form & contact',
     color: brandPink,
     targetId: 'intake',
-    badge: { ar: 'ابدأ الآن', en: 'Start Now' },
+    badge: { ar: 'auto.PlatformNav.k22', en: 'Start Now' },
   },
 ];
 
@@ -107,6 +107,7 @@ const ModuleCard = memo(({
   isArabic: boolean;
   index: number;
 }) => {
+  const { t } = useLanguage();
   const prefersReducedMotion = usePrefersReducedMotion();
   const [isHovered, setIsHovered] = useState(false);
 
@@ -189,7 +190,7 @@ const ModuleCard = memo(({
             fontWeight: typography.weight.bold,
             color: module.color,
           }}>
-            {isArabic ? module.badge.ar : module.badge.en}
+            {isArabic ? t(module.badge.ar, module.badge.en) : module.badge.en}
           </span>
         )}
       </div>
@@ -204,7 +205,7 @@ const ModuleCard = memo(({
           fontFamily: typography.fontFamily,
           lineHeight: typography.lineHeight.tight,
         }}>
-          {isArabic ? module.labelAr : module.labelEn}
+          {isArabic ? t(module.labelAr, module.labelEn) : module.labelEn}
         </h3>
         <p style={{
           margin: `${spacing[1]}px 0 0`,
@@ -213,7 +214,7 @@ const ModuleCard = memo(({
           fontFamily: typography.fontFamily,
           lineHeight: typography.lineHeight.normal,
         }}>
-          {isArabic ? module.descAr : module.descEn}
+          {isArabic ? t(module.descAr, module.descEn) : module.descEn}
         </p>
       </div>
 
@@ -257,7 +258,7 @@ const PLATFORM_METRICS: PlatformMetric[] = [
     id: 'sessions',
     valueAr: '20',
     valueEn: '20',
-    labelAr: 'جلسة علاجية',
+    labelAr: 'auto.PlatformNav.k17',
     labelEn: 'Sessions',
     icon: '🎧',
     color: brandCyan,
@@ -266,7 +267,7 @@ const PLATFORM_METRICS: PlatformMetric[] = [
     id: 'success',
     valueAr: '92%',
     valueEn: '92%',
-    labelAr: 'نسبة التحسن',
+    labelAr: 'auto.PlatformNav.k18',
     labelEn: 'Success Rate',
     icon: '📈',
     color: '#22c55e',
@@ -276,7 +277,7 @@ const PLATFORM_METRICS: PlatformMetric[] = [
     id: 'cases',
     valueAr: '+500',
     valueEn: '500+',
-    labelAr: 'حالة ناجحة',
+    labelAr: 'auto.PlatformNav.k19',
     labelEn: 'Cases',
     icon: '✓',
     color: brandPurple,
@@ -285,7 +286,7 @@ const PLATFORM_METRICS: PlatformMetric[] = [
     id: 'experience',
     valueAr: '+10',
     valueEn: '10+',
-    labelAr: 'سنوات خبرة',
+    labelAr: 'auto.PlatformNav.k20',
     labelEn: 'Years Exp.',
     icon: '⭐',
     color: brandPink,
@@ -297,7 +298,7 @@ const PLATFORM_METRICS: PlatformMetric[] = [
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function PlatformNav() {
-  const { isArabic, direction } = useLanguage();
+  const { isArabic, direction, t } = useLanguage();
 
   return (
     <section
@@ -365,7 +366,7 @@ export default function PlatformNav() {
             textTransform: 'uppercase',
             letterSpacing: 1,
           }}>
-            {isArabic ? 'لوحة التحكم الطبية' : 'Medical Dashboard'}
+            {t('auto.PlatformNav.k1', "Medical Dashboard")}
           </span>
         </div>
 
@@ -377,7 +378,7 @@ export default function PlatformNav() {
           color: colors.text.primary,
           lineHeight: typography.lineHeight.tight,
         }}>
-          {isArabic ? 'استكشف المنصة' : 'Explore the Platform'}
+          {t('auto.PlatformNav.k2', "Explore the Platform")}
         </h2>
         <p style={{
           margin: `${spacing[2]}px auto 0`,
@@ -387,9 +388,7 @@ export default function PlatformNav() {
           fontFamily: typography.fontFamily,
           lineHeight: typography.lineHeight.relaxed,
         }}>
-          {isArabic
-            ? 'اختر القسم الذي يناسب احتياجاتك للوصول السريع'
-            : 'Select a module that fits your needs for quick access'}
+          {t('auto.PlatformNav.k3', "Select a module that fits your needs for quick access")}
         </p>
       </div>
 
@@ -464,7 +463,7 @@ export default function PlatformNav() {
                   fontFamily: 'monospace',
                   letterSpacing: -1,
                 }}>
-                  {isArabic ? metric.valueAr : metric.valueEn}
+                  {isArabic ? t(metric.valueAr, metric.valueEn) : metric.valueEn}
                 </span>
                 {metric.trend === 'up' && (
                   <span style={{ color: '#22c55e', fontSize: 12 }}>↑</span>
@@ -475,7 +474,7 @@ export default function PlatformNav() {
                 color: colors.text.muted,
                 marginTop: 2,
               }}>
-                {isArabic ? metric.labelAr : metric.labelEn}
+                {isArabic ? t(metric.labelAr, metric.labelEn) : metric.labelEn}
               </div>
             </div>
           </div>
@@ -500,7 +499,7 @@ export default function PlatformNav() {
             boxShadow: '0 0 8px #22c55e',
             animation: 'pulseGlow 2s ease-in-out infinite',
           }} />
-          <span>{isArabic ? 'النظام متصل' : 'System Online'}</span>
+          <span>{t('auto.PlatformNav.k4', "System Online")}</span>
         </div>
       </div>
 

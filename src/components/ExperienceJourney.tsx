@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 import {
   brandCyan,
   brandPink,
@@ -31,79 +32,80 @@ const steps: JourneyStep[] = [
   {
     id: 'intake',
     title: 'Discovery Intake',
-    titleAr: 'التحضير الذكي',
+    titleAr: 'auto.ExperienceJourney.k10',
     description: 'Share goals and sensory priorities in a secure, guided intake.',
-    descriptionAr: 'شارك أهدافك والأولويات الحسية في نموذج آمن وموجّه.',
+    descriptionAr: 'auto.ExperienceJourney.k11',
     path: '/contact',
     accent: brandCyan,
     tags: [
-      { en: 'Secure intake', ar: 'تسجيل آمن' },
-      { en: '2-min form', ar: 'نموذج دقيقتين' },
-      { en: 'Signal check', ar: 'فحص أولي' },
+      { en: 'Secure intake', ar: 'auto.ExperienceJourney.k18' },
+      { en: '2-min form', ar: 'auto.ExperienceJourney.k19' },
+      { en: 'Signal check', ar: 'auto.ExperienceJourney.k20' },
     ],
     outcome: {
       en: 'We tailor your Berard AIT path using your stated goals.',
-      ar: 'نخصص مسار Berard AIT وفقًا لأهدافك المعلنة.',
+      ar: 'auto.ExperienceJourney.k21',
     },
   },
   {
     id: 'assessment',
     title: 'Neuro Assessment',
-    titleAr: 'التقييم العصبي',
+    titleAr: 'auto.ExperienceJourney.k12',
     description: 'Run the immersive self-assessment to map focus, sound, and balance.',
-    descriptionAr: 'أجرِ التقييم التفاعلي لرسم خريطة التركيز والصوت والتوازن.',
+    descriptionAr: 'auto.ExperienceJourney.k13',
     path: '/assessment',
     accent: brandPurple,
     tags: [
-      { en: 'Interactive games', ar: 'ألعاب تفاعلية' },
-      { en: 'Adaptive scoring', ar: 'تقييم متكيف' },
-      { en: 'Guided steps', ar: 'خطوات موجهة' },
+      { en: 'Interactive games', ar: 'auto.ExperienceJourney.k22' },
+      { en: 'Adaptive scoring', ar: 'auto.ExperienceJourney.k23' },
+      { en: 'Guided steps', ar: 'auto.ExperienceJourney.k24' },
     ],
     outcome: {
       en: 'Generates a precision profile for your training blocks.',
-      ar: 'ينشئ ملفًا دقيقًا لكتل التدريب الخاصة بك.',
+      ar: 'auto.ExperienceJourney.k25',
     },
   },
   {
     id: 'program',
     title: 'Precision Program',
-    titleAr: 'البرنامج الدقيق',
+    titleAr: 'auto.ExperienceJourney.k14',
     description: 'Lock in your 20-session Berard AIT protocol with crystal-clear milestones.',
-    descriptionAr: 'ثبت بروتوكول Berard AIT المكوّن من 20 جلسة مع معالم واضحة.',
+    descriptionAr: 'auto.ExperienceJourney.k15',
     path: '/program',
     accent: brandPink,
     tags: [
-      { en: '20 sessions', ar: '20 جلسة' },
-      { en: 'Calibrated audio', ar: 'صوت مُعاير' },
-      { en: 'Lab-grade pacing', ar: 'إيقاع بمعايير المختبر' },
+      { en: '20 sessions', ar: 'auto.ExperienceJourney.k26' },
+      { en: 'Calibrated audio', ar: 'auto.ExperienceJourney.k27' },
+      { en: 'Lab-grade pacing', ar: 'auto.ExperienceJourney.k28' },
     ],
     outcome: {
       en: 'Every milestone is pre-mapped so you always know what is next.',
-      ar: 'كل مرحلة محددة مسبقًا لتعرف دائمًا الخطوة التالية.',
+      ar: 'auto.ExperienceJourney.k29',
     },
   },
   {
     id: 'insights',
     title: 'Evidence & Insights',
-    titleAr: 'الأدلة والنتائج',
+    titleAr: 'auto.ExperienceJourney.k16',
     description: 'Track change with dashboards, exportables, and research-aligned markers.',
-    descriptionAr: 'تابع التغيير عبر لوحات تحكم وقابليات تصدير ومؤشرات بحثية.',
+    descriptionAr: 'auto.ExperienceJourney.k17',
     path: '/results',
     accent: '#22c55e',
     tags: [
-      { en: 'Live dashboards', ar: 'لوحات حية' },
-      { en: 'Clinician ready', ar: 'جاهز للأخصائي' },
-      { en: 'Shareable PDF', ar: 'ملف PDF قابل للمشاركة' },
+      { en: 'Live dashboards', ar: 'auto.ExperienceJourney.k30' },
+      { en: 'Clinician ready', ar: 'auto.ExperienceJourney.k31' },
+      { en: 'Shareable PDF', ar: 'auto.ExperienceJourney.k32' },
     ],
     outcome: {
       en: 'Celebrate wins and loop your clinician in with one click.',
-      ar: 'احتفل بالإنجازات وشارك الأخصائي بنقرة واحدة.',
+      ar: 'auto.ExperienceJourney.k33',
     },
   },
 ];
 
 export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [activeId, setActiveId] = useState<string>(steps[0].id);
 
   const activeStep = useMemo(() => steps.find((s) => s.id === activeId) ?? steps[0], [activeId]);
@@ -135,7 +137,7 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
       aria-labelledby="journey-title"
       style={{
         position: 'relative',
-        margin: `${spacing[10]}px auto`,
+        margin: `0 auto ${spacing[10]}px`,
         padding: `${spacing[10]}px ${spacing[4]}px`,
         maxWidth: 1200,
       }}
@@ -248,13 +250,13 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
               }}
             >
               <div style={{ fontSize: typography.size.md, color: colors.text.muted, marginBottom: spacing[1] }}>
-                {isArabic ? 'نماذج مصممة' : 'Designed moments'}
+                {t('auto.ExperienceJourney.k1', "Designed moments")}
               </div>
               <div style={{ fontSize: typography.size['2xl'], fontWeight: typography.weight.black }}>
-                {isArabic ? '4 مراحل' : '4 phases'}
+                {t('auto.ExperienceJourney.k2', "4 phases")}
               </div>
               <div style={{ color: colors.text.secondary, marginTop: spacing[1] }}>
-                {isArabic ? 'كل مرحلة تحمل هوية المختبر وأزرار واضحة للانتقال.' : 'Every stage carries the lab identity with explicit next actions.'}
+                {t('auto.ExperienceJourney.k3', "Every stage carries the lab identity with explicit next actions.")}
               </div>
             </div>
             <div
@@ -269,13 +271,13 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
               }}
             >
               <div style={{ fontSize: typography.size.md, color: colors.text.muted, marginBottom: spacing[1] }}>
-                {isArabic ? 'زمن الانتقال' : 'Transition time'}
+                {t('auto.ExperienceJourney.k4', "Transition time")}
               </div>
               <div style={{ fontSize: typography.size['2xl'], fontWeight: typography.weight.black }}>
-                {isArabic ? 'أقل من 10 ثوان' : '<10 seconds'}
+                {t('auto.ExperienceJourney.k5', "<10 seconds")}
               </div>
               <div style={{ color: colors.text.secondary, marginTop: spacing[1] }}>
-                {isArabic ? 'زر CTA واضح لكل خطوة لتسريع التجربة.' : 'Clear CTA on every step to accelerate the journey.'}
+                {t('auto.ExperienceJourney.k6', "Clear CTA on every step to accelerate the journey.")}
               </div>
             </div>
           </div>
@@ -367,7 +369,7 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
                           fontWeight: typography.weight.extrabold,
                         }}
                       >
-                        {isArabic ? step.titleAr : step.title}
+                        {isArabic ? t(step.titleAr, step.title) : step.title}
                       </h3>
                       <p
                         style={{
@@ -377,7 +379,7 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
                           fontSize: typography.size.md,
                         }}
                       >
-                        {isArabic ? step.descriptionAr : step.description}
+                        {isArabic ? t(step.descriptionAr, step.description) : step.description}
                       </p>
                     </div>
                   </div>
@@ -403,7 +405,7 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
                           fontSize: typography.size.sm,
                         }}
                       >
-                        {isArabic ? tag.ar : tag.en}
+                        {isArabic ? t(tag.ar, tag.en) : tag.en}
                       </span>
                     ))}
                   </div>
@@ -416,7 +418,7 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
                       lineHeight: typography.lineHeight.normal,
                     }}
                   >
-                    {isArabic ? step.outcome.ar : step.outcome.en}
+                    {isArabic ? t(step.outcome.ar, step.outcome.en) : step.outcome.en}
                   </div>
 
                   <div
@@ -444,7 +446,7 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
                         transition: 'transform 160ms ease, box-shadow 200ms ease',
                       }}
                     >
-                      {isArabic ? 'انتقل إلى الخطوة' : 'Go to step'}
+                      {t('auto.ExperienceJourney.k7', "Go to step")}
                     </button>
                   </div>
                 </div>
@@ -490,12 +492,10 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
             </div>
             <div>
               <div style={{ color: colors.text.primary, fontWeight: typography.weight.bold }}>
-                {isArabic ? 'انتقالات متسقة' : 'Consistent transitions'}
+                {t('auto.ExperienceJourney.k8', "Consistent transitions")}
               </div>
               <div style={{ color: colors.text.muted }}>
-                {isArabic
-                  ? 'كل زر يقودك مباشرة إلى المرحلة التالية دون فقد الهوية البصرية.'
-                  : 'Every CTA routes you forward without losing the futuristic lab visual language.'}
+                {t('auto.ExperienceJourney.k9', "Every CTA routes you forward without losing the futuristic lab visual language.")}
               </div>
             </div>
           </div>

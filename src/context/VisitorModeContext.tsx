@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // VISITOR MODE TYPES
@@ -90,16 +91,31 @@ const STORAGE_KEY = 'lotus_visitor_mode';
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function VisitorModeProvider({ children }: { children: ReactNode }) {
+  const location = useLocation();
   const [mode, setModeState] = useState<VisitorMode>(() => {
-    // Check localStorage for saved preference
     if (typeof window !== 'undefined') {
+      // Allow deep links to force a mode (e.g. /contact?mode=parent)
+      const urlMode = new URLSearchParams(window.location.search).get('mode');
+      if (urlMode && (urlMode === 'school' || urlMode === 'parent' || urlMode === 'clinician')) {
+        return urlMode as VisitorMode;
+      }
+
+      // Check localStorage for saved preference
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved && (saved === 'school' || saved === 'parent' || saved === 'clinician')) {
         return saved as VisitorMode;
       }
     }
-    return 'parent'; // Default to parent mode
+    return 'school'; // Default to school mode
   });
+
+  // Sync mode from URL query param on navigation (supports internal links with ?mode=...)
+  useEffect(() => {
+    const urlMode = new URLSearchParams(location.search).get('mode');
+    if (!urlMode) return;
+    if (urlMode !== 'school' && urlMode !== 'parent' && urlMode !== 'clinician') return;
+    setModeState(urlMode as VisitorMode);
+  }, [location.search]);
 
   // Save to localStorage when mode changes
   useEffect(() => {

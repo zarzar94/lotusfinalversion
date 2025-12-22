@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo, memo } from 'react';
 import { brandCyan, brandPurple, brandPink } from './styles';
 import { useLanguage } from '../context/LanguageContext';
+import { assetUrl } from '../utils/asset';
 
 // Brain image component using the detailed PNG
 const BrainImage = ({ size = 400 }: { size?: number }) => (
   <img
-    src="/assets/images/brain_logo.png"
-    alt="Brain with auditory center highlighted"
+    src={assetUrl('assets/images/sound_lab_logo.png')}
+    alt="Sound Lab logo"
     width={size}
     height={size * 0.85}
     style={{

@@ -49,7 +49,7 @@ export default function SequencingTestPanel({
   onCancel?: () => void;
   enableExports?: boolean;
 }) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const audioRef = useRef<AudioContext | null>(null);
   const noiseRef: NoiseRef = useRef(null);
 
@@ -349,7 +349,7 @@ export default function SequencingTestPanel({
           <div style={{ fontWeight: 900, color: brandCyan }}>اختبار التسلسل/الذاكرة السمعية تحت الضوضاء</div>
           <div style={styles.muted}>اختبار موضوعي يحاكي اتباع تعليمات متعددة داخل الصف مع ضوضاء متزايدة.</div>
         </div>
-        <span style={styles.chip}>{isArabic ? 'موضوعي • عرض مدرسي' : 'Objective • School Demo'}</span>
+        <span style={styles.chip}>{t('auto.SequencingTestPanel.k1', "Objective • School Demo")}</span>
       </div>
 
       {stage === 'intro' ? (

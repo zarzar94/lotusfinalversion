@@ -32,44 +32,44 @@ const PROTOCOL_PHASES = [
     id: 'assessment',
     phase: 1,
     titleEn: 'Initial Assessment',
-    titleAr: 'التقييم الأولي',
+    titleAr: 'auto.ClinicalProtocolSection.k4',
     durationEn: 'Day 1',
-    durationAr: 'اليوم الأول',
+    durationAr: 'auto.ClinicalProtocolSection.k5',
     descEn: 'Comprehensive audiometric testing and baseline measurements',
-    descAr: 'اختبارات سمعية شاملة وقياسات أساسية',
+    descAr: 'auto.ClinicalProtocolSection.k6',
     color: brandCyan,
   },
   {
     id: 'training',
     phase: 2,
     titleEn: 'Active Training',
-    titleAr: 'التدريب النشط',
+    titleAr: 'auto.ClinicalProtocolSection.k7',
     durationEn: 'Days 1-10',
-    durationAr: 'الأيام 1-10',
+    durationAr: 'auto.ClinicalProtocolSection.k8',
     descEn: '20 sessions of modified music listening (2 per day)',
-    descAr: '20 جلسة استماع لموسيقى معدلة (جلستان يومياً)',
+    descAr: 'auto.ClinicalProtocolSection.k9',
     color: brandPurple,
   },
   {
     id: 'midpoint',
     phase: 3,
     titleEn: 'Mid-Program Check',
-    titleAr: 'فحص منتصف البرنامج',
+    titleAr: 'auto.ClinicalProtocolSection.k10',
     durationEn: 'Day 5',
-    durationAr: 'اليوم الخامس',
+    durationAr: 'auto.ClinicalProtocolSection.k11',
     descEn: 'Progress evaluation and protocol adjustments if needed',
-    descAr: 'تقييم التقدم وتعديل البروتوكول إذا لزم الأمر',
+    descAr: 'auto.ClinicalProtocolSection.k12',
     color: '#f59e0b',
   },
   {
     id: 'completion',
     phase: 4,
     titleEn: 'Post-Assessment',
-    titleAr: 'التقييم النهائي',
+    titleAr: 'auto.ClinicalProtocolSection.k13',
     durationEn: 'Day 10+',
-    durationAr: 'اليوم 10+',
+    durationAr: 'auto.ClinicalProtocolSection.k14',
     descEn: 'Final measurements and comprehensive progress report',
-    descAr: 'قياسات نهائية وتقرير تقدم شامل',
+    descAr: 'auto.ClinicalProtocolSection.k15',
     color: '#22c55e',
   },
 ];
@@ -80,36 +80,36 @@ const SAFETY_ITEMS = [
     id: 'screening',
     iconType: 'alert',
     titleEn: 'Screening, Not Diagnosis',
-    titleAr: 'فحص وليس تشخيص',
+    titleAr: 'auto.ClinicalProtocolSection.k16',
     descEn: 'Our assessments are educational screenings. They do not replace clinical diagnosis by licensed professionals.',
-    descAr: 'تقييماتنا هي فحوصات تعليمية. لا تحل محل التشخيص السريري من المختصين المرخصين.',
+    descAr: 'auto.ClinicalProtocolSection.k17',
     color: '#f59e0b',
   },
   {
     id: 'supervision',
     iconType: 'user',
     titleEn: 'Clinical Supervision',
-    titleAr: 'الإشراف السريري',
+    titleAr: 'auto.ClinicalProtocolSection.k18',
     descEn: 'All sessions are supervised by certified Bérard AIT practitioners with ongoing professional development.',
-    descAr: 'جميع الجلسات تحت إشراف ممارسين معتمدين من Bérard AIT مع تطوير مهني مستمر.',
+    descAr: 'auto.ClinicalProtocolSection.k19',
     color: brandPurple,
   },
   {
     id: 'privacy',
     iconType: 'shield',
     titleEn: 'Data Privacy',
-    titleAr: 'خصوصية البيانات',
+    titleAr: 'auto.ClinicalProtocolSection.k20',
     descEn: 'Your data is encrypted and stored securely. We never share personal information without explicit consent.',
-    descAr: 'بياناتك مشفرة ومخزنة بأمان. لا نشارك المعلومات الشخصية بدون موافقة صريحة.',
+    descAr: 'auto.ClinicalProtocolSection.k21',
     color: brandCyan,
   },
   {
     id: 'consent',
     iconType: 'document',
     titleEn: 'Informed Consent',
-    titleAr: 'الموافقة المستنيرة',
+    titleAr: 'auto.ClinicalProtocolSection.k22',
     descEn: 'We provide clear documentation of program expectations, potential outcomes, and your rights.',
-    descAr: 'نقدم وثائق واضحة عن توقعات البرنامج والنتائج المحتملة وحقوقك.',
+    descAr: 'auto.ClinicalProtocolSection.k23',
     color: brandPink,
   },
 ];
@@ -139,6 +139,7 @@ const PhaseCard = memo(({
   phase: typeof PROTOCOL_PHASES[0];
   isArabic: boolean;
 }) => {
+  const { t } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -202,7 +203,7 @@ const PhaseCard = memo(({
             letterSpacing: 0.5,
           }}
         >
-          {isArabic ? phase.durationAr : phase.durationEn}
+          {isArabic ? t(phase.durationAr, phase.durationEn) : phase.durationEn}
         </span>
       </div>
 
@@ -216,7 +217,7 @@ const PhaseCard = memo(({
           marginBottom: spacing[2],
         }}
       >
-        {isArabic ? phase.titleAr : phase.titleEn}
+        {isArabic ? t(phase.titleAr, phase.titleEn) : phase.titleEn}
       </h4>
 
       {/* Description */}
@@ -228,7 +229,7 @@ const PhaseCard = memo(({
           lineHeight: typography.lineHeight.relaxed,
         }}
       >
-        {isArabic ? phase.descAr : phase.descEn}
+        {isArabic ? t(phase.descAr, phase.descEn) : phase.descEn}
       </p>
     </div>
   );
@@ -242,67 +243,71 @@ const SafetyCard = memo(({
 }: {
   item: typeof SAFETY_ITEMS[0];
   isArabic: boolean;
-}) => (
-  <div
-    style={{
-      display: 'flex',
-      gap: spacing[4],
-      padding: spacing[4],
-      background: 'rgba(13,17,23,0.6)',
-      border: `1px solid ${colors.border.subtle}`,
-      borderRadius: radius.lg,
-      alignItems: 'flex-start',
-      flexDirection: isArabic ? 'row-reverse' : 'row',
-      textAlign: isArabic ? 'right' : 'left',
-    }}
-  >
-    {/* Icon */}
+}) => {
+  const { t } = useLanguage();
+
+  return (
     <div
       style={{
-        width: 44,
-        height: 44,
-        borderRadius: radius.lg,
-        background: `${item.color}15`,
-        border: `1px solid ${item.color}30`,
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
+        gap: spacing[4],
+        padding: spacing[4],
+        background: 'rgba(13,17,23,0.6)',
+        border: `1px solid ${colors.border.subtle}`,
+        borderRadius: radius.lg,
+        alignItems: 'flex-start',
+        flexDirection: isArabic ? 'row-reverse' : 'row',
+        textAlign: isArabic ? 'right' : 'left',
       }}
     >
-      {getIcon(item.iconType, item.color)}
-    </div>
+      {/* Icon */}
+      <div
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: radius.lg,
+          background: `${item.color}15`,
+          border: `1px solid ${item.color}30`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+        }}
+      >
+        {getIcon(item.iconType, item.color)}
+      </div>
 
-    {/* Content */}
-    <div style={{ flex: 1 }}>
-      <h5
-        style={{
-          margin: 0,
-          fontSize: typography.size.md,
-          fontWeight: typography.weight.semibold,
-          color: colors.text.primary,
-          marginBottom: spacing[1],
-        }}
-      >
-        {isArabic ? item.titleAr : item.titleEn}
-      </h5>
-      <p
-        style={{
-          margin: 0,
-          fontSize: typography.size.sm,
-          color: colors.text.muted,
-          lineHeight: typography.lineHeight.relaxed,
-        }}
-      >
-        {isArabic ? item.descAr : item.descEn}
-      </p>
+      {/* Content */}
+      <div style={{ flex: 1 }}>
+        <h5
+          style={{
+            margin: 0,
+            fontSize: typography.size.md,
+            fontWeight: typography.weight.semibold,
+            color: colors.text.primary,
+            marginBottom: spacing[1],
+          }}
+        >
+          {isArabic ? t(item.titleAr, item.titleEn) : item.titleEn}
+        </h5>
+        <p
+          style={{
+            margin: 0,
+            fontSize: typography.size.sm,
+            color: colors.text.muted,
+            lineHeight: typography.lineHeight.relaxed,
+          }}
+        >
+          {isArabic ? t(item.descAr, item.descEn) : item.descEn}
+        </p>
+      </div>
     </div>
-  </div>
-));
+  );
+});
 SafetyCard.displayName = 'SafetyCard';
 
 const ClinicalProtocolSection = memo(function ClinicalProtocolSection() {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const { isClinician, isSchool } = useVisitorMode();
 
   // Only show full detail for clinicians and schools
@@ -563,7 +568,7 @@ const ClinicalProtocolSection = memo(function ClinicalProtocolSection() {
             }}
           >
             <span style={{ color: brandCyan }}>01</span>
-            {isArabic ? 'مراحل البرنامج' : 'Program Phases'}
+            {t('auto.ClinicalProtocolSection.k1', "Program Phases")}
           </h3>
 
           <div
@@ -597,7 +602,7 @@ const ClinicalProtocolSection = memo(function ClinicalProtocolSection() {
           }}
         >
           <span style={{ color: brandPink }}>{showFullProtocol ? '02' : '01'}</span>
-          {isArabic ? 'السلامة والامتثال' : 'Safety & Compliance'}
+          {t('auto.ClinicalProtocolSection.k2', "Safety & Compliance")}
         </h3>
 
         <div
@@ -633,9 +638,7 @@ const ClinicalProtocolSection = memo(function ClinicalProtocolSection() {
             lineHeight: typography.lineHeight.relaxed,
           }}
         >
-          {isArabic
-            ? '📋 للاطلاع على الوثائق الكاملة للبروتوكول والسياسات، يرجى التواصل مع فريقنا السريري.'
-            : '📋 For complete protocol documentation and policies, please contact our clinical team.'}
+          {t('auto.ClinicalProtocolSection.k3', "📋 For complete protocol documentation and policies, please contact our clinical team.")}
         </p>
       </div>
 

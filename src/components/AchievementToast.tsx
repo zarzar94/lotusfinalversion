@@ -17,7 +17,7 @@ import {
 
 export default function AchievementToast() {
   const { recentUnlock, clearRecentUnlock, state } = useGamification();
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
 
@@ -294,7 +294,7 @@ export default function AchievementToast() {
             lineHeight: typography.lineHeight.tight,
             textShadow: '0 2px 4px rgba(0,0,0,0.3)',
           }}>
-            {isArabic ? recentUnlock.titleAr : recentUnlock.title}
+            {isArabic ? t(recentUnlock.titleAr, recentUnlock.title) : recentUnlock.title}
           </div>
 
           {/* Description */}
@@ -304,7 +304,7 @@ export default function AchievementToast() {
             marginBottom: spacing[2.5],
             lineHeight: 1.4,
           }}>
-            {isArabic ? recentUnlock.descriptionAr : recentUnlock.description}
+            {isArabic ? t(recentUnlock.descriptionAr, recentUnlock.description) : recentUnlock.description}
           </div>
 
           {/* Points badge with XP display */}

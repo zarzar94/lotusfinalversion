@@ -371,7 +371,7 @@ SettingSection.displayName = 'SettingSection';
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function SettingsPage() {
-  const { isArabic, direction, toggleLanguage } = useLanguage();
+  const { isArabic, direction, toggleLanguage, t } = useLanguage();
   const { user, updateProfile, logout } = useUser();
 
   const [settings, setSettings] = useState<UserSettings>(loadSettings);
@@ -413,16 +413,16 @@ export default function SettingsPage() {
   }, [editName, updateProfile]);
 
   const text = {
-    title: isArabic ? 'الإعدادات' : 'Settings',
-    notifications: isArabic ? 'الإشعارات' : 'Notifications',
-    display: isArabic ? 'العرض' : 'Display',
-    privacy: isArabic ? 'الخصوصية' : 'Privacy',
-    audio: isArabic ? 'الصوت' : 'Audio',
-    account: isArabic ? 'الحساب' : 'Account',
-    language: isArabic ? 'اللغة' : 'Language',
-    saved: isArabic ? 'تم الحفظ' : 'Saved',
-    signOut: isArabic ? 'تسجيل الخروج' : 'Sign Out',
-    deleteAccount: isArabic ? 'حذف الحساب' : 'Delete Account',
+    title: t('auto.SettingsPage.k1', "Settings"),
+    notifications: t('auto.SettingsPage.k2', "Notifications"),
+    display: t('auto.SettingsPage.k3', "Display"),
+    privacy: t('auto.SettingsPage.k4', "Privacy"),
+    audio: t('auto.SettingsPage.k5', "Audio"),
+    account: t('auto.SettingsPage.k6', "Account"),
+    language: t('auto.SettingsPage.k7', "Language"),
+    saved: t('auto.SettingsPage.k8', "Saved"),
+    signOut: t('auto.SettingsPage.k9', "Sign Out"),
+    deleteAccount: t('auto.SettingsPage.k10', "Delete Account"),
   };
 
   return (
@@ -586,7 +586,7 @@ export default function SettingsPage() {
                 fontSize: typography.size.xs,
               }}
             >
-              {isArabic ? 'تعديل' : 'Edit'}
+              {t('auto.SettingsPage.k11', "Edit")}
             </button>
           )}
         </div>
@@ -634,20 +634,20 @@ export default function SettingsPage() {
       {/* Notifications Section */}
       <SettingSection title={text.notifications} icon="🔔">
         <SettingToggle
-          label={isArabic ? 'إشعارات الإنجازات' : 'Achievement Notifications'}
-          description={isArabic ? 'إشعار عند فتح إنجاز جديد' : 'Get notified when you unlock achievements'}
+          label={t('auto.SettingsPage.k12', "Achievement Notifications")}
+          description={t('auto.SettingsPage.k13', "Get notified when you unlock achievements")}
           checked={settings.notifications.achievements}
           onChange={(v) => updateSetting('notifications', 'achievements', v)}
         />
         <SettingToggle
-          label={isArabic ? 'تذكيرات الجلسات' : 'Session Reminders'}
-          description={isArabic ? 'تذكير يومي لإكمال الجلسات' : 'Daily reminders to complete sessions'}
+          label={t('auto.SettingsPage.k14', "Session Reminders")}
+          description={t('auto.SettingsPage.k15', "Daily reminders to complete sessions")}
           checked={settings.notifications.reminders}
           onChange={(v) => updateSetting('notifications', 'reminders', v)}
         />
         <SettingToggle
-          label={isArabic ? 'تحديثات المنصة' : 'Platform Updates'}
-          description={isArabic ? 'إشعارات بالميزات والتحديثات الجديدة' : 'News about new features and updates'}
+          label={t('auto.SettingsPage.k16', "Platform Updates")}
+          description={t('auto.SettingsPage.k17', "News about new features and updates")}
           checked={settings.notifications.updates}
           onChange={(v) => updateSetting('notifications', 'updates', v)}
         />
@@ -656,24 +656,24 @@ export default function SettingsPage() {
       {/* Display Section */}
       <SettingSection title={text.display} icon="🎨">
         <SettingToggle
-          label={isArabic ? 'تقليل الحركة' : 'Reduced Motion'}
-          description={isArabic ? 'تقليل الرسوم المتحركة' : 'Minimize animations and motion effects'}
+          label={t('auto.SettingsPage.k18', "Reduced Motion")}
+          description={t('auto.SettingsPage.k19', "Minimize animations and motion effects")}
           checked={settings.display.reducedMotion}
           onChange={(v) => updateSetting('display', 'reducedMotion', v)}
         />
         <SettingToggle
-          label={isArabic ? 'تباين عالي' : 'High Contrast'}
-          description={isArabic ? 'زيادة تباين الألوان' : 'Increase color contrast for better visibility'}
+          label={t('auto.SettingsPage.k20', "High Contrast")}
+          description={t('auto.SettingsPage.k21', "Increase color contrast for better visibility")}
           checked={settings.display.highContrast}
           onChange={(v) => updateSetting('display', 'highContrast', v)}
         />
         <SettingSelect
-          label={isArabic ? 'حجم الخط' : 'Font Size'}
+          label={t('auto.SettingsPage.k22', "Font Size")}
           value={settings.display.fontSize}
           options={[
-            { value: 'small', label: isArabic ? 'صغير' : 'Small' },
-            { value: 'medium', label: isArabic ? 'متوسط' : 'Medium' },
-            { value: 'large', label: isArabic ? 'كبير' : 'Large' },
+            { value: 'small', label: t('auto.SettingsPage.k23', "Small") },
+            { value: 'medium', label: t('auto.SettingsPage.k24', "Medium") },
+            { value: 'large', label: t('auto.SettingsPage.k25', "Large") },
           ]}
           onChange={(v) => updateSetting('display', 'fontSize', v as 'small' | 'medium' | 'large')}
         />
@@ -682,13 +682,13 @@ export default function SettingsPage() {
       {/* Audio Section */}
       <SettingSection title={text.audio} icon="🔊">
         <SettingToggle
-          label={isArabic ? 'المؤثرات الصوتية' : 'Sound Effects'}
-          description={isArabic ? 'أصوات الإنجازات والتفاعلات' : 'Achievement sounds and interaction effects'}
+          label={t('auto.SettingsPage.k26', "Sound Effects")}
+          description={t('auto.SettingsPage.k27', "Achievement sounds and interaction effects")}
           checked={settings.audio.soundEffects}
           onChange={(v) => updateSetting('audio', 'soundEffects', v)}
         />
         <SettingSlider
-          label={isArabic ? 'مستوى الصوت' : 'Volume Level'}
+          label={t('auto.SettingsPage.k28', "Volume Level")}
           value={settings.audio.volume}
           onChange={(v) => updateSetting('audio', 'volume', v)}
         />
@@ -697,14 +697,14 @@ export default function SettingsPage() {
       {/* Privacy Section */}
       <SettingSection title={text.privacy} icon="🔒">
         <SettingToggle
-          label={isArabic ? 'مشاركة التقدم' : 'Share Progress'}
-          description={isArabic ? 'السماح للطبيب بمشاهدة تقدمك' : 'Allow your clinician to view your progress'}
+          label={t('auto.SettingsPage.k29', "Share Progress")}
+          description={t('auto.SettingsPage.k30', "Allow your clinician to view your progress")}
           checked={settings.privacy.shareProgress}
           onChange={(v) => updateSetting('privacy', 'shareProgress', v)}
         />
         <SettingToggle
-          label={isArabic ? 'التحليلات المجهولة' : 'Anonymous Analytics'}
-          description={isArabic ? 'المساعدة في تحسين المنصة' : 'Help improve the platform with usage data'}
+          label={t('auto.SettingsPage.k31', "Anonymous Analytics")}
+          description={t('auto.SettingsPage.k32', "Help improve the platform with usage data")}
           checked={settings.privacy.anonymousAnalytics}
           onChange={(v) => updateSetting('privacy', 'anonymousAnalytics', v)}
         />
@@ -727,7 +727,7 @@ export default function SettingsPage() {
             color: '#ef4444',
           }}
         >
-          ⚠️ {isArabic ? 'منطقة الخطر' : 'Danger Zone'}
+          ⚠️ {t('auto.SettingsPage.k33', "Danger Zone")}
         </h3>
         <div style={{ display: 'flex', gap: spacing[3], flexWrap: 'wrap' }}>
           <button

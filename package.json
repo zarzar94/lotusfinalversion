@@ -7,6 +7,7 @@
     "dev": "vite",
     "host": "vite --host",
     "build": "vite build",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "qa:assets": "node scripts/qa-assets.mjs"
   },

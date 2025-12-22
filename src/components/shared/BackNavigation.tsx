@@ -17,7 +17,7 @@ interface BackNavigationProps {
 }
 
 function BackNavigation({ to, label, href, labelAr }: BackNavigationProps) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
 
   // Support both new (to) and legacy (href) props
   const destination = to || href || '/';
