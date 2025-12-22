@@ -137,7 +137,7 @@ export function useScrollState(): ScrollState {
     scrollY: 0,
     scrollX: 0,
     progress: 0,
-    direction: null as const,
+    direction: null,
     isAtTop: true,
     isAtBottom: false,
   }), []);

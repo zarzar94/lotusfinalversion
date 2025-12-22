@@ -354,8 +354,8 @@ export default function AudioSpectrumDemo() {
                   width: 8,
                   height: 8,
                   borderRadius: '50%',
-                  background: isPlaying ? audioColors.signalActive : audioColors.signalIdle,
-                  boxShadow: isPlaying ? `0 0 8px ${audioColors.signalActive}` : 'none',
+                  background: isPlaying ? audioColors.active : audioColors.inactive,
+                  boxShadow: isPlaying ? `0 0 8px ${audioColors.active}` : 'none',
                 }} />
               </h2>
               <div style={{
@@ -421,7 +421,7 @@ export default function AudioSpectrumDemo() {
             left: 0,
             right: 0,
             height: 2,
-            background: `linear-gradient(90deg, transparent, ${audioColors.bass}, ${audioColors.mid}, ${audioColors.high}, transparent)`,
+            background: `linear-gradient(90deg, transparent, ${audioColors.low}, ${audioColors.mid}, ${audioColors.high}, transparent)`,
             opacity: 0.7,
           }} />
           {/* Canvas Header - Lab Monitor Style */}
@@ -453,11 +453,11 @@ export default function AudioSpectrumDemo() {
                     width: 8,
                     height: 8,
                     borderRadius: '50%',
-                    background: isPlaying ? audioColors.signalActive : audioColors.signalIdle,
-                    boxShadow: isPlaying ? `0 0 10px ${audioColors.signalActive}` : 'none',
+                    background: isPlaying ? audioColors.active : audioColors.inactive,
+                    boxShadow: isPlaying ? `0 0 10px ${audioColors.active}` : 'none',
                     animation: isPlaying ? 'pulse 1s ease-in-out infinite' : 'none',
                   }} />
-                  <span style={{ fontSize: 12, fontWeight: 700, color: isPlaying ? audioColors.signalActive : 'rgba(255,255,255,0.6)' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: isPlaying ? audioColors.active : 'rgba(255,255,255,0.6)' }}>
                     {isPlaying ? 'ANALYZING' : 'STANDBY'}
                   </span>
                 </div>
@@ -476,7 +476,7 @@ export default function AudioSpectrumDemo() {
                 borderRadius: 6,
                 border: `1px solid ${labTech.borders.subtle}`,
               }}>
-                {[audioColors.bass, audioColors.lowMid, audioColors.mid, audioColors.highMid, audioColors.high].map((color, i) => (
+                {[audioColors.low, audioColors.lowMid, audioColors.mid, audioColors.midHigh, audioColors.high].map((color, i) => (
                   <div key={i} style={{
                     width: 4,
                     height: isPlaying ? 12 + Math.sin(Date.now() / 200 + i) * 4 : 8,
@@ -801,13 +801,13 @@ export default function AudioSpectrumDemo() {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: audioColors.signalActive,
-              boxShadow: `0 0 6px ${audioColors.signalActive}`,
+              background: audioColors.active,
+              boxShadow: `0 0 6px ${audioColors.active}`,
             }} />
             <span style={{
               fontSize: 9,
               fontFamily: 'monospace',
-              color: audioColors.signalActive,
+              color: audioColors.active,
               letterSpacing: 0.5,
             }}>
               SYSTEM READY
@@ -830,7 +830,7 @@ export default function AudioSpectrumDemo() {
           </span>
           {/* Color legend */}
           <div style={{ display: 'flex', gap: 3 }}>
-            {[audioColors.bass, audioColors.lowMid, audioColors.mid, audioColors.highMid, audioColors.high].map((color, i) => (
+            {[audioColors.low, audioColors.lowMid, audioColors.mid, audioColors.midHigh, audioColors.high].map((color, i) => (
               <div key={i} style={{
                 width: 16,
                 height: 4,

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
-import { brandCyan, brandPurpleDark, styles, instructionFlow } from '../styles';
+import { brandCyan, brandPurpleDark, styles, instructionFlow } from '../../styles';
 
 type ModulePhase = 'instructions' | 'practice' | 'main';
 

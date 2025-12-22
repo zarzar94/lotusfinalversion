@@ -348,7 +348,8 @@ ScrollBasedCTA.displayName = 'ScrollBasedCTA';
  */
 export const EngagementCelebration = memo(() => {
   const { isArabic } = useLanguage();
-  const { points, level, achievements } = useGamification();
+  const { state } = useGamification();
+  const { totalPoints: points, level, achievements } = state;
   const [celebration, setCelebration] = useState<{
     message: string;
     icon: string;

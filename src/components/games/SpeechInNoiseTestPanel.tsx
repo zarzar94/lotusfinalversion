@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
-import { brandCyan, brandPink, brandPurpleDark, styles, snrModule } from '../styles';
+import { brandCyan, brandPink, brandPurpleDark, styles, snrModule } from '../../styles';
 import { ensureAudio, safeCloseAudio, setBabbleNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import type { GameResult, SpeechInNoiseMetrics, TestOutcome } from './types';
 import { calculateFatigueIndex } from './scoring';

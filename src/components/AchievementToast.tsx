@@ -12,8 +12,6 @@ import {
   transitions,
   shadows,
   colors,
-  cyberColors,
-  gamificationStyles,
 } from './styles';
 
 export default function AchievementToast() {

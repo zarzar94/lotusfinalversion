@@ -58,7 +58,8 @@ const PersonalizedGreeting = memo(({
   const { isArabic } = useLanguage();
   const { mode, config } = useVisitorMode();
   const { user, isAuthenticated } = useUser();
-  const { points, level } = useGamification();
+  const { state } = useGamification();
+  const { totalPoints: points, level } = state;
   const navigate = useNavigate();
 
   const [greeting, setGreeting] = useState<{

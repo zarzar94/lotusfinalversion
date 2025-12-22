@@ -32,7 +32,7 @@ import {
   transitions,
   dashboardExport,
   analytics,
-} from '../styles';
+} from '../../styles';
 import LongitudinalCharts from '../dashboards/LongitudinalCharts';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -623,7 +623,7 @@ export default function ParentDashboard() {
                 fontSize: typography.size['3xl'],
                 fontWeight: typography.weight.black,
                 color: colors.text.primary,
-                fontFamily: typography.fontFamily,
+                fontFamily: typography.fontFamily.primary,
               }}
             >
               {t('auto.ParentDashboard.k11', "Parent Dashboard")}

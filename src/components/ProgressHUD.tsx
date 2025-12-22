@@ -1,16 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useGamification } from '../context/GamificationContext';
-import {
-  brandCyan,
-  brandPurple,
-  brandPink,
-  brandPurpleDark,
-  cyberColors,
-  gamificationStyles,
-  hudStyles,
-  holoStyles,
-  circuitStyles,
-} from './styles';
+import { brandCyan, brandPink, brandPurple } from './styles';
 
 // Advanced HUD container with tech aesthetic
 const hudContainerStyle: React.CSSProperties = {
@@ -89,11 +79,14 @@ const levelBadgeStyle: React.CSSProperties = {
 
 // XP Progress bar with advanced styling
 const progressBarStyle: React.CSSProperties = {
-  ...gamificationStyles.xpBarContainer,
+  position: 'relative',
+  width: '100%',
   height: 8,
   marginTop: 10,
   background: 'rgba(0,0,0,0.5)',
   border: `1px solid ${brandCyan}25`,
+  borderRadius: 4,
+  overflow: 'hidden',
 };
 
 // Achievement item with holographic effect

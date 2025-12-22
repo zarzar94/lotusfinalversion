@@ -29,7 +29,7 @@ import {
   transitions,
   dashboardExport,
   analytics,
-} from '../styles';
+} from '../../styles';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -412,7 +412,7 @@ export default function SchoolDashboard() {
                 fontSize: typography.size['3xl'],
                 fontWeight: typography.weight.black,
                 color: colors.text.primary,
-                fontFamily: typography.fontFamily,
+                fontFamily: typography.fontFamily.primary,
               }}
             >
               {t('auto.SchoolDashboard.k12', "School Analytics Dashboard")}

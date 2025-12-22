@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { authApi, clinicalApi, getToken, clearTokens } from '../services/api';
-import { safeStorage } from '../utils/storage';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -111,9 +110,9 @@ const STORAGE_KEY = 'lotus_user_state';
 const CLINICAL_STORAGE_KEY = 'lotus_clinical_progress';
 
 const loadUserState = (): UserState => {
-  const stored = safeStorage.getItem(STORAGE_KEY);
-  if (stored) {
-    try {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
       const parsed = JSON.parse(stored);
       return {
         user: parsed.user || null,
@@ -123,9 +122,9 @@ const loadUserState = (): UserState => {
         isOnline: navigator.onLine,
         authError: null,
       };
-    } catch {
-      console.warn('Failed to load user state');
     }
+  } catch {
+    console.warn('Failed to load user state');
   }
   return {
     user: null,
@@ -136,39 +135,39 @@ const loadUserState = (): UserState => {
     authError: null,
   };
 };
+
 const loadClinicalProgress = (): ClinicalProgress | null => {
-  const stored = safeStorage.getItem(CLINICAL_STORAGE_KEY);
-  if (stored) {
-    try {
+  try {
+    const stored = localStorage.getItem(CLINICAL_STORAGE_KEY);
+    if (stored) {
       return JSON.parse(stored);
-    } catch {
-      console.warn('Failed to load clinical progress');
     }
+  } catch {
+    console.warn('Failed to load clinical progress');
   }
   return null;
 };
+
 const saveUserState = (user: User | null) => {
-  if (!user) {
-    safeStorage.removeItem(STORAGE_KEY);
-    return;
-  }
-  const payload = JSON.stringify({ user });
-  if (!safeStorage.setItem(STORAGE_KEY, payload)) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ user }));
+  } catch {
     console.warn('Failed to save user state');
   }
 };
+
 const saveClinicalProgress = (progress: ClinicalProgress | null) => {
-  if (progress) {
-    const payload = JSON.stringify(progress);
-    if (!safeStorage.setItem(CLINICAL_STORAGE_KEY, payload)) {
-      console.warn('Failed to save clinical progress');
+  try {
+    if (progress) {
+      localStorage.setItem(CLINICAL_STORAGE_KEY, JSON.stringify(progress));
+    } else {
+      localStorage.removeItem(CLINICAL_STORAGE_KEY);
     }
-    return;
-  }
-  if (!safeStorage.removeItem(CLINICAL_STORAGE_KEY)) {
+  } catch {
     console.warn('Failed to save clinical progress');
   }
 };
+
 // ═══════════════════════════════════════════════════════════════════════════
 // CONTEXT
 // ═══════════════════════════════════════════════════════════════════════════
@@ -381,9 +380,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
       isOnline: navigator.onLine,
       authError: null,
     });
-    clearTokens();
-    safeStorage.removeItem(STORAGE_KEY);
-    safeStorage.removeItem(CLINICAL_STORAGE_KEY);
+
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(CLINICAL_STORAGE_KEY);
   }, []);
 
   const register = useCallback(async (data: RegisterData): Promise<boolean> => {

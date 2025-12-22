@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
-import { brandCyan, brandPink, brandPurpleDark, styles, binauralModule } from '../styles';
+import { brandCyan, brandPink, brandPurpleDark, styles, binauralModule } from '../../styles';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import type { GameResult, TestOutcome } from './types';
 
@@ -438,4 +438,3 @@ export default function DichoticListeningTestPanel({
     </div>
   );
 }
-

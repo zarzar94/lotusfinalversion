@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
-import { brandCyan, brandPink, brandPurpleDark, styles, attentionModule } from '../styles';
+import { brandCyan, brandPink, brandPurpleDark, styles, attentionModule } from '../../styles';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import { mean, stdDev } from './stats';
 import type { GameResult, TestOutcome } from './types';

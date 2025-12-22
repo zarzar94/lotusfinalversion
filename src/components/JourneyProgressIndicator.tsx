@@ -7,7 +7,6 @@ import { memo, useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useVisitorMode } from '../context/VisitorModeContext';
-import { useGamification } from '../context/GamificationContext';
 import {
   brandCyan,
   brandPurple,
@@ -77,7 +76,6 @@ const JOURNEY_STEPS: JourneyStep[] = [
 const JourneyProgressIndicator = memo(() => {
   const { isArabic } = useLanguage();
   const { mode } = useVisitorMode();
-  const { exploredRegions } = useGamification();
   const location = useLocation();
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);

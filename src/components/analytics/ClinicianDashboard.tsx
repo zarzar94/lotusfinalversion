@@ -32,7 +32,7 @@ import {
   transitions,
   dashboardExport,
   analytics,
-} from '../styles';
+} from '../../styles';
 import LongitudinalCharts from '../dashboards/LongitudinalCharts';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -839,7 +839,7 @@ export default function ClinicianDashboard() {
                 fontSize: typography.size['3xl'],
                 fontWeight: typography.weight.black,
                 color: colors.text.primary,
-                fontFamily: typography.fontFamily,
+                fontFamily: typography.fontFamily.primary,
               }}
             >
               {t('auto.ClinicianDashboard.k17', "Clinician Dashboard")}

@@ -1,14 +1,25 @@
 /**
  * Lotus AIT Backend - Express Server Entry Point
+ * Full-featured API with WebSocket, file uploads, email, and admin panel
  */
 
 import 'dotenv/config';
 import express from 'express';
+import { createServer } from 'http';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
+import swaggerUi from 'swagger-ui-express';
 
 import { connectDB } from './utils/db.js';
+import createIndexes from './utils/indexes.js';
+import { initWebSocket } from './utils/websocket.js';
+import { verifyEmailConnection } from './utils/email.js';
+import { swaggerSpec } from './utils/swagger.js';
+import { compressResponse, performanceHeaders, requestTimeout } from './middleware/compression.js';
+import { sanitizeBody } from './middleware/validate.js';
+import { doubleSubmitCookie } from './middleware/csrf.js';
 import {
   authRoutes,
   clinicalRoutes,
@@ -17,6 +28,9 @@ import {
   sessionsRoutes,
   syncRoutes,
 } from './routes/index.js';
+import passwordRoutes from './routes/password.js';
+import uploadRoutes from './routes/upload.js';
+import adminRoutes from './routes/admin.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // APP CONFIGURATION
@@ -54,8 +68,18 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Body parsing
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+app.use(cookieParser());
+
+// CSRF protection (using double submit cookie pattern)
+app.use(doubleSubmitCookie());
+
+// Performance optimizations
+app.use(performanceHeaders());
+app.use(requestTimeout(30000));
+app.use(compressResponse(1024));
+app.use(sanitizeBody);
 
 // Request logging (dev mode)
 if (process.env.NODE_ENV !== 'production') {
@@ -79,13 +103,25 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// API Documentation (Swagger)
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Lotus AIT API Documentation',
+}));
+
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/password', passwordRoutes);
 app.use('/api/clinical', clinicalRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/sessions', sessionsRoutes);
 app.use('/api/sync', syncRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/admin', adminRoutes);
+
+// Serve uploaded files
+app.use('/uploads', express.static('uploads'));
 
 // 404 handler
 app.use('/api/*', (req, res) => {
@@ -137,16 +173,30 @@ const startServer = async () => {
     // Connect to MongoDB
     await connectDB();
 
-    // Start Express server
-    app.listen(PORT, () => {
+    // Create indexes for query optimization
+    await createIndexes();
+
+    // Verify email configuration
+    await verifyEmailConnection();
+
+    // Create HTTP server for WebSocket support
+    const server = createServer(app);
+
+    // Initialize WebSocket
+    initWebSocket(server);
+
+    // Start server
+    server.listen(PORT, () => {
       console.log(`
 ╔════════════════════════════════════════════════════════════╗
 ║                                                            ║
 ║   🧠 Lotus AIT Backend Server                              ║
 ║                                                            ║
-║   Environment: ${process.env.NODE_ENV || 'development'}                             ║
+║   Environment: ${(process.env.NODE_ENV || 'development').padEnd(12)}                   ║
 ║   Port: ${PORT}                                              ║
 ║   API: http://localhost:${PORT}/api                          ║
+║   Docs: http://localhost:${PORT}/api/docs                    ║
+║   WebSocket: ws://localhost:${PORT}/ws                       ║
 ║                                                            ║
 ╚════════════════════════════════════════════════════════════╝
       `);
