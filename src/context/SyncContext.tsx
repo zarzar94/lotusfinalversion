@@ -20,7 +20,6 @@ import {
   processOfflineQueue,
   getToken,
 } from '../services/api';
-import { LOCAL_CHANGE_EVENT } from '../utils/sync';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -117,17 +116,6 @@ export function SyncProvider({ children }: { children: ReactNode }) {
       return { ...prev, pendingChanges: newCount };
     });
   }, []);
-
-  // Track local changes from other parts of the app
-  useEffect(() => {
-    const handleLocalChange = () => markPendingChange();
-    window.addEventListener(LOCAL_CHANGE_EVENT, handleLocalChange);
-    window.addEventListener('lotus-settings-changed', handleLocalChange);
-    return () => {
-      window.removeEventListener(LOCAL_CHANGE_EVENT, handleLocalChange);
-      window.removeEventListener('lotus-settings-changed', handleLocalChange);
-    };
-  }, [markPendingChange]);
 
   // Clear pending changes
   const clearPendingChanges = useCallback(() => {
@@ -290,19 +278,6 @@ export function SyncProvider({ children }: { children: ReactNode }) {
       clearInterval(interval);
     };
   }, [sync, state.pendingChanges, state.lastSyncAt]);
-
-  // Debounced sync shortly after local changes
-  useEffect(() => {
-    if (!getToken()) return;
-    if (!state.isOnline) return;
-    if (state.pendingChanges <= 0) return;
-
-    const timeout = window.setTimeout(() => {
-      sync();
-    }, 15000);
-
-    return () => window.clearTimeout(timeout);
-  }, [sync, state.pendingChanges, state.isOnline]);
 
   // Sync before page unload if there are pending changes
   useEffect(() => {
