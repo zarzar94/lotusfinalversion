@@ -447,16 +447,6 @@ const Header = memo(function Header() {
         {/* Circuit nodes */}
         <div className="header-circuit-node" style={{ top: 10, left: '25%' }} />
         <div className="header-circuit-node" style={{ top: 10, right: '25%', animationDelay: '0.5s' }} />
-        <div style={{
-          width: '100%',
-          maxWidth: 1180,
-          margin: '0 auto',
-          padding: '0 16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 16,
-        }}>
         {/* Logo Section */}
         <Link to="/" style={{ textDecoration: 'none', transition: 'all 0.3s ease' }}>
           <BrainLogo
