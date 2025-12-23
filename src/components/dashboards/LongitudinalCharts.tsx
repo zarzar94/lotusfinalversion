@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAllSessions } from '../../utils/sessionStorage';
 import type { LabModuleMetrics } from '../../types/moduleMetrics';
@@ -101,6 +101,10 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   const { t, isArabic } = useLanguage();
   const locale = isArabic ? 'ar-SA' : 'en-US';
 
+  const [showBaseline, setShowBaseline] = useState(true);
+  const [showRollingTrend, setShowRollingTrend] = useState(true);
+  const [showBestMarker, setShowBestMarker] = useState(true);
+
   const sessions = useMemo(() => {
     const allSessions = getAllSessions();
     return allSessions
@@ -153,6 +157,19 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     return scorePoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
   }, [scorePoints]);
 
+  const bestPoint = useMemo(() => {
+    if (!scorePoints.length) return null;
+    const bestValue = Math.max(...scorePoints.map((point) => point.value));
+    let bestIndex = -1;
+    for (let i = scorePoints.length - 1; i >= 0; i -= 1) {
+      if (scorePoints[i].value === bestValue) {
+        bestIndex = i;
+        break;
+      }
+    }
+    return bestIndex >= 0 ? scorePoints[bestIndex] : null;
+  }, [scorePoints]);
+
   const rollingPoints = useMemo(() => {
     if (!rollingScores.length) return [];
     const paddingX = 8;
@@ -194,7 +211,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     const best = Math.max(...scores);
     const slope = computeSlope(scores);
     const baseline = baselineScore ?? scores[0];
-    const recentAverage = rollingScores.length ? rollingScores[rollingScores.length - 1] : null;
+    const recentAverage = trendReady && rollingScores.length ? rollingScores[rollingScores.length - 1] : null;
 
     const fatigueValues = sessions
       .filter((session) => typeof session.fatigueIndex === 'number')
@@ -213,7 +230,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
       recentAverage,
       fatigueDirection,
     };
-  }, [baselineScore, rollingScores, sessions]);
+  }, [baselineScore, rollingScores, sessions, trendReady]);
 
   if (sessions.length === 0) {
     return (
@@ -237,6 +254,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   }
 
   const labelStep = scorePoints.length > 6 ? Math.ceil(scorePoints.length / 6) : 1;
+  const canShowRolling = trendReady && rollingPoints.length > 1;
   const valueToY = (value: number, height: number) => {
     const paddingY = 16;
     const chartHeight = height - 40;
@@ -250,13 +268,65 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
       >
         <div
           style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            gap: spacing[3],
             marginBottom: spacing[3],
-            fontSize: typography.size.sm,
-            fontWeight: typography.weight.bold,
-            color: colors.text.primary,
+            alignItems: 'flex-start',
           }}
         >
-          {title || t('dashboard.scoreTrendTitle', 'Score Trend')}
+          <div
+            style={{
+              fontSize: typography.size.sm,
+              fontWeight: typography.weight.bold,
+              color: colors.text.primary,
+            }}
+          >
+            {title || t('dashboard.scoreTrendTitle', 'Score Trend')}
+          </div>
+
+          {variant === 'clinician' && (
+            <div
+              style={{
+                display: 'flex',
+                gap: spacing[3],
+                flexWrap: 'wrap',
+                alignItems: 'center',
+              }}
+            >
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: typography.size.xs }}>
+                <input
+                  type="checkbox"
+                  checked={showBaseline}
+                  onChange={(e) => setShowBaseline(e.target.checked)}
+                />
+                <span style={{ color: colors.text.muted }}>
+                  {t('dashboard.toggleBaseline', 'Baseline')}
+                </span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: typography.size.xs }}>
+                <input
+                  type="checkbox"
+                  checked={showRollingTrend}
+                  disabled={!canShowRolling}
+                  onChange={(e) => setShowRollingTrend(e.target.checked)}
+                />
+                <span style={{ color: colors.text.muted, opacity: canShowRolling ? 1 : 0.5 }}>
+                  {t('dashboard.toggleRolling', 'Rolling Trend')}
+                </span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: typography.size.xs }}>
+                <input
+                  type="checkbox"
+                  checked={showBestMarker}
+                  onChange={(e) => setShowBestMarker(e.target.checked)}
+                />
+                <span style={{ color: colors.text.muted }}>
+                  {t('dashboard.toggleBest', 'Best Score')}
+                </span>
+              </label>
+            </div>
+          )}
         </div>
         <svg width="100%" height={lineHeight} viewBox={`0 0 100 ${lineHeight}`} preserveAspectRatio="none">
           {bandBackgrounds.map((band) => {
@@ -290,7 +360,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             );
           })}
 
-          {baselineScore !== null ? (
+          {baselineScore !== null && showBaseline ? (
             <line
               x1={8}
               y1={valueToY(baselineScore, lineHeight)}
@@ -303,7 +373,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             />
           ) : null}
 
-          {rollingPoints.length > 1 ? (
+          {canShowRolling && showRollingTrend ? (
             <path
               d={rollingPath}
               fill="none"
@@ -336,6 +406,26 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
               <title>{point.tooltip}</title>
             </circle>
           ))}
+
+          {bestPoint && showBestMarker ? (
+            <g>
+              <circle
+                cx={bestPoint.x}
+                cy={bestPoint.y}
+                r={4.2}
+                fill={colors.surface.base}
+                stroke={brandPurple}
+                strokeWidth={1.6}
+              />
+              <circle
+                cx={bestPoint.x}
+                cy={bestPoint.y}
+                r={2.2}
+                fill={brandPurple}
+              />
+              <title>{bestPoint.tooltip}</title>
+            </g>
+          ) : null}
 
           {scorePoints.map((point, index) => (
             index % labelStep === 0 ? (
