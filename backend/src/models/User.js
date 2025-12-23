@@ -56,6 +56,16 @@ const userSchema = new mongoose.Schema({
   refreshToken: {
     type: String,
   },
+  resetToken: {
+    type: String,
+  },
+  resetTokenExpiry: {
+    type: Date,
+  },
+  passwordVersion: {
+    type: Number,
+    default: 0,
+  },
 }, {
   timestamps: true,
 });
@@ -83,6 +93,9 @@ userSchema.methods.toJSON = function() {
   const obj = this.toObject();
   delete obj.password;
   delete obj.refreshToken;
+  delete obj.resetToken;
+  delete obj.resetTokenExpiry;
+  delete obj.passwordVersion;
   delete obj.__v;
 
   // Transform _id to id and timestamps to numbers

@@ -55,10 +55,6 @@ const translations = {
     frequency: 'التردد (هرتز)',
     progress: 'التقدم',
     day: 'اليوم',
-    completed: 'مكتملة',
-    scheduled: 'مجدولة',
-    pending: 'قيد الانتظار',
-    bandCount: 'جلسة',
   },
   en: {
     title: 'Treatment Protocol Dashboard (10 days)',
@@ -68,10 +64,6 @@ const translations = {
     frequency: 'Frequency (Hz)',
     progress: 'Progress',
     day: 'Day',
-    completed: 'completed',
-    scheduled: 'scheduled',
-    pending: 'pending',
-    bandCount: 'session',
   },
 };
 
@@ -104,12 +96,12 @@ const TreatmentProtocolDashboard = ({ locale = 'ar', plan = defaultPlan }: Treat
         </div>
         <p style={styles.bodyText}>{t.subtitle}</p>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <span style={pillStyle}>✅ {summary.completed} {t.completed}</span>
+          <span style={pillStyle}>✅ {summary.completed} completed</span>
           <span style={{ ...pillStyle, background: 'rgba(175,132,186,0.12)', borderColor: 'rgba(175,132,186,0.25)' }}>
-            🗓️ {summary.scheduled} {t.scheduled}
+            🗓️ {summary.scheduled} scheduled
           </span>
           <span style={{ ...pillStyle, background: 'rgba(176,18,112,0.12)', borderColor: 'rgba(176,18,112,0.25)' }}>
-            ⏳ {summary.pending} {t.pending}
+            ⏳ {summary.pending} pending
           </span>
         </div>
       </div>
@@ -168,11 +160,7 @@ const TreatmentProtocolDashboard = ({ locale = 'ar', plan = defaultPlan }: Treat
                     <div style={{ display: 'grid', gap: 8 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={styles.kicker}>{t.progress}</span>
-                        <span style={{ ...styles.chip, background: 'rgba(255,255,255,0.05)' }}>
-                          {session.status === 'completed' && t.completed}
-                          {session.status === 'scheduled' && t.scheduled}
-                          {session.status === 'pending' && t.pending}
-                        </span>
+                        <span style={{ ...styles.chip, background: 'rgba(255,255,255,0.05)' }}>{session.status}</span>
                       </div>
                       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                         {Array.from({ length: 5 }).map((_, starIdx) => (

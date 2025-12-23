@@ -10,6 +10,9 @@ class Cache {
 
     // Cleanup expired entries every minute
     this.cleanupInterval = setInterval(() => this.cleanup(), 60000);
+    if (process.env.NODE_ENV === 'test' && this.cleanupInterval.unref) {
+      this.cleanupInterval.unref();
+    }
   }
 
   /**
@@ -166,5 +169,7 @@ export const invalidateCache = (patterns) => {
     next();
   };
 };
+
+export const getStats = () => cache.stats();
 
 export default cache;
