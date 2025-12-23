@@ -6,19 +6,15 @@ import type { LabModuleMetrics } from '../../types/moduleMetrics';
 import {
   analytics,
   brandCyan,
+  brandPink,
   brandPurple,
   colors,
-  performanceBands,
   radius,
   spacing,
   typography,
 } from '../styles';
 
-const VIEWBOX_W = 100;
-
 type ChartVariant = 'parent' | 'clinician';
-
-type ChartSeriesKey = 'overall' | 'left' | 'right' | 'balance';
 
 type ChartPoint = {
   x: number;
@@ -54,11 +50,6 @@ const MIN_TREND_SESSIONS = 3;
 const ROLLING_WINDOW = 3;
 
 const clampScore = (value: number) => Math.max(0, Math.min(100, value));
-
-const buildPath = (points: Array<{ x: number; y: number }>) => {
-  if (!points.length) return '';
-  return points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
-};
 
 const computeSlope = (values: number[]): number => {
   if (values.length < 2) return 0;
@@ -232,10 +223,6 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
 }) {
   const { t, isArabic } = useLanguage();
   const locale = isArabic ? 'ar-SA' : 'en-US';
-  const svgRef = useRef<SVGSVGElement | null>(null);
-  const [activePoint, setActivePoint] = useState<(ChartPoint & { xPx: number; yPx: number }) | null>(null);
-  const [isPinned, setIsPinned] = useState(false);
-
   const [tooltip, setTooltip] = useState<{
     left: number;
     top: number;
@@ -251,10 +238,6 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   const [showRolling, setShowRolling] = useState(true);
   const [showBestMarker, setShowBestMarker] = useState(true);
   const [earMode, setEarMode] = useState<EarMode>('combined');
-
-  const [showBaseline, setShowBaseline] = useState(true);
-  const [showRollingTrend, setShowRollingTrend] = useState(true);
-  const [showBestMarker, setShowBestMarker] = useState(true);
 
   const sessions = useMemo(() => {
     const allSessions = getAllSessions();
@@ -344,28 +327,6 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
         band: session.band,
         qualityFlags: session.qualityFlags,
       };
-    };
-
-    const allSeries = [
-      buildSeriesPoints('overall', t('dashboard.overallScore', 'Overall Score'), brandCyan),
-      buildSeriesPoints('left', t('dashboard.leftEar', 'Left Ear'), '#22c55e'),
-      buildSeriesPoints('right', t('dashboard.rightEar', 'Right Ear'), '#f97316'),
-      buildSeriesPoints('balance', t('dashboard.balance', 'Balance'), brandPurple),
-    ];
-
-    const visibleSeries = variant === 'clinician' ? allSeries : allSeries.filter((series) => series.key === 'overall');
-
-    return visibleSeries.filter((series) => series.points.length > 0);
-  }, [brandCyan, brandPurple, lineHeight, locale, normalizedSessions, t, variant, xPositions]);
-
-  const [activeSeries, setActiveSeries] = useState<ChartSeriesKey[]>(() => chartSeries.map((series) => series.key));
-
-  useEffect(() => {
-    setActiveSeries((prev) => {
-      const nextKeys = chartSeries.map((series) => series.key);
-      const filtered = prev.filter((key) => nextKeys.includes(key));
-      if (filtered.length) return filtered as ChartSeriesKey[];
-      return nextKeys as ChartSeriesKey[];
     });
 
     if (!isArabic) return normalizedPoints;
@@ -373,9 +334,9 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   }, [scoredSessions, locale, lineHeight, isArabic]);
 
   const scorePath = useMemo(() => {
-    if (translatedScorePoints.length === 0) return '';
-    return translatedScorePoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
-  }, [translatedScorePoints]);
+    if (scorePoints.length === 0) return '';
+    return scorePoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
+  }, [scorePoints]);
 
   const bestPoint = useMemo(() => {
     if (!scorePoints.length) return null;
@@ -407,17 +368,9 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   }, [rollingScores, lineHeight, isArabic]);
 
   const rollingPath = useMemo(() => {
-    if (translatedRollingPoints.length === 0) return '';
-    return translatedRollingPoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
-  }, [translatedRollingPoints]);
-
-  const bestPoint = useMemo(() => {
-    if (scorePoints.length === 0) return null;
-    const bestValue = Math.max(...scorePoints.map((point) => point.value));
-    const bestIndex = scorePoints.findIndex((point) => point.value === bestValue);
-    if (bestIndex === -1) return null;
-    return scorePoints[bestIndex];
-  }, [scorePoints]);
+    if (rollingPoints.length === 0) return '';
+    return rollingPoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
+  }, [rollingPoints]);
 
   const fatiguePoints = useMemo(() => {
     return sessions
@@ -440,28 +393,16 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     const slope = computeSlope(scores);
     const baseline = baselineScore ?? scores[0];
     const recentAverage = rollingScores.length ? rollingScores[rollingScores.length - 1] : null;
-    const stdDev = computeStandardDeviation(scores);
+    const variability = computeStandardDeviation(scores);
     const outlierRate = computeOutlierRate(scores);
     const { level, message, tone, consistencyIndex } = getConfidenceLevel(
       sessions.length,
-      stdDev,
+      variability,
       outlierRate,
       average,
     );
 
-    const mean = scores.reduce((sum, value) => sum + value, 0) / scores.length;
-    const variance = scores.reduce((sum, value) => sum + (value - mean) ** 2, 0) / scores.length;
-    const stdDev = Math.sqrt(variance);
-    const outlierRate = scores.filter((value) => Math.abs(value - mean) > 20).length / scores.length;
-    const consistencyIndex = Math.max(0, Math.min(100, Math.round(100 - stdDev)));
-    let confidenceLevel: 'low' | 'medium' | 'high' = 'high';
-    if (scores.length < 3) {
-      confidenceLevel = 'low';
-    } else if (stdDev > 15 || outlierRate > 0.25) {
-      confidenceLevel = 'medium';
-    }
-
-    const fatigueValues = normalizedSessions
+    const fatigueValues = sessions
       .filter((session) => typeof session.fatigueIndex === 'number')
       .map((session) => clampScore(session.fatigueIndex ?? 0));
     const fatigueSlope = fatigueValues.length > 1 ? computeSlope(fatigueValues) : 0;
@@ -477,7 +418,10 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
       baseline,
       recentAverage,
       consistencyIndex,
-      confidenceLevel,
+      confidenceLevel: level,
+      confidenceMessage: message,
+      confidenceTone: tone,
+      variability,
       outlierRate,
       fatigueDirection,
       fatigueSlope,
@@ -504,6 +448,9 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
       </div>
     );
   }
+
+  const labelStep = scorePoints.length > 6 ? Math.ceil(scorePoints.length / 6) : 1;
+  const labelPoints = scorePoints;
 
   const valueToY = (value: number, height: number) => {
     const chartHeight = height - VIEWBOX_BOTTOM_OFFSET;
@@ -719,17 +666,14 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             />
           ) : null}
 
-          {activeChartSeries.map((series) => (
-            <path
-              key={series.key}
-              d={series.path}
-              fill="none"
-              stroke={series.color}
-              strokeWidth={1.6}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          ))}
+          <path
+            d={scorePath}
+            fill="none"
+            stroke={brandCyan}
+            strokeWidth={1.6}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
 
           {showBestMarker && bestPoint ? (
             <g>
@@ -1039,23 +983,6 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             }
           />
           <MetricCard
-            label={t('dashboard.confidenceLevel', 'Confidence Level')}
-            value={
-              stats.confidenceLevel === 'high'
-                ? t('dashboard.confidenceHigh', 'High')
-                : stats.confidenceLevel === 'medium'
-                  ? t('dashboard.confidenceMedium', 'Medium')
-                  : t('dashboard.confidenceLow', 'Low')
-            }
-            tone={
-              stats.confidenceLevel === 'high'
-                ? colors.success
-                : stats.confidenceLevel === 'medium'
-                  ? colors.warning
-                  : colors.error
-            }
-          />
-          <MetricCard
             label={t('dashboard.fatigueSlope', 'Fatigue Slope')}
             value={
               trendReady
@@ -1074,16 +1001,6 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                   : t('dashboard.fatigueStable', 'Stable')
             }
             tone={stats.fatigueDirection === 'worsening' ? colors.error : brandCyan}
-          />
-          <MetricCard
-            label={t('dashboard.fatigueSlope', 'Fatigue Slope')}
-            value={`${stats.fatigueSlope >= 0 ? '+' : ''}${stats.fatigueSlope.toFixed(1)} ${t('dashboard.perSession', 'per session')}`}
-            tone={stats.fatigueSlope >= 0 ? colors.warning : colors.success}
-          />
-          <MetricCard
-            label={t('dashboard.fatigueSlope', 'Fatigue Slope')}
-            value={`${stats.fatigueSlope >= 0 ? '+' : ''}${stats.fatigueSlope.toFixed(1)} ${t('dashboard.perSession', 'per session')}`}
-            tone={stats.fatigueSlope >= 0 ? colors.warning : colors.success}
           />
         </div>
       )}

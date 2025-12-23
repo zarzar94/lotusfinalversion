@@ -1,17 +1,6 @@
 import { useMemo, useState } from 'react';
 import { styles, brandCyan, brandPink, brandPurple } from '../styles';
 
-const bandLabels = [
-  'Sub-bass',
-  'Bass',
-  'Low mid',
-  'Mid',
-  'High mid',
-  'Presence',
-  'Brilliance',
-  'Air',
-];
-
 const presets: Record<string, number[]> = {
   neutral: [25, 35, 45, 50, 45, 35, 25, 15],
   focus: [15, 25, 40, 60, 70, 55, 35, 20],
@@ -25,12 +14,16 @@ const translations = {
     subtitle: '٨ نطاقات ترددية (من تحت الجهير حتى الهواء) مع معاينة الموجة',
     preset: 'الضبط المسبق',
     waveform: 'موجة الصوت',
+    bands: ['تحت الجهير', 'الجهير', 'المنتصف المنخفض', 'المنتصف', 'المنتصف العالي', 'الوضوح', 'التألق', 'الهواء'],
+    bandCount: 'نطاق',
   },
   en: {
     title: 'Sound Lab Simulation',
     subtitle: '8-band spectrum (sub-bass to air) with waveform preview',
     preset: 'Preset',
     waveform: 'Waveform',
+    bands: ['Sub-bass', 'Bass', 'Low mid', 'Mid', 'High mid', 'Presence', 'Brilliance', 'Air'],
+    bandCount: 'bands',
   },
 };
 
@@ -38,6 +31,7 @@ const SoundLabSimulation = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {
   const [selectedPreset, setSelectedPreset] = useState<keyof typeof presets>('neutral');
   const [levels, setLevels] = useState<number[]>(presets.neutral);
   const t = translations[locale];
+  const bandLabels = t.bands;
 
   const waveformPoints = useMemo(() =>
     levels.map((value, idx) => ({
@@ -56,7 +50,7 @@ const SoundLabSimulation = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
           <h2 style={styles.h2}>{t.title}</h2>
-          <span style={{ ...styles.chip, background: 'rgba(143,211,204,0.18)' }}>8 bands</span>
+          <span style={{ ...styles.chip, background: 'rgba(143,211,204,0.18)' }}>8 {t.bandCount}</span>
         </div>
         <p style={styles.bodyText}>{t.subtitle}</p>
       </div>

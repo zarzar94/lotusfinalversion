@@ -17,6 +17,7 @@ const translations = {
     suggestions: 'اقتراحاتك للتحسين',
     consent: 'أوافق على التواصل للمتابعة',
     submit: 'إرسال الملاحظات',
+    badge: 'NPS + تقييمات',
   },
   en: {
     title: 'Comprehensive Feedback System',
@@ -26,6 +27,7 @@ const translations = {
     suggestions: 'Improvement suggestions',
     consent: 'I agree to be contacted for follow-up',
     submit: 'Submit feedback',
+    badge: 'NPS + Ratings',
   },
 };
 
@@ -51,7 +53,7 @@ const FeedbackSystem = ({ locale = 'ar', onSubmit }: { locale?: 'ar' | 'en'; onS
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
           <h2 style={styles.h2}>{t.title}</h2>
-          <span style={{ ...styles.chip, background: 'rgba(143,211,204,0.15)' }}>NPS + Ratings</span>
+          <span style={{ ...styles.chip, background: 'rgba(143,211,204,0.15)' }}>{t.badge}</span>
         </div>
         <p style={styles.bodyText}>{t.subtitle}</p>
       </div>
