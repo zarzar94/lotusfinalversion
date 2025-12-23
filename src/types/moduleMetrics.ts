@@ -1,5 +1,12 @@
 import type { TestKey, TestMetrics, TestTrial } from '../components/games/types';
 
+export type SessionQualityFlag = {
+  code: string;
+  label?: string;
+  description?: string;
+  severity?: 'info' | 'warning' | 'critical';
+};
+
 export type LabModuleMetrics = {
   moduleId: TestKey | 'unknown';
   timestamp: string;
@@ -13,4 +20,5 @@ export type LabModuleMetrics = {
   consistency?: number;
   qualityFlags?: string[];
   notes?: string;
+  qualityFlags?: SessionQualityFlag[];
 };

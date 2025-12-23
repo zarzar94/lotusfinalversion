@@ -142,12 +142,28 @@ const formatLabel = (timestamp: string, locale: string) => {
   return date.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
 };
 
-const formatTooltip = (timestamp: string, locale: string, value: number, unit = '') => {
+const formatTooltip = (
+  timestamp: string,
+  locale: string,
+  value: number,
+  unit = '',
+  qualityFlags?: SessionQualityFlag[],
+) => {
   const date = new Date(timestamp);
   if (Number.isNaN(date.getTime())) return `${timestamp}: ${value}${unit}`;
   const datePart = date.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
   const timePart = date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
-  return `${datePart} ${timePart} - ${value}${unit}`;
+  const base = `${datePart} ${timePart} - ${value}${unit}`;
+
+  if (!qualityFlags?.length) return base;
+
+  const flagLines = qualityFlags.map((flag) => {
+    const label = flag.label ?? flag.code;
+    const description = flag.description ? `: ${flag.description}` : '';
+    return `${label}${description}`;
+  });
+
+  return `${base}\n⚠️ ${flagLines.join('\n⚠️ ')}`;
 };
 
 const MetricCard = memo(({
