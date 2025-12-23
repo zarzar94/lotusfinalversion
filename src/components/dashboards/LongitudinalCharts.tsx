@@ -2,7 +2,16 @@ import { memo, useMemo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAllSessions } from '../../utils/sessionStorage';
 import type { LabModuleMetrics } from '../../types/moduleMetrics';
-import { brandCyan, brandPurple, colors, spacing, radius, typography, analytics } from '../styles';
+import {
+  analytics,
+  brandCyan,
+  brandPurple,
+  colors,
+  performanceBands,
+  radius,
+  spacing,
+  typography,
+} from '../styles';
 
 type ChartVariant = 'parent' | 'clinician';
 
@@ -15,16 +24,10 @@ type ChartPoint = {
   band: LabModuleMetrics['band'];
 };
 
-const bandColors: Record<LabModuleMetrics['band'], string> = {
-  high: '#22c55e',
-  mid: '#f59e0b',
-  low: '#ef4444',
-};
-
 const bandBackgrounds = [
-  { min: 70, max: 100, color: 'rgba(34, 197, 94, 0.08)' },
-  { min: 40, max: 70, color: 'rgba(245, 158, 11, 0.08)' },
-  { min: 0, max: 40, color: 'rgba(239, 68, 68, 0.08)' },
+  { min: 70, max: 100, color: performanceBands.high.fill },
+  { min: 40, max: 70, color: performanceBands.mid.fill },
+  { min: 0, max: 40, color: performanceBands.low.fill },
 ];
 
 const MIN_TREND_SESSIONS = 3;
@@ -330,7 +333,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
               cy={point.y}
               r={2.8}
               fill={colors.surface.base}
-              stroke={bandColors[point.band]}
+              stroke={performanceBands[point.band].stroke}
               strokeWidth={1.4}
             >
               <title>{point.tooltip}</title>

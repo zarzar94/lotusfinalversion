@@ -40,10 +40,13 @@ export const brandColors = {
 // Semantic colors
 export const colors = {
   success: brandColors.success,
+  successSubtle: 'rgba(34, 197, 94, 0.08)',
   successLight: 'rgba(34, 197, 94, 0.12)',
   warning: brandColors.warning,
+  warningSubtle: 'rgba(245, 158, 11, 0.08)',
   warningLight: 'rgba(245, 158, 11, 0.12)',
   error: brandColors.error,
+  errorSubtle: 'rgba(239, 68, 68, 0.08)',
   errorLight: 'rgba(239, 68, 68, 0.12)',
   info: brandColors.info,
   infoLight: 'rgba(59, 130, 246, 0.12)',
@@ -64,6 +67,22 @@ export const colors = {
     overlay: 'rgba(11, 15, 28, 0.96)',
     card: 'rgba(11, 15, 28, 0.85)',
     input: '#0f1629',
+  },
+};
+
+// Performance bands for charts and analytics visualizations
+export const performanceBands = {
+  high: {
+    stroke: colors.success,
+    fill: colors.successSubtle,
+  },
+  mid: {
+    stroke: colors.warning,
+    fill: colors.warningSubtle,
+  },
+  low: {
+    stroke: colors.error,
+    fill: colors.errorSubtle,
   },
 };
 
