@@ -28,6 +28,7 @@ npm-debug.log*
 # Cache
 .cache/
 .vite/
+vite-dev.pid
 
 # Deployment worktree
 gh-pages-worktree/
