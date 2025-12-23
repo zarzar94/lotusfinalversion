@@ -3,7 +3,16 @@ import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAllSessions } from '../../utils/sessionStorage';
 import type { LabModuleMetrics } from '../../types/moduleMetrics';
-import { brandCyan, brandPurple, colors, spacing, radius, typography, analytics } from '../styles';
+import {
+  analytics,
+  brandCyan,
+  brandPurple,
+  colors,
+  performanceBands,
+  radius,
+  spacing,
+  typography,
+} from '../styles';
 
 const VIEWBOX_W = 100;
 
