@@ -63,8 +63,7 @@ See `DEPLOYMENT.md` for GitHub Pages and Notion embed steps. Default Vite base i
 - Manual smoke (recommended): slides grid + modal + PDF export; checklist selections + "your selections" PDF; all screening tests (including suite exports); WhatsApp CTA/FAB opens chat; contact form LTR phone input behaves on mobile.
 
 ## Code review
-- When code review is enabled, Codex automatically suggests improvements to the pull request or reacts with a 👍.
-- Mention **@codex** on pull requests to start a task or manually request a review.
+- Mention **@codex** on pull requests to request an automated review; Codex will suggest improvements or acknowledge with a 👍 when code review is enabled.
 
 ## Notion embed
 After deployment, paste the live URL into Notion -> Embed. Ensure your hosting does not set `X-Frame-Options: DENY` or `frame-ancestors 'none'` (the provided CSP allows embedding).

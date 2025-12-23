@@ -4,11 +4,13 @@ import path from 'path';
 import fs from 'fs/promises';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
+import { authenticate, authorize } from '../middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
+router.use(authenticate);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
@@ -26,6 +28,11 @@ async function ensureUploadDir(subdir = '') {
   return dir;
 }
 
+const setUploadSubdir = (subdir) => (req, res, next) => {
+  req.uploadSubdir = subdir;
+  next();
+};
+
 // ═══════════════════════════════════════════════════════════════════════════
 // MULTER CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
@@ -33,7 +40,7 @@ async function ensureUploadDir(subdir = '') {
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
     try {
-      const subdir = req.params.type || 'general';
+      const subdir = req.uploadSubdir || 'general';
       const dir = await ensureUploadDir(subdir);
       cb(null, dir);
     } catch (error) {
@@ -71,7 +78,7 @@ const upload = multer({
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Upload avatar
-router.post('/avatar', upload.single('avatar'), async (req, res) => {
+router.post('/avatar', setUploadSubdir('avatars'), upload.single('avatar'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
@@ -101,7 +108,7 @@ router.post('/avatar', upload.single('avatar'), async (req, res) => {
 });
 
 // Upload document
-router.post('/document', upload.single('document'), async (req, res) => {
+router.post('/document', setUploadSubdir('documents'), upload.single('document'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
@@ -126,7 +133,7 @@ router.post('/document', upload.single('document'), async (req, res) => {
 });
 
 // Upload multiple files
-router.post('/batch', upload.array('files', 5), async (req, res) => {
+router.post('/batch', setUploadSubdir('general'), upload.array('files', 5), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'No files uploaded' });
@@ -202,7 +209,7 @@ router.get('/info/:filename', async (req, res) => {
 });
 
 // Delete file
-router.delete('/:filename', async (req, res) => {
+router.delete('/:filename', authorize('clinician', 'school_admin', 'super_admin'), async (req, res) => {
   try {
     const { filename } = req.params;
 
