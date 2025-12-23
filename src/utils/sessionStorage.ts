@@ -71,6 +71,9 @@ const normalizeSession = (value: unknown): LabModuleMetrics | null => {
   const fatigueValue = toNumber(raw.fatigueIndex);
   const fatigueSlope = toNumber(raw.fatigueSlope);
   const consistencyValue = toNumber(raw.consistency);
+  const qualityFlags = Array.isArray(raw.qualityFlags)
+    ? raw.qualityFlags.filter((flag) => typeof flag === 'string')
+    : undefined;
   const notes = typeof raw.notes === 'string' ? raw.notes : undefined;
   const rawMetrics = normalizeRawMetrics(raw.rawMetrics);
   const metrics = normalizeMetrics(raw.metrics, rawMetrics);
@@ -87,6 +90,7 @@ const normalizeSession = (value: unknown): LabModuleMetrics | null => {
     fatigueIndex: fatigueValue === null ? undefined : fatigueValue,
     fatigueSlope: fatigueSlope === null ? undefined : fatigueSlope,
     consistency: consistencyValue === null ? undefined : consistencyValue,
+    qualityFlags,
     notes,
   };
 };
