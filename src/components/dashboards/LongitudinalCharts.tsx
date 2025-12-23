@@ -9,6 +9,7 @@ import {
   brandPink,
   brandPurple,
   colors,
+  performanceBands,
   radius,
   spacing,
   typography,
@@ -29,15 +30,15 @@ type ChartPoint = {
 type EarMode = 'combined' | 'left' | 'right' | 'balance';
 
 const bandColors: Record<LabModuleMetrics['band'], string> = {
-  high: colors.success,
-  mid: colors.warning,
-  low: colors.error,
+  high: performanceBands.high.stroke,
+  mid: performanceBands.mid.stroke,
+  low: performanceBands.low.stroke,
 };
 
 const bandBackgrounds = [
-  { min: 70, max: 100, color: colors.successLight },
-  { min: 40, max: 70, color: colors.warningLight },
-  { min: 0, max: 40, color: colors.errorLight },
+  { min: 70, max: 100, color: performanceBands.high.fill },
+  { min: 40, max: 70, color: performanceBands.mid.fill },
+  { min: 0, max: 40, color: performanceBands.low.fill },
 ];
 
 const VIEWBOX_W = 100;
@@ -452,6 +453,20 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   const labelStep = scorePoints.length > 6 ? Math.ceil(scorePoints.length / 6) : 1;
   const labelPoints = scorePoints;
 
+  const fatigueChartWidth = VIEWBOX_W - VIEWBOX_PADDING_X * 2;
+  const fatigueBarWidth = fatiguePoints.length ? fatigueChartWidth / fatiguePoints.length : 0;
+  const fatigueBarGap = Math.min(2, fatigueBarWidth * 0.25);
+
+  const getFatigueBarStart = (index: number) => {
+    const effectiveIndex = isArabic ? fatiguePoints.length - 1 - index : index;
+    return VIEWBOX_PADDING_X + effectiveIndex * fatigueBarWidth + fatigueBarGap / 2;
+  };
+
+  const getFatigueBarCenter = (index: number) => {
+    const effectiveIndex = isArabic ? fatiguePoints.length - 1 - index : index;
+    return VIEWBOX_PADDING_X + effectiveIndex * fatigueBarWidth + fatigueBarWidth / 2;
+  };
+
   const valueToY = (value: number, height: number) => {
     const chartHeight = height - VIEWBOX_BOTTOM_OFFSET;
     return VIEWBOX_PADDING_Y + chartHeight - (value / 100) * chartHeight;
@@ -824,10 +839,8 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             })}
 
             {fatiguePoints.map((point, index) => {
-              const chartWidth = VIEWBOX_W - VIEWBOX_PADDING_X * 2;
-              const barWidth = chartWidth / fatiguePoints.length;
-              const barGap = Math.min(2, barWidth * 0.25);
-              const barX = VIEWBOX_PADDING_X + index * barWidth + barGap / 2;
+              const barWidth = Math.max(1, fatigueBarWidth - fatigueBarGap);
+              const barX = getFatigueBarStart(index);
               const barHeight = (point.value / 100) * (FATIGUE_VIEWBOX_H - VIEWBOX_BOTTOM_OFFSET);
               const barY = valueToY(point.value, FATIGUE_VIEWBOX_H);
               return (
@@ -835,7 +848,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                   key={`bar-${index}`}
                   x={barX}
                   y={barY}
-                  width={Math.max(1, barWidth - barGap)}
+                  width={barWidth}
                   height={barHeight}
                   rx={1.6}
                   fill={brandPurple}
@@ -859,9 +872,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             })}
 
             {fatiguePoints.map((point, index) => {
-              const chartWidth = VIEWBOX_W - VIEWBOX_PADDING_X * 2;
-              const barWidth = chartWidth / fatiguePoints.length;
-              const barX = VIEWBOX_PADDING_X + index * barWidth + barWidth / 2;
+              const barX = getFatigueBarCenter(index);
               return (
                 <text
                   key={`fatigue-label-${index}`}
