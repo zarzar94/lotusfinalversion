@@ -229,6 +229,10 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   const [showBestMarker, setShowBestMarker] = useState(true);
   const [earMode, setEarMode] = useState<EarMode>('combined');
 
+  const [showBaseline, setShowBaseline] = useState(true);
+  const [showRollingTrend, setShowRollingTrend] = useState(true);
+  const [showBestMarker, setShowBestMarker] = useState(true);
+
   const sessions = useMemo(() => {
     const allSessions = getAllSessions();
     return allSessions
@@ -327,6 +331,19 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     if (translatedScorePoints.length === 0) return '';
     return translatedScorePoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
   }, [translatedScorePoints]);
+
+  const bestPoint = useMemo(() => {
+    if (!scorePoints.length) return null;
+    const bestValue = Math.max(...scorePoints.map((point) => point.value));
+    let bestIndex = -1;
+    for (let i = scorePoints.length - 1; i >= 0; i -= 1) {
+      if (scorePoints[i].value === bestValue) {
+        bestIndex = i;
+        break;
+      }
+    }
+    return bestIndex >= 0 ? scorePoints[bestIndex] : null;
+  }, [scorePoints]);
 
   const rollingPoints = useMemo(() => {
     if (!rollingScores.length) return [];
