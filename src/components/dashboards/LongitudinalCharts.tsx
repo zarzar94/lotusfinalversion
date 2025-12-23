@@ -121,6 +121,9 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
 }) {
   const { t, isArabic } = useLanguage();
   const locale = isArabic ? 'ar-SA' : 'en-US';
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [activePoint, setActivePoint] = useState<(ChartPoint & { xPx: number; yPx: number }) | null>(null);
+  const [isPinned, setIsPinned] = useState(false);
 
   const [tooltip, setTooltip] = useState<{
     left: number;
