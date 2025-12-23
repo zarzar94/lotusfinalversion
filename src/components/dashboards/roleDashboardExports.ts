@@ -122,18 +122,22 @@ export const downloadClinicianReportPdf = async ({
   latestByModule,
   isArabic,
   fatigueSlope,
+  fatigueDirection,
   consistencyAverage,
 }: {
   sessions: LabModuleMetrics[];
   latestByModule: Record<string, LabModuleMetrics | null>;
   isArabic: boolean;
   fatigueSlope: number;
+  fatigueDirection: 'improving' | 'worsening' | 'stable';
   consistencyAverage: number | null;
 }) => {
   const doc = await createPdfDoc();
   const locale = isArabic ? 'ar-SA' : 'en-US';
   const sorted = sortSessionsByTime(sessions);
   const pageHeight = doc.internal.pageSize.getHeight();
+  const fatigueSlopePercent = fatigueSlope * 100;
+  const perSessionLabel = isArabic ? 'لكل جلسة' : 'per session';
 
   const text = {
     title: isArabic ? 'تقرير الأخصائي' : 'Clinician Report',
@@ -142,6 +146,7 @@ export const downloadClinicianReportPdf = async ({
     range: isArabic ? 'النطاق الزمني' : 'Date Range',
     fatigue: isArabic ? 'ميل الإجهاد' : 'Fatigue Slope',
     consistency: isArabic ? 'متوسط الاتساق' : 'Average Consistency',
+    fatigueDirection: isArabic ? 'اتجاه الإرهاق' : 'Fatigue Direction',
     modules: isArabic ? 'نتائج الوحدات' : 'Module Results',
     disclaimer: isArabic
       ? 'هذا التقرير للمتابعة السريرية ويعتمد على بيانات الفحص غير التشخيصي.'
@@ -170,7 +175,15 @@ export const downloadClinicianReportPdf = async ({
   doc.setFontSize(11);
   y = writePdfText(doc, `${text.sessions}: ${sorted.length}`, PDF_MARGIN_X, y + 6, { lineHeight: 16 });
   y = writePdfText(doc, `${text.range}: ${range}`, PDF_MARGIN_X, y + 4, { lineHeight: 16, maxWidth: 520 });
-  y = writePdfText(doc, `${text.fatigue}: ${fatigueSlope.toFixed(2)}`, PDF_MARGIN_X, y + 4, { lineHeight: 16 });
+  y = writePdfText(doc, `${text.fatigue}: ${fatigueSlopePercent.toFixed(2)}% ${perSessionLabel}`, PDF_MARGIN_X, y + 4, { lineHeight: 16 });
+  const fatigueDirectionLabel = fatigueDirection === 'improving'
+    ? isArabic ? 'يتحسن' : 'Improving'
+    : fatigueDirection === 'worsening'
+      ? isArabic ? 'يتدهور' : 'Worsening'
+      : isArabic
+        ? 'مستقر'
+        : 'Stable';
+  y = writePdfText(doc, `${text.fatigueDirection}: ${fatigueDirectionLabel}`, PDF_MARGIN_X, y + 4, { lineHeight: 16 });
   y = writePdfText(
     doc,
     `${text.consistency}: ${consistencyAverage === null ? '-' : consistencyAverage.toFixed(1)}`,
