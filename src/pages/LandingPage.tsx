@@ -18,6 +18,7 @@ import FadeIn from '../components/FadeIn';
 import { useLanguage } from '../context/LanguageContext';
 import { useClinicalSync } from '../hooks/useClinicalSync';
 import { usePageTitle } from '../hooks/usePageTitle';
+import ExperienceJourney from '../components/ExperienceJourney';
 import {
   brandCyan,
   brandPurple,
@@ -449,6 +450,11 @@ function LandingPage() {
           <Suspense fallback={<SectionLoader label={isArabic ? 'جارٍ التحميل...' : 'Loading...'} height={100} />}>
             <CredentialsBanner />
           </Suspense>
+        </FadeIn>
+
+        {/* Guided journey section */}
+        <FadeIn delay={200} direction="none" scale>
+          <ExperienceJourney isArabic={isArabic} />
         </FadeIn>
 
         {/* Page Navigation Cards */}
