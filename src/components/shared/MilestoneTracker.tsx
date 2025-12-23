@@ -262,7 +262,10 @@ export const MilestoneTracker = memo(({
   }
 
   // Horizontal variant (default)
-  const displayMilestones = milestones.map((milestone, index) => ({ milestone, index }));
+  const milestonesWithIndex = milestones.map((milestone, index) => ({ milestone, index }));
+  const displayMilestones = isArabic
+    ? [...milestonesWithIndex].reverse()
+    : milestonesWithIndex;
 
   return (
     <div>
