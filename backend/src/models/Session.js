@@ -3,7 +3,6 @@
  */
 
 import mongoose from 'mongoose';
-import { randomUUID } from 'node:crypto';
 
 const testOutcomeSchema = new mongoose.Schema({
   result: {
@@ -15,24 +14,12 @@ const testOutcomeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  title: {
-    type: String,
-  },
-  message: {
-    type: String,
-  },
   metrics: {
     type: mongoose.Schema.Types.Mixed,
   },
 }, { _id: false });
 
 const sessionSchema = new mongoose.Schema({
-  clientId: {
-    type: String,
-    default: randomUUID,
-    required: true,
-    index: true,
-  },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -64,16 +51,10 @@ const sessionSchema = new mongoose.Schema({
 
 // Index for efficient querying by user and date
 sessionSchema.index({ userId: 1, createdAt: -1 });
-// Ensure client-generated IDs are unique per user (sync-safe)
-sessionSchema.index(
-  { userId: 1, clientId: 1 },
-  { unique: true, partialFilterExpression: { clientId: { $type: 'string' } } },
-);
 
 // Transform output
 sessionSchema.methods.toJSON = function() {
   const obj = this.toObject();
-  const clientId = obj.clientId;
 
   // Convert Map to plain object
   const outcomes = {};
@@ -84,9 +65,8 @@ sessionSchema.methods.toJSON = function() {
   }
 
   return {
-    id: clientId || obj._id.toString(),
+    id: obj._id.toString(),
     userId: obj.userId.toString(),
-    clientId,
     date: obj.createdAt.getTime(),
     outcomes,
     compositeResult: obj.compositeResult,

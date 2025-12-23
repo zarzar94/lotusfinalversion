@@ -40,10 +40,13 @@ export const brandColors = {
 // Semantic colors
 export const colors = {
   success: brandColors.success,
+  successSubtle: 'rgba(34, 197, 94, 0.08)',
   successLight: 'rgba(34, 197, 94, 0.12)',
   warning: brandColors.warning,
+  warningSubtle: 'rgba(245, 158, 11, 0.08)',
   warningLight: 'rgba(245, 158, 11, 0.12)',
   error: brandColors.error,
+  errorSubtle: 'rgba(239, 68, 68, 0.08)',
   errorLight: 'rgba(239, 68, 68, 0.12)',
   info: brandColors.info,
   infoLight: 'rgba(59, 130, 246, 0.12)',
@@ -67,6 +70,22 @@ export const colors = {
   },
 };
 
+// Performance bands for charts and analytics visualizations
+export const performanceBands = {
+  high: {
+    stroke: colors.success,
+    fill: colors.successSubtle,
+  },
+  mid: {
+    stroke: colors.warning,
+    fill: colors.warningSubtle,
+  },
+  low: {
+    stroke: colors.error,
+    fill: colors.errorSubtle,
+  },
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPOGRAPHY SCALE
 // Based on 1.25 ratio (Major Third) with 16px base
@@ -77,7 +96,7 @@ export const typography = {
 
   // Font sizes (using modular scale)
   size: {
-    xxs: 10,     // 0.625rem - micro labels, dense data viz
+    xxs: 9,      // 0.5625rem - dense labels
     xs: 11,      // 0.6875rem - labels, badges
     sm: 13,      // 0.8125rem - captions, small text
     base: 15,    // 0.9375rem - body text
