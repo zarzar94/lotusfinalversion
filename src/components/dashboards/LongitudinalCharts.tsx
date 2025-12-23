@@ -2,7 +2,7 @@ import type React from 'react';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAllSessions } from '../../utils/sessionStorage';
-import type { LabModuleMetrics } from '../../types/moduleMetrics';
+import type { LabModuleMetrics, SessionQualityFlag } from '../../types/moduleMetrics';
 import {
   analytics,
   brandCyan,
@@ -24,7 +24,7 @@ type ChartPoint = {
   label: string;
   tooltip: string;
   band: LabModuleMetrics['band'];
-  qualityFlags?: string[];
+  qualityFlags?: SessionQualityFlag[];
 };
 
 type EarMode = 'combined' | 'left' | 'right' | 'balance';
@@ -513,7 +513,6 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
       flags,
     } as const;
   };
-
   const setTooltipFromEvent = (
     event: React.MouseEvent<SVGElement, MouseEvent> | React.FocusEvent<SVGElement>,
     content: string,
@@ -1027,7 +1026,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                 ? t('dashboard.fatigueImproving', 'Improving')
                 : stats.fatigueDirection === 'worsening'
                   ? t('dashboard.fatigueWorsening', 'Worsening')
-                  : t('dashboard.fatigueStable', 'Stable')
+                : t('dashboard.fatigueStable', 'Stable')
             }
             tone={stats.fatigueDirection === 'worsening' ? colors.error : brandCyan}
           />

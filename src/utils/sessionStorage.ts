@@ -1,4 +1,4 @@
-import type { LabModuleMetrics, SessionQualityFlag } from '../types/moduleMetrics';
+import type { LabModuleMetrics } from '../types/moduleMetrics';
 import type { TestMetrics, TestTrial } from '../components/games/types';
 import { normalizeQualityFlagCollection } from './qualityFlags';
 
