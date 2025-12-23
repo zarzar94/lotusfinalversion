@@ -91,6 +91,7 @@ const normalizeSession = (value: unknown): LabModuleMetrics | null => {
     consistency: consistencyValue === null ? undefined : consistencyValue,
     qualityFlags,
     notes,
+    qualityFlags,
   };
 };
 

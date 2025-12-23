@@ -35,6 +35,24 @@ const bandColors: Record<LabModuleMetrics['band'], string> = {
   low: performanceBands.low.stroke,
 };
 
+const qualityFlagStyles: Record<NonNullable<SessionQualityFlag['severity']>, { fill: string; stroke: string }> = {
+  info: { fill: '#38bdf8', stroke: '#0ea5e9' },
+  warning: { fill: '#f59e0b', stroke: '#d97706' },
+  critical: { fill: '#ef4444', stroke: '#b91c1c' },
+};
+
+const getQualityFlagSeverity = (flags?: SessionQualityFlag[]): NonNullable<SessionQualityFlag['severity']> => {
+  if (!flags?.length) return 'warning';
+
+  const priority = ['critical', 'warning', 'info'] as const;
+  const severities = flags
+    .map((flag) => flag.severity)
+    .filter((severity): severity is NonNullable<SessionQualityFlag['severity']> => Boolean(severity));
+
+  const match = priority.find((level) => severities.includes(level));
+  return match ?? 'warning';
+};
+
 const bandBackgrounds = [
   { min: 70, max: 100, color: performanceBands.high.fill },
   { min: 40, max: 70, color: performanceBands.mid.fill },
