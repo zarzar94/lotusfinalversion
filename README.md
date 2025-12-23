@@ -1,5 +1,7 @@
 # Lotus / Berard AIT Sound Lab (React + Vite)
 
+[![Deploy to GitHub Pages](https://github.com/zarzar94/lotusfinalversion/actions/workflows/deploy.yml/badge.svg)](https://github.com/zarzar94/lotusfinalversion/actions/workflows/deploy.yml)
+
 Arabic-first, RTL landing/prototype for the Berard Auditory Integration Training (AIT) program. Built with Vite + TypeScript + React; includes an in-browser screening lab, PDF exports, and GitHub Pages deployment.
 
 ## Highlights
