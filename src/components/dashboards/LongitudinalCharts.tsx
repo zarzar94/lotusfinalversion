@@ -1,4 +1,5 @@
-import { memo, useMemo } from 'react';
+import type React from 'react';
+import { memo, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAllSessions } from '../../utils/sessionStorage';
 import type { LabModuleMetrics } from '../../types/moduleMetrics';
@@ -16,16 +17,22 @@ type ChartPoint = {
 };
 
 const bandColors: Record<LabModuleMetrics['band'], string> = {
-  high: '#22c55e',
-  mid: '#f59e0b',
-  low: '#ef4444',
+  high: colors.success,
+  mid: colors.warning,
+  low: colors.error,
 };
 
 const bandBackgrounds = [
-  { min: 70, max: 100, color: 'rgba(34, 197, 94, 0.08)' },
-  { min: 40, max: 70, color: 'rgba(245, 158, 11, 0.08)' },
-  { min: 0, max: 40, color: 'rgba(239, 68, 68, 0.08)' },
+  { min: 70, max: 100, color: colors.successLight },
+  { min: 40, max: 70, color: colors.warningLight },
+  { min: 0, max: 40, color: colors.errorLight },
 ];
+
+const VIEWBOX_W = 100;
+const VIEWBOX_PADDING_X = 8;
+const VIEWBOX_PADDING_Y = 16;
+const VIEWBOX_BOTTOM_OFFSET = 40;
+const FATIGUE_VIEWBOX_H = 140;
 
 const MIN_TREND_SESSIONS = 3;
 const ROLLING_WINDOW = 3;
@@ -101,6 +108,17 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   const { t, isArabic } = useLanguage();
   const locale = isArabic ? 'ar-SA' : 'en-US';
 
+  const [tooltip, setTooltip] = useState<{
+    left: number;
+    top: number;
+    content: string;
+    label?: string;
+    key: string;
+    container: 'score' | 'fatigue';
+  } | null>(null);
+  const scoreChartRef = useRef<HTMLDivElement>(null);
+  const fatigueChartRef = useRef<HTMLDivElement>(null);
+
   const sessions = useMemo(() => {
     const allSessions = getAllSessions();
     return allSessions
@@ -123,20 +141,17 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   }, [sessions]);
 
   const scorePoints = useMemo<ChartPoint[]>(() => {
-    const paddingX = 8;
-    const paddingY = 16;
-    const chartHeight = lineHeight - 40;
-    const width = 100;
+    const chartHeight = lineHeight - VIEWBOX_BOTTOM_OFFSET;
     const safeSessions = sessions.map((session) => ({
       ...session,
       score100: clampScore(session.score100),
     }));
 
-    return safeSessions.map((session, index) => {
+    const normalizedPoints = safeSessions.map((session, index) => {
       const x = safeSessions.length === 1
-        ? 50
-        : paddingX + (index * (width - paddingX * 2)) / Math.max(safeSessions.length - 1, 1);
-      const y = paddingY + chartHeight - (session.score100 / 100) * chartHeight;
+        ? VIEWBOX_W / 2
+        : VIEWBOX_PADDING_X + (index * (VIEWBOX_W - VIEWBOX_PADDING_X * 2)) / Math.max(safeSessions.length - 1, 1);
+      const y = VIEWBOX_PADDING_Y + chartHeight - (session.score100 / 100) * chartHeight;
       return {
         x,
         y,
@@ -146,7 +161,10 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
         band: session.band,
       };
     });
-  }, [sessions, locale, lineHeight]);
+
+    if (!isArabic) return normalizedPoints;
+    return normalizedPoints.map((point) => ({ ...point, x: VIEWBOX_W - point.x }));
+  }, [sessions, locale, lineHeight, isArabic]);
 
   const scorePath = useMemo(() => {
     if (scorePoints.length === 0) return '';
@@ -155,19 +173,19 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
 
   const rollingPoints = useMemo(() => {
     if (!rollingScores.length) return [];
-    const paddingX = 8;
-    const paddingY = 16;
-    const chartHeight = lineHeight - 40;
-    const width = 100;
+    const chartHeight = lineHeight - VIEWBOX_BOTTOM_OFFSET;
 
-    return rollingScores.map((value, index) => {
+    const points = rollingScores.map((value, index) => {
       const x = rollingScores.length === 1
-        ? 50
-        : paddingX + (index * (width - paddingX * 2)) / Math.max(rollingScores.length - 1, 1);
-      const y = paddingY + chartHeight - (value / 100) * chartHeight;
+        ? VIEWBOX_W / 2
+        : VIEWBOX_PADDING_X + (index * (VIEWBOX_W - VIEWBOX_PADDING_X * 2)) / Math.max(rollingScores.length - 1, 1);
+      const y = VIEWBOX_PADDING_Y + chartHeight - (value / 100) * chartHeight;
       return { x, y, value };
     });
-  }, [rollingScores, lineHeight]);
+
+    if (!isArabic) return points;
+    return points.map((point) => ({ ...point, x: VIEWBOX_W - point.x }));
+  }, [rollingScores, lineHeight, isArabic]);
 
   const rollingPath = useMemo(() => {
     if (rollingPoints.length === 0) return '';
@@ -238,15 +256,51 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
 
   const labelStep = scorePoints.length > 6 ? Math.ceil(scorePoints.length / 6) : 1;
   const valueToY = (value: number, height: number) => {
-    const paddingY = 16;
-    const chartHeight = height - 40;
-    return paddingY + chartHeight - (value / 100) * chartHeight;
+    const chartHeight = height - VIEWBOX_BOTTOM_OFFSET;
+    return VIEWBOX_PADDING_Y + chartHeight - (value / 100) * chartHeight;
   };
+
+  const computeTooltipState = (
+    event: React.MouseEvent<SVGElement, MouseEvent> | React.FocusEvent<SVGElement>,
+    content: string,
+    label: string | undefined,
+    key: string,
+    container: 'score' | 'fatigue',
+  ) => {
+    const containerRef = container === 'score' ? scoreChartRef : fatigueChartRef;
+    const wrapper = containerRef.current?.getBoundingClientRect();
+    const target = (event.currentTarget as SVGElement).getBoundingClientRect();
+    if (!wrapper) return null;
+
+    return {
+      left: target.x - wrapper.x + target.width / 2,
+      top: target.y - wrapper.y - 8,
+      content,
+      label,
+      key,
+      container,
+    } as const;
+  };
+
+  const setTooltipFromEvent = (
+    event: React.MouseEvent<SVGElement, MouseEvent> | React.FocusEvent<SVGElement>,
+    content: string,
+    label: string | undefined,
+    key: string,
+    container: 'score' | 'fatigue',
+  ) => {
+    const next = computeTooltipState(event, content, label, key, container);
+    if (!next) return;
+    setTooltip(next);
+  };
+
+  const clearTooltip = () => setTooltip(null);
 
   return (
     <div style={{ display: 'grid', gap: spacing[4] }}>
       <div
-        style={analytics.chartContainer}
+        ref={scoreChartRef}
+        style={{ ...analytics.chartContainer, position: 'relative' as const }}
       >
         <div
           style={{
@@ -258,7 +312,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
         >
           {title || t('dashboard.scoreTrendTitle', 'Score Trend')}
         </div>
-        <svg width="100%" height={lineHeight} viewBox={`0 0 100 ${lineHeight}`} preserveAspectRatio="none">
+        <svg width="100%" height={lineHeight} viewBox={`0 0 ${VIEWBOX_W} ${lineHeight}`} preserveAspectRatio="none">
           {bandBackgrounds.map((band) => {
             const top = valueToY(band.max, lineHeight);
             const bottom = valueToY(band.min, lineHeight);
@@ -267,7 +321,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                 key={`${band.min}-${band.max}`}
                 x={0}
                 y={top}
-                width={100}
+                width={VIEWBOX_W}
                 height={bottom - top}
                 fill={band.color}
               />
@@ -279,9 +333,9 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             return (
               <line
                 key={pct}
-                x1={8}
+                x1={VIEWBOX_PADDING_X}
                 y1={y}
-                x2={92}
+                x2={VIEWBOX_W - VIEWBOX_PADDING_X}
                 y2={y}
                 stroke={colors.border.subtle}
                 strokeWidth={0.4}
@@ -292,9 +346,9 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
 
           {baselineScore !== null ? (
             <line
-              x1={8}
+              x1={VIEWBOX_PADDING_X}
               y1={valueToY(baselineScore, lineHeight)}
-              x2={92}
+              x2={VIEWBOX_W - VIEWBOX_PADDING_X}
               y2={valueToY(baselineScore, lineHeight)}
               stroke={brandPurple}
               strokeWidth={1}
@@ -332,6 +386,19 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
               fill={colors.surface.base}
               stroke={bandColors[point.band]}
               strokeWidth={1.4}
+              onMouseEnter={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `score-${index}`, 'score')}
+              onFocus={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `score-${index}`, 'score')}
+              onMouseLeave={clearTooltip}
+              onBlur={clearTooltip}
+              onClick={(event) => {
+                event.stopPropagation();
+                const key = `score-${index}`;
+                const next = computeTooltipState(event, point.tooltip, point.label, key, 'score');
+                setTooltip((current) => {
+                  if (current?.key === key) return null;
+                  return next ?? current;
+                });
+              }}
             >
               <title>{point.tooltip}</title>
             </circle>
@@ -345,13 +412,39 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                 y={lineHeight - 8}
                 textAnchor="middle"
                 fill={colors.text.muted}
-                style={{ fontSize: 7 }}
+                style={{ fontSize: typography.size.xxs }}
               >
                 {point.label}
               </text>
             ) : null
           ))}
         </svg>
+        {tooltip && tooltip.container === 'score' ? (
+          <div
+            style={{
+              position: 'absolute',
+              left: tooltip.left,
+              top: tooltip.top,
+              transform: 'translate(-50%, -100%)',
+              padding: `${spacing[1]}px ${spacing[2]}px`,
+              background: colors.surface.overlay,
+              color: colors.text.primary,
+              border: `1px solid ${colors.border.default}`,
+              borderRadius: radius.md,
+              fontSize: typography.size.xs,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+              pointerEvents: 'none',
+              zIndex: 2,
+            }}
+          >
+            {tooltip.label ? (
+              <div style={{ fontWeight: typography.weight.bold, marginBottom: 2 }}>
+                {tooltip.label}
+              </div>
+            ) : null}
+            <div>{tooltip.content}</div>
+          </div>
+        ) : null}
         {!trendReady ? (
           <div style={{ marginTop: spacing[2], fontSize: typography.size.xs, color: colors.text.muted }}>
             {t('dashboard.trendNeedsMore', 'Complete more sessions to see trend insights.')} ({MIN_TREND_SESSIONS}+)
@@ -361,7 +454,8 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
 
       {variant === 'clinician' && fatiguePoints.length > 0 && (
         <div
-          style={analytics.fatigueZone}
+          ref={fatigueChartRef}
+          style={{ ...analytics.fatigueZone, position: 'relative' as const }}
         >
           <div
             style={{
@@ -373,15 +467,15 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
           >
             {t('dashboard.fatigueTrendTitle', 'Fatigue Index')}
           </div>
-          <svg width="100%" height={140} viewBox="0 0 100 140" preserveAspectRatio="none">
+          <svg width="100%" height={FATIGUE_VIEWBOX_H} viewBox={`0 0 ${VIEWBOX_W} ${FATIGUE_VIEWBOX_H}`} preserveAspectRatio="none">
             {[0, 25, 50, 75, 100].map((pct) => {
-              const y = valueToY(pct, 140);
+              const y = valueToY(pct, FATIGUE_VIEWBOX_H);
               return (
                 <line
                   key={pct}
-                  x1={8}
+                  x1={VIEWBOX_PADDING_X}
                   y1={y}
-                  x2={92}
+                  x2={VIEWBOX_W - VIEWBOX_PADDING_X}
                   y2={y}
                   stroke={colors.border.subtle}
                   strokeWidth={0.4}
@@ -391,13 +485,12 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             })}
 
             {fatiguePoints.map((point, index) => {
-              const paddingX = 8;
-              const chartWidth = 100 - paddingX * 2;
+              const chartWidth = VIEWBOX_W - VIEWBOX_PADDING_X * 2;
               const barWidth = chartWidth / fatiguePoints.length;
               const barGap = Math.min(2, barWidth * 0.25);
-              const barX = paddingX + index * barWidth + barGap / 2;
-              const barHeight = (point.value / 100) * (140 - 40);
-              const barY = valueToY(point.value, 140);
+              const barX = VIEWBOX_PADDING_X + index * barWidth + barGap / 2;
+              const barHeight = (point.value / 100) * (FATIGUE_VIEWBOX_H - VIEWBOX_BOTTOM_OFFSET);
+              const barY = valueToY(point.value, FATIGUE_VIEWBOX_H);
               return (
                 <rect
                   key={`bar-${index}`}
@@ -407,6 +500,19 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                   height={barHeight}
                   rx={1.6}
                   fill={brandPurple}
+                  onMouseEnter={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `fatigue-${index}`, 'fatigue')}
+                  onFocus={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `fatigue-${index}`, 'fatigue')}
+                  onMouseLeave={clearTooltip}
+                  onBlur={clearTooltip}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    const key = `fatigue-${index}`;
+                    const next = computeTooltipState(event, point.tooltip, point.label, key, 'fatigue');
+                    setTooltip((current) => {
+                      if (current?.key === key) return null;
+                      return next ?? current;
+                    });
+                  }}
                 >
                   <title>{point.tooltip}</title>
                 </rect>
@@ -414,24 +520,49 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             })}
 
             {fatiguePoints.map((point, index) => {
-              const paddingX = 8;
-              const chartWidth = 100 - paddingX * 2;
+              const chartWidth = VIEWBOX_W - VIEWBOX_PADDING_X * 2;
               const barWidth = chartWidth / fatiguePoints.length;
-              const barX = paddingX + index * barWidth + barWidth / 2;
+              const barX = VIEWBOX_PADDING_X + index * barWidth + barWidth / 2;
               return (
                 <text
                   key={`fatigue-label-${index}`}
                   x={barX}
-                  y={132}
+                  y={FATIGUE_VIEWBOX_H - 8}
                   textAnchor="middle"
                   fill={colors.text.muted}
-                  style={{ fontSize: 7 }}
+                  style={{ fontSize: typography.size.xxs }}
                 >
                   {point.label}
                 </text>
               );
             })}
           </svg>
+          {tooltip && tooltip.container === 'fatigue' ? (
+            <div
+              style={{
+                position: 'absolute',
+                left: tooltip.left,
+                top: tooltip.top,
+                transform: 'translate(-50%, -100%)',
+                padding: `${spacing[1]}px ${spacing[2]}px`,
+                background: colors.surface.overlay,
+                color: colors.text.primary,
+                border: `1px solid ${colors.border.default}`,
+                borderRadius: radius.md,
+                fontSize: typography.size.xs,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+                pointerEvents: 'none',
+                zIndex: 2,
+              }}
+            >
+              {tooltip.label ? (
+                <div style={{ fontWeight: typography.weight.bold, marginBottom: 2 }}>
+                  {tooltip.label}
+                </div>
+              ) : null}
+              <div>{tooltip.content}</div>
+            </div>
+          ) : null}
         </div>
       )}
 
