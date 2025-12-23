@@ -36,7 +36,7 @@ import adminRoutes from './routes/admin.js';
 // APP CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
 
-const app = express();
+export const app = express();
 const PORT = process.env.PORT || 3001;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -51,7 +51,7 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
 }));
 
 // Rate limiting
@@ -168,7 +168,7 @@ app.use((err, req, res, next) => {
 // SERVER START
 // ═══════════════════════════════════════════════════════════════════════════
 
-const startServer = async () => {
+export const startServer = async () => {
   try {
     // Connect to MongoDB
     await connectDB();
@@ -218,4 +218,6 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
-startServer();
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}

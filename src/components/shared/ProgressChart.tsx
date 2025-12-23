@@ -245,7 +245,7 @@ export const LineChart = memo(({
             y={height - 8}
             textAnchor="middle"
             fill={colors.text.muted}
-            style={{ fontSize: 7 }}
+            style={{ fontSize: typography.size.xxs }}
           >
             {isArabic ? point.labelAr || point.label : point.label}
           </text>
@@ -637,7 +637,7 @@ export const MultiLineChart = memo(({
               y={height - 5}
               textAnchor="middle"
               fill={colors.text.muted}
-              style={{ fontSize: 7 }}
+              style={{ fontSize: typography.size.xxs }}
             >
               {isArabic && labelsAr ? labelsAr[i] : label}
             </text>

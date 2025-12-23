@@ -5,8 +5,10 @@ import Session from '../models/Session.js';
 import { getAuditLogs, getSecurityAlerts } from '../utils/audit.js';
 import { getStats as getWsStats } from '../utils/websocket.js';
 import { getStats as getCacheStats } from '../utils/cache.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
+router.use(authenticate);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ADMIN MIDDLEWARE
