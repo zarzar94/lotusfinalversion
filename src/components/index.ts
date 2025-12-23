@@ -56,3 +56,13 @@ export {
   dashboardExport,
   instructionFlow,
 } from '../styles';
+
+// New virtual experiences
+export { default as TreatmentProtocolDashboard } from './treatment/TreatmentProtocolDashboard';
+export { default as SoundLabSimulation } from './treatment/SoundLabSimulation';
+export { default as VirtualAssessmentFlow } from './assessment/VirtualAssessmentFlow';
+export { default as FeedbackSystem } from './assessment/FeedbackSystem';
+export { default as SignupIntakeForm } from './intake/SignupIntakeForm';
+export { default as AnalyticsDashboard } from './analytics/AnalyticsDashboard';
+export { default as AboutUsSection } from './about/AboutUsSection';
+export { default as MainNavigation } from './navigation/MainNavigation';

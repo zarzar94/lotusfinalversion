@@ -4,8 +4,6 @@
 
 import { Router } from 'express';
 import { body, validationResult } from 'express-validator';
-import mongoose from 'mongoose';
-import { randomUUID } from 'node:crypto';
 import { Session } from '../models/index.js';
 import { authenticate } from '../middleware/auth.js';
 
@@ -29,7 +27,6 @@ const handleValidation = (req, res, next) => {
  */
 router.post('/',
   [
-    body('clientId').optional().isString().withMessage('clientId must be a string'),
     body('outcomes').isObject().withMessage('Outcomes object required'),
     body('compositeResult').optional().isIn(['high', 'medium', 'low']),
     body('totalPoints').optional().isInt({ min: 0 }),
@@ -39,18 +36,17 @@ router.post('/',
   async (req, res) => {
     try {
       const { outcomes, compositeResult, totalPoints, achievements, duration } = req.body;
-      const clientId = typeof req.body.clientId === 'string' && req.body.clientId.trim().length
-        ? req.body.clientId.trim()
-        : randomUUID();
 
-      const session = await Session.findOneAndUpdate(
-        { userId: req.userId, clientId },
-        {
-          $set: { outcomes, compositeResult, totalPoints, achievements, duration },
-          $setOnInsert: { userId: req.userId, clientId },
-        },
-        { new: true, upsert: true, setDefaultsOnInsert: true, runValidators: true },
-      );
+      const session = new Session({
+        userId: req.userId,
+        outcomes,
+        compositeResult,
+        totalPoints,
+        achievements,
+        duration,
+      });
+
+      await session.save();
 
       res.status(201).json({
         success: true,
@@ -100,18 +96,9 @@ router.get('/', async (req, res) => {
  */
 router.get('/:sessionId', async (req, res) => {
   try {
-    const { sessionId } = req.params;
-    const match = {
-      userId: req.userId,
-      $or: [{ clientId: sessionId }],
-    };
-
-    if (mongoose.Types.ObjectId.isValid(sessionId)) {
-      match.$or.push({ _id: sessionId });
-    }
-
     const session = await Session.findOne({
-      ...match,
+      _id: req.params.sessionId,
+      userId: req.userId,
     });
 
     if (!session) {
@@ -139,18 +126,9 @@ router.get('/:sessionId', async (req, res) => {
  */
 router.delete('/:sessionId', async (req, res) => {
   try {
-    const { sessionId } = req.params;
-    const match = {
-      userId: req.userId,
-      $or: [{ clientId: sessionId }],
-    };
-
-    if (mongoose.Types.ObjectId.isValid(sessionId)) {
-      match.$or.push({ _id: sessionId });
-    }
-
     const result = await Session.deleteOne({
-      ...match,
+      _id: req.params.sessionId,
+      userId: req.userId,
     });
 
     if (result.deletedCount === 0) {
