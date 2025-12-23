@@ -18,6 +18,8 @@ const VIEWBOX_W = 100;
 
 type ChartVariant = 'parent' | 'clinician';
 
+type ChartSeriesKey = 'overall' | 'left' | 'right' | 'balance';
+
 type ChartPoint = {
   x: number;
   y: number;
@@ -52,6 +54,11 @@ const MIN_TREND_SESSIONS = 3;
 const ROLLING_WINDOW = 3;
 
 const clampScore = (value: number) => Math.max(0, Math.min(100, value));
+
+const buildPath = (points: Array<{ x: number; y: number }>) => {
+  if (!points.length) return '';
+  return points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
+};
 
 const computeSlope = (values: number[]): number => {
   if (values.length < 2) return 0;
@@ -337,6 +344,28 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
         band: session.band,
         qualityFlags: session.qualityFlags,
       };
+    };
+
+    const allSeries = [
+      buildSeriesPoints('overall', t('dashboard.overallScore', 'Overall Score'), brandCyan),
+      buildSeriesPoints('left', t('dashboard.leftEar', 'Left Ear'), '#22c55e'),
+      buildSeriesPoints('right', t('dashboard.rightEar', 'Right Ear'), '#f97316'),
+      buildSeriesPoints('balance', t('dashboard.balance', 'Balance'), brandPurple),
+    ];
+
+    const visibleSeries = variant === 'clinician' ? allSeries : allSeries.filter((series) => series.key === 'overall');
+
+    return visibleSeries.filter((series) => series.points.length > 0);
+  }, [brandCyan, brandPurple, lineHeight, locale, normalizedSessions, t, variant, xPositions]);
+
+  const [activeSeries, setActiveSeries] = useState<ChartSeriesKey[]>(() => chartSeries.map((series) => series.key));
+
+  useEffect(() => {
+    setActiveSeries((prev) => {
+      const nextKeys = chartSeries.map((series) => series.key);
+      const filtered = prev.filter((key) => nextKeys.includes(key));
+      if (filtered.length) return filtered as ChartSeriesKey[];
+      return nextKeys as ChartSeriesKey[];
     });
 
     if (!isArabic) return normalizedPoints;
@@ -432,7 +461,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
       confidenceLevel = 'medium';
     }
 
-    const fatigueValues = sessions
+    const fatigueValues = normalizedSessions
       .filter((session) => typeof session.fatigueIndex === 'number')
       .map((session) => clampScore(session.fatigueIndex ?? 0));
     const fatigueSlope = fatigueValues.length > 1 ? computeSlope(fatigueValues) : 0;
@@ -690,14 +719,17 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             />
           ) : null}
 
-          <path
-            d={scorePath}
-            fill="none"
-            stroke={brandCyan}
-            strokeWidth={1.6}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          {activeChartSeries.map((series) => (
+            <path
+              key={series.key}
+              d={series.path}
+              fill="none"
+              stroke={series.color}
+              strokeWidth={1.6}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          ))}
 
           {showBestMarker && bestPoint ? (
             <g>
