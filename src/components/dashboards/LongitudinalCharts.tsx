@@ -345,7 +345,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                 y={lineHeight - 8}
                 textAnchor="middle"
                 fill={colors.text.muted}
-                style={{ fontSize: 7 }}
+                style={{ fontSize: typography.size.xxs }}
               >
                 {point.label}
               </text>
@@ -425,7 +425,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                   y={132}
                   textAnchor="middle"
                   fill={colors.text.muted}
-                  style={{ fontSize: 7 }}
+                  style={{ fontSize: typography.size.xxs }}
                 >
                   {point.label}
                 </text>

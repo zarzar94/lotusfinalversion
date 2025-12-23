@@ -77,6 +77,7 @@ export const typography = {
 
   // Font sizes (using modular scale)
   size: {
+    xxs: 10,     // 0.625rem - micro labels, dense data viz
     xs: 11,      // 0.6875rem - labels, badges
     sm: 13,      // 0.8125rem - captions, small text
     base: 15,    // 0.9375rem - body text
