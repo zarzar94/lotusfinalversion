@@ -49,6 +49,64 @@ const computeSlope = (values: number[]): number => {
   return denominator === 0 ? 0 : numerator / denominator;
 };
 
+const computeStandardDeviation = (values: number[]): number => {
+  if (values.length === 0) return 0;
+  const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
+  const variance = values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / values.length;
+  return Math.sqrt(variance);
+};
+
+const computeOutlierRate = (values: number[]): number => {
+  if (values.length === 0) return 0;
+  const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
+  const stdDev = computeStandardDeviation(values);
+  const threshold = Math.max(10, stdDev * 1.5);
+  const outliers = values.filter((value) => Math.abs(value - mean) > threshold);
+  return outliers.length / values.length;
+};
+
+type ConfidenceLevel = 'high' | 'medium' | 'low';
+
+const getConfidenceLevel = (
+  sessionCount: number,
+  stdDev: number,
+  outlierRate: number,
+): { level: ConfidenceLevel; message: string; tone: string; consistencyIndex: number } => {
+  const sessionFactor = Math.min(1, sessionCount / 8);
+  const normalizedVariability = Math.min(1, stdDev / 25);
+  const normalizedOutliers = Math.min(1, outlierRate);
+
+  const variabilityScore = 1 - normalizedVariability; // higher = steadier data
+  const outlierScore = 1 - normalizedOutliers; // higher = fewer outliers
+  const sessionScore = 0.35 + sessionFactor * 0.65; // nudges score up as count grows
+
+  const weightedScore = variabilityScore * 0.45 + outlierScore * 0.25 + sessionScore * 0.3;
+  const consistencyIndex = Math.round(Math.max(0, Math.min(100, weightedScore * 100)));
+
+  let level: ConfidenceLevel = 'medium';
+  if (sessionCount < MIN_TREND_SESSIONS || consistencyIndex < 50) {
+    level = 'low';
+  } else if (consistencyIndex >= 78 && sessionCount >= MIN_TREND_SESSIONS + 1) {
+    level = 'high';
+  }
+
+  const message = level === 'high'
+    ? 'High confidence'
+    : level === 'medium'
+      ? 'Medium confidence—monitor for changes'
+      : sessionCount < MIN_TREND_SESSIONS
+        ? `Low confidence—need ${MIN_TREND_SESSIONS}+ sessions`
+        : 'Low confidence—data variability';
+
+  const tone = level === 'high'
+    ? colors.success
+    : level === 'medium'
+      ? colors.warning
+      : colors.error;
+
+  return { level, message, tone, consistencyIndex } as const;
+};
+
 const formatLabel = (timestamp: string, locale: string) => {
   const date = new Date(timestamp);
   if (Number.isNaN(date.getTime())) return timestamp;
@@ -88,6 +146,28 @@ const MetricCard = memo(({
   </div>
 ));
 MetricCard.displayName = 'MetricCard';
+
+const ConfidenceBadge = memo(({ tone, text, helper }: { tone: string; text: string; helper?: string }) => (
+  <div
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: spacing[1],
+      padding: `${spacing[1]}px ${spacing[2]}px`,
+      borderRadius: radius.full,
+      background: `${tone}1f`,
+      border: `1px solid ${tone}40`,
+      color: tone,
+      fontSize: typography.size.xs,
+      fontWeight: typography.weight.bold,
+      letterSpacing: typography.letterSpacing.tight,
+    }}
+  >
+    <span>{text}</span>
+    {helper ? <span style={{ color: colors.text.muted, fontWeight: typography.weight.medium }}>{helper}</span> : null}
+  </div>
+));
+ConfidenceBadge.displayName = 'ConfidenceBadge';
 
 const LongitudinalCharts = memo(function LongitudinalCharts({
   moduleId,
@@ -195,6 +275,13 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     const slope = computeSlope(scores);
     const baseline = baselineScore ?? scores[0];
     const recentAverage = rollingScores.length ? rollingScores[rollingScores.length - 1] : null;
+    const stdDev = computeStandardDeviation(scores);
+    const outlierRate = computeOutlierRate(scores);
+    const { level, message, tone, consistencyIndex } = getConfidenceLevel(
+      sessions.length,
+      stdDev,
+      outlierRate,
+    );
 
     const fatigueValues = sessions
       .filter((session) => typeof session.fatigueIndex === 'number')
@@ -211,6 +298,12 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
       slope,
       baseline,
       recentAverage,
+      consistencyIndex,
+      confidenceLevel: level,
+      confidenceMessage: message,
+      confidenceTone: tone,
+      variability: stdDev,
+      outlierRate,
       fatigueDirection,
     };
   }, [baselineScore, rollingScores, sessions]);
@@ -251,12 +344,28 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
         <div
           style={{
             marginBottom: spacing[3],
-            fontSize: typography.size.sm,
-            fontWeight: typography.weight.bold,
-            color: colors.text.primary,
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing[2],
+            flexWrap: 'wrap',
           }}
         >
-          {title || t('dashboard.scoreTrendTitle', 'Score Trend')}
+          <div
+            style={{
+              fontSize: typography.size.sm,
+              fontWeight: typography.weight.bold,
+              color: colors.text.primary,
+            }}
+          >
+            {title || t('dashboard.scoreTrendTitle', 'Score Trend')}
+          </div>
+          {stats ? (
+            <ConfidenceBadge
+              tone={stats.confidenceTone}
+              text={t('dashboard.confidenceBadge', stats.confidenceMessage)}
+              helper={`${t('dashboard.consistencyIndex', 'Consistency')} ${stats.consistencyIndex}/100`}
+            />
+          ) : null}
         </div>
         <svg width="100%" height={lineHeight} viewBox={`0 0 100 ${lineHeight}`} preserveAspectRatio="none">
           {bandBackgrounds.map((band) => {
@@ -443,6 +552,26 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             gap: spacing[3],
           }}
         >
+          <div
+            style={{
+              gridColumn: '1 / -1',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: spacing[2],
+              alignItems: 'center',
+            }}
+          >
+            <ConfidenceBadge
+              tone={stats.confidenceTone}
+              text={t('dashboard.confidenceBadge', stats.confidenceMessage)}
+              helper={`${t('dashboard.sessions', 'Sessions')}: ${sessions.length}`}
+            />
+            <ConfidenceBadge
+              tone={colors.info}
+              text={`${t('dashboard.consistencyIndex', 'Consistency')}: ${stats.consistencyIndex}`}
+              helper={`${t('dashboard.variability', 'Variability')} ${stats.variability.toFixed(1)} | ${t('dashboard.outliers', 'Outliers')} ${(stats.outlierRate * 100).toFixed(0)}%`}
+            />
+          </div>
           <MetricCard
             label={t('dashboard.avgScore', 'Average Score')}
             value={`${stats.average}`}
