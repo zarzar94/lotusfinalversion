@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAllSessions } from '../../utils/sessionStorage';
 import type { LabModuleMetrics } from '../../types/moduleMetrics';
-import { brandCyan, brandPurple, colors, spacing, radius, typography, analytics } from '../styles';
+import { brandCyan, brandPink, brandPurple, colors, spacing, radius, typography, analytics } from '../styles';
 
 type ChartVariant = 'parent' | 'clinician';
 
@@ -211,6 +211,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
       slope,
       baseline,
       recentAverage,
+      fatigueSlope,
       fatigueDirection,
     };
   }, [baselineScore, rollingScores, sessions]);
@@ -469,6 +470,15 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                 : '--'
             }
             tone={trendReady ? (stats.slope >= 0 ? '#22c55e' : '#ef4444') : colors.text.muted}
+          />
+          <MetricCard
+            label={t('dashboard.fatigueSlope', 'Fatigue Slope')}
+            value={
+              trendReady
+                ? `${stats.fatigueSlope >= 0 ? '+' : ''}${stats.fatigueSlope.toFixed(1)} ${t('dashboard.perSession', 'per session')}`
+                : '--'
+            }
+            tone={trendReady ? (stats.fatigueSlope >= 0 ? brandPink : brandCyan) : colors.text.muted}
           />
           <MetricCard
             label={t('dashboard.fatigueDirection', 'Fatigue Direction')}
