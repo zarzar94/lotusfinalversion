@@ -537,14 +537,14 @@ const CentreInfoSection = memo(({ isArabic }: { isArabic: boolean }) => {
         >
           <div
             style={{
-              width: 56,
-              height: 56,
+              width: 112,
+              height: 112,
               borderRadius: radius.lg,
               background: `linear-gradient(135deg, ${brandCyan}20, ${brandPurple}15)`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: 6,
+              padding: 12,
             }}
           >
             <img

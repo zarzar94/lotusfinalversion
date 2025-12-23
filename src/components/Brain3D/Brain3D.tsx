@@ -532,19 +532,21 @@ function BrainScene({ onBubbleSelect }: { onBubbleSelect: (bubble: typeof BRAIN_
 
 // Info panel
 function BubbleInfoPanel({ bubble, onClose }: { bubble: typeof BRAIN_BUBBLES[number] | null; onClose: () => void }) {
-  if (!bubble) return null;
-
   useEffect(() => {
+    if (!bubble) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKey);
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
+      document.body.style.overflow = previousOverflow;
     };
-  }, [onClose]);
+  }, [bubble, onClose]);
+
+  if (!bubble) return null;
 
   const descriptions: Record<string, string> = {
     auditory: 'معالجة الأصوات والمعلومات السمعية، بما في ذلك التمييز بين الأصوات المختلفة',
