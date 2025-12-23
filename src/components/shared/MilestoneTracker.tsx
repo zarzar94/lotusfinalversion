@@ -623,6 +623,7 @@ export const TreatmentPhaseIndicator = memo(({
       background: `linear-gradient(135deg, ${brandCyan}08, ${brandPurple}05)`,
       border: `1px solid ${colors.border.default}`,
       borderRadius: radius.xl,
+      direction: isArabic ? 'rtl' : 'ltr',
     }}>
       {/* Progress bar */}
       <div style={{
@@ -630,6 +631,7 @@ export const TreatmentPhaseIndicator = memo(({
         alignItems: 'center',
         gap: spacing[1],
         marginBottom: spacing[4],
+        flexDirection: isArabic ? 'row-reverse' : 'row',
       }}>
         {phases.map((p, i) => {
           const isActive = i === currentPhaseIndex;
@@ -642,7 +644,7 @@ export const TreatmentPhaseIndicator = memo(({
                 height: 6,
                 borderRadius: radius.full,
                 background: isCompleted
-                  ? `linear-gradient(90deg, ${brandCyan}, ${brandPurple})`
+                  ? `linear-gradient(${isArabic ? '270deg' : '90deg'}, ${brandCyan}, ${brandPurple})`
                   : isActive
                   ? brandCyan
                   : colors.border.default,
@@ -659,6 +661,7 @@ export const TreatmentPhaseIndicator = memo(({
         display: 'flex',
         justifyContent: 'space-between',
         gap: spacing[2],
+        flexDirection: isArabic ? 'row-reverse' : 'row',
       }}>
         {phases.map((p, i) => {
           const isActive = i === currentPhaseIndex;
@@ -676,7 +679,7 @@ export const TreatmentPhaseIndicator = memo(({
                   : 'transparent',
                 border: `1px solid ${isActive ? brandCyan : isCompleted ? brandPurple : colors.border.subtle}30`,
                 borderRadius: radius.lg,
-                textAlign: 'center',
+                textAlign: isArabic ? 'right' : 'center',
                 opacity: isActive || isCompleted ? 1 : 0.4,
                 transition: transitions.fast,
               }}
