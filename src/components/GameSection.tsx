@@ -1096,7 +1096,7 @@ const GameSection = memo(function GameSection() {
                   transition: 'all 0.2s ease',
                 }}>
                   <span style={{ fontSize: 16 }}>{item.emoji}</span>
-                  <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
+                  <span style={{ fontSize: typography.size.xxs, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
                     {item.label}
                   </span>
                 </div>

@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
 import { sendPasswordResetEmail } from '../utils/email.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -155,8 +156,7 @@ router.post(
       }
 
       // Hash new password
-      const salt = await bcrypt.genSalt(12);
-      user.password = await bcrypt.hash(password, salt);
+      user.password = password;
 
       // Clear reset token
       user.resetToken = undefined;
@@ -181,6 +181,7 @@ router.post(
 
 router.post(
   '/change',
+  authenticate,
   [
     body('currentPassword').notEmpty().withMessage('Current password required'),
     body('newPassword')
@@ -221,8 +222,7 @@ router.post(
       }
 
       // Hash new password
-      const salt = await bcrypt.genSalt(12);
-      user.password = await bcrypt.hash(newPassword, salt);
+      user.password = newPassword;
       user.passwordVersion = (user.passwordVersion || 0) + 1;
 
       await user.save();
