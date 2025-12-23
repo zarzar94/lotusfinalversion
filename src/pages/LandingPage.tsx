@@ -6,7 +6,6 @@
 import { lazy, Suspense, memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
-import { styles } from '../components/styles';
 import BackgroundFX from '../components/BackgroundFX';
 import HeroCircuitBrain from '../components/HeroCircuitBrain';
 import CircuitDecoration from '../components/CircuitDecoration';
@@ -27,6 +26,7 @@ import {
   typography,
   spacing,
   radius,
+  styles,
 } from '../components/styles';
 
 // Lazy load credentials

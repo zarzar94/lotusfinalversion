@@ -28,15 +28,17 @@ const Gauge = memo(function Gauge({
   color,
   size = 120,
   thickness = 10,
-}: GaugeProps) {
+  isArabic = false,
+}: GaugeProps & { isArabic?: boolean }) {
+  const { t } = useLanguage();
   const circumference = (size - thickness) * Math.PI;
   const progress = Math.min(100, Math.max(0, value));
   const offset = circumference - (progress / 100) * circumference;
 
-  const getResultLevel = (v: number): { label: string; emoji: string } => {
-    if (v >= 70) return { label: 'Strong', emoji: '⭐' };
-    if (v >= 40) return { label: 'Moderate', emoji: '◐' };
-    return { label: 'Needs Attention', emoji: '○' };
+  const getResultLevel = (v: number): { labelEn: string; labelAr: string; emoji: string } => {
+    if (v >= 70) return { labelEn: 'Strong', labelAr: 'auto.ScreeningDashboard.k23', emoji: '⭐' };
+    if (v >= 40) return { labelEn: 'Moderate', labelAr: 'auto.ScreeningDashboard.k24', emoji: '◐' };
+    return { labelEn: 'Needs Attention', labelAr: 'auto.ScreeningDashboard.k25', emoji: '○' };
   };
 
   const level = getResultLevel(value);
@@ -98,7 +100,7 @@ const Gauge = memo(function Gauge({
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {level.emoji} {level.label}
+            {level.emoji} {isArabic ? t(level.labelAr, level.labelEn) : level.labelEn}
           </div>
         </div>
       </div>
@@ -123,6 +125,7 @@ interface TrendChartProps {
   color: string;
   height?: number;
   label: string;
+  isArabic?: boolean;
 }
 
 const TrendChart = memo(function TrendChart({
@@ -130,7 +133,9 @@ const TrendChart = memo(function TrendChart({
   color,
   height = 60,
   label,
+  isArabic = false,
 }: TrendChartProps) {
+  const { t } = useLanguage();
   if (data.length < 2) {
     return (
       <div style={{
@@ -141,7 +146,7 @@ const TrendChart = memo(function TrendChart({
         color: colors.text.muted,
         fontSize: typography.size.xs,
       }}>
-        More data needed
+        {t('auto.ScreeningDashboard.k1', "More data needed")}
       </div>
     );
   }
@@ -251,7 +256,7 @@ const ResultCard = memo(function ResultCard({
   color,
   result,
 }: ResultCardProps) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
 
   return (
     <div style={{
@@ -282,7 +287,7 @@ const ResultCard = memo(function ResultCard({
           color: colors.text.muted,
           marginBottom: spacing[0.5],
         }}>
-          {isArabic ? titleAr : title}
+          {isArabic ? t(titleAr, title) : title}
         </div>
         <div style={{
           fontSize: typography.size.xl,
@@ -333,7 +338,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
   compact = false,
 }: ScreeningDashboardProps) {
   const { config, isSchool, isParent, isClinician } = useVisitorMode();
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const [sessions, setSessions] = useState<StoredSession[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'history' | 'trends'>('overview');
 
@@ -404,21 +409,21 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
       baseInsights.push({
         icon: '⭐',
         textEn: 'Strong auditory processing indicators across tests.',
-        textAr: 'مؤشرات قوية للمعالجة السمعية عبر الاختبارات.',
+        textAr: 'auto.ScreeningDashboard.k26',
         priority: 'success',
       });
     } else if (metrics.overallAvg >= 40) {
       baseInsights.push({
         icon: '◐',
         textEn: 'Mixed results suggest targeted evaluation may be beneficial.',
-        textAr: 'النتائج المختلطة تشير إلى أن التقييم المستهدف قد يكون مفيداً.',
+        textAr: 'auto.ScreeningDashboard.k27',
         priority: 'info',
       });
     } else if (metrics.totalTests > 0) {
       baseInsights.push({
         icon: '⚠️',
         textEn: 'Results suggest professional auditory processing evaluation is recommended.',
-        textAr: 'النتائج تشير إلى أن التقييم المهني للمعالجة السمعية موصى به.',
+        textAr: 'auto.ScreeningDashboard.k28',
         priority: 'warning',
       });
     }
@@ -428,7 +433,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
       baseInsights.push({
         icon: '🏫',
         textEn: 'School screening data can be aggregated for classroom-level insights.',
-        textAr: 'يمكن تجميع بيانات الفحص المدرسي للحصول على رؤى على مستوى الفصل.',
+        textAr: 'auto.ScreeningDashboard.k29',
         priority: 'info',
       });
     }
@@ -437,7 +442,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
       baseInsights.push({
         icon: '📅',
         textEn: 'Consider booking a professional screening with our team.',
-        textAr: 'فكر في حجز فحص مهني مع فريقنا.',
+        textAr: 'auto.ScreeningDashboard.k30',
         priority: 'warning',
       });
     }
@@ -446,7 +451,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
       baseInsights.push({
         icon: '📊',
         textEn: 'Raw data and detailed metrics available for clinical documentation.',
-        textAr: 'البيانات الخام والمقاييس التفصيلية متاحة للتوثيق السريري.',
+        textAr: 'auto.ScreeningDashboard.k31',
         priority: 'info',
       });
     }
@@ -488,7 +493,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
           fontWeight: typography.weight.bold,
           color: colors.text.primary,
         }}>
-          {isArabic ? 'لا توجد نتائج بعد' : 'No Results Yet'}
+          {t('auto.ScreeningDashboard.k2', "No Results Yet")}
         </h3>
         <p style={{
           margin: 0,
@@ -496,9 +501,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
           color: colors.text.muted,
           lineHeight: typography.lineHeight.relaxed,
         }}>
-          {isArabic
-            ? 'أكمل اختبارات الفحص لمشاهدة نتائجك هنا'
-            : 'Complete screening tests to see your results here'}
+          {t('auto.ScreeningDashboard.k3', "Complete screening tests to see your results here")}
         </p>
         <a
           href="#games"
@@ -515,7 +518,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
             boxShadow: `0 4px 20px ${config.color}30`,
           }}
         >
-          {isArabic ? 'ابدأ الفحص' : 'Start Screening'}
+          {t('auto.ScreeningDashboard.k4', "Start Screening")}
         </a>
       </div>
     );
@@ -562,7 +565,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                 fontWeight: typography.weight.bold,
                 color: colors.text.primary,
               }}>
-                {isArabic ? 'لوحة نتائج الفحص' : 'Screening Dashboard'}
+                {t('auto.ScreeningDashboard.k5', "Screening Dashboard")}
               </h3>
               <div style={{
                 fontSize: typography.size.xs,
@@ -595,9 +598,9 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                     cursor: 'pointer',
                   }}
                 >
-                  {tab === 'overview' && (isArabic ? 'نظرة عامة' : 'Overview')}
-                  {tab === 'history' && (isArabic ? 'السجل' : 'History')}
-                  {tab === 'trends' && (isArabic ? 'الاتجاهات' : 'Trends')}
+                  {tab === 'overview' && (t('auto.ScreeningDashboard.k6', "Overview"))}
+                  {tab === 'history' && (t('auto.ScreeningDashboard.k7', "History"))}
+                  {tab === 'trends' && (t('auto.ScreeningDashboard.k8', "Trends"))}
                 </button>
               ))}
             </div>
@@ -617,31 +620,35 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
               }}>
                 <Gauge
                   value={metrics.overallAvg}
-                  label={isArabic ? 'المعدل الكلي' : 'Overall Score'}
+                  label={t('auto.ScreeningDashboard.k9', "Overall Score")}
                   color={metrics.overallAvg >= 70 ? brandCyan : metrics.overallAvg >= 40 ? brandPurple : brandPink}
+                  isArabic={isArabic}
                 />
                 {metrics.averages['attention'] && (
                   <Gauge
                     value={metrics.averages['attention'].avg}
-                    label={isArabic ? 'الانتباه' : 'Attention'}
+                    label={t('auto.ScreeningDashboard.k10', "Attention")}
                     color="#3B82F6"
                     size={100}
+                    isArabic={isArabic}
                   />
                 )}
                 {metrics.averages['frequency'] && (
                   <Gauge
                     value={metrics.averages['frequency'].avg}
-                    label={isArabic ? 'التردد' : 'Frequency'}
+                    label={t('auto.ScreeningDashboard.k11', "Frequency")}
                     color="#8B5CF6"
                     size={100}
+                    isArabic={isArabic}
                   />
                 )}
                 {metrics.averages['sequence'] && (
                   <Gauge
                     value={metrics.averages['sequence'].avg}
-                    label={isArabic ? 'التسلسل' : 'Sequence'}
+                    label={t('auto.ScreeningDashboard.k12', "Sequence")}
                     color="#F59E0B"
                     size={100}
+                    isArabic={isArabic}
                   />
                 )}
               </div>
@@ -658,7 +665,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                   title="Points Earned"
                   titleAr="النقاط المكتسبة"
                   value={metrics.totalPoints.toLocaleString()}
-                  subtext={isArabic ? 'إجمالي النقاط' : 'Total points'}
+                  subtext={t('auto.ScreeningDashboard.k13', "Total points")}
                   color={brandCyan}
                 />
                 <ResultCard
@@ -674,7 +681,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                   title="Result Distribution"
                   titleAr="توزيع النتائج"
                   value={`${metrics.distribution.high}/${metrics.distribution.medium}/${metrics.distribution.low}`}
-                  subtext={isArabic ? 'قوي / متوسط / ضعيف' : 'High / Med / Low'}
+                  subtext={t('auto.ScreeningDashboard.k14', "High / Med / Low")}
                   color={brandPink}
                 />
               </div>
@@ -693,7 +700,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                     fontWeight: typography.weight.bold,
                     color: config.color,
                   }}>
-                    {isArabic ? '💡 رؤى مخصصة' : '💡 Personalized Insights'}
+                    {t('auto.ScreeningDashboard.k15', "💡 Personalized Insights")}
                   </h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[2] }}>
                     {insights.map((insight, i) => (
@@ -719,7 +726,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                           color: colors.text.secondary,
                           lineHeight: typography.lineHeight.relaxed,
                         }}>
-                          {isArabic ? insight.textAr : insight.textEn}
+                          {isArabic ? t(insight.textAr, insight.textEn) : insight.textEn}
                         </p>
                       </div>
                     ))}
@@ -765,7 +772,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                             fontWeight: typography.weight.bold,
                             color: config.color,
                           }}>
-                            {isArabic ? 'الأخيرة' : 'Latest'}
+                            {t('auto.ScreeningDashboard.k16', "Latest")}
                           </span>
                         )}
                         <span style={{
@@ -773,7 +780,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                           fontWeight: typography.weight.bold,
                           color: colors.text.primary,
                         }}>
-                          {outcomes.length} {isArabic ? 'اختبارات' : 'tests'}
+                          {outcomes.length} {t('auto.ScreeningDashboard.k17', "tests")}
                         </span>
                       </div>
                       <div style={{
@@ -847,11 +854,12 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                       brandPink
                     }
                     label={
-                      key === 'attention' ? (isArabic ? 'الانتباه' : 'Attention') :
-                      key === 'frequency' ? (isArabic ? 'التردد' : 'Frequency') :
-                      key === 'sequence' ? (isArabic ? 'التسلسل' : 'Sequence') :
-                      isArabic ? 'الاستبيان' : 'Questionnaire'
+                      key === 'attention' ? (t('auto.ScreeningDashboard.k18', "Attention")) :
+                      key === 'frequency' ? (t('auto.ScreeningDashboard.k19', "Frequency")) :
+                      key === 'sequence' ? (t('auto.ScreeningDashboard.k20', "Sequence")) :
+                      t('auto.ScreeningDashboard.k21', "Questionnaire")
                     }
+                    isArabic={isArabic}
                   />
                 </div>
               ))}
@@ -874,9 +882,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {isArabic
-              ? '⚕️ هذه نتائج فحص غير تشخيصية'
-              : '⚕️ These are non-diagnostic screening results'}
+            {t('auto.ScreeningDashboard.k22', "⚕️ These are non-diagnostic screening results")}
           </p>
           <a
             href={config.ctaPath}
@@ -892,7 +898,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
               transition: transitions.fast,
             }}
           >
-            {isArabic ? config.ctaLabelAr : config.ctaLabel}
+            {isArabic ? t(config.ctaLabelAr, config.ctaLabel) : config.ctaLabel}
           </a>
         </div>
       </div>

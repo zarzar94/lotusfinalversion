@@ -1,4 +1,84 @@
-import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import {
+  styles,
+  brandCyan,
+  brandPink,
+  brandPurple,
+  brandPurpleDark,
+  labTech,
+  audioColors,
+  spacing,
+  radius,
+} from './styles';
+
+const css = `
+  @keyframes hudPulse {
+    0%, 100% { opacity: 0.5; box-shadow: 0 0 4px ${brandCyan}; }
+    50% { opacity: 1; box-shadow: 0 0 10px ${brandCyan}; }
+  }
+  @keyframes scanLine {
+    0% { left: -20%; opacity: 0; }
+    10% { opacity: 0.5; }
+    90% { opacity: 0.5; }
+    100% { left: 120%; opacity: 0; }
+  }
+  @keyframes neuralPulse {
+    0% { transform: scale(0.95); opacity: 0.7; }
+    50% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.7; }
+  }
+  @keyframes synapseFire {
+    0%, 100% { box-shadow: 0 0 5px ${brandCyan}40; }
+    50% { box-shadow: 0 0 20px ${brandCyan}80, 0 0 30px ${brandPurple}40; }
+  }
+  @keyframes dataStream {
+    0% { transform: translateY(100%); opacity: 0; }
+    10% { opacity: 0.5; }
+    90% { opacity: 0.5; }
+    100% { transform: translateY(-100%); opacity: 0; }
+  }
+  @keyframes brainWave {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(1.3); }
+  }
+  .neuro-hud-corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: ${brandCyan};
+    border-style: solid;
+    animation: hudPulse 3s ease-in-out infinite;
+  }
+  .neuro-scan-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    background: linear-gradient(90deg, transparent, ${brandCyan}25, transparent);
+    animation: scanLine 4s linear infinite;
+    pointer-events: none;
+  }
+  .neuro-data-particle {
+    position: absolute;
+    width: 2px;
+    height: 6px;
+    background: ${brandCyan};
+    opacity: 0.4;
+    animation: dataStream 3s linear infinite;
+  }
+  .neural-card:hover {
+    transform: translateY(-6px) !important;
+    border-color: var(--card-color) !important;
+    box-shadow: 0 12px 30px var(--card-glow) !important;
+  }
+  .neural-card:hover .neural-icon {
+    animation: neuralPulse 1s ease-in-out infinite;
+  }
+  @media (max-width: 640px) {
+    .brain-facts-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+`;
 
 const brainFactCards = [
   {
@@ -29,13 +109,79 @@ const brainFactCards = [
 
 export default function NeuroplasticitySection() {
   return (
-    <section id="neuroplasticity" style={styles.sectionCard}>
+    <section id="neuroplasticity" style={{
+      ...styles.sectionCard,
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      <style>{css}</style>
+
+      {/* HUD Corner Brackets */}
+      <div className="neuro-hud-corner" style={{ top: 8, left: 8, borderWidth: '2px 0 0 2px' }} />
+      <div className="neuro-hud-corner" style={{ top: 8, right: 8, borderWidth: '2px 2px 0 0' }} />
+      <div className="neuro-hud-corner" style={{ bottom: 8, left: 8, borderWidth: '0 0 2px 2px' }} />
+      <div className="neuro-hud-corner" style={{ bottom: 8, right: 8, borderWidth: '0 2px 2px 0' }} />
+
+      {/* Scan Line Effect */}
+      <div className="neuro-scan-line" />
+
+      {/* Data Stream Particles */}
+      <div className="neuro-data-particle" style={{ right: '10%', animationDelay: '0s' }} />
+      <div className="neuro-data-particle" style={{ right: '30%', animationDelay: '1s' }} />
+      <div className="neuro-data-particle" style={{ right: '50%', animationDelay: '2s' }} />
+
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
-          <h2 style={styles.h2}>اللدونة العصبية: أساس التغيير</h2>
-          <span style={{ ...styles.chip, background: 'rgba(175,132,186,0.12)', borderColor: 'rgba(175,132,186,0.25)' }}>
-            🔬 العلم وراء البرنامج
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              width: 48,
+              height: 48,
+              borderRadius: 14,
+              background: `linear-gradient(135deg, ${brandCyan}22, ${brandPurple}22)`,
+              border: `1px solid ${brandCyan}44`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 26,
+              boxShadow: `0 0 25px ${brandCyan}15`,
+              animation: 'synapseFire 3s ease-in-out infinite',
+            }}>
+              🧠
+            </div>
+            <div>
+              <h2 style={{ ...styles.h2, margin: 0 }}>اللدونة العصبية: أساس التغيير</h2>
+              <div style={{
+                fontSize: 10,
+                fontFamily: 'monospace',
+                color: 'rgba(255,255,255,0.4)',
+                letterSpacing: 1,
+                marginTop: 4,
+              }}>
+                LOTUS SOUND LAB // NEUROPLASTICITY SCIENCE MODULE
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{
+              ...styles.chip,
+              background: `linear-gradient(135deg, ${brandPurple}15, ${brandCyan}10)`,
+              borderColor: `${brandPurple}35`,
+            }}>
+              <span style={{ color: brandPurple, fontWeight: 700 }}>NEUROSCIENCE</span>
+            </span>
+            <span style={{
+              padding: '6px 12px',
+              background: 'rgba(34,197,94,0.12)',
+              border: '1px solid rgba(34,197,94,0.3)',
+              borderRadius: 8,
+              fontSize: 10,
+              fontWeight: 700,
+              color: '#22c55e',
+              fontFamily: 'monospace',
+            }}>
+              EVIDENCE-BASED
+            </span>
+          </div>
         </div>
       </div>
 
@@ -93,37 +239,89 @@ export default function NeuroplasticitySection() {
       </div>
 
       {/* Fact Cards */}
-      <div style={{
+      <div className="brain-facts-grid" style={{
         marginTop: 24,
         display: 'grid',
-        gap: 14,
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))'
+        gap: 16,
+        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))'
       }}>
         {brainFactCards.map((card, index) => (
           <div
             key={index}
+            className="neural-card"
             style={{
-              background: 'rgba(15,22,41,0.7)',
+              '--card-color': card.color,
+              '--card-glow': `${card.color}22`,
+              background: labTech.backgrounds.card,
               border: `1px solid ${card.color}33`,
-              borderRadius: 14,
-              padding: 16,
+              borderRadius: 16,
+              padding: 18,
               transition: 'all 0.3s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = `${card.color}66`;
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = `0 12px 30px ${card.color}22`;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = `${card.color}33`;
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
+              position: 'relative',
+              overflow: 'hidden',
+            } as React.CSSProperties}
           >
-            <div style={{ fontSize: 32, marginBottom: 10 }}>{card.icon}</div>
-            <div style={{ fontWeight: 800, color: card.color, marginBottom: 6 }}>{card.title}</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.6 }}>
+            {/* Card top glow */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 2,
+              background: `linear-gradient(90deg, transparent, ${card.color}66, transparent)`,
+              opacity: 0.6,
+            }} />
+
+            <div className="neural-icon" style={{
+              width: 52,
+              height: 52,
+              borderRadius: 14,
+              background: `linear-gradient(135deg, ${card.color}22, ${card.color}10)`,
+              border: `1px solid ${card.color}44`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 28,
+              marginBottom: 14,
+              boxShadow: `0 0 15px ${card.color}20`,
+            }}>
+              {card.icon}
+            </div>
+            <div style={{
+              fontWeight: 800,
+              color: card.color,
+              marginBottom: 8,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}>
+              <span style={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                background: card.color,
+                boxShadow: `0 0 6px ${card.color}`,
+              }} />
+              {card.title}
+            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.7 }}>
               {card.description}
+            </div>
+
+            {/* Card index badge */}
+            <div style={{
+              position: 'absolute',
+              top: 10,
+              right: 10,
+              padding: '3px 8px',
+              background: 'rgba(0,0,0,0.4)',
+              border: `1px solid ${card.color}30`,
+              borderRadius: 4,
+              fontSize: 9,
+              fontFamily: 'monospace',
+              color: card.color,
+            }}>
+              0{index + 1}
             </div>
           </div>
         ))}
@@ -216,13 +414,98 @@ export default function NeuroplasticitySection() {
         </div>
       </div>
 
-      <div style={{ marginTop: 16, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-        <a href="#overview" style={{ ...styles.primaryBtn, textDecoration: 'none' }}>
-          تعرف على البرنامج
+      <div style={{ marginTop: 20, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        <a href="#overview" style={{
+          ...styles.primaryBtn,
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          <span>📚</span> تعرف على البرنامج
         </a>
-        <a href="#results" style={{ ...styles.ghostBtn, textDecoration: 'none' }}>
-          شاهد النتائج
+        <a href="#results" style={{
+          ...styles.ghostBtn,
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          <span>📊</span> شاهد النتائج
         </a>
+      </div>
+
+      {/* System Status Footer */}
+      <div style={{
+        marginTop: 24,
+        padding: '12px 16px',
+        background: 'rgba(0,0,0,0.3)',
+        borderRadius: radius.lg,
+        border: `1px solid ${labTech.borders.subtle}`,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+        }}>
+          <div style={{
+            fontSize: 9,
+            fontFamily: 'monospace',
+            color: 'rgba(255,255,255,0.35)',
+            letterSpacing: 1,
+          }}>
+            LOTUS SOUND LAB // NEUROPLASTICITY RESEARCH
+          </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}>
+            <div style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: '#22c55e',
+              boxShadow: '0 0 6px #22c55e',
+            }} />
+            <span style={{
+              fontSize: 9,
+              fontFamily: 'monospace',
+              color: '#22c55e',
+              letterSpacing: 0.5,
+            }}>
+              PEER REVIEWED
+            </span>
+          </div>
+        </div>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          <span style={{
+            fontSize: 9,
+            fontFamily: 'monospace',
+            color: 'rgba(255,255,255,0.4)',
+            letterSpacing: 0.5,
+          }}>
+            BRAIN PLASTICITY • SOUND THERAPY
+          </span>
+          <div style={{ display: 'flex', gap: 3 }}>
+            {[brandCyan, brandPurple, brandPink, brandPurpleDark].map((color, i) => (
+              <div key={i} style={{
+                width: 10,
+                height: 4,
+                borderRadius: 2,
+                background: color,
+                opacity: 0.6,
+              }} />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -4,6 +4,7 @@
  */
 
 import { memo, useMemo } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   brandCyan,
   brandPurple,
@@ -102,6 +103,7 @@ export const LineChart = memo(({
   unit = '',
   maxValue: providedMax,
 }: LineChartProps) => {
+  const { t } = useLanguage();
   const chartId = useMemo(() => `line-chart-${Math.random().toString(36).slice(2, 9)}`, []);
 
   const { points, areaPath, linePath, maxValue, minValue } = useMemo(() => {
@@ -148,7 +150,7 @@ export const LineChart = memo(({
           fontWeight: typography.weight.bold,
           color: colors.text.primary,
         }}>
-          {isArabic ? titleAr : title}
+          {isArabic ? t(titleAr, title) : title}
         </h4>
       )}
 
@@ -271,6 +273,7 @@ export const BarChart = memo(({
   maxValue: providedMax,
   animate = true,
 }: BarChartProps) => {
+  const { t } = useLanguage();
   const chartId = useMemo(() => `bar-chart-${Math.random().toString(36).slice(2, 9)}`, []);
   const maxValue = providedMax ?? Math.max(...data.map(d => d.value), 100);
 
@@ -295,7 +298,7 @@ export const BarChart = memo(({
             fontWeight: typography.weight.bold,
             color: colors.text.primary,
           }}>
-            {isArabic ? titleAr : title}
+            {isArabic ? t(titleAr, title) : title}
           </h4>
         )}
 
@@ -359,7 +362,7 @@ export const BarChart = memo(({
           fontWeight: typography.weight.bold,
           color: colors.text.primary,
         }}>
-          {isArabic ? titleAr : title}
+          {isArabic ? t(titleAr, title) : title}
         </h4>
       )}
 
@@ -439,6 +442,7 @@ export const ProgressRing = memo(({
   showPercentage = true,
   isArabic = false,
 }: ProgressRingProps) => {
+  const { t } = useLanguage();
   const chartId = useMemo(() => `ring-${Math.random().toString(36).slice(2, 9)}`, []);
   const percentage = Math.min(100, Math.max(0, (value / maxValue) * 100));
   const radius = (size - strokeWidth) / 2;
@@ -538,6 +542,7 @@ export const MultiLineChart = memo(({
   titleAr,
   maxValue: providedMax,
 }: MultiLineChartProps) => {
+  const { t } = useLanguage();
   const maxValue = providedMax ?? Math.max(...datasets.flatMap(d => d.data), 100);
   const chartHeight = height - 50;
   const paddingX = 10;
@@ -561,7 +566,7 @@ export const MultiLineChart = memo(({
           fontWeight: typography.weight.bold,
           color: colors.text.primary,
         }}>
-          {isArabic ? titleAr : title}
+          {isArabic ? t(titleAr, title) : title}
         </h4>
       )}
 
@@ -689,6 +694,7 @@ export const WeeklyActivityChart = memo(({
   isArabic = false,
   maxSessions = 3,
 }: WeeklyActivityProps) => {
+  const { t } = useLanguage();
   const days = isArabic
     ? ['أح', 'إث', 'ث', 'أر', 'خ', 'ج', 'س']
     : ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -765,6 +771,7 @@ export const ScoreTrend = memo(({
   isArabic = false,
   color = brandCyan,
 }: ScoreTrendProps) => {
+  const { t } = useLanguage();
   const change = current - previous;
   const percentChange = previous > 0 ? Math.round((change / previous) * 100) : 0;
   const isPositive = change >= 0;

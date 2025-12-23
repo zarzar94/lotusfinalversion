@@ -18,7 +18,7 @@ const credentials: Credential[] = [
   {
     id: 'berard',
     title: 'Berard AIT Certified',
-    titleAr: 'معتمد من Berard AIT',
+    titleAr: 'auto.CredentialsBanner.k4',
     icon: '🎓',
     color: brandCyan,
     description: 'برنامج معتمد رسمياً من مؤسسة Berard AIT الدولية',
@@ -28,7 +28,7 @@ const credentials: Credential[] = [
   {
     id: 'licensed',
     title: 'Licensed Practitioner',
-    titleAr: 'ممارس مرخص',
+    titleAr: 'auto.CredentialsBanner.k5',
     icon: '✅',
     color: '#22c55e',
     description: 'حاصل على ترخيص ممارسة العلاج السمعي التكاملي',
@@ -38,7 +38,7 @@ const credentials: Credential[] = [
   {
     id: 'experience',
     title: '10+ Years Experience',
-    titleAr: '+10 سنوات خبرة',
+    titleAr: 'auto.CredentialsBanner.k6',
     icon: '⭐',
     color: brandPurple,
     description: 'خبرة تتجاوز عشر سنوات في العلاج السمعي',
@@ -48,7 +48,7 @@ const credentials: Credential[] = [
   {
     id: 'cases',
     title: '500+ Success Cases',
-    titleAr: '+500 حالة ناجحة',
+    titleAr: 'auto.CredentialsBanner.k7',
     icon: '🏆',
     color: brandPink,
     description: 'أكثر من 500 حالة تحسن موثقة',
@@ -58,7 +58,7 @@ const credentials: Credential[] = [
   {
     id: 'research',
     title: 'Research-Based',
-    titleAr: 'قائم على الأبحاث',
+    titleAr: 'auto.CredentialsBanner.k8',
     icon: '📊',
     color: brandPurpleDark,
     description: 'بروتوكول مبني على أبحاث علمية موثقة',
@@ -68,7 +68,7 @@ const credentials: Credential[] = [
   {
     id: 'schools',
     title: 'School Partnership Program',
-    titleAr: 'برنامج شراكة المدارس',
+    titleAr: 'auto.CredentialsBanner.k9',
     icon: '🏫',
     color: '#f59e0b',
     description: 'برامج فحص وتدريب مخصصة للمؤسسات التعليمية',
@@ -94,7 +94,7 @@ const partners: Partner[] = [
 
 export default function CredentialsBanner() {
   const { mode: visitorMode, config: visitorConfig } = useVisitorMode();
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredCredential, setHoveredCredential] = useState<string | null>(null);
   const bannerRef = useRef<HTMLDivElement>(null);
@@ -212,7 +212,7 @@ export default function CredentialsBanner() {
           fontWeight: 700,
           color: visitorConfig.color,
         }}>
-          {visitorConfig.icon} {isArabic ? 'المميز لك' : 'Highlighted for you'}
+          {visitorConfig.icon} {t('auto.CredentialsBanner.k1', "Highlighted for you")}
         </div>
         <div style={{
           display: 'inline-flex',
@@ -226,7 +226,7 @@ export default function CredentialsBanner() {
         }}>
           <span style={{ fontSize: 18 }}>🏅</span>
           <span style={{ fontSize: 13, fontWeight: 700, color: brandCyan }}>
-            {isArabic ? 'الاعتمادات والشهادات' : 'Certifications & Credentials'}
+            {t('auto.CredentialsBanner.k2', "Certifications & Credentials")}
           </span>
         </div>
         <h3 style={{
@@ -235,7 +235,7 @@ export default function CredentialsBanner() {
           fontWeight: 900,
           color: '#fff',
         }}>
-          {isArabic ? 'معتمدون ومرخصون دولياً' : 'Internationally Certified & Licensed'}
+          {t('auto.CredentialsBanner.k3', "Internationally Certified & Licensed")}
         </h3>
         <p style={{
           margin: '8px 0 0',
@@ -330,7 +330,7 @@ export default function CredentialsBanner() {
                 color: cred.color,
                 marginBottom: 4,
               }}>
-                {isArabic ? cred.titleAr : cred.title}
+                {isArabic ? t(cred.titleAr, cred.title) : cred.title}
               </div>
               <div style={{
                 fontSize: 10,

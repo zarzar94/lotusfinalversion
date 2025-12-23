@@ -1,6 +1,7 @@
 import { useMemo, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 
 import { checklistCategories, checklistItems, type ChecklistItem } from '../data/checklistItems';
+import { useLanguage } from '../context/LanguageContext';
 import { assetUrl } from '../utils/asset';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
 import {
@@ -12,7 +13,6 @@ import {
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, radius, spacing, typography, transitions } from './styles';
 import { useGamification } from '../context/GamificationContext';
 import { useVisitorMode } from '../context/VisitorModeContext';
-import { useLanguage } from '../context/LanguageContext';
 import {
   BookIcon,
   EarIcon,
@@ -469,87 +469,87 @@ const VISITOR_RECOMMENDATIONS = {
   school: {
     low: {
       titleEn: 'Screening Complete',
-      titleAr: 'اكتمل الفحص',
+      titleAr: 'auto.Checklist.k1',
       messageEn: 'This student shows typical auditory processing indicators. Consider periodic rescreening.',
-      messageAr: 'يُظهر هذا الطالب مؤشرات معالجة سمعية نموذجية. فكر في إعادة الفحص الدوري.',
+      messageAr: 'auto.Checklist.k2',
       actionEn: 'Continue to Sound Lab',
-      actionAr: 'تابع إلى معمل الصوت',
+      actionAr: 'auto.Checklist.k3',
       actionPath: '#games',
     },
     medium: {
       titleEn: 'Monitor Recommended',
-      titleAr: 'يُوصى بالمتابعة',
+      titleAr: 'auto.Checklist.k4',
       messageEn: 'Consider classroom accommodations and follow-up screening in 3-6 months.',
-      messageAr: 'فكر في تعديلات الفصل ومتابعة الفحص خلال 3-6 أشهر.',
+      messageAr: 'auto.Checklist.k5',
       actionEn: 'View Accommodations Guide',
-      actionAr: 'عرض دليل التعديلات',
+      actionAr: 'auto.Checklist.k6',
       actionPath: '/resources#accommodations',
     },
     high: {
       titleEn: 'Professional Evaluation Advised',
-      titleAr: 'يُنصح بتقييم مهني',
+      titleAr: 'auto.Checklist.k7',
       messageEn: 'Results suggest this student may benefit from professional auditory processing evaluation.',
-      messageAr: 'النتائج تشير إلى أن هذا الطالب قد يستفيد من تقييم مهني للمعالجة السمعية.',
+      messageAr: 'auto.Checklist.k8',
       actionEn: 'Request School Demo',
-      actionAr: 'اطلب عرض مدرسي',
+      actionAr: 'auto.Checklist.k9',
       actionPath: '/contact?mode=school',
     },
   },
   parent: {
     low: {
       titleEn: 'Good Indicators',
-      titleAr: 'مؤشرات جيدة',
+      titleAr: 'auto.Checklist.k10',
       messageEn: 'Your child shows typical auditory processing patterns. Continue with the interactive games for more insights.',
-      messageAr: 'طفلك يُظهر أنماط معالجة سمعية نموذجية. تابع مع الألعاب التفاعلية لمزيد من الرؤى.',
+      messageAr: 'auto.Checklist.k11',
       actionEn: 'Try Screening Games',
-      actionAr: 'جرب ألعاب الفحص',
+      actionAr: 'auto.Checklist.k12',
       actionPath: '#games',
     },
     medium: {
       titleEn: 'Further Screening Suggested',
-      titleAr: 'يُقترح مزيد من الفحص',
+      titleAr: 'auto.Checklist.k13',
       messageEn: 'These indicators suggest completing the interactive screening tests would be beneficial.',
-      messageAr: 'هذه المؤشرات تشير إلى أن إكمال اختبارات الفحص التفاعلية سيكون مفيداً.',
+      messageAr: 'auto.Checklist.k14',
       actionEn: 'Start Full Assessment',
-      actionAr: 'ابدأ التقييم الكامل',
+      actionAr: 'auto.Checklist.k15',
       actionPath: '#games',
     },
     high: {
       titleEn: 'Book Professional Screening',
-      titleAr: 'احجز فحصاً مهنياً',
+      titleAr: 'auto.Checklist.k16',
       messageEn: 'Based on these indicators, we recommend booking a professional screening with our team.',
-      messageAr: 'بناءً على هذه المؤشرات، نوصي بحجز فحص مهني مع فريقنا.',
+      messageAr: 'auto.Checklist.k17',
       actionEn: 'Book Screening',
-      actionAr: 'احجز فحصاً',
+      actionAr: 'auto.Checklist.k18',
       actionPath: '/contact?mode=parent',
     },
   },
   clinician: {
     low: {
       titleEn: 'WNL - Screening Indicators',
-      titleAr: 'ضمن الحدود الطبيعية - مؤشرات الفحص',
+      titleAr: 'auto.Checklist.k19',
       messageEn: 'Few behavioral indicators noted. Consider contextual factors before final determination.',
-      messageAr: 'مؤشرات سلوكية قليلة ملحوظة. ضع في الاعتبار العوامل السياقية قبل التحديد النهائي.',
+      messageAr: 'auto.Checklist.k20',
       actionEn: 'Proceed to Objective Tests',
-      actionAr: 'تابع للاختبارات الموضوعية',
+      actionAr: 'auto.Checklist.k21',
       actionPath: '#games',
     },
     medium: {
       titleEn: 'Borderline - Further Evaluation',
-      titleAr: 'حدودي - تقييم إضافي',
+      titleAr: 'auto.Checklist.k22',
       messageEn: 'Moderate behavioral indicators. Objective testing recommended to clarify auditory processing status.',
-      messageAr: 'مؤشرات سلوكية متوسطة. يُوصى بالاختبار الموضوعي لتوضيح حالة المعالجة السمعية.',
+      messageAr: 'auto.Checklist.k23',
       actionEn: 'View Clinical Protocol',
-      actionAr: 'عرض البروتوكول السريري',
+      actionAr: 'auto.Checklist.k24',
       actionPath: '/clinician-dashboard',
     },
     high: {
       titleEn: 'Significant Indicators - Comprehensive Eval',
-      titleAr: 'مؤشرات مهمة - تقييم شامل',
+      titleAr: 'auto.Checklist.k25',
       messageEn: 'Multiple behavioral markers present. Full audiological and APD battery recommended.',
-      messageAr: 'وجود علامات سلوكية متعددة. يُوصى ببطارية سمعية كاملة و APD.',
+      messageAr: 'auto.Checklist.k26',
       actionEn: 'Access Clinical Tools',
-      actionAr: 'الوصول للأدوات السريرية',
+      actionAr: 'auto.Checklist.k27',
       actionPath: '/clinician-dashboard',
     },
   },
@@ -568,7 +568,7 @@ type ChecklistRecommendation = {
 
 const Checklist = () => {
   const { mode: visitorMode, config: visitorConfig, isSchool, isParent, isClinician } = useVisitorMode();
-  const { isArabic } = useLanguage();
+  const { t, isArabic } = useLanguage();
 
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [exporting, setExporting] = useState(false);
@@ -725,7 +725,38 @@ const Checklist = () => {
   const currentSelectedInCategory = currentCategory?.items.filter(item => selected[item.id]).length || 0;
 
   return (
-    <section id="checklist" style={styles.sectionCard}>
+    <section id="checklist" style={{
+      ...styles.sectionCard,
+      background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+      border: '1px solid rgba(143,211,204,0.15)',
+      boxShadow: '0 15px 40px rgba(0,0,0,0.4), 0 0 60px rgba(143,211,204,0.08)',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      {/* Top glow bar */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 2,
+        background: `linear-gradient(90deg, transparent, ${brandCyan}, ${brandPink}, ${brandPurple}, transparent)`,
+        opacity: 0.6,
+      }} />
+
+      {/* Grid pattern overlay */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        backgroundImage: `
+          linear-gradient(rgba(143,211,204,0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(143,211,204,0.02) 1px, transparent 1px)
+        `,
+        backgroundSize: '50px 50px',
+        pointerEvents: 'none',
+        opacity: 0.5,
+      }} />
+
       <style>{`
         @keyframes radarSweep { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes blipPulse { 0%, 100% { box-shadow: 0 0 10px currentColor; } 50% { box-shadow: 0 0 25px currentColor, 0 0 50px currentColor; } }
@@ -741,6 +772,7 @@ const Checklist = () => {
         }
         @keyframes launchPulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
         @keyframes scanLine { 0% { transform: translateY(-100%); opacity: 0; } 50% { opacity: 0.5; } 100% { transform: translateY(100%); opacity: 0; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         @media (max-width: 640px) {
           .radar-container { transform: scale(0.75) !important; }
           .category-tabs { gap: 6px !important; }
@@ -755,18 +787,94 @@ const Checklist = () => {
         }
       `}</style>
 
-      {/* Header */}
-      <div style={styles.sectionHeader}>
-        <div style={styles.sectionHeaderRow}>
-          <h2 style={{ ...styles.h2, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <MicroscopeIcon size={28} color={brandCyan} /> الماسح العصبي للتقييم
-          </h2>
-          <span style={{ ...styles.chip, background: `${recommendation.color}22`, borderColor: `${recommendation.color}44`, color: recommendation.color }}>
+      {/* Header - Lab Tech Style */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20,
+        padding: '12px 18px',
+        background: 'rgba(0,0,0,0.3)',
+        borderRadius: 14,
+        border: '1px solid rgba(255,255,255,0.05)',
+        position: 'relative',
+        zIndex: 1,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{
+            width: 44,
+            height: 44,
+            borderRadius: 12,
+            background: `linear-gradient(135deg, ${brandCyan}22, ${brandPink}22)`,
+            border: `1px solid ${brandCyan}44`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <MicroscopeIcon size={24} color={brandCyan} />
+          </div>
+          <div>
+            <h2 style={{
+              ...styles.h2,
+              margin: 0,
+              fontSize: 15,
+              color: brandCyan,
+              fontWeight: 800,
+              letterSpacing: '0.5px',
+            }}>
+              {t('labTech.neuralScanner')}
+            </h2>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.5px' }}>
+              {t('checklist.subtitle')}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '6px 12px',
+            background: 'rgba(34,197,94,0.12)',
+            border: '1px solid rgba(34,197,94,0.3)',
+            borderRadius: 8,
+          }}>
+            <div style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              background: '#22c55e',
+              animation: 'blink 2s ease-in-out infinite',
+              boxShadow: '0 0 8px #22c55e',
+            }} />
+            <span style={{ fontSize: 10, color: '#22c55e', fontWeight: 700 }}>{t('labTech.scanning')}</span>
+          </div>
+          <span style={{
+            ...styles.chip,
+            background: `${recommendation.color}22`,
+            borderColor: `${recommendation.color}44`,
+            color: recommendation.color,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}>
             {recommendation.icon} {selectedCount}/{totalItems}
           </span>
         </div>
-        <p style={styles.bodyText}>حدد المؤشرات على الرادار لبناء تقرير تقييمي. اضغط الزر الأحمر لتدمير المؤشرات المحددة.</p>
       </div>
+
+      <p style={{
+        ...styles.bodyText,
+        marginBottom: 20,
+        padding: '12px 16px',
+        background: 'rgba(143,211,204,0.06)',
+        border: '1px solid rgba(143,211,204,0.15)',
+        borderRadius: 12,
+        position: 'relative',
+        zIndex: 1,
+      }}>
+        حدد المؤشرات على الرادار لبناء تقرير تقييمي. اضغط الزر الأحمر لتدمير المؤشرات المحددة.
+      </p>
 
       {/* Category Tabs */}
       <div style={{
@@ -775,6 +883,8 @@ const Checklist = () => {
         overflowX: 'auto',
         padding: '16px 0',
         marginBottom: 16,
+        position: 'relative',
+        zIndex: 1,
       }}>
         {checklistCategories.map((cat, idx) => {
           const cfg = CATEGORY_CONFIG[cat.title] || { icon: <ChartIcon size={20} />, color: brandCyan };
@@ -797,6 +907,8 @@ const Checklist = () => {
         flexDirection: 'column',
         alignItems: 'center',
         gap: 24,
+        position: 'relative',
+        zIndex: 1,
       }}>
         {/* Category Info */}
         <div style={{
@@ -993,6 +1105,8 @@ const Checklist = () => {
           display: 'flex',
           alignItems: 'center',
           gap: 10,
+          position: 'relative',
+          zIndex: 1,
         }}>
           <LightbulbIcon size={18} color={currentConfig.color} />
           {currentCategory.note}
@@ -1000,7 +1114,7 @@ const Checklist = () => {
       )}
 
       {/* Quick Actions */}
-      <div style={{ marginTop: 24, display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div style={{ marginTop: 24, display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
         <a href={assetUrl('downloads/Check list (2).pdf')} target="_blank" rel="noreferrer" style={{ ...styles.ghostBtn, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           <DocumentIcon size={16} /> PDF الرسمي
         </a>
@@ -1029,9 +1143,11 @@ const Checklist = () => {
         <div style={{
           marginTop: 24,
           padding: 20,
-          background: `linear-gradient(135deg, ${recommendation.color}15, transparent)`,
+          background: `linear-gradient(135deg, ${recommendation.color}15, rgba(13,17,23,0.8))`,
           border: `1px solid ${recommendation.color}33`,
           borderRadius: 16,
+          position: 'relative',
+          zIndex: 1,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
             <span style={{ fontSize: 32 }}>{recommendation.icon}</span>
@@ -1081,7 +1197,7 @@ const Checklist = () => {
                       color: visitorConfig.color,
                       marginBottom: spacing[1],
                     }}>
-                      {isArabic ? visitorRec.titleAr : visitorRec.titleEn}
+                      {isArabic ? t(visitorRec.titleAr, visitorRec.titleEn) : visitorRec.titleEn}
                     </div>
                     <p style={{
                       margin: 0,
@@ -1089,7 +1205,7 @@ const Checklist = () => {
                       color: colors.text.secondary,
                       lineHeight: typography.lineHeight.relaxed,
                     }}>
-                      {isArabic ? visitorRec.messageAr : visitorRec.messageEn}
+                      {isArabic ? t(visitorRec.messageAr, visitorRec.messageEn) : visitorRec.messageEn}
                     </p>
                   </div>
                   <a
@@ -1107,7 +1223,7 @@ const Checklist = () => {
                       transition: transitions.fast,
                     }}
                   >
-                    {isArabic ? visitorRec.actionAr : visitorRec.actionEn}
+                    {isArabic ? t(visitorRec.actionAr, visitorRec.actionEn) : visitorRec.actionEn}
                   </a>
                 </div>
               </div>
@@ -1155,7 +1271,7 @@ const Checklist = () => {
       )}
 
       {/* Disclaimer */}
-      <div style={{ marginTop: 20, padding: 14, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 12, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+      <div style={{ marginTop: 20, padding: 14, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 12, display: 'flex', alignItems: 'flex-start', gap: 10, position: 'relative', zIndex: 1 }}>
         <AlertIcon size={24} color="#f59e0b" style={{ flexShrink: 0 }} />
         <div>
           <div style={{ fontWeight: 800, color: '#f59e0b', marginBottom: 4, fontSize: 13 }}>تنبيه</div>

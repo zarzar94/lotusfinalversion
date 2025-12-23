@@ -4,7 +4,7 @@ import { useFocusTrap } from '../hooks/useFocusTrap';
 import { pptxSlides } from '../data/pptxSlides';
 import { assetUrl } from '../utils/asset';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
-import { brandCyan, brandPink, brandPurple, styles, transitions, colors, radius, spacing, typography } from './styles';
+import { brandCyan, brandPink, brandPurple, brandPanel, styles, transitions, colors, radius, spacing, typography, labTech } from './styles';
 import { MicroscopeIcon, FlaskIcon, SearchIcon, DownloadIcon, XIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon } from './Icons';
 import { useLanguage } from '../context/LanguageContext';
 import { useVisitorMode, type VisitorMode } from '../context/VisitorModeContext';
@@ -183,8 +183,8 @@ const FlaskSlideCard = memo(({
         padding: '12px 12px 24px 12px',
         border: `2px solid ${isHovered ? brandCyan + '60' : 'rgba(100,100,120,0.2)'}`,
         boxShadow: isHovered
-          ? `0 15px 40px rgba(0,0,0,0.4), 0 0 30px ${brandCyan}20, inset 0 -10px 30px rgba(143,211,204,0.1)`
-          : '0 8px 25px rgba(0,0,0,0.3), inset 0 -10px 30px rgba(143,211,204,0.05)',
+          ? `0 15px 40px rgba(0,0,0,0.4), 0 0 30px ${brandCyan}20, inset 0 -10px 30px ${brandCyan}1A`
+          : '0 8px 25px rgba(0,0,0,0.3), inset 0 -10px 30px ${brandCyan}0D',
         transition: 'all 0.4s ease',
       }}>
         {/* Flask neck */}
@@ -236,8 +236,8 @@ const FlaskSlideCard = memo(({
             position: 'absolute',
             inset: 0,
             backgroundImage: `
-              linear-gradient(rgba(143,211,204,0.05) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(143,211,204,0.05) 1px, transparent 1px)
+              linear-gradient(${brandCyan}0D 1px, transparent 1px),
+              linear-gradient(90deg, ${brandCyan}0D 1px, transparent 1px)
             `,
             backgroundSize: '20px 20px',
             pointerEvents: 'none',
@@ -370,8 +370,8 @@ const MicroscopeModal = ({
           ...styles.modal,
           padding: 0,
           maxWidth: 900,
-          background: 'linear-gradient(180deg, #1a1f2e 0%, #0f1420 100%)',
-          border: '2px solid rgba(143,211,204,0.2)',
+          background: labTech.backgrounds.primary,
+          border: '2px solid ${brandCyan}33',
           borderRadius: 20,
           overflow: 'hidden',
         }}
@@ -380,7 +380,7 @@ const MicroscopeModal = ({
         <div style={{
           padding: '16px 20px',
           background: 'linear-gradient(90deg, rgba(40,45,60,0.9), rgba(30,35,50,0.9))',
-          borderBottom: '1px solid rgba(143,211,204,0.15)',
+          borderBottom: '1px solid ${brandCyan}26',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -461,7 +461,7 @@ const MicroscopeModal = ({
           <div style={{
             position: 'absolute',
             inset: 0,
-            background: isTransitioning ? 'rgba(143,211,204,0.1)' : 'transparent',
+            background: isTransitioning ? '${brandCyan}1A' : 'transparent',
             transition: 'background 0.2s ease',
             pointerEvents: 'none',
             zIndex: 10,
@@ -473,7 +473,7 @@ const MicroscopeModal = ({
             borderRadius: 16,
             overflow: 'hidden',
             border: '4px solid rgba(60,65,80,0.6)',
-            boxShadow: 'inset 0 0 50px rgba(0,0,0,0.8), 0 0 30px rgba(143,211,204,0.1)',
+            boxShadow: 'inset 0 0 50px rgba(0,0,0,0.8), 0 0 30px ${brandCyan}1A',
           }}>
             {/* Microscope circle overlay */}
             <div style={{
@@ -489,8 +489,8 @@ const MicroscopeModal = ({
               position: 'absolute',
               inset: 0,
               backgroundImage: `
-                linear-gradient(rgba(143,211,204,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(143,211,204,0.03) 1px, transparent 1px)
+                linear-gradient(${brandCyan}08 1px, transparent 1px),
+                linear-gradient(90deg, ${brandCyan}08 1px, transparent 1px)
               `,
               backgroundSize: '30px 30px',
               pointerEvents: 'none',
@@ -604,7 +604,7 @@ const MicroscopeModal = ({
               whiteSpace: 'pre-wrap',
               lineHeight: 1.7,
               background: 'rgba(15,22,41,0.7)',
-              border: '1px solid rgba(143,211,204,0.1)',
+              border: '1px solid ${brandCyan}1A',
               borderRadius: 12,
               padding: 14,
               fontFamily: 'inherit',
@@ -893,15 +893,64 @@ const SlideViewer = () => {
       0%, 100% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.2); opacity: 0.7; }
     }
+    @keyframes scanLine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 20px ${brandCyan}20; }
+      50% { box-shadow: 0 0 35px ${brandCyan}40; }
+    }
     .flask-card {
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .flask-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, ${brandCyan}08, transparent);
+      transform: translateX(-100%);
+      pointer-events: none;
     }
     .flask-card:hover {
       transform: translateY(-8px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.4), 0 0 30px ${brandCyan}25;
+    }
+    .flask-card:hover::after {
+      animation: scanLine 1.5s ease-in-out;
+    }
+    .category-btn {
+      transition: all 0.3s ease;
+    }
+    .category-btn:hover {
+      transform: translateY(-2px);
+    }
+    .category-btn.active {
+      animation: glowPulse 2s ease-in-out infinite;
+    }
+    .search-input {
+      transition: all 0.3s ease;
+    }
+    .search-input:focus {
+      border-color: ${brandCyan} !important;
+      box-shadow: 0 0 20px ${brandCyan}30, 0 0 40px ${brandCyan}15 !important;
+      outline: none;
+    }
+    .lab-btn {
+      transition: all 0.3s ease;
+    }
+    .lab-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3), 0 0 20px ${brandCyan}20;
     }
     .category-filters {
       scrollbar-width: thin;
-      scrollbar-color: rgba(143,211,204,0.3) transparent;
+      scrollbar-color: ${brandCyan}4D transparent;
     }
     .category-filters::-webkit-scrollbar {
       height: 4px;
@@ -910,7 +959,7 @@ const SlideViewer = () => {
       background: transparent;
     }
     .category-filters::-webkit-scrollbar-thumb {
-      background: rgba(143,211,204,0.3);
+      background: ${brandCyan}4D;
       border-radius: 4px;
     }
     @media (max-width: 640px) {
@@ -951,8 +1000,8 @@ const SlideViewer = () => {
         position: 'absolute',
         inset: 0,
         backgroundImage: `
-          linear-gradient(rgba(143,211,204,0.02) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(143,211,204,0.02) 1px, transparent 1px)
+          linear-gradient(${brandCyan}05 1px, transparent 1px),
+          linear-gradient(90deg, ${brandCyan}05 1px, transparent 1px)
         `,
         backgroundSize: '40px 40px',
         pointerEvents: 'none',
@@ -968,8 +1017,8 @@ const SlideViewer = () => {
                 alignItems: 'center',
                 gap: 8,
                 padding: '8px 14px',
-                background: 'rgba(143,211,204,0.1)',
-                border: '1px solid rgba(143,211,204,0.2)',
+                background: '${brandCyan}1A',
+                border: '1px solid ${brandCyan}33',
                 borderRadius: 10,
               }}>
                 <FlaskIcon size={16} color={brandCyan} />
@@ -1030,6 +1079,7 @@ const SlideViewer = () => {
                 }}
               />
               <input
+                className="search-input"
                 style={{
                   ...styles.input,
                   width: '100%',
@@ -1037,13 +1087,14 @@ const SlideViewer = () => {
                 }}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={'ابحث في العينات (مثال: APD، "auditory processing"، #12، 5-10، 12 15، apd|hyperacusis...)'}
+                placeholder={isArabic ? 'ابحث في العينات (مثال: APD، #12، 5-10...)' : 'Search samples (e.g., APD, #12, 5-10...)'}
               />
             </div>
             <a
               href={assetUrl('downloads/berard-profile.pdf')}
               target="_blank"
               rel="noreferrer"
+              className="lab-btn"
               style={{
                 ...styles.ghostBtn,
                 textDecoration: 'none',
@@ -1053,12 +1104,15 @@ const SlideViewer = () => {
               }}
             >
               <MicroscopeIcon size={16} />
-              ملف المختبر
+              {isArabic ? 'ملف المختبر' : 'Lab Profile'}
             </a>
           </div>
 
           <p style={{ ...styles.muted, fontSize: 12, opacity: 0.75 }}>
-            تلميح البحث: <b>#12</b> أو <b>5-10</b> أو <b>12, 15, 18</b> أو <b>12 15 18</b> أو <b>"auditory processing"</b> أو <b>apd|hyperacusis</b>
+            {isArabic
+              ? <>تلميح البحث: <b>#12</b> أو <b>5-10</b> أو <b>12, 15</b> أو <b>"auditory"</b></>
+              : <>Search tip: <b>#12</b> or <b>5-10</b> or <b>12, 15</b> or <b>"auditory"</b></>
+            }
           </p>
 
           {/* Category Filter Tabs - Visitor Mode Aware */}
@@ -1088,6 +1142,7 @@ const SlideViewer = () => {
                 <button
                   key={category.id}
                   type="button"
+                  className={`category-btn ${isActive ? 'active' : ''}`}
                   onClick={() => setActiveCategory(category.id)}
                   style={{
                     display: 'flex',
@@ -1103,8 +1158,8 @@ const SlideViewer = () => {
                     fontSize: 12,
                     fontWeight: 700,
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease',
                     position: 'relative',
+                    boxShadow: isActive ? `0 0 20px ${category.color}30` : 'none',
                   }}
                   aria-pressed={isActive}
                   aria-label={isArabic ? category.labelAr : category.labelEn}
@@ -1129,7 +1184,7 @@ const SlideViewer = () => {
                       height: 12,
                       borderRadius: '50%',
                       background: visitorConfig.color,
-                      border: '2px solid #1a1f2e',
+                      border: `2px solid ${brandPanel}`,
                       animation: 'pulse 2s infinite',
                     }} />
                   )}

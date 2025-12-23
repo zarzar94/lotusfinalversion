@@ -30,7 +30,10 @@ import {
   spacing,
   radius,
   transitions,
-} from '../styles';
+  dashboardExport,
+  analytics,
+} from '../../styles';
+import LongitudinalCharts from '../dashboards/LongitudinalCharts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -62,7 +65,7 @@ const MOCK_CHILDREN: ChildData[] = [
   {
     id: 'child_1',
     name: 'Ahmed',
-    nameAr: 'أحمد',
+    nameAr: 'auto.ParentDashboard.k19',
     age: 8,
     sessionsCompleted: 12,
     totalSessions: 20,
@@ -77,7 +80,7 @@ const MOCK_CHILDREN: ChildData[] = [
   {
     id: 'child_2',
     name: 'Sara',
-    nameAr: 'سارة',
+    nameAr: 'auto.ParentDashboard.k20',
     age: 6,
     sessionsCompleted: 6,
     totalSessions: 20,
@@ -95,7 +98,7 @@ const getMilestones = (sessions: number): Milestone[] => [
   {
     id: 'first_session',
     title: 'First Session',
-    titleAr: 'الجلسة الأولى',
+    titleAr: 'auto.ParentDashboard.k21',
     achieved: sessions >= 1,
     achievedAt: sessions >= 1 ? Date.now() - 86400000 * 10 : undefined,
     icon: '🎯',
@@ -105,7 +108,7 @@ const getMilestones = (sessions: number): Milestone[] => [
   {
     id: 'week_one',
     title: '5 Sessions Complete',
-    titleAr: '5 جلسات مكتملة',
+    titleAr: 'auto.ParentDashboard.k22',
     achieved: sessions >= 5,
     achievedAt: sessions >= 5 ? Date.now() - 86400000 * 7 : undefined,
     icon: '📅',
@@ -115,7 +118,7 @@ const getMilestones = (sessions: number): Milestone[] => [
   {
     id: 'halfway',
     title: 'Halfway There',
-    titleAr: 'منتصف الطريق',
+    titleAr: 'auto.ParentDashboard.k23',
     achieved: sessions >= 10,
     achievedAt: sessions >= 10 ? Date.now() - 86400000 * 3 : undefined,
     icon: '⭐',
@@ -125,7 +128,7 @@ const getMilestones = (sessions: number): Milestone[] => [
   {
     id: 'almost_done',
     title: '15 Sessions',
-    titleAr: '15 جلسة',
+    titleAr: 'auto.ParentDashboard.k24',
     achieved: sessions >= 15,
     icon: '🚀',
     category: 'mastery',
@@ -134,7 +137,7 @@ const getMilestones = (sessions: number): Milestone[] => [
   {
     id: 'graduate',
     title: 'Program Graduate',
-    titleAr: 'خريج البرنامج',
+    titleAr: 'auto.ParentDashboard.k25',
     achieved: sessions >= 20,
     icon: '🎓',
     category: 'mastery',
@@ -157,6 +160,7 @@ const ChildProgressCard = memo(({
   isExpanded: boolean;
   onToggle: () => void;
 }) => {
+  const { t } = useLanguage();
   const progressPercent = Math.round((child.sessionsCompleted / child.totalSessions) * 100);
   const milestones = getMilestones(child.sessionsCompleted);
 
@@ -168,17 +172,17 @@ const ChildProgressCard = memo(({
   };
 
   const phaseLabels = {
-    assessment: { en: 'Assessment', ar: 'تقييم' },
-    active: { en: 'Active Treatment', ar: 'علاج نشط' },
-    maintenance: { en: 'Maintenance', ar: 'صيانة' },
-    completed: { en: 'Completed', ar: 'مكتمل' },
+    assessment: { en: 'Assessment', ar: 'auto.ParentDashboard.k34' },
+    active: { en: 'Active Treatment', ar: 'auto.ParentDashboard.k35' },
+    maintenance: { en: 'Maintenance', ar: 'auto.ParentDashboard.k36' },
+    completed: { en: 'Completed', ar: 'auto.ParentDashboard.k37' },
   };
 
   const getTimeAgo = (timestamp: number): string => {
     const diff = Date.now() - timestamp;
     const days = Math.floor(diff / 86400000);
-    if (days === 0) return isArabic ? 'اليوم' : 'Today';
-    if (days === 1) return isArabic ? 'أمس' : 'Yesterday';
+    if (days === 0) return t('auto.ParentDashboard.k1', "Today");
+    if (days === 1) return t('auto.ParentDashboard.k2', "Yesterday");
     return isArabic ? `منذ ${days} أيام` : `${days} days ago`;
   };
 
@@ -230,7 +234,7 @@ const ChildProgressCard = memo(({
                 color: colors.text.primary,
               }}
             >
-              {isArabic ? child.nameAr : child.name}
+              {isArabic ? t(child.nameAr, child.name) : child.name}
             </div>
             <div
               style={{
@@ -350,7 +354,7 @@ const ChildProgressCard = memo(({
               }}
             >
               <span style={{ color: colors.text.secondary }}>
-                {isArabic ? 'تقدم الجلسات' : 'Session Progress'}
+                {t('auto.ParentDashboard.k3', "Session Progress")}
               </span>
               <span style={{ color: brandCyan, fontWeight: typography.weight.bold }}>
                 {child.sessionsCompleted}/{child.totalSessions}
@@ -386,19 +390,19 @@ const ChildProgressCard = memo(({
             }}
           >
             <ScoreCard
-              label={isArabic ? 'الانتباه' : 'Attention'}
+              label={t('auto.ParentDashboard.k4', "Attention")}
               value={child.attentionScore}
               icon="🎯"
               color={brandCyan}
             />
             <ScoreCard
-              label={isArabic ? 'سرعة المعالجة' : 'Processing'}
+              label={t('auto.ParentDashboard.k5', "Processing")}
               value={child.processingSpeed}
               icon="⚡"
               color={brandPurple}
             />
             <ScoreCard
-              label={isArabic ? 'التمييز السمعي' : 'Auditory'}
+              label={t('auto.ParentDashboard.k6', "Auditory")}
               value={child.auditoryDiscrimination}
               icon="👂"
               color={brandPink}
@@ -426,7 +430,7 @@ const ChildProgressCard = memo(({
                 color: colors.text.primary,
               }}
             >
-              {isArabic ? 'نشاط الأسبوع' : 'Weekly Activity'}
+              {t('auto.ParentDashboard.k7', "Weekly Activity")}
             </h4>
             <div style={{ display: 'flex', gap: spacing[2], alignItems: 'flex-end', height: 60 }}>
               {['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((day, i) => (
@@ -465,7 +469,7 @@ const ChildProgressCard = memo(({
               textAlign: 'center',
             }}
           >
-            {isArabic ? 'آخر نشاط: ' : 'Last activity: '}
+            {t('auto.ParentDashboard.k8', "Last activity: ")}
             {getTimeAgo(child.lastActivity)}
           </div>
         </div>
@@ -534,7 +538,7 @@ ScoreCard.displayName = 'ScoreCard';
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function ParentDashboard() {
-  const { isArabic, direction } = useLanguage();
+  const { isArabic, direction, t } = useLanguage();
   const { user } = useUser();
   const hasAccess = usePermission('view_child_reports');
   const [expandedChild, setExpandedChild] = useState<string | null>(MOCK_CHILDREN[0]?.id || null);
@@ -566,12 +570,10 @@ export default function ParentDashboard() {
       >
         <div style={{ fontSize: 48, marginBottom: spacing[4] }}>🔒</div>
         <h2 style={{ color: colors.text.primary, marginBottom: spacing[2] }}>
-          {isArabic ? 'الوصول مقيد' : 'Access Restricted'}
+          {t('auto.ParentDashboard.k9', "Access Restricted")}
         </h2>
         <p>
-          {isArabic
-            ? 'يجب أن تكون ولي أمر للوصول إلى هذه اللوحة'
-            : 'You must be a parent to access this dashboard'}
+          {t('auto.ParentDashboard.k10', "You must be a parent to access this dashboard")}
         </p>
       </div>
     );
@@ -621,10 +623,10 @@ export default function ParentDashboard() {
                 fontSize: typography.size['3xl'],
                 fontWeight: typography.weight.black,
                 color: colors.text.primary,
-                fontFamily: typography.fontFamily,
+                fontFamily: typography.fontFamily.primary,
               }}
             >
-              {isArabic ? 'لوحة ولي الأمر' : 'Parent Dashboard'}
+              {t('auto.ParentDashboard.k11', "Parent Dashboard")}
             </h1>
             <p style={{ margin: 0, color: colors.text.secondary, fontSize: typography.size.sm }}>
               {isArabic
@@ -640,34 +642,53 @@ export default function ParentDashboard() {
         <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
           <StatCard
             variant="centered"
-            label={isArabic ? 'إجمالي الجلسات' : 'Total Sessions'}
+            label={t('auto.ParentDashboard.k12', "Total Sessions")}
             value={overallStats.totalSessions}
             icon="📊"
             color={brandCyan}
           />
           <StatCard
             variant="centered"
-            label={isArabic ? 'متوسط التقدم' : 'Avg Progress'}
+            label={t('auto.ParentDashboard.k13', "Avg Progress")}
             value={`${overallStats.avgProgress}%`}
             icon="📈"
             color={brandPurple}
           />
           <StatCard
             variant="centered"
-            label={isArabic ? 'أطفال نشطون' : 'Active Children'}
+            label={t('auto.ParentDashboard.k14', "Active Children")}
             value={overallStats.activeChildren}
             icon="👶"
             color={brandPink}
           />
           <StatCard
             variant="centered"
-            label={isArabic ? 'إجمالي الاستمرارية' : 'Total Streaks'}
+            label={t('auto.ParentDashboard.k15', "Total Streaks")}
             value={overallStats.totalStreak}
             icon="🔥"
             color="#f59e0b"
           />
         </div>
       </PageTransition>
+
+      {/* Longitudinal Trend */}
+      <div style={{ marginBottom: spacing[8] }}>
+        <h2
+          style={{
+            margin: `0 0 ${spacing[4]}px`,
+            fontSize: typography.size.xl,
+            fontWeight: typography.weight.bold,
+            color: colors.text.primary,
+          }}
+        >
+          {t('dashboard.trends', 'Trends')}
+        </h2>
+        <LongitudinalCharts
+          moduleId="attention"
+          variant="parent"
+          title={t('games.attention', 'Attention Test')}
+        />
+      </div>
 
       {/* Children List */}
       <div>
@@ -679,7 +700,7 @@ export default function ParentDashboard() {
             color: colors.text.primary,
           }}
         >
-          {isArabic ? 'تقدم الأطفال' : "Children's Progress"}
+          {t('auto.ParentDashboard.k16', "Children's Progress")}
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
           {children.map((child) => (
@@ -774,30 +795,30 @@ export default function ParentDashboard() {
           {
             id: '1',
             title: 'Daily Sessions',
-            titleAr: 'الجلسات اليومية',
+            titleAr: 'auto.ParentDashboard.k26',
             content: 'Encourage your child to complete daily sessions to maintain streaks',
-            contentAr: 'شجع طفلك على إكمال الجلسات اليومية للحفاظ على الاستمرارية',
+            contentAr: 'auto.ParentDashboard.k27',
           },
           {
             id: '2',
             title: 'Track Improvements',
-            titleAr: 'متابعة التحسن',
+            titleAr: 'auto.ParentDashboard.k28',
             content: 'Monitor attention and processing scores to track improvement',
-            contentAr: 'راقب درجات الانتباه والمعالجة لمتابعة التحسن',
+            contentAr: 'auto.ParentDashboard.k29',
           },
           {
             id: '3',
             title: 'Reach Out Early',
-            titleAr: 'تواصل مبكراً',
+            titleAr: 'auto.ParentDashboard.k30',
             content: 'Contact the clinician if you notice any regression',
-            contentAr: 'تواصل مع الطبيب المعالج إذا لاحظت أي تراجع',
+            contentAr: 'auto.ParentDashboard.k31',
           },
           {
             id: '4',
             title: 'Celebrate Milestones',
-            titleAr: 'الاحتفال بالإنجازات',
+            titleAr: 'auto.ParentDashboard.k32',
             content: 'Celebrate milestones with your child to keep them motivated',
-            contentAr: 'احتفل بالإنجازات مع طفلك للحفاظ على حماسه',
+            contentAr: 'auto.ParentDashboard.k33',
           },
         ]}
       />
@@ -806,9 +827,9 @@ export default function ParentDashboard() {
       {children.some(c => c.streak === 0 && c.treatmentPhase === 'active') && (
         <div style={{ marginTop: spacing[4] }}>
           <InfoCard
-            title={isArabic ? 'تنبيه: نشاط منخفض' : 'Alert: Low Activity'}
+            title={t('auto.ParentDashboard.k17', "Alert: Low Activity")}
             titleAr="تنبيه: نشاط منخفض"
-            content={`${children.filter(c => c.streak === 0).length} ${isArabic ? 'أطفال لم يمارسوا مؤخراً' : 'children haven\'t practiced recently'}`}
+            content={`${children.filter(c => c.streak === 0).length} ${t('auto.ParentDashboard.k18', "children haven't practiced recently")}`}
             contentAr={`${children.filter(c => c.streak === 0).length} أطفال لم يمارسوا مؤخراً`}
             variant="warning"
             isArabic={isArabic}

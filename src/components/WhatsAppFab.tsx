@@ -2,6 +2,8 @@ import { memo, useState, useCallback } from 'react';
 import { CLINIC } from '../data/clinic';
 import { handleWhatsApp } from '../utils/whatsapp';
 import { useLanguage } from '../context/LanguageContext';
+import { positionInlineStart } from '../utils/rtl';
+import { keyframes } from '../utils/animations';
 import { radius, brandColors, transitions } from './styles';
 
 // WhatsApp brand colors
@@ -9,7 +11,7 @@ const WHATSAPP_GREEN = brandColors.whatsapp;
 const WHATSAPP_DARK = '#128C7E';
 
 const WhatsAppFab = memo(() => {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
 
   // Bilingual WhatsApp message
@@ -21,7 +23,7 @@ const WhatsAppFab = memo(() => {
   }, [isArabic]);
 
   // Bilingual tooltip & aria-label
-  const label = isArabic ? 'تواصل عبر واتساب' : 'Chat on WhatsApp';
+  const label = t('auto.WhatsAppFab.k1', "Chat on WhatsApp");
 
   const handleClick = useCallback(() => {
     handleWhatsApp(getMessage());
@@ -40,8 +42,7 @@ const WhatsAppFab = memo(() => {
       style={{
         position: 'fixed',
         bottom: 140,
-        right: isArabic ? 'auto' : 24,
-        left: isArabic ? 24 : 'auto',
+        ...positionInlineStart(isArabic, 24),
         width: 56,
         height: 56,
         borderRadius: radius.full,
@@ -90,22 +91,10 @@ const WhatsAppFab = memo(() => {
       )}
 
       <style>{`
-        @keyframes whatsappPulse {
-          0% {
-            transform: scale(1);
-            opacity: 0.6;
-          }
-          100% {
-            transform: scale(1.4);
-            opacity: 0;
-          }
-        }
+        ${keyframes.pulseRing.replace('pulseRing', 'whatsappPulse').replace('scale(2)', 'scale(1.4)')}
         @media (prefers-reduced-motion: reduce) {
           @keyframes whatsappPulse {
-            0%, 100% {
-              transform: scale(1);
-              opacity: 0.4;
-            }
+            0%, 100% { transform: scale(1); opacity: 0.4; }
           }
         }
       `}</style>

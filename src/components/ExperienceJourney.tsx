@@ -291,17 +291,11 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
         >
           {steps.map((step, index) => {
             const isActive = step.id === activeId;
-            const titleId = `${step.id}-title`;
-            const descriptionId = `${step.id}-description`;
             return (
-              <article
+              <div
                 key={step.id}
-                role="button"
-                tabIndex={0}
-                aria-pressed={isActive}
-                aria-labelledby={titleId}
-                aria-describedby={descriptionId}
                 onClick={() => setActiveId(step.id)}
+                onMouseEnter={() => setActiveId(step.id)}
                 onFocus={() => setActiveId(step.id)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
@@ -309,6 +303,9 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
                     setActiveId(step.id);
                   }
                 }}
+                role="button"
+                tabIndex={0}
+                aria-pressed={isActive}
                 style={{
                   textAlign: isArabic ? 'right' : 'left',
                   background: isActive
@@ -323,8 +320,6 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
                   transition: 'transform 220ms ease, border-color 200ms ease, box-shadow 240ms ease',
                   transform: isActive ? 'translateY(-4px) scale(1.01)' : 'translateY(0) scale(1)',
                   boxShadow: isActive ? `${shadows.lg}, 0 0 0 1px ${step.accent}40` : shadows.sm,
-                  outline: isActive ? `2px solid ${step.accent}` : 'none',
-                  outlineOffset: 2,
                 }}
               >
                 <div
@@ -363,7 +358,7 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
                     >
                       {index + 1}
                     </div>
-                    <div id={titleId} style={{ flex: 1 }}>
+                    <div style={{ flex: 1 }}>
                       <h3
                         style={{
                           margin: 0,
@@ -375,7 +370,6 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
                         {isArabic ? step.titleAr : step.title}
                       </h3>
                       <p
-                        id={descriptionId}
                         style={{
                           margin: `${spacing[1]}px 0 0`,
                           color: colors.text.secondary,
@@ -433,6 +427,7 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
                     }}
                   >
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(step.path);
@@ -453,7 +448,7 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
                     </button>
                   </div>
                 </div>
-              </article>
+              </div>
             );
           })}
         </div>

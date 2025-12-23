@@ -1,32 +1,33 @@
-import { memo, useState, useEffect, useCallback, useMemo } from 'react';
+import { memo, useState, useCallback, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useVisitorMode } from '../context/VisitorModeContext';
 import { useLanguage } from '../context/LanguageContext';
-import { brandCyan, brandPurple, brandPink, colors, radius, spacing, typography, transitions, shadows } from './styles';
+import { useScrollState } from '../hooks/useScrollManager';
+import { positionInlineStart, positionInlineEnd } from '../utils/rtl';
+import { colors, radius, spacing, typography, transitions } from './styles';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STICKY SMART CTA
 // An adaptive floating CTA that changes based on visitor mode
+// Uses consolidated scroll manager for better performance
 // ═══════════════════════════════════════════════════════════════════════════
 
 const StickySmartCTA = memo(function StickySmartCTA() {
   const { config, isSchool, isParent, isClinician } = useVisitorMode();
   const { isArabic } = useLanguage();
-  const [isVisible, setIsVisible] = useState(false);
+  const { scrollY } = useScrollState();
   const [isMinimized, setIsMinimized] = useState(false);
+  const [threshold, setThreshold] = useState(400);
+
+  // Calculate threshold on mount (window.innerHeight not available in SSR)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setThreshold(window.innerHeight * 0.5);
+    }
+  }, []);
 
   // Show CTA after scrolling past hero section
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const threshold = window.innerHeight * 0.5;
-      setIsVisible(scrollY > threshold);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const isVisible = scrollY > threshold;
 
   const toggleMinimize = useCallback(() => {
     setIsMinimized(prev => !prev);
@@ -95,8 +96,7 @@ const StickySmartCTA = memo(function StickySmartCTA() {
         style={{
           position: 'fixed',
           bottom: spacing[5],
-          left: isArabic ? spacing[5] : 'auto',
-          right: isArabic ? 'auto' : spacing[5],
+          ...positionInlineStart(isArabic, spacing[5]),
           zIndex: 90,
           maxWidth: isMinimized ? 56 : 380,
           transition: 'max-width 0.3s ease',
@@ -141,8 +141,7 @@ const StickySmartCTA = memo(function StickySmartCTA() {
               style={{
                 position: 'absolute',
                 top: -8,
-                right: isArabic ? 'auto' : -8,
-                left: isArabic ? -8 : 'auto',
+                ...positionInlineEnd(isArabic, -8),
                 width: 24,
                 height: 24,
                 borderRadius: '50%',

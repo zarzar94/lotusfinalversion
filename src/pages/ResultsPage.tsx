@@ -32,7 +32,7 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
   <div
     style={{
       textAlign: 'center',
-      padding: `${spacing[12]}px ${spacing[4]}px ${spacing[8]}px`,
+      padding: `0 ${spacing[4]}px ${spacing[8]}px`,
       maxWidth: 800,
       margin: '0 auto',
     }}

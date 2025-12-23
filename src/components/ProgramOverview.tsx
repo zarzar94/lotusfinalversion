@@ -49,20 +49,20 @@ const ProgramOverview = () => {
             يساعد في بناء خطة دعم للطلاب.
           </p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
-            <a href="#games" style={{ ...styles.primaryBtn, textDecoration: 'none' }}>ابدأ التجربة التفاعلية</a>
-            <a href="#schools" style={{ ...styles.ghostBtn, textDecoration: 'none' }}>شراكات المدارس</a>
+            <a href="/assessment#games" style={{ ...styles.primaryBtn, textDecoration: 'none' }}>ابدأ التجربة التفاعلية</a>
+            <a href="/partners#schools" style={{ ...styles.ghostBtn, textDecoration: 'none' }}>شراكات المدارس</a>
           </div>
         </div>
       </div>
 
       <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-        <a href="#results" style={{ ...styles.primaryBtn, textDecoration: 'none', background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}>
+        <a href="/results#results" style={{ ...styles.primaryBtn, textDecoration: 'none', background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}>
           شاهد أمثلة نتائج (قبل/بعد)
         </a>
-        <a href="#checklist" style={{ ...styles.ghostBtn, textDecoration: 'none', borderColor: 'rgba(143,211,204,0.25)' }}>
+        <a href="/assessment#checklist" style={{ ...styles.ghostBtn, textDecoration: 'none', borderColor: 'rgba(143,211,204,0.25)' }}>
           ابدأ بقائمة التحقق
         </a>
-        <a href="#contact" style={{ ...styles.ghostBtn, textDecoration: 'none', color: brandCyan }}>
+        <a href="/contact#contact" style={{ ...styles.ghostBtn, textDecoration: 'none', color: brandCyan }}>
           احجز / تواصل الآن
         </a>
       </div>

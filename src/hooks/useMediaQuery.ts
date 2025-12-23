@@ -44,7 +44,23 @@ export function useMediaQuery(query: string): boolean {
 /**
  * Get responsive breakpoint states
  */
-export function useBreakpoints() {
+interface BreakpointState {
+  isXs: boolean;
+  isSm: boolean;
+  isMd: boolean;
+  isLg: boolean;
+  isXl: boolean;
+  isMobile: boolean;
+  isTablet: boolean;
+  isDesktop: boolean;
+  isPhoneOnly: boolean;
+  isTabletUp: boolean;
+  isTabletOnly: boolean;
+  isDesktopUp: boolean;
+  current: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+}
+
+export function useBreakpoints(): BreakpointState {
   const isXs = useMediaQuery(`(max-width: ${breakpoints.xs}px)`);
   const isSm = useMediaQuery(`(max-width: ${breakpoints.sm}px)`);
   const isMd = useMediaQuery(`(max-width: ${breakpoints.md}px)`);
@@ -78,7 +94,7 @@ export function useBreakpoints() {
 /**
  * Get window dimensions with resize listener
  */
-export function useWindowSize() {
+export function useWindowSize(): { width: number; height: number } {
   const [size, setSize] = useState(() => ({
     width: typeof window !== 'undefined' ? window.innerWidth : 0,
     height: typeof window !== 'undefined' ? window.innerHeight : 0,
@@ -115,13 +131,6 @@ export function useIsTouchDevice(): boolean {
   }, []);
 
   return isTouch;
-}
-
-/**
- * Detect reduced motion preference
- */
-export function usePrefersReducedMotion(): boolean {
-  return useMediaQuery('(prefers-reduced-motion: reduce)');
 }
 
 export default useMediaQuery;

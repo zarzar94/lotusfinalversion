@@ -9,46 +9,39 @@ import { useLanguage } from '../context/LanguageContext';
 
 // Role-specific contact configurations
 interface RoleContactConfig {
-  quickMessageEn: string;
-  quickMessageAr: string;
-  placeholderEn: string;
-  placeholderAr: string;
-  badgesEn: string[];
-  badgesAr: string[];
-  headerSubtitleEn: string;
-  headerSubtitleAr: string;
+  quickMessageKey: string;
+  placeholderKey: string;
+  badgeKeys: string[];
+  headerSubtitleKey: string;
 }
 
 const ROLE_CONTACT_CONFIG: Record<VisitorMode, RoleContactConfig> = {
   school: {
-    quickMessageEn: 'Hello, I would like to inquire about school partnership and screening programs for Berard AIT',
-    quickMessageAr: 'مرحباً، أود الاستفسار عن شراكة المدارس وبرامج الفحص لـ Berard AIT',
-    placeholderEn: 'Write about partnership inquiry, demo request, or screening program for students...',
-    placeholderAr: 'اكتب عن طلب شراكة، عرض تجريبي، أو برنامج فحص للطلاب...',
-    badgesEn: ['School Partnership', 'Group Screening'],
-    badgesAr: ['شراكة مدرسية', 'فحص جماعي'],
-    headerSubtitleEn: 'Ready for school partnerships and group screening coordination',
-    headerSubtitleAr: 'جاهزون لشراكات المدارس وتنسيق برامج الفحص الجماعي',
+    quickMessageKey: 'contactForm.roles.school.quickMessage',
+    placeholderKey: 'contactForm.roles.school.placeholder',
+    badgeKeys: [
+      'contactForm.roles.school.badgePrimary',
+      'contactForm.roles.school.badgeSecondary',
+    ],
+    headerSubtitleKey: 'contactForm.roles.school.subtitle',
   },
   parent: {
-    quickMessageEn: 'Hello, I would like to book a screening for my child for Berard AIT program',
-    quickMessageAr: 'مرحباً، أود حجز موعد فحص لطفلي لبرنامج Berard AIT',
-    placeholderEn: 'Write about your child\'s condition, goals, or questions...',
-    placeholderAr: 'اكتب نبذة عن حالة طفلك، الأهداف، أو استفساراتك...',
-    badgesEn: ['Free Consultation', 'Child Assessment'],
-    badgesAr: ['استشارة مجانية', 'تقييم الطفل'],
-    headerSubtitleEn: 'Ready to support families with personalized care',
-    headerSubtitleAr: 'جاهزون لدعم العائلات برعاية شخصية',
+    quickMessageKey: 'contactForm.roles.parent.quickMessage',
+    placeholderKey: 'contactForm.roles.parent.placeholder',
+    badgeKeys: [
+      'contactForm.roles.parent.badgePrimary',
+      'contactForm.roles.parent.badgeSecondary',
+    ],
+    headerSubtitleKey: 'contactForm.roles.parent.subtitle',
   },
   clinician: {
-    quickMessageEn: 'Hello, I am a healthcare professional interested in Berard AIT protocols and referral partnership',
-    quickMessageAr: 'مرحباً، أنا متخصص في الرعاية الصحية ومهتم ببروتوكولات Berard AIT وشراكة الإحالة',
-    placeholderEn: 'Write about professional inquiry, referral process, or clinical collaboration...',
-    placeholderAr: 'اكتب عن استفسار مهني، عملية الإحالة، أو التعاون السريري...',
-    badgesEn: ['Professional Network', 'Clinical Referrals'],
-    badgesAr: ['شبكة مهنية', 'إحالات سريرية'],
-    headerSubtitleEn: 'Professional collaboration and clinical referrals',
-    headerSubtitleAr: 'تعاون مهني وإحالات سريرية',
+    quickMessageKey: 'contactForm.roles.clinician.quickMessage',
+    placeholderKey: 'contactForm.roles.clinician.placeholder',
+    badgeKeys: [
+      'contactForm.roles.clinician.badgePrimary',
+      'contactForm.roles.clinician.badgeSecondary',
+    ],
+    headerSubtitleKey: 'contactForm.roles.clinician.subtitle',
   },
 };
 
@@ -140,7 +133,6 @@ const textareaStyle: React.CSSProperties = {
   fontSize: 16,
   outline: 'none',
   resize: 'none',
-  direction: 'rtl',
   fontFamily: 'inherit',
 };
 
@@ -183,6 +175,52 @@ const iosScrollCss = `
   @keyframes pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
+  }
+  @keyframes iphoneGlow {
+    0%, 100% { box-shadow: 0 0 0 2px #1a1a1a, 0 50px 100px rgba(0,0,0,0.5), inset 0 0 30px rgba(255,255,255,0.02), 0 0 40px ${brandCyan}15; }
+    50% { box-shadow: 0 0 0 2px #1a1a1a, 0 50px 100px rgba(0,0,0,0.5), inset 0 0 30px rgba(255,255,255,0.02), 0 0 60px ${brandCyan}25; }
+  }
+  @keyframes scanLineContact {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+  .iphone-frame {
+    animation: iphoneGlow 4s ease-in-out infinite;
+  }
+  .iphone-frame::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 30%;
+    background: linear-gradient(180deg, transparent, ${brandCyan}05, transparent);
+    animation: scanLineContact 6s linear infinite;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+  .contact-input:focus {
+    border-color: ${brandCyan} !important;
+    box-shadow: 0 0 15px ${brandCyan}30 !important;
+  }
+  .contact-submit-btn {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 25px ${brandCyan}30;
+  }
+  .contact-submit-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
+    transform: translateX(-100%);
+  }
+  .contact-submit-btn:hover::after {
+    animation: scanLineContact 0.8s ease-out;
   }
   @media (max-width: 420px) {
     .iphone-frame {
@@ -354,15 +392,23 @@ const IOSTextarea = memo(({
   onChange,
   placeholder,
   maxLength,
+  dir = 'rtl',
 }: {
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
   maxLength?: number;
+  dir?: 'rtl' | 'ltr';
 }) => {
+  const { isArabic, t } = useLanguage();
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(maxLength ? e.target.value.slice(0, maxLength) : e.target.value);
   }, [onChange, maxLength]);
+
+  const style = useMemo<React.CSSProperties>(() => ({
+    ...textareaStyle,
+    direction: dir,
+  }), [dir]);
 
   return (
     <div style={{ position: 'relative' }}>
@@ -372,10 +418,11 @@ const IOSTextarea = memo(({
         placeholder={placeholder}
         maxLength={maxLength}
         rows={4}
-        style={textareaStyle}
+        dir={dir}
+        style={style}
       />
       {maxLength && (
-        <span style={{ position: 'absolute', bottom: 8, left: 12, fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
+        <span style={{ position: 'absolute', bottom: 8, insetInlineStart: 12, fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
           {value.length}/{maxLength}
         </span>
       )}
@@ -464,7 +511,7 @@ LinkedInIcon.displayName = 'LinkedInIcon';
 const ScrollProgressIndicator = memo(({ progress }: { progress: number }) => (
   <div style={{
     position: 'absolute',
-    right: 8,
+    insetInlineEnd: 8,
     top: 70,
     bottom: 60,
     width: 3,
@@ -528,7 +575,7 @@ AnimatedFormField.displayName = 'AnimatedFormField';
 
 const ContactForm = () => {
   const { mode: visitorMode, config: visitorConfig } = useVisitorMode();
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -542,6 +589,10 @@ const ContactForm = () => {
 
   // Get role-specific contact config
   const roleConfig = ROLE_CONTACT_CONFIG[visitorMode];
+  const roleQuickMessage = t(roleConfig.quickMessageKey);
+  const rolePlaceholder = t(roleConfig.placeholderKey);
+  const roleBadges = roleConfig.badgeKeys.map((key) => t(key));
+  const roleSubtitle = t(roleConfig.headerSubtitleKey);
 
   useEffect(() => {
     const updateTime = () => {
@@ -590,16 +641,22 @@ const ContactForm = () => {
   const onSubmit = useCallback((event: FormEvent) => {
     event.preventDefault();
     if (!requiredValid) return;
-    const details = `الاسم: ${name}\nرقم الهاتف: ${phone}\nالبريد الإلكتروني: ${email || '—'}\n\nالرسالة:\n${message}`;
+    const details = [
+      `${t('contactForm.details.name')}: ${name}`,
+      `${t('contactForm.details.whatsapp')}: ${phone}`,
+      `${t('contactForm.details.email')}: ${email || t('contactForm.details.emailFallback')}`,
+      '',
+      `${t('contactForm.details.message')}:`,
+      message,
+    ].join('\n');
     handleWhatsApp(details);
     setSubmitted(true);
-  }, [requiredValid, name, phone, email, message]);
+  }, [requiredValid, name, phone, email, message, t]);
 
   const handleQuickWhatsApp = useCallback(() => {
-    const quickMessage = isArabic ? roleConfig.quickMessageAr : roleConfig.quickMessageEn;
-    handleWhatsApp(quickMessage);
+    handleWhatsApp(roleQuickMessage);
     setSubmitted(true);
-  }, [isArabic, roleConfig]);
+  }, [roleQuickMessage]);
 
   const handleEmailClick = useCallback(() => {
     window.open(`mailto:${CLINIC.email}`);
@@ -688,11 +745,11 @@ const ContactForm = () => {
           fontWeight: 700,
           color: visitorConfig.color,
         }}>
-          {visitorConfig.icon} {isArabic ? visitorConfig.labelAr : visitorConfig.label}
+          {visitorConfig.icon} {isArabic ? t(visitorConfig.labelAr, visitorConfig.label) : visitorConfig.label}
         </div>
-        <h2 className="contact-header-text" style={headerStyle}>{isArabic ? 'تواصل معنا' : 'Contact Us'}</h2>
+        <h2 className="contact-header-text" style={headerStyle}>{t('contactForm.headerTitle')}</h2>
         <p className="contact-subtext" style={{ margin: 0, opacity: 0.7, fontSize: 14, lineHeight: 1.6 }}>
-          {isArabic ? roleConfig.headerSubtitleAr : roleConfig.headerSubtitleEn}
+          {roleSubtitle}
         </p>
       </div>
 
@@ -712,24 +769,22 @@ const ContactForm = () => {
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <h3 style={{ margin: '0 0 4px', fontSize: 28, fontWeight: 400, color: '#fff' }}>Berard AIT</h3>
-                  <p style={{ margin: 0, fontSize: 18, color: brandCyan }}>جاري الاتصال عبر WhatsApp...</p>
+                  <p style={{ margin: 0, fontSize: 18, color: brandCyan }}>{t('contactForm.submittedMessage')}</p>
                 </div>
               </div>
 
               <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 16, padding: '16px 24px', textAlign: 'center', width: '100%', maxWidth: 300 }}>
-                <p style={{ margin: '0 0 8px', fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>تم فتح WhatsApp</p>
+                <p style={{ margin: '0 0 8px', fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>{t('contactForm.submittedVia')}</p>
                 <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,0.5)', direction: 'ltr' }}>{CLINIC.whatsapp}</p>
               </div>
 
               <div style={{ display: 'flex', gap: 40, marginTop: 20 }}>
-                <CallActionButton icon={<EmailIcon />} label="البريد" onClick={handleEmailClick} />
-                <CallActionButton icon={<PhoneIcon />} label="إعادة" color={brandColors.success} onClick={handleReset} />
-                <CallActionButton icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.55 0 1-.45 1-1v-1c0-.35-.19-.68-.49-.86-.31-.18-.69-.2-1.01-.05-1.09.52-2.37.75-3.71.51-2.73-.5-4.93-2.72-5.42-5.45C1.84 9.32 5.12 5 10 5c3.87 0 7 3.13 7 7-1.1 0-2 .9-2 2v2.5c0 .27.22.5.5.5s.5-.22.5-.5V14c0-.55.45-1 1-1h2c.55 0 1-.45 1-1 0-5.52-4.48-10-10-10z"/></svg>} label="Instagram" onClick={handleInstagramClick} />
+                <CallActionButton icon={<EmailIcon />} label={t('contactForm.actions.email')} onClick={handleEmailClick} />
+                <CallActionButton icon={<PhoneIcon />} label={t('contactForm.actions.reset')} color={brandColors.success} onClick={handleReset} />
+                <CallActionButton icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.55 0 1-.45 1-1v-1c0-.35-.19-.68-.49-.86-.31-.18-.69-.2-1.01-.05-1.09.52-2.37.75-3.71.51-2.73-.5-4.93-2.72-5.42-5.45C1.84 9.32 5.12 5 10 5c3.87 0 7 3.13 7 7-1.1 0-2 .9-2 2v2.5c0 .27.22.5.5.5s.5-.22.5-.5V14c0-.55.45-1 1-1h2c.55 0 1-.45 1-1 0-5.52-4.48-10-10-10z"/></svg>} label={t('contactForm.actions.instagram')} onClick={handleInstagramClick} />
               </div>
 
-              <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>
-                إذا لم يُفتح التطبيق، تأكد من السماح بالنوافذ المنبثقة
-              </p>
+              <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>{t('contactForm.submittedFooter')}</p>
             </div>
           ) : showForm ? (
             <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100% - 50px)', position: 'relative' }}>
@@ -747,9 +802,8 @@ const ContactForm = () => {
                 zIndex: 5,
               }}>
                 <button onClick={handleHideForm} style={{ background: 'transparent', border: 'none', color: brandCyan, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <BackIcon />رجوع
-                </button>
-                <span style={{ fontSize: 17, fontWeight: 600 }}>رسالة جديدة</span>
+                  <BackIcon />{t('contactForm.actions.back')}</button>
+                <span style={{ fontSize: 17, fontWeight: 600 }}>{t('contactForm.formTitle')}</span>
                 <div style={{ width: 60 }} />
               </div>
 
@@ -791,26 +845,46 @@ const ContactForm = () => {
                 }} />
 
                 <AnimatedFormField delay={0}>
-                  <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingRight: 4 }}>الاسم الكامل *</label>
-                  <IOSInput value={name} onChange={setName} placeholder="أدخل اسمك" maxLength={MAX_NAME_LENGTH} />
+                  <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingInlineStart: 4 }}>{t('contactForm.fields.nameLabel')}</label>
+                  <IOSInput
+                    value={name}
+                    onChange={setName}
+                    placeholder={t('contactForm.fields.namePlaceholder')}
+                    maxLength={MAX_NAME_LENGTH}
+                    dir={isArabic ? 'rtl' : 'ltr'}
+                  />
                 </AnimatedFormField>
 
                 <AnimatedFormField delay={0.1}>
-                  <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingRight: 4 }}>رقم WhatsApp *</label>
-                  <IOSInput value={phone} onChange={setPhone} placeholder="+971 XX XXX XXXX" type="tel" dir="ltr" />
+                  <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingInlineStart: 4 }}>{t('contactForm.fields.whatsappLabel')}</label>
+                  <IOSInput
+                    value={phone}
+                    onChange={setPhone}
+                    placeholder={t('contactForm.fields.whatsappPlaceholder')}
+                    type="tel"
+                    dir="ltr"
+                  />
                   {phone && !isValidPhone(phone) && (
-                    <span style={{ fontSize: 12, color: brandColors.error, paddingRight: 4 }}>أدخل رقم صحيح (9–15 رقم)</span>
+                    <span style={{ fontSize: 12, color: brandColors.error, paddingInlineStart: 4 }}>
+                      {t('contactForm.validation.phoneInvalid')}
+                    </span>
                   )}
                 </AnimatedFormField>
 
                 <AnimatedFormField delay={0.2}>
-                  <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingRight: 4 }}>البريد الإلكتروني (اختياري)</label>
-                  <IOSInput value={email} onChange={setEmail} placeholder="email@example.com" type="email" dir="ltr" />
+                  <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingInlineStart: 4 }}>{t('contactForm.fields.emailLabel')}</label>
+                  <IOSInput value={email} onChange={setEmail} placeholder={t('contactForm.fields.emailPlaceholder')} type="email" dir="ltr" />
                 </AnimatedFormField>
 
                 <AnimatedFormField delay={0.3}>
-                  <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingRight: 4 }}>{isArabic ? 'الرسالة *' : 'Message *'}</label>
-                  <IOSTextarea value={message} onChange={setMessage} placeholder={isArabic ? roleConfig.placeholderAr : roleConfig.placeholderEn} maxLength={MAX_MESSAGE_LENGTH} />
+                  <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', paddingInlineStart: 4 }}>{t('contactForm.fields.messageLabel')}</label>
+                  <IOSTextarea
+                    value={message}
+                    onChange={setMessage}
+                    placeholder={rolePlaceholder}
+                    maxLength={MAX_MESSAGE_LENGTH}
+                    dir={isArabic ? 'rtl' : 'ltr'}
+                  />
                 </AnimatedFormField>
 
                 {/* Spacer to ensure scrollability */}
@@ -835,7 +909,7 @@ const ContactForm = () => {
                     }}
                   >
                     <WhatsAppIcon size={22} />
-                    إرسال عبر WhatsApp
+                    {t('contactForm.submit')}
                   </button>
 
                   {/* Progress indicator text */}
@@ -846,7 +920,7 @@ const ContactForm = () => {
                     marginTop: 8,
                     marginBottom: 0,
                   }}>
-                    {requiredValid ? '✓ جاهز للإرسال' : 'أكمل الحقول المطلوبة للمتابعة'}
+                    {requiredValid ? t('contactForm.submitReady') : t('contactForm.submitIncomplete')}
                   </p>
                 </div>
               </form>
@@ -859,11 +933,11 @@ const ContactForm = () => {
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <h3 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 400, color: '#fff' }}>Berard AIT</h3>
-                  <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>Sound Lab • {CLINIC.city}</p>
+                  <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>{t('contactForm.soundLab')} • {CLINIC.city}</p>
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  <span style={{ background: brandColors.whatsappLight, color: brandColors.whatsapp, padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>WhatsApp {isArabic ? 'متاح' : 'Available'}</span>
-                  {(isArabic ? roleConfig.badgesAr : roleConfig.badgesEn).map((badge, idx) => (
+                  <span style={{ background: brandColors.whatsappLight, color: brandColors.whatsapp, padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{t('contactForm.whatsappAvailable')}</span>
+                  {roleBadges.map((badge, idx) => (
                     <span key={idx} style={{
                       background: `${visitorConfig.color}15`,
                       color: visitorConfig.color,
@@ -877,23 +951,23 @@ const ContactForm = () => {
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: 30, width: '100%' }}>
-                <CallActionButton icon={<MessageIcon />} label="رسالة" color="rgba(255,255,255,0.12)" onClick={handleShowForm} />
-                <CallActionButton icon={<WhatsAppIcon />} label="WhatsApp" color={brandColors.whatsapp} onClick={handleQuickWhatsApp} />
-                <CallActionButton icon={<EmailIcon />} label="البريد" color="rgba(255,255,255,0.12)" onClick={handleEmailClick} />
+                <CallActionButton icon={<MessageIcon />} label={t('contactForm.actions.message')} color="rgba(255,255,255,0.12)" onClick={handleShowForm} />
+                <CallActionButton icon={<WhatsAppIcon />} label={t('contactForm.actions.whatsapp')} color={brandColors.whatsapp} onClick={handleQuickWhatsApp} />
+                <CallActionButton icon={<EmailIcon />} label={t('contactForm.actions.email')} color="rgba(255,255,255,0.12)" onClick={handleEmailClick} />
               </div>
 
               <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: 16, width: '100%' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill={brandCyan}><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
                   <div style={{ flex: 1 }}>
-                    <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>الهاتف</p>
+                    <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{t('contactForm.info.whatsapp')}</p>
                     <p style={{ margin: 0, fontSize: 15, direction: 'ltr', textAlign: 'right' }}>{CLINIC.whatsapp}</p>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0' }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill={brandCyan}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                   <div style={{ flex: 1 }}>
-                    <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>الموقع</p>
+                    <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{t('contactForm.info.location')}</p>
                     <p style={{ margin: 0, fontSize: 15 }}>{CLINIC.city}</p>
                   </div>
                 </div>
@@ -908,9 +982,7 @@ const ContactForm = () => {
                 </a>
               </div>
 
-              <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.35)', textAlign: 'center' }}>
-                اضغط على "رسالة" لتعبئة نموذج مفصل
-              </p>
+              <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.35)', textAlign: 'center' }}>{t('contactForm.footerHint')}</p>
             </div>
           )}
 

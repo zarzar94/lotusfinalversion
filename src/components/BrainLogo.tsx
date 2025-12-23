@@ -1,5 +1,7 @@
 import { memo } from 'react';
 import { brandCyan, brandPurple } from './styles';
+import { useLanguage } from '../context/LanguageContext';
+import { assetUrl } from '../utils/asset';
 
 interface BrainLogoProps {
   size?: number;
@@ -223,8 +225,11 @@ export const BrainLogoSVG = memo(({ size = 50, animated = false }: { size?: numb
 BrainLogoSVG.displayName = 'BrainLogoSVG';
 
 const BrainLogo = memo(({ size = 50, showText = true, textSize = 22 }: BrainLogoProps) => {
+  const { isArabic, direction, t } = useLanguage();
+  const logoSrc = assetUrl('assets/images/sound_lab_logo.png');
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, direction }}>
       <div
         style={{
           width: size,
@@ -239,7 +244,18 @@ const BrainLogo = memo(({ size = 50, showText = true, textSize = 22 }: BrainLogo
           flexShrink: 0,
         }}
       >
-        <BrainLogoSVG size={size * 0.9} animated />
+        <img
+          src={logoSrc}
+          alt={t('auto.BrainLogo.k1', "Sound Lab logo")}
+          width={size}
+          height={size}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            filter: 'drop-shadow(0 0 12px rgba(143,211,204,0.25))',
+          }}
+        />
       </div>
       {showText && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
@@ -257,7 +273,7 @@ const BrainLogo = memo(({ size = 50, showText = true, textSize = 22 }: BrainLogo
             color: 'rgba(255,255,255,0.5)',
             letterSpacing: 0.5,
           }}>
-            Sound Lab
+            {t('auto.BrainLogo.k2', "Sound Lab")}
           </div>
         </div>
       )}

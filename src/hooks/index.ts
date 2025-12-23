@@ -7,10 +7,21 @@ export {
   useBreakpoints,
   useWindowSize,
   useIsTouchDevice,
-  usePrefersReducedMotion,
 } from './useMediaQuery';
+
+// Motion preference hook (with storage sync support)
+export { usePrefersReducedMotion } from './usePrefersReducedMotion';
 
 // UI hooks
 export { default as useFocusTrap } from './useFocusTrap';
-export { useParallax } from './useParallax';
+export { useParallax, useScrollProgress, useScrollReveal, useMouseParallax, useTilt } from './useParallax';
 export { usePageTitle } from './usePageTitle';
+
+// Consolidated scroll management (single listener pattern)
+export {
+  useScrollState,
+  useOnScroll,
+  useScrollPastThreshold,
+  useScrollProgressFromManager,
+  type ScrollState,
+} from './useScrollManager';

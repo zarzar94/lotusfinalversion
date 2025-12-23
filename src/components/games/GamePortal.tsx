@@ -5,6 +5,7 @@
 
 import React, { useEffect, useMemo, useState, useRef, useCallback, memo } from 'react';
 import { brandCyan, brandPink, brandPurple } from '../styles';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   GAME_ACHIEVEMENTS,
   checkGameAchievements,
@@ -19,12 +20,17 @@ import type { GameResult, TestOutcome } from './types';
 const PARTICLE_COUNT = 35; // Reduced for performance
 const CONNECTION_DISTANCE = 80;
 
-const GAME_CONFIG = [
-  { mode: 'suite', icon: '🧪', title: 'الفحص الشامل', desc: '3 اختبارات', color: '#22c55e', gradient: 'linear-gradient(135deg, #22c55e, #16a34a)' },
-  { mode: 'attention', icon: '🎯', title: 'الانتباه', desc: 'Go/No-Go', color: '#3B82F6', gradient: 'linear-gradient(135deg, #3B82F6, #2563EB)' },
-  { mode: 'frequency', icon: '🎚️', title: 'التردد', desc: 'Adaptive', color: '#8B5CF6', gradient: 'linear-gradient(135deg, #8B5CF6, #7C3AED)' },
-  { mode: 'sequence', icon: '🏫', title: 'التسلسل', desc: 'الذاكرة', color: '#F59E0B', gradient: 'linear-gradient(135deg, #F59E0B, #D97706)' },
-  { mode: 'questionnaire', icon: '📝', title: 'الاستبيان', desc: 'للأهل', color: brandPink, gradient: `linear-gradient(135deg, ${brandPink}, #9D174D)` },
+// Language-aware game configuration
+// Language-aware game configuration
+const getGameConfig = (isArabic: boolean) => [
+  { mode: 'suite', icon: '🧪', title: isArabic ? 'التقييم الشامل' : 'Full Assessment', desc: isArabic ? '6 اختبارات' : '6 Tests', color: '#22c55e', gradient: 'linear-gradient(135deg, #22c55e, #16a34a)' },
+  { mode: 'attention', icon: '🎯', title: isArabic ? 'الانتباه' : 'Attention', desc: isArabic ? 'استجب/لا تستجب' : 'Go/No-Go', color: '#3B82F6', gradient: 'linear-gradient(135deg, #3B82F6, #2563EB)' },
+  { mode: 'focused_attention', icon: '🎯', title: isArabic ? 'الانتباه المركز' : 'Focused Attention', desc: 'CPT', color: '#0EA5E9', gradient: 'linear-gradient(135deg, #0EA5E9, #0284C7)' },
+  { mode: 'frequency', icon: '🎚️', title: isArabic ? 'تمييز التردد' : 'Frequency', desc: isArabic ? 'تكيفي' : 'Adaptive', color: '#8B5CF6', gradient: 'linear-gradient(135deg, #8B5CF6, #7C3AED)' },
+  { mode: 'sequence', icon: '🏫', title: isArabic ? 'التسلسل' : 'Sequence', desc: isArabic ? 'الذاكرة' : 'Memory', color: '#F59E0B', gradient: 'linear-gradient(135deg, #F59E0B, #D97706)' },
+  { mode: 'dichotic_listening', icon: '🎧', title: isArabic ? 'الاستماع الثنائي' : 'Dichotic', desc: isArabic ? 'تكامل + فصل' : 'Integration + Separation', color: '#10B981', gradient: 'linear-gradient(135deg, #10B981, #059669)' },
+  { mode: 'speech_in_noise', icon: '🔊', title: isArabic ? 'الكلام وسط الضجيج' : 'Speech in Noise', desc: isArabic ? 'SNR تكيفي' : 'Adaptive SNR', color: '#F97316', gradient: 'linear-gradient(135deg, #F97316, #EA580C)' },
+  { mode: 'questionnaire', icon: '📝', title: isArabic ? 'الاستبيان' : 'Questionnaire', desc: isArabic ? 'الأهل' : 'Parents', color: brandPink, gradient: `linear-gradient(135deg, ${brandPink}, #9D174D)` },
 ] as const;
 
 // ==================== CSS KEYFRAMES ====================
@@ -253,19 +259,22 @@ const PortalHeader = memo(function PortalHeader({
   totalPoints,
   sessionsCount,
   streak,
+  isArabic,
 }: {
   totalPoints: number;
   sessionsCount: number;
   streak: number;
+  isArabic: boolean;
 }) {
+  const { t } = useLanguage();
   return (
     <div
       style={{
         position: 'relative',
-        padding: '32px 28px',
-        background: 'linear-gradient(135deg, rgba(30,35,45,0.98) 0%, rgba(50,40,65,0.98) 100%)',
+        padding: '28px 24px',
+        background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
         borderRadius: '24px 24px 0 0',
-        borderBottom: '1px solid rgba(143,211,204,0.15)',
+        borderBottom: '1px solid rgba(143,211,204,0.12)',
         overflow: 'hidden',
       }}
     >
@@ -289,6 +298,7 @@ const PortalHeader = memo(function PortalHeader({
             alignItems: 'center',
             flexWrap: 'wrap',
             gap: 20,
+            direction: isArabic ? 'rtl' : 'ltr',
           }}
         >
           {/* Logo and Title */}
@@ -322,7 +332,7 @@ const PortalHeader = memo(function PortalHeader({
                   letterSpacing: '-0.5px',
                 }}
               >
-                Lotus Sound Lab
+                {t('auto.GamePortal.k1', "Lotus Sound Lab")}
               </h2>
               <div
                 style={{
@@ -330,25 +340,27 @@ const PortalHeader = memo(function PortalHeader({
                   color: 'rgba(255,255,255,0.55)',
                   marginTop: 4,
                   fontWeight: 500,
-                  direction: 'rtl',
                 }}
               >
-                معمل الفحص السمعي التفاعلي
+                {t('auto.GamePortal.k2', "Interactive Auditory Screening Lab")}
               </div>
             </div>
           </div>
 
           {/* Stats */}
           <div style={{ display: 'flex', gap: 14 }}>
-            <StatBadge icon="⭐" value={totalPoints.toLocaleString()} label="النقاط" color={brandCyan} animate={totalPoints > 0} />
-            <StatBadge icon="🎮" value={sessionsCount.toString()} label="الجلسات" color={brandPurple} />
-            {streak > 0 && <StatBadge icon="🔥" value={streak.toString()} label="التوالي" color="#F59E0B" />}
+            <StatBadge icon="⭐" value={totalPoints.toLocaleString()} label={t('auto.GamePortal.k3', "Points")} color={brandCyan} animate={totalPoints > 0} />
+            <StatBadge icon="🎮" value={sessionsCount.toString()} label={t('auto.GamePortal.k4', "Sessions")} color={brandPurple} />
+            {streak > 0 && <StatBadge icon="🔥" value={streak.toString()} label={t('auto.GamePortal.k5', "Streak")} color="#F59E0B" />}
           </div>
         </div>
       </div>
     </div>
   );
 });
+
+// Type for game configuration
+type GameConfigItem = ReturnType<typeof getGameConfig>[number];
 
 // ==================== GAME CARD ====================
 
@@ -357,7 +369,7 @@ const GameCard = memo(function GameCard({
   index,
   onSelect,
 }: {
-  game: typeof GAME_CONFIG[number];
+  game: GameConfigItem;
   index: number;
   onSelect: () => void;
 }) {
@@ -479,8 +491,10 @@ const GameCard = memo(function GameCard({
 
 const QuickStartSection = memo(function QuickStartSection({
   onSelectMode,
+  gameConfig,
 }: {
   onSelectMode: (mode: string) => void;
+  gameConfig: readonly GameConfigItem[];
 }) {
   return (
     <div
@@ -490,7 +504,7 @@ const QuickStartSection = memo(function QuickStartSection({
         gap: 14,
       }}
     >
-      {GAME_CONFIG.map((game, i) => (
+      {gameConfig.map((game, i) => (
         <GameCard key={game.mode} game={game} index={i} onSelect={() => onSelectMode(game.mode)} />
       ))}
     </div>
@@ -503,11 +517,14 @@ const AchievementCard = memo(function AchievementCard({
   achievement,
   isUnlocked,
   index,
+  isArabic,
 }: {
   achievement: GameAchievement;
   isUnlocked: boolean;
   index: number;
+  isArabic: boolean;
 }) {
+  const { t } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -554,7 +571,7 @@ const AchievementCard = memo(function AchievementCard({
           lineHeight: 1.3,
         }}
       >
-        {isUnlocked ? achievement.titleAr : '???'}
+        {isUnlocked ? (isArabic ? t(achievement.titleAr, achievement.title) : achievement.title) : (isArabic ? 'مقفل' : 'Locked')}
       </div>
       {isUnlocked && (
         <div
@@ -564,7 +581,7 @@ const AchievementCard = memo(function AchievementCard({
             fontWeight: 700,
           }}
         >
-          +{achievement.points} pts
+          +{achievement.points} {t('auto.GamePortal.k6', "pts")}
         </div>
       )}
     </div>
@@ -575,9 +592,12 @@ const AchievementCard = memo(function AchievementCard({
 
 const AchievementShowcase = memo(function AchievementShowcase({
   unlockedIds,
+  isArabic,
 }: {
   unlockedIds: Set<string>;
+  isArabic: boolean;
 }) {
+  const { t } = useLanguage();
   const achievements = useMemo(() => {
     // Show unlocked first, then locked
     const unlocked = GAME_ACHIEVEMENTS.filter(a => unlockedIds.has(a.id));
@@ -597,10 +617,10 @@ const AchievementShowcase = memo(function AchievementShowcase({
       >
         <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.4 }}>🏆</div>
         <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: 600 }}>
-          ابدأ بالاختبارات لفتح الإنجازات!
+          {t('auto.GamePortal.k7', "Complete tests to unlock achievements!")}
         </div>
         <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, marginTop: 6 }}>
-          {GAME_ACHIEVEMENTS.length} إنجازات متاحة
+          {GAME_ACHIEVEMENTS.length} {t('auto.GamePortal.k8', "achievements available")}
         </div>
       </div>
     );
@@ -620,6 +640,7 @@ const AchievementShowcase = memo(function AchievementShowcase({
           achievement={a}
           isUnlocked={unlockedIds.has(a.id)}
           index={i}
+          isArabic={isArabic}
         />
       ))}
     </div>
@@ -632,14 +653,18 @@ const SessionItem = memo(function SessionItem({
   session,
   isLatest,
   index,
+  isArabic,
 }: {
   session: StoredSession;
   isLatest: boolean;
   index: number;
+  isArabic: boolean;
 }) {
+  const { t } = useLanguage();
   const date = useMemo(() => new Date(session.date), [session.date]);
   const testsCompleted = Object.keys(session.outcomes).length;
   const results = Object.values(session.outcomes);
+  const locale = isArabic ? 'ar-SA' : 'en-US';
 
   return (
     <div
@@ -672,15 +697,15 @@ const SessionItem = memo(function SessionItem({
                 letterSpacing: '0.3px',
               }}
             >
-              الأخيرة
+              {t('auto.GamePortal.k9', "Latest")}
             </span>
           )}
           <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>
-            {testsCompleted} اختبارات
+            {testsCompleted} {t('auto.GamePortal.k10', "tests")}
           </span>
         </div>
         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>
-          {date.toLocaleDateString('ar-SA')} • {date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
+          {date.toLocaleDateString(locale)} • {date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>
 
@@ -719,7 +744,7 @@ const SessionItem = memo(function SessionItem({
             color: brandCyan,
           }}
         >
-          {session.totalPoints} pts
+          {session.totalPoints} {t('auto.GamePortal.k11', "pts")}
         </div>
       )}
     </div>
@@ -730,9 +755,12 @@ const SessionItem = memo(function SessionItem({
 
 const SessionHistory = memo(function SessionHistory({
   sessions,
+  isArabic,
 }: {
   sessions: StoredSession[];
+  isArabic: boolean;
 }) {
+  const { t } = useLanguage();
   const recentSessions = useMemo(() => sessions.slice(0, 5), [sessions]);
 
   if (recentSessions.length === 0) {
@@ -747,10 +775,10 @@ const SessionHistory = memo(function SessionHistory({
       >
         <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.4 }}>📊</div>
         <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: 600 }}>
-          لم تُكمل أي جلسة بعد
+          {t('auto.GamePortal.k12', "No sessions completed yet")}
         </div>
         <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, marginTop: 6 }}>
-          ابدأ اختباراً لتتبع تقدمك
+          {t('auto.GamePortal.k13', "Start a test to track your progress")}
         </div>
       </div>
     );
@@ -759,11 +787,11 @@ const SessionHistory = memo(function SessionHistory({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {recentSessions.map((session, i) => (
-        <SessionItem key={session.id} session={session} isLatest={i === 0} index={i} />
+        <SessionItem key={session.id} session={session} isLatest={i === 0} index={i} isArabic={isArabic} />
       ))}
       {sessions.length > 5 && (
         <div style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 6 }}>
-          +{sessions.length - 5} جلسات سابقة
+          +{sessions.length - 5} {t('auto.GamePortal.k14', "previous sessions")}
         </div>
       )}
     </div>
@@ -781,8 +809,17 @@ const SectionTitle = memo(function SectionTitle({
   title: string;
   subtitle: string;
 }) {
+  const { isArabic, t } = useLanguage();
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, direction: 'rtl' }}>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12,
+      marginBottom: 16,
+      direction: isArabic ? 'rtl' : 'ltr',
+      textAlign: isArabic ? 'right' : 'left',
+    }}>
       <span style={{ fontSize: 22, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>{icon}</span>
       <div>
         <div style={{ fontWeight: 800, fontSize: 16, color: '#fff' }}>{title}</div>
@@ -796,11 +833,12 @@ const SectionTitle = memo(function SectionTitle({
 
 // ==================== TIPS BANNER ====================
 
-const TipsBanner = memo(function TipsBanner() {
+const TipsBanner = memo(function TipsBanner({ isArabic }: { isArabic: boolean }) {
+  const { t } = useLanguage();
   const tips = [
-    { icon: '🎧', text: 'سماعات' },
-    { icon: '🔊', text: 'صوت مريح' },
-    { icon: '🤫', text: 'مكان هادئ' },
+    { icon: '🎧', textAr: 'auto.GamePortal.k23', textEn: 'Headphones' },
+    { icon: '🔊', textAr: 'auto.GamePortal.k24', textEn: 'Comfortable volume' },
+    { icon: '🤫', textAr: 'auto.GamePortal.k25', textEn: 'Quiet place' },
   ];
 
   return (
@@ -815,6 +853,7 @@ const TipsBanner = memo(function TipsBanner() {
         alignItems: 'center',
         gap: 16,
         animation: 'fadeSlideIn 0.6s ease-out 0.3s backwards',
+        direction: isArabic ? 'rtl' : 'ltr',
       }}
     >
       <div
@@ -832,12 +871,12 @@ const TipsBanner = memo(function TipsBanner() {
       >
         💡
       </div>
-      <div style={{ flex: 1, direction: 'rtl', textAlign: 'right' }}>
+      <div style={{ flex: 1, direction: isArabic ? 'rtl' : 'ltr', textAlign: isArabic ? 'right' : 'left' }}>
         <div style={{ fontWeight: 700, fontSize: 14, color: brandCyan, marginBottom: 3 }}>
-          نصيحة للحصول على أفضل النتائج
+          {t('auto.GamePortal.k15', "Tips for Best Results")}
         </div>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>
-          استخدم سماعات عالية الجودة، في مكان هادئ، وارفع مستوى الصوت لمستوى مريح.
+          {t('auto.GamePortal.k16', "Use quality headphones, in a quiet environment, and set volume to a comfortable level.")}
         </div>
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
@@ -856,7 +895,7 @@ const TipsBanner = memo(function TipsBanner() {
               fontSize: 16,
               transition: 'all 0.2s ease',
             }}
-            title={tip.text}
+            title={isArabic ? t(tip.textAr, tip.textEn) : tip.textEn}
           >
             {tip.icon}
           </div>
@@ -912,10 +951,14 @@ export default function GamePortal({
   onSelectMode: (mode: string) => void;
   lastOutcome?: TestOutcome | null;
 }) {
+  const { isArabic, t } = useLanguage();
   const [sessions, setSessions] = useState<StoredSession[]>([]);
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set());
   const [totalPoints, setTotalPoints] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Get language-aware game config
+  const GAME_CONFIG = useMemo(() => getGameConfig(isArabic), [isArabic]);
 
   // Memoized callbacks
   const handleSelectMode = useCallback(
@@ -956,25 +999,40 @@ export default function GamePortal({
   return (
     <div
       style={{
-        background: 'linear-gradient(180deg, #1E232C 0%, #252A35 50%, #2A2F3A 100%)',
-        borderRadius: 26,
+        background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+        borderRadius: 24,
         overflow: 'hidden',
-        boxShadow: '0 30px 70px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)',
+        boxShadow: '0 30px 70px rgba(0,0,0,0.45), 0 0 60px rgba(143,211,204,0.06)',
         border: '1px solid rgba(143,211,204,0.12)',
         transition: 'all 0.3s ease',
+        position: 'relative',
       }}
     >
+      {/* Top glow bar */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          background: `linear-gradient(90deg, transparent, ${brandCyan}, ${brandPink}, transparent)`,
+          opacity: 0.6,
+          zIndex: 10,
+        }}
+      />
+
       <style>{KEYFRAMES}</style>
 
       {/* Portal Header */}
-      <PortalHeader totalPoints={totalPoints} sessionsCount={sessions.length} streak={streak} />
+      <PortalHeader totalPoints={totalPoints} sessionsCount={sessions.length} streak={streak} isArabic={isArabic} />
 
       {/* Main Content */}
       <div style={{ padding: 28 }}>
         {/* Quick Start Section */}
         <div style={{ marginBottom: 32 }}>
-          <SectionTitle icon="🚀" title="ابدأ اختباراً" subtitle="Quick Start" />
-          <QuickStartSection onSelectMode={handleSelectMode} />
+          <SectionTitle icon="🚀" title={t('auto.GamePortal.k17', "Start Test")} subtitle={t('auto.GamePortal.k18', "Quick Start")} />
+          <QuickStartSection onSelectMode={handleSelectMode} gameConfig={GAME_CONFIG} />
         </div>
 
         {/* Two Column Layout */}
@@ -987,19 +1045,19 @@ export default function GamePortal({
         >
           {/* Achievements */}
           <div>
-            <SectionTitle icon="🏆" title="الإنجازات" subtitle="Achievements" />
-            {!isLoading && <AchievementShowcase unlockedIds={unlockedIds} />}
+            <SectionTitle icon="🏆" title={t('auto.GamePortal.k19', "Achievements")} subtitle={t('auto.GamePortal.k20', "Badges")} />
+            {!isLoading && <AchievementShowcase unlockedIds={unlockedIds} isArabic={isArabic} />}
           </div>
 
           {/* Session History */}
           <div>
-            <SectionTitle icon="📈" title="سجل الجلسات" subtitle="History" />
-            {!isLoading && <SessionHistory sessions={sessions} />}
+            <SectionTitle icon="📈" title={t('auto.GamePortal.k21', "Session History")} subtitle={t('auto.GamePortal.k22', "History")} />
+            {!isLoading && <SessionHistory sessions={sessions} isArabic={isArabic} />}
           </div>
         </div>
 
         {/* Tips Banner */}
-        <TipsBanner />
+        <TipsBanner isArabic={isArabic} />
       </div>
     </div>
   );

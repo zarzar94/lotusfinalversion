@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, memo } from 'react';
-import { brandCyan, brandPurple, brandPink } from './styles';
+import { brandCyan, brandPurple, brandPink, brandPanel, colors, labTech } from './styles';
+import { useLanguage } from '../context/LanguageContext';
 
 // Brain image component using the detailed PNG
 const BrainImage = ({ size = 400 }: { size?: number }) => (
@@ -10,7 +11,7 @@ const BrainImage = ({ size = 400 }: { size?: number }) => (
     height={size * 0.85}
     style={{
       objectFit: 'contain',
-      filter: 'drop-shadow(0 0 30px rgba(143,211,204,0.4)) drop-shadow(0 0 60px rgba(175,132,186,0.3))',
+      filter: `drop-shadow(0 0 30px ${brandCyan}66) drop-shadow(0 0 60px ${brandPurple}4D)`,
     }}
   />
 );
@@ -64,6 +65,7 @@ const OrbitingParticle = ({
 );
 
 const HeroSection = memo(function HeroSection() {
+  const { t } = useLanguage();
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -93,11 +95,11 @@ const HeroSection = memo(function HeroSection() {
     }
     @keyframes brainPulse {
       0%, 100% {
-        filter: drop-shadow(0 0 30px rgba(143,211,204,0.4)) drop-shadow(0 0 60px rgba(175,132,186,0.3));
+        filter: drop-shadow(0 0 30px ${brandCyan}66) drop-shadow(0 0 60px ${brandPurple}4D);
         transform: scale(1);
       }
       50% {
-        filter: drop-shadow(0 0 50px rgba(143,211,204,0.6)) drop-shadow(0 0 80px rgba(175,132,186,0.5));
+        filter: drop-shadow(0 0 50px ${brandCyan}99) drop-shadow(0 0 80px ${brandPurple}80);
         transform: scale(1.02);
       }
     }
@@ -119,6 +121,62 @@ const HeroSection = memo(function HeroSection() {
       0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
       50% { transform: translateX(-50%) translateY(10px); opacity: 1; }
     }
+    @keyframes scanLineVertical {
+      0% { top: -100%; }
+      100% { top: 200%; }
+    }
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    @keyframes statusBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    @keyframes dataStream {
+      0% { transform: translateY(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100px); opacity: 0; }
+    }
+    /* Advanced holographic ring */
+    @keyframes holoRing {
+      0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 0.3; }
+      50% { opacity: 0.6; }
+      100% { transform: translate(-50%, -50%) rotate(360deg); opacity: 0.3; }
+    }
+    /* Energy wave expand */
+    @keyframes energyWave {
+      0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; }
+      100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+    }
+    /* Data circuit path */
+    @keyframes circuitPath {
+      0% { stroke-dashoffset: 1000; }
+      100% { stroke-dashoffset: 0; }
+    }
+    /* Neural network pulse */
+    @keyframes neuralPulse {
+      0%, 100% { opacity: 0.2; filter: blur(0px); }
+      50% { opacity: 0.6; filter: blur(1px); }
+    }
+    /* Holographic interference */
+    @keyframes holoInterference {
+      0%, 100% { transform: translateX(0); opacity: 1; }
+      2% { transform: translateX(-3px); opacity: 0.85; }
+      4% { transform: translateX(3px); opacity: 1; }
+      6% { transform: translateX(0); opacity: 0.9; }
+    }
+    /* Cyber glow expand */
+    @keyframes cyberGlow {
+      0%, 100% { box-shadow: 0 0 30px ${brandCyan}30, 0 0 60px ${brandPurple}20; }
+      50% { box-shadow: 0 0 60px ${brandCyan}50, 0 0 120px ${brandPurple}35; }
+    }
+    /* Radar sweep */
+    @keyframes radarSweep {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
     .brain-container {
       animation: fadeInScale 1.2s ease-out forwards, brainPulse 4s ease-in-out infinite;
       animation-delay: 0s, 1.2s;
@@ -126,6 +184,89 @@ const HeroSection = memo(function HeroSection() {
     .orbit-trail {
       opacity: 0.1;
       animation: orbitReverse 60s linear infinite;
+    }
+    .hero-scan-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 100px;
+      background: linear-gradient(180deg, transparent, ${brandCyan}08, transparent);
+      pointer-events: none;
+      animation: scanLineVertical 8s linear infinite;
+    }
+    .corner-bracket {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-color: ${brandCyan}40;
+      border-style: solid;
+    }
+    /* Holographic ring */
+    .holo-ring {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      border-radius: 50%;
+      border: 1px solid ${brandCyan}30;
+      background: transparent;
+      animation: holoRing 20s linear infinite;
+    }
+    /* Energy wave */
+    .energy-wave {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      border: 2px solid ${brandCyan}40;
+      animation: energyWave 3s ease-out infinite;
+      pointer-events: none;
+    }
+    /* Neural pulse background */
+    .neural-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 30%, ${brandCyan}08 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 70%, ${brandPurple}08 0%, transparent 50%),
+                  radial-gradient(ellipse at 50% 50%, ${brandPink}05 0%, transparent 40%);
+      animation: neuralPulse 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+    /* Cyber badge */
+    .cyber-badge {
+      position: relative;
+      overflow: hidden;
+    }
+    .cyber-badge::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+    /* Radar sweep line */
+    .radar-sweep {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 50%;
+      height: 2px;
+      background: linear-gradient(90deg, ${brandCyan}60, transparent);
+      transform-origin: left center;
+      animation: radarSweep 8s linear infinite;
+      opacity: 0.4;
+    }
+    /* Data readout animation */
+    .data-readout {
+      animation: holoInterference 8s ease-in-out infinite;
     }
     @media (max-width: 640px) {
       .brain-container img {
@@ -141,6 +282,15 @@ const HeroSection = memo(function HeroSection() {
       }
       .scroll-indicator {
         bottom: 20px !important;
+      }
+      .lab-badge {
+        display: none !important;
+      }
+      .corner-bracket {
+        display: none !important;
+      }
+      .holo-ring, .energy-wave, .radar-sweep {
+        display: none !important;
       }
     }
     @media (max-width: 480px) {
@@ -189,22 +339,163 @@ const HeroSection = memo(function HeroSection() {
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        background: 'radial-gradient(ellipse at center, rgba(20,26,45,1) 0%, rgba(8,10,18,1) 100%)',
+        background: labTech.backgrounds.hero,
       }}
     >
       <style>{css}</style>
+
+      {/* Top glow bar */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 2,
+        background: `linear-gradient(90deg, transparent, ${brandCyan}66, ${brandPurple}66, transparent)`,
+        animation: 'glowPulse 3s ease-in-out infinite',
+        zIndex: 10,
+      }} />
+
+      {/* Scan line effect */}
+      <div className="hero-scan-line" />
+
+      {/* Neural pulse background */}
+      <div className="neural-bg" />
 
       {/* Subtle grid background */}
       <div style={{
         position: 'absolute',
         inset: 0,
         backgroundImage: `
-          linear-gradient(rgba(143,211,204,0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(143,211,204,0.03) 1px, transparent 1px)
+          linear-gradient(${brandCyan}08 1px, transparent 1px),
+          linear-gradient(90deg, ${brandCyan}08 1px, transparent 1px)
         `,
         backgroundSize: '50px 50px',
         pointerEvents: 'none',
       }} />
+
+      {/* Holographic rings */}
+      <div className="holo-ring" style={{ width: 600, height: 600 }} />
+      <div className="holo-ring" style={{ width: 700, height: 700, animationDelay: '-5s', animationDuration: '25s' }} />
+      <div className="holo-ring" style={{ width: 800, height: 800, animationDelay: '-10s', animationDuration: '30s', borderColor: `${brandPurple}20` }} />
+
+      {/* Energy waves */}
+      <div className="energy-wave" />
+      <div className="energy-wave" style={{ animationDelay: '1s' }} />
+      <div className="energy-wave" style={{ animationDelay: '2s' }} />
+
+      {/* Radar sweep */}
+      <div className="radar-sweep" />
+
+      {/* Corner brackets for tech aesthetic */}
+      <div className="corner-bracket" style={{ top: 40, left: 40, borderWidth: '2px 0 0 2px' }} />
+      <div className="corner-bracket" style={{ top: 40, right: 40, borderWidth: '2px 2px 0 0' }} />
+      <div className="corner-bracket" style={{ bottom: 80, left: 40, borderWidth: '0 0 2px 2px' }} />
+      <div className="corner-bracket" style={{ bottom: 80, right: 40, borderWidth: '0 2px 2px 0' }} />
+
+      {/* Lab status badge - top left */}
+      <div className="lab-badge" style={{
+        position: 'absolute',
+        top: 100,
+        left: 40,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        zIndex: 5,
+      }}>
+        <div className="cyber-badge" style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '10px 16px',
+          background: `linear-gradient(135deg, ${brandPanel}E6, rgba(20,25,35,0.85))`,
+          border: `1px solid ${brandCyan}40`,
+          borderRadius: 8,
+          backdropFilter: 'blur(15px)',
+          boxShadow: `0 4px 20px rgba(0,0,0,0.3), 0 0 30px ${brandCyan}1A`,
+        }}>
+          <div style={{
+            width: 10,
+            height: 10,
+            borderRadius: '50%',
+            background: `linear-gradient(135deg, ${colors.success}, #10b981)`,
+            boxShadow: `0 0 12px ${colors.success}, 0 0 24px ${colors.success}99`,
+            animation: 'statusBlink 2s ease-in-out infinite',
+          }} />
+          <span style={{
+            fontSize: 10,
+            fontWeight: 800,
+            color: brandCyan,
+            letterSpacing: 1.5,
+            textTransform: 'uppercase',
+            fontFamily: '"JetBrains Mono", monospace',
+            textShadow: `0 0 10px ${brandCyan}40`,
+          }}>
+            {t('labTech.neuralScanActive')}
+          </span>
+        </div>
+        <div className="data-readout" style={{
+          fontSize: 9,
+          color: colors.text.muted,
+          fontFamily: '"JetBrains Mono", monospace',
+          paddingLeft: 4,
+          letterSpacing: 1,
+        }}>
+          {t('labTech.lotusLab')} {t('labTech.version')}
+        </div>
+      </div>
+
+      {/* Tech readout - top right */}
+      <div className="lab-badge" style={{
+        position: 'absolute',
+        top: 100,
+        right: 40,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        gap: 8,
+        zIndex: 5,
+      }}>
+        <div className="cyber-badge" style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          padding: '10px 16px',
+          background: `linear-gradient(135deg, rgba(20,25,35,0.85), ${brandPanel}E6)`,
+          border: `1px solid ${brandPurple}40`,
+          borderRadius: 8,
+          backdropFilter: 'blur(15px)',
+          boxShadow: `0 4px 20px rgba(0,0,0,0.3), 0 0 30px ${brandPurple}1A`,
+        }}>
+          <span style={{
+            fontSize: 10,
+            fontWeight: 800,
+            color: brandPurple,
+            letterSpacing: 1.5,
+            fontFamily: '"JetBrains Mono", monospace',
+            textShadow: `0 0 10px ${brandPurple}40`,
+          }}>
+            {t('labTech.auditoryCenter')}
+          </span>
+          <div style={{
+            width: 10,
+            height: 10,
+            borderRadius: '50%',
+            background: `linear-gradient(135deg, ${brandPurple}, ${brandPink})`,
+            boxShadow: `0 0 12px ${brandPurple}, 0 0 24px ${brandPurple}60`,
+            animation: 'statusBlink 3s ease-in-out infinite',
+            animationDelay: '0.5s',
+          }} />
+        </div>
+        <div className="data-readout" style={{
+          fontSize: 9,
+          color: colors.text.disabled,
+          fontFamily: '"JetBrains Mono", monospace',
+          letterSpacing: 1,
+        }}>
+          {t('labTech.berardProtocol')}
+        </div>
+      </div>
 
       {/* Orbit trail rings */}
       <div style={{
@@ -215,7 +506,7 @@ const HeroSection = memo(function HeroSection() {
         width: 500,
         height: 500,
         borderRadius: '50%',
-        border: `1px dashed rgba(143,211,204,0.1)`,
+        border: `1px dashed ${brandCyan}1A`,
         pointerEvents: 'none',
       }} className="orbit-trail" />
       <div style={{
@@ -226,7 +517,7 @@ const HeroSection = memo(function HeroSection() {
         width: 560,
         height: 560,
         borderRadius: '50%',
-        border: `1px dashed rgba(175,132,186,0.08)`,
+        border: `1px dashed ${brandPurple}14`,
         pointerEvents: 'none',
         animation: 'orbit 80s linear infinite',
       }} />
@@ -260,27 +551,51 @@ const HeroSection = memo(function HeroSection() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: 8,
+        gap: 10,
         animation: 'scrollHint 2s ease-in-out infinite',
         zIndex: 10,
       }}>
         <div style={{
+          fontSize: 9,
+          fontWeight: 700,
+          color: brandCyan,
+          letterSpacing: 2,
+          textTransform: 'uppercase',
+          fontFamily: 'monospace',
+          opacity: 0.7,
+        }}>
+          {t('labTech.explore')}
+        </div>
+        <div style={{
           width: 24,
           height: 38,
-          border: '2px solid rgba(143,211,204,0.3)',
+          border: `2px solid ${brandCyan}40`,
           borderRadius: 12,
           display: 'flex',
           justifyContent: 'center',
           paddingTop: 8,
+          background: `${brandPanel}80`,
         }}>
           <div style={{
             width: 4,
             height: 8,
             background: brandCyan,
             borderRadius: 2,
+            boxShadow: `0 0 8px ${brandCyan}`,
           }} />
         </div>
       </div>
+
+      {/* Bottom gradient fade */}
+      <div style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 100,
+        background: `linear-gradient(to top, ${brandPanel}, transparent)`,
+        pointerEvents: 'none',
+      }} />
     </section>
   );
 });

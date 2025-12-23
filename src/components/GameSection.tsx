@@ -4,8 +4,11 @@ import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, rad
 
 import AssessmentSuiteModal from './games/AssessmentSuiteModal';
 import AttentionTestPanel from './games/AttentionTestPanel';
+import FocusedAttentionTestPanel from './games/FocusedAttentionTestPanel';
 import FrequencyDiscriminationTestPanel from './games/FrequencyDiscriminationTestPanel';
 import SequencingTestPanel from './games/SequencingTestPanel';
+import DichoticListeningTestPanel from './games/DichoticListeningTestPanel';
+import SpeechInNoiseTestPanel from './games/SpeechInNoiseTestPanel';
 import QuestionnairePanel from './games/QuestionnairePanel';
 import GamePortal from './games/GamePortal';
 import PreTestBriefing from './games/PreTestBriefing';
@@ -14,15 +17,38 @@ import ScreeningDashboard from './games/ScreeningDashboard';
 import type { GameResult, TestOutcome } from './games/types';
 import { resultMeta } from './games/types';
 import { saveSession, type StoredSession } from './games/scoring';
+import { saveSession as saveLabSession } from '../utils/sessionStorage';
+import { buildLabMetrics } from '../utils/labMetrics';
 import { useVisitorMode } from '../context/VisitorModeContext';
 import { useLanguage } from '../context/LanguageContext';
 
-type GameMode = 'suite' | 'attention' | 'frequency' | 'sequence' | 'questionnaire';
+type GameMode =
+  | 'suite'
+  | 'attention'
+  | 'focused_attention'
+  | 'frequency'
+  | 'sequence'
+  | 'dichotic_listening'
+  | 'speech_in_noise'
+  | 'questionnaire';
 
-const nextStepFrom = (r: GameResult) => {
-  if (r === 'low') return { label: 'احجز تقييماً / تواصل الآن', hash: '#contact', tone: brandPink };
-  if (r === 'medium') return { label: 'ابدأ بالاستبيان + أكمل الفحص', hash: '#games', tone: brandPurple };
-  return { label: 'خيار المدارس/الجامعات', hash: '#schools', tone: brandCyan };
+const nextStepFrom = (r: GameResult, t: (key: string) => string) => {
+  if (r === 'low') return { label: t('games.nextStep.low'), hash: '/contact#contact', tone: brandPink };
+  if (r === 'medium') return { label: t('games.nextStep.medium'), hash: '#games', tone: brandPurple };
+  return { label: t('games.nextStep.high'), hash: '/partners#schools', tone: brandCyan };
+};
+
+type CardLabels = {
+  moduleLabel: string;
+  signalPreview: string;
+  statusReady: string;
+  statusStandby: string;
+  statusActive: string;
+  statusIdle: string;
+  outputsLabel: string;
+  disclaimer: string;
+  startModule: string;
+  available: string;
 };
 
 // Animated waveform component
@@ -111,7 +137,7 @@ function Waveform({ color, type, active }: { color: string; type: 'ecg' | 'spo2'
   );
 }
 
-// Medical monitor frame component
+// Lab tech modal frame component
 function MedicalMonitor({
   title,
   children,
@@ -131,6 +157,7 @@ function MedicalMonitor({
   statusText: string;
   isActive: boolean;
 }) {
+  const { t, direction } = useLanguage();
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -150,8 +177,8 @@ function MedicalMonitor({
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(0,0,0,0.85)',
-        backdropFilter: 'blur(10px)',
+        background: 'rgba(5,6,13,0.92)',
+        backdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -160,175 +187,206 @@ function MedicalMonitor({
       }}
       onClick={onClose}
     >
-      {/* Monitor Frame */}
+      {/* Lab Modal Frame */}
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
           width: '100%',
-          maxWidth: 900,
-          background: 'linear-gradient(180deg, #E8E4DC 0%, #D4CFC5 50%, #C8C3B9 100%)',
-          borderRadius: 20,
-          padding: 20,
-          boxShadow: '0 30px 80px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.5)',
+          maxWidth: 920,
+          background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+          borderRadius: 24,
+          padding: 0,
+          boxShadow: `0 40px 100px rgba(0,0,0,0.6), 0 0 80px ${waveformColor}15`,
           position: 'relative',
+          overflow: 'hidden',
+          border: `1px solid ${waveformColor}22`,
         }}
       >
-        {/* Monitor bezel top */}
+        {/* Top glow bar */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          background: `linear-gradient(90deg, transparent, ${waveformColor}, ${brandCyan}, transparent)`,
+          opacity: 0.7,
+        }} />
+
+        {/* Modal header */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 10,
-          padding: '0 10px',
+          padding: '16px 24px',
+          background: 'rgba(0,0,0,0.3)',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
         }}>
-          <div style={{ fontSize: 12, color: '#666', fontWeight: 600 }}>BERARD AIT SCREENING</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 11, color: '#666' }}>MENU</span>
-            <span style={{ fontSize: 11, color: '#666' }}>{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
-            <div style={{ width: 30, height: 12, background: '#4a4', borderRadius: 2, border: '1px solid #383' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{
+              width: 40,
+              height: 40,
+              borderRadius: 12,
+              background: `linear-gradient(135deg, ${waveformColor}22, ${waveformColor}11)`,
+              border: `1px solid ${waveformColor}44`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 20,
+            }}>
+              🔬
+            </div>
+            <div>
+              <div style={{ fontSize: 14, color: waveformColor, fontWeight: 800 }}>
+                {t('games.lab.screeningStation')}
+              </div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.5px' }}>
+                {title} • {t('games.lab.nonDiagnostic')}
+              </div>
+            </div>
           </div>
-        </div>
-
-        {/* Monitor Screen */}
-        <div style={{
-          background: 'linear-gradient(180deg, #2A2F3A 0%, #1E232C 100%)',
-          borderRadius: 8,
-          overflow: 'hidden',
-          border: '3px solid #1a1a1a',
-          boxShadow: 'inset 0 0 30px rgba(0,0,0,0.5)',
-        }}>
-          {/* Screen header with waveform */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 180px',
-            borderBottom: '1px solid rgba(255,255,255,0.1)',
-          }}>
-            {/* Left side - Waveform display */}
-            <div style={{ padding: 15, borderRight: '1px solid rgba(255,255,255,0.1)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '6px 12px',
+              background: isActive ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.05)',
+              border: `1px solid ${isActive ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.1)'}`,
+              borderRadius: 8,
+            }}>
               <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: 8,
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: isActive ? '#22c55e' : 'rgba(255,255,255,0.3)',
+                boxShadow: isActive ? '0 0 8px #22c55e' : 'none',
+                animation: isActive ? 'blink 1s ease-in-out infinite' : 'none',
+              }} />
+              <span style={{
+                fontSize: 10,
+                color: isActive ? '#22c55e' : 'rgba(255,255,255,0.5)',
+                fontWeight: 700,
               }}>
-                <span style={{ color: waveformColor, fontSize: 14, fontWeight: 700 }}>{title}</span>
-                <span style={{
-                  fontSize: 10,
-                  padding: '2px 8px',
-                  background: isActive ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.1)',
-                  borderRadius: 4,
-                  color: isActive ? '#22c55e' : 'rgba(255,255,255,0.5)',
-                }}>
-                  {isActive ? '● ACTIVE' : '○ STANDBY'}
-                </span>
-              </div>
-              <Waveform color={waveformColor} type={waveformType} active={isActive} />
+                {statusText}
+              </span>
             </div>
-
-            {/* Right side - Stats */}
-            <div style={{ padding: 15, background: 'rgba(0,0,0,0.2)' }}>
-              <div style={{ marginBottom: 15 }}>
-                <div style={{ fontSize: 10, color: waveformColor, marginBottom: 2 }}>STATUS</div>
-                <div style={{ fontSize: 28, fontWeight: 900, color: '#22c55e', fontFamily: 'monospace' }}>
-                  {statusText}
-                </div>
-              </div>
-              <div style={{ marginBottom: 15 }}>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>MODE</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>SCREENING</div>
-              </div>
-              <div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>TYPE</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: waveformColor }}>NON-DIAGNOSTIC</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Main content area */}
-          <div style={{
-            padding: 20,
-            maxHeight: '50vh',
-            overflowY: 'auto',
-            direction: 'rtl',
-          }}>
-            {children}
-          </div>
-        </div>
-
-        {/* Monitor buttons */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginTop: 15,
-          padding: '0 10px',
-        }}>
-          {/* Left buttons */}
-          <div style={{ display: 'flex', gap: 8 }}>
-            {/* Orange button */}
-            <button
-              type="button"
-              style={{
-                width: 50,
-                height: 20,
-                borderRadius: 4,
-                background: 'linear-gradient(180deg, #F59E0B, #D97706)',
-                border: '1px solid #B45309',
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-              }}
-            />
-            {/* Blue buttons */}
-            {[1, 2, 3, 4].map((i) => (
-              <button
-                key={i}
-                type="button"
-                style={{
-                  width: 50,
-                  height: 20,
-                  borderRadius: 4,
-                  background: 'linear-gradient(180deg, #3B82F6, #2563EB)',
-                  border: '1px solid #1D4ED8',
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                }}
-              />
-            ))}
-            {/* Red close button */}
             <button
               type="button"
               onClick={onClose}
+              aria-label={t('games.close')}
               style={{
-                width: 50,
-                height: 20,
-                borderRadius: 4,
-                background: 'linear-gradient(180deg, #EF4444, #DC2626)',
-                border: '1px solid #B91C1C',
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: 'rgba(239,68,68,0.12)',
+                border: '1px solid rgba(239,68,68,0.3)',
                 cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ef4444',
+                fontSize: 16,
+                transition: 'all 0.2s ease',
               }}
-            />
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        {/* Signal display area */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 200px',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+        }}>
+          {/* Waveform display */}
+          <div style={{ padding: 20, borderRight: '1px solid rgba(255,255,255,0.05)' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 10,
+            }}>
+              <span style={{ color: waveformColor, fontSize: 12, fontWeight: 700 }}>
+                {title} {t('games.lab.signalLabel')}
+              </span>
+              <span style={{
+                fontSize: 10,
+                color: 'rgba(255,255,255,0.4)',
+                fontWeight: 600,
+              }}>
+                {t('games.lab.livePreview')}
+              </span>
+            </div>
+            <Waveform color={waveformColor} type={waveformType} active={isActive} />
           </div>
 
-          {/* Dial */}
-          <div style={{
-            width: 40,
-            height: 40,
-            borderRadius: '50%',
-            background: 'linear-gradient(145deg, #5a5a5a, #3a3a3a)',
-            border: '2px solid #2a2a2a',
-            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-            <div style={{
-              width: 6,
-              height: 15,
-              background: '#888',
-              borderRadius: 2,
-              transform: 'rotate(-30deg)',
-            }} />
+          {/* Stats panel */}
+          <div style={{ padding: 20, background: 'rgba(0,0,0,0.2)' }}>
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 9, color: waveformColor, marginBottom: 3, letterSpacing: '0.5px' }}>{t('games.lab.statusLabel')}</div>
+              <div style={{
+                fontSize: 26,
+                fontWeight: 900,
+                color: '#22c55e',
+                fontFamily: 'system-ui',
+              }}>
+                {statusText}
+              </div>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginBottom: 3, letterSpacing: '0.5px' }}>{t('games.lab.modeLabel')}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{t('games.lab.screeningMode')}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginBottom: 3, letterSpacing: '0.5px' }}>{t('games.lab.typeLabel')}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: waveformColor }}>{t('games.lab.nonDiagnostic')}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main content area */}
+        <div style={{
+          padding: 24,
+          maxHeight: '50vh',
+          overflowY: 'auto',
+          direction,
+          textAlign: direction === 'rtl' ? 'right' : 'left',
+          background: 'linear-gradient(180deg, rgba(26,31,46,0.5) 0%, rgba(13,17,23,0.5) 100%)',
+        }}>
+          {children}
+        </div>
+
+        {/* Bottom status bar */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '12px 24px',
+          background: 'rgba(0,0,0,0.3)',
+          borderTop: '1px solid rgba(255,255,255,0.05)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
+              {t('games.lab.soundLab')}
+            </span>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>•</span>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>
+              {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {[waveformColor, brandCyan, brandPurple, brandPink].map((color, i) => (
+              <div key={i} style={{
+                width: 20,
+                height: 3,
+                borderRadius: 2,
+                background: color,
+                opacity: 0.6,
+              }} />
+            ))}
           </div>
         </div>
       </div>
@@ -336,11 +394,13 @@ function MedicalMonitor({
   );
 }
 
-// Test card styled as monitor display
+// Test card styled as advanced lab module
 function TestCard({
   title,
   description,
   tag,
+  outputs,
+  labels,
   waveformColor,
   waveformType,
   onClick,
@@ -349,87 +409,116 @@ function TestCard({
   title: string;
   description: string;
   tag: string;
+  outputs: string[];
+  labels: CardLabels;
   waveformColor: string;
   waveformType: 'ecg' | 'spo2' | 'resp' | 'audio';
   onClick: () => void;
   index: number;
 }) {
+  const { isArabic, t } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div
+    <button
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      aria-label={`${labels.startModule}: ${title}`}
       style={{
-        background: 'linear-gradient(180deg, #E8E4DC 0%, #D4CFC5 100%)',
+        background: 'linear-gradient(180deg, rgba(26,31,46,0.95) 0%, rgba(13,17,23,0.98) 100%)',
         borderRadius: 16,
-        padding: 12,
+        padding: 0,
         cursor: 'pointer',
         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
         transform: isHovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0)',
         boxShadow: isHovered
-          ? `0 25px 50px rgba(0,0,0,0.4), 0 0 40px ${waveformColor}22`
-          : '0 8px 25px rgba(0,0,0,0.3)',
+          ? `0 25px 50px rgba(0,0,0,0.5), 0 0 50px ${waveformColor}22, inset 0 1px 0 rgba(255,255,255,0.05)`
+          : '0 8px 25px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03)',
         animation: `monitorEnter 0.6s ease-out ${index * 0.1}s backwards`,
+        border: `1px solid ${isHovered ? `${waveformColor}44` : 'rgba(255,255,255,0.06)'}`,
+        overflow: 'hidden',
+        position: 'relative',
       }}
     >
-      {/* Mini monitor header */}
+      {/* Top glow bar */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 2,
+        background: isHovered
+          ? `linear-gradient(90deg, transparent, ${waveformColor}, transparent)`
+          : 'transparent',
+        transition: 'all 0.3s ease',
+      }} />
+
+      {/* Module header */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 8,
-        fontSize: 9,
-        color: '#666',
+        padding: '10px 14px',
+        background: 'rgba(0,0,0,0.3)',
+        borderBottom: '1px solid rgba(255,255,255,0.04)',
       }}>
-        <span>BERARD SCREENING</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <span style={{
+          fontSize: 9,
+          color: waveformColor,
+          fontWeight: 700,
+          letterSpacing: '0.5px',
+        }}>{labels.moduleLabel}: {tag}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{
             width: 6,
             height: 6,
             borderRadius: '50%',
-            background: isHovered ? '#22c55e' : '#888',
+            background: isHovered ? '#22c55e' : 'rgba(255,255,255,0.3)',
+            boxShadow: isHovered ? '0 0 8px #22c55e' : 'none',
             animation: isHovered ? 'blink 1s ease-in-out infinite' : 'none',
           }} />
-          <span>{isHovered ? 'READY' : 'STANDBY'}</span>
+          <span style={{
+            fontSize: 9,
+            color: isHovered ? '#22c55e' : 'rgba(255,255,255,0.4)',
+            fontWeight: 600,
+          }}>{isHovered ? labels.statusReady : labels.statusStandby}</span>
         </div>
       </div>
 
-      {/* Mini screen */}
-      <div style={{
-        background: 'linear-gradient(180deg, #2A2F3A 0%, #1E232C 100%)',
-        borderRadius: 8,
-        padding: 12,
-        border: '2px solid #1a1a1a',
-        boxShadow: 'inset 0 0 20px rgba(0,0,0,0.5)',
-      }}>
+      {/* Content area */}
+      <div style={{ padding: 14 }}>
         {/* Waveform display */}
-        <div style={{ marginBottom: 10 }}>
+        <div style={{ marginBottom: 12 }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: 6,
+            marginBottom: 8,
           }}>
-            <span style={{ color: waveformColor, fontSize: 11, fontWeight: 700 }}>{tag}</span>
             <span style={{
-              fontSize: 16,
+              fontSize: 10,
+              color: 'rgba(255,255,255,0.5)',
+              fontWeight: 600,
+            }}>{labels.signalPreview}</span>
+            <span style={{
+              fontSize: 14,
               fontWeight: 900,
-              color: '#22c55e',
-              fontFamily: 'monospace',
+              color: isHovered ? '#22c55e' : 'rgba(255,255,255,0.3)',
+              fontFamily: 'system-ui',
+              transition: 'color 0.3s ease',
             }}>
-              {isHovered ? 'START' : '--'}
+              {isHovered ? `\u25B6 ${labels.statusActive}` : `\u25CB ${labels.statusIdle}`}
             </span>
           </div>
           <Waveform color={waveformColor} type={waveformType} active={isHovered} />
         </div>
 
         {/* Info */}
-        <div style={{ direction: 'rtl', textAlign: 'right' }}>
+        <div style={{ direction: isArabic ? 'rtl' : 'ltr', textAlign: 'start' }}>
           <div style={{
             fontWeight: 800,
-            fontSize: 13,
+            fontSize: 14,
             color: '#fff',
             marginBottom: 6,
             lineHeight: 1.4,
@@ -438,54 +527,113 @@ function TestCard({
           </div>
           <div style={{
             fontSize: 11,
-            color: 'rgba(255,255,255,0.6)',
-            lineHeight: 1.5,
+            color: 'rgba(255,255,255,0.55)',
+            lineHeight: 1.6,
           }}>
             {description}
           </div>
         </div>
 
-        {/* Start indicator */}
+        {/* Outputs + disclaimer */}
         <div style={{
-          marginTop: 12,
-          padding: '8px 12px',
+          marginTop: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 8,
+          direction: isArabic ? 'rtl' : 'ltr',
+          textAlign: 'start',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            flexWrap: 'wrap',
+          }}>
+            <span style={{
+              fontSize: 10,
+              color: 'rgba(255,255,255,0.5)',
+              fontWeight: 700,
+            }}>
+              {labels.outputsLabel}
+            </span>
+            {outputs.map((output) => (
+              <span
+                key={output}
+                style={{
+                  padding: '4px 8px',
+                  borderRadius: 999,
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: 'rgba(255,255,255,0.75)',
+                }}
+              >
+                {output}
+              </span>
+            ))}
+          </div>
+          <span style={{
+            alignSelf: isArabic ? 'flex-end' : 'flex-start',
+            padding: '4px 10px',
+            borderRadius: 999,
+            background: 'rgba(239,68,68,0.12)',
+            border: '1px solid rgba(239,68,68,0.3)',
+            fontSize: 10,
+            fontWeight: 700,
+            color: '#fecaca',
+          }}>
+            {labels.disclaimer}
+          </span>
+        </div>
+
+        {/* Start button */}
+        <div style={{
+          marginTop: 14,
+          padding: '10px 14px',
           background: isHovered
-            ? `linear-gradient(135deg, ${waveformColor}33, ${waveformColor}11)`
-            : 'rgba(255,255,255,0.05)',
-          border: `1px solid ${isHovered ? waveformColor : 'rgba(255,255,255,0.1)'}`,
-          borderRadius: 8,
+            ? `linear-gradient(135deg, ${waveformColor}25, ${waveformColor}10)`
+            : 'rgba(255,255,255,0.03)',
+          border: `1px solid ${isHovered ? `${waveformColor}55` : 'rgba(255,255,255,0.06)'}`,
+          borderRadius: 10,
           textAlign: 'center',
           transition: 'all 0.3s ease',
         }}>
           <span style={{
             fontSize: 12,
             fontWeight: 700,
-            color: isHovered ? waveformColor : 'rgba(255,255,255,0.5)',
+            color: isHovered ? waveformColor : 'rgba(255,255,255,0.45)',
           }}>
-            {isHovered ? '▶ اضغط للبدء' : '○ متاح'}
+            {isHovered ? `\u{1F52C} ${labels.startModule}` : `\u25CB ${labels.available}`}
           </span>
         </div>
       </div>
 
-      {/* Mini buttons */}
+      {/* Status bar */}
       <div style={{
         display: 'flex',
-        gap: 4,
-        marginTop: 8,
+        gap: 3,
+        padding: '6px 14px 10px',
         justifyContent: 'center',
       }}>
-        <div style={{ width: 20, height: 8, borderRadius: 2, background: '#F59E0B' }} />
-        <div style={{ width: 20, height: 8, borderRadius: 2, background: '#3B82F6' }} />
-        <div style={{ width: 20, height: 8, borderRadius: 2, background: '#3B82F6' }} />
-        <div style={{ width: 20, height: 8, borderRadius: 2, background: '#EF4444' }} />
+        {[waveformColor, brandCyan, brandPurple].map((color, i) => (
+          <div key={i} style={{
+            width: 24,
+            height: 3,
+            borderRadius: 2,
+            background: isHovered ? color : 'rgba(255,255,255,0.15)',
+            transition: 'all 0.3s ease',
+            opacity: isHovered ? 0.8 : 0.4,
+          }} />
+        ))}
       </div>
-    </div>
+    </button>
   );
 }
 
 const GameSection = memo(function GameSection() {
   const { mode: visitorMode, config: visitorConfig, isSchool, isParent, isClinician } = useVisitorMode();
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
 
   const [mode, setMode] = useState<GameMode | null>(null);
   const [briefingMode, setBriefingMode] = useState<GameMode | null>(null);
@@ -493,7 +641,7 @@ const GameSection = memo(function GameSection() {
   const [modalOutcome, setModalOutcome] = useState<TestOutcome | null>(null);
   const [showSummary, setShowSummary] = useState(false);
   const [isTestActive, setIsTestActive] = useState(false);
-  const [showPortal, setShowPortal] = useState(true);
+  const [showPortal, setShowPortal] = useState(false); // Default to Screening Station view
   const sessionIdRef = useRef<string>(Date.now().toString(36) + Math.random().toString(36).slice(2));
   const outcomesRef = useRef<Partial<Record<string, TestOutcome>>>({});
 
@@ -544,6 +692,9 @@ const GameSection = memo(function GameSection() {
       totalPoints,
     };
     saveSession(session);
+
+    const labMetrics = buildLabMetrics(outcome);
+    saveLabSession(labMetrics);
   }, []);
 
   // Handle retry from summary
@@ -559,60 +710,123 @@ const GameSection = memo(function GameSection() {
     setModalOutcome(null);
   }, []);
 
+  const cardLabels = useMemo(() => ({
+    moduleLabel: t('games.moduleLabel'),
+    signalPreview: t('games.signalPreview'),
+    statusReady: t('games.moduleStatusReady'),
+    statusStandby: t('games.moduleStatusStandby'),
+    statusActive: t('games.moduleStatusActive'),
+    statusIdle: t('games.moduleStatusIdle'),
+    outputsLabel: t('games.outputsLabel'),
+    disclaimer: t('games.nonDiagnostic'),
+    startModule: t('games.startModule'),
+    available: t('games.available'),
+  }), [t]);
+
+  const outputLabels = useMemo(() => ({
+    rt: t('games.outputs.rt'),
+    accuracy: t('games.outputs.accuracy'),
+    threshold: t('games.outputs.threshold'),
+    span: t('games.outputs.span'),
+    score: t('games.outputs.score'),
+    profile: t('games.outputs.profile'),
+  }), [t]);
+
+  const resultLabels = useMemo(() => ({
+    high: t('games.resultMeta.high.label'),
+    medium: t('games.resultMeta.medium.label'),
+    low: t('games.resultMeta.low.label'),
+  }), [t]);
+
   const cards = useMemo(
     () => [
       {
         mode: 'suite' as const,
-        title: 'معمل الفحص السمعي الشامل',
-        fullTitle: '🧪 معمل الفحص السمعي (3 اختبارات) — تقرير PDF/CSV',
-        desc: 'جلسة تفاعلية لقياس مؤشرات الانتباه + تمييز التردد + التسلسل',
-        tag: 'FULL SUITE',
+        title: t('games.modules.suite.name'),
+        fullTitle: t('games.cards.suite.fullTitle'),
+        desc: t('games.modules.suite.measure'),
+        outputs: [outputLabels.rt, outputLabels.accuracy, outputLabels.threshold, outputLabels.span],
+        tag: t('games.tags.suite'),
         color: '#22c55e',
         waveType: 'ecg' as const,
       },
       {
         mode: 'attention' as const,
-        title: 'اختبار الانتباه السمعي',
-        fullTitle: '🎯 اختبار الانتباه السمعي تحت الضوضاء (Go/No-Go)',
-        desc: 'قياس الانتباه الانتقائي + الاندفاعية وزمن الاستجابة',
-        tag: 'ATTENTION',
+        title: t('games.modules.attention.name'),
+        fullTitle: t('games.cards.attention.fullTitle'),
+        desc: t('games.modules.attention.measure'),
+        outputs: [outputLabels.rt, outputLabels.accuracy],
+        tag: t('games.tags.attention'),
         color: '#3B82F6',
         waveType: 'spo2' as const,
       },
       {
+        mode: 'focused_attention' as const,
+        title: t('games.cards.focusedAttention.title', 'Focused Attention Test'),
+        fullTitle: t('games.cards.focusedAttention.fullTitle', 'Focused Attention Test (CPT / Odd-One-Out)'),
+        desc: t('games.cards.focusedAttention.desc', 'Measures sustained attention consistency over time'),
+        outputs: [outputLabels.rt, outputLabels.accuracy],
+        tag: t('games.focusedAttention'),
+        color: '#0EA5E9',
+        waveType: 'spo2' as const,
+      },
+      {
         mode: 'frequency' as const,
-        title: 'اختبار تمييز التردد',
-        fullTitle: '🎚️ اختبار تمييز التردد (Adaptive 2IFC)',
-        desc: 'تقدير عتبة تمييز فروقات التردد عبر صعوبة تكيفية',
-        tag: 'FREQUENCY',
+        title: t('games.modules.frequency.name'),
+        fullTitle: t('games.cards.frequency.fullTitle'),
+        desc: t('games.modules.frequency.measure'),
+        outputs: [outputLabels.threshold, outputLabels.accuracy, outputLabels.rt],
+        tag: t('games.tags.frequency'),
         color: '#8B5CF6',
         waveType: 'audio' as const,
       },
       {
         mode: 'sequence' as const,
-        title: 'محاكاة الصف الدراسي — ذاكرة سمعية',
-        fullTitle: '🏫 محاكاة الصف الدراسي — تسلسل/ذاكرة سمعية تحت الضوضاء',
-        desc: 'اتباع سلسلة أوامر صوتية مع ضوضاء متزايدة',
-        tag: 'SEQUENCE',
+        title: t('games.modules.sequence.name'),
+        fullTitle: t('games.cards.sequence.fullTitle'),
+        desc: t('games.modules.sequence.measure'),
+        outputs: [outputLabels.span, outputLabels.accuracy, outputLabels.rt],
+        tag: t('games.tags.sequence'),
         color: '#F59E0B',
         waveType: 'resp' as const,
       },
       {
+        mode: 'dichotic_listening' as const,
+        title: t('games.cards.dichotic.title', 'Dichotic Listening Test'),
+        fullTitle: t('games.cards.dichotic.fullTitle', 'Dichotic listening + integration/separation'),
+        desc: t('games.cards.dichotic.desc', 'Assesses ear balance and separation accuracy'),
+        outputs: [outputLabels.accuracy, outputLabels.profile],
+        tag: t('games.dichoticListening'),
+        color: '#10B981',
+        waveType: 'audio' as const,
+      },
+      {
+        mode: 'speech_in_noise' as const,
+        title: t('games.cards.speechInNoise.title', 'Speech in Noise'),
+        fullTitle: t('games.cards.speechInNoise.fullTitle', 'Speech-in-noise + adaptive SNR'),
+        desc: t('games.cards.speechInNoise.desc', 'Measures speech understanding with changing noise'),
+        outputs: [outputLabels.threshold, outputLabels.accuracy],
+        tag: t('games.speechInNoise'),
+        color: '#F97316',
+        waveType: 'resp' as const,
+      },
+      {
         mode: 'questionnaire' as const,
-        title: 'استبيان مؤشرات للأهل',
-        fullTitle: '📝 استبيان مؤشرات للأهل (غير تشخيصي)',
-        desc: 'يعطي سياقاً ذاتياً مع الاختبارات الموضوعية',
-        tag: 'SURVEY',
+        title: t('games.modules.questionnaire.name'),
+        fullTitle: t('games.cards.questionnaire.fullTitle'),
+        desc: t('games.modules.questionnaire.measure'),
+        outputs: [outputLabels.score, outputLabels.profile],
+        tag: t('games.tags.questionnaire'),
         color: brandPink,
         waveType: 'ecg' as const,
       },
     ],
-    []
+    [outputLabels, t]
   );
-
   const activeCard = cards.find(c => c.mode === mode);
   const lastMeta = lastOutcome ? resultMeta[lastOutcome.result] : null;
-  const lastNext = lastOutcome ? nextStepFrom(lastOutcome.result) : null;
+  const lastNext = lastOutcome ? nextStepFrom(lastOutcome.result, t) : null;
+  const modulesAvailableLabel = t('gameSection.modulesAvailable', '{count} Modules Available');
 
   const handleTestStart = useCallback(() => {
     setIsTestActive(true);
@@ -656,32 +870,33 @@ const GameSection = memo(function GameSection() {
       {/* Section Header */}
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
-          <h2 style={styles.h2}>🏥 معمل الفحص السمعي</h2>
+          <h2 style={styles.h2}>{t('games.labModulesTitle')}</h2>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             <button
               onClick={() => setShowPortal(!showPortal)}
+              aria-label={showPortal ? t('games.labToggleAriaStation') : t('games.labToggleAriaPortal')}
               style={{
                 padding: '6px 14px',
                 borderRadius: 8,
-                background: showPortal
+                background: !showPortal
                   ? `linear-gradient(135deg, ${brandCyan}22, ${brandPink}22)`
                   : 'rgba(255,255,255,0.08)',
-                border: `1px solid ${showPortal ? brandCyan : 'rgba(255,255,255,0.2)'}`,
-                color: showPortal ? brandCyan : 'rgba(255,255,255,0.7)',
+                border: `1px solid ${!showPortal ? brandCyan : 'rgba(255,255,255,0.2)'}`,
+                color: !showPortal ? brandCyan : 'rgba(255,255,255,0.7)',
                 fontSize: 11,
                 fontWeight: 700,
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
               }}
             >
-              {showPortal ? '🎮 Portal' : '📟 Classic'}
+              {showPortal ? t('games.labToggleStation') : t('games.labTogglePortal')}
             </button>
             <span style={{
               ...styles.chip,
               background: 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(59,130,246,0.2))',
               borderColor: 'rgba(34,197,94,0.4)',
             }}>
-              SCREENING LAB
+              {t('games.labBadge')}
             </span>
           </div>
         </div>
@@ -701,95 +916,214 @@ const GameSection = memo(function GameSection() {
         </div>
       )}
 
-      {/* Medical Monitor Visual Header - Classic View */}
+      {/* Screening Station - Advanced Lab Tech View */}
       {!showPortal && (
       <div style={{
         marginTop: 20,
         padding: 20,
-        background: 'linear-gradient(180deg, #E8E4DC 0%, #D4CFC5 100%)',
+        background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
         borderRadius: 20,
-        boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
+        boxShadow: '0 15px 40px rgba(0,0,0,0.4), 0 0 60px rgba(143,211,204,0.08)',
+        border: '1px solid rgba(143,211,204,0.15)',
+        position: 'relative',
+        overflow: 'hidden',
       }}>
+        {/* Lab tech glow effect */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          background: `linear-gradient(90deg, transparent, ${brandCyan}, ${brandPink}, ${brandPurple}, transparent)`,
+          opacity: 0.6,
+        }} />
+
         {/* Monitor top bar */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 12,
-          padding: '0 10px',
+          marginBottom: 16,
+          padding: '8px 16px',
+          background: 'rgba(0,0,0,0.3)',
+          borderRadius: 12,
+          border: '1px solid rgba(255,255,255,0.05)',
         }}>
-          <div style={{ fontSize: 11, color: '#666', fontWeight: 600 }}>
-            BERARD AIT SOUND LAB — SCREENING STATION
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 10, color: '#666' }}>5 TESTS AVAILABLE</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: '#22c55e',
-              animation: 'blink 2s ease-in-out infinite',
-            }} />
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: `linear-gradient(135deg, ${brandCyan}22, ${brandPink}22)`,
+              border: `1px solid ${brandCyan}44`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 18,
+            }}>
+              🔬
+            </div>
+            <div>
+              <div style={{ fontSize: 13, color: brandCyan, fontWeight: 800, letterSpacing: '0.5px' }}>
+                {t('games.lab.screeningStation')}
+              </div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '1px' }}>
+                {t('games.lab.professionalGrade')}
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '6px 12px',
+              background: 'rgba(34,197,94,0.12)',
+              border: '1px solid rgba(34,197,94,0.3)',
+              borderRadius: 8,
+            }}>
+              <div style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: '#22c55e',
+                animation: 'blink 2s ease-in-out infinite',
+                boxShadow: '0 0 8px #22c55e',
+              }} />
+              <span style={{ fontSize: 10, color: '#22c55e', fontWeight: 700 }}>{t('games.lab.systemReady')}</span>
+            </div>
+            <div style={{
+              padding: '6px 12px',
+              background: 'rgba(143,211,204,0.08)',
+              border: '1px solid rgba(143,211,204,0.2)',
+              borderRadius: 8,
+              fontSize: 10,
+              color: brandCyan,
+              fontWeight: 700,
+            }}>
+              {t('games.lab.modulesCount')}
+            </div>
           </div>
         </div>
 
         {/* Main monitor display */}
         <div style={{
-          background: 'linear-gradient(180deg, #2A2F3A 0%, #1E232C 100%)',
-          borderRadius: 12,
-          padding: 20,
-          border: '3px solid #1a1a1a',
-          boxShadow: 'inset 0 0 40px rgba(0,0,0,0.5)',
+          background: 'linear-gradient(180deg, rgba(26,31,46,0.9) 0%, rgba(13,17,23,0.95) 100%)',
+          borderRadius: 16,
+          padding: 24,
+          border: '1px solid rgba(143,211,204,0.1)',
+          boxShadow: 'inset 0 0 60px rgba(0,0,0,0.4)',
           position: 'relative',
           overflow: 'hidden',
         }}>
-          {/* Scanline effect */}
+          {/* Grid pattern overlay */}
           <div style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(transparent 50%, rgba(0,0,0,0.1) 50%)',
-            backgroundSize: '100% 4px',
+            backgroundImage: `
+              linear-gradient(rgba(143,211,204,0.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(143,211,204,0.03) 1px, transparent 1px)
+            `,
+            backgroundSize: '40px 40px',
             pointerEvents: 'none',
-            opacity: 0.3,
+            opacity: 0.5,
           }} />
 
-          {/* Best experience notice */}
+          {/* Best experience notice - Lab Tech Style */}
           <div style={{
-            marginBottom: 20,
-            padding: 12,
-            background: 'rgba(143,211,204,0.1)',
-            border: '1px solid rgba(143,211,204,0.3)',
-            borderRadius: 8,
+            marginBottom: 24,
+            padding: 16,
+            background: 'linear-gradient(135deg, rgba(143,211,204,0.08), rgba(175,132,186,0.05))',
+            border: '1px solid rgba(143,211,204,0.2)',
+            borderRadius: 14,
             display: 'flex',
             alignItems: 'center',
-            gap: 12,
+            gap: 16,
+            position: 'relative',
+            overflow: 'hidden',
           }}>
-            <span style={{ fontSize: 24 }}>🎧</span>
-            <div style={{ flex: 1, direction: 'rtl', textAlign: 'right' }}>
-              <div style={{ fontWeight: 800, fontSize: 13, color: brandCyan }}>أفضل تجربة</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>
-                استخدم سماعات + ارفع الصوت لمستوى مريح + مكان هادئ
+            {/* Animated border glow */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 1,
+              background: `linear-gradient(90deg, transparent, ${brandCyan}66, transparent)`,
+            }} />
+            <div style={{
+              width: 48,
+              height: 48,
+              borderRadius: 12,
+              background: `linear-gradient(135deg, ${brandCyan}22, ${brandPurple}22)`,
+              border: `1px solid ${brandCyan}33`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 24,
+            }}>
+              🎧
+            </div>
+            <div style={{ flex: 1, direction: isArabic ? 'rtl' : 'ltr', textAlign: 'start' }}>
+              <div style={{ fontWeight: 800, fontSize: 14, color: brandCyan, marginBottom: 4 }}>
+                بيئة الفحص المثالية
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>
+                سماعات عالية الجودة • مستوى صوت مريح • مكان هادئ
               </div>
             </div>
             <div style={{
               display: 'flex',
-              gap: 4,
+              gap: 8,
             }}>
-              {['🔊', '🎧', '🤫'].map((emoji, i) => (
-                <span key={i} style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 8,
-                  background: 'rgba(255,255,255,0.1)',
+              {[
+                { emoji: '🔊', label: 'صوت' },
+                { emoji: '🎧', label: 'سماعات' },
+                { emoji: '🤫', label: 'هدوء' },
+              ].map((item, i) => (
+                <div key={i} style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 10,
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.08)',
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 14,
+                  gap: 2,
+                  transition: 'all 0.2s ease',
                 }}>
-                  {emoji}
-                </span>
+                  <span style={{ fontSize: 16 }}>{item.emoji}</span>
+                  <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
+                    {item.label}
+                  </span>
+                </div>
               ))}
             </div>
+          </div>
+
+          {/* Full suite CTA */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginBottom: 16,
+          }}>
+            <button
+              type="button"
+              onClick={() => {
+                setBriefingMode(null);
+                setMode('suite');
+              }}
+              style={{
+                ...styles.primaryBtn,
+                background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
+                color: '#05060d',
+              }}
+            >
+              {t('games.startFullSuite')}
+            </button>
           </div>
 
           {/* Test Cards Grid */}
@@ -804,6 +1138,8 @@ const GameSection = memo(function GameSection() {
                 title={c.title}
                 description={c.desc}
                 tag={c.tag}
+                outputs={c.outputs}
+                labels={cardLabels}
                 waveformColor={c.color}
                 waveformType={c.waveType}
                 onClick={() => handleModeSelect(c.mode)}
@@ -813,41 +1149,80 @@ const GameSection = memo(function GameSection() {
           </div>
         </div>
 
-        {/* Monitor bottom buttons */}
+        {/* Quick Access Bar */}
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginTop: 15,
-          gap: 8,
+          marginTop: 20,
+          padding: 16,
+          background: 'rgba(0,0,0,0.3)',
+          borderRadius: 14,
+          border: '1px solid rgba(255,255,255,0.05)',
         }}>
-          {[
-            { color: '#22c55e', label: 'SUITE' },
-            { color: '#3B82F6', label: 'ATTENTION' },
-            { color: '#8B5CF6', label: 'FREQ' },
-            { color: '#F59E0B', label: 'SEQ' },
-            { color: brandPink, label: 'SURVEY' },
-          ].map((btn, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => handleModeSelect(cards[i].mode)}
-              style={{
-                padding: '6px 16px',
-                borderRadius: 4,
-                background: `linear-gradient(180deg, ${btn.color}, ${btn.color}cc)`,
-                border: `1px solid ${btn.color}88`,
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                fontSize: 10,
-                fontWeight: 700,
-                color: '#fff',
-                textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-              }}
-            >
-              {btn.label}
-            </button>
-          ))}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 12,
+          }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600, letterSpacing: '0.5px' }}>
+              {t('games.quickAccessLabel')}
+            </span>
+            <span style={{ fontSize: 10, color: brandCyan, fontWeight: 600 }}>
+              {modulesAvailableLabel.replace('{count}', String(cards.length))}
+            </span>
+          </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 10,
+            flexWrap: 'wrap',
+          }}>
+            {[
+              { mode: 'suite', color: '#22c55e', label: t('games.tags.suite'), icon: '\u{1F9EA}' },
+              { mode: 'attention', color: '#3B82F6', label: t('games.tags.attention'), icon: '\u{1F3AF}' },
+              { mode: 'focused_attention', color: '#0EA5E9', label: t('games.focusedAttention'), icon: '\u{1F9E0}' },
+              { mode: 'frequency', color: '#8B5CF6', label: t('games.tags.frequency'), icon: '\u{1F39A}' },
+              { mode: 'sequence', color: '#F59E0B', label: t('games.tags.sequence'), icon: '\u{1F3EB}' },
+              { mode: 'dichotic_listening', color: '#10B981', label: t('games.dichoticListening'), icon: '\u{1F442}' },
+              { mode: 'speech_in_noise', color: '#F97316', label: t('games.speechInNoise'), icon: '\u{1F50A}' },
+              { mode: 'questionnaire', color: brandPink, label: t('games.tags.questionnaire'), icon: '\u{1F4DD}' },
+            ].map((btn) => (
+              <button
+                key={btn.mode}
+                type="button"
+                onClick={() => handleModeSelect(btn.mode as GameMode)}
+                aria-label={`${t('games.startModule')}: ${btn.label}`}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 10,
+                  background: 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${btn.color}44`,
+                  cursor: 'pointer',
+                  boxShadow: 'none',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: btn.color,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = `${btn.color}18`;
+                  e.currentTarget.style.borderColor = btn.color;
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                  e.currentTarget.style.borderColor = `${btn.color}44`;
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <span>{btn.icon}</span>
+                <span>{btn.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
       )}
@@ -857,65 +1232,109 @@ const GameSection = memo(function GameSection() {
         <ScreeningDashboard />
       </div>
 
-      {/* Last Result Display */}
+      {/* Last Result Display - Lab Tech Style */}
       {lastOutcome && lastMeta && lastNext ? (
         <div style={{
-          marginTop: 20,
-          padding: 16,
-          background: 'linear-gradient(180deg, #E8E4DC 0%, #D4CFC5 100%)',
-          borderRadius: 16,
-          boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
+          marginTop: 24,
+          padding: 20,
+          background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+          borderRadius: 18,
+          boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
+          border: '1px solid rgba(143,211,204,0.12)',
+          position: 'relative',
+          overflow: 'hidden',
         }}>
+          {/* Top glow */}
           <div style={{
-            background: 'linear-gradient(180deg, #2A2F3A 0%, #1E232C 100%)',
-            borderRadius: 8,
-            padding: 16,
-            border: '2px solid #1a1a1a',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 2,
+            background: `linear-gradient(90deg, transparent, ${lastMeta.color}, transparent)`,
+            opacity: 0.6,
+          }} />
+
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            gap: 20,
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            direction: isArabic ? 'rtl' : 'ltr',
           }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: 16,
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              direction: 'rtl',
-            }}>
-              <div>
+            <div style={{ flex: 1 }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                marginBottom: 12,
+              }}>
                 <div style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
+                  background: `${lastMeta.color}18`,
+                  border: `1px solid ${lastMeta.color}44`,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 8,
+                  justifyContent: 'center',
                 }}>
                   <span style={{
-                    width: 12,
-                    height: 12,
+                    width: 14,
+                    height: 14,
                     borderRadius: '50%',
                     background: lastMeta.color,
                     animation: 'blink 1.5s ease-in-out infinite',
+                    boxShadow: `0 0 12px ${lastMeta.color}`,
                   }} />
-                  <span style={{ fontWeight: 900, color: lastMeta.color, fontSize: 16 }}>
-                    آخر نتيجة: {lastOutcome.title}
+                </div>
+                <div>
+                  <div style={{
+                    fontSize: 10,
+                    color: 'rgba(255,255,255,0.4)',
+                    fontWeight: 600,
+                    letterSpacing: '0.5px',
+                    marginBottom: 2,
+                  }}>
+                    {t('games.lastResultLabel')}
+                  </div>
+                  <span style={{ fontWeight: 900, color: lastMeta.color, fontSize: 18 }}>
+                    {lastOutcome.title}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 6 }}>
+              </div>
+              <div style={{
+                padding: '12px 16px',
+                background: 'rgba(0,0,0,0.3)',
+                borderRadius: 10,
+                border: '1px solid rgba(255,255,255,0.05)',
+              }}>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
                   {lastOutcome.scoreLabel}
                 </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4, lineHeight: 1.5 }}>
                   {lastOutcome.message}
                 </div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 6 }}>
+                  {t('clinical.disclaimer')}
+                </div>
               </div>
-              <a
-                href={lastNext.hash}
-                style={{
-                  ...styles.primaryBtn,
-                  textDecoration: 'none',
-                  background: `linear-gradient(135deg, ${brandPurpleDark}, ${lastNext.tone})`,
-                  boxShadow: `0 4px 15px ${lastNext.tone}44`,
-                }}
-              >
-                {lastNext.label}
-              </a>
             </div>
+            <a
+              href={lastNext.hash}
+              style={{
+                ...styles.primaryBtn,
+                textDecoration: 'none',
+                background: `linear-gradient(135deg, ${brandPurpleDark}, ${lastNext.tone})`,
+                boxShadow: `0 8px 24px ${lastNext.tone}33`,
+                padding: '14px 24px',
+                fontSize: 14,
+                borderRadius: 12,
+              }}
+            >
+              {lastNext.label}
+            </a>
           </div>
         </div>
       ) : null}
@@ -927,10 +1346,10 @@ const GameSection = memo(function GameSection() {
       <MedicalMonitor
         open={mode === 'attention'}
         onClose={() => setMode(null)}
-        title="🎯 ATTENTION TEST"
+        title={t('games.cards.attention.fullTitle')}
         waveformColor="#3B82F6"
         waveformType="spo2"
-        statusText={isTestActive ? 'TESTING' : 'READY'}
+        statusText={isTestActive ? t('games.lab.statusTesting') : t('games.moduleStatusReady')}
         isActive={isTestActive}
       >
         <AttentionTestPanel
@@ -951,10 +1370,13 @@ const GameSection = memo(function GameSection() {
             borderRadius: 8,
           }}>
             <div style={{ fontWeight: 900, color: resultMeta[modalOutcome.result].color }}>
-              النتيجة: {resultMeta[modalOutcome.result].label}
+              {t('games.resultLabel')} {resultLabels[modalOutcome.result]}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
               {modalOutcome.scoreLabel}
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+              {t('clinical.disclaimer')}
             </div>
           </div>
         ) : null}
@@ -963,10 +1385,10 @@ const GameSection = memo(function GameSection() {
       <MedicalMonitor
         open={mode === 'frequency'}
         onClose={() => setMode(null)}
-        title="🎚️ FREQUENCY TEST"
+        title={t('games.cards.frequency.fullTitle')}
         waveformColor="#8B5CF6"
         waveformType="audio"
-        statusText={isTestActive ? 'TESTING' : 'READY'}
+        statusText={isTestActive ? t('games.lab.statusTesting') : t('games.moduleStatusReady')}
         isActive={isTestActive}
       >
         <FrequencyDiscriminationTestPanel
@@ -987,10 +1409,13 @@ const GameSection = memo(function GameSection() {
             borderRadius: 8,
           }}>
             <div style={{ fontWeight: 900, color: resultMeta[modalOutcome.result].color }}>
-              النتيجة: {resultMeta[modalOutcome.result].label}
+              {t('games.resultLabel')} {resultLabels[modalOutcome.result]}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
               {modalOutcome.scoreLabel}
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+              {t('clinical.disclaimer')}
             </div>
           </div>
         ) : null}
@@ -999,10 +1424,10 @@ const GameSection = memo(function GameSection() {
       <MedicalMonitor
         open={mode === 'sequence'}
         onClose={() => setMode(null)}
-        title="🏫 SEQUENCE TEST"
+        title={t('games.cards.sequence.fullTitle')}
         waveformColor="#F59E0B"
         waveformType="resp"
-        statusText={isTestActive ? 'TESTING' : 'READY'}
+        statusText={isTestActive ? t('games.lab.statusTesting') : t('games.moduleStatusReady')}
         isActive={isTestActive}
       >
         <SequencingTestPanel
@@ -1023,10 +1448,13 @@ const GameSection = memo(function GameSection() {
             borderRadius: 8,
           }}>
             <div style={{ fontWeight: 900, color: resultMeta[modalOutcome.result].color }}>
-              النتيجة: {resultMeta[modalOutcome.result].label}
+              {t('games.resultLabel')} {resultLabels[modalOutcome.result]}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
               {modalOutcome.scoreLabel}
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+              {t('clinical.disclaimer')}
             </div>
           </div>
         ) : null}
@@ -1035,10 +1463,10 @@ const GameSection = memo(function GameSection() {
       <MedicalMonitor
         open={mode === 'questionnaire'}
         onClose={() => setMode(null)}
-        title="📝 QUESTIONNAIRE"
+        title={t('games.cards.questionnaire.fullTitle')}
         waveformColor={brandPink}
         waveformType="ecg"
-        statusText={isTestActive ? 'ACTIVE' : 'READY'}
+        statusText={isTestActive ? t('games.lab.statusActive') : t('games.moduleStatusReady')}
         isActive={isTestActive}
       >
         <QuestionnairePanel
@@ -1059,10 +1487,13 @@ const GameSection = memo(function GameSection() {
             borderRadius: 8,
           }}>
             <div style={{ fontWeight: 900, color: resultMeta[modalOutcome.result].color }}>
-              النتيجة: {resultMeta[modalOutcome.result].label}
+              {t('games.resultLabel')} {resultLabels[modalOutcome.result]}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
               {modalOutcome.scoreLabel}
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+              {t('clinical.disclaimer')}
             </div>
           </div>
         ) : null}
@@ -1116,9 +1547,7 @@ const GameSection = memo(function GameSection() {
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {isArabic
-              ? 'النتائج والتوصيات مخصصة لاحتياجاتك'
-              : 'Results and recommendations personalized for your needs'}
+            {t('auto.GameSection.k30', "Results and recommendations personalized for your needs")}
           </div>
         </div>
         <a
@@ -1135,7 +1564,7 @@ const GameSection = memo(function GameSection() {
             transition: transitions.fast,
           }}
         >
-          {isArabic ? visitorConfig.ctaLabelAr : visitorConfig.ctaLabel}
+          {isArabic ? t(visitorConfig.ctaLabelAr, visitorConfig.ctaLabel) : visitorConfig.ctaLabel}
         </a>
       </div>
     </section>
