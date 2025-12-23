@@ -24,8 +24,15 @@ export function initWebSocket(server) {
     // Authenticate if token provided
     if (token) {
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'lotus-secret-key');
-        userId = decoded.id;
+        const jwtSecret = process.env.JWT_SECRET;
+        if (!jwtSecret) {
+          throw new Error('JWT secret not configured');
+        }
+        const decoded = jwt.verify(token, jwtSecret);
+        userId = decoded.userId || decoded.id;
+        if (!userId) {
+          throw new Error('Token missing userId');
+        }
         addClient(userId, ws);
         ws.userId = userId;
         console.log(`   ✓ Authenticated user: ${userId}`);

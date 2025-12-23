@@ -89,6 +89,7 @@ const normalizeSession = (value: unknown): LabModuleMetrics | null => {
     fatigueIndex: fatigueValue === null ? undefined : fatigueValue,
     fatigueSlope: fatigueSlope === null ? undefined : fatigueSlope,
     consistency: consistencyValue === null ? undefined : consistencyValue,
+    qualityFlags,
     notes,
     qualityFlags,
   };
