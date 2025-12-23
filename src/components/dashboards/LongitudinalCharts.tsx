@@ -5,6 +5,8 @@ import { getAllSessions } from '../../utils/sessionStorage';
 import type { LabModuleMetrics } from '../../types/moduleMetrics';
 import { brandCyan, brandPurple, colors, spacing, radius, typography, analytics } from '../styles';
 
+const VIEWBOX_W = 100;
+
 type ChartVariant = 'parent' | 'clinician';
 
 type ChartPoint = {
@@ -222,9 +224,9 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   }, [scoredSessions, locale, lineHeight, isArabic]);
 
   const scorePath = useMemo(() => {
-    if (scorePoints.length === 0) return '';
-    return scorePoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
-  }, [scorePoints]);
+    if (translatedScorePoints.length === 0) return '';
+    return translatedScorePoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
+  }, [translatedScorePoints]);
 
   const rollingPoints = useMemo(() => {
     if (!rollingScores.length) return [];
@@ -243,9 +245,9 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   }, [rollingScores, lineHeight, isArabic]);
 
   const rollingPath = useMemo(() => {
-    if (rollingPoints.length === 0) return '';
-    return rollingPoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
-  }, [rollingPoints]);
+    if (translatedRollingPoints.length === 0) return '';
+    return translatedRollingPoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
+  }, [translatedRollingPoints]);
 
   const bestPoint = useMemo(() => {
     if (scorePoints.length === 0) return null;
@@ -333,7 +335,6 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     );
   }
 
-  const labelStep = scorePoints.length > 6 ? Math.ceil(scorePoints.length / 6) : 1;
   const valueToY = (value: number, height: number) => {
     const chartHeight = height - VIEWBOX_BOTTOM_OFFSET;
     return VIEWBOX_PADDING_Y + chartHeight - (value / 100) * chartHeight;
@@ -618,7 +619,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             </g>
           ))}
 
-          {scorePoints.map((point, index) => (
+          {labelPoints.map((point, index) => (
             index % labelStep === 0 ? (
               <text
                 key={`label-${index}`}
