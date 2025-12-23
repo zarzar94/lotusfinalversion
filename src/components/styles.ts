@@ -485,6 +485,9 @@ export const gradients = {
     'repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 28px), repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 28px)',
 };
 
+// Global popup scale for centered modals
+export const modalScale = 0.75;
+
 export const styles: Record<string, CSSProperties> = {
   // ─────────────────────────────────────────────────────────────────────────
   // LAYOUT
@@ -858,6 +861,8 @@ export const styles: Record<string, CSSProperties> = {
     maxHeight: '86vh',
     overflow: 'auto',
     boxShadow: shadows['2xl'],
+    transform: `scale(${modalScale})`,
+    transformOrigin: 'center',
   },
 
   // ─────────────────────────────────────────────────────────────────────────

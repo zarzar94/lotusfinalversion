@@ -60,6 +60,10 @@ export default function AssessmentSuiteModal({
     // reset when opened fresh
     setStep('intro');
     setSession({ id: genId(), startedAt: Date.now(), outcomes: {} });
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [open]);
 
   const upsertOutcome = (outcome: TestOutcome) => {

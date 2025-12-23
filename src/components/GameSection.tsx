@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useRef, useCallback, memo } from 'react';
 
-import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, radius, spacing, typography, transitions } from './styles';
+import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, radius, spacing, typography, transitions, modalScale } from './styles';
 
 import AssessmentSuiteModal from './games/AssessmentSuiteModal';
 import AttentionTestPanel from './games/AttentionTestPanel';
@@ -164,7 +164,11 @@ function MedicalMonitor({
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
   }, [open, onClose]);
 
   if (!open) return null;
@@ -188,20 +192,23 @@ function MedicalMonitor({
       onClick={onClose}
     >
       {/* Lab Modal Frame */}
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          width: '100%',
-          maxWidth: 920,
-          background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
-          borderRadius: 24,
-          padding: 0,
-          boxShadow: `0 40px 100px rgba(0,0,0,0.6), 0 0 80px ${waveformColor}15`,
-          position: 'relative',
-          overflow: 'hidden',
-          border: `1px solid ${waveformColor}22`,
-        }}
-      >
+      <div style={{ width: '100%', maxWidth: 920, transform: `scale(${modalScale})`, transformOrigin: 'center' }}>
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            width: '100%',
+            maxHeight: '90vh',
+            background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+            borderRadius: 24,
+            padding: 0,
+            boxShadow: `0 40px 100px rgba(0,0,0,0.6), 0 0 80px ${waveformColor}15`,
+            position: 'relative',
+            overflow: 'hidden',
+            border: `1px solid ${waveformColor}22`,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
         {/* Top glow bar */}
         <div style={{
           position: 'absolute',
@@ -350,7 +357,8 @@ function MedicalMonitor({
         {/* Main content area */}
         <div style={{
           padding: 24,
-          maxHeight: '50vh',
+          flex: '1 1 auto',
+          minHeight: 0,
           overflowY: 'auto',
           direction,
           textAlign: direction === 'rtl' ? 'right' : 'left',
@@ -389,6 +397,7 @@ function MedicalMonitor({
             ))}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

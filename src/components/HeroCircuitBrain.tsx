@@ -11,6 +11,7 @@ import {
   shadows,
   transitions,
   gradients,
+  modalScale,
 } from './styles';
 import { BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
 import { useLanguage } from '../context/LanguageContext';
@@ -132,21 +133,21 @@ const InfoModal = memo(({
         animation: 'modalFadeIn 0.3s ease-out',
       }}
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          background: colors.surface.overlay,
-          borderRadius: radius.xl,
-          maxWidth: 680,
-          width: '100%',
-          maxHeight: '88vh',
-          overflow: 'auto',
-          position: 'relative',
-          border: `1px solid ${colors.border.emphasis}`,
-          boxShadow: shadows['2xl'],
-          animation: 'modalSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
-        }}
-      >
+      <div style={{ width: '100%', maxWidth: 680, transform: `scale(${modalScale})`, transformOrigin: 'center' }}>
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            background: colors.surface.overlay,
+            borderRadius: radius.xl,
+            width: '100%',
+            maxHeight: '88vh',
+            overflow: 'auto',
+            position: 'relative',
+            border: `1px solid ${colors.border.emphasis}`,
+            boxShadow: shadows['2xl'],
+            animation: 'modalSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          }}
+        >
         {/* Gradient top border */}
         <div style={{
           height: 3,
@@ -394,6 +395,7 @@ const InfoModal = memo(({
             </button>
           </div>
         </div>
+      </div>
       </div>
 
       <style>{`

@@ -6,7 +6,7 @@
 import { memo, useMemo, useCallback, useState, useEffect } from 'react';
 import { useVisitorMode } from '../../context/VisitorModeContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { brandCyan, brandPink, brandPurple, colors, radius, spacing, typography, transitions, shadows } from '../styles';
+import { brandCyan, brandPink, brandPurple, colors, radius, spacing, typography, transitions, shadows, modalScale } from '../styles';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -509,7 +509,11 @@ const PreTestBriefing = memo(function PreTestBriefing({
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
   }, [open, onClose]);
 
   const css = useMemo(() => `
@@ -562,20 +566,20 @@ const PreTestBriefing = memo(function PreTestBriefing({
           zIndex: 1000,
         }}
       >
-        <div
-          className="briefing-enter"
-          onClick={(e) => e.stopPropagation()}
-          style={{
-            width: '100%',
-            maxWidth: 700,
-            maxHeight: '90vh',
-            overflow: 'auto',
-            background: colors.surface.overlay,
-            borderRadius: radius['2xl'],
-            border: `1px solid ${briefing.color}30`,
-            boxShadow: `0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px ${briefing.color}10`,
-          }}
-        >
+        <div style={{ width: '100%', maxWidth: 700, transform: `scale(${modalScale})`, transformOrigin: 'center' }}>
+          <div
+            className="briefing-enter"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxHeight: '90vh',
+              overflow: 'auto',
+              background: colors.surface.overlay,
+              borderRadius: radius['2xl'],
+              border: `1px solid ${briefing.color}30`,
+              boxShadow: `0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px ${briefing.color}10`,
+            }}
+          >
           {/* Header */}
           <div style={{
             padding: `${spacing[5]}px ${spacing[5]}px ${spacing[4]}px`,
@@ -902,6 +906,7 @@ const PreTestBriefing = memo(function PreTestBriefing({
                 {t('auto.PreTestBriefing.k7', "Start Test")}
               </button>
             </div>
+          </div>
           </div>
         </div>
       </div>

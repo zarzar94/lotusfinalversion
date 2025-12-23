@@ -2,7 +2,7 @@ import { useRef, useState, useMemo, useCallback, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Float } from '@react-three/drei';
 import * as THREE from 'three';
-import { brandCyan, brandPurple, brandPink } from '../styles';
+import { brandCyan, brandPurple, brandPink, modalScale } from '../styles';
 
 // Treatment area bubbles positioned on anatomical brain regions
 const BRAIN_BUBBLES = [
@@ -534,6 +534,18 @@ function BrainScene({ onBubbleSelect }: { onBubbleSelect: (bubble: typeof BRAIN_
 function BubbleInfoPanel({ bubble, onClose }: { bubble: typeof BRAIN_BUBBLES[number] | null; onClose: () => void }) {
   if (!bubble) return null;
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [onClose]);
+
   const descriptions: Record<string, string> = {
     auditory: 'معالجة الأصوات والمعلومات السمعية، بما في ذلك التمييز بين الأصوات المختلفة',
     language: 'فهم وإنتاج اللغة المنطوقة والمكتوبة، بما في ذلك القراءة والكتابة',
@@ -548,21 +560,40 @@ function BubbleInfoPanel({ bubble, onClose }: { bubble: typeof BRAIN_BUBBLES[num
   };
 
   return (
-    <div style={{
-      position: 'absolute',
-      bottom: 20,
-      left: '50%',
-      transform: 'translateX(-50%)',
-      background: 'rgba(11,15,28,0.95)',
-      backdropFilter: 'blur(20px)',
-      border: `2px solid ${bubble.color}66`,
-      borderRadius: 20,
-      padding: '20px 24px',
-      maxWidth: 380,
-      width: '90%',
-      animation: 'slideUp 0.4s ease-out',
-      boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 40px ${bubble.color}22`,
-    }}>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={bubble.labelEn}
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(5,6,13,0.88)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 16,
+        zIndex: 1000,
+      }}
+    >
+      <div style={{ width: '100%', maxWidth: 380, transform: `scale(${modalScale})`, transformOrigin: 'center' }}>
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            background: 'rgba(11,15,28,0.95)',
+            backdropFilter: 'blur(20px)',
+            border: `2px solid ${bubble.color}66`,
+            borderRadius: 20,
+            padding: '20px 24px',
+            width: '100%',
+            maxHeight: '86vh',
+            overflow: 'auto',
+            animation: 'slideUp 0.4s ease-out',
+            boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 40px ${bubble.color}22`,
+          }}
+        >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
@@ -611,10 +642,12 @@ function BubbleInfoPanel({ bubble, onClose }: { bubble: typeof BRAIN_BUBBLES[num
 
       <style>{`
         @keyframes slideUp {
-          from { opacity: 0; transform: translateX(-50%) translateY(30px); }
-          to { opacity: 1; transform: translateX(-50%) translateY(0); }
+          from { opacity: 0; transform: translateY(30px) scale(0.95); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
         }
       `}</style>
+        </div>
+      </div>
     </div>
   );
 }
