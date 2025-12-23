@@ -71,32 +71,40 @@ const getConfidenceLevel = (
   sessionCount: number,
   stdDev: number,
   outlierRate: number,
+  meanScore: number,
 ): { level: ConfidenceLevel; message: string; tone: string; consistencyIndex: number } => {
-  const sessionFactor = Math.min(1, sessionCount / 8);
-  const normalizedVariability = Math.min(1, stdDev / 25);
-  const normalizedOutliers = Math.min(1, outlierRate);
+  const normalizedVariability = Math.min(1, meanScore > 0 ? stdDev / Math.max(meanScore, 1) : stdDev / 30);
+  const normalizedOutliers = Math.min(1, outlierRate * 1.5);
+  const sessionFactor = sessionCount < MIN_TREND_SESSIONS
+    ? sessionCount / MIN_TREND_SESSIONS
+    : Math.min(1, (sessionCount - MIN_TREND_SESSIONS + 1) / 6);
 
   const variabilityScore = 1 - normalizedVariability; // higher = steadier data
   const outlierScore = 1 - normalizedOutliers; // higher = fewer outliers
-  const sessionScore = 0.35 + sessionFactor * 0.65; // nudges score up as count grows
+  const sessionScore = 0.25 + sessionFactor * 0.75; // nudges score up as count grows
 
-  const weightedScore = variabilityScore * 0.45 + outlierScore * 0.25 + sessionScore * 0.3;
-  const consistencyIndex = Math.round(Math.max(0, Math.min(100, weightedScore * 100)));
+  const weightedScore = variabilityScore * 0.45 + outlierScore * 0.3 + sessionScore * 0.25;
+  const consistencyIndex = Math.round(clampScore(weightedScore * 100));
+
+  const needsMoreSessions = sessionCount < MIN_TREND_SESSIONS;
+  const volatileData = normalizedVariability > 0.5 || normalizedOutliers > 0.35;
 
   let level: ConfidenceLevel = 'medium';
-  if (sessionCount < MIN_TREND_SESSIONS || consistencyIndex < 50) {
+  if (needsMoreSessions || consistencyIndex < 55 || volatileData) {
     level = 'low';
-  } else if (consistencyIndex >= 78 && sessionCount >= MIN_TREND_SESSIONS + 1) {
+  } else if (consistencyIndex >= 82 && sessionCount >= MIN_TREND_SESSIONS + 1) {
     level = 'high';
   }
 
   const message = level === 'high'
     ? 'High confidence'
     : level === 'medium'
-      ? 'Medium confidence—monitor for changes'
-      : sessionCount < MIN_TREND_SESSIONS
+      ? volatileData
+        ? 'Medium confidence—scores show some variability'
+        : 'Medium confidence—add a session to confirm the trend'
+      : needsMoreSessions
         ? `Low confidence—need ${MIN_TREND_SESSIONS}+ sessions`
-        : 'Low confidence—data variability';
+        : 'Low confidence—scores fluctuate or include outliers';
 
   const tone = level === 'high'
     ? colors.success
@@ -281,6 +289,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
       sessions.length,
       stdDev,
       outlierRate,
+      average,
     );
 
     const fatigueValues = sessions
