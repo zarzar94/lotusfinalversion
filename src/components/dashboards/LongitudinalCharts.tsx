@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAllSessions } from '../../utils/sessionStorage';
-import type { LabModuleMetrics } from '../../types/moduleMetrics';
+import type { LabModuleMetrics, SessionQualityFlag } from '../../types/moduleMetrics';
 import { brandCyan, brandPurple, colors, spacing, radius, typography, analytics } from '../styles';
 
 type ChartVariant = 'parent' | 'clinician';
@@ -13,12 +13,32 @@ type ChartPoint = {
   label: string;
   tooltip: string;
   band: LabModuleMetrics['band'];
+  qualityFlags?: SessionQualityFlag[];
+  hasQualityFlags: boolean;
 };
 
 const bandColors: Record<LabModuleMetrics['band'], string> = {
   high: '#22c55e',
   mid: '#f59e0b',
   low: '#ef4444',
+};
+
+const qualityFlagStyles: Record<NonNullable<SessionQualityFlag['severity']>, { fill: string; stroke: string }> = {
+  info: { fill: '#38bdf8', stroke: '#0ea5e9' },
+  warning: { fill: '#f59e0b', stroke: '#d97706' },
+  critical: { fill: '#ef4444', stroke: '#b91c1c' },
+};
+
+const getQualityFlagSeverity = (flags?: SessionQualityFlag[]): NonNullable<SessionQualityFlag['severity']> => {
+  if (!flags?.length) return 'warning';
+
+  const priority = ['critical', 'warning', 'info'] as const;
+  const severities = flags
+    .map((flag) => flag.severity)
+    .filter((severity): severity is NonNullable<SessionQualityFlag['severity']> => Boolean(severity));
+
+  const match = priority.find((level) => severities.includes(level));
+  return match ?? 'warning';
 };
 
 const bandBackgrounds = [
@@ -55,12 +75,29 @@ const formatLabel = (timestamp: string, locale: string) => {
   return date.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
 };
 
-const formatTooltip = (timestamp: string, locale: string, value: number, unit = '') => {
+const formatTooltip = (
+  timestamp: string,
+  locale: string,
+  value: number,
+  unit = '',
+  qualityFlags?: SessionQualityFlag[],
+) => {
   const date = new Date(timestamp);
   if (Number.isNaN(date.getTime())) return `${timestamp}: ${value}${unit}`;
   const datePart = date.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
   const timePart = date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
-  return `${datePart} ${timePart} - ${value}${unit}`;
+  const base = `${datePart} ${timePart} - ${value}${unit}`;
+
+  if (!qualityFlags?.length) return base;
+
+  const flagLines = qualityFlags.map((flag) => {
+    const label = flag.label ?? flag.code;
+    const severity = flag.severity ? ` (${flag.severity})` : '';
+    const description = flag.description ? `: ${flag.description}` : '';
+    return `${label}${severity}${description}`;
+  });
+
+  return `${base}\n⚠️ ${flagLines.join('\n⚠️ ')}`;
 };
 
 const MetricCard = memo(({
@@ -137,13 +174,17 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
         ? 50
         : paddingX + (index * (width - paddingX * 2)) / Math.max(safeSessions.length - 1, 1);
       const y = paddingY + chartHeight - (session.score100 / 100) * chartHeight;
+      const qualityFlags = session.qualityFlags;
+      const hasQualityFlags = Boolean(qualityFlags?.length);
       return {
         x,
         y,
         value: session.score100,
         label: formatLabel(session.timestamp, locale),
-        tooltip: formatTooltip(session.timestamp, locale, session.score100, '%'),
+        tooltip: formatTooltip(session.timestamp, locale, session.score100, '%', qualityFlags),
         band: session.band,
+        qualityFlags,
+        hasQualityFlags,
       };
     });
   }, [sessions, locale, lineHeight]);
@@ -335,6 +376,41 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             >
               <title>{point.tooltip}</title>
             </circle>
+          ))}
+
+          {scorePoints.map((point, index) => (
+            point.hasQualityFlags ? (
+              (() => {
+                const severity = getQualityFlagSeverity(point.qualityFlags);
+                const style = qualityFlagStyles[severity];
+                return (
+              <g
+                key={`flag-${point.x}-${index}`}
+                transform={`translate(${point.x + 4}, ${point.y - 6})`}
+              >
+                <title>{point.tooltip}</title>
+                <path
+                  d="M0 6 L6 6 L3 0 Z"
+                  fill={style.fill}
+                  stroke={style.stroke}
+                  strokeWidth={0.6}
+                  opacity={0.9}
+                />
+                <text
+                  x={3}
+                  y={5.2}
+                  textAnchor="middle"
+                  fontSize={3.8}
+                  fontWeight={700}
+                  fill={colors.surface.base}
+                >
+                  !
+                  <title>{point.tooltip}</title>
+                </text>
+              </g>
+                );
+              })()
+            ) : null
           ))}
 
           {scorePoints.map((point, index) => (

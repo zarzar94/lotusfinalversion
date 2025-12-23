@@ -1,5 +1,6 @@
 import type { GameResult, TestOutcome } from '../components/games/types';
-import type { LabModuleMetrics } from '../types/moduleMetrics';
+import type { LabModuleMetrics, SessionQualityFlag } from '../types/moduleMetrics';
+import { normalizeQualityFlagCollection } from './qualityFlags';
 
 const clampScore = (value: number): number => Math.max(0, Math.min(100, Math.round(value)));
 
@@ -28,6 +29,14 @@ const extractNumericMetrics = (metrics: Record<string, unknown>): Record<string,
     }
   });
   return numeric;
+};
+
+const extractQualityFlags = (metrics: Record<string, unknown>): SessionQualityFlag[] | undefined => {
+  const source = (metrics.qualityFlags || metrics.quality_flags || metrics.flags) as unknown;
+
+  if (!source) return undefined;
+
+  return normalizeQualityFlagCollection(source);
 };
 
 const extractScoreFromLabel = (scoreLabel: string): number | null => {
@@ -102,6 +111,7 @@ export const buildLabMetrics = (outcome: TestOutcome): LabModuleMetrics => {
   const fatigueScore = getNumericMetric(metrics, 'fatigueScore');
   const fatigueSlope = getNumericMetric(metrics, 'fatigueSlope');
   const notes = typeof metrics.note === 'string' ? metrics.note : undefined;
+  const qualityFlags = extractQualityFlags(metrics);
 
   return {
     moduleId: outcome.key,
@@ -115,5 +125,6 @@ export const buildLabMetrics = (outcome: TestOutcome): LabModuleMetrics => {
     fatigueSlope: fatigueSlope !== null ? fatigueSlope : undefined,
     consistency: deriveConsistency(metrics),
     notes,
+    qualityFlags,
   };
 };
