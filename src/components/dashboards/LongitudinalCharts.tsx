@@ -4,6 +4,8 @@ import { getAllSessions } from '../../utils/sessionStorage';
 import type { LabModuleMetrics } from '../../types/moduleMetrics';
 import { brandCyan, brandPurple, colors, spacing, radius, typography, analytics } from '../styles';
 
+const VIEWBOX_W = 100;
+
 type ChartVariant = 'parent' | 'clinician';
 
 type ChartPoint = {
@@ -126,16 +128,17 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     const paddingX = 8;
     const paddingY = 16;
     const chartHeight = lineHeight - 40;
-    const width = 100;
+    const width = VIEWBOX_W;
     const safeSessions = sessions.map((session) => ({
       ...session,
       score100: clampScore(session.score100),
     }));
 
     return safeSessions.map((session, index) => {
+      const positionIndex = isArabic ? safeSessions.length - 1 - index : index;
       const x = safeSessions.length === 1
-        ? 50
-        : paddingX + (index * (width - paddingX * 2)) / Math.max(safeSessions.length - 1, 1);
+        ? VIEWBOX_W / 2
+        : paddingX + (positionIndex * (width - paddingX * 2)) / Math.max(safeSessions.length - 1, 1);
       const y = paddingY + chartHeight - (session.score100 / 100) * chartHeight;
       return {
         x,
@@ -146,33 +149,44 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
         band: session.band,
       };
     });
-  }, [sessions, locale, lineHeight]);
+  }, [sessions, locale, lineHeight, isArabic]);
+
+  const translatedScorePoints = useMemo(() => {
+    if (!isArabic) return scorePoints;
+    return scorePoints.map((point) => ({ ...point, x: VIEWBOX_W - point.x }));
+  }, [isArabic, scorePoints]);
 
   const scorePath = useMemo(() => {
-    if (scorePoints.length === 0) return '';
-    return scorePoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
-  }, [scorePoints]);
+    if (translatedScorePoints.length === 0) return '';
+    return translatedScorePoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
+  }, [translatedScorePoints]);
 
   const rollingPoints = useMemo(() => {
     if (!rollingScores.length) return [];
     const paddingX = 8;
     const paddingY = 16;
     const chartHeight = lineHeight - 40;
-    const width = 100;
+    const width = VIEWBOX_W;
 
     return rollingScores.map((value, index) => {
+      const positionIndex = isArabic ? rollingScores.length - 1 - index : index;
       const x = rollingScores.length === 1
-        ? 50
-        : paddingX + (index * (width - paddingX * 2)) / Math.max(rollingScores.length - 1, 1);
+        ? VIEWBOX_W / 2
+        : paddingX + (positionIndex * (width - paddingX * 2)) / Math.max(rollingScores.length - 1, 1);
       const y = paddingY + chartHeight - (value / 100) * chartHeight;
       return { x, y, value };
     });
-  }, [rollingScores, lineHeight]);
+  }, [rollingScores, lineHeight, isArabic]);
+
+  const translatedRollingPoints = useMemo(() => {
+    if (!isArabic) return rollingPoints;
+    return rollingPoints.map((point) => ({ ...point, x: VIEWBOX_W - point.x }));
+  }, [isArabic, rollingPoints]);
 
   const rollingPath = useMemo(() => {
-    if (rollingPoints.length === 0) return '';
-    return rollingPoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
-  }, [rollingPoints]);
+    if (translatedRollingPoints.length === 0) return '';
+    return translatedRollingPoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
+  }, [translatedRollingPoints]);
 
   const fatiguePoints = useMemo(() => {
     return sessions
@@ -236,12 +250,15 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     );
   }
 
-  const labelStep = scorePoints.length > 6 ? Math.ceil(scorePoints.length / 6) : 1;
   const valueToY = (value: number, height: number) => {
     const paddingY = 16;
     const chartHeight = height - 40;
     return paddingY + chartHeight - (value / 100) * chartHeight;
   };
+
+  const labelPoints = useMemo(() => translatedScorePoints, [translatedScorePoints]);
+
+  const labelStep = labelPoints.length > 6 ? Math.ceil(labelPoints.length / 6) : 1;
 
   return (
     <div style={{ display: 'grid', gap: spacing[4] }}>
@@ -303,7 +320,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             />
           ) : null}
 
-          {rollingPoints.length > 1 ? (
+          {translatedRollingPoints.length > 1 ? (
             <path
               d={rollingPath}
               fill="none"
@@ -323,7 +340,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             strokeLinejoin="round"
           />
 
-          {scorePoints.map((point, index) => (
+          {translatedScorePoints.map((point, index) => (
             <circle
               key={`${point.x}-${index}`}
               cx={point.x}
@@ -337,7 +354,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             </circle>
           ))}
 
-          {scorePoints.map((point, index) => (
+          {labelPoints.map((point, index) => (
             index % labelStep === 0 ? (
               <text
                 key={`label-${index}`}
