@@ -166,7 +166,7 @@ export const rateLimitByUser = (maxRequests = 100, windowMs = 60000) => {
 };
 
 // Cleanup old entries periodically
-setInterval(() => {
+const cleanupInterval = setInterval(() => {
   const now = Date.now();
   for (const [key, value] of userRateLimit.entries()) {
     if (now > value.resetAt) {
@@ -174,3 +174,6 @@ setInterval(() => {
     }
   }
 }, 60000);
+if (process.env.NODE_ENV === 'test' && cleanupInterval.unref) {
+  cleanupInterval.unref();
+}

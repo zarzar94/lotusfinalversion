@@ -22,6 +22,7 @@ const EXEMPT_PATHS = [
   '/api/auth/refresh',
   '/api/health',
   '/api/docs',
+  '/api/sync/beacon',
 ];
 
 /**
@@ -70,7 +71,10 @@ function cleanupTokens() {
 }
 
 // Run cleanup every hour
-setInterval(cleanupTokens, 60 * 60 * 1000);
+const cleanupInterval = setInterval(cleanupTokens, 60 * 60 * 1000);
+if (process.env.NODE_ENV === 'test' && cleanupInterval.unref) {
+  cleanupInterval.unref();
+}
 
 /**
  * CSRF Protection Middleware
