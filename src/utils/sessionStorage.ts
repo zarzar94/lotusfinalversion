@@ -1,5 +1,6 @@
-import type { LabModuleMetrics } from '../types/moduleMetrics';
+import type { LabModuleMetrics, SessionQualityFlag } from '../types/moduleMetrics';
 import type { TestMetrics, TestTrial } from '../components/games/types';
+import { normalizeQualityFlagCollection } from './qualityFlags';
 
 const SESSION_HISTORY_KEY = 'SBLAB_SESSION_HISTORY';
 const MAX_HISTORY = 200;
@@ -75,6 +76,7 @@ const normalizeSession = (value: unknown): LabModuleMetrics | null => {
   const rawMetrics = normalizeRawMetrics(raw.rawMetrics);
   const metrics = normalizeMetrics(raw.metrics, rawMetrics);
   const trials = normalizeTrials(raw.trials);
+  const qualityFlags = normalizeQualityFlagCollection(raw.qualityFlags ?? raw.flags ?? raw.quality_flags);
 
   return {
     moduleId,
@@ -88,6 +90,7 @@ const normalizeSession = (value: unknown): LabModuleMetrics | null => {
     fatigueSlope: fatigueSlope === null ? undefined : fatigueSlope,
     consistency: consistencyValue === null ? undefined : consistencyValue,
     notes,
+    qualityFlags,
   };
 };
 
@@ -226,6 +229,13 @@ const buildDemoSessions = (): LabModuleMetrics[] => {
       band: 'mid',
       fatigueIndex: 35,
       consistency: 78,
+      qualityFlags: [
+        {
+          code: 'noisy_environment',
+          label: 'Possible background noise',
+          description: 'Ambient noise may have affected reaction times.',
+        },
+      ],
     }),
     make(18, {
       moduleId: 'frequency',
@@ -244,6 +254,14 @@ const buildDemoSessions = (): LabModuleMetrics[] => {
       band: 'low',
       fatigueIndex: 80,
       consistency: 52,
+      qualityFlags: [
+        {
+          code: 'inattentive',
+          label: 'Low focus detected',
+          description: 'High lapse count and variable responses.',
+          severity: 'warning',
+        },
+      ],
     }),
     make(14, {
       moduleId: 'dichotic_listening',
@@ -289,6 +307,14 @@ const buildDemoSessions = (): LabModuleMetrics[] => {
       band: 'low',
       fatigueIndex: 88,
       consistency: 48,
+      qualityFlags: [
+        {
+          code: 'equipment',
+          label: 'Headphone seal issue',
+          description: 'Channel imbalance observed during playback.',
+          severity: 'critical',
+        },
+      ],
     }),
     make(4, {
       moduleId: 'frequency',
@@ -318,6 +344,7 @@ const cloneSessions = (sessions: LabModuleMetrics[]) => sessions.map((session) =
   rawMetrics: { ...session.rawMetrics },
   metrics: { ...session.metrics },
   trials: session.trials ? [...session.trials] : undefined,
+  qualityFlags: session.qualityFlags?.map((flag) => ({ ...flag })),
 }));
 
 export const saveSession = (metrics: LabModuleMetrics): void => {
