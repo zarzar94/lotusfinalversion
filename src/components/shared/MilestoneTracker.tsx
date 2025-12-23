@@ -262,6 +262,11 @@ export const MilestoneTracker = memo(({
   }
 
   // Horizontal variant (default)
+  const milestonesWithIndex = milestones.map((milestone, index) => ({ milestone, index }));
+  const displayMilestones = isArabic
+    ? [...milestonesWithIndex].reverse()
+    : milestonesWithIndex;
+
   return (
     <div>
       <style>{css}</style>
@@ -284,23 +289,28 @@ export const MilestoneTracker = memo(({
         marginBottom: spacing[4],
         overflow: 'hidden',
       }}>
-        <div style={{
-          height: '100%',
-          width: `${progressPercent}%`,
-          background: `linear-gradient(90deg, ${brandCyan}, ${brandPurple})`,
-          borderRadius: radius.full,
-          transition: transitions.slow,
-        }} />
+        <div
+          style={{
+            height: '100%',
+            width: `${progressPercent}%`,
+            background: `linear-gradient(${isArabic ? '270deg' : '90deg'}, ${brandCyan}, ${brandPurple})`,
+            borderRadius: radius.full,
+            transition: transitions.slow,
+            display: 'flex',
+            marginLeft: isArabic ? 'auto' : 0,
+          }}
+        />
       </div>
 
       {/* Milestone markers */}
       <div style={{
         display: 'flex',
+        flexDirection: isArabic ? 'row-reverse' : 'row',
         justifyContent: 'space-between',
         position: 'relative',
       }}>
-        {milestones.map((milestone, i) => {
-          const isCurrent = currentMilestone === i;
+        {displayMilestones.map(({ milestone, index }) => {
+          const isCurrent = currentMilestone === index;
           return (
             <div
               key={milestone.id}
