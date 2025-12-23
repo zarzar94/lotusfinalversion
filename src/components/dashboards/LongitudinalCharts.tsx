@@ -1,8 +1,9 @@
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useRef, useState } from 'react';
+import type { KeyboardEvent } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAllSessions } from '../../utils/sessionStorage';
 import type { LabModuleMetrics } from '../../types/moduleMetrics';
-import { brandCyan, brandPurple, colors, spacing, radius, typography, analytics } from '../styles';
+import { brandCyan, brandPurple, colors, spacing, radius, typography, analytics, shadows } from '../styles';
 
 type ChartVariant = 'parent' | 'clinician';
 
@@ -100,6 +101,9 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
 }) {
   const { t, isArabic } = useLanguage();
   const locale = isArabic ? 'ar-SA' : 'en-US';
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [activePoint, setActivePoint] = useState<(ChartPoint & { xPx: number; yPx: number }) | null>(null);
+  const [isPinned, setIsPinned] = useState(false);
 
   const sessions = useMemo(() => {
     const allSessions = getAllSessions();
@@ -243,6 +247,62 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     return paddingY + chartHeight - (value / 100) * chartHeight;
   };
 
+  const updateActivePoint = (point: ChartPoint | null) => {
+    if (!point || !svgRef.current) {
+      setActivePoint(null);
+      return;
+    }
+
+    const rect = svgRef.current.getBoundingClientRect();
+    const xPx = (point.x / 100) * rect.width;
+    const yPx = (point.y / lineHeight) * rect.height;
+    const clampedX = Math.min(Math.max(xPx, spacing[4]), rect.width - spacing[4]);
+    const clampedY = Math.min(Math.max(yPx, spacing[4]), rect.height - spacing[4]);
+
+    setActivePoint({ ...point, xPx: clampedX, yPx: clampedY });
+  };
+
+  const handleHoverPoint = (point: ChartPoint) => {
+    if (isPinned) {
+      if (activePoint && activePoint.x === point.x && activePoint.y === point.y) {
+        updateActivePoint(point);
+      }
+      return;
+    }
+
+    updateActivePoint(point);
+  };
+
+  const handleLeavePoint = () => {
+    if (!isPinned) {
+      setActivePoint(null);
+    }
+  };
+
+  const handlePointClick = (point: ChartPoint) => {
+    if (activePoint && isPinned && activePoint.x === point.x && activePoint.y === point.y) {
+      setActivePoint(null);
+      setIsPinned(false);
+      return;
+    }
+
+    updateActivePoint(point);
+    setIsPinned(true);
+  };
+
+  const handleChartLeave = () => {
+    if (!isPinned) {
+      setActivePoint(null);
+    }
+  };
+
+  const handlePointKeyDown = (event: KeyboardEvent<SVGCircleElement>, point: ChartPoint) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handlePointClick(point);
+    }
+  };
+
   return (
     <div style={{ display: 'grid', gap: spacing[4] }}>
       <div
@@ -258,7 +318,15 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
         >
           {title || t('dashboard.scoreTrendTitle', 'Score Trend')}
         </div>
-        <svg width="100%" height={lineHeight} viewBox={`0 0 100 ${lineHeight}`} preserveAspectRatio="none">
+        <div style={{ position: 'relative' }}>
+          <svg
+            ref={svgRef}
+            width="100%"
+            height={lineHeight}
+            viewBox={`0 0 100 ${lineHeight}`}
+            preserveAspectRatio="none"
+            onMouseLeave={handleChartLeave}
+          >
           {bandBackgrounds.map((band) => {
             const top = valueToY(band.max, lineHeight);
             const bottom = valueToY(band.min, lineHeight);
@@ -332,6 +400,13 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
               fill={colors.surface.base}
               stroke={bandColors[point.band]}
               strokeWidth={1.4}
+              tabIndex={0}
+              onMouseEnter={() => handleHoverPoint(point)}
+              onMouseLeave={handleLeavePoint}
+              onFocus={() => handleHoverPoint(point)}
+              onBlur={() => { if (!isPinned) setActivePoint(null); }}
+              onClick={() => handlePointClick(point)}
+              onKeyDown={(event) => handlePointKeyDown(event, point)}
             >
               <title>{point.tooltip}</title>
             </circle>
@@ -351,7 +426,40 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
               </text>
             ) : null
           ))}
-        </svg>
+          </svg>
+          {activePoint ? (
+            <div
+              style={{
+                position: 'absolute',
+                left: activePoint.xPx,
+                top: activePoint.yPx,
+                transform: 'translate(-50%, -110%)',
+                background: colors.surface.overlay,
+                color: colors.text.primary,
+                border: `1px solid ${colors.border.emphasis}`,
+                borderRadius: radius.lg,
+                boxShadow: shadows.md,
+                padding: `${spacing[2]}px ${spacing[3]}px`,
+                fontSize: typography.size.sm,
+                fontWeight: typography.weight.medium,
+                whiteSpace: 'nowrap',
+                pointerEvents: 'none',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: typography.size.xs,
+                  color: colors.text.muted,
+                  marginBottom: spacing[0.5],
+                  fontWeight: typography.weight.normal,
+                }}
+              >
+                {activePoint.label}
+              </div>
+              <div style={{ fontWeight: typography.weight.bold }}>{activePoint.tooltip}</div>
+            </div>
+          ) : null}
+        </div>
         {!trendReady ? (
           <div style={{ marginTop: spacing[2], fontSize: typography.size.xs, color: colors.text.muted }}>
             {t('dashboard.trendNeedsMore', 'Complete more sessions to see trend insights.')} ({MIN_TREND_SESSIONS}+)
