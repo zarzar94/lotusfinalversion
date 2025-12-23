@@ -825,7 +825,24 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                 ? `${stats.slope >= 0 ? '+' : ''}${stats.slope.toFixed(1)} ${t('dashboard.perSession', 'per session')}`
                 : '--'
             }
-            tone={trendReady ? (stats.slope >= 0 ? '#22c55e' : '#ef4444') : colors.text.muted}
+            tone={trendReady ? (stats.slope >= 0 ? colors.success : colors.error) : colors.text.muted}
+          />
+          <MetricCard
+            label={t('dashboard.confidenceLevel', 'Confidence Level')}
+            value={
+              stats.confidenceLevel === 'high'
+                ? t('dashboard.confidenceHigh', 'High')
+                : stats.confidenceLevel === 'medium'
+                  ? t('dashboard.confidenceMedium', 'Medium')
+                  : t('dashboard.confidenceLow', 'Low')
+            }
+            tone={
+              stats.confidenceLevel === 'high'
+                ? colors.success
+                : stats.confidenceLevel === 'medium'
+                  ? colors.warning
+                  : colors.error
+            }
           />
           <MetricCard
             label={t('dashboard.confidenceLevel', 'Confidence Level')}
@@ -853,7 +870,12 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                   ? t('dashboard.fatigueWorsening', 'Worsening')
                   : t('dashboard.fatigueStable', 'Stable')
             }
-            tone={stats.fatigueDirection === 'worsening' ? '#ef4444' : brandCyan}
+            tone={stats.fatigueDirection === 'worsening' ? colors.error : brandCyan}
+          />
+          <MetricCard
+            label={t('dashboard.fatigueSlope', 'Fatigue Slope')}
+            value={`${stats.fatigueSlope >= 0 ? '+' : ''}${stats.fatigueSlope.toFixed(1)} ${t('dashboard.perSession', 'per session')}`}
+            tone={stats.fatigueSlope >= 0 ? colors.warning : colors.success}
           />
           <MetricCard
             label={t('dashboard.fatigueSlope', 'Fatigue Slope')}
