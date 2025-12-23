@@ -24,7 +24,6 @@ NUL
 # Logs
 *.log
 npm-debug.log*
-vite-dev.pid
 
 # Cache
 .cache/

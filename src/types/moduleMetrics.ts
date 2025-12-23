@@ -18,6 +18,7 @@ export type LabModuleMetrics = {
   fatigueIndex?: number;
   fatigueSlope?: number;
   consistency?: number;
+  qualityFlags?: string[];
   notes?: string;
   qualityFlags?: SessionQualityFlag[];
 };
