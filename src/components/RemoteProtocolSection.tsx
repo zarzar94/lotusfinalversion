@@ -1,59 +1,72 @@
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import { useLanguage } from '../context/LanguageContext';
 
 const steps = [
   {
     number: '01',
     title: 'التقييم الأولي',
+    titleEn: 'Registration & Assessment',
     description: 'استشارة افتراضية لتقييم الحالة وتحديد مدى ملاءمة البرنامج',
+    descriptionEn: 'Fill out registration form and complete initial online assessment',
     icon: '📋',
   },
   {
     number: '02',
     title: 'إعداد المعدات',
+    titleEn: 'Receive Equipment',
     description: 'توفير سماعات معتمدة وإعداد البيئة المنزلية المناسبة',
+    descriptionEn: 'Receive certified Berard AIT device with headphones and instructions',
     icon: '🎧',
   },
   {
     number: '03',
     title: 'اختبار السمع',
+    titleEn: 'Audiogram & Calibration',
     description: 'إجراء اختبار Audiogram عن بُعد لتخصيص البرنامج',
+    descriptionEn: 'Complete audiogram and calibrate the program to your hearing profile',
     icon: '📊',
   },
   {
     number: '04',
     title: 'جلسات الاستماع',
+    titleEn: 'Monitored Sessions',
     description: '20 جلسة عبر الفيديو مع إشراف مباشر من الممارس المعتمد',
+    descriptionEn: '20 home sessions with live monitoring and support',
     icon: '💻',
   },
   {
     number: '05',
     title: 'المتابعة والتقييم',
+    titleEn: 'Follow-up & Reports',
     description: 'اختبارات ما بعد البرنامج وتقرير شامل بالنتائج',
+    descriptionEn: 'Ongoing reports and final evaluation to track outcomes',
     icon: '✅',
   },
 ];
 
 const requirements = [
-  { icon: '💻', text: 'جهاز كمبيوتر أو لابتوب مع كاميرا' },
-  { icon: '🌐', text: 'اتصال إنترنت مستقر وسريع' },
-  { icon: '🎧', text: 'سماعات معتمدة (نوفرها أو نرشدك للنوع المطلوب)' },
-  { icon: '🏠', text: 'غرفة هادئة للجلسات' },
-  { icon: '👨‍👩‍👧', text: 'حضور ولي الأمر للأطفال' },
+  { icon: '💻', text: 'جهاز كمبيوتر أو لابتوب مع كاميرا', textEn: 'Computer or laptop with a camera' },
+  { icon: '🌐', text: 'اتصال إنترنت مستقر وسريع', textEn: 'Stable, fast internet connection' },
+  { icon: '🎧', text: 'سماعات معتمدة (نوفرها أو نرشدك للنوع المطلوب)', textEn: 'Certified headphones (provided or recommended)' },
+  { icon: '🏠', text: 'غرفة هادئة للجلسات', textEn: 'A quiet room for sessions' },
+  { icon: '👨‍👩‍👧', text: 'حضور ولي الأمر للأطفال', textEn: 'Parent/guardian present for children' },
 ];
 
 const benefits = [
-  { title: 'راحة المنزل', description: 'لا حاجة للسفر أو التنقل', icon: '🏡' },
-  { title: 'مرونة الوقت', description: 'جدول يناسب ظروفك', icon: '⏰' },
-  { title: 'إشراف مباشر', description: 'نفس جودة الجلسات الحضورية', icon: '👁️' },
-  { title: 'توفير التكاليف', description: 'لا مصاريف إقامة أو سفر', icon: '💰' },
+  { title: 'راحة المنزل', titleEn: 'Home Comfort', description: 'لا حاجة للسفر أو التنقل', descriptionEn: 'Receive care from your own space', icon: '🏡' },
+  { title: 'مرونة الوقت', titleEn: 'Time & Travel Savings', description: 'جدول يناسب ظروفك', descriptionEn: 'No commuting with flexible scheduling', icon: '⏰' },
+  { title: 'إشراف مباشر', titleEn: 'Clinician Monitoring', description: 'نفس جودة الجلسات الحضورية', descriptionEn: 'Real-time follow-up and adjustments', icon: '👁️' },
+  { title: 'توفير التكاليف', titleEn: 'Cost Savings', description: 'لا مصاريف إقامة أو سفر', descriptionEn: 'No travel or accommodation costs', icon: '💰' },
 ];
 
 export default function RemoteProtocolSection() {
+  const { isArabic, t } = useLanguage();
+
   return (
     <section id="remote" style={styles.sectionCard}>
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
-          <h2 style={styles.h2}>البرنامج عن بُعد (Remote AIT)</h2>
+          <h2 style={styles.h2}>{t('remoteProtocol.title')}</h2>
           <span style={{
             ...styles.chip,
             background: 'rgba(143,211,204,0.12)',
@@ -69,13 +82,10 @@ export default function RemoteProtocolSection() {
               background: '#22c55e',
               animation: 'pulse 2s ease-in-out infinite',
             }} />
-            متاح الآن
+            {t('common.startNow')}
           </span>
         </div>
-        <p style={styles.bodyText}>
-          احصل على برنامج <b style={{ color: brandCyan }}>Berard AIT</b> الكامل من راحة منزلك،
-          مع إشراف مباشر من ممارس معتمد عبر تقنية الفيديو.
-        </p>
+        <p style={styles.bodyText}>{t('remoteProtocol.description')}</p>
       </div>
 
       {/* Hero Banner */}
@@ -109,11 +119,25 @@ export default function RemoteProtocolSection() {
             }} />
             <span style={{ fontSize: 12, fontWeight: 700, color: '#22c55e' }}>LIVE SESSION</span>
           </div>
-          <h3 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>
-            تقنية <span style={{ color: brandCyan }}>Telehealth</span> المعتمدة
+                    <h3 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>
+            {isArabic ? (
+              <>
+                {'تقنية '}
+                <span style={{ color: brandCyan }}>Telehealth</span>
+                {' المعتمدة'}
+              </>
+            ) : (
+              <>
+                {'Certified '}
+                <span style={{ color: brandCyan }}>Telehealth</span>
+                {' Sessions'}
+              </>
+            )}
           </h3>
           <p style={{ ...styles.muted, marginTop: 8 }}>
-            نفس البروتوكول والفعالية مع راحة البقاء في المنزل
+            {isArabic
+              ? 'نفس البروتوكول والفعالية مع راحة البقاء في المنزل'
+              : 'Same protocol and effectiveness, with the comfort of staying at home.'}
           </p>
         </div>
 
@@ -167,7 +191,7 @@ export default function RemoteProtocolSection() {
 
       {/* Process Steps */}
       <div style={{ marginTop: 24 }}>
-        <h3 style={{ ...styles.h3, marginBottom: 16 }}>خطوات البرنامج</h3>
+        <h3 style={{ ...styles.h3, marginBottom: 16 }}>{t('remoteProtocol.howItWorks')}</h3>
         <div style={{
           display: 'grid',
           gap: 12,
@@ -211,10 +235,10 @@ export default function RemoteProtocolSection() {
                   gap: 8,
                 }}>
                   <span style={{ fontSize: 20 }}>{step.icon}</span>
-                  <span style={{ fontWeight: 800, fontSize: 15 }}>{step.title}</span>
+                  <span style={{ fontWeight: 800, fontSize: 15 }}>{isArabic ? step.title : step.titleEn}</span>
                 </div>
                 <p style={{ ...styles.muted, marginTop: 4, marginBottom: 0 }}>
-                  {step.description}
+                  {isArabic ? step.description : step.descriptionEn}
                 </p>
               </div>
 
@@ -247,8 +271,8 @@ export default function RemoteProtocolSection() {
           marginBottom: 0,
           background: 'rgba(15,22,41,0.6)',
         }}>
-          <h3 style={{ ...styles.h3, marginTop: 0, color: brandPurple }}>
-            ⚙️ المتطلبات التقنية
+                              <h3 style={{ ...styles.h3, marginTop: 0, color: brandPurple }}>
+            {isArabic ? 'المتطلبات التقنية' : 'Technical Requirements'}
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {requirements.map((req, i) => (
@@ -261,7 +285,7 @@ export default function RemoteProtocolSection() {
                 borderRadius: 10,
               }}>
                 <span style={{ fontSize: 18 }}>{req.icon}</span>
-                <span style={{ fontSize: 14, opacity: 0.9 }}>{req.text}</span>
+                <span style={{ fontSize: 14, opacity: 0.9 }}>{isArabic ? req.text : req.textEn}</span>
               </div>
             ))}
           </div>
@@ -273,8 +297,8 @@ export default function RemoteProtocolSection() {
           marginBottom: 0,
           background: 'rgba(15,22,41,0.6)',
         }}>
-          <h3 style={{ ...styles.h3, marginTop: 0, color: brandCyan }}>
-            ✨ المميزات
+                              <h3 style={{ ...styles.h3, marginTop: 0, color: brandCyan }}>
+            {isArabic ? 'المميزات' : 'Benefits'}
           </h3>
           <div style={{
             display: 'grid',
@@ -289,8 +313,8 @@ export default function RemoteProtocolSection() {
                 textAlign: 'center',
               }}>
                 <span style={{ fontSize: 24 }}>{benefit.icon}</span>
-                <div style={{ fontWeight: 700, fontSize: 13, marginTop: 6 }}>{benefit.title}</div>
-                <div style={{ fontSize: 11, opacity: 0.7, marginTop: 2 }}>{benefit.description}</div>
+                <div style={{ fontWeight: 700, fontSize: 13, marginTop: 6 }}>{isArabic ? benefit.title : benefit.titleEn}</div>
+                <div style={{ fontSize: 11, opacity: 0.7, marginTop: 2 }}>{isArabic ? benefit.description : benefit.descriptionEn}</div>
               </div>
             ))}
           </div>
@@ -309,10 +333,10 @@ export default function RemoteProtocolSection() {
           textDecoration: 'none',
           background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
         }}>
-          احجز استشارة مجانية
+          {t('remoteProtocol.inquire')}
         </a>
         <a href="#faq" style={{ ...styles.ghostBtn, textDecoration: 'none' }}>
-          الأسئلة الشائعة
+          {t('nav.faq')}
         </a>
       </div>
 

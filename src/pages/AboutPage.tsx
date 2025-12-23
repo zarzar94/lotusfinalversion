@@ -473,6 +473,7 @@ SpecialistProfile.displayName = 'SpecialistProfile';
 
 const CentreInfoSection = memo(({ isArabic }: { isArabic: boolean }) => {
   const centre = CENTRE_INFO;
+  const lotusLogoSrc = assetUrl('assets/images/lotus-holistic-logo.png');
 
   return (
     <section
@@ -543,10 +544,18 @@ const CentreInfoSection = memo(({ isArabic }: { isArabic: boolean }) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 28,
+              padding: 6,
             }}
           >
-            🪷
+            <img
+              src={lotusLogoSrc}
+              alt="Lotus Holistic Centre logo"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+              }}
+            />
           </div>
           <div>
             <h3

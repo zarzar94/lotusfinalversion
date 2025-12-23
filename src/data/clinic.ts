@@ -3,6 +3,8 @@ export const CLINIC = {
   name: 'Lotus Holistic Centre × Berard AIT Sound Lab',
   /** Primary city for targeting */
   city: 'أبوظبي – الإمارات العربية المتحدة',
+  /** Primary city for targeting (English) */
+  cityEn: 'Abu Dhabi, UAE',
   /** WhatsApp phone number in international format (digits only). Override via VITE_CLINIC_PHONE */
   whatsapp: (import.meta.env.VITE_CLINIC_PHONE as string | undefined)?.replace(/\D/g, '') ?? '971000000000',
   /** General email (optional). Override via VITE_CLINIC_EMAIL */

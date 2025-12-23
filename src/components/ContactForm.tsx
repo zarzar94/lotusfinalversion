@@ -576,6 +576,7 @@ AnimatedFormField.displayName = 'AnimatedFormField';
 const ContactForm = () => {
   const { mode: visitorMode, config: visitorConfig } = useVisitorMode();
   const { isArabic, t } = useLanguage();
+  const clinicCity = isArabic ? CLINIC.city : CLINIC.cityEn;
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -933,7 +934,7 @@ const ContactForm = () => {
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <h3 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 400, color: '#fff' }}>Berard AIT</h3>
-                  <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>{t('contactForm.soundLab')} • {CLINIC.city}</p>
+                  <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>{t('contactForm.soundLab')} • {clinicCity}</p>
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
                   <span style={{ background: brandColors.whatsappLight, color: brandColors.whatsapp, padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{t('contactForm.whatsappAvailable')}</span>
@@ -968,7 +969,7 @@ const ContactForm = () => {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill={brandCyan}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                   <div style={{ flex: 1 }}>
                     <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{t('contactForm.info.location')}</p>
-                    <p style={{ margin: 0, fontSize: 15 }}>{CLINIC.city}</p>
+                    <p style={{ margin: 0, fontSize: 15 }}>{clinicCity}</p>
                   </div>
                 </div>
               </div>

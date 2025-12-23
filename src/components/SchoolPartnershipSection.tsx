@@ -307,6 +307,7 @@ const SchoolPartnershipSection = () => {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
         gap: 16,
+        marginTop: 16,
         marginBottom: 24,
         padding: 20,
         background: 'linear-gradient(135deg, rgba(143,211,204,0.08), rgba(175,132,186,0.08))',

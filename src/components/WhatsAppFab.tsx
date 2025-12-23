@@ -12,15 +12,16 @@ const WHATSAPP_DARK = '#128C7E';
 
 const WhatsAppFab = memo(() => {
   const { isArabic, t } = useLanguage();
+  const clinicCity = isArabic ? CLINIC.city : CLINIC.cityEn;
   const [isHovered, setIsHovered] = useState(false);
 
   // Bilingual WhatsApp message
   const getMessage = useCallback(() => {
     if (isArabic) {
-      return `مرحباً، أود الاستفسار عن Berard AIT داخل ${CLINIC.city}.`;
+      return `مرحباً، أود الاستفسار عن Berard AIT داخل ${clinicCity}.`;
     }
-    return `Hello, I would like to inquire about Berard AIT in ${CLINIC.city}.`;
-  }, [isArabic]);
+    return `Hello, I would like to inquire about Berard AIT in ${clinicCity}.`;
+  }, [clinicCity, isArabic]);
 
   // Bilingual tooltip & aria-label
   const label = t('auto.WhatsAppFab.k1', "Chat on WhatsApp");

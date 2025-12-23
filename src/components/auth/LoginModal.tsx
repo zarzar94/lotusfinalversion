@@ -43,7 +43,7 @@ const DEMO_ACCOUNTS: { role: UserRole; email: string; label: string; labelAr: st
 
 function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const { isArabic, direction, t } = useLanguage();
-  const { login, register, isLoading } = useUser();
+  const { login, loginDemo, register, isLoading } = useUser();
 
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
@@ -122,13 +122,22 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
     }
   }, [mode, email, password, name, login, register, onClose, isArabic]);
 
-  const handleDemoLogin = useCallback(async (demoEmail: string) => {
+  const handleDemoLogin = useCallback(async (account: typeof DEMO_ACCOUNTS[number]) => {
     setError('');
-    const success = await login(demoEmail, 'demo123');
+    const success = await login(account.email, 'demo123');
     if (success) {
       onClose();
+      return;
     }
-  }, [login, onClose]);
+
+    loginDemo({
+      role: account.role,
+      email: account.email,
+      name: account.label,
+      nameAr: account.labelAr,
+    });
+    onClose();
+  }, [login, loginDemo, onClose]);
 
   if (!isOpen || typeof document === 'undefined') return null;
 
@@ -252,7 +261,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
               {DEMO_ACCOUNTS.map(account => (
                 <button
                   key={account.role}
-                  onClick={() => handleDemoLogin(account.email)}
+                  onClick={() => handleDemoLogin(account)}
                   disabled={isLoading}
                   style={{
                     display: 'flex',

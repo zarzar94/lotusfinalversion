@@ -60,6 +60,7 @@ interface UserState {
 
 interface UserContextValue extends UserState {
   login: (email: string, password: string) => Promise<boolean>;
+  loginDemo: (data: { role: UserRole; email: string; name: string; nameAr?: string }) => void;
   logout: () => void;
   register: (data: RegisterData) => Promise<boolean>;
   updateProfile: (data: Partial<User>) => void;
@@ -365,6 +366,42 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const loginDemo = useCallback((data: { role: UserRole; email: string; name: string; nameAr?: string }) => {
+    const demoUser: User = {
+      id: `demo_${data.role}`,
+      email: data.email,
+      name: data.name,
+      nameAr: data.nameAr,
+      role: data.role,
+      createdAt: Date.now(),
+      lastLogin: Date.now(),
+    };
+
+    const clinicalProgress: ClinicalProgress | null =
+      data.role === 'patient'
+        ? {
+            sessionsCompleted: 0,
+            sessionDates: [],
+            attentionScore: 0,
+            processingSpeed: 0,
+            auditoryDiscrimination: 0,
+            weeklyGoalsMet: 0,
+            treatmentPhase: 'assessment',
+            streak: 1,
+            lastActivityDate: Date.now(),
+          }
+        : null;
+
+    setState({
+      user: demoUser,
+      isAuthenticated: true,
+      isLoading: false,
+      clinicalProgress,
+      isOnline: navigator.onLine,
+      authError: null,
+    });
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
@@ -545,6 +582,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     () => ({
       ...state,
       login,
+      loginDemo,
       logout,
       register,
       updateProfile,
@@ -558,6 +596,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     [
       state,
       login,
+      loginDemo,
       logout,
       register,
       updateProfile,

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from './styles';
+import { useLanguage } from '../context/LanguageContext';
 
 const timelineSteps = [
   {
@@ -7,68 +8,81 @@ const timelineSteps = [
     title: 'التقييم الأولي',
     titleEn: 'Initial Assessment',
     description: 'اختبار سمعي شامل وتحديد الترددات المستهدفة',
+    descriptionEn: 'Comprehensive hearing test to establish baseline',
     icon: '🔬',
     color: brandCyan,
     details: ['فحص الأذن', 'اختبار السمع', 'تحديد الحساسيات'],
+    detailsEn: ['Hearing evaluation', 'Auditory profile', 'Target frequencies'],
   },
   {
     day: 2,
     title: 'بدء البرنامج',
     titleEn: 'Program Start',
     description: 'الجلسة الأولى مع موسيقى معدلة الترددات',
+    descriptionEn: 'First listening session with calibrated music',
     icon: '🎧',
     color: '#22c55e',
     details: ['30 دقيقة صباحاً', '30 دقيقة مساءً', 'راحة بين الجلسات'],
+    detailsEn: ['30 min morning session', '30 min evening session', 'Rest between sessions'],
   },
   {
     day: 3,
     title: 'التكيف',
     titleEn: 'Adaptation',
     description: 'الدماغ يبدأ بالتكيف مع التحفيز السمعي الجديد',
+    descriptionEn: 'Brain begins adapting to new auditory stimulation',
     icon: '🧠',
     color: brandPurple,
     details: ['ملاحظة التغييرات الأولية', 'تعديل مستوى الصوت', 'متابعة الاستجابة'],
+    detailsEn: ['Monitor response', 'Adjustments as needed', 'Track comfort'],
   },
   {
     day: 5,
     title: 'نقطة التحول',
     titleEn: 'Turning Point',
     description: 'بداية ظهور التحسينات الملموسة',
+    descriptionEn: 'Noticeable improvements start to appear',
     icon: '⚡',
     color: '#F59E0B',
     details: ['تحسن الانتباه', 'هدوء أكبر', 'تواصل أفضل'],
+    detailsEn: ['Improved attention', 'Better listening', 'Calmer responses'],
   },
   {
     day: 7,
     title: 'التقدم المتسارع',
     titleEn: 'Accelerated Progress',
     description: 'تعزيز المسارات العصبية الجديدة',
+    descriptionEn: 'Neural pathways strengthen and gains accelerate',
     icon: '📈',
     color: brandPink,
     details: ['تحسن السمع', 'تركيز أفضل', 'نوم أعمق'],
+    detailsEn: ['Stronger auditory processing', 'Improved focus', 'Better learning readiness'],
   },
   {
     day: 10,
     title: 'إتمام البرنامج',
     titleEn: 'Program Complete',
     description: 'تقييم نهائي وتوصيات للمتابعة',
+    descriptionEn: 'Final sessions and post-assessment with report',
     icon: '🏆',
     color: brandPurpleDark,
     details: ['اختبار سمعي نهائي', 'تقرير مفصل', 'خطة متابعة'],
+    detailsEn: ['Final hearing test', 'Summary report', 'Next steps plan'],
   },
 ];
 
 const benefits = [
-  { icon: '🎯', label: 'تحسن التركيز', description: 'تقارير أولياء الأمور' },
-  { icon: '👂', label: 'معالجة سمعية', description: 'ملاحظات سريرية' },
-  { icon: '💬', label: 'تواصل أفضل', description: 'تغذية راجعة' },
-  { icon: '😴', label: 'نوم محسّن', description: 'ملاحظات العائلات' },
+  { icon: '🎯', label: 'تحسن التركيز', labelEn: 'Improved Focus', description: 'تقارير أولياء الأمور', descriptionEn: 'Parent reports' },
+  { icon: '👂', label: 'معالجة سمعية', labelEn: 'Auditory Processing', description: 'ملاحظات سريرية', descriptionEn: 'Clinical observations' },
+  { icon: '💬', label: 'تواصل أفضل', labelEn: 'Better Communication', description: 'تغذية راجعة', descriptionEn: 'Feedback' },
+  { icon: '😴', label: 'نوم محسّن', labelEn: 'Improved Sleep', description: 'ملاحظات العائلات', descriptionEn: 'Family observations' },
 ];
 
 export default function TreatmentTimeline() {
   const [activeStep, setActiveStep] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const { isArabic, t } = useLanguage();
 
   // Intersection observer for animations
   useEffect(() => {
@@ -118,18 +132,16 @@ export default function TreatmentTimeline() {
       {/* Header */}
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
-          <h2 style={styles.h2}>⏱️ رحلة العلاج - 10 أيام</h2>
+          <h2 style={styles.h2}>{t('timeline.title')}</h2>
           <span style={{
             ...styles.chip,
             background: 'linear-gradient(135deg, rgba(143,211,204,0.2), rgba(175,132,186,0.2))',
             borderColor: 'rgba(143,211,204,0.4)',
           }}>
-            Treatment Journey
+            {t('timeline.title')}
           </span>
         </div>
-        <p style={styles.bodyText}>
-          برنامج Berard AIT المكثف يستغرق 10 أيام فقط - جلستان يومياً لمدة 30 دقيقة لكل منهما.
-        </p>
+        <p style={styles.bodyText}>{t('timeline.subtitle')}</p>
       </div>
 
       {/* Main Timeline Container */}
@@ -224,7 +236,7 @@ export default function TreatmentTimeline() {
                     color: step.color,
                     fontWeight: 700,
                   }}>
-                    يوم {step.day}
+                    {t('timeline.day')} {step.day}
                   </span>
                   {index === activeStep && (
                     <span style={{
@@ -234,7 +246,7 @@ export default function TreatmentTimeline() {
                       borderRadius: 4,
                       color: '#22c55e',
                     }}>
-                      ● الآن
+                      {isArabic ? '● الآن' : '● Now'}
                     </span>
                   )}
                 </div>
@@ -244,13 +256,13 @@ export default function TreatmentTimeline() {
                   color: index === activeStep ? step.color : '#fff',
                   marginBottom: 4,
                 }}>
-                  {step.title}
+                  {isArabic ? step.title : step.titleEn}
                 </div>
                 <div style={{
                   fontSize: 12,
                   color: 'rgba(255,255,255,0.6)',
                 }}>
-                  {step.description}
+                  {isArabic ? step.description : step.descriptionEn}
                 </div>
               </div>
             </div>
@@ -304,7 +316,7 @@ export default function TreatmentTimeline() {
                 color: timelineSteps[activeStep].color,
                 marginBottom: 4,
               }}>
-                يوم {timelineSteps[activeStep].day} • {timelineSteps[activeStep].titleEn}
+                {t('timeline.day')} {timelineSteps[activeStep].day} - {isArabic ? timelineSteps[activeStep].title : timelineSteps[activeStep].titleEn}
               </div>
               <h3 style={{
                 margin: '0 0 12px',
@@ -312,7 +324,7 @@ export default function TreatmentTimeline() {
                 fontWeight: 900,
                 color: '#fff',
               }}>
-                {timelineSteps[activeStep].title}
+                {isArabic ? timelineSteps[activeStep].title : timelineSteps[activeStep].titleEn}
               </h3>
               <p style={{
                 margin: '0 0 16px',
@@ -320,7 +332,7 @@ export default function TreatmentTimeline() {
                 color: 'rgba(255,255,255,0.8)',
                 lineHeight: 1.6,
               }}>
-                {timelineSteps[activeStep].description}
+                {isArabic ? timelineSteps[activeStep].description : timelineSteps[activeStep].descriptionEn}
               </p>
 
               {/* Details */}
@@ -329,7 +341,7 @@ export default function TreatmentTimeline() {
                 flexWrap: 'wrap',
                 gap: 8,
               }}>
-                {timelineSteps[activeStep].details.map((detail, i) => (
+                {(isArabic ? timelineSteps[activeStep].details : timelineSteps[activeStep].detailsEn).map((detail, i) => (
                   <span key={i} style={{
                     padding: '6px 12px',
                     background: 'rgba(255,255,255,0.1)',
@@ -352,7 +364,7 @@ export default function TreatmentTimeline() {
             gap: 12,
           }}>
             {benefits.map((benefit) => (
-              <div key={benefit.label} style={{
+              <div key={isArabic ? benefit.label : benefit.labelEn} style={{
                 padding: 16,
                 background: 'rgba(15,22,41,0.8)',
                 borderRadius: 14,
@@ -364,13 +376,13 @@ export default function TreatmentTimeline() {
               }}>
                 <span style={{ fontSize: 28, marginBottom: 8 }}>{benefit.icon}</span>
                 <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>
-                  {benefit.label}
+                  {isArabic ? benefit.label : benefit.labelEn}
                 </span>
                 <span style={{
                   fontSize: 11,
                   color: 'rgba(255,255,255,0.5)',
                 }}>
-                  {benefit.description}
+                  {isArabic ? benefit.description : benefit.descriptionEn}
                 </span>
               </div>
             ))}
@@ -386,7 +398,7 @@ export default function TreatmentTimeline() {
             color: 'rgba(255,255,255,0.5)',
             textAlign: 'center',
           }}>
-            * النتائج تختلف من شخص لآخر - المعلومات مبنية على ملاحظات سريرية وتقارير العائلات
+            * {t('results.disclaimer')}
           </div>
         </div>
       </div>
@@ -405,20 +417,14 @@ export default function TreatmentTimeline() {
         gap: 16,
       }}>
         <div>
-          <div style={{ fontWeight: 900, fontSize: 16, color: '#fff' }}>
-            🚀 ابدأ رحلة التحسن اليوم
-          </div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>
-            10 أيام فقط يمكن أن تغير حياتك أو حياة طفلك
-          </div>
+          <div style={{ fontWeight: 900, fontSize: 16, color: '#fff' }}>{t('cta.headline')}</div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>{t('cta.subheadline')}</div>
         </div>
         <a href="#contact" style={{
           ...styles.primaryBtn,
           textDecoration: 'none',
           padding: '12px 24px',
-        }}>
-          احجز موعدك الآن
-        </a>
+        }}>{t('cta.bookConsultation')}</a>
       </div>
     </section>
   );

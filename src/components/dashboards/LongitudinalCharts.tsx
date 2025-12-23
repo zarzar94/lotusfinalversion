@@ -35,24 +35,6 @@ const bandColors: Record<LabModuleMetrics['band'], string> = {
   low: performanceBands.low.stroke,
 };
 
-const qualityFlagStyles: Record<NonNullable<SessionQualityFlag['severity']>, { fill: string; stroke: string }> = {
-  info: { fill: '#38bdf8', stroke: '#0ea5e9' },
-  warning: { fill: '#f59e0b', stroke: '#d97706' },
-  critical: { fill: '#ef4444', stroke: '#b91c1c' },
-};
-
-const getQualityFlagSeverity = (flags?: SessionQualityFlag[]): NonNullable<SessionQualityFlag['severity']> => {
-  if (!flags?.length) return 'warning';
-
-  const priority = ['critical', 'warning', 'info'] as const;
-  const severities = flags
-    .map((flag) => flag.severity)
-    .filter((severity): severity is NonNullable<SessionQualityFlag['severity']> => Boolean(severity));
-
-  const match = priority.find((level) => severities.includes(level));
-  return match ?? 'warning';
-};
-
 const bandBackgrounds = [
   { min: 70, max: 100, color: performanceBands.high.fill },
   { min: 40, max: 70, color: performanceBands.mid.fill },
@@ -249,7 +231,6 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     label?: string;
     key: string;
     container: 'score' | 'fatigue';
-    flags?: string[];
   } | null>(null);
   const scoreChartRef = useRef<HTMLDivElement>(null);
   const fatigueChartRef = useRef<HTMLDivElement>(null);
@@ -496,7 +477,6 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     label: string | undefined,
     key: string,
     container: 'score' | 'fatigue',
-    flags?: string[],
   ) => {
     const containerRef = container === 'score' ? scoreChartRef : fatigueChartRef;
     const wrapper = containerRef.current?.getBoundingClientRect();
@@ -510,7 +490,6 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
       label,
       key,
       container,
-      flags,
     } as const;
   };
   const setTooltipFromEvent = (
@@ -519,9 +498,8 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     label: string | undefined,
     key: string,
     container: 'score' | 'fatigue',
-    flags?: string[],
   ) => {
-    const next = computeTooltipState(event, content, label, key, container, flags);
+    const next = computeTooltipState(event, content, label, key, container);
     if (!next) return;
     setTooltip(next);
   };
@@ -738,14 +716,14 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                 fill={colors.surface.base}
                 stroke={bandColors[point.band]}
                 strokeWidth={1.4}
-                onMouseEnter={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `score-${index}`, 'score', point.qualityFlags)}
-                onFocus={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `score-${index}`, 'score', point.qualityFlags)}
+                onMouseEnter={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `score-${index}`, 'score')}
+                onFocus={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `score-${index}`, 'score')}
                 onMouseLeave={clearTooltip}
                 onBlur={clearTooltip}
                 onClick={(event) => {
                   event.stopPropagation();
                   const key = `score-${index}`;
-                  const next = computeTooltipState(event, point.tooltip, point.label, key, 'score', point.qualityFlags);
+                  const next = computeTooltipState(event, point.tooltip, point.label, key, 'score');
                   setTooltip((current) => {
                     if (current?.key === key) return null;
                     return next ?? current;
@@ -807,13 +785,6 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
               </div>
             ) : null}
             <div>{tooltip.content}</div>
-            {tooltip.flags?.length ? (
-              <div style={{ marginTop: 4, color: colors.warning }}>
-                {tooltip.flags.map((flag) => (
-                  <div key={flag}>⚠ {flag}</div>
-                ))}
-              </div>
-            ) : null}
           </div>
         ) : null}
         {!trendReady ? (

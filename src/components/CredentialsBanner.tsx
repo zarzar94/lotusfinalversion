@@ -242,7 +242,7 @@ export default function CredentialsBanner() {
           fontSize: 13,
           color: 'rgba(255,255,255,0.6)',
         }}>
-          {isArabic ? 'Certified & Licensed Berard AIT Practitioners' : 'ممارسون معتمدون ومرخصون لـ Berard AIT'}
+          {isArabic ? 'ممارسون معتمدون ومرخصون لـ Berard AIT' : 'Certified & Licensed Berard AIT Practitioners'}
         </p>
       </div>
 
@@ -332,12 +332,14 @@ export default function CredentialsBanner() {
               }}>
                 {isArabic ? t(cred.titleAr, cred.title) : cred.title}
               </div>
-              <div style={{
-                fontSize: 10,
-                color: 'rgba(255,255,255,0.5)',
-              }}>
-                {isArabic ? cred.title : cred.titleAr}
-              </div>
+              {isArabic && (
+                <div style={{
+                  fontSize: 10,
+                  color: 'rgba(255,255,255,0.5)',
+                }}>
+                  {cred.title}
+                </div>
+              )}
 
               {/* Description on hover */}
               {isHovered && (
