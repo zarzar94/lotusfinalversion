@@ -109,6 +109,9 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   }, [moduleId]);
 
   const lineHeight = variant === 'parent' ? 160 : 190;
+  const VIEWBOX_W = 100;
+  const VIEWBOX_H = lineHeight;
+  const FATIGUE_VIEWBOX_H = 140;
   const trendReady = sessions.length >= MIN_TREND_SESSIONS;
   const baselineScore = sessions.length ? clampScore(sessions[0].score100) : null;
 
@@ -126,7 +129,6 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     const paddingX = 8;
     const paddingY = 16;
     const chartHeight = lineHeight - 40;
-    const width = 100;
     const safeSessions = sessions.map((session) => ({
       ...session,
       score100: clampScore(session.score100),
@@ -134,8 +136,8 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
 
     return safeSessions.map((session, index) => {
       const x = safeSessions.length === 1
-        ? 50
-        : paddingX + (index * (width - paddingX * 2)) / Math.max(safeSessions.length - 1, 1);
+        ? VIEWBOX_W / 2
+        : paddingX + (index * (VIEWBOX_W - paddingX * 2)) / Math.max(safeSessions.length - 1, 1);
       const y = paddingY + chartHeight - (session.score100 / 100) * chartHeight;
       return {
         x,
@@ -158,12 +160,11 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     const paddingX = 8;
     const paddingY = 16;
     const chartHeight = lineHeight - 40;
-    const width = 100;
 
     return rollingScores.map((value, index) => {
       const x = rollingScores.length === 1
-        ? 50
-        : paddingX + (index * (width - paddingX * 2)) / Math.max(rollingScores.length - 1, 1);
+        ? VIEWBOX_W / 2
+        : paddingX + (index * (VIEWBOX_W - paddingX * 2)) / Math.max(rollingScores.length - 1, 1);
       const y = paddingY + chartHeight - (value / 100) * chartHeight;
       return { x, y, value };
     });
@@ -258,7 +259,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
         >
           {title || t('dashboard.scoreTrendTitle', 'Score Trend')}
         </div>
-        <svg width="100%" height={lineHeight} viewBox={`0 0 100 ${lineHeight}`} preserveAspectRatio="none">
+        <svg width="100%" height={lineHeight} viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`} preserveAspectRatio="none">
           {bandBackgrounds.map((band) => {
             const top = valueToY(band.max, lineHeight);
             const bottom = valueToY(band.min, lineHeight);
@@ -267,7 +268,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                 key={`${band.min}-${band.max}`}
                 x={0}
                 y={top}
-                width={100}
+                width={VIEWBOX_W}
                 height={bottom - top}
                 fill={band.color}
               />
@@ -281,7 +282,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                 key={pct}
                 x1={8}
                 y1={y}
-                x2={92}
+                x2={VIEWBOX_W - 8}
                 y2={y}
                 stroke={colors.border.subtle}
                 strokeWidth={0.4}
@@ -294,7 +295,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             <line
               x1={8}
               y1={valueToY(baselineScore, lineHeight)}
-              x2={92}
+              x2={VIEWBOX_W - 8}
               y2={valueToY(baselineScore, lineHeight)}
               stroke={brandPurple}
               strokeWidth={1}
@@ -373,15 +374,15 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
           >
             {t('dashboard.fatigueTrendTitle', 'Fatigue Index')}
           </div>
-          <svg width="100%" height={140} viewBox="0 0 100 140" preserveAspectRatio="none">
+          <svg width="100%" height={FATIGUE_VIEWBOX_H} viewBox={`0 0 ${VIEWBOX_W} ${FATIGUE_VIEWBOX_H}`} preserveAspectRatio="none">
             {[0, 25, 50, 75, 100].map((pct) => {
-              const y = valueToY(pct, 140);
+              const y = valueToY(pct, FATIGUE_VIEWBOX_H);
               return (
                 <line
                   key={pct}
                   x1={8}
                   y1={y}
-                  x2={92}
+                  x2={VIEWBOX_W - 8}
                   y2={y}
                   stroke={colors.border.subtle}
                   strokeWidth={0.4}
@@ -392,12 +393,13 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
 
             {fatiguePoints.map((point, index) => {
               const paddingX = 8;
-              const chartWidth = 100 - paddingX * 2;
+              const chartWidth = VIEWBOX_W - paddingX * 2;
               const barWidth = chartWidth / fatiguePoints.length;
               const barGap = Math.min(2, barWidth * 0.25);
               const barX = paddingX + index * barWidth + barGap / 2;
-              const barHeight = (point.value / 100) * (140 - 40);
-              const barY = valueToY(point.value, 140);
+              const fatigueChartHeight = FATIGUE_VIEWBOX_H - 40;
+              const barHeight = (point.value / 100) * fatigueChartHeight;
+              const barY = valueToY(point.value, FATIGUE_VIEWBOX_H);
               return (
                 <rect
                   key={`bar-${index}`}
@@ -415,14 +417,14 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
 
             {fatiguePoints.map((point, index) => {
               const paddingX = 8;
-              const chartWidth = 100 - paddingX * 2;
+              const chartWidth = VIEWBOX_W - paddingX * 2;
               const barWidth = chartWidth / fatiguePoints.length;
               const barX = paddingX + index * barWidth + barWidth / 2;
               return (
                 <text
                   key={`fatigue-label-${index}`}
                   x={barX}
-                  y={132}
+                  y={FATIGUE_VIEWBOX_H - 8}
                   textAnchor="middle"
                   fill={colors.text.muted}
                   style={{ fontSize: 7 }}
