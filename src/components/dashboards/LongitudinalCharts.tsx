@@ -1,8 +1,20 @@
-import { memo, useMemo, useState } from 'react';
+import type React from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAllSessions } from '../../utils/sessionStorage';
 import type { LabModuleMetrics } from '../../types/moduleMetrics';
-import { brandCyan, brandPurple, colors, spacing, radius, typography, analytics } from '../styles';
+import {
+  analytics,
+  brandCyan,
+  brandPurple,
+  colors,
+  performanceBands,
+  radius,
+  spacing,
+  typography,
+} from '../styles';
+
+const VIEWBOX_W = 100;
 
 type ChartVariant = 'parent' | 'clinician';
 
@@ -13,19 +25,28 @@ type ChartPoint = {
   label: string;
   tooltip: string;
   band: LabModuleMetrics['band'];
+  qualityFlags?: string[];
 };
 
+type EarMode = 'combined' | 'left' | 'right' | 'balance';
+
 const bandColors: Record<LabModuleMetrics['band'], string> = {
-  high: '#22c55e',
-  mid: '#f59e0b',
-  low: '#ef4444',
+  high: colors.success,
+  mid: colors.warning,
+  low: colors.error,
 };
 
 const bandBackgrounds = [
-  { min: 70, max: 100, color: 'rgba(34, 197, 94, 0.08)' },
-  { min: 40, max: 70, color: 'rgba(245, 158, 11, 0.08)' },
-  { min: 0, max: 40, color: 'rgba(239, 68, 68, 0.08)' },
+  { min: 70, max: 100, color: colors.successLight },
+  { min: 40, max: 70, color: colors.warningLight },
+  { min: 0, max: 40, color: colors.errorLight },
 ];
+
+const VIEWBOX_W = 100;
+const VIEWBOX_PADDING_X = 8;
+const VIEWBOX_PADDING_Y = 16;
+const VIEWBOX_BOTTOM_OFFSET = 40;
+const FATIGUE_VIEWBOX_H = 140;
 
 const MIN_TREND_SESSIONS = 3;
 const ROLLING_WINDOW = 3;
@@ -47,6 +68,72 @@ const computeSlope = (values: number[]): number => {
   });
 
   return denominator === 0 ? 0 : numerator / denominator;
+};
+
+const computeStandardDeviation = (values: number[]): number => {
+  if (values.length === 0) return 0;
+  const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
+  const variance = values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / values.length;
+  return Math.sqrt(variance);
+};
+
+const computeOutlierRate = (values: number[]): number => {
+  if (values.length === 0) return 0;
+  const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
+  const stdDev = computeStandardDeviation(values);
+  const threshold = Math.max(10, stdDev * 1.5);
+  const outliers = values.filter((value) => Math.abs(value - mean) > threshold);
+  return outliers.length / values.length;
+};
+
+type ConfidenceLevel = 'high' | 'medium' | 'low';
+
+const getConfidenceLevel = (
+  sessionCount: number,
+  stdDev: number,
+  outlierRate: number,
+  meanScore: number,
+): { level: ConfidenceLevel; message: string; tone: string; consistencyIndex: number } => {
+  const normalizedVariability = Math.min(1, meanScore > 0 ? stdDev / Math.max(meanScore, 1) : stdDev / 30);
+  const normalizedOutliers = Math.min(1, outlierRate * 1.5);
+  const sessionFactor = sessionCount < MIN_TREND_SESSIONS
+    ? sessionCount / MIN_TREND_SESSIONS
+    : Math.min(1, (sessionCount - MIN_TREND_SESSIONS + 1) / 6);
+
+  const variabilityScore = 1 - normalizedVariability; // higher = steadier data
+  const outlierScore = 1 - normalizedOutliers; // higher = fewer outliers
+  const sessionScore = 0.25 + sessionFactor * 0.75; // nudges score up as count grows
+
+  const weightedScore = variabilityScore * 0.45 + outlierScore * 0.3 + sessionScore * 0.25;
+  const consistencyIndex = Math.round(clampScore(weightedScore * 100));
+
+  const needsMoreSessions = sessionCount < MIN_TREND_SESSIONS;
+  const volatileData = normalizedVariability > 0.5 || normalizedOutliers > 0.35;
+
+  let level: ConfidenceLevel = 'medium';
+  if (needsMoreSessions || consistencyIndex < 55 || volatileData) {
+    level = 'low';
+  } else if (consistencyIndex >= 82 && sessionCount >= MIN_TREND_SESSIONS + 1) {
+    level = 'high';
+  }
+
+  const message = level === 'high'
+    ? 'High confidence'
+    : level === 'medium'
+      ? volatileData
+        ? 'Medium confidence—scores show some variability'
+        : 'Medium confidence—add a session to confirm the trend'
+      : needsMoreSessions
+        ? `Low confidence—need ${MIN_TREND_SESSIONS}+ sessions`
+        : 'Low confidence—scores fluctuate or include outliers';
+
+  const tone = level === 'high'
+    ? colors.success
+    : level === 'medium'
+      ? colors.warning
+      : colors.error;
+
+  return { level, message, tone, consistencyIndex } as const;
 };
 
 const formatLabel = (timestamp: string, locale: string) => {
@@ -89,6 +176,28 @@ const MetricCard = memo(({
 ));
 MetricCard.displayName = 'MetricCard';
 
+const ConfidenceBadge = memo(({ tone, text, helper }: { tone: string; text: string; helper?: string }) => (
+  <div
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: spacing[1],
+      padding: `${spacing[1]}px ${spacing[2]}px`,
+      borderRadius: radius.full,
+      background: `${tone}1f`,
+      border: `1px solid ${tone}40`,
+      color: tone,
+      fontSize: typography.size.xs,
+      fontWeight: typography.weight.bold,
+      letterSpacing: typography.letterSpacing.tight,
+    }}
+  >
+    <span>{text}</span>
+    {helper ? <span style={{ color: colors.text.muted, fontWeight: typography.weight.medium }}>{helper}</span> : null}
+  </div>
+));
+ConfidenceBadge.displayName = 'ConfidenceBadge';
+
 const LongitudinalCharts = memo(function LongitudinalCharts({
   moduleId,
   title,
@@ -100,6 +209,25 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
 }) {
   const { t, isArabic } = useLanguage();
   const locale = isArabic ? 'ar-SA' : 'en-US';
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [activePoint, setActivePoint] = useState<(ChartPoint & { xPx: number; yPx: number }) | null>(null);
+  const [isPinned, setIsPinned] = useState(false);
+
+  const [tooltip, setTooltip] = useState<{
+    left: number;
+    top: number;
+    content: string;
+    label?: string;
+    key: string;
+    container: 'score' | 'fatigue';
+    flags?: string[];
+  } | null>(null);
+  const scoreChartRef = useRef<HTMLDivElement>(null);
+  const fatigueChartRef = useRef<HTMLDivElement>(null);
+  const [showBaseline, setShowBaseline] = useState(true);
+  const [showRolling, setShowRolling] = useState(true);
+  const [showBestMarker, setShowBestMarker] = useState(true);
+  const [earMode, setEarMode] = useState<EarMode>('combined');
 
   const [showBaseline, setShowBaseline] = useState(true);
   const [showRollingTrend, setShowRollingTrend] = useState(true);
@@ -112,50 +240,97 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
       .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   }, [moduleId]);
 
-  const lineHeight = variant === 'parent' ? 160 : 190;
-  const trendReady = sessions.length >= MIN_TREND_SESSIONS;
-  const baselineScore = sessions.length ? clampScore(sessions[0].score100) : null;
-
-  const rollingScores = useMemo(() => {
-    if (!sessions.length) return [];
-    return sessions.map((session, index) => {
-      const start = Math.max(0, index - (ROLLING_WINDOW - 1));
-      const window = sessions.slice(start, index + 1);
-      const avg = window.reduce((sum, entry) => sum + clampScore(entry.score100), 0) / window.length;
-      return Math.round(avg);
-    });
+  const earCapabilities = useMemo(() => {
+    const hasLeft = sessions.some((session) => typeof (session.metrics as Record<string, unknown>).leftAccuracyPct === 'number');
+    const hasRight = sessions.some((session) => typeof (session.metrics as Record<string, unknown>).rightAccuracyPct === 'number');
+    const hasBalance = sessions.some((session) => typeof (session.metrics as Record<string, unknown>).balanceIndex === 'number');
+    return { hasLeft, hasRight, hasBalance };
   }, [sessions]);
 
+  const availableEarModes = useMemo(() => {
+    const modes: EarMode[] = ['combined'];
+    if (earCapabilities.hasLeft) modes.push('left');
+    if (earCapabilities.hasRight) modes.push('right');
+    if (earCapabilities.hasBalance) modes.push('balance');
+    return modes;
+  }, [earCapabilities]);
+
+  useEffect(() => {
+    if (!availableEarModes.includes(earMode)) {
+      setEarMode('combined');
+    }
+  }, [availableEarModes, earMode]);
+
+  const lineHeight = variant === 'parent' ? 160 : 190;
+
+  const scoredSessions = useMemo(() => {
+    const deriveScore = (session: LabModuleMetrics) => {
+      const metrics = session.metrics as Record<string, unknown>;
+      if (earMode === 'left' && typeof metrics.leftAccuracyPct === 'number') {
+        return clampScore(metrics.leftAccuracyPct);
+      }
+      if (earMode === 'right' && typeof metrics.rightAccuracyPct === 'number') {
+        return clampScore(metrics.rightAccuracyPct);
+      }
+      if (earMode === 'balance' && typeof metrics.balanceIndex === 'number') {
+        const balanceScore = 100 - Math.min(100, Math.abs(metrics.balanceIndex as number));
+        return clampScore(balanceScore);
+      }
+      return clampScore(session.score100);
+    };
+
+    return sessions
+      .map((session) => ({
+        ...session,
+        scoreForMode: deriveScore(session),
+      }))
+      .filter((session) => session.scoreForMode !== null && typeof session.scoreForMode === 'number');
+  }, [earMode, sessions]);
+
+  const trendReady = scoredSessions.length >= MIN_TREND_SESSIONS;
+  const baselineScore = scoredSessions.length ? clampScore(scoredSessions[0].scoreForMode as number) : null;
+
+  const rollingScores = useMemo(() => {
+    if (!scoredSessions.length) return [];
+    return scoredSessions.map((session, index) => {
+      const start = Math.max(0, index - (ROLLING_WINDOW - 1));
+      const window = scoredSessions.slice(start, index + 1);
+      const avg = window.reduce((sum, entry) => sum + clampScore(entry.scoreForMode as number), 0) / window.length;
+      return Math.round(avg);
+    });
+  }, [scoredSessions]);
+
   const scorePoints = useMemo<ChartPoint[]>(() => {
-    const paddingX = 8;
-    const paddingY = 16;
-    const chartHeight = lineHeight - 40;
-    const width = 100;
-    const safeSessions = sessions.map((session) => ({
+    const chartHeight = lineHeight - VIEWBOX_BOTTOM_OFFSET;
+    const safeSessions = scoredSessions.map((session) => ({
       ...session,
-      score100: clampScore(session.score100),
+      scoreForMode: clampScore(session.scoreForMode as number),
     }));
 
-    return safeSessions.map((session, index) => {
+    const normalizedPoints = safeSessions.map((session, index) => {
       const x = safeSessions.length === 1
-        ? 50
-        : paddingX + (index * (width - paddingX * 2)) / Math.max(safeSessions.length - 1, 1);
-      const y = paddingY + chartHeight - (session.score100 / 100) * chartHeight;
+        ? VIEWBOX_W / 2
+        : VIEWBOX_PADDING_X + (index * (VIEWBOX_W - VIEWBOX_PADDING_X * 2)) / Math.max(safeSessions.length - 1, 1);
+      const y = VIEWBOX_PADDING_Y + chartHeight - ((session.scoreForMode as number) / 100) * chartHeight;
       return {
         x,
         y,
-        value: session.score100,
+        value: session.scoreForMode as number,
         label: formatLabel(session.timestamp, locale),
-        tooltip: formatTooltip(session.timestamp, locale, session.score100, '%'),
+        tooltip: formatTooltip(session.timestamp, locale, session.scoreForMode as number, '%'),
         band: session.band,
+        qualityFlags: session.qualityFlags,
       };
     });
-  }, [sessions, locale, lineHeight]);
+
+    if (!isArabic) return normalizedPoints;
+    return normalizedPoints.map((point) => ({ ...point, x: VIEWBOX_W - point.x }));
+  }, [scoredSessions, locale, lineHeight, isArabic]);
 
   const scorePath = useMemo(() => {
-    if (scorePoints.length === 0) return '';
-    return scorePoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
-  }, [scorePoints]);
+    if (translatedScorePoints.length === 0) return '';
+    return translatedScorePoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
+  }, [translatedScorePoints]);
 
   const bestPoint = useMemo(() => {
     if (!scorePoints.length) return null;
@@ -172,24 +347,32 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
 
   const rollingPoints = useMemo(() => {
     if (!rollingScores.length) return [];
-    const paddingX = 8;
-    const paddingY = 16;
-    const chartHeight = lineHeight - 40;
-    const width = 100;
+    const chartHeight = lineHeight - VIEWBOX_BOTTOM_OFFSET;
 
-    return rollingScores.map((value, index) => {
+    const points = rollingScores.map((value, index) => {
       const x = rollingScores.length === 1
-        ? 50
-        : paddingX + (index * (width - paddingX * 2)) / Math.max(rollingScores.length - 1, 1);
-      const y = paddingY + chartHeight - (value / 100) * chartHeight;
+        ? VIEWBOX_W / 2
+        : VIEWBOX_PADDING_X + (index * (VIEWBOX_W - VIEWBOX_PADDING_X * 2)) / Math.max(rollingScores.length - 1, 1);
+      const y = VIEWBOX_PADDING_Y + chartHeight - (value / 100) * chartHeight;
       return { x, y, value };
     });
-  }, [rollingScores, lineHeight]);
+
+    if (!isArabic) return points;
+    return points.map((point) => ({ ...point, x: VIEWBOX_W - point.x }));
+  }, [rollingScores, lineHeight, isArabic]);
 
   const rollingPath = useMemo(() => {
-    if (rollingPoints.length === 0) return '';
-    return rollingPoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
-  }, [rollingPoints]);
+    if (translatedRollingPoints.length === 0) return '';
+    return translatedRollingPoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
+  }, [translatedRollingPoints]);
+
+  const bestPoint = useMemo(() => {
+    if (scorePoints.length === 0) return null;
+    const bestValue = Math.max(...scorePoints.map((point) => point.value));
+    const bestIndex = scorePoints.findIndex((point) => point.value === bestValue);
+    if (bestIndex === -1) return null;
+    return scorePoints[bestIndex];
+  }, [scorePoints]);
 
   const fatiguePoints = useMemo(() => {
     return sessions
@@ -202,16 +385,36 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   }, [sessions, locale]);
 
   const stats = useMemo(() => {
-    if (sessions.length === 0) {
+    if (scoredSessions.length === 0) {
       return null;
     }
 
-    const scores = sessions.map((session) => clampScore(session.score100));
+    const scores = scoredSessions.map((session) => clampScore(session.scoreForMode as number));
     const average = Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
     const best = Math.max(...scores);
     const slope = computeSlope(scores);
     const baseline = baselineScore ?? scores[0];
-    const recentAverage = trendReady && rollingScores.length ? rollingScores[rollingScores.length - 1] : null;
+    const recentAverage = rollingScores.length ? rollingScores[rollingScores.length - 1] : null;
+    const stdDev = computeStandardDeviation(scores);
+    const outlierRate = computeOutlierRate(scores);
+    const { level, message, tone, consistencyIndex } = getConfidenceLevel(
+      sessions.length,
+      stdDev,
+      outlierRate,
+      average,
+    );
+
+    const mean = scores.reduce((sum, value) => sum + value, 0) / scores.length;
+    const variance = scores.reduce((sum, value) => sum + (value - mean) ** 2, 0) / scores.length;
+    const stdDev = Math.sqrt(variance);
+    const outlierRate = scores.filter((value) => Math.abs(value - mean) > 20).length / scores.length;
+    const consistencyIndex = Math.max(0, Math.min(100, Math.round(100 - stdDev)));
+    let confidenceLevel: 'low' | 'medium' | 'high' = 'high';
+    if (scores.length < 3) {
+      confidenceLevel = 'low';
+    } else if (stdDev > 15 || outlierRate > 0.25) {
+      confidenceLevel = 'medium';
+    }
 
     const fatigueValues = sessions
       .filter((session) => typeof session.fatigueIndex === 'number')
@@ -228,11 +431,15 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
       slope,
       baseline,
       recentAverage,
+      consistencyIndex,
+      confidenceLevel,
+      outlierRate,
       fatigueDirection,
+      fatigueSlope,
     };
-  }, [baselineScore, rollingScores, sessions, trendReady]);
+  }, [baselineScore, rollingScores, scoredSessions, sessions]);
 
-  if (sessions.length === 0) {
+  if (scoredSessions.length === 0) {
     return (
       <div
         style={{
@@ -253,26 +460,74 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     );
   }
 
-  const labelStep = scorePoints.length > 6 ? Math.ceil(scorePoints.length / 6) : 1;
-  const canShowRolling = trendReady && rollingPoints.length > 1;
   const valueToY = (value: number, height: number) => {
-    const paddingY = 16;
-    const chartHeight = height - 40;
-    return paddingY + chartHeight - (value / 100) * chartHeight;
+    const chartHeight = height - VIEWBOX_BOTTOM_OFFSET;
+    return VIEWBOX_PADDING_Y + chartHeight - (value / 100) * chartHeight;
   };
+
+  const computeTooltipState = (
+    event: React.MouseEvent<SVGElement, MouseEvent> | React.FocusEvent<SVGElement>,
+    content: string,
+    label: string | undefined,
+    key: string,
+    container: 'score' | 'fatigue',
+    flags?: string[],
+  ) => {
+    const containerRef = container === 'score' ? scoreChartRef : fatigueChartRef;
+    const wrapper = containerRef.current?.getBoundingClientRect();
+    const target = (event.currentTarget as SVGElement).getBoundingClientRect();
+    if (!wrapper) return null;
+
+    return {
+      left: target.x - wrapper.x + target.width / 2,
+      top: target.y - wrapper.y - 8,
+      content,
+      label,
+      key,
+      container,
+      flags,
+    } as const;
+  };
+
+  const setTooltipFromEvent = (
+    event: React.MouseEvent<SVGElement, MouseEvent> | React.FocusEvent<SVGElement>,
+    content: string,
+    label: string | undefined,
+    key: string,
+    container: 'score' | 'fatigue',
+    flags?: string[],
+  ) => {
+    const next = computeTooltipState(event, content, label, key, container, flags);
+    if (!next) return;
+    setTooltip(next);
+  };
+
+  const clearTooltip = () => setTooltip(null);
+
+  const chipStyle = (active: boolean) => ({
+    padding: `${spacing[0.5]}px ${spacing[2]}px`,
+    borderRadius: radius.md,
+    border: `1px solid ${active ? colors.info : colors.border.default}`,
+    background: active ? `${colors.info}22` : colors.surface.card,
+    color: colors.text.primary,
+    fontSize: typography.size.xs,
+    cursor: 'pointer',
+  });
 
   return (
     <div style={{ display: 'grid', gap: spacing[4] }}>
       <div
-        style={analytics.chartContainer}
+        ref={scoreChartRef}
+        style={{ ...analytics.chartContainer, position: 'relative' as const }}
       >
         <div
           style={{
             display: 'flex',
             justifyContent: 'space-between',
-            gap: spacing[3],
+            alignItems: 'center',
+            gap: spacing[2],
+            flexWrap: 'wrap',
             marginBottom: spacing[3],
-            alignItems: 'flex-start',
           }}
         >
           <div
@@ -280,55 +535,90 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
               fontSize: typography.size.sm,
               fontWeight: typography.weight.bold,
               color: colors.text.primary,
+              display: 'flex',
+              alignItems: 'center',
+              gap: spacing[2],
             }}
           >
-            {title || t('dashboard.scoreTrendTitle', 'Score Trend')}
+            <span>{title || t('dashboard.scoreTrendTitle', 'Score Trend')}</span>
+            {stats ? (
+              <span
+                style={{
+                  padding: `${spacing[0.5]}px ${spacing[2]}px`,
+                  borderRadius: radius.md,
+                  background:
+                    stats.confidenceLevel === 'high'
+                      ? `${colors.success}22`
+                      : stats.confidenceLevel === 'medium'
+                        ? `${colors.warning}22`
+                        : `${colors.error}22`,
+                  color:
+                    stats.confidenceLevel === 'high'
+                      ? colors.success
+                      : stats.confidenceLevel === 'medium'
+                        ? colors.warning
+                        : colors.error,
+                  fontSize: typography.size.xs,
+                  border: `1px solid ${colors.border.default}`,
+                }}
+              >
+                {stats.confidenceLevel === 'high'
+                  ? t('dashboard.confidenceHigh', 'High confidence')
+                  : stats.confidenceLevel === 'medium'
+                    ? t('dashboard.confidenceMedium', 'Medium confidence')
+                    : t('dashboard.confidenceLow', 'Low confidence — need more sessions')}
+              </span>
+            ) : null}
           </div>
-
-          {variant === 'clinician' && (
-            <div
-              style={{
-                display: 'flex',
-                gap: spacing[3],
-                flexWrap: 'wrap',
-                alignItems: 'center',
-              }}
-            >
-              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: typography.size.xs }}>
-                <input
-                  type="checkbox"
-                  checked={showBaseline}
-                  onChange={(e) => setShowBaseline(e.target.checked)}
-                />
-                <span style={{ color: colors.text.muted }}>
+          {variant === 'clinician' ? (
+            <div style={{ display: 'flex', gap: spacing[2], flexWrap: 'wrap', alignItems: 'center' }}>
+              {availableEarModes.length > 1 ? (
+                <div style={{ display: 'flex', gap: spacing[1], alignItems: 'center' }}>
+                  {availableEarModes.map((mode) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      style={chipStyle(earMode === mode)}
+                      onClick={() => setEarMode(mode)}
+                    >
+                      {mode === 'combined'
+                        ? t('dashboard.earCombined', 'Combined')
+                        : mode === 'left'
+                          ? t('dashboard.earLeft', 'Left')
+                          : mode === 'right'
+                            ? t('dashboard.earRight', 'Right')
+                            : t('dashboard.earBalance', 'Balance')}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+              <div style={{ display: 'flex', gap: spacing[1] }}>
+                <button
+                  type="button"
+                  style={chipStyle(showBaseline)}
+                  onClick={() => setShowBaseline((prev) => !prev)}
+                >
                   {t('dashboard.toggleBaseline', 'Baseline')}
-                </span>
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: typography.size.xs }}>
-                <input
-                  type="checkbox"
-                  checked={showRollingTrend}
-                  disabled={!canShowRolling}
-                  onChange={(e) => setShowRollingTrend(e.target.checked)}
-                />
-                <span style={{ color: colors.text.muted, opacity: canShowRolling ? 1 : 0.5 }}>
-                  {t('dashboard.toggleRolling', 'Rolling Trend')}
-                </span>
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: typography.size.xs }}>
-                <input
-                  type="checkbox"
-                  checked={showBestMarker}
-                  onChange={(e) => setShowBestMarker(e.target.checked)}
-                />
-                <span style={{ color: colors.text.muted }}>
-                  {t('dashboard.toggleBest', 'Best Score')}
-                </span>
-              </label>
+                </button>
+                <button
+                  type="button"
+                  style={chipStyle(showRolling)}
+                  onClick={() => setShowRolling((prev) => !prev)}
+                >
+                  {t('dashboard.toggleRolling', 'Rolling')}
+                </button>
+                <button
+                  type="button"
+                  style={chipStyle(showBestMarker)}
+                  onClick={() => setShowBestMarker((prev) => !prev)}
+                >
+                  {t('dashboard.toggleBest', 'Best')}
+                </button>
+              </div>
             </div>
-          )}
+          ) : null}
         </div>
-        <svg width="100%" height={lineHeight} viewBox={`0 0 100 ${lineHeight}`} preserveAspectRatio="none">
+        <svg width="100%" height={lineHeight} viewBox={`0 0 ${VIEWBOX_W} ${lineHeight}`} preserveAspectRatio="none">
           {bandBackgrounds.map((band) => {
             const top = valueToY(band.max, lineHeight);
             const bottom = valueToY(band.min, lineHeight);
@@ -337,7 +627,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                 key={`${band.min}-${band.max}`}
                 x={0}
                 y={top}
-                width={100}
+                width={VIEWBOX_W}
                 height={bottom - top}
                 fill={band.color}
               />
@@ -349,9 +639,9 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             return (
               <line
                 key={pct}
-                x1={8}
+                x1={VIEWBOX_PADDING_X}
                 y1={y}
-                x2={92}
+                x2={VIEWBOX_W - VIEWBOX_PADDING_X}
                 y2={y}
                 stroke={colors.border.subtle}
                 strokeWidth={0.4}
@@ -360,11 +650,11 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             );
           })}
 
-          {baselineScore !== null && showBaseline ? (
+          {showBaseline && baselineScore !== null ? (
             <line
-              x1={8}
+              x1={VIEWBOX_PADDING_X}
               y1={valueToY(baselineScore, lineHeight)}
-              x2={92}
+              x2={VIEWBOX_W - VIEWBOX_PADDING_X}
               y2={valueToY(baselineScore, lineHeight)}
               stroke={brandPurple}
               strokeWidth={1}
@@ -373,7 +663,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             />
           ) : null}
 
-          {canShowRolling && showRollingTrend ? (
+          {showRolling && rollingPoints.length > 1 ? (
             <path
               d={rollingPath}
               fill="none"
@@ -393,41 +683,68 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             strokeLinejoin="round"
           />
 
-          {scorePoints.map((point, index) => (
-            <circle
-              key={`${point.x}-${index}`}
-              cx={point.x}
-              cy={point.y}
-              r={2.8}
-              fill={colors.surface.base}
-              stroke={bandColors[point.band]}
-              strokeWidth={1.4}
-            >
-              <title>{point.tooltip}</title>
-            </circle>
-          ))}
-
-          {bestPoint && showBestMarker ? (
+          {showBestMarker && bestPoint ? (
             <g>
               <circle
                 cx={bestPoint.x}
                 cy={bestPoint.y}
-                r={4.2}
-                fill={colors.surface.base}
-                stroke={brandPurple}
-                strokeWidth={1.6}
+                r={4}
+                fill={`${colors.info}22`}
+                stroke={colors.info}
+                strokeWidth={1}
               />
-              <circle
-                cx={bestPoint.x}
-                cy={bestPoint.y}
-                r={2.2}
-                fill={brandPurple}
-              />
-              <title>{bestPoint.tooltip}</title>
+              <text
+                x={bestPoint.x}
+                y={bestPoint.y - 6}
+                textAnchor="middle"
+                fill={colors.info}
+                style={{ fontSize: typography.size.xxs, fontWeight: typography.weight.bold }}
+              >
+                ★
+              </text>
             </g>
           ) : null}
 
           {scorePoints.map((point, index) => (
+            <g key={`${point.x}-${index}`}>
+              <circle
+                cx={point.x}
+                cy={point.y}
+                r={2.8}
+                fill={colors.surface.base}
+                stroke={bandColors[point.band]}
+                strokeWidth={1.4}
+                onMouseEnter={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `score-${index}`, 'score', point.qualityFlags)}
+                onFocus={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `score-${index}`, 'score', point.qualityFlags)}
+                onMouseLeave={clearTooltip}
+                onBlur={clearTooltip}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  const key = `score-${index}`;
+                  const next = computeTooltipState(event, point.tooltip, point.label, key, 'score', point.qualityFlags);
+                  setTooltip((current) => {
+                    if (current?.key === key) return null;
+                    return next ?? current;
+                  });
+                }}
+              >
+                <title>{point.tooltip}</title>
+              </circle>
+              {point.qualityFlags?.length ? (
+                <text
+                  x={point.x}
+                  y={point.y - 5}
+                  textAnchor="middle"
+                  fontSize={typography.size.xxs}
+                  fill={colors.warning}
+                >
+                  ⚠
+                </text>
+              ) : null}
+            </g>
+          ))}
+
+          {labelPoints.map((point, index) => (
             index % labelStep === 0 ? (
               <text
                 key={`label-${index}`}
@@ -435,13 +752,46 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                 y={lineHeight - 8}
                 textAnchor="middle"
                 fill={colors.text.muted}
-                style={{ fontSize: 7 }}
+                style={{ fontSize: typography.size.xxs }}
               >
                 {point.label}
               </text>
             ) : null
           ))}
         </svg>
+        {tooltip && tooltip.container === 'score' ? (
+          <div
+            style={{
+              position: 'absolute',
+              left: tooltip.left,
+              top: tooltip.top,
+              transform: 'translate(-50%, -100%)',
+              padding: `${spacing[1]}px ${spacing[2]}px`,
+              background: colors.surface.overlay,
+              color: colors.text.primary,
+              border: `1px solid ${colors.border.default}`,
+              borderRadius: radius.md,
+              fontSize: typography.size.xs,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+              pointerEvents: 'none',
+              zIndex: 2,
+            }}
+          >
+            {tooltip.label ? (
+              <div style={{ fontWeight: typography.weight.bold, marginBottom: 2 }}>
+                {tooltip.label}
+              </div>
+            ) : null}
+            <div>{tooltip.content}</div>
+            {tooltip.flags?.length ? (
+              <div style={{ marginTop: 4, color: colors.warning }}>
+                {tooltip.flags.map((flag) => (
+                  <div key={flag}>⚠ {flag}</div>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
         {!trendReady ? (
           <div style={{ marginTop: spacing[2], fontSize: typography.size.xs, color: colors.text.muted }}>
             {t('dashboard.trendNeedsMore', 'Complete more sessions to see trend insights.')} ({MIN_TREND_SESSIONS}+)
@@ -451,7 +801,8 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
 
       {variant === 'clinician' && fatiguePoints.length > 0 && (
         <div
-          style={analytics.fatigueZone}
+          ref={fatigueChartRef}
+          style={{ ...analytics.fatigueZone, position: 'relative' as const }}
         >
           <div
             style={{
@@ -463,15 +814,15 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
           >
             {t('dashboard.fatigueTrendTitle', 'Fatigue Index')}
           </div>
-          <svg width="100%" height={140} viewBox="0 0 100 140" preserveAspectRatio="none">
+          <svg width="100%" height={FATIGUE_VIEWBOX_H} viewBox={`0 0 ${VIEWBOX_W} ${FATIGUE_VIEWBOX_H}`} preserveAspectRatio="none">
             {[0, 25, 50, 75, 100].map((pct) => {
-              const y = valueToY(pct, 140);
+              const y = valueToY(pct, FATIGUE_VIEWBOX_H);
               return (
                 <line
                   key={pct}
-                  x1={8}
+                  x1={VIEWBOX_PADDING_X}
                   y1={y}
-                  x2={92}
+                  x2={VIEWBOX_W - VIEWBOX_PADDING_X}
                   y2={y}
                   stroke={colors.border.subtle}
                   strokeWidth={0.4}
@@ -481,13 +832,12 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             })}
 
             {fatiguePoints.map((point, index) => {
-              const paddingX = 8;
-              const chartWidth = 100 - paddingX * 2;
+              const chartWidth = VIEWBOX_W - VIEWBOX_PADDING_X * 2;
               const barWidth = chartWidth / fatiguePoints.length;
               const barGap = Math.min(2, barWidth * 0.25);
-              const barX = paddingX + index * barWidth + barGap / 2;
-              const barHeight = (point.value / 100) * (140 - 40);
-              const barY = valueToY(point.value, 140);
+              const barX = VIEWBOX_PADDING_X + index * barWidth + barGap / 2;
+              const barHeight = (point.value / 100) * (FATIGUE_VIEWBOX_H - VIEWBOX_BOTTOM_OFFSET);
+              const barY = valueToY(point.value, FATIGUE_VIEWBOX_H);
               return (
                 <rect
                   key={`bar-${index}`}
@@ -497,6 +847,19 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                   height={barHeight}
                   rx={1.6}
                   fill={brandPurple}
+                  onMouseEnter={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `fatigue-${index}`, 'fatigue')}
+                  onFocus={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `fatigue-${index}`, 'fatigue')}
+                  onMouseLeave={clearTooltip}
+                  onBlur={clearTooltip}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    const key = `fatigue-${index}`;
+                    const next = computeTooltipState(event, point.tooltip, point.label, key, 'fatigue');
+                    setTooltip((current) => {
+                      if (current?.key === key) return null;
+                      return next ?? current;
+                    });
+                  }}
                 >
                   <title>{point.tooltip}</title>
                 </rect>
@@ -504,24 +867,49 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             })}
 
             {fatiguePoints.map((point, index) => {
-              const paddingX = 8;
-              const chartWidth = 100 - paddingX * 2;
+              const chartWidth = VIEWBOX_W - VIEWBOX_PADDING_X * 2;
               const barWidth = chartWidth / fatiguePoints.length;
-              const barX = paddingX + index * barWidth + barWidth / 2;
+              const barX = VIEWBOX_PADDING_X + index * barWidth + barWidth / 2;
               return (
                 <text
                   key={`fatigue-label-${index}`}
                   x={barX}
-                  y={132}
+                  y={FATIGUE_VIEWBOX_H - 8}
                   textAnchor="middle"
                   fill={colors.text.muted}
-                  style={{ fontSize: 7 }}
+                  style={{ fontSize: typography.size.xxs }}
                 >
                   {point.label}
                 </text>
               );
             })}
           </svg>
+          {tooltip && tooltip.container === 'fatigue' ? (
+            <div
+              style={{
+                position: 'absolute',
+                left: tooltip.left,
+                top: tooltip.top,
+                transform: 'translate(-50%, -100%)',
+                padding: `${spacing[1]}px ${spacing[2]}px`,
+                background: colors.surface.overlay,
+                color: colors.text.primary,
+                border: `1px solid ${colors.border.default}`,
+                borderRadius: radius.md,
+                fontSize: typography.size.xs,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+                pointerEvents: 'none',
+                zIndex: 2,
+              }}
+            >
+              {tooltip.label ? (
+                <div style={{ fontWeight: typography.weight.bold, marginBottom: 2 }}>
+                  {tooltip.label}
+                </div>
+              ) : null}
+              <div>{tooltip.content}</div>
+            </div>
+          ) : null}
         </div>
       )}
 
@@ -533,6 +921,26 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             gap: spacing[3],
           }}
         >
+          <div
+            style={{
+              gridColumn: '1 / -1',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: spacing[2],
+              alignItems: 'center',
+            }}
+          >
+            <ConfidenceBadge
+              tone={stats.confidenceTone}
+              text={t('dashboard.confidenceBadge', stats.confidenceMessage)}
+              helper={`${t('dashboard.sessions', 'Sessions')}: ${sessions.length}`}
+            />
+            <ConfidenceBadge
+              tone={colors.info}
+              text={`${t('dashboard.consistencyIndex', 'Consistency')}: ${stats.consistencyIndex}`}
+              helper={`${t('dashboard.variability', 'Variability')} ${stats.variability.toFixed(1)} | ${t('dashboard.outliers', 'Outliers')} ${(stats.outlierRate * 100).toFixed(0)}%`}
+            />
+          </div>
           <MetricCard
             label={t('dashboard.avgScore', 'Average Score')}
             value={`${stats.average}`}
@@ -547,6 +955,11 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             value={stats.recentAverage === null ? '--' : `${stats.recentAverage}`}
           />
           <MetricCard
+            label={t('dashboard.consistencyIndex', 'Consistency Index')}
+            value={`${stats.consistencyIndex ?? '--'}`}
+            tone={brandCyan}
+          />
+          <MetricCard
             label={t('dashboard.bestScore', 'Best Score')}
             value={`${stats.best}`}
             tone={brandPurple}
@@ -558,7 +971,50 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                 ? `${stats.slope >= 0 ? '+' : ''}${stats.slope.toFixed(1)} ${t('dashboard.perSession', 'per session')}`
                 : '--'
             }
-            tone={trendReady ? (stats.slope >= 0 ? '#22c55e' : '#ef4444') : colors.text.muted}
+            tone={trendReady ? (stats.slope >= 0 ? colors.success : colors.error) : colors.text.muted}
+          />
+          <MetricCard
+            label={t('dashboard.confidenceLevel', 'Confidence Level')}
+            value={
+              stats.confidenceLevel === 'high'
+                ? t('dashboard.confidenceHigh', 'High')
+                : stats.confidenceLevel === 'medium'
+                  ? t('dashboard.confidenceMedium', 'Medium')
+                  : t('dashboard.confidenceLow', 'Low')
+            }
+            tone={
+              stats.confidenceLevel === 'high'
+                ? colors.success
+                : stats.confidenceLevel === 'medium'
+                  ? colors.warning
+                  : colors.error
+            }
+          />
+          <MetricCard
+            label={t('dashboard.confidenceLevel', 'Confidence Level')}
+            value={
+              stats.confidenceLevel === 'high'
+                ? t('dashboard.confidenceHigh', 'High')
+                : stats.confidenceLevel === 'medium'
+                  ? t('dashboard.confidenceMedium', 'Medium')
+                  : t('dashboard.confidenceLow', 'Low')
+            }
+            tone={
+              stats.confidenceLevel === 'high'
+                ? colors.success
+                : stats.confidenceLevel === 'medium'
+                  ? colors.warning
+                  : colors.error
+            }
+          />
+          <MetricCard
+            label={t('dashboard.fatigueSlope', 'Fatigue Slope')}
+            value={
+              trendReady
+                ? `${stats.fatigueSlope >= 0 ? '+' : ''}${stats.fatigueSlope.toFixed(1)} ${t('dashboard.perSession', 'per session')}`
+                : '--'
+            }
+            tone={trendReady ? (stats.fatigueSlope >= 0 ? brandPink : brandCyan) : colors.text.muted}
           />
           <MetricCard
             label={t('dashboard.fatigueDirection', 'Fatigue Direction')}
@@ -569,7 +1025,17 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                   ? t('dashboard.fatigueWorsening', 'Worsening')
                   : t('dashboard.fatigueStable', 'Stable')
             }
-            tone={stats.fatigueDirection === 'worsening' ? '#ef4444' : brandCyan}
+            tone={stats.fatigueDirection === 'worsening' ? colors.error : brandCyan}
+          />
+          <MetricCard
+            label={t('dashboard.fatigueSlope', 'Fatigue Slope')}
+            value={`${stats.fatigueSlope >= 0 ? '+' : ''}${stats.fatigueSlope.toFixed(1)} ${t('dashboard.perSession', 'per session')}`}
+            tone={stats.fatigueSlope >= 0 ? colors.warning : colors.success}
+          />
+          <MetricCard
+            label={t('dashboard.fatigueSlope', 'Fatigue Slope')}
+            value={`${stats.fatigueSlope >= 0 ? '+' : ''}${stats.fatigueSlope.toFixed(1)} ${t('dashboard.perSession', 'per session')}`}
+            tone={stats.fatigueSlope >= 0 ? colors.warning : colors.success}
           />
         </div>
       )}

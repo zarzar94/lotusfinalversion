@@ -6,7 +6,7 @@ import { useVisitorMode } from '../context/VisitorModeContext';
 import { useUser } from '../context/UserContext';
 import { getSessionsOrDemo } from '../utils/sessionStorage';
 import { LineChart, BarChart } from '../components/shared/ProgressChart';
-import { colors, spacing, radius, typography, brandCyan, brandPurple, brandPink } from '../components/styles';
+import { colors, spacing, radius, typography, brandCyan, brandPurple, brandPink, analytics } from '../components/styles';
 import {
   MODULE_ORDER,
   average,
@@ -75,6 +75,14 @@ const ClinicianDashboard = memo(function ClinicianDashboard() {
     return computeSlope(normalizedValues);
   }, [fatigueSeries]);
 
+  const fatigueSlopePercent = useMemo(() => fatigueSlope * 100, [fatigueSlope]);
+
+  const fatigueDirection = useMemo<'improving' | 'worsening' | 'stable'>(() => {
+    if (fatigueSlope < -0.005) return 'improving';
+    if (fatigueSlope > 0.005) return 'worsening';
+    return 'stable';
+  }, [fatigueSlope]);
+
   const consistencyAverage = useMemo(() => {
     const values = sessions
       .map((session) => session.consistency)
@@ -114,9 +122,10 @@ const ClinicianDashboard = memo(function ClinicianDashboard() {
       latestByModule,
       isArabic,
       fatigueSlope,
+      fatigueDirection,
       consistencyAverage,
     });
-  }, [sessions, latestByModule, isArabic, fatigueSlope, consistencyAverage]);
+  }, [sessions, latestByModule, isArabic, fatigueSlope, fatigueDirection, consistencyAverage]);
 
   const handleExportCsv = useMemo(() => () => {
     if (!sessions.length) return;
@@ -259,7 +268,19 @@ const ClinicianDashboard = memo(function ClinicianDashboard() {
             {t('dashboard.fatigueSlope', 'Fatigue Slope')}
           </div>
           <div style={{ fontSize: typography.size.lg, fontWeight: typography.weight.bold, marginTop: spacing[1] }}>
-            {sessions.length ? `${(fatigueSlope * 100).toFixed(2)}%` : '--'}
+            {sessions.length ? `${fatigueSlopePercent.toFixed(2)}%` : '--'}
+          </div>
+        </div>
+        <div style={{ ...cardStyle, borderColor: `${brandCyan}40` }}>
+          <div style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
+            {t('dashboard.fatigueDirection', 'Fatigue Direction')}
+          </div>
+          <div style={{ fontSize: typography.size.lg, fontWeight: typography.weight.bold, marginTop: spacing[1], color: fatigueDirection === 'worsening' ? '#ef4444' : brandCyan }}>
+            {fatigueDirection === 'improving'
+              ? t('dashboard.fatigueImproving', 'Improving')
+              : fatigueDirection === 'worsening'
+                ? t('dashboard.fatigueWorsening', 'Worsening')
+                : t('dashboard.fatigueStable', 'Stable')}
           </div>
         </div>
         <div style={{ ...cardStyle, borderColor: `${brandCyan}35` }}>
@@ -290,6 +311,50 @@ const ClinicianDashboard = memo(function ClinicianDashboard() {
           ) : (
             emptyState
           )}
+          {fatigueSeries.length ? (
+            <div
+              style={{
+                marginTop: spacing[3],
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                gap: spacing[2],
+              }}
+            >
+              <div
+                style={{
+                  ...analytics.metricCard,
+                  background: `${brandPink}12`,
+                  border: `1px solid ${brandPink}30`,
+                }}
+              >
+                <div style={analytics.metricLabel}>{t('dashboard.fatigueSlope', 'Fatigue Slope')}</div>
+                <div style={{ ...analytics.metricValue, color: brandPink }}>
+                  {`${fatigueSlopePercent.toFixed(2)}% ${t('dashboard.perSession', 'per session')}`}
+                </div>
+              </div>
+              <div
+                style={{
+                  ...analytics.metricCard,
+                  background: `${brandCyan}12`,
+                  border: `1px solid ${brandCyan}30`,
+                }}
+              >
+                <div style={analytics.metricLabel}>{t('dashboard.fatigueDirection', 'Fatigue Direction')}</div>
+                <div
+                  style={{
+                    ...analytics.metricValue,
+                    color: fatigueDirection === 'worsening' ? '#ef4444' : brandCyan,
+                  }}
+                >
+                  {fatigueDirection === 'improving'
+                    ? t('dashboard.fatigueImproving', 'Improving')
+                    : fatigueDirection === 'worsening'
+                      ? t('dashboard.fatigueWorsening', 'Worsening')
+                      : t('dashboard.fatigueStable', 'Stable')}
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
         <div style={{ ...cardStyle }}>
           <div style={{ fontSize: typography.size.sm, fontWeight: typography.weight.bold, marginBottom: spacing[2] }}>
