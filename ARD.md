@@ -562,15 +562,27 @@ Mounted under `/api` (see `backend/src/index.js`).
 ### 8.10 Frontend API client mapping
 
 The frontend calls the backend through `src/services/api.ts`, which exports:
-- `authApi` → `/auth/*` (login/register/me/profile/logout/refresh)
+- `authApi` → `/auth/*` (register/login/refresh/me/profile/logout/delete account)
 - `clinicalApi` → `/clinical/*`
 - `gamificationApi` → `/gamification/*`
 - `settingsApi` → `/settings`
 - `sessionsApi` → `/sessions/*`
 - `syncApi` → `/sync/*`
 
-Implementation note:
-- `authApi.deleteAccount()` calls `DELETE /auth/account`, but there is no matching backend route in `backend/src/routes/auth.js` yet. Either add the endpoint server-side or remove/disable the client call.
+Auth endpoint reference (frontend ↔ backend) — mirrors the live routes in `backend/src/routes/auth.js`, including `DELETE /auth/account`:
+
+| Client call | Method & path | Access | Backend route |
+| --- | --- | --- | --- |
+| `authApi.register()` | `POST /auth/register` | Public | `backend/src/routes/auth.js` |
+| `authApi.login()` | `POST /auth/login` | Public | `backend/src/routes/auth.js` |
+| `authApi.refresh()` | `POST /auth/refresh` | Public | `backend/src/routes/auth.js` |
+| `authApi.getCurrentUser()` | `GET /auth/me` | Auth required | `backend/src/routes/auth.js` |
+| `authApi.updateProfile()` | `PATCH /auth/profile` | Auth required | `backend/src/routes/auth.js` |
+| `authApi.logout()` | `POST /auth/logout` | Auth required | `backend/src/routes/auth.js` |
+| `authApi.deleteAccount()` | `DELETE /auth/account` | Auth required | `backend/src/routes/auth.js` |
+
+Backend route definitions for these endpoints (including the account deletion handler) are consolidated in `backend/src/routes/auth.js`.
+Canonical auth routes (with access level): register (public), login (public), refresh (public), me (auth), profile (auth), logout (auth), and account deletion (auth via `DELETE /auth/account` wired to `authApi.deleteAccount`).
 
 ---
 
