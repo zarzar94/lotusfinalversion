@@ -54,6 +54,7 @@ Backend scripts (run inside `backend/`):
 Create `.env` from `.env.example` (frontend):
 ```
 VITE_API_URL=http://localhost:3001/api   # default matches backend dev port
+VITE_WS_URL=ws://localhost:3001/ws       # matches backend WebSocket default
 VITE_CLINIC_PHONE=+9715XXXXXXXX
 VITE_CLINIC_EMAIL=info@example.com   # optional override
 ```
