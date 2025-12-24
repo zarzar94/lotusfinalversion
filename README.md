@@ -66,6 +66,7 @@ JWT_SECRET=change-me
 JWT_REFRESH_SECRET=change-me-too
 CORS_ORIGIN=http://localhost:5173
 FRONTEND_URL=http://localhost:5173
+WEBSOCKET_URL=ws://localhost:3001/ws
 ```
 Adjust SMTP, WebSocket, upload, and rate-limit settings as needed; see `backend/.env.example` for the full list.
 

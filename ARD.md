@@ -91,6 +91,7 @@ Reference: `.env.example` (also includes the backend variables to copy into `bac
 - `MONGODB_URI` — Mongo connection
 - `JWT_SECRET`, `JWT_REFRESH_SECRET`, expiry settings — auth tokens
 - `FRONTEND_URL` / `CORS_ORIGIN` — CORS + email links
+- `WEBSOCKET_URL` — ws endpoint (defaults to `ws://localhost:3001/ws`)
 - SMTP settings — password reset emails and notifications
 - `UPLOAD_DIR`, `MAX_FILE_SIZE` — upload service
 - rate limit settings
