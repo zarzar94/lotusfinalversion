@@ -991,6 +991,15 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             tone={trendReady ? (stats.fatigueSlope >= 0 ? brandPink : brandCyan) : colors.text.muted}
           />
           <MetricCard
+            label={t('dashboard.fatigueSlope', 'Fatigue Slope')}
+            value={
+              trendReady
+                ? `${stats.fatigueSlope >= 0 ? '+' : ''}${stats.fatigueSlope.toFixed(1)} ${t('dashboard.perSession', 'per session')}`
+                : '--'
+            }
+            tone={trendReady ? (stats.fatigueSlope >= 0 ? brandPink : brandCyan) : colors.text.muted}
+          />
+          <MetricCard
             label={t('dashboard.fatigueDirection', 'Fatigue Direction')}
             value={
               stats.fatigueDirection === 'improving'
