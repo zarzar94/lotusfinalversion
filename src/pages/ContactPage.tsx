@@ -50,7 +50,7 @@ const PageHeader = memo(() => {
           marginBottom: spacing[4],
         }}
       >
-        <span style={{ fontSize: 20 }}>?o%?,?</span>
+        <span style={{ fontSize: 20 }} aria-hidden="true">🚀</span>
         <span
           style={{
             fontSize: typography.size.sm,
