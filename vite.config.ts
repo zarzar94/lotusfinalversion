@@ -10,10 +10,7 @@ const rootDir = dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   base: process.env.BASE_PATH || './',
   plugins: [
-    react({
-      // Enable Fast Refresh in development
-      fastRefresh: true,
-    }),
+    react(),
   ],
   build: {
     // Improve build performance
