@@ -82,6 +82,7 @@ Reference: `.env.example` (also includes the backend variables to copy into `bac
 **Frontend (Vite)**
 - `VITE_API_URL` (default in code: `http://localhost:3001/api`) — backend base URL
 - `VITE_WS_URL` — websocket URL (backend prints `ws://.../ws`, websocket implementation lives in `backend/src/utils/websocket.js`)
+- `VITE_CHUNK_WARNING_LIMIT` — overrides Vite `chunkSizeWarningLimit` for CI/hosting noise control
 - `VITE_CLINIC_PHONE` / `VITE_CLINIC_EMAIL` — contact/WhatsApp configuration (used with `src/data/clinic.ts`)
 - `VITE_ENABLE_OFFLINE_MODE` — enables local fallback behavior (API client already queues offline writes)
 - `BASE_PATH` — Vite base path for subpath deployments (GitHub Pages)
