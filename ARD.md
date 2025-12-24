@@ -569,7 +569,7 @@ The frontend calls the backend through `src/services/api.ts`, which exports:
 - `sessionsApi` → `/sessions/*`
 - `syncApi` → `/sync/*`
 
-Auth endpoint reference (frontend ↔ backend) — all implemented in `backend/src/routes/auth.js`:
+Auth endpoint reference (frontend ↔ backend) — mirrors the live routes in `backend/src/routes/auth.js`, including `DELETE /auth/account`:
 
 | Client call | Method & path | Access | Backend route |
 | --- | --- | --- | --- |
