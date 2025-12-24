@@ -15,8 +15,8 @@ export default defineConfig({
   build: {
     // Improve build performance
     target: 'es2020',
-    // Chunk size warnings at 500KB
-    chunkSizeWarningLimit: 500,
+    // Raise chunk warning limit (overridable via env) to avoid noisy CI/logs (e.g., Vercel) for large vendor bundles
+    chunkSizeWarningLimit: Number(process.env.VITE_CHUNK_WARNING_LIMIT || 1500),
     // Minification
     minify: 'esbuild',
     // CSS code splitting
