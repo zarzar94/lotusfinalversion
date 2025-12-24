@@ -571,24 +571,15 @@ The frontend calls the backend through `src/services/api.ts`, which exports:
 
 Auth endpoint reference (frontend ↔ backend) — all implemented in `backend/src/routes/auth.js`:
 
-| Client call | Method & path | Backend route |
-| --- | --- | --- |
-| `authApi.register()` | `POST /auth/register` (public) | `backend/src/routes/auth.js` |
-| `authApi.login()` | `POST /auth/login` (public) | `backend/src/routes/auth.js` |
-| `authApi.refresh()` | `POST /auth/refresh` (public) | `backend/src/routes/auth.js` |
-| `authApi.getCurrentUser()` | `GET /auth/me` (auth required) | `backend/src/routes/auth.js` |
-| `authApi.updateProfile()` | `PATCH /auth/profile` (auth required) | `backend/src/routes/auth.js` |
-| `authApi.logout()` | `POST /auth/logout` (auth required) | `backend/src/routes/auth.js` |
-| `authApi.deleteAccount()` | `DELETE /auth/account` (auth required) | `backend/src/routes/auth.js` |
-
-Backend auth route summary:
-- `POST /auth/register` (public)
-- `POST /auth/login` (public)
-- `POST /auth/refresh` (public)
-- `GET /auth/me` (auth required)
-- `PATCH /auth/profile` (auth required)
-- `POST /auth/logout` (auth required)
-- `DELETE /auth/account` (auth required)
+| Client call | Method & path | Access | Backend route |
+| --- | --- | --- | --- |
+| `authApi.register()` | `POST /auth/register` | Public | `backend/src/routes/auth.js` |
+| `authApi.login()` | `POST /auth/login` | Public | `backend/src/routes/auth.js` |
+| `authApi.refresh()` | `POST /auth/refresh` | Public | `backend/src/routes/auth.js` |
+| `authApi.getCurrentUser()` | `GET /auth/me` | Auth required | `backend/src/routes/auth.js` |
+| `authApi.updateProfile()` | `PATCH /auth/profile` | Auth required | `backend/src/routes/auth.js` |
+| `authApi.logout()` | `POST /auth/logout` | Auth required | `backend/src/routes/auth.js` |
+| `authApi.deleteAccount()` | `DELETE /auth/account` | Auth required | `backend/src/routes/auth.js` |
 
 ---
 
