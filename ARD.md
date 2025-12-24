@@ -2,7 +2,7 @@
 
 **ARD** here means **Architecture & Requirements Document** for the current repository implementation (frontend + backend).
 
-**Repo**: `lotusfinalversion` (contains **both** frontend and backend)  
+**Repo**: `lotusfinalversion` (contains **both** frontend and backend in one repo)  
 **Frontend**: React 18 + Vite + TypeScript (`react-router-dom`) at repo root  
 **Backend**: Node.js (Express) + MongoDB (Mongoose) under `backend/`  
 **Last updated**: 2025-12-23  
@@ -102,6 +102,7 @@ Reference: `.env.example` (also includes the backend variables to copy into `bac
 
 **Frontend ↔ API**
 - The frontend API client (`src/services/api.ts`) points to the Express API by default (`VITE_API_URL` fallback `http://localhost:3001/api`).
+- If running the backend elsewhere (different host/port or separate deployment), set `VITE_API_URL` in the frontend `.env` to that API base and align backend `CORS_ORIGIN`/`FRONTEND_URL`.
 
 ---
 

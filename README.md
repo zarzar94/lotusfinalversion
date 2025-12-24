@@ -4,6 +4,10 @@
 
 Arabic-first, RTL landing/prototype for the Berard Auditory Integration Training (AIT) program. The repository contains **both** the Vite + TypeScript + React frontend (repo root) and the Express + MongoDB backend API under `backend/`; includes an in-browser screening lab, PDF exports, and GitHub Pages deployment.
 
+## Repo layout
+- `./` — Vite/React frontend (this README covers it)
+- `backend/` — Express + MongoDB API (local dev: `cd backend && npm run dev`)
+
 ## Highlights
 - 57-slide PPTX viewer with search/filter, modal preview, keyboard navigation, and a slides-summary PDF export. Assets load from `public/assets/pptx_slides` and downloads include `berard-profile.pdf`.
 - Interactive checklist (Arabic + English labels) with recommendation messaging, official PDF download, and "your selections" PDF export (embeds Cairo fonts for RTL text).
@@ -30,6 +34,22 @@ Visit the printed localhost URL. The app is RTL by default (`index.html` sets `d
 - `npm run preview` - preview the production build
 - `npm run qa:assets` - verify required public assets (slides, fonts, PDFs)
 
+## Run frontend + backend together (local)
+In two terminals:
+```bash
+# Terminal 1: backend
+cd backend
+npm install
+cp .env.example .env   # set required values
+npm run dev
+
+# Terminal 2: frontend
+cd ..
+npm install
+npm run dev
+```
+The frontend API client defaults to `http://localhost:3001/api` via `VITE_API_URL` (see `src/services/api.ts`); update this if you change the backend host/port.
+
 ## Backend setup (Express + MongoDB)
 ```bash
 cd backend
@@ -50,13 +70,14 @@ Backend scripts (run from `backend/`):
 - `npm test` / `npm test:coverage` - Jest API tests
 - `npm run lint` - lint backend code
 
-The frontend API client at `src/services/api.ts` points to `VITE_API_URL` (defaults to `http://localhost:3001/api`), matching the local backend.
+The frontend API client at `src/services/api.ts` points to `VITE_API_URL` (defaults to `http://localhost:3001/api`). If you host the API elsewhere, set `VITE_API_URL` accordingly and align `CORS_ORIGIN`/`FRONTEND_URL` in the backend `.env`.
 
 ## Environment
 Create `.env` from `.env.example`:
 ```
 VITE_CLINIC_PHONE=+9715XXXXXXXX
 VITE_CLINIC_EMAIL=info@example.com   # optional override
+VITE_API_URL=http://localhost:3001/api   # override if backend is not on localhost:3001
 ```
 Deployment under a subpath (e.g., GitHub Pages) uses `BASE_PATH` (see `vite.config.ts`). The GitHub Actions workflow already sets it to `/<repo-name>/`.
 
