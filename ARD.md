@@ -569,28 +569,26 @@ The frontend calls the backend through `src/services/api.ts`, which exports:
 - `sessionsApi` → `/sessions/*`
 - `syncApi` → `/sync/*`
 
-Auth endpoint reference (frontend ↔ backend):
+Auth endpoint reference (frontend ↔ backend) — all implemented in `backend/src/routes/auth.js`:
 
 | Client call | Method & path | Backend route |
 | --- | --- | --- |
-| `authApi.register()` | `POST /auth/register` | `backend/src/routes/auth.js` |
-| `authApi.login()` | `POST /auth/login` | `backend/src/routes/auth.js` |
-| `authApi.refresh()` | `POST /auth/refresh` | `backend/src/routes/auth.js` |
-| `authApi.getCurrentUser()` | `GET /auth/me` | `backend/src/routes/auth.js` |
-| `authApi.updateProfile()` | `PATCH /auth/profile` | `backend/src/routes/auth.js` |
-| `authApi.logout()` | `POST /auth/logout` | `backend/src/routes/auth.js` |
-| `authApi.deleteAccount()` | `DELETE /auth/account` | `backend/src/routes/auth.js` |
+| `authApi.register()` | `POST /auth/register` (public) | `backend/src/routes/auth.js` |
+| `authApi.login()` | `POST /auth/login` (public) | `backend/src/routes/auth.js` |
+| `authApi.refresh()` | `POST /auth/refresh` (public) | `backend/src/routes/auth.js` |
+| `authApi.getCurrentUser()` | `GET /auth/me` (auth required) | `backend/src/routes/auth.js` |
+| `authApi.updateProfile()` | `PATCH /auth/profile` (auth required) | `backend/src/routes/auth.js` |
+| `authApi.logout()` | `POST /auth/logout` (auth required) | `backend/src/routes/auth.js` |
+| `authApi.deleteAccount()` | `DELETE /auth/account` (auth required) | `backend/src/routes/auth.js` |
 
-All listed auth endpoints (including account deletion) are implemented in `backend/src/routes/auth.js`.
-Backend auth routes currently available:
-- `POST /auth/register`
-- `POST /auth/login`
-- `POST /auth/refresh`
-- `GET /auth/me`
-- `PATCH /auth/profile`
-- `POST /auth/logout`
-- `DELETE /auth/account`
-Register/login/refresh are public; the remaining routes require authentication.
+Backend auth route summary:
+- `POST /auth/register` (public)
+- `POST /auth/login` (public)
+- `POST /auth/refresh` (public)
+- `GET /auth/me` (auth required)
+- `PATCH /auth/profile` (auth required)
+- `POST /auth/logout` (auth required)
+- `DELETE /auth/account` (auth required)
 
 ---
 
