@@ -51,13 +51,22 @@ Backend scripts (run inside `backend/`):
 - `npm run test` / `npm run test:coverage` - Jest-based API/unit tests
 
 ## Environment
-Create `.env` from `.env.example`:
+Create `.env` from `.env.example` (frontend):
 ```
 VITE_API_URL=http://localhost:3001/api   # default matches backend dev port
 VITE_CLINIC_PHONE=+9715XXXXXXXX
 VITE_CLINIC_EMAIL=info@example.com   # optional override
 ```
 Deployment under a subpath (e.g., GitHub Pages) uses `BASE_PATH` (see `vite.config.ts`). The GitHub Actions workflow already sets it to `/<repo-name>/`.
+
+Backend environment (in `backend/.env` — copy from `backend/.env.example`):
+```
+MONGODB_URI=mongodb://localhost:27017/lotus
+JWT_SECRET=change-me
+JWT_REFRESH_SECRET=change-me-too
+CORS_ORIGIN=http://localhost:5173
+```
+Adjust SMTP and upload settings as needed for your deployment.
 
 ## Media restore
 If assets are missing, merge the provided archives as noted in `README_MERGE_MEDIA.txt`:

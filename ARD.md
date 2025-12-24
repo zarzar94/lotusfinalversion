@@ -61,7 +61,7 @@ The repo includes both a **frontend** (production-ready build) and a **backend A
 
 **Local development quick start**
 - Install dependencies: `cd backend && npm install`
-- Copy env: `cp .env.example .env`, then set `MONGODB_URI`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN` (e.g., `http://localhost:5173`)
+- Copy env: `cp .env.example .env`, then set `MONGODB_URI`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN` (e.g., `http://localhost:5173`). Update SMTP and upload limits as required.
 - Run dev server: `npm run dev` (defaults to `http://localhost:3001/api`, matching the frontend `VITE_API_URL` fallback)
 
 ### 2.3 Offline-first + Sync Strategy
