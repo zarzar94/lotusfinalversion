@@ -101,7 +101,7 @@ function ResourcesPage() {
       <main style={styles.container}>
         <BackNavigation
           to="/"
-          label={isArabic ? 'الصفحة الرئيسية' : 'Home'}
+          label={t('nav.home')}
         />
 
         <PageHeader isArabic={isArabic} />

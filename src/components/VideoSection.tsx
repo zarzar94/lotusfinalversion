@@ -1,12 +1,14 @@
 import { useState, useMemo } from 'react';
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
 import { PlayIcon, VideoIcon, ChartIcon, BrainIcon, EyeIcon, EarIcon, BeakerIcon } from './Icons';
+import { useLanguage } from '../context/LanguageContext';
 
 type Video = {
   id: string;
   title: string;
   titleEn: string;
   description: string;
+  descriptionEn: string;
   duration: string;
   icon: React.ReactNode;
   category: 'intro' | 'science' | 'results';
@@ -18,6 +20,7 @@ const videos: Video[] = [
     title: 'مقدمة عن Berard AIT',
     titleEn: 'Introduction to Berard AIT',
     description: 'نظرة عامة على برنامج التدريب السمعي وكيف يعمل',
+    descriptionEn: 'An overview of the auditory training program and how it works',
     duration: '5:30',
     icon: <VideoIcon size={28} color={brandCyan} />,
     category: 'intro',
@@ -27,6 +30,7 @@ const videos: Video[] = [
     title: 'كيف يتم Berard AIT؟',
     titleEn: 'How is Berard AIT Done?',
     description: 'شرح الخطوات الإجرائية والإجابة على الأسئلة الشائعة',
+    descriptionEn: 'A step-by-step walkthrough and answers to common questions',
     duration: '8:15',
     icon: <BeakerIcon size={28} color={brandCyan} />,
     category: 'intro',
@@ -36,6 +40,7 @@ const videos: Video[] = [
     title: 'نتائج Berard AIT',
     titleEn: 'Results From Berard AIT',
     description: 'بيانات ما قبل/بعد تُظهر تحسينات قابلة للقياس',
+    descriptionEn: 'Before/after data showing measurable improvements',
     duration: '6:45',
     icon: <ChartIcon size={28} color={brandPink} />,
     category: 'results',
@@ -45,6 +50,7 @@ const videos: Video[] = [
     title: 'التغييرات المتوقعة ومتى تحدث',
     titleEn: 'What Changes Occur and When',
     description: 'تفاصيل النتائج المتوقعة والجدول الزمني',
+    descriptionEn: 'Expected outcomes and the typical timeline',
     duration: '7:20',
     icon: <ChartIcon size={28} color={brandPink} />,
     category: 'results',
@@ -54,6 +60,7 @@ const videos: Video[] = [
     title: 'AIT والمعالجة السمعية',
     titleEn: 'AIT and Auditory Processing',
     description: 'العلاقة بين البرنامج وتطوير المهارات السمعية',
+    descriptionEn: 'How the program supports auditory skills development',
     duration: '9:00',
     icon: <EarIcon size={28} color={brandPurple} />,
     category: 'science',
@@ -63,6 +70,7 @@ const videos: Video[] = [
     title: 'AIT والمعالجة البصرية',
     titleEn: 'AIT and Visual Processing',
     description: 'الروابط بين الأنظمة السمعية والبصرية',
+    descriptionEn: 'Connections between auditory and visual processing',
     duration: '7:45',
     icon: <EyeIcon size={28} color={brandPurple} />,
     category: 'science',
@@ -72,6 +80,7 @@ const videos: Video[] = [
     title: 'الدماغ الذي يُغيّر نفسه',
     titleEn: 'The Brain That Changes Itself',
     description: 'شرح مفاهيم اللدونة العصبية',
+    descriptionEn: 'Neuroplasticity concepts explained',
     duration: '10:30',
     icon: <BrainIcon size={28} color={brandPurple} />,
     category: 'science',
@@ -79,18 +88,20 @@ const videos: Video[] = [
 ];
 
 const categoryLabels = {
-  intro: { label: 'مقدمة', color: brandCyan },
-  science: { label: 'علمي', color: brandPurple },
-  results: { label: 'نتائج', color: brandPink },
+  intro: { labelAr: 'مقدمة', labelEn: 'Intro', color: brandCyan },
+  science: { labelAr: 'علمي', labelEn: 'Science', color: brandPurple },
+  results: { labelAr: 'نتائج', labelEn: 'Results', color: brandPink },
 };
 
 // Lab Monitor Screen component
-const LabMonitor = ({ video, isHovered, onHover }: {
+const LabMonitor = ({ video, isHovered, isArabic, onHover }: {
   video: Video;
   isHovered: boolean;
+  isArabic: boolean;
   onHover: (id: string | null) => void;
 }) => {
   const cat = categoryLabels[video.category];
+  const catLabel = isArabic ? cat.labelAr : cat.labelEn;
 
   return (
     <div
@@ -207,7 +218,7 @@ const LabMonitor = ({ video, isHovered, onHover }: {
               fontSize: 11,
               fontWeight: 800,
             }}>
-              {cat.label}
+              {catLabel}
             </div>
 
             {/* Live indicator dot */}
@@ -243,24 +254,26 @@ const LabMonitor = ({ video, isHovered, onHover }: {
               color: '#f7f8fb',
               lineHeight: 1.4,
             }}>
-              {video.title}
+              {isArabic ? video.title : video.titleEn}
             </h3>
-            <div style={{
-              fontSize: 11,
-              color: cat.color,
-              marginTop: 4,
-              fontWeight: 600,
-              fontFamily: 'monospace',
-            }}>
-              {video.titleEn}
-            </div>
+            {isArabic ? (
+              <div style={{
+                fontSize: 11,
+                color: cat.color,
+                marginTop: 4,
+                fontWeight: 600,
+                fontFamily: 'monospace',
+              }}>
+                {video.titleEn}
+              </div>
+            ) : null}
             <p style={{
               margin: '8px 0 0',
               fontSize: 12,
               color: 'rgba(255,255,255,0.6)',
               lineHeight: 1.5,
             }}>
-              {video.description}
+              {isArabic ? video.description : video.descriptionEn}
             </p>
           </div>
         </div>
@@ -280,6 +293,7 @@ const LabMonitor = ({ video, isHovered, onHover }: {
 };
 
 export default function VideoSection() {
+  const { isArabic } = useLanguage();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'intro' | 'science' | 'results'>('all');
 
@@ -345,7 +359,7 @@ export default function VideoSection() {
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div style={styles.sectionHeader}>
           <div style={styles.sectionHeaderRow}>
-            <h2 style={styles.h2}>مختبر الفيديو التعليمي</h2>
+            <h2 style={styles.h2}>{isArabic ? 'مختبر الفيديو التعليمي' : 'Video Learning Lab'}</h2>
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -357,12 +371,14 @@ export default function VideoSection() {
             }}>
               <BeakerIcon size={16} color={brandCyan} />
               <span style={{ fontSize: 12, fontWeight: 700, color: brandCyan }}>
-                {filteredVideos.length} عرض
+                {filteredVideos.length} {isArabic ? 'عرض' : 'videos'}
               </span>
             </div>
           </div>
           <p style={styles.bodyText}>
-            شاشات العرض المخبرية لفهم برنامج Berard AIT وأساسه العلمي
+            {isArabic
+              ? 'شاشات العرض المخبرية لفهم برنامج Berard AIT وأساسه العلمي'
+              : 'Lab-style screens to understand Berard AIT and its scientific foundation'}
           </p>
 
           {/* Filter tabs */}
@@ -376,10 +392,10 @@ export default function VideoSection() {
             border: '1px solid rgba(255,255,255,0.05)',
           }}>
             {[
-              { key: 'all', label: `الكل (${videos.length})`, color: '#fff' },
-              { key: 'intro', label: categoryLabels.intro.label, color: brandCyan },
-              { key: 'science', label: categoryLabels.science.label, color: brandPurple },
-              { key: 'results', label: categoryLabels.results.label, color: brandPink },
+              { key: 'all', label: isArabic ? `الكل (${videos.length})` : `All (${videos.length})`, color: '#fff' },
+              { key: 'intro', label: isArabic ? categoryLabels.intro.labelAr : categoryLabels.intro.labelEn, color: brandCyan },
+              { key: 'science', label: isArabic ? categoryLabels.science.labelAr : categoryLabels.science.labelEn, color: brandPurple },
+              { key: 'results', label: isArabic ? categoryLabels.results.labelAr : categoryLabels.results.labelEn, color: brandPink },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -417,6 +433,7 @@ export default function VideoSection() {
               key={video.id}
               video={video}
               isHovered={hoveredId === video.id}
+              isArabic={isArabic}
               onHover={setHoveredId}
             />
           ))}
@@ -458,9 +475,11 @@ export default function VideoSection() {
             <PlayIcon size={32} color="#fff" />
           </div>
           <div style={{ flex: 1, minWidth: 200 }}>
-            <div style={{ fontWeight: 800, fontSize: 17, color: '#fff' }}>البث المباشر على YouTube</div>
+            <div style={{ fontWeight: 800, fontSize: 17, color: '#fff' }}>
+              {isArabic ? 'البث المباشر على YouTube' : 'Live on YouTube'}
+            </div>
             <div style={{ ...styles.muted, marginTop: 6 }}>
-              المزيد من المحتوى التعليمي والعروض الحية
+              {isArabic ? 'المزيد من المحتوى التعليمي والعروض الحية' : 'More educational content and live sessions'}
             </div>
           </div>
           <a
@@ -475,12 +494,14 @@ export default function VideoSection() {
               fontSize: 14,
             }}
           >
-            دخول القناة
+            {isArabic ? 'دخول القناة' : 'Visit channel'}
           </a>
         </div>
 
         <p style={{ ...styles.muted, marginTop: 20, textAlign: 'center', fontSize: 12 }}>
-          المحتوى المخبري للأغراض التعليمية فقط — استشر المختصين للتقييم الفردي
+          {isArabic
+            ? 'المحتوى المخبري للأغراض التعليمية فقط — استشر المختصين للتقييم الفردي'
+            : 'Lab content is for educational purposes only — consult a specialist for an individual evaluation.'}
         </p>
       </div>
     </section>
