@@ -43,6 +43,11 @@ The repo includes both a **frontend** (production-ready build) and a **backend A
 
 ### 2.2 Backend (Express + MongoDB) — located in `backend/`
 
+**Location & scripts**
+- Lives under `backend/`
+- Common scripts: `npm run dev` (nodemon server), `npm start` (production), `npm test` / `npm test:coverage`, `npm run lint`
+- Environment file: copy `backend/.env.example` to `backend/.env`
+
 **Server entry**
 - `backend/src/index.js` mounts all API routes under `/api/*`, with:
   - security headers (`helmet`)
@@ -96,6 +101,15 @@ Reference: `.env.example` (also includes the backend variables to copy into `bac
 - SMTP settings — password reset emails and notifications
 - `UPLOAD_DIR`, `MAX_FILE_SIZE` — upload service
 - rate limit settings
+
+**Backend setup (local)**
+1) `cd backend && npm install`
+2) Copy `.env.example` to `.env` and set at minimum: `MONGODB_URI`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN`/`FRONTEND_URL`.
+3) Run `npm run dev` (nodemon) or `npm start`.
+
+**Frontend ↔ API**
+- The frontend API client (`src/services/api.ts`) points to the Express API by default (`VITE_API_URL` fallback `http://localhost:3001/api`).
+- If running the backend elsewhere (different host/port or separate deployment), set `VITE_API_URL` in the frontend `.env` to that API base and align backend `CORS_ORIGIN`/`FRONTEND_URL`.
 
 ---
 
