@@ -581,6 +581,8 @@ Auth endpoint reference (frontend ↔ backend):
 | `authApi.logout()` | `POST /auth/logout` | `backend/src/routes/auth.js` |
 | `authApi.deleteAccount()` | `DELETE /auth/account` | `backend/src/routes/auth.js` |
 
+All listed auth endpoints (including account deletion) are implemented in `backend/src/routes/auth.js`.
+
 ---
 
 ## 9) Design System & UI Structure
