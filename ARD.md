@@ -4,7 +4,7 @@
 
 **Repo**: `lotusfinalversion`  
 **Frontend**: React 18 + Vite + TypeScript (`react-router-dom`)  
-**Backend**: Node.js (Express) + MongoDB (Mongoose)  
+**Backend**: Node.js (Express) + MongoDB (Mongoose) — **lives in `backend/` inside this repo**  
 **Last updated**: 2025-12-23  
 
 ---
@@ -41,7 +41,7 @@ The repo includes both a **frontend** (production-ready build) and a **backend A
 **Routing**
 - `BrowserRouter` with `basename` derived from `import.meta.env.BASE_URL` for subpath deployments (GitHub Pages / custom base paths).
 
-### 2.2 Backend (Express + MongoDB)
+### 2.2 Backend (Express + MongoDB) — located in `backend/`
 
 **Server entry**
 - `backend/src/index.js` mounts all API routes under `/api/*`, with:
@@ -569,8 +569,8 @@ The frontend calls the backend through `src/services/api.ts`, which exports:
 - `sessionsApi` → `/sessions/*`
 - `syncApi` → `/sync/*`
 
-Implementation note:
-- `authApi.deleteAccount()` calls `DELETE /auth/account`, but there is no matching backend route in `backend/src/routes/auth.js` yet. Either add the endpoint server-side or remove/disable the client call.
+Implementation notes:
+- `authApi.deleteAccount()` calls `DELETE /auth/account`, which **is implemented** in `backend/src/routes/auth.js`.
 
 ---
 

@@ -1,8 +1,8 @@
-# Lotus / Berard AIT Sound Lab (React + Vite)
+# Lotus / Berard AIT Sound Lab (React + Vite + Express)
 
 [![Deploy to GitHub Pages](https://github.com/zarzar94/lotusfinalversion/actions/workflows/deploy.yml/badge.svg)](https://github.com/zarzar94/lotusfinalversion/actions/workflows/deploy.yml)
 
-Arabic-first, RTL landing/prototype for the Berard Auditory Integration Training (AIT) program. Built with Vite + TypeScript + React; includes an in-browser screening lab, PDF exports, and GitHub Pages deployment.
+Arabic-first, RTL landing/prototype for the Berard Auditory Integration Training (AIT) program. Built with Vite + TypeScript + React; includes an in-browser screening lab, PDF exports, GitHub Pages deployment, and an accompanying Express/MongoDB API located in `backend/`.
 
 ## Highlights
 - 57-slide PPTX viewer with search/filter, modal preview, keyboard navigation, and a slides-summary PDF export. Assets load from `public/assets/pptx_slides` and downloads include `berard-profile.pdf`.
@@ -16,18 +16,39 @@ Arabic-first, RTL landing/prototype for the Berard Auditory Integration Training
 - npm (ships with Node)
 - Media assets merged (see "Media restore" below)
 
-## Quick start
+## Quick start (frontend)
 ```bash
 npm install
 npm run dev
 ```
 Visit the printed localhost URL. The app is RTL by default (`index.html` sets `dir="rtl"`).
 
+## Backend API (Express/MongoDB)
+The repository contains a full backend service under `backend/` that mirrors the frontend API client expectations (`src/services/api.ts`).
+
+```bash
+cd backend
+npm install
+cp .env.example .env   # set MONGODB_URI, JWT_SECRET, CORS_ORIGIN, etc.
+npm run dev             # starts Express on http://localhost:3001
+```
+
+Key defaults:
+- `PORT` (3001) aligns with `VITE_API_URL` fallback in the frontend.
+- `CORS_ORIGIN` should include your frontend origin (e.g., `http://localhost:5173`).
+- MongoDB is required; use a local instance or a service such as MongoDB Atlas.
+
 ## Scripts
 - `npm run dev` - start Vite dev server
 - `npm run build` - production build
 - `npm run preview` - preview the production build
 - `npm run qa:assets` - verify required public assets (slides, fonts, PDFs)
+
+Backend scripts (run inside `backend/`):
+- `npm run dev` - start Express with nodemon
+- `npm run start` - start Express in production mode
+- `npm run lint` - ESLint for backend JS
+- `npm run test` / `npm run test:coverage` - Jest-based API/unit tests
 
 ## Environment
 Create `.env` from `.env.example`:
