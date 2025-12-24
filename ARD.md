@@ -2,9 +2,9 @@
 
 **ARD** here means **Architecture & Requirements Document** for the current repository implementation (frontend + backend).
 
-**Repo**: `lotusfinalversion`  
-**Frontend**: React 18 + Vite + TypeScript (`react-router-dom`)  
-**Backend**: Node.js (Express) + MongoDB (Mongoose)  
+**Repo**: `lotusfinalversion` (contains **both** frontend and backend)  
+**Frontend**: React 18 + Vite + TypeScript (`react-router-dom`) at repo root  
+**Backend**: Node.js (Express) + MongoDB (Mongoose) under `backend/`  
 **Last updated**: 2025-12-23  
 
 ---
@@ -42,6 +42,11 @@ The repo includes both a **frontend** (production-ready build) and a **backend A
 - `BrowserRouter` with `basename` derived from `import.meta.env.BASE_URL` for subpath deployments (GitHub Pages / custom base paths).
 
 ### 2.2 Backend (Express + MongoDB)
+
+**Location & scripts**
+- Lives under `backend/`
+- Common scripts: `npm run dev` (nodemon server), `npm start` (production), `npm test` / `npm test:coverage`, `npm run lint`
+- Environment file: copy `backend/.env.example` to `backend/.env`
 
 **Server entry**
 - `backend/src/index.js` mounts all API routes under `/api/*`, with:
@@ -83,12 +88,20 @@ Reference: `.env.example` (also includes the backend variables to copy into `bac
 
 **Backend (Express)**
 - `PORT` — server port (default 3001)
-- `MONGODB_URI` — Mongo connection
-- `JWT_SECRET`, `JWT_REFRESH_SECRET`, expiry settings — auth tokens
-- `FRONTEND_URL` / `CORS_ORIGIN` — CORS + email links
+- `MONGODB_URI` — Mongo connection (required)
+- `JWT_SECRET`, `JWT_REFRESH_SECRET`, expiry settings — auth tokens (required)
+- `FRONTEND_URL` / `CORS_ORIGIN` — CORS + email links (required; `CORS_ORIGIN` also used by frontend API calls)
 - SMTP settings — password reset emails and notifications
 - `UPLOAD_DIR`, `MAX_FILE_SIZE` — upload service
 - rate limit settings
+
+**Backend setup (local)**
+1) `cd backend && npm install`
+2) Copy `.env.example` to `.env` and set at minimum: `MONGODB_URI`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN`/`FRONTEND_URL`.
+3) Run `npm run dev` (nodemon) or `npm start`.
+
+**Frontend ↔ API**
+- The frontend API client (`src/services/api.ts`) points to the Express API by default (`VITE_API_URL` fallback `http://localhost:3001/api`).
 
 ---
 

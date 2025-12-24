@@ -1,8 +1,8 @@
-# Lotus / Berard AIT Sound Lab (React + Vite)
+# Lotus / Berard AIT Sound Lab (React + Vite, Express + MongoDB)
 
 [![Deploy to GitHub Pages](https://github.com/zarzar94/lotusfinalversion/actions/workflows/deploy.yml/badge.svg)](https://github.com/zarzar94/lotusfinalversion/actions/workflows/deploy.yml)
 
-Arabic-first, RTL landing/prototype for the Berard Auditory Integration Training (AIT) program. Built with Vite + TypeScript + React; includes an in-browser screening lab, PDF exports, and GitHub Pages deployment.
+Arabic-first, RTL landing/prototype for the Berard Auditory Integration Training (AIT) program. The repository contains **both** the Vite + TypeScript + React frontend (repo root) and the Express + MongoDB backend API under `backend/`; includes an in-browser screening lab, PDF exports, and GitHub Pages deployment.
 
 ## Highlights
 - 57-slide PPTX viewer with search/filter, modal preview, keyboard navigation, and a slides-summary PDF export. Assets load from `public/assets/pptx_slides` and downloads include `berard-profile.pdf`.
@@ -14,20 +14,43 @@ Arabic-first, RTL landing/prototype for the Berard Auditory Integration Training
 ## Requirements
 - Node.js 20+
 - npm (ships with Node)
+- MongoDB (local or remote) for the backend API
 - Media assets merged (see "Media restore" below)
 
-## Quick start
+## Quick start (frontend)
 ```bash
 npm install
 npm run dev
 ```
 Visit the printed localhost URL. The app is RTL by default (`index.html` sets `dir="rtl"`).
 
-## Scripts
+## Scripts (frontend)
 - `npm run dev` - start Vite dev server
 - `npm run build` - production build
 - `npm run preview` - preview the production build
 - `npm run qa:assets` - verify required public assets (slides, fonts, PDFs)
+
+## Backend setup (Express + MongoDB)
+```bash
+cd backend
+npm install
+cp .env.example .env   # set required values
+npm run dev            # nodemon, or npm start for production
+```
+
+Required environment variables (see `backend/.env.example`):
+- `MONGODB_URI` (Mongo connection string)
+- `JWT_SECRET` and `JWT_REFRESH_SECRET`
+- `CORS_ORIGIN` / `FRONTEND_URL` (must match the frontend origin)
+- `PORT` (default 3001)
+
+Backend scripts (run from `backend/`):
+- `npm run dev` - start the API with nodemon
+- `npm start` - start the API (production)
+- `npm test` / `npm test:coverage` - Jest API tests
+- `npm run lint` - lint backend code
+
+The frontend API client at `src/services/api.ts` points to `VITE_API_URL` (defaults to `http://localhost:3001/api`), matching the local backend.
 
 ## Environment
 Create `.env` from `.env.example`:
