@@ -65,8 +65,9 @@ MONGODB_URI=mongodb://localhost:27017/lotus
 JWT_SECRET=change-me
 JWT_REFRESH_SECRET=change-me-too
 CORS_ORIGIN=http://localhost:5173
+FRONTEND_URL=http://localhost:5173
 ```
-Adjust SMTP and upload settings as needed for your deployment.
+Adjust SMTP, WebSocket, upload, and rate-limit settings as needed; see `backend/.env.example` for the full list.
 
 ## Media restore
 If assets are missing, merge the provided archives as noted in `README_MERGE_MEDIA.txt`:
