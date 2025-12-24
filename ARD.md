@@ -2,9 +2,9 @@
 
 **ARD** here means **Architecture & Requirements Document** for the current repository implementation (frontend + backend).
 
-**Repo**: `lotusfinalversion` (contains **both** frontend and backend in one repo)  
-**Frontend**: React 18 + Vite + TypeScript (`react-router-dom`) at repo root  
-**Backend**: Node.js (Express) + MongoDB (Mongoose) under `backend/`  
+**Repo**: `lotusfinalversion`  
+**Frontend**: React 18 + Vite + TypeScript (`react-router-dom`)  
+**Backend**: Node.js (Express) + MongoDB (Mongoose) — **lives in `backend/` inside this repo**  
 **Last updated**: 2025-12-23  
 
 ---
@@ -41,7 +41,7 @@ The repo includes both a **frontend** (production-ready build) and a **backend A
 **Routing**
 - `BrowserRouter` with `basename` derived from `import.meta.env.BASE_URL` for subpath deployments (GitHub Pages / custom base paths).
 
-### 2.2 Backend (Express + MongoDB)
+### 2.2 Backend (Express + MongoDB) — located in `backend/`
 
 **Location & scripts**
 - Lives under `backend/`
@@ -64,6 +64,11 @@ The repo includes both a **frontend** (production-ready build) and a **backend A
 - `backend/src/models/Settings.js`
 - `backend/src/models/Session.js`
 
+**Local development quick start**
+- Install dependencies: `cd backend && npm install`
+- Copy env: `cp .env.example .env`, then set `MONGODB_URI`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN`/`FRONTEND_URL` (e.g., `http://localhost:5173`). Update SMTP, WebSocket, and upload limits as required. See `backend/.env.example` for the full list.
+- Run dev server: `npm run dev` (defaults to `http://localhost:3001/api`, matching the frontend `VITE_API_URL` fallback)
+
 ### 2.3 Offline-first + Sync Strategy
 
 The frontend supports “offline-first” behavior in two layers:
@@ -82,15 +87,17 @@ Reference: `.env.example` (also includes the backend variables to copy into `bac
 **Frontend (Vite)**
 - `VITE_API_URL` (default in code: `http://localhost:3001/api`) — backend base URL
 - `VITE_WS_URL` — websocket URL (backend prints `ws://.../ws`, websocket implementation lives in `backend/src/utils/websocket.js`)
+- `VITE_CHUNK_WARNING_LIMIT` — overrides Vite `chunkSizeWarningLimit` for CI/hosting noise control
 - `VITE_CLINIC_PHONE` / `VITE_CLINIC_EMAIL` — contact/WhatsApp configuration (used with `src/data/clinic.ts`)
 - `VITE_ENABLE_OFFLINE_MODE` — enables local fallback behavior (API client already queues offline writes)
 - `BASE_PATH` — Vite base path for subpath deployments (GitHub Pages)
 
 **Backend (Express)**
 - `PORT` — server port (default 3001)
-- `MONGODB_URI` — Mongo connection (required)
-- `JWT_SECRET`, `JWT_REFRESH_SECRET`, expiry settings — auth tokens (required)
-- `FRONTEND_URL` / `CORS_ORIGIN` — CORS + email links (required; `CORS_ORIGIN` also used by frontend API calls)
+- `MONGODB_URI` — Mongo connection
+- `JWT_SECRET`, `JWT_REFRESH_SECRET`, expiry settings — auth tokens
+- `FRONTEND_URL` / `CORS_ORIGIN` — CORS + email links
+- `WEBSOCKET_URL` — ws endpoint (defaults to `ws://localhost:3001/ws`)
 - SMTP settings — password reset emails and notifications
 - `UPLOAD_DIR`, `MAX_FILE_SIZE` — upload service
 - rate limit settings
@@ -583,8 +590,8 @@ The frontend calls the backend through `src/services/api.ts`, which exports:
 - `sessionsApi` → `/sessions/*`
 - `syncApi` → `/sync/*`
 
-Implementation note:
-- `authApi.deleteAccount()` calls `DELETE /auth/account`, but there is no matching backend route in `backend/src/routes/auth.js` yet. Either add the endpoint server-side or remove/disable the client call.
+Implementation notes:
+- `authApi.deleteAccount()` calls `DELETE /auth/account`, which **is implemented** in `backend/src/routes/auth.js`.
 
 ---
 
