@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useLanguage } from '../context/LanguageContext';
+import { getAudioContext } from '../utils/audio';
 import {
   brandCyan,
   brandPink,
@@ -19,7 +21,9 @@ interface FrequencyBand {
   maxHz: number;
   color: string;
   description: string;
+  descriptionEn: string;
   affected: string[];
+  affectedEn: string[];
 }
 
 const frequencyBands: FrequencyBand[] = [
@@ -31,7 +35,9 @@ const frequencyBands: FrequencyBand[] = [
     maxHz: 250,
     color: brandPurpleDark,
     description: 'مسؤولة عن إدراك الأصوات العميقة والإيقاع',
+    descriptionEn: 'Deep tones (20–250 Hz) associated with rhythm, grounding, and regulation.',
     affected: ['التوازن', 'الإيقاع', 'الحركة'],
+    affectedEn: ['Balance', 'Rhythm', 'Movement'],
   },
   {
     id: 'mid-low',
@@ -41,7 +47,9 @@ const frequencyBands: FrequencyBand[] = [
     maxHz: 1000,
     color: brandPurple,
     description: 'أساسية لفهم نغمات الكلام الأساسية',
+    descriptionEn: 'Foundational speech tones (250–1000 Hz) that support listening and early speech cues.',
     affected: ['الكلام', 'التواصل', 'الاستماع'],
+    affectedEn: ['Speech', 'Communication', 'Listening'],
   },
   {
     id: 'mid',
@@ -51,7 +59,9 @@ const frequencyBands: FrequencyBand[] = [
     maxHz: 3000,
     color: brandCyan,
     description: 'منطقة الكلام الرئيسية - أهم ترددات اللغة',
+    descriptionEn: 'Primary speech intelligibility band (1–3 kHz) important for language clarity.',
     affected: ['فهم الكلام', 'التعلم', 'القراءة'],
+    affectedEn: ['Speech understanding', 'Learning', 'Reading'],
   },
   {
     id: 'mid-high',
@@ -61,7 +71,9 @@ const frequencyBands: FrequencyBand[] = [
     maxHz: 8000,
     color: '#22c55e',
     description: 'مهمة للتمييز بين الأصوات المتشابهة',
+    descriptionEn: 'Fine-detail band (3–8 kHz) supporting discrimination between similar sounds.',
     affected: ['الوضوح', 'التمييز', 'الانتباه'],
+    affectedEn: ['Clarity', 'Discrimination', 'Attention'],
   },
   {
     id: 'high',
@@ -71,20 +83,38 @@ const frequencyBands: FrequencyBand[] = [
     maxHz: 20000,
     color: brandPink,
     description: 'تضيف الحيوية والوضوح للأصوات',
+    descriptionEn: 'High-detail band (8–20 kHz) that adds brightness and crispness to sound.',
     affected: ['الطاقة', 'اليقظة', 'التركيز'],
+    affectedEn: ['Energy', 'Alertness', 'Focus'],
   },
 ];
 
 const presets = [
-  { id: 'normal', label: 'سمع طبيعي', levels: [0.8, 0.85, 0.9, 0.85, 0.8] },
-  { id: 'hypersensitive', label: 'فرط الحساسية', levels: [0.95, 1.0, 0.95, 0.9, 0.95] },
-  { id: 'hyposensitive', label: 'نقص الحساسية', levels: [0.4, 0.5, 0.6, 0.5, 0.4] },
-  { id: 'mixed', label: 'مختلط', levels: [0.5, 0.9, 0.4, 0.95, 0.6] },
+  { id: 'normal', labelAr: 'سمع طبيعي', labelEn: 'Normal Profile', levels: [0.8, 0.85, 0.9, 0.85, 0.8] },
+  { id: 'hypersensitive', labelAr: 'فرط الحساسية', labelEn: 'Hypersensitive Profile', levels: [0.95, 1.0, 0.95, 0.9, 0.95] },
+  { id: 'hyposensitive', labelAr: 'نقص الحساسية', labelEn: 'Hyposensitive Profile', levels: [0.4, 0.5, 0.6, 0.5, 0.4] },
+  { id: 'mixed', labelAr: 'مختلط', labelEn: 'Mixed Profile', levels: [0.5, 0.9, 0.4, 0.95, 0.6] },
 ];
 
+type SpectrumAudio = {
+  ctx: AudioContext;
+  master: GainNode;
+  compressor: DynamicsCompressorNode;
+  bandGains: GainNode[];
+  oscillators: OscillatorNode[];
+};
+
+const MASTER_GAIN_TARGET = 0.18;
+const BAND_MAX_GAINS = [0.08, 0.07, 0.06, 0.05, 0.04] as const;
+
+const getBandCenterHz = (band: FrequencyBand): number => Math.sqrt(band.minHz * band.maxHz);
+
 export default function AudioSpectrumDemo() {
+  const { isArabic, direction } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isAudioStarting, setIsAudioStarting] = useState(false);
+  const [audioError, setAudioError] = useState<string | null>(null);
   const [selectedPreset, setSelectedPreset] = useState('normal');
   const [levels, setLevels] = useState<number[]>([0.8, 0.85, 0.9, 0.85, 0.8]);
   const [hoveredBand, setHoveredBand] = useState<string | null>(null);
@@ -92,6 +122,7 @@ export default function AudioSpectrumDemo() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
+  const spectrumAudioRef = useRef<SpectrumAudio | null>(null);
 
   // Intersection observer
   useEffect(() => {
@@ -137,6 +168,170 @@ export default function AudioSpectrumDemo() {
       setLevels(preset.levels);
     }
   }, []);
+
+  const applyLevelsToAudio = useCallback((audio: SpectrumAudio, nextLevels: number[]) => {
+    const now = audio.ctx.currentTime;
+    for (let i = 0; i < audio.bandGains.length; i++) {
+      const level = Math.max(0, Math.min(1, nextLevels[i] ?? 0));
+      const maxGain = BAND_MAX_GAINS[i] ?? BAND_MAX_GAINS[BAND_MAX_GAINS.length - 1];
+      const target = Math.max(0.0001, level * maxGain);
+      const gain = audio.bandGains[i];
+      gain.gain.cancelScheduledValues(now);
+      gain.gain.setTargetAtTime(target, now, 0.06);
+    }
+  }, []);
+
+  const stopSpectrumAudio = useCallback(() => {
+    const audio = spectrumAudioRef.current;
+    if (!audio) return;
+
+    const now = audio.ctx.currentTime;
+    audio.master.gain.cancelScheduledValues(now);
+    audio.master.gain.setTargetAtTime(0.0001, now, 0.04);
+
+    for (const g of audio.bandGains) {
+      g.gain.cancelScheduledValues(now);
+      g.gain.setTargetAtTime(0.0001, now, 0.04);
+    }
+
+    const stopAt = now + 0.12;
+    for (const osc of audio.oscillators) {
+      try {
+        osc.stop(stopAt);
+      } catch {
+        // ignore
+      }
+    }
+
+    setTimeout(() => {
+      try {
+        audio.master.disconnect();
+      } catch {
+        // ignore
+      }
+      try {
+        audio.compressor.disconnect();
+      } catch {
+        // ignore
+      }
+      for (const g of audio.bandGains) {
+        try {
+          g.disconnect();
+        } catch {
+          // ignore
+        }
+      }
+      for (const osc of audio.oscillators) {
+        try {
+          osc.disconnect();
+        } catch {
+          // ignore
+        }
+      }
+    }, 250);
+
+    spectrumAudioRef.current = null;
+  }, []);
+
+  const startSpectrumAudio = useCallback(async (levelsSnapshot: number[]): Promise<boolean> => {
+    const ctx = await getAudioContext();
+    if (!ctx) return false;
+
+    // Context can be suspended on some browsers until the first user gesture.
+    if (ctx.state === 'suspended') {
+      try {
+        await ctx.resume();
+      } catch {
+        return false;
+      }
+    }
+
+    if (spectrumAudioRef.current && spectrumAudioRef.current.ctx !== ctx) {
+      stopSpectrumAudio();
+    }
+
+    if (!spectrumAudioRef.current) {
+      const master = ctx.createGain();
+      master.gain.value = 0.0001;
+
+      const compressor = ctx.createDynamicsCompressor();
+      compressor.threshold.value = -20;
+      compressor.knee.value = 24;
+      compressor.ratio.value = 6;
+      compressor.attack.value = 0.003;
+      compressor.release.value = 0.25;
+
+      master.connect(compressor);
+      compressor.connect(ctx.destination);
+
+      const bandGains: GainNode[] = [];
+      const oscillators: OscillatorNode[] = [];
+
+      for (const band of frequencyBands) {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = getBandCenterHz(band);
+
+        const gain = ctx.createGain();
+        gain.gain.value = 0.0001;
+
+        osc.connect(gain);
+        gain.connect(master);
+        osc.start();
+
+        bandGains.push(gain);
+        oscillators.push(osc);
+      }
+
+      spectrumAudioRef.current = { ctx, master, compressor, bandGains, oscillators };
+    }
+
+    const audio = spectrumAudioRef.current;
+    if (!audio) return false;
+
+    const now = audio.ctx.currentTime;
+    audio.master.gain.cancelScheduledValues(now);
+    audio.master.gain.setTargetAtTime(MASTER_GAIN_TARGET, now, 0.06);
+    applyLevelsToAudio(audio, levelsSnapshot);
+    return true;
+  }, [applyLevelsToAudio, stopSpectrumAudio]);
+
+  const handleToggleAudio = useCallback(() => {
+    void (async () => {
+      if (isAudioStarting) return;
+      if (isPlaying) {
+        stopSpectrumAudio();
+        setIsPlaying(false);
+        return;
+      }
+
+      setAudioError(null);
+      setIsAudioStarting(true);
+      const ok = await startSpectrumAudio(levels);
+      setIsAudioStarting(false);
+
+      if (ok) {
+        setIsPlaying(true);
+        return;
+      }
+
+      setAudioError(isArabic
+        ? 'تعذر تشغيل الصوت. تحقق من مستوى الصوت وإعدادات المتصفح.'
+        : 'Audio unavailable. Check device volume and browser settings.');
+    })();
+  }, [isArabic, isAudioStarting, isPlaying, levels, startSpectrumAudio, stopSpectrumAudio]);
+
+  useEffect(() => {
+    const audio = spectrumAudioRef.current;
+    if (!audio) return;
+    applyLevelsToAudio(audio, levels);
+  }, [applyLevelsToAudio, levels]);
+
+  useEffect(() => {
+    return () => {
+      stopSpectrumAudio();
+    };
+  }, [stopSpectrumAudio]);
 
   // Canvas spectrum visualization
   useEffect(() => {
@@ -308,7 +503,7 @@ export default function AudioSpectrumDemo() {
   `;
 
   return (
-    <section ref={sectionRef} id="spectrum" style={{
+    <section ref={sectionRef} id="spectrum" dir={direction} style={{
       ...styles.sectionCard,
       position: 'relative',
       overflow: 'hidden',
@@ -349,7 +544,7 @@ export default function AudioSpectrumDemo() {
             </div>
             <div>
               <h2 style={{ ...styles.h2, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                محلل الطيف الصوتي
+                {isArabic ? 'محلل الطيف الصوتي' : 'Audio Spectrum Analyzer'}
                 <span style={{
                   width: 8,
                   height: 8,
@@ -393,8 +588,26 @@ export default function AudioSpectrumDemo() {
           </div>
         </div>
         <p style={{ ...styles.bodyText, marginTop: 8 }}>
-          استكشف كيف يعالج Berard AIT مختلف نطاقات الترددات لتحسين المعالجة السمعية
+          {isArabic
+            ? 'استكشف كيف يعالج Berard AIT مختلف نطاقات الترددات لتحسين المعالجة السمعية'
+            : 'Explore how Berard AIT works across frequency bands to support auditory processing.'}
         </p>
+        {audioError ? (
+          <div
+            style={{
+              marginTop: 10,
+              padding: '10px 12px',
+              borderRadius: 12,
+              border: '1px solid rgba(239,68,68,0.35)',
+              background: 'rgba(239,68,68,0.10)',
+              color: '#fecaca',
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
+            {audioError}
+          </div>
+        ) : null}
       </div>
 
       {/* Main Content */}
@@ -487,7 +700,8 @@ export default function AudioSpectrumDemo() {
                 ))}
               </div>
               <button
-                onClick={() => setIsPlaying(!isPlaying)}
+                onClick={handleToggleAudio}
+                disabled={isAudioStarting}
                 style={{
                   padding: '8px 16px',
                   background: isPlaying
@@ -498,7 +712,8 @@ export default function AudioSpectrumDemo() {
                   color: '#fff',
                   fontSize: 12,
                   fontWeight: 800,
-                  cursor: 'pointer',
+                  cursor: isAudioStarting ? 'not-allowed' : 'pointer',
+                  opacity: isAudioStarting ? 0.7 : 1,
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
@@ -507,7 +722,11 @@ export default function AudioSpectrumDemo() {
                 }}
               >
                 <span style={{ fontSize: 14 }}>{isPlaying ? '⏹' : '▶'}</span>
-                {isPlaying ? 'إيقاف' : 'تشغيل'}
+                {isAudioStarting
+                  ? (isArabic ? 'تشغيل...' : 'Starting…')
+                  : isPlaying
+                    ? (isArabic ? 'إيقاف' : 'Stop')
+                    : (isArabic ? 'تشغيل' : 'Play')}
               </button>
             </div>
           </div>
@@ -597,7 +816,7 @@ export default function AudioSpectrumDemo() {
               color: brandCyan,
               marginBottom: 12,
             }}>
-              🎚️ أنماط السمع
+              {isArabic ? '🎚️ أنماط السمع' : '🎚️ Hearing Profiles'}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {presets.map((preset) => (
@@ -615,11 +834,11 @@ export default function AudioSpectrumDemo() {
                     fontSize: 13,
                     fontWeight: selectedPreset === preset.id ? 700 : 500,
                     cursor: 'pointer',
-                    textAlign: 'right',
+                    textAlign: isArabic ? 'right' : 'left',
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  {preset.label}
+                  {isArabic ? preset.labelAr : preset.labelEn}
                 </button>
               ))}
             </div>
@@ -645,7 +864,7 @@ export default function AudioSpectrumDemo() {
                       color: band.color,
                       marginBottom: 8,
                     }}>
-                      {band.label}
+                      {isArabic ? band.label : band.labelEn}
                     </div>
                     <div style={{
                       fontSize: 11,
@@ -660,14 +879,14 @@ export default function AudioSpectrumDemo() {
                       lineHeight: 1.6,
                       marginBottom: 10,
                     }}>
-                      {band.description}
+                      {isArabic ? band.description : band.descriptionEn}
                     </div>
                     <div style={{
                       display: 'flex',
                       flexWrap: 'wrap',
                       gap: 6,
                     }}>
-                      {band.affected.map((item) => (
+                      {(isArabic ? band.affected : band.affectedEn).map((item) => (
                         <span key={item} style={{
                           padding: '4px 10px',
                           background: `${band.color}22`,
@@ -699,9 +918,13 @@ export default function AudioSpectrumDemo() {
               color: 'rgba(255,255,255,0.7)',
               lineHeight: 1.7,
             }}>
-              <strong style={{ color: brandCyan }}>كيف يعمل Berard AIT:</strong>
+              <strong style={{ color: brandCyan }}>
+                {isArabic ? 'كيف يعمل Berard AIT:' : 'How Berard AIT Works:'}
+              </strong>
               <br />
-              يقوم بتعديل الترددات المحددة بناءً على اختبار السمع الفردي لتحسين المعالجة السمعية في الدماغ.
+              {isArabic
+                ? 'يقوم بتعديل الترددات المحددة بناءً على اختبار السمع الفردي لتحسين المعالجة السمعية في الدماغ.'
+                : 'It adapts specific frequency bands based on an individual listening profile to support auditory processing.'}
             </div>
           </div>
         </div>

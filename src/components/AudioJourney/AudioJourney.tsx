@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useGamification } from '../../context/GamificationContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { styles, brandCyan, brandPurple, brandPink, brandPurpleDark } from '../styles';
 
 // Audio journey stages
@@ -158,7 +159,10 @@ interface AudioJourneyStageProps {
 }
 
 function AudioJourneyStage({ stage, index, active, completed, onActivate }: AudioJourneyStageProps) {
+  const { isArabic, t } = useLanguage();
   const stageRef = useRef<HTMLDivElement>(null);
+  const title = isArabic ? t(stage.titleAr, stage.title) : stage.title;
+  const description = isArabic ? t(stage.descriptionAr, stage.description) : stage.description;
 
   return (
     <div
@@ -211,7 +215,7 @@ function AudioJourneyStage({ stage, index, active, completed, onActivate }: Audi
             textTransform: 'uppercase',
             letterSpacing: 1,
           }}>
-            Stage {index + 1}
+            {isArabic ? `المرحلة ${index + 1}` : `Stage ${index + 1}`}
           </span>
           {completed && (
             <span style={{
@@ -222,15 +226,15 @@ function AudioJourneyStage({ stage, index, active, completed, onActivate }: Audi
               borderRadius: 6,
               fontWeight: 800,
             }}>
-              COMPLETED
+              {isArabic ? 'مكتمل' : 'COMPLETED'}
             </span>
           )}
         </div>
         <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#fff' }}>
-          {stage.titleAr}
+          {title}
         </h3>
         <p style={{ margin: '6px 0 0', fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-          {stage.descriptionAr}
+          {description}
         </p>
       </div>
 
@@ -250,6 +254,7 @@ function AudioJourneyStage({ stage, index, active, completed, onActivate }: Audi
 
 export default function AudioJourney() {
   const { updateAudioJourneyProgress, state } = useGamification();
+  const { isArabic, direction } = useLanguage();
   const [activeStage, setActiveStage] = useState(0);
   const [completedStages, setCompletedStages] = useState<Set<number>>(new Set());
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
@@ -305,10 +310,16 @@ export default function AudioJourney() {
   }, [audioContext]);
 
   // Play stage sound
-  const playStageSound = useCallback((frequency: number) => {
+  const playStageSound = useCallback(async (frequency: number) => {
     const ctx = initAudio();
     if (!ctx) return;
-    if (ctx.state === 'suspended') void ctx.resume().catch(() => {});
+    if (ctx.state === 'suspended') {
+      try {
+        await ctx.resume();
+      } catch {
+        // ignore resume failures
+      }
+    }
 
     // Stop previous sound
     if (oscillatorRef.current) {
@@ -409,22 +420,28 @@ export default function AudioJourney() {
   }, [handleStageActivate]);
 
   return (
-    <section id="audio-journey" style={styles.sectionCard} ref={containerRef}>
+    <section id="audio-journey" style={styles.sectionCard} ref={containerRef} dir={direction}>
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
-          <h2 style={styles.h2}>🎧 رحلة الصوت التفاعلية</h2>
+          <h2 style={styles.h2}>
+            {isArabic ? '🎧 رحلة الصوت التفاعلية' : '🎧 Interactive Sound Journey'}
+          </h2>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <span style={{
               ...styles.chip,
               background: 'rgba(143,211,204,0.12)',
               borderColor: 'rgba(143,211,204,0.25)',
             }}>
-              {completedStages.size}/{JOURNEY_STAGES.length} مراحل
+              {isArabic
+                ? `${completedStages.size}/${JOURNEY_STAGES.length} مراحل`
+                : `${completedStages.size}/${JOURNEY_STAGES.length} stages`}
             </span>
           </div>
         </div>
         <p style={styles.lead}>
-          اكتشف كيف ينتقل الصوت من الهواء إلى دماغك. انقر على كل مرحلة لسماع الصوت ومشاهدة الموجة.
+          {isArabic
+            ? 'اكتشف كيف ينتقل الصوت من الهواء إلى دماغك. انقر على كل مرحلة لسماع الصوت ومشاهدة الموجة.'
+            : 'Explore how sound travels from the air to your brain. Click each stage to hear a tone and see its waveform.'}
         </p>
 
         {/* Play All Button */}
@@ -444,12 +461,12 @@ export default function AudioJourney() {
           {isPlaying ? (
             <>
               <span style={{ animation: 'spin 1s linear infinite' }}>⏳</span>
-              جارٍ التشغيل...
+              {isArabic ? 'جارٍ التشغيل...' : 'Playing…'}
             </>
           ) : (
             <>
               <span>▶</span>
-              تشغيل الرحلة الكاملة
+              {isArabic ? 'تشغيل الرحلة الكاملة' : 'Play full journey'}
             </>
           )}
         </button>
@@ -523,10 +540,10 @@ export default function AudioJourney() {
         }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}>🎉</div>
           <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: brandCyan }}>
-            أحسنت! أكملت رحلة الصوت
+            {isArabic ? 'أحسنت! أكملت رحلة الصوت' : 'Nice! You completed the sound journey'}
           </h3>
           <p style={{ margin: '8px 0 0', fontSize: 14, color: 'rgba(255,255,255,0.7)' }}>
-            الآن أنت تفهم كيف يعالج الدماغ الأصوات
+            {isArabic ? 'الآن أنت تفهم كيف يعالج الدماغ الأصوات' : 'Now you understand how the brain processes sound'}
           </p>
         </div>
       )}
