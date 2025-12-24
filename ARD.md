@@ -582,7 +582,15 @@ Auth endpoint reference (frontend ↔ backend):
 | `authApi.deleteAccount()` | `DELETE /auth/account` | `backend/src/routes/auth.js` |
 
 All listed auth endpoints (including account deletion) are implemented in `backend/src/routes/auth.js`.
-Backend auth routes currently available: `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `GET /auth/me`, `PATCH /auth/profile`, `POST /auth/logout`, and `DELETE /auth/account`.
+Backend auth routes currently available:
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/refresh`
+- `GET /auth/me`
+- `PATCH /auth/profile`
+- `POST /auth/logout`
+- `DELETE /auth/account`
+Register/login/refresh are public; the remaining routes require authentication.
 
 ---
 
