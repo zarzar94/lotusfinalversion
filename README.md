@@ -53,6 +53,7 @@ Backend scripts (run inside `backend/`):
 ## Environment
 Create `.env` from `.env.example`:
 ```
+VITE_API_URL=http://localhost:3001/api   # default matches backend dev port
 VITE_CLINIC_PHONE=+9715XXXXXXXX
 VITE_CLINIC_EMAIL=info@example.com   # optional override
 ```
