@@ -581,6 +581,8 @@ Auth endpoint reference (frontend ↔ backend) — mirrors the live routes in `b
 | `authApi.logout()` | `POST /auth/logout` | Auth required | `backend/src/routes/auth.js` |
 | `authApi.deleteAccount()` | `DELETE /auth/account` | Auth required | `backend/src/routes/auth.js` |
 
+Backend route definitions for these endpoints (including the account deletion handler) are consolidated in `backend/src/routes/auth.js`.
+
 ---
 
 ## 9) Design System & UI Structure
