@@ -1,5 +1,6 @@
 import { useState, useCallback, memo } from 'react';
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, brandColors, spacing, radius, typography, colors } from './styles';
+import { useLanguage } from '../context/LanguageContext';
 
 type Program = {
   id: string;
@@ -7,9 +8,13 @@ type Program = {
   nameAr: string;
   icon: string;
   goal: string;
+  goalEn: string;
   format: string;
+  formatEn: string;
   duration: string;
+  durationEn: string;
   notes: string;
+  notesEn: string;
   color: string;
   highlight?: boolean;
 };
@@ -18,66 +23,102 @@ const programs: Program[] = [
   {
     id: 'berard',
     name: 'Berard AIT',
-    nameAr: 'auto.ComparisonSection.k1',
+    nameAr: 'بيرارد AIT',
     icon: '🎧',
     goal: 'تدريب سمعي مكثّف عبر موسيقى مُعدّلة لتحسين تحمل/انتباه الدماغ للأصوات',
+    goalEn: 'Intensive auditory training using modulated music to improve the brain’s tolerance/attention to sound',
     format: 'بروتوكول جلسات متقاربة + متابعة قياسات حسب البرتوكول',
+    formatEn: 'Close-session protocol + pre/post follow-up measures',
     duration: '10–12 يوماً',
+    durationEn: '10–12 days',
     notes: 'يُستخدم كثيراً في بيئات تعليمية كجزء من خطة دعم. ليس بديلاً عن التشخيص الطبي.',
+    notesEn: 'Often used in educational settings as part of a support plan. Not a substitute for medical diagnosis.',
     color: brandCyan,
     highlight: true,
   },
   {
     id: 'tomatis',
     name: 'Tomatis',
-    nameAr: 'auto.ComparisonSection.k2',
+    nameAr: 'توماتيس',
     icon: '🎵',
     goal: 'تحفيز سمعي/حسي باستخدام معالجة صوتية وأساليب تدريب متعددة',
+    goalEn: 'Auditory/sensory stimulation using sound processing and multiple training methods',
     format: 'جلسات/مراحل متعددة (قد تتضمن صوت/لغة/غناء)',
+    formatEn: 'Multiple sessions/stages (may include sound, language, or singing)',
     duration: 'أسابيع/مراحل',
+    durationEn: 'Weeks / stages',
     notes: 'قد يختلف البروتوكول بين المراكز. اسأل عن القياسات والخطة والمتابعة.',
+    notesEn: 'Protocols may vary by center. Ask about measures, the plan, and follow-up.',
     color: brandPurple,
   },
   {
     id: 'ils',
     name: 'iLS',
-    nameAr: 'auto.ComparisonSection.k3',
+    nameAr: 'iLS',
     icon: '🔊',
     goal: 'دمج الاستماع مع تمارين حسية/حركية لدعم التعلم والتنظيم',
+    goalEn: 'Combines listening with sensory/motor exercises to support learning and regulation',
     format: 'جلسات في المركز أو برامج منزلية بإشراف مختص',
+    formatEn: 'In-center sessions or home programs with specialist supervision',
     duration: 'أسابيع - أشهر',
+    durationEn: 'Weeks to months',
     notes: 'غالباً يتضمن عناصر متعددة (حركة/انتباه/حسّي) بجانب الاستماع.',
+    notesEn: 'Often includes multiple elements (movement, attention, sensory) alongside listening.',
     color: brandPink,
   },
   {
     id: 'ssp',
     name: 'SSP',
-    nameAr: 'auto.ComparisonSection.k4',
+    nameAr: 'SSP',
     icon: '🛡️',
     goal: 'بروتوكول استماع مُفلتر موجه لتنظيم الاستجابة العصبية/التهدئة',
+    goalEn: 'Filtered listening protocol aimed at regulating nervous system response / calming',
     format: 'جلسات استماع مُقسمة مع إرشادات تنظيمية',
+    formatEn: 'Segmented listening sessions with regulation guidance',
     duration: 'أيام - أسابيع',
+    durationEn: 'Days to weeks',
     notes: 'يُطبق وفق تدريب/اعتماد مُحدد. مناسب لبعض الأهداف وليس لكل الحالات.',
+    notesEn: 'Requires specific training/certification. Suitable for certain goals, not all cases.',
     color: brandColors.success,
   },
   {
     id: 'generic',
     name: 'Listening Therapy',
-    nameAr: 'auto.ComparisonSection.k5',
+    nameAr: 'العلاج بالاستماع',
     icon: '🎼',
     goal: 'استخدام موسيقى/أصوات (غير معيارية) للاسترخاء أو التركيز',
+    goalEn: 'Using music/sounds (non-standardized) for relaxation or focus',
     format: 'متنوع وغير موحّد',
+    formatEn: 'Varies and is not standardized',
     duration: 'حسب الاستخدام',
+    durationEn: 'Depends on use',
     notes: 'قد يساعد في الاسترخاء، لكن لا يساوي بروتوكولاً علاجياً منظماً.',
+    notesEn: 'May help with relaxation, but it is not a structured therapeutic protocol.',
     color: brandPurpleDark,
   },
 ];
 
 const questions = [
-  { icon: '📋', text: 'هل البرنامج موحّد ببروتوكول واضح أم يعتمد على اجتهادات عامة؟' },
-  { icon: '📊', text: 'هل توجد قياسات/متابعة (قبل/بعد) أو آلية توثيق للنتائج؟' },
-  { icon: '🏫', text: 'هل هناك خطة دمج مع المدرسة (توصيات صفية/تدريب معلمين)؟' },
-  { icon: '👨‍⚕️', text: 'هل يوجد مختص يقود الخطة (Clinical Director) ويتابع الجودة؟' },
+  {
+    icon: '📋',
+    text: 'هل البرنامج موحّد ببروتوكول واضح أم يعتمد على اجتهادات عامة؟',
+    textEn: 'Is the program standardized with a clear protocol, or based on general practices?',
+  },
+  {
+    icon: '📊',
+    text: 'هل توجد قياسات/متابعة (قبل/بعد) أو آلية توثيق للنتائج؟',
+    textEn: 'Are there measurements/follow-up (pre/post) or a way to document outcomes?',
+  },
+  {
+    icon: '🏫',
+    text: 'هل هناك خطة دمج مع المدرسة (توصيات صفية/تدريب معلمين)؟',
+    textEn: 'Is there a plan to integrate with school (classroom recommendations/teacher training)?',
+  },
+  {
+    icon: '👨‍⚕️',
+    text: 'هل يوجد مختص يقود الخطة (Clinical Director) ويتابع الجودة؟',
+    textEn: 'Is there a specialist leading the plan (Clinical Director) and monitoring quality?',
+  },
 ];
 
 // Memoized ProgramCard with accessibility improvements
@@ -85,10 +126,12 @@ const ProgramCard = memo(function ProgramCard({
   program,
   isExpanded,
   onToggle,
+  isArabic,
 }: {
   program: Program;
   isExpanded: boolean;
   onToggle: () => void;
+  isArabic: boolean;
 }) {
   // Handle keyboard interaction
   const handleKeyDown = useCallback(
@@ -141,7 +184,7 @@ const ProgramCard = memo(function ProgramCard({
             borderRadius: radius.full,
           }}
         >
-          اختيارنا
+          {isArabic ? 'اختيارنا' : 'Our Pick'}
         </div>
       )}
 
@@ -177,11 +220,13 @@ const ProgramCard = memo(function ProgramCard({
               color: program.highlight ? program.color : colors.text.primary,
             }}
           >
-            {program.name}
+            {isArabic ? program.nameAr : program.name}
           </div>
-          <div style={{ fontSize: typography.size.sm, color: colors.text.muted }}>
-            {program.nameAr}
-          </div>
+          {isArabic && (
+            <div style={{ fontSize: typography.size.sm, color: colors.text.muted }}>
+              {program.name}
+            </div>
+          )}
         </div>
         <div
           style={{
@@ -233,7 +278,7 @@ const ProgramCard = memo(function ProgramCard({
                   marginBottom: spacing[1],
                 }}
               >
-                🎯 الهدف
+                {isArabic ? '🎯 الهدف' : '🎯 Goal'}
               </div>
               <div
                 style={{
@@ -242,7 +287,7 @@ const ProgramCard = memo(function ProgramCard({
                   lineHeight: typography.lineHeight.relaxed,
                 }}
               >
-                {program.goal}
+                {isArabic ? program.goal : program.goalEn}
               </div>
             </div>
 
@@ -262,7 +307,7 @@ const ProgramCard = memo(function ProgramCard({
                     marginBottom: spacing[1],
                   }}
                 >
-                  ⚙️ التطبيق
+                  {isArabic ? '⚙️ التطبيق' : '⚙️ Format'}
                 </div>
                 <div
                   style={{
@@ -271,7 +316,7 @@ const ProgramCard = memo(function ProgramCard({
                     lineHeight: typography.lineHeight.normal,
                   }}
                 >
-                  {program.format}
+                  {isArabic ? program.format : program.formatEn}
                 </div>
               </div>
 
@@ -290,7 +335,7 @@ const ProgramCard = memo(function ProgramCard({
                     marginBottom: spacing[1],
                   }}
                 >
-                  ⏱️ المدة
+                  {isArabic ? '⏱️ المدة' : '⏱️ Duration'}
                 </div>
                 <div
                   style={{
@@ -299,7 +344,7 @@ const ProgramCard = memo(function ProgramCard({
                     fontWeight: typography.weight.bold,
                   }}
                 >
-                  {program.duration}
+                  {isArabic ? program.duration : program.durationEn}
                 </div>
               </div>
             </div>
@@ -320,7 +365,7 @@ const ProgramCard = memo(function ProgramCard({
                   marginBottom: spacing[1],
                 }}
               >
-                💡 ملاحظات
+                {isArabic ? '💡 ملاحظات' : '💡 Notes'}
               </div>
               <div
                 style={{
@@ -329,7 +374,7 @@ const ProgramCard = memo(function ProgramCard({
                   lineHeight: typography.lineHeight.relaxed,
                 }}
               >
-                {program.notes}
+                {isArabic ? program.notes : program.notesEn}
               </div>
             </div>
           </div>
@@ -379,6 +424,7 @@ const QuestionItem = memo(function QuestionItem({ icon, text }: { icon: string; 
 QuestionItem.displayName = 'QuestionItem';
 
 const ComparisonSection = memo(function ComparisonSection() {
+  const { isArabic } = useLanguage();
   const [expandedProgram, setExpandedProgram] = useState<string>('berard');
 
   // Memoized toggle handler
@@ -405,7 +451,7 @@ const ComparisonSection = memo(function ComparisonSection() {
             🧭
           </span>
           <span style={{ fontWeight: typography.weight.bold, color: brandCyan }}>
-            اختيار النهج المناسب
+            {isArabic ? 'اختيار النهج المناسب' : 'Choosing the Right Approach'}
           </span>
         </div>
 
@@ -419,11 +465,13 @@ const ComparisonSection = memo(function ComparisonSection() {
             backgroundClip: 'text',
           }}
         >
-          مقارنة برامج الاستماع العلاجي
+          {isArabic ? 'مقارنة برامج الاستماع العلاجي' : 'Therapeutic Listening Programs Comparison'}
         </h2>
 
         <p style={{ ...styles.bodyText, maxWidth: 600, margin: `${spacing[3]}px auto 0` }}>
-          مقارنة توعوية بين أشهر البرامج المستخدمة عالمياً لمساعدتك على طرح الأسئلة الصحيحة
+          {isArabic
+            ? 'مقارنة توعوية بين أشهر البرامج المستخدمة عالمياً لمساعدتك على طرح الأسئلة الصحيحة'
+            : 'An awareness-focused comparison of common programs used worldwide to help you ask the right questions'}
         </p>
       </div>
 
@@ -442,6 +490,7 @@ const ComparisonSection = memo(function ComparisonSection() {
             program={program}
             isExpanded={expandedProgram === program.id}
             onToggle={() => handleToggle(program.id)}
+            isArabic={isArabic}
           />
         ))}
       </div>
@@ -475,7 +524,7 @@ const ComparisonSection = memo(function ComparisonSection() {
               color: brandPurpleDark,
             }}
           >
-            أسئلة مهمة قبل اختيار أي برنامج
+            {isArabic ? 'أسئلة مهمة قبل اختيار أي برنامج' : 'Key Questions Before Choosing Any Program'}
           </h3>
         </div>
 
@@ -487,7 +536,7 @@ const ComparisonSection = memo(function ComparisonSection() {
           }}
         >
           {questions.map((q, i) => (
-            <QuestionItem key={i} icon={q.icon} text={q.text} />
+            <QuestionItem key={i} icon={q.icon} text={isArabic ? q.text : q.textEn} />
           ))}
         </div>
       </div>
@@ -510,7 +559,9 @@ const ComparisonSection = memo(function ComparisonSection() {
           ⚠️
         </span>
         <span style={{ fontSize: typography.size.sm, color: colors.text.secondary }}>
-          هذه ليست توصية طبية. استشر مختصاً مؤهلاً لتحديد ما يلائم الحالة.
+          {isArabic
+            ? 'هذه ليست توصية طبية. استشر مختصاً مؤهلاً لتحديد ما يلائم الحالة.'
+            : 'This is not medical advice. Consult a qualified professional to determine what fits the case.'}
         </span>
       </div>
 
@@ -528,7 +579,7 @@ const ComparisonSection = memo(function ComparisonSection() {
             gap: spacing[2],
           }}
         >
-          <span aria-hidden="true">📊</span> شاهد التفاصيل في الشرائح
+          <span aria-hidden="true">📊</span> {isArabic ? 'شاهد التفاصيل في الشرائح' : 'See Details in the Slides'}
         </a>
         <a
           href="#contact"
@@ -543,7 +594,7 @@ const ComparisonSection = memo(function ComparisonSection() {
             gap: spacing[2],
           }}
         >
-          <span aria-hidden="true">💬</span> اطلب استشارة
+          <span aria-hidden="true">💬</span> {isArabic ? 'اطلب استشارة' : 'Request a Consultation'}
         </a>
       </div>
     </section>

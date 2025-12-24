@@ -9,6 +9,7 @@ import {
   spacing,
   radius,
 } from './styles';
+import { useLanguage } from '../context/LanguageContext';
 
 const css = `
   @keyframes hudPulse {
@@ -84,30 +85,39 @@ const brainFactCards = [
   {
     icon: '🧠',
     title: 'الدماغ قابل للتغيير',
+    titleEn: 'The Brain Can Change',
     description: 'الخلايا العصبية في أدمغتنا قابلة للتعديل وإعادة التشكيل طوال الحياة',
+    descriptionEn: 'Neurons can be adjusted and reshaped throughout life',
     color: brandCyan,
   },
   {
     icon: '🔄',
     title: 'إعادة التوصيل',
+    titleEn: 'Rewiring',
     description: 'يمكن للدماغ إنشاء مسارات عصبية جديدة من خلال التدريب المكثف والمتكرر',
+    descriptionEn: 'The brain can create new neural pathways through intensive, repeated training',
     color: brandPurple,
   },
   {
     icon: '📈',
     title: 'التعلم مدى الحياة',
+    titleEn: 'Lifelong Learning',
     description: 'اللدونة العصبية تمكّن التعلم والتحسن في أي عمر',
+    descriptionEn: 'Neuroplasticity enables learning and improvement at any age',
     color: brandPink,
   },
   {
     icon: '🎯',
     title: 'الكثافة والتكرار',
+    titleEn: 'Intensity & Repetition',
     description: 'التغيير يتطلب التعرض للنشاط بكثافة وتكرار ومدة كافية',
+    descriptionEn: 'Change requires sufficient intensity, repetition, and time',
     color: brandPurpleDark,
   },
 ];
 
 export default function NeuroplasticitySection() {
+  const { isArabic } = useLanguage();
   return (
     <section id="neuroplasticity" style={{
       ...styles.sectionCard,
@@ -149,7 +159,9 @@ export default function NeuroplasticitySection() {
               🧠
             </div>
             <div>
-              <h2 style={{ ...styles.h2, margin: 0 }}>اللدونة العصبية: أساس التغيير</h2>
+              <h2 style={{ ...styles.h2, margin: 0 }}>
+                {isArabic ? 'اللدونة العصبية: أساس التغيير' : 'Neuroplasticity: The Foundation of Change'}
+              </h2>
               <div style={{
                 fontSize: 10,
                 fontFamily: 'monospace',
@@ -211,9 +223,19 @@ export default function NeuroplasticitySection() {
           margin: 0,
           fontWeight: 500,
         }}>
-          اللدونة العصبية تعني أن الخلايا العصبية في أدمغتنا وأجهزتنا العصبية
-          <span style={{ color: brandCyan, fontWeight: 800 }}> قابلة للتغيير</span>،
-          أو يمكنها تعديل نفسها.
+          {isArabic ? (
+            <>
+              اللدونة العصبية تعني أن الخلايا العصبية في أدمغتنا وأجهزتنا العصبية
+              <span style={{ color: brandCyan, fontWeight: 800 }}> قابلة للتغيير</span>،
+              أو يمكنها تعديل نفسها.
+            </>
+          ) : (
+            <>
+              Neuroplasticity means the neurons in our brain and nervous system are
+              <span style={{ color: brandCyan, fontWeight: 800 }}> changeable</span>,
+              and can reorganize themselves.
+            </>
+          )}
         </p>
         <div style={{
           marginTop: 12,
@@ -221,20 +243,41 @@ export default function NeuroplasticitySection() {
           color: 'rgba(255,255,255,0.7)',
           fontWeight: 700,
         }}>
-          — نورمان دويدج، مؤلف كتاب "الدماغ الذي يُغيّر نفسه"
+          {isArabic
+            ? '— نورمان دويدج، مؤلف كتاب \"الدماغ الذي يُغيّر نفسه\"'
+            : '— Norman Doidge, author of \"The Brain That Changes Itself\"'}
         </div>
       </div>
 
       {/* Explanation */}
       <div style={{ ...styles.bodyText, marginTop: 16 }}>
         <p style={{ margin: '0 0 12px' }}>
-          يعتمد برنامج <b style={{ color: brandCyan }}>Berard AIT</b> على مبدأ اللدونة العصبية —
-          قدرة الدماغ الرائعة على إعادة تنظيم نفسه من خلال تكوين روابط عصبية جديدة.
+          {isArabic ? (
+            <>
+              يعتمد برنامج <b style={{ color: brandCyan }}>Berard AIT</b> على مبدأ اللدونة العصبية —
+              قدرة الدماغ الرائعة على إعادة تنظيم نفسه من خلال تكوين روابط عصبية جديدة.
+            </>
+          ) : (
+            <>
+              The <b style={{ color: brandCyan }}>Berard AIT</b> program is based on neuroplasticity —
+              the brain&apos;s remarkable ability to reorganize itself by forming new neural connections.
+            </>
+          )}
         </p>
         <p style={{ margin: 0 }}>
-          لتحفيز هذه التغييرات، يتطلب البرنامج
-          <span style={{ color: brandPink, fontWeight: 700 }}> التعرض لنشاط سمعي بكثافة وتكرار ومدة </span>
-          كافية لإحداث تغييرات في معالجة الدماغ للصوت.
+          {isArabic ? (
+            <>
+              لتحفيز هذه التغييرات، يتطلب البرنامج
+              <span style={{ color: brandPink, fontWeight: 700 }}> التعرض لنشاط سمعي بكثافة وتكرار ومدة </span>
+              كافية لإحداث تغييرات في معالجة الدماغ للصوت.
+            </>
+          ) : (
+            <>
+              To stimulate these changes, the program requires
+              <span style={{ color: brandPink, fontWeight: 700 }}> intensive, repeated auditory stimulation over sufficient time </span>
+              to create changes in how the brain processes sound.
+            </>
+          )}
         </p>
       </div>
 
@@ -302,10 +345,10 @@ export default function NeuroplasticitySection() {
                 background: card.color,
                 boxShadow: `0 0 6px ${card.color}`,
               }} />
-              {card.title}
+              {isArabic ? card.title : card.titleEn}
             </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.7 }}>
-              {card.description}
+              {isArabic ? card.description : card.descriptionEn}
             </div>
 
             {/* Card index badge */}
@@ -353,7 +396,9 @@ export default function NeuroplasticitySection() {
           margin: 0,
           fontStyle: 'italic',
         }}>
-          كل شيء يحدث كما لو أن السلوك البشري مشروط إلى حد كبير بالطريقة التي يسمع بها المرء.
+          {isArabic
+            ? 'كل شيء يحدث كما لو أن السلوك البشري مشروط إلى حد كبير بالطريقة التي يسمع بها المرء.'
+            : 'Everything happens as if human behavior is largely conditioned by the way a person hears.'}
         </p>
         <div style={{
           marginTop: 12,
@@ -374,12 +419,18 @@ export default function NeuroplasticitySection() {
             🧠
           </div>
           <div>
-            <div style={{ fontWeight: 800, color: brandCyan }}>الدكتور جاي بيرارد</div>
+            <div style={{ fontWeight: 800, color: brandCyan }}>
+              {isArabic ? 'الدكتور جاي بيرارد' : 'Dr. Guy Bérard'}
+            </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
-              طبيب أنف وأذن وحنجرة • مخترع Berard AIT • أنيسي، فرنسا
+              {isArabic
+                ? 'طبيب أنف وأذن وحنجرة • مخترع Berard AIT • أنيسي، فرنسا'
+                : 'ENT physician • Creator of Berard AIT • Annecy, France'}
             </div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>
-              مؤلف كتاب "Hearing Equals Behavior" • عالج أكثر من 8,000 مريض
+              {isArabic
+                ? 'مؤلف كتاب \"Hearing Equals Behavior\" • عالج أكثر من 8,000 مريض'
+                : 'Author of \"Hearing Equals Behavior\" • Treated 8,000+ patients'}
             </div>
           </div>
         </div>
@@ -394,13 +445,13 @@ export default function NeuroplasticitySection() {
         border: '1px solid rgba(255,255,255,0.08)',
       }}>
         <h3 style={{ ...styles.h3, marginTop: 0, color: brandPurple }}>
-          كيف يستخدم Berard AIT اللدونة العصبية؟
+          {isArabic ? 'كيف يستخدم Berard AIT اللدونة العصبية؟' : 'How Berard AIT Leverages Neuroplasticity'}
         </h3>
         <ul style={{ margin: 0, paddingInlineStart: 18, lineHeight: 2, opacity: 0.92 }}>
-          <li><b>الكثافة:</b> جلستان يومياً بموسيقى مُعدّلة خصيصاً</li>
-          <li><b>التكرار:</b> 20 جلسة على مدار 10-12 يوماً</li>
-          <li><b>المدة:</b> 30 دقيقة لكل جلسة مع فترات راحة للتكيف</li>
-          <li><b>التحفيز:</b> ترددات صوتية متنوعة تحفز مناطق مختلفة من الدماغ</li>
+          <li><b>{isArabic ? 'الكثافة:' : 'Intensity:'}</b> {isArabic ? 'جلستان يومياً بموسيقى مُعدّلة خصيصاً' : 'Two sessions per day with specially modulated music'}</li>
+          <li><b>{isArabic ? 'التكرار:' : 'Repetition:'}</b> {isArabic ? '20 جلسة على مدار 10-12 يوماً' : '20 sessions over 10–12 days'}</li>
+          <li><b>{isArabic ? 'المدة:' : 'Duration:'}</b> {isArabic ? '30 دقيقة لكل جلسة مع فترات راحة للتكيف' : '30 minutes per session with breaks for adaptation'}</li>
+          <li><b>{isArabic ? 'التحفيز:' : 'Stimulation:'}</b> {isArabic ? 'ترددات صوتية متنوعة تحفز مناطق مختلفة من الدماغ' : 'Varied sound frequencies stimulate different brain regions'}</li>
         </ul>
         <div style={{
           marginTop: 12,
@@ -410,7 +461,7 @@ export default function NeuroplasticitySection() {
           fontSize: 12,
           color: 'rgba(255,255,255,0.7)',
         }}>
-          <b>الأجهزة المعتمدة:</b> AudioKinetron • Earducator • AIM (Auditory Integration Modulator)
+          <b>{isArabic ? 'الأجهزة المعتمدة:' : 'Approved devices:'}</b> AudioKinetron • Earducator • AIM (Auditory Integration Modulator)
         </div>
       </div>
 
@@ -422,7 +473,7 @@ export default function NeuroplasticitySection() {
           alignItems: 'center',
           gap: 8,
         }}>
-          <span>📚</span> تعرف على البرنامج
+          <span>📚</span> {isArabic ? 'تعرف على البرنامج' : 'Explore the Program'}
         </a>
         <a href="#results" style={{
           ...styles.ghostBtn,
@@ -431,7 +482,7 @@ export default function NeuroplasticitySection() {
           alignItems: 'center',
           gap: 8,
         }}>
-          <span>📊</span> شاهد النتائج
+          <span>📊</span> {isArabic ? 'شاهد النتائج' : 'See Results'}
         </a>
       </div>
 

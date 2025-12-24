@@ -278,7 +278,7 @@ const FlaskSlideCard = memo(({
             gap: 6,
           }}>
             <MicroscopeIcon size={12} color={brandCyan} />
-            عرض العينة
+            {isArabic ? 'عرض العينة' : 'View Sample'}
           </div>
         </div>
 
@@ -294,7 +294,7 @@ const FlaskSlideCard = memo(({
             lineHeight: 1.4,
             marginBottom: 6,
           }}>
-            {slide.title || `عينة ${slide.id}`}
+            {slide.title || (isArabic ? `عينة ${slide.id}` : `Sample ${slide.id}`)}
           </div>
           {slide.body ? (
             <div style={{
@@ -310,7 +310,7 @@ const FlaskSlideCard = memo(({
             </div>
           ) : (
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
-              عينة مرئية (بدون بيانات)
+              {isArabic ? 'عينة مرئية (بدون بيانات)' : 'Visual sample (no text data)'}
             </div>
           )}
         </div>
@@ -346,6 +346,7 @@ const MicroscopeModal = ({
   modalRef: React.RefObject<HTMLDivElement>;
 }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const { isArabic } = useLanguage();
 
   const handleNavigate = (direction: 'prev' | 'next') => {
     setIsTransitioning(true);
@@ -360,7 +361,7 @@ const MicroscopeModal = ({
       style={styles.modalBackdrop}
       role="dialog"
       aria-modal="true"
-      aria-label={`العينة ${slide.id}`}
+      aria-label={isArabic ? `العينة ${slide.id}` : `Sample ${slide.id}`}
       onClick={onClose}
     >
       <div
@@ -412,10 +413,10 @@ const MicroscopeModal = ({
                   fontWeight: 800,
                   fontFamily: 'monospace',
                 }}>
-                  عينة #{slide.id.toString().padStart(2, '0')}
+                  {isArabic ? 'عينة' : 'Sample'} #{slide.id.toString().padStart(2, '0')}
                 </span>
                 <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
-                  {activeIndex + 1} من {slides.length}
+                  {activeIndex + 1} {isArabic ? 'من' : 'of'} {slides.length}
                 </span>
               </div>
               <div style={{ fontWeight: 800, fontSize: 16, marginTop: 4, color: '#f7f8fb' }}>
@@ -436,7 +437,7 @@ const MicroscopeModal = ({
               }}
             >
               <DownloadIcon size={16} />
-              تحميل
+              {isArabic ? 'تحميل' : 'Download'}
             </a>
             <button
               type="button"
@@ -586,7 +587,7 @@ const MicroscopeModal = ({
                 gap: 8,
               }}>
                 <FlaskIcon size={16} color={brandPink} />
-                بيانات العينة المستخرجة
+                {isArabic ? 'بيانات العينة المستخرجة' : 'Extracted Sample Data'}
               </div>
               <button
                 type="button"
@@ -596,7 +597,7 @@ const MicroscopeModal = ({
                 }}
               >
                 <CopyIcon size={14} />
-                نسخ
+                {isArabic ? 'نسخ' : 'Copy'}
               </button>
             </div>
             <pre style={{
@@ -627,7 +628,7 @@ const MicroscopeModal = ({
           color: 'rgba(255,255,255,0.4)',
           textAlign: 'center',
         }}>
-          اختصارات: Esc للإغلاق — الأسهم لتبديل العينات
+          {isArabic ? 'اختصارات: Esc للإغلاق — الأسهم لتبديل العينات' : 'Shortcuts: Esc to close — arrows to switch samples'}
         </div>
       </div>
     </div>
@@ -770,21 +771,33 @@ const SlideViewer = () => {
       const doc = await createPdfDoc();
       let y = 56;
       doc.setFont('Cairo', 'bold');
-      writePdfText(doc, 'ملخص عينات مختبر بيرارد للتكامل السمعي', PDF_MARGIN_X, y);
+      writePdfText(
+        doc,
+        isArabic ? 'ملخص عينات مختبر بيرارد للتكامل السمعي' : 'Berard AIT Lab Samples Summary',
+        PDF_MARGIN_X,
+        y,
+      );
       y += 22;
       doc.setFont('Cairo', 'normal');
-      writePdfText(doc, `عدد العينات: ${slidesToExport.length} — تم التصدير من مختبر Berard AIT`, PDF_MARGIN_X, y);
+      writePdfText(
+        doc,
+        isArabic
+          ? `عدد العينات: ${slidesToExport.length} — تم التصدير من مختبر Berard AIT`
+          : `Samples: ${slidesToExport.length} — exported from the Berard AIT Lab`,
+        PDF_MARGIN_X,
+        y,
+      );
       y += 22;
 
       if (slidesToExport.length === 0) {
-        writePdfText(doc, 'لا توجد عينات تطابق البحث الحالي.', PDF_MARGIN_X, y);
+        writePdfText(doc, isArabic ? 'لا توجد عينات تطابق البحث الحالي.' : 'No samples match the current search.', PDF_MARGIN_X, y);
         doc.save('Berard-AIT-Lab-Samples.pdf');
         return;
       }
 
       for (let i = 0; i < slidesToExport.length; i++) {
         const slide = slidesToExport[i];
-        const lineTitle = `عينة ${slide.id}: ${slide.title}`;
+        const lineTitle = isArabic ? `عينة ${slide.id}: ${slide.title}` : `Sample ${slide.id}: ${slide.title}`;
         const bodyPreview = (slide.body || '').split('\n').map((s) => s.trim()).filter(Boolean).slice(0, 3).join(' • ');
 
         if (y > 760) {
@@ -832,10 +845,22 @@ const SlideViewer = () => {
         let y = 72;
         doc.setFont('Cairo', 'bold');
         doc.setFontSize(18);
-        y = writePdfText(doc, 'PDF الشرائح — لا توجد نتائج', PDF_MARGIN_X, y, { maxWidth: pageW - PDF_MARGIN_X * 2, lineHeight: 22 });
+        y = writePdfText(
+          doc,
+          isArabic ? 'PDF الشرائح — لا توجد نتائج' : 'Slides PDF — No results',
+          PDF_MARGIN_X,
+          y,
+          { maxWidth: pageW - PDF_MARGIN_X * 2, lineHeight: 22 },
+        );
         doc.setFont('Cairo', 'normal');
         doc.setFontSize(12);
-        writePdfText(doc, 'لا توجد عينات تطابق البحث الحالي.', PDF_MARGIN_X, y + 10, { maxWidth: pageW - PDF_MARGIN_X * 2, lineHeight: 16 });
+        writePdfText(
+          doc,
+          isArabic ? 'لا توجد عينات تطابق البحث الحالي.' : 'No samples match the current search.',
+          PDF_MARGIN_X,
+          y + 10,
+          { maxWidth: pageW - PDF_MARGIN_X * 2, lineHeight: 16 },
+        );
         doc.save('Berard-AIT-Lab-Slides.pdf');
         return;
       }
@@ -847,7 +872,7 @@ const SlideViewer = () => {
         let y = 56;
         doc.setFont('Cairo', 'bold');
         doc.setFontSize(16);
-        y = writePdfText(doc, `عينة ${slide.id.toString().padStart(2, '0')}: ${slide.title}`, PDF_MARGIN_X, y, {
+        y = writePdfText(doc, isArabic ? `عينة ${slide.id.toString().padStart(2, '0')}: ${slide.title}` : `Sample ${slide.id.toString().padStart(2, '0')}: ${slide.title}`, PDF_MARGIN_X, y, {
           maxWidth: pageW - PDF_MARGIN_X * 2,
           lineHeight: 20,
         });
@@ -871,7 +896,7 @@ const SlideViewer = () => {
         } catch {
           doc.setFont('Cairo', 'normal');
           doc.setFontSize(12);
-          writePdfText(doc, 'تعذر تحميل صورة الشريحة لهذه العينة.', PDF_MARGIN_X, y + 10, { maxWidth: pageW - PDF_MARGIN_X * 2, lineHeight: 16 });
+          writePdfText(doc, isArabic ? 'تعذر تحميل صورة الشريحة لهذه العينة.' : 'Failed to load the slide image for this sample.', PDF_MARGIN_X, y + 10, { maxWidth: pageW - PDF_MARGIN_X * 2, lineHeight: 16 });
         }
 
         setExportProgress({ mode: 'slides', current: i + 1, total: slidesToExport.length });
@@ -1010,7 +1035,7 @@ const SlideViewer = () => {
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div style={styles.sectionHeader}>
           <div style={styles.sectionHeaderRow}>
-            <h2 style={styles.h2}>مختبر العينات (PPTX)</h2>
+            <h2 style={styles.h2}>{isArabic ? 'مختبر العينات (PPTX)' : 'Sample Lab (PPTX)'}</h2>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
               <div style={{
                 display: 'flex',
@@ -1034,8 +1059,10 @@ const SlideViewer = () => {
               >
                 <DownloadIcon size={16} />
                 {exporting && exportProgress?.mode === 'summary'
-                  ? (exportProgress.total > 0 ? `جارٍ التصدير… (${exportProgress.current}/${exportProgress.total})` : 'جارٍ التصدير…')
-                  : 'تقرير PDF'}
+                  ? (exportProgress.total > 0
+                    ? (isArabic ? `جارٍ التصدير… (${exportProgress.current}/${exportProgress.total})` : `Exporting… (${exportProgress.current}/${exportProgress.total})`)
+                    : (isArabic ? 'جارٍ التصدير…' : 'Exporting…'))
+                  : (isArabic ? 'تقرير PDF' : 'PDF Report')}
               </button>
               <button
                 type="button"
@@ -1045,14 +1072,16 @@ const SlideViewer = () => {
               >
                 <DownloadIcon size={16} />
                 {exporting && exportProgress?.mode === 'slides'
-                  ? `جارٍ تصدير الشرائح… (${exportProgress.current}/${exportProgress.total})`
-                  : 'PDF الشرائح'}
+                  ? (isArabic ? `جارٍ تصدير الشرائح… (${exportProgress.current}/${exportProgress.total})` : `Exporting slides… (${exportProgress.current}/${exportProgress.total})`)
+                  : (isArabic ? 'PDF الشرائح' : 'Slides PDF')}
               </button>
             </div>
           </div>
 
           <p style={styles.bodyText}>
-            عينات مجهرية لشرائح البرنامج — اضغط على أي عينة لفحصها تحت المجهر المخبري
+            {isArabic
+              ? 'عينات مجهرية لشرائح البرنامج — اضغط على أي عينة لفحصها تحت المجهر المخبري'
+              : 'Microscope samples of the program slides — click any sample to inspect it under the lab microscope'}
           </p>
 
           {/* Search bar */}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, type CSSProperties } from 'react';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import { useLanguage } from '../context/LanguageContext';
 
 interface Partner {
   id: string;
@@ -9,6 +10,7 @@ interface Partner {
   icon: string;
   color: string;
   description: string;
+  descriptionEn: string;
 }
 
 const partners: Partner[] = [
@@ -20,6 +22,7 @@ const partners: Partner[] = [
     icon: '🌐',
     color: brandCyan,
     description: 'الشريك الرسمي المعتمد لبرنامج Berard AIT',
+    descriptionEn: 'Official accredited partner for the Berard AIT program',
   },
   {
     id: 'lotus-holistic',
@@ -29,6 +32,7 @@ const partners: Partner[] = [
     icon: '🪷',
     color: brandPink,
     description: 'المركز الرئيسي للعلاج في أبوظبي',
+    descriptionEn: 'Main therapy center in Abu Dhabi',
   },
   {
     id: 'special-education',
@@ -38,6 +42,7 @@ const partners: Partner[] = [
     icon: '🏫',
     color: brandPurple,
     description: 'شراكة مع أكثر من 15 مركز تعليمي',
+    descriptionEn: 'Partnering with 15+ educational centers',
   },
   {
     id: 'autism-support',
@@ -47,6 +52,7 @@ const partners: Partner[] = [
     icon: '💙',
     color: '#3B82F6',
     description: 'دعم العائلات والمصابين بالتوحد',
+    descriptionEn: 'Support for families and individuals with autism',
   },
   {
     id: 'therapy-clinics',
@@ -56,6 +62,7 @@ const partners: Partner[] = [
     icon: '🏥',
     color: '#22c55e',
     description: 'شبكة من 8+ عيادات شريكة',
+    descriptionEn: 'Network of 8+ partner clinics',
   },
   {
     id: 'research-institute',
@@ -65,14 +72,15 @@ const partners: Partner[] = [
     icon: '🔬',
     color: brandPurpleDark,
     description: 'أبحاث علمية في المعالجة السمعية',
+    descriptionEn: 'Scientific research in auditory processing',
   },
 ];
 
 const stats = [
-  { value: '500+', label: 'حالة ناجحة', icon: '✓' },
-  { value: '15+', label: 'مدرسة شريكة', icon: '🏫' },
-  { value: '10+', label: 'سنوات خبرة', icon: '⭐' },
-  { value: '8+', label: 'عيادات متعاونة', icon: '🏥' },
+  { value: '500+', labelAr: 'حالة ناجحة', labelEn: 'Successful cases', icon: '✓' },
+  { value: '15+', labelAr: 'مدرسة شريكة', labelEn: 'Partner schools', icon: '🏫' },
+  { value: '10+', labelAr: 'سنوات خبرة', labelEn: 'Years of experience', icon: '⭐' },
+  { value: '8+', labelAr: 'عيادات متعاونة', labelEn: 'Partner clinics', icon: '🏥' },
 ];
 
 const particleBaseStyle: CSSProperties = {
@@ -178,6 +186,7 @@ const partnerBadgeBaseStyle: CSSProperties = {
 
 
 export default function PartnerLogos() {
+  const { isArabic } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredPartner, setHoveredPartner] = useState<string | null>(null);
   const [animatedStats, setAnimatedStats] = useState<string[]>(['0', '0', '0', '0']);
@@ -290,7 +299,7 @@ export default function PartnerLogos() {
           }}>
             <span style={{ fontSize: 18 }}>🤝</span>
             <span style={{ fontSize: 13, fontWeight: 700, color: brandCyan }}>
-              شركاؤنا في النجاح
+              {isArabic ? 'شركاؤنا في النجاح' : 'Partners in Success'}
             </span>
           </div>
           <h3 style={{
@@ -300,14 +309,14 @@ export default function PartnerLogos() {
             color: '#fff',
             marginBottom: 8,
           }}>
-            شبكة من المؤسسات الموثوقة
+            {isArabic ? 'شبكة من المؤسسات الموثوقة' : 'A Network of Trusted Institutions'}
           </h3>
           <p style={{
             margin: 0,
             fontSize: 14,
             color: 'rgba(255,255,255,0.6)',
           }}>
-            Trusted Partners in Auditory Integration Training
+            {isArabic ? 'شركاء موثوقون في تدريب التكامل السمعي' : 'Trusted Partners in Auditory Integration Training'}
           </p>
         </div>
 
@@ -315,7 +324,7 @@ export default function PartnerLogos() {
         <div style={statsRowStyle}>
           {stats.map((stat, index) => (
             <div
-              key={stat.label}
+              key={stat.value}
               style={{
                 ...statCardBaseStyle,
                 animation: isVisible ? `partnerEnter 0.5s ease-out ${index * 0.1}s backwards` : 'none',
@@ -326,7 +335,7 @@ export default function PartnerLogos() {
               </div>
               <div style={statLabelStyle}>
                 <span>{stat.icon}</span>
-                {stat.label}
+                {isArabic ? stat.labelAr : stat.labelEn}
               </div>
             </div>
           ))}
@@ -366,19 +375,21 @@ export default function PartnerLogos() {
                 ...partnerNameBaseStyle,
                 color: hoveredPartner === partner.id ? partner.color : '#fff',
               }}>
-                {partner.name}
+                {isArabic ? partner.name : partner.nameEn}
               </div>
-              <div style={{
-                ...partnerNameEnBaseStyle,
-                marginBottom: hoveredPartner === partner.id ? 10 : 0,
-              }}>
-                {partner.nameEn}
-              </div>
+              {isArabic && (
+                <div style={{
+                  ...partnerNameEnBaseStyle,
+                  marginBottom: hoveredPartner === partner.id ? 10 : 0,
+                }}>
+                  {partner.nameEn}
+                </div>
+              )}
 
               {/* Description on hover */}
               {hoveredPartner === partner.id && (
                 <div style={partnerDescriptionBaseStyle}>
-                  {partner.description}
+                  {isArabic ? partner.description : partner.descriptionEn}
                 </div>
               )}
 
@@ -388,10 +399,10 @@ export default function PartnerLogos() {
                 background: `${partner.color}15`,
                 color: partner.color,
               }}>
-                {partner.type === 'school' && 'مدرسة'}
-                {partner.type === 'clinic' && 'عيادة'}
-                {partner.type === 'university' && 'جامعة'}
-                {partner.type === 'organization' && 'مؤسسة'}
+                {partner.type === 'school' && (isArabic ? 'مدرسة' : 'School')}
+                {partner.type === 'clinic' && (isArabic ? 'عيادة' : 'Clinic')}
+                {partner.type === 'university' && (isArabic ? 'جامعة' : 'University')}
+                {partner.type === 'organization' && (isArabic ? 'مؤسسة' : 'Organization')}
               </div>
             </div>
           ))}
@@ -411,14 +422,14 @@ export default function PartnerLogos() {
             color: '#fff',
             marginBottom: 8,
           }}>
-            🌟 انضم لشبكة شركائنا
+            {isArabic ? '🌟 انضم لشبكة شركائنا' : '🌟 Join Our Partner Network'}
           </div>
           <p style={{
             margin: '0 0 16px',
             fontSize: 13,
             color: 'rgba(255,255,255,0.6)',
           }}>
-            هل أنت مؤسسة تعليمية أو صحية مهتمة بالشراكة؟
+            {isArabic ? 'هل أنت مؤسسة تعليمية أو صحية مهتمة بالشراكة؟' : 'Are you an educational or healthcare organization interested in partnering with us?'}
           </p>
           <a href="/contact#contact" style={{
             display: 'inline-flex',
@@ -434,7 +445,7 @@ export default function PartnerLogos() {
             boxShadow: `0 4px 20px ${brandCyan}33`,
             transition: 'all 0.3s ease',
           }}>
-            تواصل معنا
+            {isArabic ? 'تواصل معنا' : 'Contact Us'}
             <span style={{ fontSize: 16 }}>←</span>
           </a>
         </div>

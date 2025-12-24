@@ -57,10 +57,10 @@ interface ProgressTracking {
 }
 
 const STEPS = [
-  { id: 1, title: 'البيانات الشخصية', icon: <UserIcon size={16} color="#5a4a3a" /> },
-  { id: 2, title: 'ولي الأمر', icon: <HeartIcon size={16} color="#5a4a3a" /> },
-  { id: 3, title: 'التاريخ الطبي', icon: <ClipboardIcon size={16} color="#5a4a3a" /> },
-  { id: 4, title: 'متابعة التقدم', icon: <ChartIcon size={16} color="#5a4a3a" /> },
+  { id: 1, titleAr: 'البيانات الشخصية', titleEn: 'Personal Details', icon: <UserIcon size={16} color="#5a4a3a" /> },
+  { id: 2, titleAr: 'ولي الأمر', titleEn: 'Parent/Guardian', icon: <HeartIcon size={16} color="#5a4a3a" /> },
+  { id: 3, titleAr: 'التاريخ الطبي', titleEn: 'Medical History', icon: <ClipboardIcon size={16} color="#5a4a3a" /> },
+  { id: 4, titleAr: 'متابعة التقدم', titleEn: 'Progress Tracking', icon: <ChartIcon size={16} color="#5a4a3a" /> },
 ];
 
 // Notepad styled input
@@ -150,42 +150,46 @@ const ImprovementSelector = memo(({ value, onChange, label }: {
   value: ImprovementLevel;
   onChange: (value: ImprovementLevel) => void;
   label: string;
-}) => (
-  <div style={{
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px 0',
-    borderBottom: '1px dashed #d4c8b8',
-  }}>
-    <span style={{ fontSize: 13, color: '#5a4a3a' }}>{label}</span>
-    <div style={{ display: 'flex', gap: 6 }}>
-      {[
-        { v: 'clear' as ImprovementLevel, l: 'واضح', c: '#22c55e' },
-        { v: 'slight' as ImprovementLevel, l: 'بسيط', c: brandCyan },
-        { v: 'none' as ImprovementLevel, l: 'لا', c: '#9a8a7a' },
-      ].map((opt) => (
-        <button
-          key={opt.v}
-          type="button"
-          onClick={() => onChange(opt.v)}
-          style={{
-            padding: '4px 10px',
-            borderRadius: 4,
-            border: `1px solid ${value === opt.v ? opt.c : '#c4b8a8'}`,
-            background: value === opt.v ? `${opt.c}15` : 'transparent',
-            color: value === opt.v ? opt.c : '#7a6a5a',
-            fontSize: 11,
-            cursor: 'pointer',
-            fontWeight: value === opt.v ? 700 : 400,
-          }}
-        >
-          {opt.l}
-        </button>
-      ))}
+}) => {
+  const { isArabic } = useLanguage();
+
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '10px 0',
+      borderBottom: '1px dashed #d4c8b8',
+    }}>
+      <span style={{ fontSize: 13, color: '#5a4a3a' }}>{label}</span>
+      <div style={{ display: 'flex', gap: 6 }}>
+        {[
+          { v: 'clear' as ImprovementLevel, l: isArabic ? 'واضح' : 'Clear', c: '#22c55e' },
+          { v: 'slight' as ImprovementLevel, l: isArabic ? 'بسيط' : 'Slight', c: brandCyan },
+          { v: 'none' as ImprovementLevel, l: isArabic ? 'لا' : 'No', c: '#9a8a7a' },
+        ].map((opt) => (
+          <button
+            key={opt.v}
+            type="button"
+            onClick={() => onChange(opt.v)}
+            style={{
+              padding: '4px 10px',
+              borderRadius: 4,
+              border: `1px solid ${value === opt.v ? opt.c : '#c4b8a8'}`,
+              background: value === opt.v ? `${opt.c}15` : 'transparent',
+              color: value === opt.v ? opt.c : '#7a6a5a',
+              fontSize: 11,
+              cursor: 'pointer',
+              fontWeight: value === opt.v ? 700 : 400,
+            }}
+          >
+            {opt.l}
+          </button>
+        ))}
+      </div>
     </div>
-  </div>
-));
+  );
+});
 ImprovementSelector.displayName = 'ImprovementSelector';
 
 const IntakeForm: React.FC = () => {
@@ -260,7 +264,7 @@ const IntakeForm: React.FC = () => {
   }, [currentStep]);
 
   const handleSubmit = useCallback(() => {
-    const formSummary = `
+    const formSummary = (isArabic ? `
 *استمارة تسجيل - Berard AIT*
 ━━━━━━━━━━━━━━━━━━━━
 
@@ -280,12 +284,32 @@ ${isChild ? `*بيانات ولي الأمر:*
 
 ━━━━━━━━━━━━━━━━━━━━
 أرغب في حجز موعد للتقييم
-    `.trim();
+    ` : `
+*Berard AIT Intake Form*
+━━━━━━━━━━━━━━━━━━━━
+
+*Personal Details:*
+Name: ${personalData.name}
+Age: ${personalData.age}
+Gender: ${personalData.gender === 'male' ? 'Male' : personalData.gender === 'female' ? 'Female' : ''}
+Mobile: ${personalData.mobile}
+
+${isChild ? `*Parent/Guardian:*
+Father mobile: ${parentInfo.fatherMobile}
+Mother mobile: ${parentInfo.motherMobile}` : ''}
+
+*Medical History:*
+Sound sensitivity: ${medicalHistory.soundSensitivity === 'yes' ? 'Yes' : 'No'}
+Attention difficulty: ${medicalHistory.attentionDifficulty === 'yes' ? 'Yes' : 'No'}
+
+━━━━━━━━━━━━━━━━━━━━
+I would like to book an assessment appointment
+    `).trim();
 
     const phone = import.meta.env.VITE_CLINIC_PHONE || '+971000000000';
     const cleanPhone = phone.replace(/\D/g, '');
     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(formSummary)}`, '_blank');
-  }, [personalData, parentInfo, medicalHistory, isChild]);
+  }, [personalData, parentInfo, medicalHistory, isChild, isArabic]);
 
   const renderStep = () => {
     switch (currentStep) {
@@ -293,10 +317,10 @@ ${isChild ? `*بيانات ولي الأمر:*
         return (
           <div>
             {/* Patient Type */}
-            <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+              <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
               {[
-                { val: true, label: 'طفل', desc: 'أقل من 18' },
-                { val: false, label: 'بالغ', desc: '18+' },
+                { val: true, label: isArabic ? 'طفل' : 'Child', desc: isArabic ? 'أقل من 18' : 'Under 18' },
+                { val: false, label: isArabic ? 'بالغ' : 'Adult', desc: '18+' },
               ].map((opt) => (
                 <label key={opt.label} style={{
                   flex: 1,
@@ -315,41 +339,41 @@ ${isChild ? `*بيانات ولي الأمر:*
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
-              <NotepadField label="اسم المريض" required>
+              <NotepadField label={isArabic ? 'اسم المريض' : 'Patient Name'} required>
                 <input type="text" value={personalData.name} onChange={(e) => updatePersonalData('name', e.target.value)}
-                  style={fieldStyle} placeholder="الاسم الكامل" />
+                  style={fieldStyle} placeholder={isArabic ? 'الاسم الكامل' : 'Full name'} />
               </NotepadField>
 
-              <NotepadField label="العمر" required>
+              <NotepadField label={isArabic ? 'العمر' : 'Age'} required>
                 <input type="number" value={personalData.age} onChange={(e) => updatePersonalData('age', e.target.value)}
-                  style={fieldStyle} placeholder="السنوات" />
+                  style={fieldStyle} placeholder={isArabic ? 'السنوات' : 'Years'} />
               </NotepadField>
 
-              <NotepadField label="الجنس" required>
-                <NotepadRadio name="gender" options={[{ value: 'male', label: 'ذكر' }, { value: 'female', label: 'أنثى' }]}
+              <NotepadField label={isArabic ? 'الجنس' : 'Gender'} required>
+                <NotepadRadio name="gender" options={[{ value: 'male', label: isArabic ? 'ذكر' : 'Male' }, { value: 'female', label: isArabic ? 'أنثى' : 'Female' }]}
                   value={personalData.gender} onChange={(v) => updatePersonalData('gender', v)} />
               </NotepadField>
 
-              <NotepadField label="رقم الجوال" required>
+              <NotepadField label={isArabic ? 'رقم الجوال' : 'Mobile Number'} required>
                 <input type="tel" value={personalData.mobile} onChange={(e) => updatePersonalData('mobile', e.target.value)}
                   style={{ ...fieldStyle, direction: 'ltr', textAlign: isArabic ? 'right' : 'left' }} placeholder="+971 XX XXX XXXX" />
               </NotepadField>
 
-              <NotepadField label="مكان الإقامة">
+              <NotepadField label={isArabic ? 'مكان الإقامة' : 'Location'}>
                 <input type="text" value={personalData.residence} onChange={(e) => updatePersonalData('residence', e.target.value)}
-                  style={fieldStyle} placeholder="المدينة / الدولة" />
+                  style={fieldStyle} placeholder={isArabic ? 'المدينة / الدولة' : 'City / country'} />
               </NotepadField>
 
-              <NotepadField label="المستوى التعليمي">
+              <NotepadField label={isArabic ? 'المستوى التعليمي' : 'Education Level'}>
                 <input type="text" value={personalData.educationLevel} onChange={(e) => updatePersonalData('educationLevel', e.target.value)}
-                  style={fieldStyle} placeholder="الصف / المرحلة" />
+                  style={fieldStyle} placeholder={isArabic ? 'الصف / المرحلة' : 'Grade / stage'} />
               </NotepadField>
             </div>
 
             {/* Previous AIT */}
             <div style={{ marginTop: 24, padding: 16, background: '#faf5f0', borderRadius: 6, border: '1px solid #d4c8b8' }}>
-              <NotepadField label="هل سبق أن خضعت لجلسات AIT؟">
-                <NotepadRadio name="prevAIT" options={[{ value: 'yes', label: 'نعم' }, { value: 'no', label: 'لا' }]}
+              <NotepadField label={isArabic ? 'هل سبق أن خضعت لجلسات AIT؟' : 'Have you previously done AIT sessions?'}>
+                <NotepadRadio name="prevAIT" options={[{ value: 'yes', label: isArabic ? 'نعم' : 'Yes' }, { value: 'no', label: isArabic ? 'لا' : 'No' }]}
                   value={hadPreviousAIT} onChange={(v) => { setHadPreviousAIT(v); setIsReturningClient(v === 'yes'); }} />
               </NotepadField>
             </div>
@@ -363,17 +387,17 @@ ${isChild ? `*بيانات ولي الأمر:*
             {/* Father */}
             <div style={{ padding: 20, background: '#f8faf9', borderRadius: 6, marginBottom: 20, border: '1px solid #c4d8d4' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#3a5a4a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                👨 بيانات الأب
+                {isArabic ? '👨 بيانات الأب' : '👨 Father Details'}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
-                <NotepadField label="الاسم">
+                <NotepadField label={isArabic ? 'الاسم' : 'Name'}>
                   <input type="text" value={parentInfo.fatherName} onChange={(e) => updateParentInfo('fatherName', e.target.value)} style={fieldStyle} />
                 </NotepadField>
-                <NotepadField label="الجوال" required>
+                <NotepadField label={isArabic ? 'الجوال' : 'Mobile'} required>
                   <input type="tel" value={parentInfo.fatherMobile} onChange={(e) => updateParentInfo('fatherMobile', e.target.value)}
                     style={{ ...fieldStyle, direction: 'ltr', textAlign: isArabic ? 'right' : 'left' }} />
                 </NotepadField>
-                <NotepadField label="البريد الإلكتروني">
+                <NotepadField label={isArabic ? 'البريد الإلكتروني' : 'Email'}>
                   <input type="email" value={parentInfo.fatherEmail} onChange={(e) => updateParentInfo('fatherEmail', e.target.value)}
                     style={{ ...fieldStyle, direction: 'ltr', textAlign: isArabic ? 'right' : 'left' }} />
                 </NotepadField>
@@ -383,17 +407,17 @@ ${isChild ? `*بيانات ولي الأمر:*
             {/* Mother */}
             <div style={{ padding: 20, background: '#faf5f8', borderRadius: 6, border: '1px solid #d8c4c8' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#5a3a4a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                👩 بيانات الأم
+                {isArabic ? '👩 بيانات الأم' : '👩 Mother Details'}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
-                <NotepadField label="الاسم">
+                <NotepadField label={isArabic ? 'الاسم' : 'Name'}>
                   <input type="text" value={parentInfo.motherName} onChange={(e) => updateParentInfo('motherName', e.target.value)} style={fieldStyle} />
                 </NotepadField>
-                <NotepadField label="الجوال" required>
+                <NotepadField label={isArabic ? 'الجوال' : 'Mobile'} required>
                   <input type="tel" value={parentInfo.motherMobile} onChange={(e) => updateParentInfo('motherMobile', e.target.value)}
                     style={{ ...fieldStyle, direction: 'ltr', textAlign: isArabic ? 'right' : 'left' }} />
                 </NotepadField>
-                <NotepadField label="البريد الإلكتروني">
+                <NotepadField label={isArabic ? 'البريد الإلكتروني' : 'Email'}>
                   <input type="email" value={parentInfo.motherEmail} onChange={(e) => updateParentInfo('motherEmail', e.target.value)}
                     style={{ ...fieldStyle, direction: 'ltr', textAlign: isArabic ? 'right' : 'left' }} />
                 </NotepadField>
@@ -408,24 +432,24 @@ ${isChild ? `*بيانات ولي الأمر:*
             {/* Hearing */}
             <div style={{ padding: 20, background: '#f5fafa', borderRadius: 6, marginBottom: 20, border: '1px solid #b8d4d4' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#3a5a5a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <BrainIcon size={18} color="#3a5a5a" /> السمع والمعالجة
+                <BrainIcon size={18} color="#3a5a5a" /> {isArabic ? 'السمع والمعالجة' : 'Hearing & Processing'}
               </div>
 
-              <NotepadField label="ضعف سمعي؟">
+              <NotepadField label={isArabic ? 'ضعف سمعي؟' : 'Hearing impairment?'}>
                 <NotepadRadio name="hearing" options={[
-                  { value: 'none', label: 'لا' }, { value: 'mild', label: 'بسيط' },
-                  { value: 'moderate', label: 'متوسط' }, { value: 'severe', label: 'شديد' },
+                  { value: 'none', label: isArabic ? 'لا' : 'No' }, { value: 'mild', label: isArabic ? 'بسيط' : 'Mild' },
+                  { value: 'moderate', label: isArabic ? 'متوسط' : 'Moderate' }, { value: 'severe', label: isArabic ? 'شديد' : 'Severe' },
                 ]} value={medicalHistory.hearingImpairment} onChange={(v) => updateMedicalHistory('hearingImpairment', v)} />
               </NotepadField>
 
-              <NotepadField label="حساسية للأصوات؟">
-                <NotepadRadio name="soundSens" options={[{ value: 'yes', label: 'نعم' }, { value: 'no', label: 'لا' }]}
+              <NotepadField label={isArabic ? 'حساسية للأصوات؟' : 'Sound sensitivity?'}>
+                <NotepadRadio name="soundSens" options={[{ value: 'yes', label: isArabic ? 'نعم' : 'Yes' }, { value: 'no', label: isArabic ? 'لا' : 'No' }]}
                   value={medicalHistory.soundSensitivity} onChange={(v) => updateMedicalHistory('soundSensitivity', v)} />
               </NotepadField>
 
-              <NotepadField label="صعوبة تمييز الكلام؟">
+              <NotepadField label={isArabic ? 'صعوبة تمييز الكلام؟' : 'Difficulty understanding speech?'}>
                 <NotepadRadio name="speech" options={[
-                  { value: 'never', label: 'لا' }, { value: 'sometimes', label: 'أحياناً' }, { value: 'often', label: 'غالباً' },
+                  { value: 'never', label: isArabic ? 'لا' : 'Never' }, { value: 'sometimes', label: isArabic ? 'أحياناً' : 'Sometimes' }, { value: 'often', label: isArabic ? 'غالباً' : 'Often' },
                 ]} value={medicalHistory.speechDiscrimination} onChange={(v) => updateMedicalHistory('speechDiscrimination', v)} />
               </NotepadField>
             </div>
@@ -433,22 +457,22 @@ ${isChild ? `*بيانات ولي الأمر:*
             {/* Behavior */}
             <div style={{ padding: 20, background: '#faf5fa', borderRadius: 6, border: '1px solid #d4b8d4' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#5a3a5a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <ChartIcon size={18} color="#5a3a5a" /> السلوك والانتباه
+                <ChartIcon size={18} color="#5a3a5a" /> {isArabic ? 'السلوك والانتباه' : 'Behavior & Attention'}
               </div>
 
-              <NotepadField label="تشتت الانتباه؟">
-                <NotepadRadio name="attention" options={[{ value: 'yes', label: 'نعم' }, { value: 'no', label: 'لا' }]}
+              <NotepadField label={isArabic ? 'تشتت الانتباه؟' : 'Attention difficulty?'}>
+                <NotepadRadio name="attention" options={[{ value: 'yes', label: isArabic ? 'نعم' : 'Yes' }, { value: 'no', label: isArabic ? 'لا' : 'No' }]}
                   value={medicalHistory.attentionDifficulty} onChange={(v) => updateMedicalHistory('attentionDifficulty', v)} />
               </NotepadField>
 
-              <NotepadField label="فرط الحركة؟">
-                <NotepadRadio name="hyper" options={[{ value: 'yes', label: 'نعم' }, { value: 'no', label: 'لا' }]}
+              <NotepadField label={isArabic ? 'فرط الحركة؟' : 'Hyperactivity?'}>
+                <NotepadRadio name="hyper" options={[{ value: 'yes', label: isArabic ? 'نعم' : 'Yes' }, { value: 'no', label: isArabic ? 'لا' : 'No' }]}
                   value={medicalHistory.hyperactivity} onChange={(v) => updateMedicalHistory('hyperactivity', v)} />
               </NotepadField>
 
-              <NotepadField label="صعوبة اتباع التعليمات؟">
+              <NotepadField label={isArabic ? 'صعوبة اتباع التعليمات؟' : 'Difficulty following instructions?'}>
                 <NotepadRadio name="follow" options={[
-                  { value: 'yes', label: 'نعم' }, { value: 'no', label: 'لا' }, { value: 'sometimes', label: 'أحياناً' },
+                  { value: 'yes', label: isArabic ? 'نعم' : 'Yes' }, { value: 'no', label: isArabic ? 'لا' : 'No' }, { value: 'sometimes', label: isArabic ? 'أحياناً' : 'Sometimes' },
                 ]} value={medicalHistory.followingInstructions} onChange={(v) => updateMedicalHistory('followingInstructions', v)} />
               </NotepadField>
             </div>
@@ -462,30 +486,30 @@ ${isChild ? `*بيانات ولي الأمر:*
             {/* Sensory */}
             <div style={{ padding: 20, background: '#f5fafa', borderRadius: 6, marginBottom: 20, border: '1px solid #b8d4d4' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#3a5a5a', marginBottom: 16 }}>
-                <BrainIcon size={18} color="#3a5a5a" /> التغيرات الحسية
+                <BrainIcon size={18} color="#3a5a5a" /> {isArabic ? 'التغيرات الحسية' : 'Sensory Changes'}
               </div>
-              <ImprovementSelector label="الحساسية السمعية" value={progressTracking.sensoryChanges.soundSensitivity}
+              <ImprovementSelector label={isArabic ? 'الحساسية السمعية' : 'Sound sensitivity'} value={progressTracking.sensoryChanges.soundSensitivity}
                 onChange={(v) => updateSensoryChanges('soundSensitivity', v)} />
-              <ImprovementSelector label="التواصل البصري" value={progressTracking.sensoryChanges.eyeContact}
+              <ImprovementSelector label={isArabic ? 'التواصل البصري' : 'Eye contact'} value={progressTracking.sensoryChanges.eyeContact}
                 onChange={(v) => updateSensoryChanges('eyeContact', v)} />
-              <ImprovementSelector label="النوم" value={progressTracking.sensoryChanges.sleep}
+              <ImprovementSelector label={isArabic ? 'النوم' : 'Sleep'} value={progressTracking.sensoryChanges.sleep}
                 onChange={(v) => updateSensoryChanges('sleep', v)} />
-              <ImprovementSelector label="المهارات اليدوية" value={progressTracking.sensoryChanges.handSkills}
+              <ImprovementSelector label={isArabic ? 'المهارات اليدوية' : 'Hand skills'} value={progressTracking.sensoryChanges.handSkills}
                 onChange={(v) => updateSensoryChanges('handSkills', v)} />
             </div>
 
             {/* Behavioral */}
             <div style={{ padding: 20, background: '#faf5fa', borderRadius: 6, border: '1px solid #d4b8d4' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#5a3a5a', marginBottom: 16 }}>
-                <ChartIcon size={18} color="#5a3a5a" /> التغيرات السلوكية
+                <ChartIcon size={18} color="#5a3a5a" /> {isArabic ? 'التغيرات السلوكية' : 'Behavioral Changes'}
               </div>
-              <ImprovementSelector label="الانتباه والتركيز" value={progressTracking.behavioralChanges.attention}
+              <ImprovementSelector label={isArabic ? 'الانتباه والتركيز' : 'Attention & focus'} value={progressTracking.behavioralChanges.attention}
                 onChange={(v) => updateBehavioralChanges('attention', v)} />
-              <ImprovementSelector label="فرط الحركة" value={progressTracking.behavioralChanges.hyperactivity}
+              <ImprovementSelector label={isArabic ? 'فرط الحركة' : 'Hyperactivity'} value={progressTracking.behavioralChanges.hyperactivity}
                 onChange={(v) => updateBehavioralChanges('hyperactivity', v)} />
-              <ImprovementSelector label="اتباع الأوامر" value={progressTracking.behavioralChanges.followingCommands}
+              <ImprovementSelector label={isArabic ? 'اتباع الأوامر' : 'Following instructions'} value={progressTracking.behavioralChanges.followingCommands}
                 onChange={(v) => updateBehavioralChanges('followingCommands', v)} />
-              <ImprovementSelector label="التفاعل الاجتماعي" value={progressTracking.behavioralChanges.socialInteraction}
+              <ImprovementSelector label={isArabic ? 'التفاعل الاجتماعي' : 'Social interaction'} value={progressTracking.behavioralChanges.socialInteraction}
                 onChange={(v) => updateBehavioralChanges('socialInteraction', v)} />
             </div>
           </div>
@@ -524,10 +548,10 @@ ${isChild ? `*بيانات ولي الأمر:*
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
         }}>
-          استمارة التسجيل
+          {isArabic ? 'استمارة التسجيل' : 'Registration Form'}
         </h2>
         <p style={{ margin: 0, opacity: 0.7, fontSize: 14 }}>
-          سجل بياناتك للحجز والتقييم المبدئي
+          {isArabic ? 'سجل بياناتك للحجز والتقييم المبدئي' : 'Enter your details for booking and initial assessment'}
         </p>
       </div>
 
@@ -658,7 +682,7 @@ ${isChild ? `*بيانات ولي الأمر:*
                   }}
                 >
                   {step.icon}
-                  {step.title}
+                  {isArabic ? step.titleAr : step.titleEn}
                   {currentStep > step.id && <CheckCircleIcon size={14} color="#22c55e" />}
                 </button>
               ))}
@@ -667,7 +691,7 @@ ${isChild ? `*بيانات ولي الأمر:*
             {/* Progress */}
             <div style={{ padding: '8px 20px', background: '#faf8f5', borderBottom: '1px solid #e8e0d8' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#8a7a6a', marginBottom: 4 }}>
-                <span>التقدم</span>
+                <span>{isArabic ? 'التقدم' : 'Progress'}</span>
                 <span>{progress}%</span>
               </div>
               <div style={{ height: 4, background: '#e8e0d8', borderRadius: 2 }}>
@@ -714,7 +738,7 @@ ${isChild ? `*بيانات ولي الأمر:*
                   fontWeight: 600,
                 }}
               >
-                → السابق
+                {isArabic ? '→ السابق' : '← Previous'}
               </button>
 
               {currentStep < maxStep ? (
@@ -732,7 +756,7 @@ ${isChild ? `*بيانات ولي الأمر:*
                     boxShadow: '0 4px 12px rgba(143,211,204,0.3)',
                   }}
                 >
-                  التالي ←
+                  {isArabic ? 'التالي ←' : 'Next →'}
                 </button>
               ) : (
                 <button
@@ -749,7 +773,7 @@ ${isChild ? `*بيانات ولي الأمر:*
                     boxShadow: '0 4px 12px rgba(34,197,94,0.3)',
                   }}
                 >
-                  📤 إرسال عبر واتساب
+                  {isArabic ? '📤 إرسال عبر واتساب' : '📤 Send via WhatsApp'}
                 </button>
               )}
             </div>
@@ -767,8 +791,17 @@ ${isChild ? `*بيانات ولي الأمر:*
         textAlign: 'center',
       }}>
         <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.8 }}>
-          <strong style={{ color: brandPink }}>⚠ تنبيه:</strong> لا يعتبر برنامج Berard AIT علاجاً في حد ذاته،
-          وإنما هو إعادة تدريب للدماغ عن طريق السمع لتحسين المعالجة الحسية.
+          {isArabic ? (
+            <>
+              <strong style={{ color: brandPink }}>⚠ تنبيه:</strong> لا يعتبر برنامج Berard AIT علاجاً في حد ذاته،
+              وإنما هو إعادة تدريب للدماغ عن طريق السمع لتحسين المعالجة الحسية.
+            </>
+          ) : (
+            <>
+              <strong style={{ color: brandPink }}>⚠ Note:</strong> Berard AIT is not a treatment in itself; it is a
+              brain retraining approach through listening to improve sensory processing.
+            </>
+          )}
         </p>
       </div>
     </section>

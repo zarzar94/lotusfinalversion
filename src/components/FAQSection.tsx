@@ -34,7 +34,7 @@ type FAQItem = {
   icon: ReactNode;
 };
 
-const faqs: FAQItem[] = [
+const faqsAr: FAQItem[] = [
   {
     question: 'ما هو تدريب التكامل السمعي بيرارد (Berard AIT)؟',
     answer: 'تدخل طوره الدكتور جاي بيرارد لتصحيح أو تحسين الاضطرابات في نظام الدماغ/الجسم التي تتداخل مع قدرة الفرد على معالجة المعلومات بشكل طبيعي. يعالج مشاكل المعالجة السمعية والتناقضات في إدراك الصوت التي قد تسهم في صعوبات التعلم، اضطراب نقص الانتباه، عسر القراءة، التوحد، واضطرابات المعالجة الحسية.',
@@ -77,6 +77,57 @@ const faqs: FAQItem[] = [
   },
 ];
 
+const faqsEn: FAQItem[] = [
+  {
+    question: 'What is Berard Auditory Integration Training (Berard AIT)?',
+    answer:
+      'A program developed by Dr. Guy Bérard to improve disruptions in the brain/body system that can interfere with how a person processes information. It addresses auditory processing difficulties and sound-perception inconsistencies that may contribute to learning difficulties, ADHD, dyslexia, autism, and sensory processing disorders.',
+    icon: <HeadphonesIcon size={24} color={brandCyan} />,
+  },
+  {
+    question: 'How much do 10 hours of Berard AIT cost?',
+    answer:
+      'Pricing varies by location and program type (in-person or remote). Contact us for details and available packages for individuals and schools.',
+    icon: <CoinsIcon size={24} color={brandPurple} />,
+  },
+  {
+    question: 'Who is a suitable candidate for Berard AIT?',
+    answer:
+      'It can benefit individuals seeking improvements in learning, language development, sensory processing, attention, auditory processing, memory, reading and writing skills, sound sensitivity, and musical abilities. It is also used to support academic performance, social engagement, public speaking, organizational skills, and sports performance. Minimum age is 3 years with no upper age limit.',
+    icon: <UsersIcon size={24} color={brandPink} />,
+  },
+  {
+    question: 'Is Berard AIT a medical intervention?',
+    answer:
+      'No. Berard AIT is not a medical intervention and is not intended to treat or cure diseases. It is an auditory training program that supports the brain’s ability to process auditory information.',
+    icon: <StethoscopeIcon size={24} color={brandPurpleDark} />,
+  },
+  {
+    question: 'Is Berard AIT considered music therapy?',
+    answer:
+      'No. Berard AIT is not music therapy. Its methods and goals differ significantly from music therapy approaches.',
+    icon: <MusicIcon size={24} color={brandCyan} />,
+  },
+  {
+    question: 'Can Berard AIT be done at home?',
+    answer:
+      'Yes. Remote Berard AIT is available via online video sessions with direct supervision from a certified practitioner, allowing families to receive the program from home.',
+    icon: <HomeIcon size={24} color={brandPurple} />,
+  },
+  {
+    question: 'What if someone cannot cooperate with hearing tests?',
+    answer:
+      'Training can continue without hearing tests for those who cannot cooperate, which means narrow-band filters are not used. The modulated music has been shown to be effective even without these specific filters.',
+    icon: <ClipboardIcon size={24} color={brandPink} />,
+  },
+  {
+    question: 'How many sessions are required?',
+    answer:
+      'The standard program includes 20 sessions over 10–12 days: two sessions per day, 30 minutes each, with a 3-hour break between sessions to allow the brain to adapt.',
+    icon: <CalendarIcon size={24} color={brandPurpleDark} />,
+  },
+];
+
 // Memoized FAQ Item component
 const FAQItemComponent = memo(function FAQItemComponent({
   faq,
@@ -99,6 +150,7 @@ const FAQItemComponent = memo(function FAQItemComponent({
 }) {
   const panelId = `faq-panel-${index}`;
   const headerId = `faq-header-${index}`;
+  const { isArabic } = useLanguage();
 
   // Handle keyboard interaction
   const handleKeyDown = useCallback(
@@ -227,7 +279,7 @@ const FAQItemComponent = memo(function FAQItemComponent({
                 fontWeight: typography.weight.bold,
               }}
             >
-              <LaptopIcon size={14} /> اعرف المزيد عن البرنامج عن بُعد
+              <LaptopIcon size={14} /> {isArabic ? 'اعرف المزيد عن البرنامج عن بُعد' : 'Learn more about the remote program'}
             </a>
           )}
           {index === 2 && (
@@ -248,7 +300,7 @@ const FAQItemComponent = memo(function FAQItemComponent({
                 fontWeight: typography.weight.bold,
               }}
             >
-              <CheckCircleIcon size={14} /> قم بتعبئة قائمة التحقق
+              <CheckCircleIcon size={14} /> {isArabic ? 'قم بتعبئة قائمة التحقق' : 'Fill out the checklist'}
             </a>
           )}
         </div>
@@ -294,6 +346,7 @@ QuickNavButton.displayName = 'QuickNavButton';
 
 const FAQSection = memo(function FAQSection() {
   const { isArabic } = useLanguage();
+  const faqs = isArabic ? faqsAr : faqsEn;
   const audioRef = useRef<AudioContext | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -373,7 +426,7 @@ const FAQSection = memo(function FAQSection() {
             id="faq-title"
             style={{ ...styles.h2, display: 'flex', alignItems: 'center', gap: spacing[2.5] }}
           >
-            <HelpIcon size={28} color={brandCyan} /> الأسئلة الشائعة
+            <HelpIcon size={28} color={brandCyan} /> {isArabic ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
           </h2>
           <span
             style={{
@@ -385,11 +438,13 @@ const FAQSection = memo(function FAQSection() {
               gap: spacing[1.5],
             }}
           >
-            <HelpIcon size={14} color={brandCyan} /> إجابات سريعة
+            <HelpIcon size={14} color={brandCyan} /> {isArabic ? 'إجابات سريعة' : 'Quick Answers'}
           </span>
         </div>
         <p style={styles.bodyText}>
-          إجابات على أكثر الأسئلة شيوعاً حول برنامج Berard AIT وكيفية الاستفادة منه.
+          {isArabic
+            ? 'إجابات على أكثر الأسئلة شيوعاً حول برنامج Berard AIT وكيفية الاستفادة منه.'
+            : 'Answers to the most common questions about Berard AIT and how to benefit from it.'}
         </p>
       </div>
 
@@ -455,14 +510,14 @@ const FAQSection = memo(function FAQSection() {
         <MessageIcon size={28} color={brandPurple} />
         <div style={{ flex: 1, minWidth: 200 }}>
           <div style={{ fontWeight: typography.weight.extrabold, color: brandPurple }}>
-            لديك سؤال آخر؟
+            {isArabic ? 'لديك سؤال آخر؟' : 'Have another question?'}
           </div>
           <div style={{ ...styles.muted, marginTop: spacing[1] }}>
-            تواصل معنا وسنرد عليك في أقرب وقت
+            {isArabic ? 'تواصل معنا وسنرد عليك في أقرب وقت' : 'Contact us and we’ll get back to you soon.'}
           </div>
         </div>
         <a href="#contact" style={{ ...styles.primaryBtn, textDecoration: 'none' }}>
-          تواصل معنا
+          {isArabic ? 'تواصل معنا' : 'Contact Us'}
         </a>
       </div>
     </section>
