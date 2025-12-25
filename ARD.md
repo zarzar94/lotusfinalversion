@@ -36,8 +36,8 @@
 ## 7) ملاحظات الجودة
 - `npm run build` ينجح (مع تحذير مفتاح مكرر لـ `@types/node`).  
 - `npm run qa:assets` يمرّ (120 فحصًا للأصول).  
-- `npm run typecheck` ينجح بعد استبعاد `vitest.config.ts` من `tsconfig.json` لتجنب تضارب أنواع Vite/Vitest؛ يمكن إعادة تمكينه بعد توحيد الإصدارات.  
-- تم إصلاح خطأ JSON في `tsconfig.json` بإزالة تكرار `include`، مع تضييق `include` لتفادي ملف ضبط Vitest.
+- `npm run typecheck` يفشل حاليًا بسبب تعارض أنواع Vite/Vitest في `vitest.config.ts` (تتطلب توحيد الإصدار أو تخفيف الفحص).  
+- تم إصلاح خطأ JSON في `tsconfig.json` بإزالة تكرار `include`.
 
 ## 8) متطلبات تشغيل/نشر
 - FRONTEND: تعيين `BASE_PATH` عند النشر تحت مسار فرعي، و`VITE_API_URL` للإشارة إلى خدمة الخلفية.
