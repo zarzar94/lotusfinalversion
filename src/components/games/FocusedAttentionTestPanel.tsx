@@ -134,10 +134,10 @@ export default function FocusedAttentionTestPanel({
     };
   }, [cleanup]);
 
-  const showFeedback = (text: string) => {
+  const showFeedback = useCallback((text: string) => {
     setFeedback(text);
     window.setTimeout(() => setFeedback(null), 500);
-  };
+  }, []);
 
   const prepareAudio = useCallback(() => {
     if (!isAudioMode) return;
@@ -230,7 +230,7 @@ export default function FocusedAttentionTestPanel({
     if (cur.practice) {
       showFeedback(trial.isTarget ? t('auto.FocusedAttentionTestPanel.k7', "Correct") : t('auto.FocusedAttentionTestPanel.k8', "False alarm"));
     }
-  }, [isArabic, stage]);
+  }, [stage, t, showFeedback]);
 
   useEffect(() => {
     if (stage !== 'practice' && stage !== 'running') return;

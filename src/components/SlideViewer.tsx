@@ -83,8 +83,8 @@ const normalizeForSearch = (value: string): string =>
   normalizeQueryDigits(value)
     .toLowerCase()
     .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '') // strip Latin combining marks
-    .replace(/[\u0640\u064B-\u065F\u0670\u06D6-\u06ED]/g, '') // strip Arabic diacritics + tatweel
+    .replace(/\p{M}/gu, '') // strip combining marks
+    .replace(/\u0640/g, '') // strip Arabic tatweel
     .replace(/[^\p{L}\p{N}]+/gu, ' ')
     .replace(/\s+/g, ' ')
     .trim();
@@ -688,7 +688,7 @@ const SlideViewer = () => {
     }
 
     return score;
-  }, [slideIndex]);
+  }, []);
 
   // Default category based on visitor mode
   useEffect(() => {

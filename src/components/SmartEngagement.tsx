@@ -39,6 +39,13 @@ interface EngagementMilestone {
   celebrationType: 'confetti' | 'glow' | 'shake' | 'pulse';
 }
 
+const ENGAGEMENT_CELEBRATION_MILESTONES = [
+    { id: 'first-page', threshold: 1, icon: '🎉', message: { ar: 'بداية رائعة!', en: 'Great start!' } },
+    { id: 'explorer', threshold: 3, icon: '🗺️', message: { ar: 'أنت مستكشف!', en: "You're an explorer!" } },
+    { id: 'dedicated', threshold: 5, icon: '⭐', message: { ar: 'مستخدم متفاني!', en: 'Dedicated user!' } },
+    { id: 'master', threshold: 7, icon: '🏆', message: { ar: 'خبير المنصة!', en: 'Platform master!' } },
+  ];
+
 /**
  * ScrollBasedCTA - Shows contextual CTAs based on scroll position
  */
@@ -360,20 +367,13 @@ export const EngagementCelebration = memo(() => {
     return saved ? new Set(JSON.parse(saved)) : new Set();
   });
 
-  // Define engagement milestones
-  const milestones = [
-    { id: 'first-page', threshold: 1, icon: '🎉', message: { ar: 'بداية رائعة!', en: 'Great start!' } },
-    { id: 'explorer', threshold: 3, icon: '🗺️', message: { ar: 'أنت مستكشف!', en: "You're an explorer!" } },
-    { id: 'dedicated', threshold: 5, icon: '⭐', message: { ar: 'مستخدم متفاني!', en: 'Dedicated user!' } },
-    { id: 'master', threshold: 7, icon: '🏆', message: { ar: 'خبير المنصة!', en: 'Platform master!' } },
-  ];
 
   // Check for new milestones
   useEffect(() => {
     const visitedPages = localStorage.getItem('lotus_visited_pages');
     const pageCount = visitedPages ? JSON.parse(visitedPages).length : 0;
 
-    for (const milestone of milestones) {
+    for (const milestone of ENGAGEMENT_CELEBRATION_MILESTONES) {
       if (pageCount >= milestone.threshold && !celebratedMilestones.has(milestone.id)) {
         setCelebration({
           message: isArabic ? milestone.message.ar : milestone.message.en,

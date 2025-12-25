@@ -244,8 +244,8 @@ export default function NeuroplasticitySection() {
           fontWeight: 700,
         }}>
           {isArabic
-            ? '— نورمان دويدج، مؤلف كتاب \"الدماغ الذي يُغيّر نفسه\"'
-            : '— Norman Doidge, author of \"The Brain That Changes Itself\"'}
+            ? '— نورمان دويدج، مؤلف كتاب "الدماغ الذي يُغيّر نفسه"'
+            : '— Norman Doidge, author of "The Brain That Changes Itself"'}
         </div>
       </div>
 
@@ -429,8 +429,8 @@ export default function NeuroplasticitySection() {
             </div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>
               {isArabic
-                ? 'مؤلف كتاب \"Hearing Equals Behavior\" • عالج أكثر من 8,000 مريض'
-                : 'Author of \"Hearing Equals Behavior\" • Treated 8,000+ patients'}
+                ? 'مؤلف كتاب "Hearing Equals Behavior" • عالج أكثر من 8,000 مريض'
+                : 'Author of "Hearing Equals Behavior" • Treated 8,000+ patients'}
             </div>
           </div>
         </div>

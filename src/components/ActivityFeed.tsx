@@ -180,7 +180,7 @@ export default function ActivityFeed() {
         newActivityTimeoutRef.current = null;
       }
     };
-  }, []);
+  }, [addActivity]);
 
   // Track state changes and generate activities
   useEffect(() => {
@@ -346,7 +346,7 @@ export default function ActivityFeed() {
       messageEn: 'Welcome to Lotus × Bérard AIT platform',
       color: brandCyan,
     });
-  }, []);
+  }, [addActivity]);
 
   // Close panel with Escape for accessibility
   useEffect(() => {

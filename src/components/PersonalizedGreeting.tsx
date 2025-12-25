@@ -87,7 +87,7 @@ const PersonalizedGreeting = memo(({
       const today = new Date().toDateString();
       const dayOfWeek = new Date().getDay();
 
-      let data: StreakData = saved
+      const data: StreakData = saved
         ? JSON.parse(saved)
         : {
             currentStreak: 0,

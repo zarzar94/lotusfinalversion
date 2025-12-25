@@ -200,7 +200,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [state.user]);
 
   // Check for existing token on mount
   useEffect(() => {
@@ -239,7 +239,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         }
       });
     }
-  }, []);
+  }, [state.user]);
 
   // Update streak on activity
   useEffect(() => {
@@ -263,7 +263,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         }));
       }
     }
-  }, []);
+  }, [state.clinicalProgress]);
 
   // Persist user state
   useEffect(() => {
@@ -292,7 +292,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         window.clearTimeout(updateTimeoutRef.current);
       }
     };
-  }, [state.clinicalProgress, state.isAuthenticated, state.isOnline]);
+  }, [state.clinicalProgress, state.isAuthenticated, state.isOnline, state.user?.id]);
 
   // Listen for sync events
   useEffect(() => {

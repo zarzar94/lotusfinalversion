@@ -73,8 +73,8 @@ export function normalizeForSearch(value: string): string {
   return normalizeDigits(value)
     .toLowerCase()
     .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '') // strip Latin combining marks
-    .replace(/[\u0640\u064B-\u065F\u0670\u06D6-\u06ED]/g, '') // strip Arabic diacritics + tatweel
+    .replace(/\p{M}/gu, '') // strip combining marks
+    .replace(/\u0640/g, '') // strip Arabic tatweel
     .replace(/[^\p{L}\p{N}]+/gu, ' ')
     .replace(/\s+/g, ' ')
     .trim();

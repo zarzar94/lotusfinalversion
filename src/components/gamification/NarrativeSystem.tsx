@@ -780,24 +780,27 @@ export const StoryMotivation = memo(({
   let message = '';
 
   switch (condition.type) {
-    case 'sessions':
+    case 'sessions': {
       const sessionsNeeded = (condition.value as number) - sessionsCompleted;
       message = isArabic
         ? `${sessionsNeeded} جلسات أخرى لفتح "${nextChapter.titleAr}"`
         : `${sessionsNeeded} more session${sessionsNeeded > 1 ? 's' : ''} to unlock "${nextChapter.title}"`;
       break;
-    case 'streak':
+    }
+    case 'streak': {
       const streakNeeded = (condition.value as number) - currentStreak;
       message = isArabic
         ? `حافظ على استمراريتك لـ ${streakNeeded} أيام أخرى!`
         : `Keep your streak going for ${streakNeeded} more day${streakNeeded > 1 ? 's' : ''}!`;
       break;
-    case 'score':
+    }
+    case 'score': {
       const scoreNeeded = (condition.value as number) - attentionScore;
       message = isArabic
         ? `تحسين درجة الانتباه بمقدار ${scoreNeeded} نقطة`
         : `Improve attention score by ${scoreNeeded} points`;
       break;
+    }
   }
 
   return (

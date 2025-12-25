@@ -141,6 +141,11 @@ export function useFetch<T>(
   const mountedRef = useRef(true);
   const fetchCountRef = useRef(0);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const dataRef = useRef<T | null>(data);
+
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
 
   // Retry with exponential backoff
   const fetchWithRetry = useCallback(async (attempt = 0): Promise<T> => {
@@ -201,21 +206,28 @@ export function useFetch<T>(
     }
   }, [enabled, data, fetchWithRetry, cacheKey, cacheTTL, onSuccess, onError]);
 
+  const doFetchRef = useRef(doFetch);
+
+  useEffect(() => {
+    doFetchRef.current = doFetch;
+  }, [doFetch]);
+
   // Initial fetch
   useEffect(() => {
     mountedRef.current = true;
 
     // If we have stale data, show it immediately and revalidate
-    if (staleWhileRevalidate && data) {
-      doFetch(true);
-    } else if (!data) {
-      doFetch();
+    if (staleWhileRevalidate && dataRef.current) {
+      doFetchRef.current(true);
+    } else if (!dataRef.current) {
+      doFetchRef.current();
     }
 
     return () => {
       mountedRef.current = false;
     };
-  }, [...deps, enabled]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [...deps, enabled, staleWhileRevalidate]);
 
   // Polling
   useEffect(() => {
@@ -435,7 +447,7 @@ export function useInfiniteScroll<T>(
   // Initial load
   useEffect(() => {
     reset();
-  }, []);
+  }, [reset]);
 
   return { items, isLoading, isLoadingMore, hasMore, loadMore, reset };
 }
@@ -501,6 +513,7 @@ export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(
         argsRef.current = null;
       }
     }, delay);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [delay, cancel, ...deps]) as T & { cancel: () => void; flush: () => void };
 
   debouncedFn.cancel = cancel;
@@ -566,6 +579,7 @@ export function useThrottledCallback<T extends (...args: unknown[]) => unknown>(
         timeoutRef.current = null;
       }, limit - (now - lastRan.current));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [limit, ...deps]) as T;
 }
 
@@ -772,7 +786,12 @@ export function useIntersection(
   ref: React.RefObject<Element>,
   options: UseIntersectionOptions = {}
 ): boolean {
-  const { triggerOnce = false, ...observerOptions } = options;
+  const {
+    triggerOnce = false,
+    root = null,
+    rootMargin,
+    threshold,
+  } = options;
   const [isIntersecting, setIsIntersecting] = useState(false);
 
   useEffect(() => {
@@ -786,11 +805,11 @@ export function useIntersection(
       if (isVisible && triggerOnce) {
         observer.disconnect();
       }
-    }, observerOptions);
+    }, { root, rootMargin, threshold });
 
     observer.observe(element);
     return () => observer.disconnect();
-  }, [ref, triggerOnce, observerOptions.root, observerOptions.rootMargin, observerOptions.threshold]);
+  }, [ref, triggerOnce, root, rootMargin, threshold]);
 
   return isIntersecting;
 }

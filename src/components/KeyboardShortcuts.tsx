@@ -3,7 +3,7 @@
  * Provides power-user features and accessibility improvements
  */
 
-import { memo, useState, useEffect, useCallback } from 'react';
+import { memo, useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useVisitorMode } from '../context/VisitorModeContext';
@@ -37,7 +37,7 @@ const KeyboardShortcuts = memo(() => {
   const [lastKey, setLastKey] = useState<string | null>(null);
 
   // Define shortcuts
-  const shortcuts: Shortcut[] = [
+  const shortcuts = useMemo<Shortcut[]>(() => [
     // Navigation shortcuts
     {
       key: 'h',
@@ -125,7 +125,7 @@ const KeyboardShortcuts = memo(() => {
       label: { ar: 'إغلاق', en: 'Close Dialog' },
       category: 'accessibility',
     },
-  ];
+  ], [navigate, toggleLanguage, setMode]);
 
   // Handle keyboard events
   useEffect(() => {

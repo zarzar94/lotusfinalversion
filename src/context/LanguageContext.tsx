@@ -162,8 +162,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     borderEnd,
     select,
     enforceLanguage: true,
-  }), [language, direction, setLanguage, toggleLanguage, t, isArabic, isEnglish,
-      marginStart, marginEnd, paddingStart, paddingEnd, borderStart, borderEnd, select]);
+  }), [language, direction, setLanguage, toggleLanguage, t, isArabic, isEnglish, fontFamily,
+      textAlign, flexDirection, marginStart, marginEnd, paddingStart, paddingEnd, borderStart,
+      borderEnd, select]);
 
   return (
     <LanguageContext.Provider value={contextValue}>

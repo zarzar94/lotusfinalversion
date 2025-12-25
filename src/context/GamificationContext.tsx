@@ -499,6 +499,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   const stateRef = useRef(state);
   const saveTimeoutRef = useRef<number | null>(null);
   const lastNotifiedUnlockAtRef = useRef(0);
+  const unlockCursorUserIdRef = useRef<string | null>(null);
   const soundScientistTimerRef = useRef<number | null>(null);
   const lastUserIdRef = useRef<string | null>(userId);
 
@@ -813,12 +814,14 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
 
   // Initialize unlock notification cursor from existing saved state.
   useEffect(() => {
+    if (unlockCursorUserIdRef.current === userId) return;
+    unlockCursorUserIdRef.current = userId;
     lastNotifiedUnlockAtRef.current = state.achievements.reduce((max, achievement) => {
       if (!achievement.unlocked) return max;
       if (!achievement.unlockedAt) return max;
       return Math.max(max, achievement.unlockedAt);
     }, 0);
-  }, []);
+  }, [state.achievements, userId]);
 
   // Show toast + play sound for new unlocks (but not for previously persisted unlocks).
   useEffect(() => {

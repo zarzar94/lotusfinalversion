@@ -120,7 +120,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
         setError(t('auto.LoginModal.k3', "Email already in use"));
       }
     }
-  }, [mode, email, password, name, login, register, onClose, isArabic]);
+  }, [mode, email, password, name, login, register, onClose, t]);
 
   const handleDemoLogin = useCallback(async (account: typeof DEMO_ACCOUNTS[number]) => {
     setError('');
