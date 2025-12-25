@@ -34,16 +34,11 @@
 - **الاتجاه واللغة**: `LanguageContext` يضبط dir/lang والخطوص، ويقدّم تبديلًا فوريًا (AR ↔ EN).
 
 ## 7) ملاحظات الجودة
-- `npm run build` ينجح (بعد إزالة تكرار `@types/node` في `package.json`).  
+- `npm run build` ينجح (مع تحذير مفتاح مكرر لـ `@types/node`).  
 - `npm run qa:assets` يمرّ (120 فحصًا للأصول).  
-- `npm run typecheck` ينجح بعد استبعاد `vitest.config.ts` من `tsconfig.json` لتجنب تضارب أنواع Vite/Vitest؛ يمكن إعادة تمكينه بعد توحيد الإصدارات.  
-- تم إصلاح خطأ JSON في `tsconfig.json` بإزالة تكرار `include`، مع تضييق `include` لتفادي ملف ضبط Vitest.
+- `npm run typecheck` يفشل حاليًا بسبب تعارض أنواع Vite/Vitest في `vitest.config.ts` (تتطلب توحيد الإصدار أو تخفيف الفحص).  
+- تم إصلاح خطأ JSON في `tsconfig.json` بإزالة تكرار `include`.
 
-## 9) Deployment Architecture & Repo Boundaries
-- **Frontend (هذا المستودع)**: React/Vite ثابت، ينشر على GitHub Pages أو أي استضافة static، ويستخدم `VITE_API_URL` للاتصال بالخلفية.【F:src/services/api.ts†L36-L119】
-- **Backend (داخل `backend/` أو كخدمة منفصلة)**: Express + MongoDB جاهز في المجلد `backend/` ويمكن نشره على Render/Fly/AWS كخدمة `/api/*`.【F:backend/src/index.js†L6-L120】
-- **Database**: MongoDB (محلي أو Atlas) مرتبطة بالخلفية.
-- **التكامل**: الواجهة ترسل طلبات REST موقعة بـ JWT عبر `VITE_API_URL`; يمكن استبدالها بنشر خلفي آخر بنفس العقدة.
 ## 8) متطلبات تشغيل/نشر
 - FRONTEND: تعيين `BASE_PATH` عند النشر تحت مسار فرعي، و`VITE_API_URL` للإشارة إلى خدمة الخلفية.
 - BACKEND: ضبط `CORS_ORIGIN/FRONTEND_URL`, `JWT_SECRET`, `MONGODB_URI`, مميزات البريد/الويب سوكيت اختيارية.

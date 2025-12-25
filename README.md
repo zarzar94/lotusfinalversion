@@ -59,7 +59,7 @@ VITE_WS_URL=ws://localhost:3001/ws       # matches backend WebSocket default
 VITE_CHUNK_WARNING_LIMIT=1500            # keep build logs quiet on Vercel/CI
 VITE_CLINIC_PHONE=+9715XXXXXXXX
 VITE_CLINIC_EMAIL=info@example.com   # optional override
-VITE_API_URL=http://localhost:3001/api   # override if backend is not on localhost:3001
+# Example override: VITE_API_URL=https://api.example.com/api
 ```
 If your host enforces stricter bundle limits, lower `VITE_CHUNK_WARNING_LIMIT`; raise it if vendor chunks trigger noisy warnings.
 Deployment under a subpath (e.g., GitHub Pages) uses `BASE_PATH` (see `vite.config.ts`). The GitHub Actions workflow already sets it to `/<repo-name>/`.
@@ -71,7 +71,6 @@ JWT_SECRET=change-me
 JWT_REFRESH_SECRET=change-me-too
 CORS_ORIGIN=http://localhost:5173
 FRONTEND_URL=http://localhost:5173
-WEBSOCKET_URL=ws://localhost:3001/ws
 ```
 Adjust SMTP, WebSocket, upload, and rate-limit settings as needed; see `backend/.env.example` for the full list.
 

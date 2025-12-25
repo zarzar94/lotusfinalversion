@@ -84,8 +84,8 @@
 
 ## نتائج الأوامر (آخر تشغيل)
 - ✅ `npm install` (نجحت).  
-- ✅ `npm run typecheck` — نجح بعد استبعاد `vitest.config.ts` من `tsconfig.json` لتجنب تضارب أنواع Vite/Vitest.  
-- ✅ `npm run build` — نجح بدون تحذير مكرر بعد إزالة تكرار `@types/node` في `package.json`.  
+- ❌ `npm run typecheck` — فشل بسبب تعارض أنواع Vite/Vitest داخل `vitest.config.ts` (اختلاف إصدارات Vite في node_modules/vitest).  
+- ✅ `npm run build` — نجح مع تحذير وجود مفتاح مكرر `@types/node` في `package.json`.  
 - ✅ `npm run qa:assets` — جميع الأصول المطلوبة موجودة.
 
-> ملاحظة: تم إصلاح ‎`tsconfig.json`‎ لإزالة تكرار ‎`include`‎ ولإقصاء ملف ضبط Vitest من الفحص؛ يمكن إعادة تمكينه بعد توحيد إصدارات Vite/Vitest أو ترقية Vitest ليتطابق مع Vite 7. كما تم إزالة التكرار في `@types/node` لتجنب تحذيرات البناء.
+> ملاحظة: تم إصلاح ‎`tsconfig.json`‎ لإزالة تكرار ‎`include`‎، لكن تعارض النوع في Vitest ما زال قائماً ويتطلب توحيد إصدارات Vite/Vitest أو تخفيف فحص التكوين.
