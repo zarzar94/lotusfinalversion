@@ -12,6 +12,12 @@
 - تحقق من `/login` وعودة التوجيه إلى لوحات الأدوار بعد تسجيل دخول ديمو/فعلي.
 - تحقق من `/parent-dashboard`, `/clinician-dashboard`, `/school-dashboard`, `/settings` مع تبديل اللغة ووضع الزائر.
 
+## Role-based access control
+- Unauthenticated visits to `/settings` or any `/dashboard/*` route redirect to `/login?next=...`.
+- Parent users can access `/dashboard/parent` only; clinician users can access `/dashboard/clinician` only; school admins can access `/dashboard/educator` only.
+- Users with wrong roles see the access restricted message.
+- Super admin can access all dashboard routes.
+
 ## المودالات والنوافذ
 - Modal اللغة الأولية يظهر في أول زيارة ويغلق بشكل صحيح.
 - LoginModal من الهيدر يعمل (ترجمة AR/EN) ويتعامل مع أخطاء المصادقة.

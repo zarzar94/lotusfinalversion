@@ -14,7 +14,7 @@ type AccessDeniedProps = {
   isAuthenticated: boolean;
 };
 
-function AccessDenied({ isAuthenticated }: AccessDeniedProps) {
+export function AccessDenied({ isAuthenticated }: AccessDeniedProps) {
   const { t, isArabic } = useLanguage();
   const title = isAuthenticated
     ? t('auth.accessRestrictedTitle', 'Access restricted')

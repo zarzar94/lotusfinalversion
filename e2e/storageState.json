@@ -1,0 +1,12 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:5173",
+      "localStorage": [
+        { "name": "lotus_first_visit", "value": "true" },
+        { "name": "lotus_language", "value": "en" }
+      ]
+    }
+  ]
+}

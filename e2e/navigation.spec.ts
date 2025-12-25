@@ -74,6 +74,10 @@ test.describe('Responsive Design', () => {
 
 test.describe('RTL Support', () => {
   test('should support Arabic RTL layout', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('lotus_first_visit', 'true');
+      localStorage.setItem('lotus_language', 'ar');
+    });
     await page.goto('/');
 
     // Check if document has RTL direction

@@ -74,28 +74,24 @@ test.describe('Protected Routes', () => {
   test('should redirect to login for protected routes', async ({ page }) => {
     await page.goto('/settings');
 
-    // Should either redirect or show login prompt
-    const currentUrl = page.url();
-
-    // Either redirected to home/login or showing login modal
-    const hasLoginPrompt = await page.getByRole('dialog').count() > 0 ||
-                           currentUrl.includes('login') ||
-                           currentUrl === page.url().replace('/settings', '/');
-
-    expect(hasLoginPrompt || currentUrl.includes('settings')).toBeTruthy();
+    await expect(page).toHaveURL(/\/login\?next=%2Fsettings/);
   });
 
-  test('should access dashboard after mock login', async ({ page }) => {
+  test('should access settings after mock login', async ({ page }) => {
     // Set mock auth in localStorage before navigation
     await page.goto('/');
 
     await page.evaluate(() => {
-      localStorage.setItem('lotus_user', JSON.stringify({
-        id: 'test-user',
-        email: 'test@example.com',
-        name: 'Test User',
-        role: 'patient',
-        isAuthenticated: true,
+      localStorage.setItem('lotus_auth_token', 'test-token');
+      localStorage.setItem('lotus_user_state', JSON.stringify({
+        user: {
+          id: 'test-user',
+          email: 'test@example.com',
+          name: 'Test User',
+          role: 'patient',
+          createdAt: Date.now(),
+          lastLogin: Date.now(),
+        },
       }));
     });
 

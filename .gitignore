@@ -33,3 +33,7 @@ vite-dev.pid
 # Deployment worktree
 gh-pages-worktree/
 .vercel
+
+# Playwright artifacts
+playwright-report/
+test-results/
