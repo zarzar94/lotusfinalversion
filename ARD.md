@@ -34,10 +34,10 @@
 - **الاتجاه واللغة**: `LanguageContext` يضبط dir/lang والخطوص، ويقدّم تبديلًا فوريًا (AR ↔ EN).
 
 ## 7) ملاحظات الجودة
-- `npm run build` ينجح (بعد إزالة تكرار `@types/node` في `package.json`).  
+- `npm run build` ينجح (مع تحذير مفتاح مكرر لـ `@types/node`).  
 - `npm run qa:assets` يمرّ (120 فحصًا للأصول).  
-- `npm run typecheck` ينجح مع إبقاء `vitest.config.ts` داخل `tsconfig.json` باستخدام `@ts-nocheck` لتجنب تعارض أنواع Vite/Vitest مؤقتًا.  
-- تم إصلاح خطأ JSON في `tsconfig.json` بإزالة تكرار `include`، مع تضييق `include` لتغطية ملفات الإعداد مع كتم فحص Vitest مؤقتًا.
+- `npm run typecheck` يفشل حاليًا بسبب تعارض أنواع Vite/Vitest في `vitest.config.ts` (تتطلب توحيد الإصدار أو تخفيف الفحص).  
+- تم إصلاح خطأ JSON في `tsconfig.json` بإزالة تكرار `include`.
 
 ## 8) متطلبات تشغيل/نشر
 - FRONTEND: تعيين `BASE_PATH` عند النشر تحت مسار فرعي، و`VITE_API_URL` للإشارة إلى خدمة الخلفية.
