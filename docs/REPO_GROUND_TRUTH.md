@@ -1,91 +1,141 @@
-# REPO_GROUND_TRUTH — Lotus AIT (Frontend + Backend)  
-مصدر الحقيقة المحدث من الشيفرة الفعلية داخل المستودع. كل النقاط أدناه موثقة بدليل من الملفات الحالية.
+﻿# الحقيقة الأرضية للمستودع (Repo Ground Truth)
 
-## ملخص سريع
-- **الواجهة (Vite + React 18 + TypeScript)**: التوجيه في `src/App.tsx` مع مزودات اللغة/الزائر/المستخدم/التلعيب؛ يدعم ‎`BASE_URL`‎/‎`BASE_PATH`‎ للـ RTL/LTR ونشر GitHub Pages.【F:src/App.tsx†L498-L737】
-- **الخلفية (Express + MongoDB)** موجودة تحت `backend/` وتقدم مصادقة، تقدمًا سريريًا، تلعيبًا، جلسات، مزامنة، وإدارة.【F:backend/src/index.js†L6-L82】【F:backend/src/routes/index.js†L5-L11】
-- **وضع عربي أول**: اللغة الافتراضية AR، التحكم في ‎`dir`‎/‎`lang`‎ وتبديل فوري عبر `LanguageContext`.【F:src/context/LanguageContext.tsx†L33-L95】
-- **تخزين محلي + أوفلاين**: مفاتيح ‎`lotus_*`‎ و‎`SBLAB_SESSION_HISTORY`‎، طابور طلبات أوفلاين في `src/services/api.ts`، وسياق مزامنة في `src/context/SyncContext.tsx`.【F:src/services/api.ts†L36-L124】
-- **Service Worker** موجود كـ `public/sw.js` (شبكة أولاً للـ API المختارة، Cache-first للأصول) لكن لا يوجد تسجيل داخل React حتى الآن.【F:public/sw.js†L5-L130】
+- المستودع: `lotusfinalversion`
+- النطاق: واجهة React/Vite + خادم Express/Mongo داخل نفس المستودع (نشر منفصل)
+- تم التوليد: 2025-12-26
 
-## هيكل الملفات المهم
-- **src/pages**: Landing, Assessment, Program, Science, Results, Resources, Partners, Contact, About, FAQ, Login، لوحات `/parent-dashboard`، `/clinician-dashboard`، `/school-dashboard`.  
-- **src/components** (أهم المجاميع): `games/`, `analytics/`, `dashboards/`, `gamification/`, `treatment/`, `navigation/`, `auth/`, `shared/`, `assessment/`, `intake/`.  
-- **src/context**: `LanguageContext.tsx`, `VisitorModeContext.tsx`, `UserContext.tsx`, `GamificationContext.tsx`, `SyncContext.tsx`, `TreatmentContext.tsx`, `DemoContext.tsx`.  
-- **src/utils**: `sessionStorage.ts` (تاريخ المختبر + ديمو)، `pdf.ts`, `asset.ts`, `audio.ts`, `labMetrics.ts`, `storage.ts`, `errorTracking.tsx`.  
-- **src/services**: `api.ts` (عميل REST + طابور أوفلاين)، `apiSchema.ts`، `PDFReportGenerator.ts`.  
-- **public/assets**:  
-  - `assets/pptx_slides/slide-XX.png` و`assets/pptx_slides/thumbs/thumb-XX.jpg` لـ 57 شريحة (يتحقق منها qa:assets).  
-  - `assets/images/brain_logo.png`, `brain_icon_44.png`, شعارات إضافية.  
-- **public/downloads**: `Check list (2).pdf`, `berard-profile.pdf`, ملف شعار إضافي.  
-- **public/fonts**: Cairo-Regular/Bold (يتم التخزين المسبق).  
-- **public/sw.js**: سياسات التخزين المؤقت الموضحة أعلاه.
+## 1) نظرة عامة على الشجرة (مختصر)
 
-## قائمة المسارات (App Router)
-| المسار | المكوّن | ملاحظات |
-| --- | --- | --- |
-| `/`, `/home` | `LandingPage` | تسويق/دعوات. |
-| `/assessment` | `AssessmentPage` | مختبر الألعاب والفحص. |
-| `/program` | `ProgramPage` | بروتوكول AIT. |
-| `/science` | `SciencePage` | أدلة وبحوث. |
-| `/results` | `ResultsPage` | نتائج وشهادات. |
-| `/partners` | `PartnersPage` | شراكات المدارس. |
-| `/resources` | `ResourcesPage` | فيديوهات/شرائح/FAQ. |
-| `/faq` | `FAQPage` | أسئلة شائعة. |
-| `/contact` | `ContactPage` | نماذج تواصل وحجز. |
-| `/about` | `AboutPage` | نبذة عن المركز. |
-| `/function/:slug` | `BrainFunctionPage` | محتوى تفصيلي. |
-| `/login` | `LoginPage` | تسجيل دخول كامل الشاشة. |
-| `/parent-dashboard`, `/dashboard/parent` | `ParentDashboard` | عرض وليّ الأمر/المريض. |
-| `/clinician-dashboard`, `/dashboard/clinician` | `ClinicianDashboard` | للمعالجين. |
-| `/school-dashboard`, `/dashboard/educator` | `SchoolDashboard` | لمشرفي المدارس. |
-| `/settings` | `SettingsPage` | تفضيلات المستخدم. |
-| `*` | `NotFoundPage` | 404. |
-المصدر: `src/App.tsx`.【F:src/App.tsx†L515-L723】
+### src/pages
+`AboutPage.tsx`, `AssessmentPage.tsx`, `BrainFunctionPage.tsx`, `ClinicianDashboard.tsx`, `ContactPage.tsx`, `DebugSessionPage.tsx`, `EducatorDashboard.tsx`, `ExplorePage.tsx`, `FAQPage.tsx`, `LandingPage.tsx`, `LoginPage.tsx`, `NotFoundPage.tsx`, `ParentDashboard.tsx`, `PartnersPage.tsx`, `ProgramPage.tsx`, `ResourcesPage.tsx`, `ResultsPage.tsx`, `SciencePage.tsx`.
 
-## الأدوار والصلاحيات
-- الأدوار المتاحة: guest, patient, parent, clinician, school_admin, super_admin (Frontend + Backend).【F:src/context/UserContext.tsx†L18-L35】【F:backend/src/models/User.js†L28-L47】
-- مصفوفة الأذونات في `UserContext`: عرض المحتوى، اللعب، حفظ التقدم، تقارير ذاتية/أطفال/مرضى، تحليلات المدرسة/العالمية، وضبط النظام.【F:src/context/UserContext.tsx†L18-L103】
-- نماذج العلاقات: `User.children` لربط ولي الأمر بالأطفال؛ `clinic` و`school` للربط التنظيمي.【F:backend/src/models/User.js†L31-L58】
+### src/components (أهم المجلدات)
+- مجلدات: `about/`, `analytics/`, `assessment/`, `AudioJourney/`, `auth/`, `booking/`, `Brain3D/`, `dashboards/`, `games/`, `gamification/`, `intake/`, `navigation/`, `shared/`, `treatment/`.
+- مكونات بارزة: `GameSection.tsx`, `SlideViewer.tsx`, `ReportsExport.tsx`, `ProgressExport.tsx`, `SmartNavigation.tsx`, `SmartEngagement.tsx`, `SettingsPage.tsx`.
 
-## وحدات التقييم (games suite) ومعرّفاتها
-- `attention`, `focused_attention`, `frequency`, `sequence`, `dichotic_listening`, `speech_in_noise`, `questionnaire`, إضافة وضع تجميعي `suite`. تظهر كبطاقات في `GameSection`.【F:src/components/GameSection.tsx†L752-L834】
-- بيانات الديمو والتخزين في `src/utils/sessionStorage.ts` (مفتاح ‎`SBLAB_SESSION_HISTORY`‎).【F:src/utils/sessionStorage.ts†L5-L124】【F:src/utils/sessionStorage.ts†L220-L305】
+### src/context
+`DemoContext.tsx`, `GamificationContext.tsx`, `LanguageContext.tsx`, `SyncContext.tsx`, `TreatmentContext.tsx`, `UserContext.tsx`, `VisitorModeContext.tsx`.
 
-## التخزين المحلي / الجلسات
-- مفاتيح أساسية:  
-  - اللغة والتوجيه: `lotus_language`, `lotus_first_visit`.【F:src/context/LanguageContext.tsx†L33-L85】  
-  - حالة الزائر: `lotus_visitor_mode`.  
-  - هوية المستخدم والتقدم السريري: `lotus_user_state`, `lotus_clinical_progress`.【F:src/context/UserContext.tsx†L110-L170】  
-  - التلعيب: `lotus_gamification_state`.  
-  - الإعدادات العامة: `lotus_user_settings`.  
-  - الطوابير والأوفلاين: `lotus_auth_token`, `lotus_refresh_token`, `lotus_offline_queue`, `lotus_last_sync`, `lotus_pending_changes`, `berard-ait-sessions`.  
-  - تاريخ المختبر: `SBLAB_SESSION_HISTORY` (مع دعم ديمو).【F:src/utils/sessionStorage.ts†L5-L124】  
-  - جولات التجارب/المساعدة/التنبيهات: `lotus_welcome_shown`, `lotus_tour_completed`, `lotus_hint_*`, `lotus_notifications`, `lotus_nav_history`, `lotus_visited_pages`, `lotus_celebrated`, `lotus_engagement_streak`, `lotus_visit_stats`, `lotus_trust_dismissed`.  
-  - علاج/حجوزات: `lotus_treatment_plan`, `lotus_treatment_sessions`, `lotus_treatment_progress`, `lotus_patient_profile`, `lotus_bookings`, `lotus_reports`, `lotus_follow_up`.
+### src/utils
+`offlineQueue.ts`, `sessionStorage.ts`, `userStorage.ts`, `language.ts`, `pdf.ts`, `errorTracking.tsx`, `storage.ts`, `rtl.ts`.
 
-## التصدير والملفات القابلة للتنزيل
-- **PDF/CSV لتقارير الألعاب**: `src/components/games/report.ts` مع مولدات jsPDF وتنزيل CSV.【F:src/components/games/report.ts†L1-L144】  
-- **تصدير تقدم سريري**: `src/components/ProgressExport.tsx` (زر خفي يستمع لحدث `export-progress`).【F:src/App.tsx†L435-L445】  
-- **تصدير لوحات الأدوار**: `src/components/dashboards/roleDashboardExports.ts` (تقارير PDF للأهل/المعالج، CSV للصف).  
-- **حزم المدارس/التفسير**: `SchoolPartnershipSection` تدعم PDF/CSV للتفسير والديمو.  
-- **عارض الشرائح**: `src/components/SlideViewer.tsx` يحفظ PDF من الشرائح/المحتوى.  
-- **أصول جاهزة للتنزيل**: `public/downloads/*` وروابط في `Checklist`, `ResultsSection`, `QuickActionsPanel`.
+### public/assets
+- `assets/pptx_slides/` (57 شرائح + `thumbs/`).
+- `assets/images/`, `assets/_logo/`.
 
-## Service Worker / PWA
-- ملف `public/sw.js` يطبق **cache-first للأصول** و**network-first محدد** لـ `/api/gamification/leaderboard`، مع تنظيف نسخ قديمة ودعم sync/push placeholders.【F:public/sw.js†L5-L130】
-- لا يوجد تسجيل Service Worker في الواجهة (لا استدعاء ‎`navigator.serviceWorker.register`‎)، لذا النشر يحتاج تسجيل يدوي إذا لزم الأمر.
+### public/downloads
+`berard-profile.pdf`, `AIT_LOGO 2022.pdf`, `Check list (2).pdf`, `بروفايل برنامج بيرارد (1).pdf`.
 
-## الأصول والهيكل المتوقع
-- 57 شريحة بامتدادي ‎`.png`‎ و`thumbs/*.jpg`؛ يتحقق منها `npm run qa:assets`.【F:scripts/qa-assets.mjs†L11-L44】
-- شعارات أساسية ضمن `public/assets/images/`؛ خطوط Cairo في `public/fonts/`.  
-- ملفات PDF جاهزة في `public/downloads/` (قائمة تحقق + بروفايل بيرارد).  
-- `assetUrl()` يضمن أن المسارات تحترم ‎`BASE_URL`‎ في النشر الفرعي.【F:src/utils/asset.ts†L1-L10】
+### backend/src
+`routes/`, `models/`, `middleware/`, `utils/`, `index.js` (خادم Express كامل).
 
-## نتائج الأوامر (آخر تشغيل)
-- ✅ `npm install` (نجحت).  
-- ✅ `npm run typecheck` — نجح بعد استبعاد `vitest.config.ts` من `tsconfig.json` لتجنب تضارب أنواع Vite/Vitest.  
-- ✅ `npm run build` — نجح بدون تحذير مكرر بعد إزالة تكرار `@types/node` في `package.json`.  
-- ✅ `npm run qa:assets` — جميع الأصول المطلوبة موجودة.
+## 2) المسارات (Routes) — من `src/App.tsx`
 
-> ملاحظة: تم إصلاح ‎`tsconfig.json`‎ لإزالة تكرار ‎`include`‎ ولإقصاء ملف ضبط Vitest من الفحص؛ يمكن إعادة تمكينه بعد توحيد إصدارات Vite/Vitest أو ترقية Vitest ليتطابق مع Vite 7. كما تم إزالة التكرار في `@types/node` لتجنب تحذيرات البناء.
+| Route | Component | Auth? | Role? | Notes | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| `/` | `LandingPage` | No | — | صفحة هبوط | `src/App.tsx:521` |
+| `/home` | `LandingPage` | No | — | Alias | `src/App.tsx:529` |
+| `/assessment` | `AssessmentPage` | No | — | معامل التقييم | `src/App.tsx:539` |
+| `/program` | `ProgramPage` | No | — | برنامج العلاج | `src/App.tsx:549` |
+| `/science` | `SciencePage` | No | — | العلم والبحث | `src/App.tsx:559` |
+| `/results` | `ResultsPage` | No | — | النتائج | `src/App.tsx:569` |
+| `/partners` | `PartnersPage` | No | — | الشراكات | `src/App.tsx:579` |
+| `/resources` | `ResourcesPage` | No | — | الموارد | `src/App.tsx:589` |
+| `/faq` | `FAQPage` | No | — | الأسئلة الشائعة | `src/App.tsx:599` |
+| `/contact` | `ContactPage` | No | — | التواصل | `src/App.tsx:609` |
+| `/about` | `AboutPage` | No | — | عن المركز | `src/App.tsx:622` |
+| `/function/:slug` | `BrainFunctionPage` | No | — | تفاصيل وظيفة دماغ | `src/App.tsx:636` |
+| `/login` | `LoginPage` | No | — | تسجيل الدخول | `src/App.tsx:646` |
+| `/school-dashboard` | `SchoolDashboard` | Yes | `school_admin` | RoleGuard | `src/App.tsx:659` |
+| `/parent-dashboard` | `ParentDashboard` | Yes | `parent` | RoleGuard | `src/App.tsx:669` |
+| `/clinician-dashboard` | `ClinicianDashboard` | Yes | `clinician` | RoleGuard | `src/App.tsx:679` |
+| `/dashboard/parent` | `ParentDashboard` | Yes | `parent` | مسار قديم | `src/App.tsx:691` |
+| `/dashboard/clinician` | `ClinicianDashboard` | Yes | `clinician` | مسار قديم | `src/App.tsx:701` |
+| `/dashboard/educator` | `SchoolDashboard` | Yes | `school_admin` | مسار قديم | `src/App.tsx:711` |
+| `/settings` | `SettingsPage` | Yes | Any auth | RequireAuth | `src/App.tsx:721` |
+| `*` | `NotFoundPage` | No | — | 404 | `src/App.tsx:735` |
+
+ملاحظة: `ExplorePage.tsx` موجودة ولكن ليست مربوطة بمسار في الراوتر الحالي.
+
+## 3) الأدوار والصلاحيات (RBAC)
+- الأدوار: `guest`, `patient`, `parent`, `clinician`, `school_admin`, `super_admin`. `src/context/UserContext.tsx:9`
+- مصفوفة الصلاحيات: `ROLE_PERMISSIONS`. `src/context/UserContext.tsx:88`
+
+## 4) وحدات التقييم (7 وحدات)
+
+| moduleId | اسم عربي | اسم إنجليزي | Evidence |
+| --- | --- | --- | --- |
+| `attention` | الانتباه | Attention | `src/components/games/types.ts:4`, `src/components/games/GamePortal.tsx:27` |
+| `focused_attention` | الانتباه المُركَّز | Focused Attention | `src/components/games/types.ts:5`, `src/components/games/GamePortal.tsx:28` |
+| `frequency` | تمييز التردد | Frequency | `src/components/games/types.ts:7`, `src/components/games/GamePortal.tsx:29` |
+| `sequence` | التسلسل | Sequence | `src/components/games/types.ts:8`, `src/components/games/GamePortal.tsx:30` |
+| `dichotic_listening` | الاستماع الثنائي | Dichotic Listening | `src/components/games/types.ts:9`, `src/components/games/GamePortal.tsx:31` |
+| `speech_in_noise` | الكلام وسط الضجيج | Speech in Noise | `src/components/games/types.ts:10`, `src/components/games/GamePortal.tsx:32` |
+| `questionnaire` | الاستبيان | Questionnaire | `src/components/games/types.ts:11`, `src/components/games/GamePortal.tsx:33` |
+
+> الترتيب التشغيلي في شاشة الـ suite موثَّق في `AssessmentSuiteModal`. `src/components/games/AssessmentSuiteModal.tsx:40`
+
+## 5) مخطط التخزين المحلي (LocalStorage/IndexedDB)
+
+> ملاحظة: مفاتيح المستخدم المقيَّدة تستخدم نمط `baseKey:userId`. `src/utils/userStorage.ts:24`
+
+| Key | الغرض | Writer (أول موقع) | Reader (أول موقع) |
+| --- | --- | --- | --- |
+| `lotus_user_state` | حفظ المستخدم المصادق | `src/context/UserContext.tsx:158` | `src/context/UserContext.tsx:119` |
+| `lotus_clinical_progress` + `:userId` | تقدم سريري للمستخدم | `src/context/UserContext.tsx:167` | `src/context/UserContext.tsx:146` |
+| `lotus_gamification_state` + `:userId` | حالة التلعيب | `src/context/GamificationContext.tsx:529` | `src/context/GamificationContext.tsx:437` |
+| `lotus_user_settings` + `:userId` | إعدادات العرض/الخصوصية/الصوت | `src/components/SettingsPage.tsx:88` | `src/components/SettingsPage.tsx:78` |
+| `lotus_language` | لغة الواجهة | `src/context/LanguageContext.tsx:80` | `src/utils/language.ts:6` |
+| `lotus_visitor_mode` | وضع الزائر | `src/context/VisitorModeContext.tsx:122` | `src/context/VisitorModeContext.tsx:103` |
+| `lotus_auth_token` | JWT access token | `src/services/api.ts:72` | `src/services/api.ts:68` |
+| `lotus_refresh_token` | Refresh token | `src/services/api.ts:80` | `src/services/api.ts:76` |
+| `lotus_offline_queue` + `:userId` | طابور أوفلاين (نسخة قديمة) | `src/services/api.ts:146` | `src/services/api.ts:110` |
+| `lotus_offline_queue_db` (IndexedDB) | طابور الأوفلاين الحالي | `src/utils/offlineQueue.ts:13` | `src/utils/offlineQueue.ts:52` |
+| `lotus_last_sync` | آخر مزامنة | `src/context/SyncContext.tsx:246` | `src/context/SyncContext.tsx:66` |
+| `lotus_pending_changes` | عدّاد التغييرات | `src/context/SyncContext.tsx:116` | `src/context/SyncContext.tsx:76` |
+| `berard-ait-sessions` + `:userId` | جلسات التقييم المجمعة | `src/components/games/scoring.ts:711` | `src/components/games/scoring.ts:732` |
+| `SBLAB_SESSION_HISTORY` + `:userId` | سجل الجلسات التفصيلي | `src/utils/sessionStorage.ts:359` | `src/utils/sessionStorage.ts:367` |
+| `lotus_demo_state` | حالة الديمو | `src/context/DemoContext.tsx:189` | `src/context/DemoContext.tsx:158` |
+| `lotus_notifications` | إشعارات داخلية | `src/components/NotificationCenter.tsx:64` | `src/components/NotificationCenter.tsx:52` |
+| `lotus_nav_history` | تاريخ التنقّل | `src/components/SmartNavigation.tsx:159` | `src/components/SmartNavigation.tsx:135` |
+| `lotus_scroll_milestones` | نقاط التمرير | `src/components/SmartEngagement.tsx:205` | `src/components/SmartEngagement.tsx:59` |
+| `lotus_celebrated` | معالم الاحتفال | `src/components/SmartEngagement.tsx:388` | `src/components/SmartEngagement.tsx:366` |
+| `lotus_visited_pages` | الصفحات المُزارة | `src/components/JourneyProgressIndicator.tsx:96` | `src/components/JourneyProgressIndicator.tsx:87` |
+| `lotus_visit_stats` | إحصاءات الزيارات | `src/components/PersonalizedGreeting.tsx:834` | `src/components/PersonalizedGreeting.tsx:825` |
+| `lotus_engagement_streak` | سلسلة التفاعل | `src/components/PersonalizedGreeting.tsx:129` | `src/components/PersonalizedGreeting.tsx:86` |
+| `lotus_trust_dismissed` | إخفاء شريط الثقة | `src/components/FloatingTrustBar.tsx:152` | `src/components/FloatingTrustBar.tsx:162` |
+| `lotus_dismissed_hints` | تلميحات أُغلقت | `src/components/ContextualHint.tsx:356` | `src/components/ContextualHint.tsx:329` |
+| `lotus_hint_<id>` | تلميح سياقي (ديناميكي) | `src/components/ContextualHint.tsx:66` | `src/components/ContextualHint.tsx:53` |
+| `lotus_tour_completed` | إكمال الجولة | `src/components/InteractiveOnboarding.tsx:188` | `src/components/InteractiveOnboarding.tsx:163` |
+| `lotus_welcome_shown` | شاشة الترحيب | `src/components/WelcomeModal.tsx:60` | `src/components/WelcomeModal.tsx:46` |
+| `lotus_treatment_plan` | خطة العلاج | `src/context/TreatmentContext.tsx:121` | `src/context/TreatmentContext.tsx:112` |
+| `lotus_treatment_sessions` | جلسات العلاج | `src/context/TreatmentContext.tsx:121` | `src/context/TreatmentContext.tsx:112` |
+| `lotus_treatment_progress` | تقدم العلاج | `src/context/TreatmentContext.tsx:121` | `src/context/TreatmentContext.tsx:112` |
+| `lotus_patient_profile` | ملف المريض | `src/context/TreatmentContext.tsx:121` | `src/context/TreatmentContext.tsx:112` |
+| `lotus_bookings` | الحجوزات | `src/context/TreatmentContext.tsx:121` | `src/context/TreatmentContext.tsx:112` |
+| `lotus_reports` | تقارير العلاج | `src/context/TreatmentContext.tsx:121` | `src/context/TreatmentContext.tsx:112` |
+| `lotus_follow_up` | المتابعة | `src/context/TreatmentContext.tsx:121` | `src/context/TreatmentContext.tsx:112` |
+| `lotus_error_log` | سجل أخطاء الواجهة | `src/utils/errorTracking.tsx:215` | `src/utils/errorTracking.tsx:212` |
+| `lotus_first_visit` | الزيارة الأولى | `src/context/LanguageContext.tsx:56` | `src/context/LanguageContext.tsx:55` |
+| `__lotus_storage_test__` | اختبار توفر التخزين | `src/utils/storage.ts:11` | `src/utils/storage.ts:10` |
+
+## 6) التصدير (PDF/CSV)
+- PDF/CSV لتقارير التقييم: `downloadSessionPdf` و `downloadSessionCsv`. `src/components/games/report.ts:81`
+- تقارير ولي الأمر/الأخصائي: PDF + CSV. `src/components/dashboards/roleDashboardExports.ts:20`
+- تصدير تقدّم عام: `ProgressExport`. `src/components/ProgressExport.tsx:1`
+- تصدير الشرائح: `SlideViewer` (PDF للشرائح/الملخص). `src/components/SlideViewer.tsx:794`
+
+## 7) Service Worker / PWA
+- تسجيل SW عند تحميل الصفحة. `src/main.tsx:31`
+- `public/sw.js` يفعّل cache static + API ويعالج طابور الأوفلاين. `public/sw.js:1`
+
+## 8) هيكل الأصول (Assets)
+- شرائح العرض: `public/assets/pptx_slides/` + `thumbs/`. `public/assets/pptx_slides`
+- ملفات تنزيل ثابتة: `public/downloads/`. `public/downloads`
+- الخطوط: `public/fonts/` (Cairo). `public/fonts`
+
+## 9) نتائج التحقق (Verification)
+- `npm install`: ✅ (6 moderate vulnerabilities reported by npm audit).
+- `npm run typecheck`: ✅
+- `npm run build`: ✅
+- `npm run qa:assets`: ✅ (120 checks)

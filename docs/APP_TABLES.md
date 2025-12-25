@@ -1,58 +1,85 @@
-# APP_TABLES — Repo-derived tables
+﻿# APP_TABLES — جداول مستخرجة من الكود
 
 ## 1) Routes
-| Route | Page Component | Auth required? | Role required? | Notes |
-| --- | --- | --- | --- | --- |
-| `/`, `/home` | `LandingPage` | No | None | Public landing/alias.【F:src/App.tsx†L515-L530】 |
-| `/assessment` | `AssessmentPage` | No | None | مختبر التقييمات.【F:src/App.tsx†L533-L541】 |
-| `/program` | `ProgramPage` | No | None | وصف البروتوكول.【F:src/App.tsx†L543-L551】 |
-| `/science` | `SciencePage` | No | None | بحث/أدلة.【F:src/App.tsx†L553-L560】 |
-| `/results` | `ResultsPage` | No | None | شهادات/نتائج.【F:src/App.tsx†L563-L571】 |
-| `/partners` | `PartnersPage` | No | None | شراكات مدارس.【F:src/App.tsx†L573-L580】 |
-| `/resources` | `ResourcesPage` | No | None | فيديو/شرائح/FAQ.【F:src/App.tsx†L583-L590】 |
-| `/faq` | `FAQPage` | No | None | أسئلة شائعة.【F:src/App.tsx†L593-L600】 |
-| `/contact` | `ContactPage` | No | None | تواصل/حجز.【F:src/App.tsx†L603-L610】 |
-| `/about` | `AboutPage` | No | None | عن المركز.【F:src/App.tsx†L616-L624】 |
-| `/function/:slug` | `BrainFunctionPage` | No | None | محتوى وظيفي تفصيلي.【F:src/App.tsx†L630-L637】 |
-| `/login` | `LoginPage` | No | None | شاشة تسجيل الدخول.【F:src/App.tsx†L640-L648】 |
-| `/parent-dashboard`, `/dashboard/parent` | `ParentDashboard` | Yes (route guard) | Parent | Route-guarded access.【F:src/App.tsx†L662-L686】 |
-| `/clinician-dashboard`, `/dashboard/clinician` | `ClinicianDashboard` | Yes (route guard) | Clinician | Route-guarded access.【F:src/App.tsx†L670-L694】 |
-| `/school-dashboard`, `/dashboard/educator` | `SchoolDashboard` | Yes (route guard) | School Admin | Route-guarded access.【F:src/App.tsx†L654-L702】 |
-| `/settings` | `SettingsPage` | Yes (route guard) | Any authenticated | Reads/writes local settings.【F:src/App.tsx†L704-L710】 |
-| `*` | `NotFoundPage` | No | None | مسار 404.【F:src/App.tsx†L716-L723】 |
 
-## 2) LocalStorage / sessionStorage schema
-| Key | Purpose | Writer location | Reader location |
+| Route | Page Component | Auth? | Role? | Notes | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| `/` | `LandingPage` | No | — | Landing | `src/App.tsx:521` |
+| `/home` | `LandingPage` | No | — | Alias | `src/App.tsx:529` |
+| `/assessment` | `AssessmentPage` | No | — | Assessment Suite | `src/App.tsx:539` |
+| `/program` | `ProgramPage` | No | — | Program | `src/App.tsx:549` |
+| `/science` | `SciencePage` | No | — | Science | `src/App.tsx:559` |
+| `/results` | `ResultsPage` | No | — | Results | `src/App.tsx:569` |
+| `/partners` | `PartnersPage` | No | — | Partners | `src/App.tsx:579` |
+| `/resources` | `ResourcesPage` | No | — | Resources | `src/App.tsx:589` |
+| `/faq` | `FAQPage` | No | — | FAQ | `src/App.tsx:599` |
+| `/contact` | `ContactPage` | No | — | Contact | `src/App.tsx:609` |
+| `/about` | `AboutPage` | No | — | About | `src/App.tsx:622` |
+| `/function/:slug` | `BrainFunctionPage` | No | — | Brain detail | `src/App.tsx:636` |
+| `/login` | `LoginPage` | No | — | Auth | `src/App.tsx:646` |
+| `/school-dashboard` | `SchoolDashboard` | Yes | `school_admin` | RoleGuard | `src/App.tsx:659` |
+| `/parent-dashboard` | `ParentDashboard` | Yes | `parent` | RoleGuard | `src/App.tsx:669` |
+| `/clinician-dashboard` | `ClinicianDashboard` | Yes | `clinician` | RoleGuard | `src/App.tsx:679` |
+| `/dashboard/parent` | `ParentDashboard` | Yes | `parent` | Legacy | `src/App.tsx:691` |
+| `/dashboard/clinician` | `ClinicianDashboard` | Yes | `clinician` | Legacy | `src/App.tsx:701` |
+| `/dashboard/educator` | `SchoolDashboard` | Yes | `school_admin` | Legacy | `src/App.tsx:711` |
+| `/settings` | `SettingsPage` | Yes | Any auth | RequireAuth | `src/App.tsx:721` |
+| `*` | `NotFoundPage` | No | — | 404 | `src/App.tsx:735` |
+
+## 2) LocalStorage / IndexedDB Schema
+
+> ملاحظة: مفاتيح المستخدم المقيَّدة تستخدم `baseKey:userId`. `src/utils/userStorage.ts:24`
+
+| Key | Purpose | Writer | Reader |
 | --- | --- | --- | --- |
-| `lotus_user_settings` | تفضيلات العرض/الصوت/الإشعارات وتطبيق تقليل الحركة | `SettingsPage` saves JSON.【F:src/components/SettingsPage.tsx†L51-L94】 | `App` applies reduced motion; `SettingsPage` loads.【F:src/App.tsx†L464-L476】【F:src/components/SettingsPage.tsx†L75-L84】 |
-| `lotus_language` | حفظ اللغة وتحديث `dir/lang` | `LanguageProvider` sets on change.【F:src/context/LanguageContext.tsx†L62-L96】 | `LanguageProvider`/`App` read initial value.【F:src/context/LanguageContext.tsx†L62-L79】【F:src/App.tsx†L54-L65】 |
-| `lotus_visitor_mode` | تفضيل وضع الزائر (school/parent/clinician) | `VisitorModeProvider` writes on change.【F:src/context/VisitorModeContext.tsx†L87-L123】 | `VisitorModeProvider` reads initial/URL override.【F:src/context/VisitorModeContext.tsx†L93-L118】 |
-| `lotus_user_state` | تخزين جلسة المستخدم/الدور محليًا | `UserContext` saveUserState.【F:src/context/UserContext.tsx†L152-L158】 | `UserContext` loadUserState.【F:src/context/UserContext.tsx†L110-L138】 |
-| `lotus_clinical_progress` | تقدم سريري محلي | `UserContext` save/remove.【F:src/context/UserContext.tsx†L160-L169】 | `UserContext` loadClinicalProgress.【F:src/context/UserContext.tsx†L140-L149】 |
-| `lotus_auth_token` / `lotus_refresh_token` | رموز JWT | `api.ts` setToken/setRefreshToken.【F:src/services/api.ts†L45-L64】 | `api.ts` getToken/getRefreshToken/clearTokens.【F:src/services/api.ts†L45-L64】 |
-| `lotus_offline_queue` | طابور طلبات POST/PATCH أثناء الأوفلاين | `api.ts` addToOfflineQueue/clear/process.【F:src/services/api.ts†L67-L120】 | `api.ts` getOfflineQueue/processOfflineQueue.【F:src/services/api.ts†L78-L120】 |
-| `SBLAB_SESSION_HISTORY` | تاريخ جلسات المختبر المحلية | `sessionStorage.saveSession` writes list.【F:src/utils/sessionStorage.ts†L5-L124】 | `sessionStorage.getAllSessions` reads.【F:src/utils/sessionStorage.ts†L124-L151】 |
-| `berard-ait-sessions` | جلسات علاج/ديمو للمزامنة | `SyncContext` merges local sessions to server payload.【F:src/context/SyncContext.tsx†L186-L225】 | `SyncContext` reads before sync.【F:src/context/SyncContext.tsx†L186-L225】 |
-| `lotus_last_sync` / `lotus_pending_changes` | تتبع آخر مزامنة وعدد التغييرات | `SyncContext` persists sync timestamps/counter.【F:src/context/SyncContext.tsx†L49-L117】 | `SyncContext` initialises state from storage.【F:src/context/SyncContext.tsx†L58-L79】 |
-| `lotus_welcome_shown` / `lotus_tour_completed` | إظهار الترحاب/الجولة مرة واحدة | `WelcomeModal` & `InteractiveOnboarding` set flags.【F:src/components/WelcomeModal.tsx†L23-L60】【F:src/components/InteractiveOnboarding.tsx†L152-L188】 | نفس المكونات تتحقق قبل العرض.【F:src/components/WelcomeModal.tsx†L46-L60】【F:src/components/InteractiveOnboarding.tsx†L163-L188】 |
-| `lotus_gamification_state` | حالة التلعيب المحلية | `GamificationContext` persists state.【F:src/context/GamificationContext.tsx†L408-L535】 | `GamificationContext` loads initial state.【F:src/context/GamificationContext.tsx†L408-L483】 |
-| `lotus_demo_state` | بيانات الديمو | `DemoContext` writes demo progress.【F:src/context/DemoContext.tsx†L78-L229】 | `DemoContext` loads on init.【F:src/context/DemoContext.tsx†L159-L189】 |
-| `lotus_nav_history` | تاريخ الملاحة الذكي | `SmartNavigation` writes history.【F:src/components/SmartNavigation.tsx†L118-L159】 | `SmartNavigation` reads to build suggestions.【F:src/components/SmartNavigation.tsx†L118-L159】【F:src/components/SmartNavigation.tsx†L757-L776】 |
-| `lotus_notifications` | إشعارات محلية | `NotificationCenter` save list.【F:src/components/NotificationCenter.tsx†L48-L64】 | `NotificationCenter` load on mount.【F:src/components/NotificationCenter.tsx†L48-L64】 |
-| `lotus_trust_dismissed` | إخفاء شريط الثقة | `FloatingTrustBar` sets timestamp.【F:src/components/FloatingTrustBar.tsx†L152-L162】 | `FloatingTrustBar` reads on mount.【F:src/components/FloatingTrustBar.tsx†L152-L162】 |
-| `lotus_hint_*` / `lotus_dismissed_hints` | تلميحات سياقية معطلة | `ContextualHint` writes per-key and list.【F:src/components/ContextualHint.tsx†L53-L87】【F:src/components/ContextualHint.tsx†L329-L356】 | `ContextualHint` reads to avoid إعادة العرض.【F:src/components/ContextualHint.tsx†L53-L87】【F:src/components/ContextualHint.tsx†L329-L356】 |
-| `lotus_visited_pages` / `lotus_scroll_milestones` / `lotus_celebrated` | تتبع التفاعل | `SmartEngagement` updates flags.【F:src/components/SmartEngagement.tsx†L52-L388】 | `SmartEngagement` reads to gate الاحتفالات.【F:src/components/SmartEngagement.tsx†L52-L388】 |
-| `lotus_error_log` | سجل أخطاء محلي | `errorTracking` appends logs.【F:src/utils/errorTracking.tsx†L212-L231】 | `errorTracking` reads for العرض/الإرسال.【F:src/utils/errorTracking.tsx†L212-L231】 |
-| `__lotus_storage_test__` | فحص توفر التخزين | `storage.ts` writes/cleans أثناء check.【F:src/utils/storage.ts†L10-L24】 | `storage.ts` helper use.【F:src/utils/storage.ts†L6-L24】 |
+| `lotus_user_state` | حفظ المستخدم المصادق | `src/context/UserContext.tsx:158` | `src/context/UserContext.tsx:119` |
+| `lotus_clinical_progress` + `:userId` | تقدم سريري | `src/context/UserContext.tsx:167` | `src/context/UserContext.tsx:146` |
+| `lotus_gamification_state` + `:userId` | حالة التلعيب | `src/context/GamificationContext.tsx:529` | `src/context/GamificationContext.tsx:437` |
+| `lotus_user_settings` + `:userId` | إعدادات المستخدم | `src/components/SettingsPage.tsx:88` | `src/components/SettingsPage.tsx:78` |
+| `lotus_language` | لغة الواجهة | `src/context/LanguageContext.tsx:80` | `src/utils/language.ts:6` |
+| `lotus_visitor_mode` | وضع الزائر | `src/context/VisitorModeContext.tsx:122` | `src/context/VisitorModeContext.tsx:103` |
+| `lotus_auth_token` | JWT token | `src/services/api.ts:72` | `src/services/api.ts:68` |
+| `lotus_refresh_token` | Refresh token | `src/services/api.ts:80` | `src/services/api.ts:76` |
+| `lotus_offline_queue` + `:userId` | طابور أوفلاين قديم | `src/services/api.ts:146` | `src/services/api.ts:110` |
+| `lotus_offline_queue_db` | IndexedDB queue | `src/utils/offlineQueue.ts:13` | `src/utils/offlineQueue.ts:52` |
+| `lotus_last_sync` | آخر مزامنة | `src/context/SyncContext.tsx:246` | `src/context/SyncContext.tsx:66` |
+| `lotus_pending_changes` | تغييرات معلّقة | `src/context/SyncContext.tsx:116` | `src/context/SyncContext.tsx:76` |
+| `berard-ait-sessions` + `:userId` | جلسات التقييم | `src/components/games/scoring.ts:711` | `src/components/games/scoring.ts:732` |
+| `SBLAB_SESSION_HISTORY` + `:userId` | سجل مختبر | `src/utils/sessionStorage.ts:359` | `src/utils/sessionStorage.ts:367` |
+| `lotus_demo_state` | حالة الديمو | `src/context/DemoContext.tsx:189` | `src/context/DemoContext.tsx:158` |
+| `lotus_notifications` | إشعارات | `src/components/NotificationCenter.tsx:64` | `src/components/NotificationCenter.tsx:52` |
+| `lotus_nav_history` | تاريخ التنقل | `src/components/SmartNavigation.tsx:159` | `src/components/SmartNavigation.tsx:135` |
+| `lotus_scroll_milestones` | milestones التمرير | `src/components/SmartEngagement.tsx:205` | `src/components/SmartEngagement.tsx:59` |
+| `lotus_celebrated` | احتفال milestones | `src/components/SmartEngagement.tsx:388` | `src/components/SmartEngagement.tsx:366` |
+| `lotus_visited_pages` | صفحات مُزارة | `src/components/JourneyProgressIndicator.tsx:96` | `src/components/JourneyProgressIndicator.tsx:87` |
+| `lotus_visit_stats` | إحصاءات زيارات | `src/components/PersonalizedGreeting.tsx:834` | `src/components/PersonalizedGreeting.tsx:825` |
+| `lotus_engagement_streak` | streak التفاعل | `src/components/PersonalizedGreeting.tsx:129` | `src/components/PersonalizedGreeting.tsx:86` |
+| `lotus_trust_dismissed` | إخفاء شريط الثقة | `src/components/FloatingTrustBar.tsx:152` | `src/components/FloatingTrustBar.tsx:162` |
+| `lotus_dismissed_hints` | تلميحات مُغلقة | `src/components/ContextualHint.tsx:356` | `src/components/ContextualHint.tsx:329` |
+| `lotus_hint_<id>` | تلميح سياقي | `src/components/ContextualHint.tsx:66` | `src/components/ContextualHint.tsx:53` |
+| `lotus_tour_completed` | إكمال الجولة | `src/components/InteractiveOnboarding.tsx:188` | `src/components/InteractiveOnboarding.tsx:163` |
+| `lotus_welcome_shown` | شاشة الترحيب | `src/components/WelcomeModal.tsx:60` | `src/components/WelcomeModal.tsx:46` |
+| `lotus_treatment_plan` | خطة علاج | `src/context/TreatmentContext.tsx:121` | `src/context/TreatmentContext.tsx:112` |
+| `lotus_treatment_sessions` | جلسات علاج | `src/context/TreatmentContext.tsx:121` | `src/context/TreatmentContext.tsx:112` |
+| `lotus_treatment_progress` | تقدم علاج | `src/context/TreatmentContext.tsx:121` | `src/context/TreatmentContext.tsx:112` |
+| `lotus_patient_profile` | ملف المريض | `src/context/TreatmentContext.tsx:121` | `src/context/TreatmentContext.tsx:112` |
+| `lotus_bookings` | حجوزات | `src/context/TreatmentContext.tsx:121` | `src/context/TreatmentContext.tsx:112` |
+| `lotus_reports` | تقارير علاج | `src/context/TreatmentContext.tsx:121` | `src/context/TreatmentContext.tsx:112` |
+| `lotus_follow_up` | المتابعة | `src/context/TreatmentContext.tsx:121` | `src/context/TreatmentContext.tsx:112` |
+| `lotus_error_log` | سجل الأخطاء | `src/utils/errorTracking.tsx:215` | `src/utils/errorTracking.tsx:212` |
+| `lotus_first_visit` | الزيارة الأولى | `src/context/LanguageContext.tsx:56` | `src/context/LanguageContext.tsx:55` |
+| `__lotus_storage_test__` | اختبار التخزين | `src/utils/storage.ts:11` | `src/utils/storage.ts:10` |
 
-## 3) Module IDs
-| moduleId | Display name (AR) | Display name (EN) | Primary metrics | Export support |
+## 3) Module IDs (Games)
+
+| moduleId | Display AR | Display EN | Primary metrics | Export support |
 | --- | --- | --- | --- | --- |
-| suite | الاسم من الترجمات | Suite | RT, Accuracy, Threshold, Span | نعم (PDF/CSV).【F:src/components/GameSection.tsx†L752-L762】【F:src/components/games/report.ts†L81-L115】 |
-| attention | الانتباه | Attention | RT, Accuracy | نعم (PDF/CSV).【F:src/components/GameSection.tsx†L764-L772】【F:src/components/games/report.ts†L81-L115】 |
-| focused_attention | الانتباه المركز | Focused Attention | RT, Accuracy/Consistency | نعم (PDF/CSV).【F:src/components/GameSection.tsx†L773-L782】【F:src/components/games/report.ts†L81-L115】 |
-| frequency | تمييز التردد | Frequency | Threshold Hz, Accuracy, RT | نعم (PDF/CSV).【F:src/components/GameSection.tsx†L783-L791】【F:src/components/games/report.ts†L81-L115】 |
-| sequence | التسلسل | Sequence | Span, Accuracy, RT | نعم (PDF/CSV).【F:src/components/GameSection.tsx†L793-L801】【F:src/components/games/report.ts†L81-L115】 |
-| dichotic_listening | الاستماع الثنائي | Dichotic Listening | Ear balance/Accuracy | نعم (PDF/CSV).【F:src/components/GameSection.tsx†L803-L811】【F:src/components/games/report.ts†L81-L115】 |
-| speech_in_noise | الكلام وسط الضجيج | Speech in Noise | SNR Threshold, Accuracy | نعم (PDF/CSV).【F:src/components/GameSection.tsx†L813-L821】【F:src/components/games/report.ts†L81-L115】 |
-| questionnaire | الاستبيان | Questionnaire | Score, Profile | نعم (PDF/CSV).【F:src/components/GameSection.tsx†L823-L832】【F:src/components/games/report.ts†L81-L115】 |
+| `attention` | الانتباه | Attention | hits/falseAlarms/dPrime/avgReactionMs/fatigue | PDF/CSV `src/components/games/report.ts:81` |
+| `focused_attention` | الانتباه المُركَّز | Focused Attention | accuracyPct/avgReactionMs/fatigueSlope/score100 | PDF/CSV `src/components/games/report.ts:81` |
+| `frequency` | تمييز التردد | Frequency | thresholdHz/accuracyPct/avgReactionMs | PDF/CSV `src/components/games/report.ts:81` |
+| `sequence` | التسلسل | Sequence | maxSpan/accuracyPct/avgReactionMs | PDF/CSV `src/components/games/report.ts:81` |
+| `dichotic_listening` | الاستماع الثنائي | Dichotic Listening | left/right accuracy + balanceIndex + score100 | PDF/CSV `src/components/games/report.ts:81` |
+| `speech_in_noise` | الكلام وسط الضجيج | Speech in Noise | snrThresholdDb/accuracyPct/score100 | PDF/CSV `src/components/games/report.ts:81` |
+| `questionnaire` | الاستبيان | Questionnaire | totalQuestions/totalScore | PDF/CSV `src/components/games/report.ts:81` |
+
+> تفاصيل metrics لكل وحدة موجودة في `src/components/games/types.ts:18`.

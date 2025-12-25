@@ -1,77 +1,106 @@
-# IMPLEMENTATION_PLAN — Arabic-first, repo-grounded
+﻿# خطة التنفيذ (Implementation Plan) — عربية أولاً، مبنية على واقع المستودع
 
-## A) Product scope
-- منصة Berard AIT عربية أولًا (EN toggle) تقدم صفحات عامة، مختبر تقييمات سمعية (7 وحدات)، لوحات تقدم حسب الدور، تلعيب، وتصدير PDF/CSV، مع دعم أوفلاين وطابور مزامنة عبر العميل.【F:src/App.tsx†L515-L724】【F:src/services/api.ts†L36-L119】
-- مسار النشر المستهدف: واجهة React/Vite ثابتة، تتحدث مع خدمة API (VITE_API_URL) لمزامنة التقدم السريري/التلعيب والجلسات.【F:src/services/api.ts†L36-L119】
+## A) نطاق المنتج (Product Scope)
+- منصة Berard AIT ثنائية اللغة (عربية أولاً + تبديل English) تجمع: محتوى تعريفي، مختبر تقييم سمعي، لوحات تقدّم بحسب الدور، تلعيب، وتصدير PDF/CSV. `src/App.tsx:31`, `src/components/games/AssessmentSuiteModal.tsx:40`, `src/components/games/report.ts:81`
+- الواجهة والواجهة الخلفية موجودتان داخل المستودع لكن تُنشران كخدمتين منفصلتين. `backend/src/index.js:39`, `src/services/api.ts:39`
 
-## B) Current State Snapshot
-- **Routes**: صفحات عامة (Landing, Assessment, Program, Science, Results, Partners, Resources, FAQ, Contact, About, BrainFunction)، Auth (/login)، لوحات `/parent-dashboard`, `/clinician-dashboard`, `/school-dashboard`, `/settings`, ومسارات تراثية للدور.【F:src/App.tsx†L515-L724】
-- **Backend presence**: مجلد `backend/` يحتوي Express + MongoDB (صحة، auth، clinical، gamification، settings، sessions، sync، uploads، admin).【F:backend/src/index.js†L6-L120】
-- **i18n/RTL**: `LanguageProvider` يضبط `dir/lang` ويخزن اللغة محليًا ويعرض اختيار لغة عند أول زيارة.【F:src/context/LanguageContext.tsx†L62-L105】
-- **Offline**: طابور `lotus_offline_queue`، رموز auth، وعمليات إعادة تشغيل للمزامنة في `api.ts`.【F:src/services/api.ts†L36-L119】
-- **Modules**: suite + 7 وحدات (attention, focused_attention, frequency, sequence, dichotic_listening, speech_in_noise, questionnaire) مع نصوص عربية/إنجليزية ومقاييس مخرجة.【F:src/components/GameSection.tsx†L752-L832】
+## B) لقطة الحالة الحالية (Current State Snapshot)
+- الراوتر يعرّف المسارات العامة + لوحات الدور + إعدادات محمية. `src/App.tsx:521`
+- RBAC مُعرّف في الواجهة مع RoleGuard/RequireAuth ضمن المسارات. `src/context/UserContext.tsx:88`, `src/App.tsx:659`
+- نظام i18n/RTL مفعّل عبر `LanguageProvider` مع ضبط `dir/lang` وخط Cairo. `src/context/LanguageContext.tsx:62`
+- تخزين أوفلاين + مزامنة موجودة (LocalStorage + IndexedDB + SyncContext). `src/context/SyncContext.tsx:52`, `src/utils/offlineQueue.ts:13`
+- مجموعة تقييم كاملة 7 وحدات (بالإضافة لواجهة suite). `src/components/games/types.ts:4`, `src/components/games/AssessmentSuiteModal.tsx:40`
+- لوحات الدور (Parent/Clinician/School) موجودة ومساراتها محمية. `src/App.tsx:659`
+- واجهة التلعيب مفعّلة دائمًا. `src/App.tsx:746`
 
-## C) Architecture (frontend + separate backend + DB)
-- Frontend: React 18 + Vite (static build) يستخدم `BASE_URL`، يستدعي REST عبر `VITE_API_URL`.  
-- Backend: Express API (في repo الآن) قابل للنشر كخدمة مستقلة، يقدم /api/* ويصل MongoDB.【F:backend/src/index.js†L6-L120】  
-- DB: Mongo (نماذج عبر Mongoose في backend).  
-- التواصل: fetch مع JWT bearer وتحديث تلقائي/طابور أوفلاين من `api.ts`.【F:src/services/api.ts†L36-L119】
+## C) المعمارية (Architecture)
+- **Frontend**: React 18 + Vite، يعتمد `BASE_URL` لنشر فرعي. `src/App.tsx:23`
+- **API Client**: يعتمد `VITE_API_URL` (افتراضي `http://localhost:3001/api`). `src/services/api.ts:39`
+- **Backend**: Express + Mongo داخل `backend/` مع Swagger وWS. `backend/src/index.js:6`
+- **Service Worker**: caching + background sync لطابور الأوفلاين. `public/sw.js:1`, `src/main.tsx:31`
 
-## D) Roles & RBAC
-- الأدوار: guest, patient, parent, clinician, school_admin, super_admin؛ الأذونات (view/play/save/reports/analytics/config) معرفّة في `UserContext`.【F:src/context/UserContext.tsx†L18-L103】
-- حماية الواجهة عبر حجب UI (لا حراسة routes بعد)، بينما الخادم يفرض `authenticate/authorize` للأدوار السريرية/الإدارية.【F:backend/src/index.js†L112-L120】
+## D) الأدوار + RBAC (Roles/RBAC)
+- الأدوار المعتمدة: `guest`, `patient`, `parent`, `clinician`, `school_admin`, `super_admin`. `src/context/UserContext.tsx:9`, `backend/src/models/User.js:31`
+- الصلاحيات موزعة عبر `ROLE_PERMISSIONS`. `src/context/UserContext.tsx:88`
+- **مهم**: الكيان “Child” ليس نموذجاً منفصلاً؛ هو `User` بدور `patient` مع علاقة `children[]` في المستخدم الأب. `backend/src/models/User.js:44`
 
-## E) Data Models (frontend view + backend intent)
-- User + relations (clinic/school/children).【F:src/context/UserContext.tsx†L20-L35】
-- ClinicalProgress: درجات attention/processing/auditoryDiscrimination، جلسات، phase، streak.【F:src/context/UserContext.tsx†L27-L48】
-- Gamification: نقاط/مستوى/إنجازات ومؤشرات تفاعل (context + API).【F:src/context/GamificationContext.tsx†L408-L535】
-- Settings: لغة، وضع زائر، عرض/خصوصية/صوت.【F:src/components/SettingsPage.tsx†L51-L146】
-- Session: outcomes map + compositeResult/points/duration (backend sessions).【F:backend/src/routes/sessions.js†L16-L126】
+## E) نماذج البيانات (Data Models)
+- **User**: بيانات الحساب/الدور/العلاقات. `backend/src/models/User.js:8`
+- **ClinicalProgress**: مؤشرات سريرية + مرحلة علاج + streak. `backend/src/models/ClinicalProgress.js:16`
+- **Gamification**: إنجازات + نقاط + نشاط. `backend/src/models/Gamification.js:25`
+- **Settings**: لغة/وضع زائر/إشعارات/عرض/خصوصية/صوت. `backend/src/models/Settings.js:7`
+- **Session**: نتائج التقييم + نقاط + مدة. `backend/src/models/Session.js:22`
+- **Notes/Signature**: غير موجودة كنماذج حالياً (Gap).
 
-## F) Assessment Modules (implemented)
-| moduleId | Label (AR/EN) | Metrics مختصرة | Export | مصدر |
+## F) وحدات التقييم (Assessment Modules)
+- الوحدات السبع: attention, focused_attention, frequency, sequence, dichotic_listening, speech_in_noise, questionnaire. `src/components/games/types.ts:4`
+- كل وحدة تُنتج metrics محددة (RT, accuracy, threshold, fatigue, إلخ). `src/components/games/types.ts:18`
+- مسار الـ suite يُرتّب الوحدات ضمن Modal. `src/components/games/AssessmentSuiteModal.tsx:40`
+
+## G) التحليلات الطولية (Longitudinal Analytics)
+- حساب الميل (slope) + نافذة rolling + ثقة القياس. `src/components/dashboards/LongitudinalCharts.tsx:50`
+- استخدام جودة الجلسات (quality flags) ضمن التتبّع. `src/types/moduleMetrics.ts:3`
+
+## H) Offline-first + Sync
+- طابور Offline requests يُدار بـ IndexedDB. `src/utils/offlineQueue.ts:13`
+- `SyncContext` يرسل/يستقبل بيانات محلية (clinical/gamification/settings/sessions). `src/context/SyncContext.tsx:146`
+- `serviceWorker` يطلق sync ويستدعي `processOfflineQueue`. `public/sw.js:56`, `src/main.tsx:38`
+- مفاتيح التخزين الأساسية (مع scoping `:userId`): `lotus_user_state`, `lotus_clinical_progress`, `lotus_gamification_state`, `lotus_user_settings`, `berard-ait-sessions`, `SBLAB_SESSION_HISTORY`, `lotus_offline_queue_db`, `lotus_last_sync`, `lotus_pending_changes`. `src/utils/userStorage.ts:24`
+
+## I) التصدير (Exports)
+- PDF/CSV لتقارير التقييم عبر `downloadSessionPdf/CSV`. `src/components/games/report.ts:81`
+- تقارير لوحات (Parent/Clinician) PDF/CSV. `src/components/dashboards/roleDashboardExports.ts:20`
+- تصدير تقدم عام + شرائح PDF. `src/components/ProgressExport.tsx:1`, `src/components/SlideViewer.tsx:794`
+
+## J) الوصولية + i18n
+- RTL/LTR وتبديل اللغة عبر `LanguageProvider`، مع أدوات محاذاة واتجاه. `src/context/LanguageContext.tsx:67`
+- احترام reduced motion من الإعدادات قبل أول render. `src/main.tsx:9`
+
+## K) اعتبارات الأمان (Security)
+- تخزين token في LocalStorage (يتطلب حماية XSS). `src/services/api.ts:39`
+- الواجهة الخلفية تفعّل CORS + rate limit + CSRF + sanitization. `backend/src/index.js:46`
+- نقاط حرجة: التحقق الصارم من صلاحيات الوصول عبر الـ backend لمسارات المرضى/المدارس.
+
+## L) استراتيجية الاختبار (Testing Strategy)
+- وحدات: `Header.test.tsx`, `useOptimizedApi.test.ts`, `performance.test.ts`. `src/components/Header.test.tsx:1`
+- E2E: `e2e/assessment.spec.ts`, `e2e/auth.spec.ts`, `e2e/navigation.spec.ts`, `e2e/route-guards.spec.ts`. `e2e`
+- أوامر: `npm run typecheck`, `npm run build`, `npm run qa:assets`. `package.json:6`
+
+## M) مصفوفة الأولويات (Priority Matrix)
+- **P0**: توحيد RBAC بين الواجهة والباك (تحقق server-side لمسارات المرضى/المدارس + قيود المدرسة/العيادة). `backend/src/routes/clinical.js:166`
+- **P1**: توسيع مزامنة البيانات (حل تعارضات أكثر + توثيق واضح في API_SPEC). `backend/src/routes/sync.js:32`
+- **P2**: تحسين التصدير (Q/A للـ PDF/CSV متعدد اللغات + دقة RTL). `src/components/games/report.ts:141`
+- **P3**: تعزيز الـ analytics بالبيانات الحقيقية من الـ API بدل الاعتماد الكامل على localStorage.
+
+## N) خارطة التكامل مع الـ Backend (API Contract)
+- الـ client يستدعي مجموعات endpoints: auth/clinical/gamification/settings/sessions/sync/health. `src/services/api.ts:305`
+- تفصيل الحقول مذكور في `src/types/api.ts`. `src/types/api.ts:9`
+- توثيق شامل في `docs/API_SPEC.md`.
+
+## O) Gap Analysis (ما الذي ينقص فعليًا)
+
+| Area | Repo reality | Gap | Evidence | Next step |
 | --- | --- | --- | --- | --- |
-| suite | مجمع / Suite | RT, Accuracy, Threshold, Span | PDF/CSV | 【F:src/components/GameSection.tsx†L752-L762】 |
-| attention | الانتباه / Attention | RT, Accuracy | PDF/CSV | 【F:src/components/GameSection.tsx†L764-L772】 |
-| focused_attention | الانتباه المركز / Focused Attention | RT, Accuracy | PDF/CSV | 【F:src/components/GameSection.tsx†L773-L782】 |
-| frequency | التردد / Frequency | Threshold, Accuracy, RT | PDF/CSV | 【F:src/components/GameSection.tsx†L783-L791】 |
-| sequence | التسلسل / Sequence | Span, Accuracy, RT | PDF/CSV | 【F:src/components/GameSection.tsx†L793-L801】 |
-| dichotic_listening | الاستماع الثنائي / Dichotic | Accuracy, Profile | PDF/CSV | 【F:src/components/GameSection.tsx†L803-L811】 |
-| speech_in_noise | الكلام وسط الضجيج / Speech in Noise | Threshold, Accuracy | PDF/CSV | 【F:src/components/GameSection.tsx†L813-L821】 |
-| questionnaire | الاستبيان / Questionnaire | Score, Profile | PDF/CSV | 【F:src/components/GameSection.tsx†L823-L832】 |
+| Notes/Signature models | غير موجودة كنماذج في الـ backend | نماذج Notes/Signature مطلوبة لكن غير منفّذة | `backend/src/models/index.js:5` | إضافة نماذج + endpoints إذا كانت مطلوبة وظيفيًا |
+| Dashboards data source | تعتمد على `getSessionsOrDemo` من LocalStorage | لا يوجد ربط فعلي بجلب البيانات من `/sessions` | `src/pages/ParentDashboard.tsx:7`, `src/components/games/scoring.ts:653` | ربط dashboards بـ `sessionsApi` مع fallback محلي |
+| Sessions analysis API | Endpoint موجود في backend | غير مدمج في الـ client | `backend/src/routes/sessions.js:152` | إضافة مسار `sessionsApi.getProgressAnalysis()` عند الحاجة |
 
-## G) Longitudinal analytics
-- لوحات `/parent-dashboard`, `/clinician-dashboard`, `/school-dashboard` تستخدم مقاييس مسارات الجلسات (local/demo) لعرض اتجاهات طويلة المدى.【F:src/App.tsx†L654-L710】
+## Appendix A) جداول المسارات/الموديولات/التخزين
+- راجع `docs/APP_TABLES.md` للجدول الكامل (Routes + Storage + Module IDs).
 
-## H) Offline-first & Sync
-- تخزين محلي للمصادقة (`lotus_auth_token`/`lotus_refresh_token`)، طابور `lotus_offline_queue`، وإعادة التشغيل عبر `processOfflineQueue`.【F:src/services/api.ts†L36-L119】
-- تاريخ جلسات المختبر `SBLAB_SESSION_HISTORY`، جلسات العلاج `berard-ait-sessions`, مفاتيح sync (`lotus_last_sync`, `lotus_pending_changes`).【F:src/utils/sessionStorage.ts†L5-L124】【F:src/context/SyncContext.tsx†L49-L225】
+## Appendix B) الرسوم البيانية (Mermaid)
 
-## I) Exports (PDF/CSV)
-- تقارير الجلسة PDF/CSV في `components/games/report.ts`.【F:src/components/games/report.ts†L1-L115】
-- أزرار تصدير لوحات (Parent/Clinician CSV/PDF) في `roleDashboardExports`.【F:src/components/dashboards/roleDashboardExports.ts†L1-L234】
-- عارض الشرائح يصدر PDF من الشرائح المحلية (pptx_slides).【F:src/components/SlideViewer.tsx†L794-L905】
+### B1) System Architecture
+```mermaid
+flowchart LR
+  U[Users] --> FE[Frontend: React + Vite]
+  FE --> SW[Service Worker]
+  FE --> API[API: Express /api]
+  SW --> Q[Offline Queue (IndexedDB)]
+  API --> DB[(MongoDB)]
+```
 
-## J) Accessibility & i18n
-- RTL/LTR switching مع تحديث `dir/lang`، وخط Cairo وتخزين اللغة محليًا.【F:src/context/LanguageContext.tsx†L62-L96】
-- إعدادات تقليل الحركة عبر `lotus_user_settings` تطبق قبل الرسم الأول.【F:src/main.tsx†L1-L16】
-
-## K) Testing strategy
-- Scripts: typecheck, build, lint, vitest, playwright, qa:assets.【F:package.json†L6-L19】
-- الحد الأدنى: تشغيل `npm run typecheck`, `npm run build`, `npm run qa:assets` قبل الإصدار.
-
-## L) Priority matrix (P0→P3)
-- **P0**: تعزيز حماية RBAC في الواجهة (حراس routes) وربط بيانات حقيقية للوح الديمو.  
-- **P1**: تمكين تسجيل Service Worker اختياريًا للأوفلاين وتغطية طابور المزامنة بالاختبارات.  
-- **P2**: تحسين تجارب الموبايل RTL، وتحسين صادرات CSV للصف/المريض.  
-- **P3**: دعم WebSocket للتنبيهات ورفع مستوى النشر المؤتمت.
-
-## M) Roadmap for backend integration
-- العميل يستخدم `VITE_API_URL` (افتراضي localhost:3001/api).【F:src/services/api.ts†L36-L119】
-- نقاط الربط: auth/clinical/gamification/settings/sessions/sync كما في backend Express الحالي.【F:backend/src/index.js†L23-L120】
-- احرص على إرسال JWT في Authorization ومزامنة البيانات عند العودة للاتصال.
-
-## N) Appendix (Mermaid)
+### B2) ERD
 ```mermaid
 erDiagram
   User ||--|| ClinicalProgress : has
@@ -79,51 +108,31 @@ erDiagram
   User ||--|| Settings : has
   User ||--o{ Session : records
   User ||--o{ User : children
-  ClinicalProgress { number attentionScore number processingSpeed number auditoryDiscrimination int sessionsCompleted string treatmentPhase int streak }
-  Gamification { int totalPoints int level string[] achievements string[] gamesCompleted number audioJourneyProgress }
-  Session { map outcomes string compositeResult int totalPoints int duration }
+  ClinicalProgress { number sessionsCompleted string treatmentPhase number streak }
+  Gamification { number totalPoints number level string[] achievements }
   Settings { string language string visitorMode object notifications object display object privacy object audio }
+  Session { map outcomes string compositeResult number totalPoints number duration }
+```
+
+### B3) Workflows
+```mermaid
+flowchart LR
+  A[ولي الأمر] --> B[/assessment/]
+  B --> C[حفظ نتائج في LocalStorage]
+  C --> D[لوحة Parent Dashboard]
+  D --> E[تصدير PDF/CSV]
 ```
 
 ```mermaid
 flowchart LR
-  P0[Visitor selects AR/EN] --> P1[Browse public pages]
-  P1 --> P2[/assessment/ run modules]
-  P2 --> P3[Sessions saved locally/SBLAB_SESSION_HISTORY]
-  P3 --> P4[Dashboards render trends]
-  P4 --> P5[Export PDF/CSV]
-  P3 -.-> P6[Sync API when online]
+  C1[الأخصائي] --> C2[/clinician-dashboard/]
+  C2 --> C3[قراءة جلسات + مؤشرات طولية]
+  C3 --> C4[تصدير تقرير أخصائي]
 ```
 
-## O) Execution plan (repo-grounded next steps)
-- P0 access control: wire `RequireAuth` into dashboard + settings routes and add role gating per `UserContext` role map (refs: `src/components/auth/RequireAuth.tsx`, `src/context/UserContext.tsx`, `src/App.tsx`).
-- P0 data ownership: align session save/sync flows with backend auth checks for sessions and clinical progress (refs: `src/utils/sessionStorage.ts`, `src/context/SyncContext.tsx`, `backend/src/routes/sessions.js`, `backend/src/routes/clinical.js`).
-- P1 offline resiliency: implement background sync stub in `public/sw.js` and connect it to the existing offline queue in `src/services/api.ts`.
-- P2 exports hardening: validate PDF/CSV exports across assessments + dashboards and add explicit QA steps for the flows (refs: `src/components/games/report.ts`, `src/components/dashboards/roleDashboardExports.ts`, `docs/QA_CHECKLIST.md`).
-- P3 realtime scope: define minimal WebSocket events for session updates and wire a client consumer if needed (refs: `backend/src/utils/websocket.js`).
-
-## O1) P0 access control breakdown
-- Add `RoleGuard` component that checks `UserContext` role, redirects unauthenticated users to `/login`, and renders access-denied UI for wrong roles.
-- Wire `RoleGuard` to `/parent-dashboard`, `/clinician-dashboard`, `/school-dashboard`, and legacy `/dashboard/*` routes; wire `RequireAuth` to `/settings`.
-- Allow `super_admin` to bypass role checks while preserving per-role rules for parent/patient, clinician, and school admin.
-- Audit `Header`/`ProfileMenu` links to ensure they align with the new guard rules (hide or disable if role mismatch).
-- Add QA coverage for login redirect, correct dashboard access, and denied access messaging.
-
-## O2) Gap analysis (repo vs target)
-| Area | Repo reality | Target state | Gap | Next step |
-| --- | --- | --- | --- | --- |
-| Route access control | Route guards enforced in `src/App.tsx` | Enforced auth + role guard in routing | Done (verify) | QA + docs updates |
-| Role gating | Role-based guards in router | Role-specific routes enforced | Done (verify) | QA + docs updates |
-| Offline sync | Offline queue exists, `public/sw.js` sync stub is empty | Background sync drains queue | No SW integration | Implement `syncOfflineData()` to process queue |
-| API ownership | Backend has `authenticate`/`authorize` middleware | Frontend + backend roles aligned | Documentation/behavior drift | Align session/progress flows, update `docs/API_SPEC.md` |
-| QA coverage | Playwright route guard tests added | Automated guard + sync tests | Sync tests pending | Add sync tests later |
-
-## P) Delivery checklist
-- Update `docs/API_SPEC.md` for any new endpoints or auth changes introduced by the steps above.
-- Update `docs/QA_CHECKLIST.md` with verification for route guards, offline sync, and exports.
-- Add tests (unit or Playwright) for any new route guard or sync flows.
-
-## Q) Related repo docs
-- `docs/APP_TABLES.md` (routes, storage keys, module IDs).
-- `docs/REPO_GROUND_TRUTH.md` (inventory snapshot).
-- `docs/ARCHITECTURE_DIAGRAMS.md` (diagrams).
+```mermaid
+flowchart LR
+  S1[مدير المدرسة] --> S2[/school-dashboard/]
+  S2 --> S3[ملخصات مدرسية]
+  S3 --> S4[تصدير CSV/PDF للصف]
+```

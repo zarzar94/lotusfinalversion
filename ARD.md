@@ -84,13 +84,30 @@ Reference: `.env.example` (also includes the backend variables to copy into `bac
 - `BASE_PATH` — Vite base path for subpath deployments (GitHub Pages)
 
 **Backend (Express)**
-- `PORT` — server port (default 3001)
-- `MONGODB_URI` — Mongo connection
-- `JWT_SECRET`, `JWT_REFRESH_SECRET`, expiry settings — auth tokens
-- `FRONTEND_URL` / `CORS_ORIGIN` — CORS + email links
-- SMTP settings — password reset emails and notifications
-- `UPLOAD_DIR`, `MAX_FILE_SIZE` — upload service
+- `PORT` - server port (default 3001)
+- `MONGODB_URI` - Mongo connection
+- `JWT_SECRET`, `JWT_REFRESH_SECRET`, expiry settings - auth tokens
+- `FRONTEND_URL` / `CORS_ORIGIN` - CORS + email links
+- SMTP settings - password reset emails and notifications
+- `UPLOAD_DIR`, `MAX_FILE_SIZE` - upload service
 - rate limit settings
+
+### 2.5 Deployment Architecture & Repo Boundaries
+
+**Frontend**
+- This repo's `src/` builds to static assets in `dist/` and can be hosted on GitHub Pages or any static host.
+- Uses `BASE_URL` for subpath deployments (e.g., `/lotusfinalversion/`). See `src/App.tsx` for basename logic.
+
+**Backend**
+- Backend source code lives in `backend/` and runs as a separate Node/Express service.
+- All API routes mount under `/api/*` with Swagger at `/api/docs` (`backend/src/index.js`).
+
+**Database**
+- MongoDB via Mongoose models in `backend/src/models/*` (User, ClinicalProgress, Gamification, Settings, Session).
+
+**Integration**
+- Frontend calls the API via `VITE_API_URL` in `src/services/api.ts` (default `http://localhost:3001/api`).
+- Deploy the backend on Render/Fly/AWS, and point the frontend to it via `VITE_API_URL`.
 
 ---
 

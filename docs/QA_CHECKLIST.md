@@ -1,65 +1,50 @@
-# QA_CHECKLIST — قبول يدوي وتشغيل محلي
+﻿# QA Checklist — Lotus AIT Platform
 
-## كيفية التشغيل محليًا
-1) `npm install`
-2) `npm run dev` (أو `npm run host` للهوست الخارجي).  
-   - إذا نُشرت تحت مسار فرعي (مثلاً GitHub Pages)، اضبط `BASE_PATH` أو `VITE_API_URL` في `.env` أو أوامر التشغيل.  
-3) للتحقق من الإنتاج: `npm run build` ثم `npm run preview`.
-4) الخلفية (اختياري محليًا): `cd backend && npm install && npm run dev`، مع `VITE_API_URL=http://localhost:3001/api`.
+## تشغيل محلي (Local Run)
+- `npm install`
+- `npm run dev`
+- تأكد من ضبط `VITE_API_URL` عند الحاجة. `src/services/api.ts:39`
 
-## فحص المسارات والصفحات
-- تأكد من فتح جميع المسارات العامة (`/`, `/assessment`, `/program`, `/science`, `/results`, `/partners`, `/resources`, `/faq`, `/contact`, `/about`, `/function/:slug`) دون أخطاء.
-- تحقق من `/login` وعودة التوجيه إلى لوحات الأدوار بعد تسجيل دخول ديمو/فعلي.
-- تحقق من `/parent-dashboard`, `/clinician-dashboard`, `/school-dashboard`, `/settings` مع تبديل اللغة ووضع الزائر.
+## بناء ومعاينة (Build/Preview)
+- `npm run build`
+- `npm run preview`
+- عند النشر تحت مسار فرعي، تأكد من `BASE_URL`/`BASE_PATH`. `src/App.tsx:23`
 
-## Role-based access control
-- Unauthenticated visits to `/settings` or any `/dashboard/*` route redirect to `/login?next=...`.
-- Parent users can access `/dashboard/parent` only; clinician users can access `/dashboard/clinician` only; school admins can access `/dashboard/educator` only.
-- Users with wrong roles see the access restricted message.
-- Super admin can access all dashboard routes.
+## المسارات العامة (Public Paths)
+- `/`, `/home`, `/assessment`, `/program`, `/science`, `/results`, `/partners`, `/resources`, `/faq`, `/contact`, `/about`, `/function/:slug` تعمل بدون auth. `src/App.tsx:521`
+- تحقق من 404 عبر مسار غير موجود. `src/App.tsx:735`
 
-## المودالات والنوافذ
-- Modal اللغة الأولية يظهر في أول زيارة ويغلق بشكل صحيح.
-- LoginModal من الهيدر يعمل (ترجمة AR/EN) ويتعامل مع أخطاء المصادقة.
-- Interactive onboarding/WelcomeModal لا يمنع التصفح بعد الإغلاق.
+## المصادقة ولوحات التحكم (Auth/Dashboards)
+- `/login` يعمل ويغلق/يفتح الـ modal بشكل صحيح. `src/App.tsx:646`
+- RoleGuard على لوحات: `school_admin`, `parent`, `clinician`. `src/App.tsx:659`
+- `/settings` يتطلب auth. `src/App.tsx:721`
 
-## الألعاب والأصوات
-- كل وحدة (attention, focused_attention, frequency, sequence, dichotic_listening, speech_in_noise, questionnaire) تبدأ وتنهي، وتنتج مقاييس/ملخص.
-- تأكد من تشغيل/إيقاف الصوت حسب الإعدادات ومن عمل سماعة الرأس/إيقاف الضوضاء.
-- تحقق من تسجيل الجلسة في localStorage (`SBLAB_SESSION_HISTORY`) بعد الانتهاء.
+## الألعاب والتقييم (Assessment Suite)
+- Headphone check يعمل قبل البدء، ثم الوحدات بالترتيب. `src/components/games/AssessmentSuiteModal.tsx:40`
+- اختبارات الصوت تعمل عند التفاعل (AudioContext). `src/context/GamificationContext.tsx:514`
 
-## العروض التقديمية والتحميلات
-- SlideViewer يعرض الشرائح من `assets/pptx_slides/slide-XX.png` و`thumbs/`، ويصدّر PDF.
-- روابط التحميل في `Resources`, `Checklist`, `QuickActionsPanel`, `ResultsSection` تعمل وتفتح ملفات `public/downloads`.
+## التصدير (Exports)
+- PDF/CSV لتقرير التقييم. `src/components/games/report.ts:81`
+- تقارير Parent/Clinician. `src/components/dashboards/roleDashboardExports.ts:46`
+- تصدير الشرائح PDF. `src/components/SlideViewer.tsx:794`
 
-## التصدير (PDF/CSV)
-- زر التصدير المخفي (ProgressExportButton) يستجيب لحدث `export-progress`.
-- تقارير الأدوار: Parent/Clinician PDF + CSV الصف/الكامل (Educator) تعمل وتستخدم اللغة الحالية.
-- تقارير الألعاب/الديمو (AssessmentSuiteModal، SequencingTestPanel) تنتج ملفات PDF/CSV بدون بيانات PII حقيقية.
+## i18n/RTL
+- التبديل بين العربية/الإنجليزية يغير `dir/lang`. `src/context/LanguageContext.tsx:80`
+- تحقق من RTL في الشاشات الحرجة (dashboards + tables + modal).
 
-## الأوفلاين والمزامنة
-- أثناء قطع الاتصال، أرسل طلب PATCH/POST (مثلاً `settings` أو `clinical progress`) وتأكد من تخزينه في ‎`lotus_offline_queue`‎.
-- عند إعادة الاتصال، يتم تفريغ الطابور تلقائيًا عبر `processOfflineQueue`؛ تحقق من عدم تكرار الإدخالات.
-- تحقق من `/sync` بإرسال حمولة محلية (sessions + progress) ورصد حل النزاعات.
-- Service Worker: إذا تم تسجيله يدويًا، تأكد من cache-first للأصول وnetwork-first للوحة المتصدرين.
+## Offline + Sync
+- تحقق من queue عند فقد الاتصال ثم استعادته. `src/services/api.ts:181`, `public/sw.js:56`
+- تحقق من `SyncContext` عند إعادة الاتصال. `src/context/SyncContext.tsx:93`
 
-## لوحات المتابعة والرسوم
-- LongitudinalCharts تعرض الاتجاهات مع لغة ومحاذاة RTL صحيحة.
-- بطاقات التحليلات في لوحات المدرسة/المعالج تظهر بيانات الديمو بدون تعارض في اللغة.
-- مؤشرات التلعيب (AchievementToast, ProgressHUD) تعمل بعد إنهاء جلسة.
+## PWA/Service Worker
+- `sw.js` يُسجَّل عند load. `src/main.tsx:31`
+- cache static يعمل للخطوط والأصول. `public/sw.js:10`
 
-## الاستجابة وواجهة RTL
-- تنقل الهيدر/الفوتر والـ CTA العائمة يعمل في الشاشات الصغيرة (≤375px).
-- تأكد من قلب الاتجاه (dir=rtl/ltr) عند التبديل وألا تتكسر الهوامش/المحاذاة.
+## Mobile/Responsive
+- صفحات النتائج/البرنامج/الموارد متجاوبة على الهاتف.
+- التمرير/السلايدر والـ sticky CTA يعملان بشكل صحيح.
 
-## إمكانية الوصول
-- مؤشر التركيز مرئي في الأزرار والروابط.
-- خيار تقليل الحركة (من الإعدادات) يوقف الأنيميشن الفارطة.
-- حجم الخط "كبير" يطبق بشكل متناسق على العناوين والنصوص الطويلة.
-
-## التحقق من الأصول
-- شغّل `npm run qa:assets` وتأكد من مرور 120 فحصًا (57 شريحة + thumbs، ملفات PDF، خطوط Cairo، شعارات).
-
-## قاعدة النشر (GitHub Pages / Nginx)
-- تأكد من ضبط `BASE_PATH` لمطابقة المسار الفرعي، وأن `assetUrl()` يولّد روابط صحيحة (تحقق يدويًا من تحميل الصور/الخطوط بعد build+preview).
-- تحقق من أن `index.html` يستخدم `lang="ar"` و`dir="rtl"` افتراضيًا وأن التحميل الأول لا يكسر تجربة EN.
+## QA Scripts
+- `npm run typecheck`
+- `npm run build`
+- `npm run qa:assets`
