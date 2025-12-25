@@ -2,9 +2,10 @@
  * SettingsPage - User preferences and account settings
  */
 
-import { useState, useCallback, memo } from 'react';
+import { useState, useCallback, useEffect, memo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useUser } from '../context/UserContext';
+import { readUserScopedStorage, writeUserScopedStorage } from '../utils/userStorage';
 import { BackNavigation, SectionNav, ResponsiveStyles } from './shared';
 import {
   brandCyan,
@@ -72,9 +73,9 @@ const DEFAULT_SETTINGS: UserSettings = {
   },
 };
 
-const loadSettings = (): UserSettings => {
+const loadSettings = (userId?: string | null): UserSettings => {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = readUserScopedStorage(STORAGE_KEY, userId);
     if (stored) {
       return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
     }
@@ -84,9 +85,9 @@ const loadSettings = (): UserSettings => {
   return DEFAULT_SETTINGS;
 };
 
-const saveSettings = (settings: UserSettings) => {
+const saveSettings = (settings: UserSettings, userId?: string | null) => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    writeUserScopedStorage(STORAGE_KEY, JSON.stringify(settings), userId);
   } catch {
     console.warn('Failed to save settings');
   }
@@ -374,10 +375,14 @@ export default function SettingsPage() {
   const { isArabic, direction, toggleLanguage, t } = useLanguage();
   const { user, updateProfile, logout } = useUser();
 
-  const [settings, setSettings] = useState<UserSettings>(loadSettings);
+  const [settings, setSettings] = useState<UserSettings>(() => loadSettings(user?.id));
   const [isSaved, setIsSaved] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(user?.name || '');
+
+  useEffect(() => {
+    setSettings(loadSettings(user?.id));
+  }, [user?.id]);
 
   const updateSetting = useCallback(
     <K extends keyof UserSettings, SK extends keyof UserSettings[K]>(
@@ -393,7 +398,7 @@ export default function SettingsPage() {
             [key]: value,
           },
         };
-        saveSettings(updated);
+        saveSettings(updated, user?.id);
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('lotus-settings-changed', { detail: updated }));
         }
@@ -402,7 +407,7 @@ export default function SettingsPage() {
         return updated;
       });
     },
-    []
+    [user?.id]
   );
 
   const handleSaveName = useCallback(() => {

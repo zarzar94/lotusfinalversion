@@ -31,6 +31,7 @@
 import type { GameResult, TestOutcome } from './types';
 import { mean, stdDev } from './stats';
 import { notifyLocalChange } from '../../utils/sync';
+import { getStoredUserId, getUserScopedKey } from '../../utils/userStorage';
 
 // ==================== POINTS SYSTEM ====================
 
@@ -651,6 +652,10 @@ export const getFatigueAdjustedScore = (
  */
 const SESSION_STORAGE_KEY = 'berard-ait-sessions';
 
+const getSessionStorageKey = (): string => {
+  return getUserScopedKey(SESSION_STORAGE_KEY, getStoredUserId());
+};
+
 /**
  * Maximum number of sessions to retain in storage.
  * Older sessions are pruned when this limit is exceeded.
@@ -707,7 +712,7 @@ export const saveSession = (session: StoredSession): void => {
   try {
     const existing = getSessions();
     const updated = [session, ...existing.filter((s) => s.id !== session.id)].slice(0, MAX_STORED_SESSIONS);
-    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updated));
+    localStorage.setItem(getSessionStorageKey(), JSON.stringify(updated));
     notifyLocalChange();
   } catch (e) {
     console.warn('Failed to save session:', e);
@@ -726,7 +731,7 @@ export const saveSession = (session: StoredSession): void => {
  */
 export const getSessions = (): StoredSession[] => {
   try {
-    const data = localStorage.getItem(SESSION_STORAGE_KEY);
+    const data = localStorage.getItem(getSessionStorageKey());
     return data ? JSON.parse(data) : [];
   } catch {
     return [];
@@ -760,7 +765,7 @@ export const getSessionById = (id: string): StoredSession | undefined => {
  * }
  */
 export const clearSessions = (): void => {
-  localStorage.removeItem(SESSION_STORAGE_KEY);
+  localStorage.removeItem(getSessionStorageKey());
 };
 
 // ==================== PROGRESS ANALYSIS ====================
@@ -1142,6 +1147,7 @@ export const CLINICAL_TEST_KEYS: readonly TestKey[] = ['attention', 'frequency',
  */
 let _sessionCache: StoredSession[] | null = null;
 let _sessionCacheTime = 0;
+let _sessionCacheUserId: string | null = null;
 const SESSION_CACHE_TTL = 5000; // 5 seconds
 
 /**
@@ -1161,11 +1167,13 @@ const SESSION_CACHE_TTL = 5000; // 5 seconds
  */
 export const getSessionsCached = (): StoredSession[] => {
   const now = Date.now();
-  if (_sessionCache && (now - _sessionCacheTime) < SESSION_CACHE_TTL) {
+  const userId = getStoredUserId();
+  if (_sessionCache && (now - _sessionCacheTime) < SESSION_CACHE_TTL && _sessionCacheUserId === userId) {
     return _sessionCache;
   }
   _sessionCache = getSessions();
   _sessionCacheTime = now;
+  _sessionCacheUserId = userId;
   return _sessionCache;
 };
 
@@ -1176,6 +1184,7 @@ export const getSessionsCached = (): StoredSession[] => {
 export const invalidateSessionCache = (): void => {
   _sessionCache = null;
   _sessionCacheTime = 0;
+  _sessionCacheUserId = null;
 };
 
 /**

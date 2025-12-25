@@ -8,6 +8,7 @@ import {
   useContext,
   useState,
   useEffect,
+  useRef,
   useCallback,
   useMemo,
   type ReactNode,
@@ -20,6 +21,8 @@ import {
   processOfflineQueue,
   getToken,
 } from '../services/api';
+import { getStoredUserId, getUserScopedKey } from '../utils/userStorage';
+import { LOCAL_CHANGE_EVENT } from '../utils/sync';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -78,6 +81,7 @@ export function SyncProvider({ children }: { children: ReactNode }) {
     })(),
     error: null,
   }));
+  const localChangeTimeoutRef = useRef<number | null>(null);
 
   // Check API availability
   const checkApiAvailability = useCallback(async () => {
@@ -134,6 +138,16 @@ export function SyncProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    const userId = getStoredUserId();
+    if (!userId) {
+      return;
+    }
+
+    const clinicalKey = getUserScopedKey('lotus_clinical_progress', userId);
+    const gamificationKey = getUserScopedKey('lotus_gamification_state', userId);
+    const sessionsKey = getUserScopedKey('berard-ait-sessions', userId);
+    const settingsKey = getUserScopedKey('lotus_user_settings', userId);
+
     // Skip if offline
     if (!state.isOnline) {
       setState(prev => ({ ...prev, status: 'offline' }));
@@ -148,7 +162,7 @@ export function SyncProvider({ children }: { children: ReactNode }) {
 
       // Clinical progress
       try {
-        const clinicalRaw = localStorage.getItem('lotus_clinical_progress');
+        const clinicalRaw = localStorage.getItem(clinicalKey);
         if (clinicalRaw) {
           localData.clinicalProgress = JSON.parse(clinicalRaw);
         }
@@ -158,7 +172,7 @@ export function SyncProvider({ children }: { children: ReactNode }) {
 
       // Gamification state
       try {
-        const gamificationRaw = localStorage.getItem('lotus_gamification_state');
+        const gamificationRaw = localStorage.getItem(gamificationKey);
         if (gamificationRaw) {
           localData.gamification = JSON.parse(gamificationRaw);
         }
@@ -168,7 +182,7 @@ export function SyncProvider({ children }: { children: ReactNode }) {
 
       // Settings
       try {
-        const settingsRaw = localStorage.getItem('lotus_user_settings');
+        const settingsRaw = localStorage.getItem(settingsKey);
         const language = localStorage.getItem('lotus_language');
         const visitorMode = localStorage.getItem('lotus_visitor_mode');
 
@@ -183,7 +197,7 @@ export function SyncProvider({ children }: { children: ReactNode }) {
 
       // Sessions
       try {
-        const sessionsRaw = localStorage.getItem('berard-ait-sessions');
+        const sessionsRaw = localStorage.getItem(sessionsKey);
         if (sessionsRaw) {
           localData.sessions = JSON.parse(sessionsRaw);
         }
@@ -201,28 +215,28 @@ export function SyncProvider({ children }: { children: ReactNode }) {
         // Update local storage with server data
         if (response.serverData.clinicalProgress) {
           localStorage.setItem(
-            'lotus_clinical_progress',
+            clinicalKey,
             JSON.stringify(response.serverData.clinicalProgress)
           );
         }
 
         if (response.serverData.gamification) {
           localStorage.setItem(
-            'lotus_gamification_state',
+            gamificationKey,
             JSON.stringify(response.serverData.gamification)
           );
         }
 
         if (response.serverData.settings) {
           const { language, visitorMode, ...otherSettings } = response.serverData.settings;
-          localStorage.setItem('lotus_user_settings', JSON.stringify(otherSettings));
+          localStorage.setItem(settingsKey, JSON.stringify(otherSettings));
           if (language) localStorage.setItem('lotus_language', language);
           if (visitorMode) localStorage.setItem('lotus_visitor_mode', visitorMode);
         }
 
         if (response.serverData.sessions) {
           localStorage.setItem(
-            'berard-ait-sessions',
+            sessionsKey,
             JSON.stringify(response.serverData.sessions)
           );
         }
@@ -257,17 +271,45 @@ export function SyncProvider({ children }: { children: ReactNode }) {
     }
   }, [state.isOnline, state.lastSyncAt, clearPendingChanges]);
 
+  // Track local changes and schedule syncs.
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+
+    const handleLocalChange = () => {
+      markPendingChange();
+      if (!getToken() || !state.isOnline) return;
+
+      if (localChangeTimeoutRef.current !== null) {
+        window.clearTimeout(localChangeTimeoutRef.current);
+      }
+      localChangeTimeoutRef.current = window.setTimeout(() => {
+        sync();
+      }, 1500);
+    };
+
+    window.addEventListener(LOCAL_CHANGE_EVENT, handleLocalChange);
+
+    return () => {
+      window.removeEventListener(LOCAL_CHANGE_EVENT, handleLocalChange);
+      if (localChangeTimeoutRef.current !== null) {
+        window.clearTimeout(localChangeTimeoutRef.current);
+        localChangeTimeoutRef.current = null;
+      }
+    };
+  }, [markPendingChange, state.isOnline, sync]);
+
   // Auto-sync on mount and periodically
   useEffect(() => {
-    if (!getToken()) return;
-
     // Initial sync after a short delay
     const initialTimeout = setTimeout(() => {
-      sync();
+      if (getToken()) {
+        sync();
+      }
     }, 2000);
 
     // Periodic sync every 5 minutes
     const interval = setInterval(() => {
+      if (!getToken()) return;
       if (state.pendingChanges > 0 || !state.lastSyncAt) {
         sync();
       }
@@ -283,10 +325,15 @@ export function SyncProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const handleBeforeUnload = () => {
       if (state.pendingChanges > 0 && state.isOnline && getToken()) {
+        const userId = getStoredUserId();
+        if (!userId) return;
+        const clinicalKey = getUserScopedKey('lotus_clinical_progress', userId);
+        const gamificationKey = getUserScopedKey('lotus_gamification_state', userId);
+
         // Use sendBeacon for reliable sync on page close
         const localData = {
-          clinicalProgress: localStorage.getItem('lotus_clinical_progress'),
-          gamification: localStorage.getItem('lotus_gamification_state'),
+          clinicalProgress: localStorage.getItem(clinicalKey),
+          gamification: localStorage.getItem(gamificationKey),
         };
 
         navigator.sendBeacon?.(

@@ -19,7 +19,7 @@ Lotus Sound Lab is a bilingual (Arabic-first with full English) web platform for
 4) **Gamification**: achievements, levels, progress HUD, and engagement nudges.
 5) **Reporting/exports**: PDF exports and content assets (slides/docs), plus optional sync to backend.
 
-The repo includes both a **frontend** (production-ready build) and a **backend API** (auth, sessions, settings, progress, sync, uploads, admin).
+The repo includes a **frontend** (production-ready build) and a **backend API** reference (auth, sessions, settings, progress, sync, uploads, admin). In deployment, the frontend is static and the backend runs as a separate service reachable via `VITE_API_URL`.
 
 ---
 
@@ -42,6 +42,8 @@ The repo includes both a **frontend** (production-ready build) and a **backend A
 - `BrowserRouter` with `basename` derived from `import.meta.env.BASE_URL` for subpath deployments (GitHub Pages / custom base paths).
 
 ### 2.2 Backend (Express + MongoDB)
+
+Deployment note: the backend runs as a separate service; the `backend/` directory is a reference implementation and is not part of the frontend build.
 
 **Server entry**
 - `backend/src/index.js` mounts all API routes under `/api/*`, with:
@@ -75,7 +77,7 @@ Backend supports **cross-device sync** via:
 Reference: `.env.example` (also includes the backend variables to copy into `backend/.env`).
 
 **Frontend (Vite)**
-- `VITE_API_URL` (default in code: `http://localhost:3001/api`) — backend base URL
+- `VITE_API_URL` (default in code: `http://localhost:3001/api`) - backend base URL for the separate API service
 - `VITE_WS_URL` — websocket URL (backend prints `ws://.../ws`, websocket implementation lives in `backend/src/utils/websocket.js`)
 - `VITE_CLINIC_PHONE` / `VITE_CLINIC_EMAIL` — contact/WhatsApp configuration (used with `src/data/clinic.ts`)
 - `VITE_ENABLE_OFFLINE_MODE` — enables local fallback behavior (API client already queues offline writes)
@@ -628,6 +630,7 @@ You will see these repeatedly:
 
 ### 10.2 Backend (`backend/`)
 
+- The `backend/` directory is a reference implementation; deploy it as a separate service from the static frontend build.
 - `backend/src/index.js`: express app bootstrap
 - `backend/src/routes/*`: REST API endpoints
 - `backend/src/models/*`: Mongoose schemas

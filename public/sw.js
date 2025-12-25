@@ -107,16 +107,109 @@ self.addEventListener('fetch', (event) => {
 });
 
 // Background sync for offline mutations
+const OFFLINE_SYNC_TAG = 'sync-data';
+const OFFLINE_QUEUE_DB = 'lotus_offline_queue_db';
+const OFFLINE_QUEUE_STORE = 'offline_queue';
+
 self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-data') {
+  if (event.tag === OFFLINE_SYNC_TAG) {
     event.waitUntil(syncOfflineData());
   }
 });
 
 async function syncOfflineData() {
-  // Get offline queue from IndexedDB and process
-  // Implementation depends on your offline queue structure
+  const clients = await self.clients.matchAll({ includeUncontrolled: true, type: 'window' });
+  if (clients.length) {
+    await Promise.all(
+      clients.map((client) => {
+        return new Promise((resolve) => {
+          const channel = new MessageChannel();
+          const timeout = setTimeout(resolve, 4000);
+          channel.port1.onmessage = () => {
+            clearTimeout(timeout);
+            resolve();
+          };
+          client.postMessage({ type: 'SYNC_OFFLINE_QUEUE' }, [channel.port2]);
+        });
+      })
+    );
+    return;
+  }
+
+  await processOfflineQueueInWorker();
 }
+
+const openQueueDb = () => {
+  return new Promise((resolve, reject) => {
+    if (!self.indexedDB) {
+      reject(new Error('IndexedDB not available'));
+      return;
+    }
+
+    const request = self.indexedDB.open(OFFLINE_QUEUE_DB, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(OFFLINE_QUEUE_STORE)) {
+        db.createObjectStore(OFFLINE_QUEUE_STORE, { keyPath: 'id' });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error('Failed to open offline queue DB'));
+  });
+};
+
+const getQueuedRequests = async () => {
+  const db = await openQueueDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(OFFLINE_QUEUE_STORE, 'readonly');
+    const store = tx.objectStore(OFFLINE_QUEUE_STORE);
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result || []);
+    request.onerror = () => reject(request.error || new Error('Failed to read offline queue'));
+  });
+};
+
+const overwriteQueuedRequests = async (items) => {
+  const db = await openQueueDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(OFFLINE_QUEUE_STORE, 'readwrite');
+    const store = tx.objectStore(OFFLINE_QUEUE_STORE);
+    store.clear();
+    items.forEach((item) => store.put(item));
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error || new Error('Failed to update offline queue'));
+    tx.onabort = () => reject(tx.error || new Error('Failed to update offline queue'));
+  });
+};
+
+const processOfflineQueueInWorker = async () => {
+  const queue = await getQueuedRequests();
+  if (!queue.length) return;
+
+  const failed = [];
+  for (const request of queue) {
+    try {
+      const baseUrl = request.baseUrl || '';
+      const headers = { 'Content-Type': 'application/json' };
+      if (!request.skipAuth && request.token) {
+        headers['Authorization'] = `Bearer ${request.token}`;
+      }
+      const response = await fetch(`${baseUrl}${request.endpoint}`, {
+        method: request.method,
+        headers,
+        body: request.body ? JSON.stringify(request.body) : undefined,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+    } catch {
+      failed.push(request);
+    }
+  }
+
+  await overwriteQueuedRequests(failed);
+};
 
 // Push notifications (if needed in future)
 self.addEventListener('push', (event) => {

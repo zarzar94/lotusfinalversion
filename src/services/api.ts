@@ -28,6 +28,9 @@ import type {
   SyncRequest,
   SyncResponse,
 } from '../types/api';
+import type { OfflineQueueItem } from '../utils/offlineQueue';
+import { addOfflineQueueItems, getOfflineQueueItems, replaceOfflineQueueItemsForUser } from '../utils/offlineQueue';
+import { getStoredUserId, getUserScopedKey } from '../utils/userStorage';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
@@ -37,6 +40,26 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 const TOKEN_KEY = 'lotus_auth_token';
 const REFRESH_TOKEN_KEY = 'lotus_refresh_token';
 const OFFLINE_QUEUE_KEY = 'lotus_offline_queue';
+const OFFLINE_SYNC_TAG = 'sync-data';
+
+const getOfflineQueueKey = (userId?: string | null): string => {
+  return getUserScopedKey(OFFLINE_QUEUE_KEY, userId ?? getStoredUserId());
+};
+
+const scheduleBackgroundSync = async (): Promise<void> => {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const syncManager = (registration as ServiceWorkerRegistration & {
+      sync?: { register: (tag: string) => Promise<void> };
+    }).sync;
+    if (syncManager) {
+      await syncManager.register(OFFLINE_SYNC_TAG);
+    }
+  } catch {
+    // Ignore sync registration failures (fallback to online listeners).
+  }
+};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TOKEN MANAGEMENT
@@ -73,42 +96,105 @@ interface QueuedRequest {
   method: string;
   body?: unknown;
   timestamp: number;
+  baseUrl?: string;
+  token?: string | null;
+  userId?: string | null;
+  skipAuth?: boolean;
 }
 
-const getOfflineQueue = (): QueuedRequest[] => {
+const migrateLegacyOfflineQueue = async (userId: string | null): Promise<void> => {
+  if (typeof indexedDB === 'undefined' || typeof window === 'undefined') return;
+  const legacyKey = getOfflineQueueKey(userId);
+  let raw: string | null = null;
   try {
-    const queue = localStorage.getItem(OFFLINE_QUEUE_KEY);
-    return queue ? JSON.parse(queue) : [];
+    raw = localStorage.getItem(legacyKey);
   } catch {
-    return [];
+    return;
   }
+  if (!raw) return;
+
+  let legacy: QueuedRequest[] = [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      legacy = parsed as QueuedRequest[];
+    }
+  } catch {
+    // Ignore parse errors.
+  }
+
+  if (legacy.length === 0) {
+    localStorage.removeItem(legacyKey);
+    return;
+  }
+
+  const token = getToken();
+  const migrated: OfflineQueueItem[] = legacy
+    .filter((entry) => entry && typeof entry.endpoint === 'string' && typeof entry.method === 'string')
+    .map((entry) => ({
+      id: entry.id || `${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+      endpoint: entry.endpoint,
+      method: entry.method,
+      body: entry.body,
+      timestamp: typeof entry.timestamp === 'number' ? entry.timestamp : Date.now(),
+      baseUrl: entry.baseUrl || API_BASE_URL,
+      token: entry.token ?? token ?? null,
+      userId: entry.userId ?? userId,
+      skipAuth: Boolean(entry.skipAuth),
+    }));
+
+  await addOfflineQueueItems(migrated);
+  localStorage.removeItem(legacyKey);
+};
+
+const getOfflineQueue = async (): Promise<OfflineQueueItem[]> => {
+  const userId = getStoredUserId();
+  if (!userId) return [];
+  await migrateLegacyOfflineQueue(userId);
+  return getOfflineQueueItems(userId);
 };
 
 const addToOfflineQueue = (request: Omit<QueuedRequest, 'id' | 'timestamp'>): void => {
-  const queue = getOfflineQueue();
-  queue.push({
-    ...request,
+  const userId = getStoredUserId();
+  const token = getToken();
+  const queued: OfflineQueueItem = {
     id: `${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+    endpoint: request.endpoint,
+    method: request.method,
+    body: request.body,
     timestamp: Date.now(),
-  });
-  localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+    baseUrl: request.baseUrl || API_BASE_URL,
+    token: request.token ?? token ?? null,
+    userId: request.userId ?? userId,
+    skipAuth: Boolean(request.skipAuth),
+  };
+  void addOfflineQueueItems([queued]);
+  void scheduleBackgroundSync();
 };
 
-const clearOfflineQueue = (): void => {
-  localStorage.removeItem(OFFLINE_QUEUE_KEY);
+const clearOfflineQueue = async (): Promise<void> => {
+  const userId = getStoredUserId();
+  if (!userId) return;
+  await replaceOfflineQueueItemsForUser(userId, []);
 };
 
 export const processOfflineQueue = async (): Promise<void> => {
-  const queue = getOfflineQueue();
+  const userId = getStoredUserId();
+  if (!userId) return;
+
+  const queue = await getOfflineQueue();
   if (queue.length === 0) return;
 
-  const failedRequests: QueuedRequest[] = [];
+  const failedRequests: OfflineQueueItem[] = [];
 
   for (const request of queue) {
     try {
       await fetchWithAuth(request.endpoint, {
         method: request.method,
         body: request.body ? JSON.stringify(request.body) : undefined,
+        skipAuth: request.skipAuth,
+        skipQueue: true,
+        baseUrl: request.baseUrl,
       });
     } catch {
       // Keep failed requests for retry
@@ -117,9 +203,9 @@ export const processOfflineQueue = async (): Promise<void> => {
   }
 
   if (failedRequests.length > 0) {
-    localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(failedRequests));
+    await replaceOfflineQueueItemsForUser(userId, failedRequests);
   } else {
-    clearOfflineQueue();
+    await clearOfflineQueue();
   }
 };
 
@@ -130,13 +216,15 @@ export const processOfflineQueue = async (): Promise<void> => {
 interface FetchOptions extends RequestInit {
   skipAuth?: boolean;
   retryCount?: number;
+  skipQueue?: boolean;
+  baseUrl?: string;
 }
 
 const fetchWithAuth = async <T>(
   endpoint: string,
   options: FetchOptions = {}
 ): Promise<T> => {
-  const { skipAuth = false, retryCount = 0, ...fetchOptions } = options;
+  const { skipAuth = false, retryCount = 0, skipQueue = false, baseUrl, ...fetchOptions } = options;
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -150,7 +238,7 @@ const fetchWithAuth = async <T>(
     }
   }
 
-  const url = `${API_BASE_URL}${endpoint}`;
+  const url = `${baseUrl || API_BASE_URL}${endpoint}`;
 
   try {
     const response = await fetch(url, {
@@ -175,11 +263,13 @@ const fetchWithAuth = async <T>(
     return response.json();
   } catch (error) {
     // If offline, queue the request for later
-    if (!navigator.onLine && options.method && options.method !== 'GET') {
+    if (!skipQueue && !navigator.onLine && options.method && options.method !== 'GET') {
       addToOfflineQueue({
         endpoint,
         method: options.method,
         body: options.body ? JSON.parse(options.body as string) : undefined,
+        baseUrl,
+        skipAuth,
       });
     }
     throw error;

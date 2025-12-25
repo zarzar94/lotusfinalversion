@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from 'react';
 import { notifyLocalChange } from '../utils/sync';
+import { useUser } from './UserContext';
+import { readUserScopedStorage, writeUserScopedStorage } from '../utils/userStorage';
 
 // Achievement definitions
 export interface Achievement {
@@ -407,7 +409,7 @@ const BRAIN_REGIONS: BrainRegion[] = [
 
 const STORAGE_KEY = 'lotus_gamification_state';
 
-const getInitialState = (): GamificationState => {
+const getInitialState = (userId?: string | null): GamificationState => {
   const defaultState: GamificationState = {
     achievements: INITIAL_ACHIEVEMENTS,
     totalPoints: 0,
@@ -432,7 +434,7 @@ const getInitialState = (): GamificationState => {
     return defaultState;
   }
 
-  const saved = localStorage.getItem(STORAGE_KEY);
+  const saved = readUserScopedStorage(STORAGE_KEY, userId);
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
@@ -489,15 +491,24 @@ interface GamificationContextType {
 const GamificationContext = createContext<GamificationContextType | null>(null);
 
 export function GamificationProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<GamificationState>(getInitialState);
+  const { user } = useUser();
+  const userId = user?.id ?? null;
+  const [state, setState] = useState<GamificationState>(() => getInitialState(userId));
   const [recentUnlock, setRecentUnlock] = useState<Achievement | null>(null);
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const stateRef = useRef(state);
   const saveTimeoutRef = useRef<number | null>(null);
   const lastNotifiedUnlockAtRef = useRef(0);
   const soundScientistTimerRef = useRef<number | null>(null);
+  const lastUserIdRef = useRef<string | null>(userId);
 
   stateRef.current = state;
+
+  useEffect(() => {
+    if (lastUserIdRef.current === userId) return;
+    lastUserIdRef.current = userId;
+    setState(getInitialState(userId));
+  }, [userId]);
 
   // Initialize audio context on first interaction
   useEffect(() => {
@@ -529,7 +540,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
           ...snapshot,
           totalTimeSpent: snapshot.totalTimeSpent + Math.floor((Date.now() - snapshot.sessionStartTime) / 1000),
         };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+        writeUserScopedStorage(STORAGE_KEY, JSON.stringify(toSave), userId);
         notifyLocalChange();
       } catch {
         // Ignore quota/availability errors
@@ -542,7 +553,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
         saveTimeoutRef.current = null;
       }
     };
-  }, [state]);
+  }, [state, userId]);
 
   const playUnlockSound = useCallback(() => {
     if (!audioContext) return;

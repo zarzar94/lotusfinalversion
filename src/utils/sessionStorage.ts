@@ -1,9 +1,14 @@
 import type { LabModuleMetrics } from '../types/moduleMetrics';
 import type { TestMetrics, TestTrial } from '../components/games/types';
 import { normalizeQualityFlagCollection } from './qualityFlags';
+import { getStoredUserId, getUserScopedKey } from './userStorage';
 
 const SESSION_HISTORY_KEY = 'SBLAB_SESSION_HISTORY';
 const MAX_HISTORY = 200;
+
+const getSessionHistoryKey = (): string => {
+  return getUserScopedKey(SESSION_HISTORY_KEY, getStoredUserId());
+};
 
 const clampScore = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
 
@@ -351,7 +356,7 @@ export const saveSession = (metrics: LabModuleMetrics): void => {
   try {
     const existing = getAllSessions();
     const updated = [metrics, ...existing].slice(0, MAX_HISTORY);
-    localStorage.setItem(SESSION_HISTORY_KEY, JSON.stringify(updated));
+    localStorage.setItem(getSessionHistoryKey(), JSON.stringify(updated));
   } catch (error) {
     console.warn('Failed to save lab module metrics:', error);
   }
@@ -359,7 +364,7 @@ export const saveSession = (metrics: LabModuleMetrics): void => {
 
 export const getAllSessions = (): LabModuleMetrics[] => {
   try {
-    const data = localStorage.getItem(SESSION_HISTORY_KEY);
+    const data = localStorage.getItem(getSessionHistoryKey());
     if (!data) return [];
     const parsed = JSON.parse(data);
     if (!Array.isArray(parsed)) return [];

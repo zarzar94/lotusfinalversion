@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { readUserScopedStorage } from '../utils/userStorage';
 
 const SETTINGS_STORAGE_KEY = 'lotus_user_settings';
 
@@ -7,7 +8,7 @@ function getUserReducedMotionSetting(): boolean {
     const dataset = document.documentElement?.dataset?.reducedMotion;
     if (dataset === 'true') return true;
 
-    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    const raw = readUserScopedStorage(SETTINGS_STORAGE_KEY);
     if (!raw) return false;
     return Boolean(JSON.parse(raw)?.display?.reducedMotion);
   } catch {
@@ -52,7 +53,7 @@ export function usePrefersReducedMotion() {
     };
 
     const handleStorage = (event: StorageEvent) => {
-      if (!event.key || event.key === SETTINGS_STORAGE_KEY) {
+      if (!event.key || event.key === SETTINGS_STORAGE_KEY || event.key.startsWith(`${SETTINGS_STORAGE_KEY}:`)) {
         update();
       }
     };

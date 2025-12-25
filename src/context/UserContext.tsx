@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { authApi, clinicalApi, getToken, clearTokens } from '../services/api';
+import { getUserScopedKey } from '../utils/userStorage';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -107,12 +108,15 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
 // STORAGE (Offline fallback)
 // ═══════════════════════════════════════════════════════════════════════════
 
-const STORAGE_KEY = 'lotus_user_state';
+const USER_STATE_STORAGE_KEY = 'lotus_user_state';
 const CLINICAL_STORAGE_KEY = 'lotus_clinical_progress';
+
+const getClinicalStorageKey = (userId?: string | null) =>
+  getUserScopedKey(CLINICAL_STORAGE_KEY, userId);
 
 const loadUserState = (): UserState => {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(USER_STATE_STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
       return {
@@ -137,9 +141,9 @@ const loadUserState = (): UserState => {
   };
 };
 
-const loadClinicalProgress = (): ClinicalProgress | null => {
+const loadClinicalProgress = (userId?: string | null): ClinicalProgress | null => {
   try {
-    const stored = localStorage.getItem(CLINICAL_STORAGE_KEY);
+    const stored = localStorage.getItem(getClinicalStorageKey(userId));
     if (stored) {
       return JSON.parse(stored);
     }
@@ -151,18 +155,18 @@ const loadClinicalProgress = (): ClinicalProgress | null => {
 
 const saveUserState = (user: User | null) => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ user }));
+    localStorage.setItem(USER_STATE_STORAGE_KEY, JSON.stringify({ user }));
   } catch {
     console.warn('Failed to save user state');
   }
 };
 
-const saveClinicalProgress = (progress: ClinicalProgress | null) => {
+const saveClinicalProgress = (userId: string | null | undefined, progress: ClinicalProgress | null) => {
   try {
     if (progress) {
-      localStorage.setItem(CLINICAL_STORAGE_KEY, JSON.stringify(progress));
+      localStorage.setItem(getClinicalStorageKey(userId), JSON.stringify(progress));
     } else {
-      localStorage.removeItem(CLINICAL_STORAGE_KEY);
+      localStorage.removeItem(getClinicalStorageKey(userId));
     }
   } catch {
     console.warn('Failed to save clinical progress');
@@ -176,9 +180,10 @@ const saveClinicalProgress = (progress: ClinicalProgress | null) => {
 const UserContext = createContext<UserContextValue | null>(null);
 
 export function UserProvider({ children }: { children: ReactNode }) {
+  const initialUserState = loadUserState();
   const [state, setState] = useState<UserState>(() => ({
-    ...loadUserState(),
-    clinicalProgress: loadClinicalProgress(),
+    ...initialUserState,
+    clinicalProgress: loadClinicalProgress(initialUserState.user?.id),
   }));
 
   const updateTimeoutRef = useRef<number | null>(null);
@@ -219,7 +224,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
                   ...prev,
                   clinicalProgress: response.progress,
                 }));
-                saveClinicalProgress(response.progress);
+                saveClinicalProgress(user.id, response.progress);
               }
             });
           }
@@ -267,7 +272,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   // Persist and sync clinical progress
   useEffect(() => {
-    saveClinicalProgress(state.clinicalProgress);
+    saveClinicalProgress(state.user?.id, state.clinicalProgress);
 
     // Debounce API sync
     if (state.isAuthenticated && state.clinicalProgress && state.isOnline) {
@@ -403,6 +408,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
+    const userId = state.user?.id;
     try {
       await authApi.logout();
     } catch {
@@ -418,9 +424,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
       authError: null,
     });
 
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(CLINICAL_STORAGE_KEY);
-  }, []);
+    localStorage.removeItem(USER_STATE_STORAGE_KEY);
+    localStorage.removeItem(getClinicalStorageKey(userId));
+  }, [state.user?.id]);
 
   const register = useCallback(async (data: RegisterData): Promise<boolean> => {
     setState(prev => ({ ...prev, isLoading: true, authError: null }));

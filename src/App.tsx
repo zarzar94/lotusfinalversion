@@ -5,6 +5,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
 import { GamificationProvider } from './context/GamificationContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { SyncProvider } from './context/SyncContext';
 import { UserProvider } from './context/UserContext';
 import { VisitorModeProvider } from './context/VisitorModeContext';
 import AchievementToast from './components/AchievementToast';
@@ -17,6 +18,7 @@ import RoleGuard from './components/auth/RoleGuard';
 import { ProgressExportButton } from './components/ProgressExport';
 import { useClinicalSync } from './hooks/useClinicalSync';
 import StickySmartCTA from './components/StickySmartCTA';
+import { readUserScopedStorage } from './utils/userStorage';
 
 // Respect Vite base for subpath deployments (e.g., GitHub Pages)
 const rawBase = import.meta.env.BASE_URL ?? '/';
@@ -465,7 +467,7 @@ function App() {
 
     const applyReducedMotionPreference = () => {
       try {
-        const raw = localStorage.getItem('lotus_user_settings');
+        const raw = readUserScopedStorage('lotus_user_settings');
         const reducedMotion = raw ? Boolean(JSON.parse(raw)?.display?.reducedMotion) : false;
         if (reducedMotion) {
           document.documentElement.dataset.reducedMotion = 'true';
@@ -480,7 +482,7 @@ function App() {
     applyReducedMotionPreference();
 
     const handleStorage = (event: StorageEvent) => {
-      if (!event.key || event.key === 'lotus_user_settings') {
+      if (!event.key || event.key === 'lotus_user_settings' || event.key.startsWith('lotus_user_settings:')) {
         applyReducedMotionPreference();
       }
     };
@@ -505,247 +507,249 @@ function App() {
         <LanguageProvider>
           <VisitorModeProvider>
             <UserProvider>
-              <GamificationProvider>
-                <ClinicalSync />
+              <SyncProvider>
+                <GamificationProvider>
+                  <ClinicalSync />
 
-                <div className="page-transition-wrapper">
-                  <Routes>
-                    {/* ═══════════════════════════════════════════════════════
-                        MAIN 6 PAGES
-                        ═══════════════════════════════════════════════════════ */}
+                  <div className="page-transition-wrapper">
+                    <Routes>
+                      {/* ═══════════════════════════════════════════════════════
+                          MAIN 6 PAGES
+                          ═══════════════════════════════════════════════════════ */}
 
-                    {/* 1. Landing Page - Hero + Credentials */}
-                    <Route
-                      path="/"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <LandingPage />
-                        </Suspense>
-                      }
-                    />
-                    <Route
-                      path="/home"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <LandingPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* 2. Assessment Page - Diagnostic Tools */}
-                    <Route
-                      path="/assessment"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <AssessmentPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* 3. Program Page - Treatment Protocol */}
-                    <Route
-                      path="/program"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ProgramPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* 4. Science Page - Research & Neuroplasticity */}
-                    <Route
-                      path="/science"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <SciencePage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* 5. Results Page - Evidence & Testimonials */}
-                    <Route
-                      path="/results"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ResultsPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* Partners Page - Schools & Organizations */}
-                    <Route
-                      path="/partners"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <PartnersPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* 6. Resources Page - Videos, Slides, FAQ */}
-                    <Route
-                      path="/resources"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ResourcesPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* FAQ Page */}
-                    <Route
-                      path="/faq"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <FAQPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* Contact/Get Started Page */}
-                    <Route
-                      path="/contact"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ContactPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* ═════════════════════════════════════════════════════==
-                        SPECIAL PAGES
-                        ═══════════════════════════════════════════════════════ */}
-                    {/* 7. About Page - Centre & Specialist Info */}
-                    <Route
-                      path="/about"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <AboutPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* ═══════════════════════════════════════════════════════
-                        SPECIAL PAGES
-                        ═══════════════════════════════════════════════════════ */}
-
-                    {/* Brain Function Detail Page */}
-                    <Route
-                      path="/function/:slug"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <BrainFunctionPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* Auth */}
-                    <Route
-                      path="/login"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <LoginPage />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* ═════════════════════════════════════════════════════==
-                        DASHBOARD PAGES
-                        ═══════════════════════════════════════════════════════ */}
-
-                    <Route
-                      path="/school-dashboard"
-                      element={
-                        <RoleGuard allowedRoles={['school_admin']}>
+                      {/* 1. Landing Page - Hero + Credentials */}
+                      <Route
+                        path="/"
+                        element={
                           <Suspense fallback={<PageLoader />}>
-                            <SchoolDashboard />
+                            <LandingPage />
                           </Suspense>
-                        </RoleGuard>
-                      }
-                    />
-                    <Route
-                      path="/parent-dashboard"
-                      element={
-                        <RoleGuard allowedRoles={['parent']}>
+                        }
+                      />
+                      <Route
+                        path="/home"
+                        element={
                           <Suspense fallback={<PageLoader />}>
-                            <ParentDashboard />
+                            <LandingPage />
                           </Suspense>
-                        </RoleGuard>
-                      }
-                    />
-                    <Route
-                      path="/clinician-dashboard"
-                      element={
-                        <RoleGuard allowedRoles={['clinician']}>
-                          <Suspense fallback={<PageLoader />}>
-                            <ClinicianDashboard />
-                          </Suspense>
-                        </RoleGuard>
-                      }
-                    />
+                        }
+                      />
 
-                    {/* Legacy/role dashboard paths used by Header/ProfileMenu */}
-                    <Route
-                      path="/dashboard/parent"
-                      element={
-                        <RoleGuard allowedRoles={['parent']}>
+                      {/* 2. Assessment Page - Diagnostic Tools */}
+                      <Route
+                        path="/assessment"
+                        element={
                           <Suspense fallback={<PageLoader />}>
-                            <ParentDashboard />
+                            <AssessmentPage />
                           </Suspense>
-                        </RoleGuard>
-                      }
-                    />
-                    <Route
-                      path="/dashboard/clinician"
-                      element={
-                        <RoleGuard allowedRoles={['clinician']}>
-                          <Suspense fallback={<PageLoader />}>
-                            <ClinicianDashboard />
-                          </Suspense>
-                        </RoleGuard>
-                      }
-                    />
-                    <Route
-                      path="/dashboard/educator"
-                      element={
-                        <RoleGuard allowedRoles={['school_admin']}>
-                          <Suspense fallback={<PageLoader />}>
-                            <SchoolDashboard />
-                          </Suspense>
-                        </RoleGuard>
-                      }
-                    />
-                    <Route
-                      path="/settings"
-                      element={
-                        <RequireAuth>
-                          <Suspense fallback={<PageLoader />}>
-                            <SettingsPage />
-                          </Suspense>
-                        </RequireAuth>
-                      }
-                    />
+                        }
+                      />
 
-                    {/* ═════════════════════════════════════════════════════==
-                        404 NOT FOUND - Catch-all route (must be last)
-                        ═══════════════════════════════════════════════════════ */}
-                    <Route
-                      path="*"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <NotFoundPage />
-                        </Suspense>
-                      }
-                    />
-                  </Routes>
-                </div>
+                      {/* 3. Program Page - Treatment Protocol */}
+                      <Route
+                        path="/program"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <ProgramPage />
+                          </Suspense>
+                        }
+                      />
 
-                {/* Gamification UI (always visible) */}
-                <GamificationUI />
+                      {/* 4. Science Page - Research & Neuroplasticity */}
+                      <Route
+                        path="/science"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <SciencePage />
+                          </Suspense>
+                        }
+                      />
 
-                {/* Sticky Smart CTA (mode-aware) */}
-                <StickySmartCTA />
-              </GamificationProvider>
+                      {/* 5. Results Page - Evidence & Testimonials */}
+                      <Route
+                        path="/results"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <ResultsPage />
+                          </Suspense>
+                        }
+                      />
+
+                      {/* Partners Page - Schools & Organizations */}
+                      <Route
+                        path="/partners"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <PartnersPage />
+                          </Suspense>
+                        }
+                      />
+
+                      {/* 6. Resources Page - Videos, Slides, FAQ */}
+                      <Route
+                        path="/resources"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <ResourcesPage />
+                          </Suspense>
+                        }
+                      />
+
+                      {/* FAQ Page */}
+                      <Route
+                        path="/faq"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <FAQPage />
+                          </Suspense>
+                        }
+                      />
+
+                      {/* Contact/Get Started Page */}
+                      <Route
+                        path="/contact"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <ContactPage />
+                          </Suspense>
+                        }
+                      />
+
+                      {/* ═════════════════════════════════════════════════════==
+                          SPECIAL PAGES
+                          ═══════════════════════════════════════════════════════ */}
+                      {/* 7. About Page - Centre & Specialist Info */}
+                      <Route
+                        path="/about"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <AboutPage />
+                          </Suspense>
+                        }
+                      />
+
+                      {/* ═══════════════════════════════════════════════════════
+                          SPECIAL PAGES
+                          ═══════════════════════════════════════════════════════ */}
+
+                      {/* Brain Function Detail Page */}
+                      <Route
+                        path="/function/:slug"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <BrainFunctionPage />
+                          </Suspense>
+                        }
+                      />
+
+                      {/* Auth */}
+                      <Route
+                        path="/login"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <LoginPage />
+                          </Suspense>
+                        }
+                      />
+
+                      {/* ═════════════════════════════════════════════════════==
+                          DASHBOARD PAGES
+                          ═══════════════════════════════════════════════════════ */}
+
+                      <Route
+                        path="/school-dashboard"
+                        element={
+                          <RoleGuard allowedRoles={['school_admin']}>
+                            <Suspense fallback={<PageLoader />}>
+                              <SchoolDashboard />
+                            </Suspense>
+                          </RoleGuard>
+                        }
+                      />
+                      <Route
+                        path="/parent-dashboard"
+                        element={
+                          <RoleGuard allowedRoles={['parent']}>
+                            <Suspense fallback={<PageLoader />}>
+                              <ParentDashboard />
+                            </Suspense>
+                          </RoleGuard>
+                        }
+                      />
+                      <Route
+                        path="/clinician-dashboard"
+                        element={
+                          <RoleGuard allowedRoles={['clinician']}>
+                            <Suspense fallback={<PageLoader />}>
+                              <ClinicianDashboard />
+                            </Suspense>
+                          </RoleGuard>
+                        }
+                      />
+
+                      {/* Legacy/role dashboard paths used by Header/ProfileMenu */}
+                      <Route
+                        path="/dashboard/parent"
+                        element={
+                          <RoleGuard allowedRoles={['parent']}>
+                            <Suspense fallback={<PageLoader />}>
+                              <ParentDashboard />
+                            </Suspense>
+                          </RoleGuard>
+                        }
+                      />
+                      <Route
+                        path="/dashboard/clinician"
+                        element={
+                          <RoleGuard allowedRoles={['clinician']}>
+                            <Suspense fallback={<PageLoader />}>
+                              <ClinicianDashboard />
+                            </Suspense>
+                          </RoleGuard>
+                        }
+                      />
+                      <Route
+                        path="/dashboard/educator"
+                        element={
+                          <RoleGuard allowedRoles={['school_admin']}>
+                            <Suspense fallback={<PageLoader />}>
+                              <SchoolDashboard />
+                            </Suspense>
+                          </RoleGuard>
+                        }
+                      />
+                      <Route
+                        path="/settings"
+                        element={
+                          <RequireAuth>
+                            <Suspense fallback={<PageLoader />}>
+                              <SettingsPage />
+                            </Suspense>
+                          </RequireAuth>
+                        }
+                      />
+
+                      {/* ═════════════════════════════════════════════════════==
+                          404 NOT FOUND - Catch-all route (must be last)
+                          ═══════════════════════════════════════════════════════ */}
+                      <Route
+                        path="*"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <NotFoundPage />
+                          </Suspense>
+                        }
+                      />
+                    </Routes>
+                  </div>
+
+                  {/* Gamification UI (always visible) */}
+                  <GamificationUI />
+
+                  {/* Sticky Smart CTA (mode-aware) */}
+                  <StickySmartCTA />
+                </GamificationProvider>
+              </SyncProvider>
             </UserProvider>
           </VisitorModeProvider>
         </LanguageProvider>
