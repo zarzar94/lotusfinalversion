@@ -1,12 +1,8 @@
-# Lotus / Berard AIT Sound Lab (React + Vite + Express + MongoDB)
+# Lotus / Berard AIT Sound Lab (React + Vite + Express)
 
 [![Deploy to GitHub Pages](https://github.com/zarzar94/lotusfinalversion/actions/workflows/deploy.yml/badge.svg)](https://github.com/zarzar94/lotusfinalversion/actions/workflows/deploy.yml)
 
 Arabic-first, RTL landing/prototype for the Berard Auditory Integration Training (AIT) program. Built with Vite + TypeScript + React; includes an in-browser screening lab, PDF exports, GitHub Pages deployment, and an accompanying Express/MongoDB API located in `backend/`.
-
-## Repo layout
-- `./` — Vite/React frontend (this README covers it)
-- `backend/` — Express + MongoDB API (local dev: `cd backend && npm run dev`)
 
 ## Highlights
 - 57-slide PPTX viewer with search/filter, modal preview, keyboard navigation, and a slides-summary PDF export. Assets load from `public/assets/pptx_slides` and downloads include `berard-profile.pdf`.
@@ -18,8 +14,8 @@ Arabic-first, RTL landing/prototype for the Berard Auditory Integration Training
 ## Requirements
 - Node.js 20+
 - npm (ships with Node)
-- Media assets merged (see "Media restore" below)
 - MongoDB (local or remote) for the backend API
+- Media assets merged (see "Media restore" below)
 
 ## Quick start (frontend)
 ```bash
@@ -29,34 +25,19 @@ npm run dev
 Visit the printed localhost URL. The app is RTL by default (`index.html` sets `dir="rtl"`).
 
 ## Backend API (Express/MongoDB)
-The repository contains a backend service under `backend/` that mirrors the frontend API client expectations (`src/services/api.ts`).
+The repository contains a full backend service under `backend/` that mirrors the frontend API client expectations (`src/services/api.ts`).
 
 ```bash
 cd backend
 npm install
 cp .env.example .env   # set MONGODB_URI, JWT_SECRET, CORS_ORIGIN, etc.
-npm run dev            # starts Express on http://localhost:3001
+npm run dev             # starts Express on http://localhost:3001
 ```
 
 Key defaults:
 - `PORT` (3001) aligns with `VITE_API_URL` fallback in the frontend.
 - `CORS_ORIGIN` should include your frontend origin (e.g., `http://localhost:5173`).
 - MongoDB is required; use a local instance or a service such as MongoDB Atlas.
-
-## Run frontend + backend together (local)
-In two terminals:
-```bash
-# Terminal 1: backend
-cd backend
-npm install
-cp .env.example .env
-npm run dev
-
-# Terminal 2: frontend
-cd ..
-npm install
-npm run dev
-```
 
 ## Scripts
 - `npm run dev` - start Vite dev server
@@ -66,7 +47,7 @@ npm run dev
 
 Backend scripts (run inside `backend/`):
 - `npm run dev` - start Express with nodemon
-- `npm start` - start Express in production mode
+- `npm run start` - start Express in production mode
 - `npm run lint` - ESLint for backend JS
 - `npm run test` / `npm run test:coverage` - Jest-based API/unit tests
 
@@ -75,9 +56,10 @@ Create `.env` from `.env.example` (frontend):
 ```
 VITE_API_URL=http://localhost:3001/api   # default matches backend dev port
 VITE_WS_URL=ws://localhost:3001/ws       # matches backend WebSocket default
-VITE_CHUNK_WARNING_LIMIT=1500            # overrides Vite chunk warning limit (KB)
+VITE_CHUNK_WARNING_LIMIT=1500            # keep build logs quiet on Vercel/CI
 VITE_CLINIC_PHONE=+9715XXXXXXXX
 VITE_CLINIC_EMAIL=info@example.com   # optional override
+# Example override: VITE_API_URL=https://api.example.com/api
 ```
 If your host enforces stricter bundle limits, lower `VITE_CHUNK_WARNING_LIMIT`; raise it if vendor chunks trigger noisy warnings.
 Deployment under a subpath (e.g., GitHub Pages) uses `BASE_PATH` (see `vite.config.ts`). The GitHub Actions workflow already sets it to `/<repo-name>/`.

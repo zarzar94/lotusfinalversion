@@ -15,7 +15,7 @@ function parseChunkWarningLimit(value: string | undefined, fallback: number) {
 }
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
+  const env = loadEnv(mode, rootDir, '');
   const basePath = process.env.BASE_PATH || env.BASE_PATH || './';
 
   const chunkWarningLimitRaw = process.env.VITE_CHUNK_WARNING_LIMIT || env.VITE_CHUNK_WARNING_LIMIT;
@@ -24,10 +24,7 @@ export default defineConfig(({ mode }) => {
   return {
     base: basePath,
     plugins: [
-      react({
-        // Enable Fast Refresh in development
-        fastRefresh: true,
-      }),
+      react(),
     ],
     build: {
       // Improve build performance

@@ -258,7 +258,7 @@ export function rafDebounce<T extends (...args: any[]) => any>(fn: T): T {
 export function scheduleIdleWork(
   callback: () => void,
   options: { timeout?: number } = {}
-): number {
+): number | ReturnType<typeof setTimeout> {
   if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
     return (
       window as Window & {
