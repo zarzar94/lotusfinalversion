@@ -94,3 +94,36 @@ flowchart LR
   P4 --> P5[Export PDF/CSV]
   P3 -.-> P6[Sync API when online]
 ```
+
+## O) Execution plan (repo-grounded next steps)
+- P0 access control: wire `RequireAuth` into dashboard + settings routes and add role gating per `UserContext` role map (refs: `src/components/auth/RequireAuth.tsx`, `src/context/UserContext.tsx`, `src/App.tsx`).
+- P0 data ownership: align session save/sync flows with backend auth checks for sessions and clinical progress (refs: `src/utils/sessionStorage.ts`, `src/context/SyncContext.tsx`, `backend/src/routes/sessions.js`, `backend/src/routes/clinical.js`).
+- P1 offline resiliency: implement background sync stub in `public/sw.js` and connect it to the existing offline queue in `src/services/api.ts`.
+- P2 exports hardening: validate PDF/CSV exports across assessments + dashboards and add explicit QA steps for the flows (refs: `src/components/games/report.ts`, `src/components/dashboards/roleDashboardExports.ts`, `docs/QA_CHECKLIST.md`).
+- P3 realtime scope: define minimal WebSocket events for session updates and wire a client consumer if needed (refs: `backend/src/utils/websocket.js`).
+
+## O1) P0 access control breakdown
+- Add `RoleGuard` component that checks `UserContext` role, redirects unauthenticated users to `/login`, and renders access-denied UI for wrong roles.
+- Wire `RoleGuard` to `/parent-dashboard`, `/clinician-dashboard`, `/school-dashboard`, and legacy `/dashboard/*` routes; wire `RequireAuth` to `/settings`.
+- Allow `super_admin` to bypass role checks while preserving per-role rules for parent/patient, clinician, and school admin.
+- Audit `Header`/`ProfileMenu` links to ensure they align with the new guard rules (hide or disable if role mismatch).
+- Add QA coverage for login redirect, correct dashboard access, and denied access messaging.
+
+## O2) Gap analysis (repo vs target)
+| Area | Repo reality | Target state | Gap | Next step |
+| --- | --- | --- | --- | --- |
+| Route access control | Route guards enforced in `src/App.tsx` | Enforced auth + role guard in routing | Done (verify) | QA + docs updates |
+| Role gating | Role-based guards in router | Role-specific routes enforced | Done (verify) | QA + docs updates |
+| Offline sync | Offline queue exists, `public/sw.js` sync stub is empty | Background sync drains queue | No SW integration | Implement `syncOfflineData()` to process queue |
+| API ownership | Backend has `authenticate`/`authorize` middleware | Frontend + backend roles aligned | Documentation/behavior drift | Align session/progress flows, update `docs/API_SPEC.md` |
+| QA coverage | Playwright route guard tests added | Automated guard + sync tests | Sync tests pending | Add sync tests later |
+
+## P) Delivery checklist
+- Update `docs/API_SPEC.md` for any new endpoints or auth changes introduced by the steps above.
+- Update `docs/QA_CHECKLIST.md` with verification for route guards, offline sync, and exports.
+- Add tests (unit or Playwright) for any new route guard or sync flows.
+
+## Q) Related repo docs
+- `docs/APP_TABLES.md` (routes, storage keys, module IDs).
+- `docs/REPO_GROUND_TRUTH.md` (inventory snapshot).
+- `docs/ARCHITECTURE_DIAGRAMS.md` (diagrams).

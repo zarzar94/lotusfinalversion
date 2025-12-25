@@ -15,10 +15,10 @@
 | `/about` | `AboutPage` | No | None | عن المركز.【F:src/App.tsx†L616-L624】 |
 | `/function/:slug` | `BrainFunctionPage` | No | None | محتوى وظيفي تفصيلي.【F:src/App.tsx†L630-L637】 |
 | `/login` | `LoginPage` | No | None | شاشة تسجيل الدخول.【F:src/App.tsx†L640-L648】 |
-| `/parent-dashboard`, `/dashboard/parent` | `ParentDashboard` | UI-gated | Parent/Patient | ديمو/محلي، بلا حراسة route.【F:src/App.tsx†L662-L686】 |
-| `/clinician-dashboard`, `/dashboard/clinician` | `ClinicianDashboard` | UI-gated | Clinician | ديمو/محلي، بلا حراسة route.【F:src/App.tsx†L670-L694】 |
-| `/school-dashboard`, `/dashboard/educator` | `SchoolDashboard` | UI-gated | School Admin | ديمو/محلي، بلا حراسة route.【F:src/App.tsx†L654-L702】 |
-| `/settings` | `SettingsPage` | UI-gated | Any authenticated | يقرأ/يكتب إعدادات محلية.【F:src/App.tsx†L704-L710】 |
+| `/parent-dashboard`, `/dashboard/parent` | `ParentDashboard` | Yes (route guard) | Parent | Route-guarded access.【F:src/App.tsx†L662-L686】 |
+| `/clinician-dashboard`, `/dashboard/clinician` | `ClinicianDashboard` | Yes (route guard) | Clinician | Route-guarded access.【F:src/App.tsx†L670-L694】 |
+| `/school-dashboard`, `/dashboard/educator` | `SchoolDashboard` | Yes (route guard) | School Admin | Route-guarded access.【F:src/App.tsx†L654-L702】 |
+| `/settings` | `SettingsPage` | Yes (route guard) | Any authenticated | Reads/writes local settings.【F:src/App.tsx†L704-L710】 |
 | `*` | `NotFoundPage` | No | None | مسار 404.【F:src/App.tsx†L716-L723】 |
 
 ## 2) LocalStorage / sessionStorage schema

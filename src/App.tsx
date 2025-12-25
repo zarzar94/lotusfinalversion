@@ -12,6 +12,8 @@ import ProgressDashboard from './components/ProgressDashboard';
 import ScrollProgressTracker from './components/ScrollProgressTracker';
 import ActivityFeed from './components/ActivityFeed';
 import NotificationCenter from './components/NotificationCenter';
+import RequireAuth from './components/auth/RequireAuth';
+import RoleGuard from './components/auth/RoleGuard';
 import { ProgressExportButton } from './components/ProgressExport';
 import { useClinicalSync } from './hooks/useClinicalSync';
 import StickySmartCTA from './components/StickySmartCTA';
@@ -654,25 +656,31 @@ function App() {
                     <Route
                       path="/school-dashboard"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <SchoolDashboard />
-                        </Suspense>
+                        <RoleGuard allowedRoles={['school_admin']}>
+                          <Suspense fallback={<PageLoader />}>
+                            <SchoolDashboard />
+                          </Suspense>
+                        </RoleGuard>
                       }
                     />
                     <Route
                       path="/parent-dashboard"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ParentDashboard />
-                        </Suspense>
+                        <RoleGuard allowedRoles={['parent']}>
+                          <Suspense fallback={<PageLoader />}>
+                            <ParentDashboard />
+                          </Suspense>
+                        </RoleGuard>
                       }
                     />
                     <Route
                       path="/clinician-dashboard"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ClinicianDashboard />
-                        </Suspense>
+                        <RoleGuard allowedRoles={['clinician']}>
+                          <Suspense fallback={<PageLoader />}>
+                            <ClinicianDashboard />
+                          </Suspense>
+                        </RoleGuard>
                       }
                     />
 
@@ -680,33 +688,41 @@ function App() {
                     <Route
                       path="/dashboard/parent"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ParentDashboard />
-                        </Suspense>
+                        <RoleGuard allowedRoles={['parent']}>
+                          <Suspense fallback={<PageLoader />}>
+                            <ParentDashboard />
+                          </Suspense>
+                        </RoleGuard>
                       }
                     />
                     <Route
                       path="/dashboard/clinician"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <ClinicianDashboard />
-                        </Suspense>
+                        <RoleGuard allowedRoles={['clinician']}>
+                          <Suspense fallback={<PageLoader />}>
+                            <ClinicianDashboard />
+                          </Suspense>
+                        </RoleGuard>
                       }
                     />
                     <Route
                       path="/dashboard/educator"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <SchoolDashboard />
-                        </Suspense>
+                        <RoleGuard allowedRoles={['school_admin']}>
+                          <Suspense fallback={<PageLoader />}>
+                            <SchoolDashboard />
+                          </Suspense>
+                        </RoleGuard>
                       }
                     />
                     <Route
                       path="/settings"
                       element={
-                        <Suspense fallback={<PageLoader />}>
-                          <SettingsPage />
-                        </Suspense>
+                        <RequireAuth>
+                          <Suspense fallback={<PageLoader />}>
+                            <SettingsPage />
+                          </Suspense>
+                        </RequireAuth>
                       }
                     />
 
