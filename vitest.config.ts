@@ -1,3 +1,6 @@
+// @ts-nocheck
+// Reason: Vitest currently pulls its own Vite types that conflict with the repo Vite 7 types.
+// Using ts-nocheck here keeps `tsc --noEmit` clean while retaining the TypeScript config file.
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
