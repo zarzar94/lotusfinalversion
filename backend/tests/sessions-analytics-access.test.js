@@ -26,6 +26,7 @@ const createUser = async ({
   role = 'patient',
   children = [],
   school,
+  clinic,
 }) => User.create({
   email,
   password: 'TestPass1!',
@@ -33,6 +34,7 @@ const createUser = async ({
   role,
   children,
   school,
+  clinic,
 });
 
 const tokenFor = (user) => generateTokens(user._id).token;
@@ -59,7 +61,9 @@ test('enforces patient-scoped analytics access', async () => {
     school: 'Lotus',
   });
   const parentUnlinked = await createUser({ email: 'parent2@example.com', role: 'parent', school: 'Lotus' });
-  const clinician = await createUser({ email: 'clinician@example.com', role: 'clinician' });
+  const clinician = await createUser({ email: 'clinician@example.com', role: 'clinician', school: 'Lotus' });
+  const clinicianOther = await createUser({ email: 'clinician2@example.com', role: 'clinician', school: 'Other' });
+  const clinicianUnscoped = await createUser({ email: 'clinician3@example.com', role: 'clinician' });
   const superAdmin = await createUser({ email: 'super@example.com', role: 'super_admin' });
   const schoolAdmin = await createUser({ email: 'school@example.com', role: 'school_admin', school: 'Lotus' });
   const schoolAdminOther = await createUser({ email: 'school2@example.com', role: 'school_admin', school: 'Other' });
@@ -69,7 +73,9 @@ test('enforces patient-scoped analytics access', async () => {
   const scenarios = [
     ['patient self', patient, 200],
     ['parent linked', parent, 200],
-    ['clinician', clinician, 200],
+    ['clinician same school', clinician, 200],
+    ['clinician other school', clinicianOther, 403],
+    ['clinician unscoped', clinicianUnscoped, 403],
     ['super_admin', superAdmin, 200],
     ['school_admin same school', schoolAdmin, 200],
     ['parent unlinked', parentUnlinked, 403],
@@ -94,7 +100,9 @@ test('enforces patient-scoped analytics access', async () => {
 test('enforces school-scoped analytics access', async () => {
   const schoolAdmin = await createUser({ email: 'school@example.com', role: 'school_admin', school: 'Lotus' });
   const schoolAdminNoSchool = await createUser({ email: 'school2@example.com', role: 'school_admin' });
-  const clinician = await createUser({ email: 'clinician@example.com', role: 'clinician' });
+  const clinician = await createUser({ email: 'clinician@example.com', role: 'clinician', school: 'Lotus' });
+  const clinicianOther = await createUser({ email: 'clinician2@example.com', role: 'clinician', school: 'Other' });
+  const clinicianUnscoped = await createUser({ email: 'clinician3@example.com', role: 'clinician' });
   const superAdmin = await createUser({ email: 'super@example.com', role: 'super_admin' });
   const parent = await createUser({ email: 'parent@example.com', role: 'parent', school: 'Lotus' });
 
@@ -124,11 +132,25 @@ test('enforces school-scoped analytics access', async () => {
   expect(superResponse.body.success).toBe(true);
 
   const clinicianResponse = await request(app)
-    .get('/api/sessions/analysis/school?school=Lotus')
+    .get('/api/sessions/analysis/school')
     .set('Authorization', `Bearer ${tokenFor(clinician)}`);
 
   expect(clinicianResponse.status).toBe(200);
   expect(clinicianResponse.body.success).toBe(true);
+
+  const clinicianOtherResponse = await request(app)
+    .get('/api/sessions/analysis/school?school=Lotus')
+    .set('Authorization', `Bearer ${tokenFor(clinicianOther)}`);
+
+  expect(clinicianOtherResponse.status).toBe(403);
+  expect(clinicianOtherResponse.body.error?.code).toBe('FORBIDDEN');
+
+  const clinicianUnscopedResponse = await request(app)
+    .get('/api/sessions/analysis/school')
+    .set('Authorization', `Bearer ${tokenFor(clinicianUnscoped)}`);
+
+  expect(clinicianUnscopedResponse.status).toBe(403);
+  expect(clinicianUnscopedResponse.body.error?.code).toBe('FORBIDDEN');
 
   const parentResponse = await request(app)
     .get('/api/sessions/analysis/school')

@@ -21,29 +21,34 @@ afterAll(async () => {
   await mongoServer.stop();
 });
 
-const createUser = async ({ email, role = 'patient', children = [] }) => {
+const createUser = async ({ email, role = 'patient', children = [], school, clinic }) => {
   return User.create({
     email,
     password: 'TestPass1!',
     name: `Test ${role}`,
     role,
     children,
+    school,
+    clinic,
   });
 };
 
 const tokenFor = (user) => generateTokens(user._id).token;
 
 const seedUsers = async () => {
-  const patient = await createUser({ email: 'patient@example.com', role: 'patient' });
-  const otherPatient = await createUser({ email: 'other@example.com', role: 'patient' });
+  const patient = await createUser({ email: 'patient@example.com', role: 'patient', school: 'Lotus' });
+  const otherPatient = await createUser({ email: 'other@example.com', role: 'patient', school: 'Other' });
   const parent = await createUser({
     email: 'parent@example.com',
     role: 'parent',
     children: [patient._id],
+    school: 'Lotus',
   });
-  const parentUnlinked = await createUser({ email: 'parent2@example.com', role: 'parent' });
-  const clinician = await createUser({ email: 'clinician@example.com', role: 'clinician' });
-  const schoolAdmin = await createUser({ email: 'school@example.com', role: 'school_admin' });
+  const parentUnlinked = await createUser({ email: 'parent2@example.com', role: 'parent', school: 'Lotus' });
+  const clinician = await createUser({ email: 'clinician@example.com', role: 'clinician', school: 'Lotus' });
+  const clinicianOther = await createUser({ email: 'clinician2@example.com', role: 'clinician', school: 'Other' });
+  const clinicianUnscoped = await createUser({ email: 'clinician3@example.com', role: 'clinician' });
+  const schoolAdmin = await createUser({ email: 'school@example.com', role: 'school_admin', school: 'Lotus' });
   const superAdmin = await createUser({ email: 'super@example.com', role: 'super_admin' });
 
   return {
@@ -52,6 +57,8 @@ const seedUsers = async () => {
     parent,
     parentUnlinked,
     clinician,
+    clinicianOther,
+    clinicianUnscoped,
     schoolAdmin,
     superAdmin,
   };
@@ -67,7 +74,9 @@ test('enforces role-based access for listing notes by patient', async () => {
   });
 
   const scenarios = [
-    ['clinician', users.clinician, 200],
+    ['clinician same school', users.clinician, 200],
+    ['clinician other school', users.clinicianOther, 403],
+    ['clinician unscoped', users.clinicianUnscoped, 403],
     ['super_admin', users.superAdmin, 200],
     ['parent linked', users.parent, 200],
     ['patient self', users.patient, 200],
@@ -96,7 +105,9 @@ test('enforces role-based access for creating notes', async () => {
   const scenarios = [
     ['patient self', users.patient, users.patient._id, 201],
     ['parent linked', users.parent, users.patient._id, 201],
-    ['clinician', users.clinician, users.patient._id, 201],
+    ['clinician same school', users.clinician, users.patient._id, 201],
+    ['clinician other school', users.clinicianOther, users.patient._id, 403],
+    ['clinician unscoped', users.clinicianUnscoped, users.patient._id, 403],
     ['super_admin', users.superAdmin, users.patient._id, 201],
     ['parent unlinked', users.parentUnlinked, users.patient._id, 403],
     ['other patient', users.otherPatient, users.patient._id, 403],
@@ -177,7 +188,9 @@ test('enforces role-based access for listing signatures by patient', async () =>
   });
 
   const scenarios = [
-    ['clinician', users.clinician, 200],
+    ['clinician same school', users.clinician, 200],
+    ['clinician other school', users.clinicianOther, 403],
+    ['clinician unscoped', users.clinicianUnscoped, 403],
     ['super_admin', users.superAdmin, 200],
     ['parent linked', users.parent, 200],
     ['patient self', users.patient, 200],
@@ -206,7 +219,9 @@ test('enforces role-based access for creating signatures with patientId', async 
   const scenarios = [
     ['patient self', users.patient, users.patient._id, 201],
     ['parent linked', users.parent, users.patient._id, 201],
-    ['clinician', users.clinician, users.patient._id, 201],
+    ['clinician same school', users.clinician, users.patient._id, 201],
+    ['clinician other school', users.clinicianOther, users.patient._id, 403],
+    ['clinician unscoped', users.clinicianUnscoped, users.patient._id, 403],
     ['super_admin', users.superAdmin, users.patient._id, 201],
     ['parent unlinked', users.parentUnlinked, users.patient._id, 403],
     ['other patient', users.otherPatient, users.patient._id, 403],

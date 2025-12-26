@@ -4,8 +4,9 @@
 
 import { Router } from 'express';
 import { body, validationResult } from 'express-validator';
-import { ClinicalProgress } from '../models/index.js';
+import { ClinicalProgress, User } from '../models/index.js';
 import { authenticate, authorize } from '../middleware/auth.js';
+import { canAccessPatient } from '../utils/access.js';
 
 const router = Router();
 
@@ -167,8 +168,24 @@ router.get('/patient/:patientId',
   authorize('clinician', 'super_admin'),
   async (req, res) => {
     try {
+      const patient = await User.findById(req.params.patientId).select('school clinic');
+
+      if (!patient) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Patient not found' },
+        });
+      }
+
+      if (!canAccessPatient(req, patient)) {
+        return res.status(403).json({
+          success: false,
+          error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
+        });
+      }
+
       const progress = await ClinicalProgress.findOne({
-        userId: req.params.patientId,
+        userId: patient._id,
       });
 
       if (!progress) {

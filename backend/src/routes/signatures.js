@@ -4,8 +4,9 @@
 
 import { Router } from 'express';
 import { body, param, query, validationResult } from 'express-validator';
-import { Signature } from '../models/index.js';
+import { Signature, User } from '../models/index.js';
 import { authenticate } from '../middleware/auth.js';
+import { canAccessPatient } from '../utils/access.js';
 
 const router = Router();
 
@@ -20,17 +21,6 @@ const handleValidation = (req, res, next) => {
     });
   }
   next();
-};
-
-const canAccessPatient = (req, patientId) => {
-  if (!patientId || !req.user) return false;
-  const currentId = req.userId?.toString();
-  if (['super_admin', 'clinician'].includes(req.user.role)) return true;
-  if (currentId === patientId) return true;
-  if (req.user.role === 'parent' && Array.isArray(req.user.children)) {
-    return req.user.children.some((childId) => childId.toString() === patientId);
-  }
-  return false;
 };
 
 /**
@@ -51,7 +41,14 @@ router.get('/',
 
       const query = {};
       if (patientId) {
-        if (!canAccessPatient(req, patientId.toString())) {
+        const patient = await User.findById(patientId).select('school clinic');
+        if (!patient) {
+          return res.status(404).json({
+            success: false,
+            error: { code: 'NOT_FOUND', message: 'Patient not found' },
+          });
+        }
+        if (!canAccessPatient(req, patient)) {
           return res.status(403).json({
             success: false,
             error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
@@ -101,11 +98,20 @@ router.post('/',
     try {
       const { signatureData, patientId, context, mimeType, metadata } = req.body;
 
-      if (patientId && !canAccessPatient(req, patientId)) {
-        return res.status(403).json({
-          success: false,
-          error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
-        });
+      if (patientId) {
+        const patient = await User.findById(patientId).select('school clinic');
+        if (!patient) {
+          return res.status(404).json({
+            success: false,
+            error: { code: 'NOT_FOUND', message: 'Patient not found' },
+          });
+        }
+        if (!canAccessPatient(req, patient)) {
+          return res.status(403).json({
+            success: false,
+            error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
+          });
+        }
       }
 
       const signature = new Signature({

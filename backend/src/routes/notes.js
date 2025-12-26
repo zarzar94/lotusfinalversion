@@ -4,8 +4,9 @@
 
 import { Router } from 'express';
 import { body, param, query, validationResult } from 'express-validator';
-import { Note } from '../models/index.js';
+import { Note, User } from '../models/index.js';
 import { authenticate } from '../middleware/auth.js';
+import { canAccessPatient } from '../utils/access.js';
 
 const router = Router();
 
@@ -22,17 +23,6 @@ const handleValidation = (req, res, next) => {
   next();
 };
 
-const canAccessPatient = (req, patientId) => {
-  if (!patientId || !req.user) return false;
-  const currentId = req.userId?.toString();
-  if (['super_admin', 'clinician'].includes(req.user.role)) return true;
-  if (currentId === patientId) return true;
-  if (req.user.role === 'parent' && Array.isArray(req.user.children)) {
-    return req.user.children.some((childId) => childId.toString() === patientId);
-  }
-  return false;
-};
-
 /**
  * GET /notes - List notes for a patient (or current user)
  */
@@ -46,7 +36,14 @@ router.get('/',
   async (req, res) => {
     try {
       const patientId = (req.query.patientId || req.userId).toString();
-      if (!canAccessPatient(req, patientId)) {
+      const patient = await User.findById(patientId).select('school clinic');
+      if (!patient) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Patient not found' },
+        });
+      }
+      if (!canAccessPatient(req, patient)) {
         return res.status(403).json({
           success: false,
           error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
@@ -95,7 +92,14 @@ router.post('/',
     try {
       const { patientId, content, category, tags } = req.body;
 
-      if (!canAccessPatient(req, patientId)) {
+      const patient = await User.findById(patientId).select('school clinic');
+      if (!patient) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Patient not found' },
+        });
+      }
+      if (!canAccessPatient(req, patient)) {
         return res.status(403).json({
           success: false,
           error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },

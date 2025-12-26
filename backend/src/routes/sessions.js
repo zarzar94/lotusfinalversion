@@ -6,6 +6,7 @@ import { Router } from 'express';
 import { body, query, validationResult } from 'express-validator';
 import { ClinicalProgress, Session, User } from '../models/index.js';
 import { authenticate } from '../middleware/auth.js';
+import { canAccessPatient, getClinicianScope } from '../utils/access.js';
 
 const router = Router();
 
@@ -440,21 +441,6 @@ const buildProgressAnalysis = (sessions, testKey) => {
   };
 };
 
-const canAccessPatient = (req, patient) => {
-  if (!req.user || !patient) return false;
-  const patientId = patient._id?.toString?.() ?? patient.toString();
-  const currentId = req.userId?.toString();
-  if (['super_admin', 'clinician'].includes(req.user.role)) return true;
-  if (currentId === patientId) return true;
-  if (req.user.role === 'parent' && Array.isArray(req.user.children)) {
-    return req.user.children.some((childId) => childId.toString() === patientId);
-  }
-  if (req.user.role === 'school_admin') {
-    return Boolean(req.user.school && patient.school && req.user.school === patient.school);
-  }
-  return false;
-};
-
 const buildSchoolSummary = (sessions, school) => {
   const userIds = new Set();
   let pointsSum = 0;
@@ -722,11 +708,27 @@ router.get('/analysis/patients',
       }
 
       const requestedSchool = typeof req.query.school === 'string' ? req.query.school : null;
-      const school = role === 'clinician' ? (req.user.school || requestedSchool) : requestedSchool;
-
       const queryFilter = { role: 'patient' };
-      if (school) {
-        queryFilter.school = school;
+
+      if (role === 'clinician') {
+        const scope = getClinicianScope(req.user);
+        if (!scope) {
+          return res.status(403).json({
+            success: false,
+            error: { code: 'FORBIDDEN', message: 'Clinician scope is required' },
+          });
+        }
+        if (requestedSchool) {
+          if (scope.type !== 'school' || requestedSchool !== scope.value) {
+            return res.status(403).json({
+              success: false,
+              error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
+            });
+          }
+        }
+        queryFilter[scope.type] = scope.value;
+      } else if (requestedSchool) {
+        queryFilter.school = requestedSchool;
       }
 
       const patients = await User.find(queryFilter)
@@ -832,7 +834,7 @@ router.get('/analysis/patient',
   async (req, res) => {
     try {
       const { patientId, testKey } = req.query;
-      const patient = await User.findById(patientId).select('school');
+      const patient = await User.findById(patientId).select('school clinic');
 
       if (!patient) {
         return res.status(404).json({
@@ -841,7 +843,7 @@ router.get('/analysis/patient',
         });
       }
 
-      if (!canAccessPatient(req, patient)) {
+      if (!canAccessPatient(req, patient, { allowSchoolAdmin: true })) {
         return res.status(403).json({
           success: false,
           error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
@@ -880,7 +882,28 @@ router.get('/analysis/school',
       }
 
       const requestedSchool = typeof req.query.school === 'string' ? req.query.school : null;
-      const school = role === 'school_admin' ? req.user.school : (requestedSchool || req.user.school);
+      let school = null;
+
+      if (role === 'school_admin') {
+        school = req.user.school;
+      } else if (role === 'clinician') {
+        const scope = getClinicianScope(req.user);
+        if (!scope || scope.type !== 'school') {
+          return res.status(403).json({
+            success: false,
+            error: { code: 'FORBIDDEN', message: 'School scope is required' },
+          });
+        }
+        if (requestedSchool && requestedSchool !== scope.value) {
+          return res.status(403).json({
+            success: false,
+            error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
+          });
+        }
+        school = scope.value;
+      } else {
+        school = requestedSchool || req.user.school;
+      }
 
       if (!school) {
         return res.status(400).json({
