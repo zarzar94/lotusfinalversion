@@ -339,21 +339,38 @@ StudentTable.displayName = 'StudentTable';
 export default function SchoolDashboard() {
   const { isArabic, direction, t } = useLanguage();
   const { user, isAuthenticated, isOnline } = useUser();
-  const hasAccess = usePermission('school_analytics');
+  const permissionName = 'school_analytics';
+  const hasAccess = usePermission(permissionName);
   const { sessions: sessionMetrics } = useSessionMetrics();
   const [filter, setFilter] = useState<'all' | 'at_risk' | 'on_track' | 'completed'>('all');
   const [schoolAnalysis, setSchoolAnalysis] = useState<SchoolSessionsAnalysisResponse | null>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const token = getToken();
+  const hasToken = Boolean(token);
+  const role = user?.role;
+  const canFetch = Boolean(
+    token && isAuthenticated && isOnline && role && ['school_admin', 'super_admin', 'clinician'].includes(role)
+  );
+  const isE2E = import.meta.env.VITE_E2E === 'true';
+  const debugAttrs = isE2E
+    ? {
+        'data-e2e-can-fetch': String(canFetch),
+        'data-e2e-role': role ?? 'guest',
+        'data-e2e-online': String(isOnline),
+        'data-e2e-auth': String(isAuthenticated),
+        'data-e2e-permission': permissionName,
+        'data-e2e-permission-granted': String(hasAccess),
+        'data-e2e-token': String(hasToken),
+        'data-e2e-error': analysisError ?? '',
+      }
+    : {};
 
   useEffect(() => {
     let cancelled = false;
-    const token = getToken();
-    const role = user?.role;
-    const canFetch = Boolean(
-      token && isAuthenticated && isOnline && role && ['school_admin', 'super_admin', 'clinician'].includes(role)
-    );
 
     if (!canFetch) {
       setSchoolAnalysis(null);
+      setAnalysisError(null);
       return () => {
         cancelled = true;
       };
@@ -361,25 +378,33 @@ export default function SchoolDashboard() {
 
     if (role !== 'school_admin' && !user?.school) {
       setSchoolAnalysis(null);
+      setAnalysisError(null);
       return () => {
         cancelled = true;
       };
     }
 
+    setAnalysisError(null);
     sessionsApi.getSchoolAnalysis(role === 'school_admin' ? undefined : user?.school)
       .then((response) => {
         if (cancelled) return;
-        setSchoolAnalysis(response.success ? response : null);
+        if (response.success) {
+          setSchoolAnalysis(response);
+          return;
+        }
+        setAnalysisError('school analysis failed');
+        setSchoolAnalysis(null);
       })
-      .catch(() => {
+      .catch((error) => {
         if (cancelled) return;
+        setAnalysisError(error instanceof Error ? error.message : 'school analysis failed');
         setSchoolAnalysis(null);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, isOnline, user?.role, user?.school]);
+  }, [canFetch, role, user?.school]);
 
   const hasSchoolData = schoolAnalysis !== null;
   const schoolSummary = schoolAnalysis?.summary ?? null;
@@ -470,11 +495,38 @@ export default function SchoolDashboard() {
     <section
       id="school-dashboard"
       className="page-container"
+      {...debugAttrs}
       style={{
         direction,
       }}
     >
       <ResponsiveStyles />
+      {isE2E && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 16,
+            right: 16,
+            zIndex: 1100,
+            padding: '8px 10px',
+            background: 'rgba(0,0,0,0.75)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: 8,
+            color: '#fff',
+            fontSize: 11,
+            lineHeight: 1.4,
+            pointerEvents: 'none',
+            maxWidth: 260,
+          }}
+        >
+          <div>canFetch: {String(canFetch)}</div>
+          <div>role: {role ?? 'guest'}</div>
+          <div>online: {String(isOnline)} auth: {String(isAuthenticated)}</div>
+          <div>permission: {permissionName} ({String(hasAccess)})</div>
+          <div>token: {String(hasToken)}</div>
+          <div>error: {analysisError ? analysisError.slice(0, 160) : 'none'}</div>
+        </div>
+      )}
       {/* Back Navigation */}
       <BackNavigation />
 

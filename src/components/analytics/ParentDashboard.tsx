@@ -551,23 +551,41 @@ ScoreCard.displayName = 'ScoreCard';
 export default function ParentDashboard() {
   const { isArabic, direction, t } = useLanguage();
   const { user, isAuthenticated, isOnline } = useUser();
-  const hasAccess = usePermission('view_child_reports');
+  const permissionName = 'view_child_reports';
+  const hasAccess = usePermission(permissionName);
   const { sessions: sessionMetrics } = useSessionMetrics();
   const [childrenData, setChildrenData] = useState<ChildData[] | null>(null);
   const [expandedChild, setExpandedChild] = useState<string | null>(MOCK_CHILDREN[0]?.id || null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const token = getToken();
+  const hasToken = Boolean(token);
+  const canFetch = Boolean(token && isAuthenticated && isOnline && hasAccess && user?.role === 'parent');
+  const isE2E = import.meta.env.VITE_E2E === 'true';
+  const debugAttrs = isE2E
+    ? {
+        'data-e2e-can-fetch': String(canFetch),
+        'data-e2e-role': user?.role ?? 'guest',
+        'data-e2e-online': String(isOnline),
+        'data-e2e-auth': String(isAuthenticated),
+        'data-e2e-permission': permissionName,
+        'data-e2e-permission-granted': String(hasAccess),
+        'data-e2e-token': String(hasToken),
+        'data-e2e-error': analysisError ?? '',
+      }
+    : {};
 
   useEffect(() => {
     let cancelled = false;
-    const token = getToken();
-    const canFetch = Boolean(token && isAuthenticated && isOnline && hasAccess && user?.role === 'parent');
 
     if (!canFetch) {
       setChildrenData(null);
+      setAnalysisError(null);
       return () => {
         cancelled = true;
       };
     }
 
+    setAnalysisError(null);
     sessionsApi.getChildrenAnalysis()
       .then((response) => {
         if (cancelled) return;
@@ -583,17 +601,19 @@ export default function ParentDashboard() {
           setChildrenData(normalized);
           return;
         }
+        setAnalysisError('children analysis failed');
         setChildrenData([]);
       })
-      .catch(() => {
+      .catch((error) => {
         if (cancelled) return;
+        setAnalysisError(error instanceof Error ? error.message : 'children analysis failed');
         setChildrenData([]);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [hasAccess, isAuthenticated, isOnline, user?.id, user?.role]);
+  }, [canFetch, user?.id, user?.role]);
 
   const children = useMemo(() => {
     if (childrenData !== null) return childrenData;
@@ -651,12 +671,39 @@ export default function ParentDashboard() {
     <section
       id="parent-dashboard"
       className="page-container"
+      {...debugAttrs}
       style={{
         maxWidth: 900,
         direction,
       }}
     >
       <ResponsiveStyles />
+      {isE2E && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 16,
+            right: 16,
+            zIndex: 1100,
+            padding: '8px 10px',
+            background: 'rgba(0,0,0,0.75)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: 8,
+            color: '#fff',
+            fontSize: 11,
+            lineHeight: 1.4,
+            pointerEvents: 'none',
+            maxWidth: 260,
+          }}
+        >
+          <div>canFetch: {String(canFetch)}</div>
+          <div>role: {user?.role ?? 'guest'}</div>
+          <div>online: {String(isOnline)} auth: {String(isAuthenticated)}</div>
+          <div>permission: {permissionName} ({String(hasAccess)})</div>
+          <div>token: {String(hasToken)}</div>
+          <div>error: {analysisError ? analysisError.slice(0, 160) : 'none'}</div>
+        </div>
+      )}
       {/* Back Navigation */}
       <BackNavigation />
 

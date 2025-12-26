@@ -762,7 +762,8 @@ ScoreComparisonCard.displayName = 'ScoreComparisonCard';
 export default function ClinicianDashboard() {
   const { isArabic, direction, t } = useLanguage();
   const { user, isAuthenticated, isOnline } = useUser();
-  const hasAccess = usePermission('view_patient_reports');
+  const permissionName = 'view_patient_reports';
+  const hasAccess = usePermission(permissionName);
   const [patientData, setPatientData] = useState<PatientData[] | null>(null);
   const [selectedPatient, setSelectedPatient] = useState<PatientData | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -770,19 +771,36 @@ export default function ClinicianDashboard() {
   const [trendModule, setTrendModule] = useState<'attention' | 'frequency' | 'sequence' | 'questionnaire'>('attention');
   const [analysis, setAnalysis] = useState<SessionProgressTrend | null>(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const token = getToken();
+  const hasToken = Boolean(token);
+  const canFetch = Boolean(token && isAuthenticated && isOnline && hasAccess);
+  const isE2E = import.meta.env.VITE_E2E === 'true';
+  const debugAttrs = isE2E
+    ? {
+        'data-e2e-can-fetch': String(canFetch),
+        'data-e2e-role': user?.role ?? 'guest',
+        'data-e2e-online': String(isOnline),
+        'data-e2e-auth': String(isAuthenticated),
+        'data-e2e-permission': permissionName,
+        'data-e2e-permission-granted': String(hasAccess),
+        'data-e2e-token': String(hasToken),
+        'data-e2e-error': analysisError ?? '',
+      }
+    : {};
 
   useEffect(() => {
     let cancelled = false;
-    const token = getToken();
-    const canFetch = Boolean(token && isAuthenticated && isOnline && hasAccess);
 
     if (!canFetch) {
       setPatientData(null);
+      setAnalysisError(null);
       return () => {
         cancelled = true;
       };
     }
 
+    setAnalysisError(null);
     sessionsApi.getPatientsAnalysis(user?.school)
       .then((response) => {
         if (cancelled) return;
@@ -796,17 +814,19 @@ export default function ClinicianDashboard() {
           setPatientData(normalized);
           return;
         }
+        setAnalysisError('patients analysis failed');
         setPatientData([]);
       })
-      .catch(() => {
+      .catch((error) => {
         if (cancelled) return;
+        setAnalysisError(error instanceof Error ? `patients: ${error.message}` : 'patients analysis failed');
         setPatientData([]);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [hasAccess, isAuthenticated, isOnline, user?.id, user?.school]);
+  }, [canFetch, user?.id, user?.school]);
 
   const patients = useMemo(() => {
     if (patientData !== null) return patientData;
@@ -826,7 +846,6 @@ export default function ClinicianDashboard() {
 
   useEffect(() => {
     let cancelled = false;
-    const token = getToken();
     const patientId = selectedPatient?.id;
     const usePatientScope = isMongoId(patientId);
 
@@ -846,10 +865,16 @@ export default function ClinicianDashboard() {
     request
       .then((response) => {
         if (cancelled) return;
-        setAnalysis(response.success ? response.trend ?? null : null);
+        if (response.success) {
+          setAnalysis(response.trend ?? null);
+          return;
+        }
+        setAnalysisError('trend analysis failed');
+        setAnalysis(null);
       })
-      .catch(() => {
+      .catch((error) => {
         if (cancelled) return;
+        setAnalysisError(error instanceof Error ? `trend: ${error.message}` : 'trend analysis failed');
         setAnalysis(null);
       })
       .finally(() => {
@@ -860,7 +885,7 @@ export default function ClinicianDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [trendModule, isAuthenticated, isOnline, selectedPatient?.id]);
+  }, [trendModule, isAuthenticated, isOnline, selectedPatient?.id, token]);
 
   const stats = useMemo(() => {
     const total = patients.length;
@@ -900,11 +925,38 @@ export default function ClinicianDashboard() {
     <section
       id="clinician-dashboard"
       className="page-container"
+      {...debugAttrs}
       style={{
         direction,
       }}
     >
       <ResponsiveStyles />
+      {isE2E && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 16,
+            right: 16,
+            zIndex: 1100,
+            padding: '8px 10px',
+            background: 'rgba(0,0,0,0.75)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: 8,
+            color: '#fff',
+            fontSize: 11,
+            lineHeight: 1.4,
+            pointerEvents: 'none',
+            maxWidth: 260,
+          }}
+        >
+          <div>canFetch: {String(canFetch)}</div>
+          <div>role: {user?.role ?? 'guest'}</div>
+          <div>online: {String(isOnline)} auth: {String(isAuthenticated)}</div>
+          <div>permission: {permissionName} ({String(hasAccess)})</div>
+          <div>token: {String(hasToken)}</div>
+          <div>error: {analysisError ? analysisError.slice(0, 160) : 'none'}</div>
+        </div>
+      )}
       {/* Back Navigation */}
       <BackNavigation />
 
