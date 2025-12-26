@@ -9,13 +9,27 @@ export const createIndexes = async () => {
     const db = mongoose.connection.db;
 
     // User indexes
-    await db.collection('users').createIndexes([
-      { key: { email: 1 }, unique: true, name: 'email_unique' },
+    const userCollection = db.collection('users');
+    const existingUserIndexes = await userCollection.indexes();
+    const emailIndex = existingUserIndexes.find((index) => index.key?.email === 1);
+
+    if (emailIndex && !emailIndex.unique) {
+      console.warn('User email index exists but is not unique; keeping existing index.');
+    }
+
+    const userIndexes = [
       { key: { role: 1 }, name: 'role_idx' },
       { key: { clinic: 1 }, sparse: true, name: 'clinic_idx' },
       { key: { school: 1 }, sparse: true, name: 'school_idx' },
       { key: { isActive: 1, lastLogin: -1 }, name: 'active_login_idx' },
-    ]);
+    ];
+
+    // Skip creating the email index if it already exists (legacy name email_1).
+    if (!emailIndex) {
+      userIndexes.unshift({ key: { email: 1 }, unique: true, name: 'email_unique' });
+    }
+
+    await userCollection.createIndexes(userIndexes);
 
     // ClinicalProgress indexes
     await db.collection('clinicalprogresses').createIndexes([
