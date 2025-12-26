@@ -4,6 +4,7 @@
  */
 
 import { memo, useMemo } from 'react';
+import type { ReactNode } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import {
   brandCyan,
@@ -18,7 +19,7 @@ import {
 
 interface StatCardProps {
   /** Icon to display (emoji or component) */
-  icon: string;
+  icon: ReactNode;
   /** The main value to display */
   value: string | number;
   /** Label in English */

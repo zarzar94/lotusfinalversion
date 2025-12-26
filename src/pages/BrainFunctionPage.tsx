@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getBrainFunctionBySlug, BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
 import { brandCyan, brandPurple, brandPink, brandInk } from '../components/styles';
 import { useLanguage } from '../context/LanguageContext';
+import { renderBrainFunctionIcon, toneFromColor } from '../components/icons/index';
 
 // Mini circuit brain for navigation
 function MiniCircuitBrain({ currentSlug }: { currentSlug: string }) {
@@ -115,7 +116,12 @@ function RelatedFunctions({ currentSlug }: { currentSlug: string }) {
               e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
             }}
           >
-            <span style={{ fontSize: 24 }}>{bf.icon}</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+              {renderBrainFunctionIcon(bf.id, {
+                tone: toneFromColor(bf.color),
+                size: 22,
+              })}
+            </span>
             <span style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>
               {isArabic ? bf.labelAr : bf.labelEn}
             </span>
@@ -180,7 +186,7 @@ const BrainFunctionPage = memo(function BrainFunctionPage() {
     );
   }
 
-  const { color, icon, labelEn, labelAr } = brainFunction;
+  const { color, labelEn, labelAr } = brainFunction;
   const content = isArabic && brainFunction.contentAr ? brainFunction.contentAr : brainFunction.content;
   const questionsTitle = isArabic ? 'هل تواجه أياً مما يلي؟' : 'Do any of these sound familiar?';
   const helpTitle = isArabic ? 'كيف يساعد Berard AIT' : 'How Berard AIT Can Help';
@@ -274,10 +280,13 @@ const BrainFunctionPage = memo(function BrainFunctionPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 40,
                 boxShadow: `0 8px 32px ${color}40`,
               }}>
-                {icon}
+                {renderBrainFunctionIcon(brainFunction.id, {
+                  tone: toneFromColor(color),
+                  size: 36,
+                  glow: true,
+                })}
               </div>
               <div>
                 <h1 style={{
@@ -518,10 +527,14 @@ const BrainFunctionPage = memo(function BrainFunctionPage() {
                   }}
                 >
                   <span style={{
-                    fontSize: 32,
+                    display: 'inline-flex',
+                    alignItems: 'center',
                     filter: isActive ? `drop-shadow(0 0 8px ${bf.color})` : 'none',
                   }}>
-                    {bf.icon}
+                    {renderBrainFunctionIcon(bf.id, {
+                      tone: toneFromColor(bf.color),
+                      size: 28,
+                    })}
                   </span>
                   <span style={{
                     color: isActive ? bf.color : '#fff',

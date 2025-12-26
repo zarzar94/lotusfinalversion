@@ -3,7 +3,7 @@
  * Shows helpful tips, recommendations, and guidance for users
  */
 
-import { memo, useState, useCallback } from 'react';
+import { memo, useState, useCallback, type ReactNode } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import {
   brandCyan,
@@ -15,6 +15,13 @@ import {
   radius,
   transitions,
 } from '../styles';
+import {
+  BrainCircuitIcon,
+  ReportIcon,
+  ShieldMedicalIcon,
+  CheckCircleIcon,
+  WaveformIcon,
+} from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -26,7 +33,7 @@ export interface Tip {
   titleAr?: string;
   content: string;
   contentAr?: string;
-  icon?: string;
+  icon?: ReactNode;
   category?: 'info' | 'warning' | 'success' | 'tip';
   priority?: number;
 }
@@ -35,7 +42,7 @@ interface TipsCardProps {
   tips: Tip[];
   title?: string;
   titleAr?: string;
-  icon?: string;
+  icon?: ReactNode;
   variant?: 'default' | 'compact' | 'carousel';
   color?: string;
   isArabic?: boolean;
@@ -48,7 +55,7 @@ interface InfoCardProps {
   titleAr?: string;
   content: string;
   contentAr?: string;
-  icon?: string;
+  icon?: ReactNode;
   variant?: 'info' | 'warning' | 'success' | 'tip' | 'clinical';
   isArabic?: boolean;
   actions?: {
@@ -64,7 +71,7 @@ interface GuidanceStepsProps {
     titleAr?: string;
     description: string;
     descriptionAr?: string;
-    icon?: string;
+    icon?: ReactNode;
     completed?: boolean;
   }[];
   title?: string;
@@ -82,7 +89,7 @@ export const TipsCard = memo(({
   tips,
   title,
   titleAr,
-  icon = '💡',
+  icon = <BrainCircuitIcon size={20} tone="cyan" />,
   variant = 'default',
   color = brandCyan,
   isArabic = false,
@@ -122,7 +129,7 @@ export const TipsCard = memo(({
             alignItems: 'center',
             gap: spacing[2],
           }}>
-            <span style={{ fontSize: 20 }}>{icon}</span>
+            <span style={{ display: 'flex', alignItems: 'center', fontSize: 20 }}>{icon}</span>
             <h3 style={{
               margin: 0,
               fontSize: typography.size.lg,
@@ -201,7 +208,11 @@ export const TipsCard = memo(({
                 alignItems: 'center',
                 gap: spacing[2],
               }}>
-                {currentTip.icon && <span>{currentTip.icon}</span>}
+                {currentTip.icon && (
+                  <span style={{ display: 'flex', alignItems: 'center' }}>
+                    {currentTip.icon}
+                  </span>
+                )}
                 {isArabic ? currentTip.titleAr || currentTip.title : currentTip.title}
               </h4>
             )}
@@ -254,7 +265,7 @@ export const TipsCard = memo(({
         alignItems: 'flex-start',
         gap: spacing[2],
       }}>
-        <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
+        <span style={{ display: 'flex', alignItems: 'center', fontSize: 18, flexShrink: 0 }}>{icon}</span>
         <p style={{
           margin: 0,
           fontSize: typography.size.sm,
@@ -284,7 +295,7 @@ export const TipsCard = memo(({
         alignItems: 'center',
         gap: spacing[2],
       }}>
-        <span>{icon}</span>
+        <span style={{ display: 'flex', alignItems: 'center' }}>{icon}</span>
         {isArabic ? titleAr || title : title}
       </h3>
       <ul style={{
@@ -303,7 +314,9 @@ export const TipsCard = memo(({
             }}
           >
             {tip.icon && !showBullets && (
-              <span style={{ marginRight: spacing[2] }}>{tip.icon}</span>
+              <span style={{ display: 'flex', alignItems: 'center', marginRight: spacing[2] }}>
+                {tip.icon}
+              </span>
             )}
             {isArabic ? tip.contentAr || tip.content : tip.content}
           </li>
@@ -330,11 +343,11 @@ export const InfoCard = memo(({
 }: InfoCardProps) => {
   const { t } = useLanguage();
   const variants = {
-    info: { color: brandCyan, icon: icon || 'ℹ️', bgOpacity: '08' },
-    warning: { color: '#f59e0b', icon: icon || '⚠️', bgOpacity: '10' },
-    success: { color: '#22c55e', icon: icon || '✓', bgOpacity: '08' },
-    tip: { color: brandPurple, icon: icon || '💡', bgOpacity: '08' },
-    clinical: { color: brandPink, icon: icon || '🏥', bgOpacity: '08' },
+    info: { color: brandCyan, icon: icon ?? <ReportIcon size={18} tone="cyan" />, bgOpacity: '08' },
+    warning: { color: '#f59e0b', icon: icon ?? <ShieldMedicalIcon size={18} tone="warning" />, bgOpacity: '10' },
+    success: { color: '#22c55e', icon: icon ?? <CheckCircleIcon size={18} tone="success" />, bgOpacity: '08' },
+    tip: { color: brandPurple, icon: icon ?? <BrainCircuitIcon size={18} tone="purple" />, bgOpacity: '08' },
+    clinical: { color: brandPink, icon: icon ?? <WaveformIcon size={18} tone="pink" />, bgOpacity: '08' },
   };
 
   const config = variants[variant];
@@ -362,7 +375,9 @@ export const InfoCard = memo(({
           fontSize: 18,
           flexShrink: 0,
         }}>
-          {config.icon}
+          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {config.icon}
+          </span>
         </div>
         <div style={{ flex: 1 }}>
           <h4 style={{
@@ -553,7 +568,7 @@ interface QuickAction {
   id: string;
   label: string;
   labelAr?: string;
-  icon: string;
+  icon: ReactNode;
   onClick: () => void;
   color?: string;
 }
@@ -613,7 +628,7 @@ export const QuickActionsCard = memo(({
               transition: transitions.fast,
             }}
           >
-            <span style={{ fontSize: 24 }}>{action.icon}</span>
+            <span style={{ display: 'flex', alignItems: 'center', fontSize: 24 }}>{action.icon}</span>
             <span style={{
               fontSize: typography.size.xs,
               fontWeight: typography.weight.semibold,

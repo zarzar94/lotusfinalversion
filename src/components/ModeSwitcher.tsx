@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo } from 'react';
+import { memo, useEffect, useMemo, type ReactNode } from 'react';
 import { useVisitorMode, VISITOR_MODES, type VisitorMode } from '../context/VisitorModeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useUser, type UserRole } from '../context/UserContext';
@@ -12,7 +12,7 @@ import { brandCyan, brandPink, colors, radius, spacing, typography } from './sty
 type RoleBadge = {
   label: string;
   labelAr?: string;
-  icon: string;
+  icon: ReactNode;
   color: string;
   mode?: VisitorMode;
 };
@@ -73,7 +73,7 @@ const ModeSwitcher = memo(function ModeSwitcher() {
         borderRadius: radius.lg,
       }}
     >
-      <span style={{ fontSize: 16 }}>{badge.icon}</span>
+      <span style={{ display: 'flex', alignItems: 'center', fontSize: 16 }}>{badge.icon}</span>
       <span
         style={{
           fontSize: typography.size.xs,

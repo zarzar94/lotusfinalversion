@@ -36,6 +36,16 @@ import {
   analytics,
 } from '../../styles';
 import LongitudinalCharts from '../dashboards/LongitudinalCharts';
+import LabCard from '../labui/LabCard';
+import {
+  ClinicianIcon,
+  ParentIcon,
+  ShieldMedicalIcon,
+  CheckCircleIcon,
+  WaveformIcon,
+  ReportIcon,
+  StarIcon,
+} from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -327,7 +337,7 @@ const PatientRow = memo(({
       <td style={{ padding: spacing[3], textAlign: 'center' }}>
         {patient.streak > 0 ? (
           <span style={{ fontSize: typography.size.sm }}>
-            🔥 {patient.streak}
+            <StarIcon size={14} tone="warning" /> {patient.streak}
           </span>
         ) : (
           <span style={{ color: colors.text.muted }}>-</span>
@@ -643,7 +653,7 @@ const PatientDetailModal = memo(({
                 gap: spacing[3],
               }}
             >
-              <span style={{ fontSize: 24 }}>📅</span>
+              <span style={{ fontSize: 24 }}><ReportIcon size={20} tone="purple" /></span>
               <div>
                 <div
                   style={{
@@ -910,7 +920,7 @@ export default function ClinicianDashboard() {
           color: colors.text.secondary,
         }}
       >
-        <div style={{ fontSize: 48, marginBottom: spacing[4] }}>🔒</div>
+        <div style={{ fontSize: 48, marginBottom: spacing[4] }}><ShieldMedicalIcon size={48} tone="warning" /></div>
         <h2 style={{ color: colors.text.primary, marginBottom: spacing[2] }}>
           {t('auto.ClinicianDashboard.k15', "Access Restricted")}
         </h2>
@@ -961,7 +971,7 @@ export default function ClinicianDashboard() {
       <BackNavigation />
 
       {/* Header */}
-      <div style={{ marginBottom: spacing[8] }}>
+      <LabCard variant="panel" style={{ marginBottom: spacing[8] }}>
         <div
           style={{
             display: 'flex',
@@ -979,10 +989,9 @@ export default function ClinicianDashboard() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 24,
             }}
           >
-            👨‍⚕️
+            <ClinicianIcon size={26} tone="pink" />
           </div>
           <div>
             <h1
@@ -1001,7 +1010,7 @@ export default function ClinicianDashboard() {
             </p>
           </div>
         </div>
-      </div>
+      </LabCard>
 
       {/* Stats Cards */}
       <PageTransition animation="fade-in-up" delay={100}>
@@ -1010,28 +1019,28 @@ export default function ClinicianDashboard() {
             variant="horizontal"
             label={t('auto.ClinicianDashboard.k19', "Total Patients")}
             value={stats.total}
-            icon="👥"
+            icon={<ParentIcon size={20} tone="cyan" />}
             color={brandCyan}
           />
           <StatCard
             variant="horizontal"
             label={t('auto.ClinicianDashboard.k20', "Active Treatment")}
             value={stats.active}
-            icon="🏥"
+            icon={<ShieldMedicalIcon size={20} tone="purple" />}
             color={brandPurple}
           />
           <StatCard
             variant="horizontal"
             label={t('auto.ClinicianDashboard.k21', "Completed")}
             value={stats.completed}
-            icon="✅"
+            icon={<CheckCircleIcon size={20} tone="success" />}
             color="#22c55e"
           />
           <StatCard
             variant="horizontal"
             label={t('auto.ClinicianDashboard.k22', "Avg Improvement")}
             value={analysisLoading ? '...' : `+${stats.avgImprovement}%`}
-            icon="📈"
+            icon={<WaveformIcon size={20} tone="warning" />}
             color="#f59e0b"
           />
         </div>
@@ -1328,7 +1337,7 @@ export default function ClinicianDashboard() {
         <TipsCard
           title="Clinical Tips"
           titleAr="نصائح سريرية"
-          icon="🩺"
+          icon={<ShieldMedicalIcon size={20} tone="purple" />}
           color={brandPurple}
           isArabic={isArabic}
           tips={[

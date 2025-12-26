@@ -12,7 +12,13 @@ import {
   colors,
   shadows,
 } from './styles';
-import { CheckCircleIcon, ShieldIcon, StarIcon, UsersIcon } from './Icons';
+import {
+  CheckCircleIcon,
+  ShieldMedicalIcon,
+  StarIcon,
+  ParentIcon,
+  SchoolIcon,
+} from './icons/index';
 
 interface TrustSignal {
   id: string;
@@ -85,7 +91,7 @@ export default function TrustSignals() {
   const signals: TrustSignal[] = useMemo(() => [
     {
       id: 'clients',
-      icon: <CheckCircleIcon size={24} color={colors.success} />,
+      icon: <ParentIcon size={24} tone="success" />,
       value: '500+',
       label: t('trustSignals.clientsHelped'),
       color: colors.success,
@@ -95,7 +101,7 @@ export default function TrustSignals() {
     },
     {
       id: 'certified',
-      icon: <ShieldIcon size={24} color={brandCyan} />,
+      icon: <ShieldMedicalIcon size={24} tone="cyan" />,
       value: '100%',
       label: t('trustSignals.certified'),
       color: brandCyan,
@@ -105,17 +111,17 @@ export default function TrustSignals() {
     },
     {
       id: 'rating',
-      icon: <StarIcon size={24} color="#f59e0b" />,
+      icon: <StarIcon size={24} tone="warning" />,
       value: '4.9/5',
       label: t('trustSignals.rating'),
-      color: '#f59e0b',
+      color: colors.warning,
       relevantModes: ['parent'],
       detailsEn: 'Based on verified family reviews',
       detailsAr: 'auto.TrustSignals.k10',
     },
     {
       id: 'schools',
-      icon: <UsersIcon size={24} color={brandPurple} />,
+      icon: <SchoolIcon size={24} tone="purple" />,
       value: '25+',
       label: t('trustSignals.schoolPartners'),
       color: brandPurple,
@@ -347,7 +353,7 @@ export default function TrustSignals() {
                 color: colors.text.muted,
               }}
             >
-              <CheckCircleIcon size={16} color={colors.success} />
+              <CheckCircleIcon size={16} tone="success" />
               {text}
             </div>
           ))}
@@ -411,7 +417,11 @@ export default function TrustSignals() {
                   borderRadius: radius.lg,
                 }}
               >
-                <CheckCircleIcon size={18} color={visitorConfig.color} style={{ flexShrink: 0, marginTop: 2 }} />
+                <CheckCircleIcon
+                  size={18}
+                  tone="muted"
+                  style={{ color: visitorConfig.color, flexShrink: 0, marginTop: 2 }}
+                />
                 <span style={{
                   fontSize: typography.size.sm,
                   color: colors.text.secondary,

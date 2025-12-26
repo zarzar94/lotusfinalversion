@@ -34,6 +34,8 @@ import {
   dashboardExport,
   analytics,
 } from '../../styles';
+import LabCard from '../labui/LabCard';
+import { SchoolIcon, ParentIcon, WaveformIcon, CheckCircleIcon, ShieldMedicalIcon } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -480,7 +482,7 @@ export default function SchoolDashboard() {
           color: colors.text.secondary,
         }}
       >
-        <div style={{ fontSize: 48, marginBottom: spacing[4] }}>🔒</div>
+        <div style={{ fontSize: 48, marginBottom: spacing[4] }}><ShieldMedicalIcon size={48} tone="warning" /></div>
         <h2 style={{ color: colors.text.primary, marginBottom: spacing[2] }}>
           {t('auto.SchoolDashboard.k10', "Access Restricted")}
         </h2>
@@ -531,7 +533,7 @@ export default function SchoolDashboard() {
       <BackNavigation />
 
       {/* Header */}
-      <div style={{ marginBottom: spacing[8] }}>
+      <LabCard variant="panel" style={{ marginBottom: spacing[8] }}>
         <div
           style={{
             display: 'flex',
@@ -549,10 +551,9 @@ export default function SchoolDashboard() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 24,
             }}
           >
-            🏫
+            <SchoolIcon size={26} tone="warning" />
           </div>
           <div>
             <h1
@@ -571,7 +572,7 @@ export default function SchoolDashboard() {
             </p>
           </div>
         </div>
-      </div>
+      </LabCard>
 
       {/* Metric Cards */}
       <PageTransition animation="fade-in-up" delay={100}>
@@ -580,14 +581,14 @@ export default function SchoolDashboard() {
             label={t('auto.SchoolDashboard.k14', "Total Students")}
             value={metrics.totalStudents}
             subtitle={t('auto.SchoolDashboard.k15', "Enrolled in program")}
-            icon="👥"
+            icon={<ParentIcon size={20} tone="cyan" />}
             color={brandCyan}
           />
           <StatCard
             label={t('auto.SchoolDashboard.k16', "Avg. Progress")}
             value={`${metrics.avgProgress}%`}
             subtitle={t('auto.SchoolDashboard.k17', "Sessions completed")}
-            icon="📈"
+            icon={<WaveformIcon size={20} tone="purple" />}
             color={brandPurple}
             trend={{ value: 12, isPositive: true }}
           />
@@ -595,14 +596,14 @@ export default function SchoolDashboard() {
             label={t('auto.SchoolDashboard.k18', "Completed")}
             value={metrics.completed}
             subtitle={t('auto.SchoolDashboard.k19', "Finished program")}
-            icon="✅"
+            icon={<CheckCircleIcon size={20} tone="success" />}
             color="#22c55e"
           />
           <StatCard
             label={t('auto.SchoolDashboard.k20', "Need Attention")}
             value={metrics.atRisk}
             subtitle={t('auto.SchoolDashboard.k21', "At-risk students")}
-            icon="⚠️"
+            icon={<ShieldMedicalIcon size={20} tone="error" />}
             color="#ef4444"
           />
         </div>
@@ -809,7 +810,7 @@ export default function SchoolDashboard() {
         <TipsCard
           title="School Admin Tips"
           titleAr="نصائح للمشرف"
-          icon="🏫"
+          icon={<SchoolIcon size={20} tone="purple" />}
           color={brandPurple}
           isArabic={isArabic}
           tips={[

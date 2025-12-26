@@ -12,7 +12,17 @@ import {
   transitions,
   colors,
 } from './styles';
-import { BrainIcon, HeadphonesIcon, PhoneIcon, DownloadIcon, CheckCircleIcon } from './Icons';
+import {
+  BrainCircuitIcon,
+  HeadsetIcon,
+  DownloadIcon,
+  ReportIcon,
+  ShieldMedicalIcon,
+  SchoolIcon,
+  ClinicianIcon,
+  ParentIcon,
+  WaveformIcon,
+} from './icons/index';
 
 // Quick action configuration per visitor mode
 interface QuickAction {
@@ -45,7 +55,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
     actions: [
       {
         id: 'demo',
-        icon: <HeadphonesIcon size={24} color="#fff" />,
+        icon: <SchoolIcon size={24} tone="warning" />,
         titleEn: 'Request School Demo',
         titleAr: 'طلب عرض تجريبي للمدرسة',
         descriptionEn: 'Schedule a presentation for your administration',
@@ -55,7 +65,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
       },
       {
         id: 'pilot',
-        icon: <DownloadIcon size={24} color="#fff" />,
+        icon: <DownloadIcon size={24} tone="warning" />,
         titleEn: 'Download Pilot Kit',
         titleAr: 'تحميل ملف البرنامج التجريبي',
         descriptionEn: 'Get our school partnership materials',
@@ -66,7 +76,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
       },
       {
         id: 'assess',
-        icon: <BrainIcon size={24} color="#fff" />,
+        icon: <BrainCircuitIcon size={24} tone="warning" />,
         titleEn: 'Try Group Screening',
         titleAr: 'جرب الفحص الجماعي',
         descriptionEn: 'Preview our classroom assessment tools',
@@ -75,7 +85,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
       },
       {
         id: 'results',
-        icon: '📊',
+        icon: <ReportIcon size={24} tone="warning" />,
         titleEn: 'View Sample Reports',
         titleAr: 'عرض تقارير نموذجية',
         descriptionEn: 'See what school reports look like',
@@ -92,7 +102,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
     actions: [
       {
         id: 'screening',
-        icon: <BrainIcon size={24} color="#fff" />,
+        icon: <ParentIcon size={24} tone="purple" />,
         titleEn: 'Book Free Screening',
         titleAr: 'حجز فحص مجاني',
         descriptionEn: 'Schedule your child\'s initial assessment',
@@ -102,7 +112,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
       },
       {
         id: 'checklist',
-        icon: <CheckCircleIcon size={24} color="#fff" />,
+        icon: <ReportIcon size={24} tone="purple" />,
         titleEn: 'Take Checklist',
         titleAr: 'إجراء قائمة الفحص',
         descriptionEn: 'Complete our auditory processing questionnaire',
@@ -111,7 +121,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
       },
       {
         id: 'soundlab',
-        icon: <HeadphonesIcon size={24} color="#fff" />,
+        icon: <HeadsetIcon size={24} tone="purple" />,
         titleEn: 'Try Sound Lab',
         titleAr: 'جرب مختبر الصوت',
         descriptionEn: 'Interactive auditory exploration games',
@@ -120,7 +130,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
       },
       {
         id: 'program',
-        icon: '📖',
+        icon: <ShieldMedicalIcon size={24} tone="pink" />,
         titleEn: 'Learn About Program',
         titleAr: 'تعرف على البرنامج',
         descriptionEn: 'Understand how Bérard AIT works',
@@ -137,7 +147,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
     actions: [
       {
         id: 'protocol',
-        icon: '📋',
+        icon: <BrainCircuitIcon size={24} tone="purple" />,
         titleEn: 'View Clinical Protocol',
         titleAr: 'عرض البروتوكول السريري',
         descriptionEn: 'Review our evidence-based methodology',
@@ -147,7 +157,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
       },
       {
         id: 'referral',
-        icon: <PhoneIcon size={24} color="#fff" />,
+        icon: <ClinicianIcon size={24} tone="pink" />,
         titleEn: 'Referral Partnership',
         titleAr: 'شراكة الإحالة',
         descriptionEn: 'Establish a professional referral relationship',
@@ -156,7 +166,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
       },
       {
         id: 'research',
-        icon: '🔬',
+        icon: <ReportIcon size={24} tone="pink" />,
         titleEn: 'Research & Evidence',
         titleAr: 'الأبحاث والأدلة',
         descriptionEn: 'Access studies and clinical documentation',
@@ -165,7 +175,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
       },
       {
         id: 'results',
-        icon: '📊',
+        icon: <WaveformIcon size={24} tone="pink" />,
         titleEn: 'Clinical Outcomes',
         titleAr: 'النتائج السريرية',
         descriptionEn: 'Review documented improvement metrics',

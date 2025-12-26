@@ -16,6 +16,14 @@ import {
 import { BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
 import { useLanguage } from '../context/LanguageContext';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import {
+  renderBrainFunctionIcon,
+  toneFromColor,
+  ReportIcon,
+  WaveformIcon,
+  BrainCircuitIcon,
+  CheckCircleIcon,
+} from './icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -201,10 +209,13 @@ const InfoModal = memo(({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 28,
               boxShadow: `0 8px 24px ${node.color}22`,
             }}>
-              {node.icon}
+              {renderBrainFunctionIcon(node.id, {
+                tone: toneFromColor(node.color),
+                size: 26,
+                glow: true,
+              })}
             </div>
             <div>
               <h2
@@ -308,7 +319,7 @@ const InfoModal = memo(({
               alignItems: 'center',
               gap: spacing[2],
             }}>
-              <span style={{ fontSize: typography.size.lg }}>💡</span>
+              <BrainCircuitIcon size={18} tone={toneFromColor(node.color)} />
               {text.howItHelps}
             </h3>
             <p style={{
@@ -335,7 +346,7 @@ const InfoModal = memo(({
               alignItems: 'center',
               gap: spacing[2],
             }}>
-              <span style={{ fontSize: typography.size.md }}>✨</span>
+              <CheckCircleIcon size={16} tone={toneFromColor(node.color)} />
               {text.expectedBenefits}
             </h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2] }}>
@@ -652,13 +663,13 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
 
   // Platform feature cards data
   const platformFeatures = isArabic ? [
-    { icon: '🎧', title: '20 جلسة', desc: 'برنامج مكثف', color: brandCyan },
-    { icon: '📊', title: 'تتبع التقدم', desc: 'نتائج موثقة', color: brandPurple },
-    { icon: '🧠', title: '10 مناطق', desc: 'تحفيز شامل', color: brandPink },
+    { Icon: ReportIcon, title: '20 جلسة', desc: 'برنامج مكثف', color: brandCyan },
+    { Icon: WaveformIcon, title: 'تتبع التقدم', desc: 'نتائج موثقة', color: brandPurple },
+    { Icon: BrainCircuitIcon, title: '10 مناطق', desc: 'تحفيز شامل', color: brandPink },
   ] : [
-    { icon: '🎧', title: '20 Sessions', desc: 'Intensive Program', color: brandCyan },
-    { icon: '📊', title: 'Track Progress', desc: 'Documented Results', color: brandPurple },
-    { icon: '🧠', title: '10 Areas', desc: 'Comprehensive', color: brandPink },
+    { Icon: ReportIcon, title: '20 Sessions', desc: 'Intensive Program', color: brandCyan },
+    { Icon: WaveformIcon, title: 'Track Progress', desc: 'Documented Results', color: brandPurple },
+    { Icon: BrainCircuitIcon, title: '10 Areas', desc: 'Comprehensive', color: brandPink },
   ];
 
   return (
@@ -824,7 +835,9 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
                   transition: transitions.normal,
                 }}
               >
-                <div style={{ fontSize: 24, marginBottom: spacing[1.5] }}>{feature.icon}</div>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: spacing[1.5] }}>
+                  <feature.Icon size={24} tone={toneFromColor(feature.color)} glow />
+                </div>
                 <div style={{
                   fontSize: typography.size.sm,
                   fontWeight: typography.weight.bold,
@@ -955,7 +968,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
                   justifyContent: 'center',
                   fontSize: 16,
                 }}>
-                  🧠
+                  <BrainCircuitIcon size={18} tone="cyan" />
                 </div>
                 <div>
                   <div style={{
@@ -1689,7 +1702,12 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
               gap: spacing[2],
               marginBottom: spacing[2],
             }}>
-              <span style={{ fontSize: 20 }}>{tooltipNode.icon}</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                {renderBrainFunctionIcon(tooltipNode.id, {
+                  tone: toneFromColor(tooltipNode.color),
+                  size: 18,
+                })}
+              </span>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <span style={{
                   fontSize: typography.size.sm,
@@ -1763,7 +1781,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
             display: 'inline-block',
             animation: reducedMotion ? 'none' : 'hintPulse 1.5s ease-in-out infinite',
           }}>
-            👆
+            <WaveformIcon size={16} tone="cyan" />
           </span>
           <p
             style={{

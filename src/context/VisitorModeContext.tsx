@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { notifyLocalChange } from '../utils/sync';
+import { SchoolIcon, ParentIcon, ClinicianIcon } from '../components/icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // VISITOR MODE TYPES
@@ -12,7 +13,7 @@ interface VisitorModeConfig {
   id: VisitorMode;
   label: string;
   labelAr: string;
-  icon: string;
+  icon: ReactNode;
   description: string;
   descriptionAr: string;
   ctaLabel: string;
@@ -31,7 +32,7 @@ export const VISITOR_MODES: Record<VisitorMode, VisitorModeConfig> = {
     id: 'school',
     label: 'Schools',
     labelAr: 'المدارس',
-    icon: '🏫',
+    icon: <SchoolIcon size={18} tone="warning" />,
     description: 'Explore classroom screening and school partnerships',
     descriptionAr: 'استكشف فحص الفصول الدراسية والشراكات المدرسية',
     ctaLabel: 'Request School Demo',
@@ -44,7 +45,7 @@ export const VISITOR_MODES: Record<VisitorMode, VisitorModeConfig> = {
     id: 'parent',
     label: 'Parents',
     labelAr: 'الأهالي',
-    icon: '👨‍👩‍👧',
+    icon: <ParentIcon size={18} tone="purple" />,
     description: 'Check your child\'s auditory processing',
     descriptionAr: 'افحص المعالجة السمعية لطفلك',
     ctaLabel: 'Book Screening',
@@ -57,7 +58,7 @@ export const VISITOR_MODES: Record<VisitorMode, VisitorModeConfig> = {
     id: 'clinician',
     label: 'Clinicians',
     labelAr: 'الأخصائيون',
-    icon: '👨‍⚕️',
+    icon: <ClinicianIcon size={18} tone="pink" />,
     description: 'Evidence-based auditory integration training',
     descriptionAr: 'تدريب التكامل السمعي القائم على الأدلة',
     ctaLabel: 'Clinician Inquiry',

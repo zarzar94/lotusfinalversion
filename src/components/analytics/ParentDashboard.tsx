@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, memo } from 'react';
+import { useState, useMemo, useEffect, memo, type ReactNode } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
 import { useSessionMetrics } from '../../hooks/useSessionMetrics';
@@ -37,6 +37,17 @@ import {
 } from '../../styles';
 import LongitudinalCharts from '../dashboards/LongitudinalCharts';
 import { getStreakDays, getUniqueSessionStats } from '../../utils/sessionStats';
+import LabCard from '../labui/LabCard';
+import {
+  ParentIcon,
+  ReportIcon,
+  WaveformIcon,
+  StarIcon,
+  BrainCircuitIcon,
+  HeadsetIcon,
+  ShieldMedicalIcon,
+  CheckCircleIcon,
+} from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -104,7 +115,7 @@ const getMilestones = (sessions: number): Milestone[] => [
     titleAr: 'auto.ParentDashboard.k21',
     achieved: sessions >= 1,
     achievedAt: sessions >= 1 ? Date.now() - 86400000 * 10 : undefined,
-    icon: '🎯',
+    icon: <ReportIcon size={16} tone="cyan" />,
     category: 'clinical',
     points: 50,
   },
@@ -114,7 +125,7 @@ const getMilestones = (sessions: number): Milestone[] => [
     titleAr: 'auto.ParentDashboard.k22',
     achieved: sessions >= 5,
     achievedAt: sessions >= 5 ? Date.now() - 86400000 * 7 : undefined,
-    icon: '📅',
+    icon: <WaveformIcon size={16} tone="purple" />,
     category: 'clinical',
     points: 100,
   },
@@ -124,7 +135,7 @@ const getMilestones = (sessions: number): Milestone[] => [
     titleAr: 'auto.ParentDashboard.k23',
     achieved: sessions >= 10,
     achievedAt: sessions >= 10 ? Date.now() - 86400000 * 3 : undefined,
-    icon: '⭐',
+    icon: <BrainCircuitIcon size={16} tone="pink" />,
     category: 'clinical',
     points: 150,
   },
@@ -133,7 +144,7 @@ const getMilestones = (sessions: number): Milestone[] => [
     title: '15 Sessions',
     titleAr: 'auto.ParentDashboard.k24',
     achieved: sessions >= 15,
-    icon: '🚀',
+    icon: <CheckCircleIcon size={16} tone="warning" />,
     category: 'mastery',
     points: 200,
   },
@@ -142,7 +153,7 @@ const getMilestones = (sessions: number): Milestone[] => [
     title: 'Program Graduate',
     titleAr: 'auto.ParentDashboard.k25',
     achieved: sessions >= 20,
-    icon: '🎓',
+    icon: <StarIcon size={16} tone="success" />,
     category: 'mastery',
     points: 300,
   },
@@ -318,7 +329,7 @@ const ChildProgressCard = memo(({
                 gap: spacing[1],
               }}
             >
-              <span>🔥</span>
+              <span><StarIcon size={14} tone="warning" /></span>
               <span
                 style={{
                   fontSize: typography.size.sm,
@@ -403,19 +414,19 @@ const ChildProgressCard = memo(({
             <ScoreCard
               label={t('auto.ParentDashboard.k4', "Attention")}
               value={child.attentionScore}
-              icon="🎯"
+              icon={<BrainCircuitIcon size={18} tone="cyan" />}
               color={brandCyan}
             />
             <ScoreCard
               label={t('auto.ParentDashboard.k5', "Processing")}
               value={child.processingSpeed}
-              icon="⚡"
+              icon={<WaveformIcon size={18} tone="purple" />}
               color={brandPurple}
             />
             <ScoreCard
               label={t('auto.ParentDashboard.k6', "Auditory")}
               value={child.auditoryDiscrimination}
-              icon="👂"
+              icon={<HeadsetIcon size={18} tone="pink" />}
               color={brandPink}
             />
           </div>
@@ -509,7 +520,7 @@ const ScoreCard = memo(({
 }: {
   label: string;
   value: number;
-  icon: string;
+  icon: ReactNode;
   color: string;
 }) => (
   <div
@@ -521,7 +532,9 @@ const ScoreCard = memo(({
       textAlign: 'center',
     }}
   >
-    <div style={{ fontSize: 20, marginBottom: spacing[1] }}>{icon}</div>
+    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: spacing[1] }}>
+      {icon}
+    </div>
     <div
       style={{
         fontSize: typography.size.xl,
@@ -656,7 +669,7 @@ export default function ParentDashboard() {
           color: colors.text.secondary,
         }}
       >
-        <div style={{ fontSize: 48, marginBottom: spacing[4] }}>🔒</div>
+        <div style={{ fontSize: 48, marginBottom: spacing[4] }}><ShieldMedicalIcon size={48} tone="warning" /></div>
         <h2 style={{ color: colors.text.primary, marginBottom: spacing[2] }}>
           {t('auto.ParentDashboard.k9', "Access Restricted")}
         </h2>
@@ -708,7 +721,7 @@ export default function ParentDashboard() {
       <BackNavigation />
 
       {/* Header */}
-      <div style={{ marginBottom: spacing[8] }}>
+      <LabCard variant="panel" style={{ marginBottom: spacing[8] }}>
         <div
           style={{
             display: 'flex',
@@ -726,10 +739,9 @@ export default function ParentDashboard() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 24,
             }}
           >
-            👨‍👩‍👧
+            <ParentIcon size={26} tone="purple" />
           </div>
           <div>
             <h1
@@ -750,7 +762,7 @@ export default function ParentDashboard() {
             </p>
           </div>
         </div>
-      </div>
+      </LabCard>
 
       {/* Quick Stats */}
       <PageTransition animation="fade-in-up" delay={100}>
@@ -759,28 +771,28 @@ export default function ParentDashboard() {
             variant="centered"
             label={t('auto.ParentDashboard.k12', "Total Sessions")}
             value={overallStats.totalSessions}
-            icon="📊"
+            icon={<ReportIcon size={20} tone="cyan" />}
             color={brandCyan}
           />
           <StatCard
             variant="centered"
             label={t('auto.ParentDashboard.k13', "Avg Progress")}
             value={`${overallStats.avgProgress}%`}
-            icon="📈"
+            icon={<WaveformIcon size={20} tone="purple" />}
             color={brandPurple}
           />
           <StatCard
             variant="centered"
             label={t('auto.ParentDashboard.k14', "Active Children")}
             value={overallStats.activeChildren}
-            icon="👶"
+            icon={<ParentIcon size={20} tone="pink" />}
             color={brandPink}
           />
           <StatCard
             variant="centered"
             label={t('auto.ParentDashboard.k15', "Total Streaks")}
             value={overallStats.totalStreak}
-            icon="🔥"
+            icon={<StarIcon size={20} tone="warning" />}
             color="#f59e0b"
           />
         </div>
@@ -903,7 +915,7 @@ export default function ParentDashboard() {
       <TipsCard
         title="Tips for Parents"
         titleAr="نصائح للآباء"
-        icon="💡"
+        icon={<ParentIcon size={20} tone="cyan" />}
         color={brandCyan}
         isArabic={isArabic}
         tips={[

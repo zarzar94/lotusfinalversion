@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useState, useRef, useCallback, memo } from 'react';
 
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, radius, spacing, typography, transitions, modalScale } from './styles';
+import LabCard from './labui/LabCard';
+import {
+  BrainCircuitIcon,
+  WaveformIcon,
+  SpectrogramIcon,
+  HeadsetIcon,
+  ReportIcon,
+  SchoolIcon,
+  ShieldMedicalIcon,
+} from './icons/index';
 
 import AssessmentSuiteModal from './games/AssessmentSuiteModal';
 import AttentionTestPanel from './games/AttentionTestPanel';
@@ -242,7 +252,7 @@ function MedicalMonitor({
               justifyContent: 'center',
               fontSize: 20,
             }}>
-              🔬
+              <ShieldMedicalIcon size={20} tone="muted" style={{ color: waveformColor }} />
             </div>
             <div>
               <div style={{ fontSize: 14, color: waveformColor, fontWeight: 800 }}>
@@ -972,7 +982,7 @@ const GameSection = memo(function GameSection() {
               justifyContent: 'center',
               fontSize: 18,
             }}>
-              🔬
+              <ShieldMedicalIcon size={18} tone="cyan" />
             </div>
             <div>
               <div style={{ fontSize: 13, color: brandCyan, fontWeight: 800, letterSpacing: '0.5px' }}>
@@ -1073,7 +1083,7 @@ const GameSection = memo(function GameSection() {
               justifyContent: 'center',
               fontSize: 24,
             }}>
-              🎧
+              <HeadsetIcon size={24} tone="cyan" />
             </div>
             <div style={{ flex: 1, direction: isArabic ? 'rtl' : 'ltr', textAlign: 'start' }}>
               <div style={{ fontWeight: 800, fontSize: 14, color: brandCyan, marginBottom: 4 }}>
@@ -1087,11 +1097,11 @@ const GameSection = memo(function GameSection() {
               display: 'flex',
               gap: 8,
             }}>
-              {[
-                { emoji: '🔊', label: 'صوت' },
-                { emoji: '🎧', label: 'سماعات' },
-                { emoji: '🤫', label: 'هدوء' },
-              ].map((item, i) => (
+              {([
+                { Icon: WaveformIcon, label: 'صوت', tone: 'cyan' },
+                { Icon: HeadsetIcon, label: 'سماعات', tone: 'purple' },
+                { Icon: ShieldMedicalIcon, label: 'هدوء', tone: 'pink' },
+              ] as const).map((item, i) => (
                 <div key={i} style={{
                   width: 44,
                   height: 44,
@@ -1105,7 +1115,7 @@ const GameSection = memo(function GameSection() {
                   gap: 2,
                   transition: 'all 0.2s ease',
                 }}>
-                  <span style={{ fontSize: 16 }}>{item.emoji}</span>
+                  <item.Icon size={16} tone={item.tone} />
                   <span style={{ fontSize: typography.size.xxs, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
                     {item.label}
                   </span>
@@ -1160,13 +1170,15 @@ const GameSection = memo(function GameSection() {
         </div>
 
         {/* Quick Access Bar */}
-        <div style={{
-          marginTop: 20,
-          padding: 16,
-          background: 'rgba(0,0,0,0.3)',
-          borderRadius: 14,
-          border: '1px solid rgba(255,255,255,0.05)',
-        }}>
+        <LabCard
+          variant="panel"
+          padding={spacing[4]}
+          style={{
+            marginTop: spacing[5],
+            background: colors.surface.overlay,
+            border: `1px solid ${colors.border.subtle}`,
+          }}
+        >
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -1188,14 +1200,54 @@ const GameSection = memo(function GameSection() {
             flexWrap: 'wrap',
           }}>
             {[
-              { mode: 'suite', color: '#22c55e', label: t('games.tags.suite'), icon: '\u{1F9EA}' },
-              { mode: 'attention', color: '#3B82F6', label: t('games.tags.attention'), icon: '\u{1F3AF}' },
-              { mode: 'focused_attention', color: '#0EA5E9', label: t('games.focusedAttention'), icon: '\u{1F9E0}' },
-              { mode: 'frequency', color: '#8B5CF6', label: t('games.tags.frequency'), icon: '\u{1F39A}' },
-              { mode: 'sequence', color: '#F59E0B', label: t('games.tags.sequence'), icon: '\u{1F3EB}' },
-              { mode: 'dichotic_listening', color: '#10B981', label: t('games.dichoticListening'), icon: '\u{1F442}' },
-              { mode: 'speech_in_noise', color: '#F97316', label: t('games.speechInNoise'), icon: '\u{1F50A}' },
-              { mode: 'questionnaire', color: brandPink, label: t('games.tags.questionnaire'), icon: '\u{1F4DD}' },
+              {
+                mode: 'suite',
+                color: '#22c55e',
+                label: t('games.tags.suite'),
+                icon: <BrainCircuitIcon size={14} tone="muted" style={{ color: '#22c55e' }} />,
+              },
+              {
+                mode: 'attention',
+                color: '#3B82F6',
+                label: t('games.tags.attention'),
+                icon: <WaveformIcon size={14} tone="muted" style={{ color: '#3B82F6' }} />,
+              },
+              {
+                mode: 'focused_attention',
+                color: '#0EA5E9',
+                label: t('games.focusedAttention'),
+                icon: <BrainCircuitIcon size={14} tone="muted" style={{ color: '#0EA5E9' }} />,
+              },
+              {
+                mode: 'frequency',
+                color: '#8B5CF6',
+                label: t('games.tags.frequency'),
+                icon: <SpectrogramIcon size={14} tone="muted" style={{ color: '#8B5CF6' }} />,
+              },
+              {
+                mode: 'sequence',
+                color: '#F59E0B',
+                label: t('games.tags.sequence'),
+                icon: <SchoolIcon size={14} tone="muted" style={{ color: '#F59E0B' }} />,
+              },
+              {
+                mode: 'dichotic_listening',
+                color: '#10B981',
+                label: t('games.dichoticListening'),
+                icon: <HeadsetIcon size={14} tone="muted" style={{ color: '#10B981' }} />,
+              },
+              {
+                mode: 'speech_in_noise',
+                color: '#F97316',
+                label: t('games.speechInNoise'),
+                icon: <WaveformIcon size={14} tone="muted" style={{ color: '#F97316' }} />,
+              },
+              {
+                mode: 'questionnaire',
+                color: brandPink,
+                label: t('games.tags.questionnaire'),
+                icon: <ReportIcon size={14} tone="muted" style={{ color: brandPink }} />,
+              },
             ].map((btn) => (
               <button
                 key={btn.mode}
@@ -1233,7 +1285,7 @@ const GameSection = memo(function GameSection() {
               </button>
             ))}
           </div>
-        </div>
+        </LabCard>
       </div>
       )}
 
@@ -1244,16 +1296,18 @@ const GameSection = memo(function GameSection() {
 
       {/* Last Result Display - Lab Tech Style */}
       {lastOutcome && lastMeta && lastNext ? (
-        <div style={{
-          marginTop: 24,
-          padding: 20,
-          background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
-          borderRadius: 18,
-          boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
-          border: '1px solid rgba(143,211,204,0.12)',
-          position: 'relative',
-          overflow: 'hidden',
-        }}>
+        <LabCard
+          variant="panel"
+          padding={spacing[4]}
+          style={{
+            marginTop: spacing[6],
+            background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+            border: '1px solid rgba(143,211,204,0.12)',
+            boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
           {/* Top glow */}
           <div style={{
             position: 'absolute',
@@ -1346,7 +1400,7 @@ const GameSection = memo(function GameSection() {
               {lastNext.label}
             </a>
           </div>
-        </div>
+        </LabCard>
       ) : null}
 
       {/* Suite Modal */}
@@ -1520,16 +1574,18 @@ const GameSection = memo(function GameSection() {
       )}
 
       {/* Visitor Mode Indicator */}
-      <div style={{
-        marginTop: spacing[4],
-        padding: spacing[4],
-        background: `${visitorConfig.color}08`,
-        border: `1px solid ${visitorConfig.color}20`,
-        borderRadius: radius.xl,
-        display: 'flex',
-        alignItems: 'center',
-        gap: spacing[4],
-      }}>
+      <LabCard
+        variant="surface"
+        padding={spacing[4]}
+        style={{
+          marginTop: spacing[4],
+          background: `${visitorConfig.color}08`,
+          border: `1px solid ${visitorConfig.color}20`,
+          display: 'flex',
+          alignItems: 'center',
+          gap: spacing[4],
+        }}
+      >
         <div style={{
           width: 48,
           height: 48,
@@ -1576,7 +1632,7 @@ const GameSection = memo(function GameSection() {
         >
           {isArabic ? t(visitorConfig.ctaLabelAr, visitorConfig.ctaLabel) : visitorConfig.ctaLabel}
         </a>
-      </div>
+      </LabCard>
     </section>
   );
 });

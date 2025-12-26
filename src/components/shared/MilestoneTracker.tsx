@@ -3,7 +3,7 @@
  * Shows progress through clinical treatment phases with achievement badges
  */
 
-import { memo, useMemo } from 'react';
+import { memo, useMemo, type ReactNode } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import {
   brandCyan,
@@ -15,6 +15,12 @@ import {
   radius,
   transitions,
 } from '../styles';
+import {
+  BrainCircuitIcon,
+  ReportIcon,
+  WaveformIcon,
+  StarIcon,
+} from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -26,7 +32,7 @@ export interface Milestone {
   titleAr?: string;
   description?: string;
   descriptionAr?: string;
-  icon: string;
+  icon: ReactNode;
   achieved: boolean;
   achievedAt?: number;
   points?: number;
@@ -44,7 +50,7 @@ interface MilestoneTrackerProps {
 }
 
 interface AchievementBadgeProps {
-  icon: string;
+  icon: ReactNode;
   title: string;
   titleAr?: string;
   description?: string;
@@ -137,7 +143,11 @@ export const MilestoneTracker = memo(({
               }}
               title={isArabic ? milestone.titleAr || milestone.title : milestone.title}
             >
-              <span style={{ fontSize: 14 }}>{milestone.icon}</span>
+              <span style={{ display: 'flex', alignItems: 'center', fontSize: 14 }}>
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {milestone.icon}
+                </span>
+              </span>
               <span
                 style={{
                   fontSize: typography.size.xs,
@@ -221,7 +231,9 @@ export const MilestoneTracker = memo(({
                     transition: transitions.normal,
                   }}
                 >
-                  {milestone.icon}
+                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {milestone.icon}
+                  </span>
                 </div>
 
                 {/* Content */}
@@ -453,7 +465,9 @@ export const AchievementBadge = memo(({
               animation: 'badgeShine 3s ease-in-out infinite',
             }} />
           )}
-          <span style={{ position: 'relative', zIndex: 1 }}>{icon}</span>
+          <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {icon}
+          </span>
         </div>
 
         {/* Details */}
@@ -616,10 +630,10 @@ export const TreatmentPhaseIndicator = memo(({
 }: TreatmentPhaseProps) => {
   const { t } = useLanguage();
   const phases = [
-    { key: 'assessment', label: 'Assessment', labelAr: 'auto.MilestoneTracker.k3', icon: '📋', range: [0, 0] },
-    { key: 'active', label: 'Active', labelAr: 'auto.MilestoneTracker.k4', icon: '🎯', range: [1, 14] },
-    { key: 'maintenance', label: 'Maintenance', labelAr: 'auto.MilestoneTracker.k5', icon: '🔄', range: [15, 19] },
-    { key: 'completed', label: 'Completed', labelAr: 'auto.MilestoneTracker.k6', icon: '🎓', range: [20, 20] },
+    { key: 'assessment', label: 'Assessment', labelAr: 'auto.MilestoneTracker.k3', icon: <ReportIcon size={18} tone="cyan" />, range: [0, 0] },
+    { key: 'active', label: 'Active', labelAr: 'auto.MilestoneTracker.k4', icon: <WaveformIcon size={18} tone="purple" />, range: [1, 14] },
+    { key: 'maintenance', label: 'Maintenance', labelAr: 'auto.MilestoneTracker.k5', icon: <BrainCircuitIcon size={18} tone="pink" />, range: [15, 19] },
+    { key: 'completed', label: 'Completed', labelAr: 'auto.MilestoneTracker.k6', icon: <StarIcon size={18} tone="success" />, range: [20, 20] },
   ];
 
   const currentPhaseIndex = phases.findIndex(p => p.key === phase);
@@ -691,7 +705,9 @@ export const TreatmentPhaseIndicator = memo(({
                 transition: transitions.fast,
               }}
             >
-              <div style={{ fontSize: 20, marginBottom: spacing[1] }}>{p.icon}</div>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: spacing[1] }}>
+                {p.icon}
+              </div>
               <div style={{
                 fontSize: typography.size.xs,
                 fontWeight: isActive ? typography.weight.bold : typography.weight.medium,
