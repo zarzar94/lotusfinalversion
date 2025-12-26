@@ -1,3 +1,4 @@
+// @refresh reset
 import { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { authApi, clinicalApi, getToken, clearTokens } from '../services/api';
 import { getUserScopedKey } from '../utils/userStorage';
