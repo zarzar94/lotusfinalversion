@@ -67,7 +67,30 @@ const users = [
     role: 'patient',
     school: DEFAULT_SCHOOL,
     phone: '+966500000005',
+    grade: 'Grade 3',
     dateOfBirth: new Date('2015-03-15'),
+  },
+  {
+    email: 'patient2@lotusait.com',
+    password: 'Patient123!',
+    name: 'Maya Hassan',
+    nameEn: 'Maya Hassan',
+    role: 'patient',
+    school: DEFAULT_SCHOOL,
+    phone: '+966500000006',
+    grade: 'Grade 4',
+    dateOfBirth: new Date('2013-10-02'),
+  },
+  {
+    email: 'patient3@lotusait.com',
+    password: 'Patient123!',
+    name: 'Omar Saleh',
+    nameEn: 'Omar Saleh',
+    role: 'patient',
+    school: DEFAULT_SCHOOL,
+    phone: '+966500000007',
+    grade: 'Grade 2',
+    dateOfBirth: new Date('2016-01-20'),
   },
 ];
 
@@ -110,11 +133,11 @@ async function seedUsers() {
   }
 
   const parent = createdUsers.find(u => u.role === 'parent');
-  const patient = createdUsers.find(u => u.role === 'patient');
-  if (parent && patient) {
-    parent.children = [patient._id];
+  const patients = createdUsers.filter(u => u.role === 'patient');
+  if (parent && patients.length > 0) {
+    parent.children = patients.map(patient => patient._id);
     await parent.save();
-    console.log('   Linked parent to patient');
+    console.log('   Linked parent to patients');
   }
 
   return createdUsers;
@@ -123,37 +146,47 @@ async function seedUsers() {
 async function seedClinicalProgress(users) {
   console.log('📊 Seeding clinical progress...');
 
-  const patient = users.find(u => u.role === 'patient');
-  if (!patient) return;
+  const patients = users.filter(u => u.role === 'patient');
+  if (patients.length === 0) return;
 
-  await ClinicalProgress.create({
-    userId: patient._id,
-    sessionsCompleted: 8,
-    totalSessions: 20,
-    treatmentPhase: 'active',
-    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
-    hearingProfile: {
-      left: [25, 30, 35, 40, 45, 50, 55, 60],
-      right: [20, 25, 30, 35, 40, 45, 50, 55],
-      frequencies: [250, 500, 1000, 2000, 3000, 4000, 6000, 8000],
-    },
-    metrics: {
-      attention: 72,
-      processingSpeed: 68,
-      auditoryDiscrimination: 75,
-      sequencing: 70,
-    },
-    weeklyGoals: [
-      { week: 1, target: 5, completed: 5 },
-      { week: 2, target: 5, completed: 5 },
-      { week: 3, target: 5, completed: 3 },
-    ],
-    notes: [
-      { date: new Date(), content: 'Good progress in attention tasks', author: 'Dr. Sarah' },
-    ],
-  });
+  const dayMs = 24 * 60 * 60 * 1000;
+  for (let index = 0; index < patients.length; index += 1) {
+    const patient = patients[index];
+    const sessionsCompleted = Math.max(4, 8 - index);
+    const attentionScore = Math.max(55, 72 - index * 6);
+    const processingSpeed = Math.max(50, 68 - index * 4);
+    const auditoryDiscrimination = Math.max(55, 75 - index * 5);
+    const sequencing = Math.max(50, 70 - index * 4);
 
-  console.log('   ✓ Created clinical progress for patient');
+    await ClinicalProgress.create({
+      userId: patient._id,
+      sessionsCompleted,
+      totalSessions: 20,
+      treatmentPhase: 'active',
+      startDate: new Date(Date.now() - (30 + index * 7) * dayMs),
+      hearingProfile: {
+        left: [25, 30, 35, 40, 45, 50, 55, 60],
+        right: [20, 25, 30, 35, 40, 45, 50, 55],
+        frequencies: [250, 500, 1000, 2000, 3000, 4000, 6000, 8000],
+      },
+      metrics: {
+        attention: attentionScore,
+        processingSpeed,
+        auditoryDiscrimination,
+        sequencing,
+      },
+      weeklyGoals: [
+        { week: 1, target: 5, completed: Math.min(5, 3 + index) },
+        { week: 2, target: 5, completed: Math.min(5, 4 + index) },
+        { week: 3, target: 5, completed: Math.max(2, 3 - index) },
+      ],
+      notes: [
+        { date: new Date(), content: 'Good progress in attention tasks', author: 'Dr. Sarah' },
+      ],
+    });
+  }
+
+  console.log('   ✓ Created clinical progress for patients');
 }
 
 async function seedGamification(users) {
@@ -208,8 +241,8 @@ async function seedSettings(users) {
 async function seedSessions(users) {
   console.log('dY"? Seeding assessment sessions...');
 
-  const patient = users.find(u => u.role === 'patient');
-  if (!patient) return;
+  const patients = users.filter(u => u.role === 'patient');
+  if (patients.length === 0) return;
 
   const resultFromScore = (score) => {
     if (score >= 70) return 'high';
@@ -235,25 +268,33 @@ async function seedSessions(users) {
   ];
 
   const dayMs = 24 * 60 * 60 * 1000;
-  for (let i = 0; i < sessionPlan.length; i += 1) {
-    const plan = sessionPlan[i];
-    const sessionDate = new Date(Date.now() - (30 - i * 3) * dayMs);
-    const outcome = buildOutcome(plan.score, plan.metrics);
+  const scoreDeltas = [-6, 0, 6];
 
-    await Session.create({
-      userId: patient._id,
-      outcomes: {
-        [plan.key]: outcome,
-      },
-      compositeResult: outcome.result,
-      totalPoints: Math.round(plan.score * 2 + 40),
-      duration: Math.round(900 + Math.random() * 200),
-      createdAt: sessionDate,
-      updatedAt: sessionDate,
-    });
+  for (let patientIndex = 0; patientIndex < patients.length; patientIndex += 1) {
+    const patient = patients[patientIndex];
+    const scoreDelta = scoreDeltas[patientIndex % scoreDeltas.length];
+
+    for (let i = 0; i < sessionPlan.length; i += 1) {
+      const plan = sessionPlan[i];
+      const adjustedScore = Math.max(20, Math.min(95, plan.score + scoreDelta));
+      const sessionDate = new Date(Date.now() - (30 - i * 3 + patientIndex * 2) * dayMs);
+      const outcome = buildOutcome(adjustedScore, plan.metrics);
+
+      await Session.create({
+        userId: patient._id,
+        outcomes: {
+          [plan.key]: outcome,
+        },
+        compositeResult: outcome.result,
+        totalPoints: Math.round(adjustedScore * 2 + 40),
+        duration: Math.round(900 + Math.random() * 200),
+        createdAt: sessionDate,
+        updatedAt: sessionDate,
+      });
+    }
   }
 
-  console.log(`   Created ${sessionPlan.length} assessment sessions`);
+  console.log(`   Created ${sessionPlan.length * patients.length} assessment sessions`);
 }
 
 
