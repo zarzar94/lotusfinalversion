@@ -23,6 +23,7 @@ import {
 } from '../services/api';
 import { getStoredUserId, getUserScopedKey } from '../utils/userStorage';
 import { LOCAL_CHANGE_EVENT } from '../utils/sync';
+import { LANGUAGE_STORAGE_KEY, LANGUAGE_UPDATED_AT_KEY } from '../utils/language';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -51,6 +52,15 @@ interface SyncContextType extends SyncState {
 
 const LAST_SYNC_KEY = 'lotus_last_sync';
 const PENDING_CHANGES_KEY = 'lotus_pending_changes';
+const VISITOR_MODE_STORAGE_KEY = 'lotus_visitor_mode';
+const VISITOR_MODE_UPDATED_AT_KEY = 'lotus_visitor_mode_updated_at';
+
+const toNumber = (value: unknown): number | null => {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'string' && value.trim() === '') return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONTEXT
@@ -183,13 +193,33 @@ export function SyncProvider({ children }: { children: ReactNode }) {
       // Settings
       try {
         const settingsRaw = localStorage.getItem(settingsKey);
-        const language = localStorage.getItem('lotus_language');
-        const visitorMode = localStorage.getItem('lotus_visitor_mode');
+        const language = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+        const visitorMode = localStorage.getItem(VISITOR_MODE_STORAGE_KEY);
+        const languageUpdatedAt = toNumber(localStorage.getItem(LANGUAGE_UPDATED_AT_KEY));
+        const visitorUpdatedAt = toNumber(localStorage.getItem(VISITOR_MODE_UPDATED_AT_KEY));
+
+        let storedSettings: Record<string, unknown> = {};
+        let settingsUpdatedAt: number | null = null;
+        if (settingsRaw) {
+          const parsed = JSON.parse(settingsRaw);
+          if (parsed && typeof parsed === 'object') {
+            const { updatedAt, userId, ...rest } = parsed as Record<string, unknown>;
+            storedSettings = rest;
+            settingsUpdatedAt = toNumber(updatedAt);
+          }
+        }
+
+        const updatedAtCandidates = [settingsUpdatedAt, languageUpdatedAt, visitorUpdatedAt]
+          .filter((value): value is number => value !== null);
+        const combinedUpdatedAt = updatedAtCandidates.length > 0
+          ? Math.max(...updatedAtCandidates)
+          : null;
 
         localData.settings = {
-          ...(settingsRaw ? JSON.parse(settingsRaw) : {}),
+          ...storedSettings,
           language: language || 'ar',
           visitorMode: visitorMode || 'parent',
+          ...(combinedUpdatedAt !== null ? { updatedAt: combinedUpdatedAt } : {}),
         };
       } catch {
         // Ignore parse errors
@@ -228,10 +258,19 @@ export function SyncProvider({ children }: { children: ReactNode }) {
         }
 
         if (response.serverData.settings) {
-          const { language, visitorMode, ...otherSettings } = response.serverData.settings;
-          localStorage.setItem(settingsKey, JSON.stringify(otherSettings));
-          if (language) localStorage.setItem('lotus_language', language);
-          if (visitorMode) localStorage.setItem('lotus_visitor_mode', visitorMode);
+          const {
+            language,
+            visitorMode,
+            updatedAt,
+            ...otherSettings
+          } = response.serverData.settings;
+          localStorage.setItem(settingsKey, JSON.stringify({ ...otherSettings, updatedAt }));
+          if (language) localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+          if (visitorMode) localStorage.setItem(VISITOR_MODE_STORAGE_KEY, visitorMode);
+          if (typeof updatedAt === 'number') {
+            localStorage.setItem(LANGUAGE_UPDATED_AT_KEY, updatedAt.toString());
+            localStorage.setItem(VISITOR_MODE_UPDATED_AT_KEY, updatedAt.toString());
+          }
         }
 
         if (response.serverData.sessions) {

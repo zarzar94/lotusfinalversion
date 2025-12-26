@@ -550,7 +550,9 @@ export interface SyncResponse {
     field: string;
     localValue: unknown;
     serverValue: unknown;
-    resolution: 'local' | 'server';
+    resolution: 'local' | 'server' | 'merge';
+    localUpdatedAt?: number;
+    serverUpdatedAt?: number;
   }[];
 }
 

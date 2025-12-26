@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
+import { notifyLocalChange } from '../utils/sync';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // VISITOR MODE TYPES
@@ -85,6 +86,7 @@ interface VisitorModeContextType {
 const VisitorModeContext = createContext<VisitorModeContextType | null>(null);
 
 const STORAGE_KEY = 'lotus_visitor_mode';
+const UPDATED_AT_KEY = 'lotus_visitor_mode_updated_at';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PROVIDER
@@ -124,6 +126,12 @@ export function VisitorModeProvider({ children }: { children: ReactNode }) {
 
   const setMode = useCallback((newMode: VisitorMode) => {
     setModeState(newMode);
+    try {
+      localStorage.setItem(UPDATED_AT_KEY, Date.now().toString());
+    } catch {
+      // Ignore storage errors.
+    }
+    notifyLocalChange();
   }, []);
 
   const config = useMemo(() => VISITOR_MODES[mode], [mode]);

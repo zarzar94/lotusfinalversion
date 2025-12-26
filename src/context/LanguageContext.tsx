@@ -1,7 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode, type CSSProperties } from 'react';
 import { translations } from '../i18n/translations';
-import { detectPreferredLanguage, LANGUAGE_STORAGE_KEY } from '../utils/language';
+import { detectPreferredLanguage, LANGUAGE_STORAGE_KEY, LANGUAGE_UPDATED_AT_KEY } from '../utils/language';
 import { safeStorage } from '../utils/storage';
+import { notifyLocalChange } from '../utils/sync';
 
 export type Language = 'ar' | 'en';
 export type Direction = 'rtl' | 'ltr';
@@ -95,14 +96,21 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
   }, [language, direction, isArabic]);
 
+  const markLanguageUpdated = useCallback(() => {
+    safeStorage.setItem(LANGUAGE_UPDATED_AT_KEY, Date.now().toString());
+    notifyLocalChange();
+  }, []);
+
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);
     setShowLanguageSelector(false);
-  }, []);
+    markLanguageUpdated();
+  }, [markLanguageUpdated]);
 
   const toggleLanguage = useCallback(() => {
     setLanguageState(prev => prev === 'ar' ? 'en' : 'ar');
-  }, []);
+    markLanguageUpdated();
+  }, [markLanguageUpdated]);
 
   const t = useCallback(<T,>(key: string | T, fallback?: T): T => {
     if (typeof key !== 'string') {

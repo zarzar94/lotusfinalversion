@@ -6,6 +6,7 @@ import { useState, useCallback, useEffect, memo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useUser } from '../context/UserContext';
 import { readUserScopedStorage, writeUserScopedStorage } from '../utils/userStorage';
+import { notifyLocalChange } from '../utils/sync';
 import { BackNavigation, SectionNav, ResponsiveStyles } from './shared';
 import {
   brandCyan,
@@ -77,7 +78,14 @@ const loadSettings = (userId?: string | null): UserSettings => {
   try {
     const stored = readUserScopedStorage(STORAGE_KEY, userId);
     if (stored) {
-      return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
+      const parsed = JSON.parse(stored);
+      if (parsed && typeof parsed === 'object') {
+        const { updatedAt, userId: storedUserId, ...rest } = parsed as Partial<UserSettings> & {
+          updatedAt?: unknown;
+          userId?: unknown;
+        };
+        return { ...DEFAULT_SETTINGS, ...rest };
+      }
     }
   } catch {
     console.warn('Failed to load settings');
@@ -87,7 +95,11 @@ const loadSettings = (userId?: string | null): UserSettings => {
 
 const saveSettings = (settings: UserSettings, userId?: string | null) => {
   try {
-    writeUserScopedStorage(STORAGE_KEY, JSON.stringify(settings), userId);
+    writeUserScopedStorage(
+      STORAGE_KEY,
+      JSON.stringify({ ...settings, updatedAt: Date.now() }),
+      userId
+    );
   } catch {
     console.warn('Failed to save settings');
   }
@@ -402,6 +414,7 @@ export default function SettingsPage() {
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('lotus-settings-changed', { detail: updated }));
         }
+        notifyLocalChange();
         setIsSaved(true);
         setTimeout(() => setIsSaved(false), 2000);
         return updated;

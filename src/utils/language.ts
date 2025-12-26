@@ -2,6 +2,7 @@ import type { Language } from '../context/LanguageContext';
 import { safeStorage } from './storage';
 
 export const LANGUAGE_STORAGE_KEY = 'lotus_language';
+export const LANGUAGE_UPDATED_AT_KEY = 'lotus_language_updated_at';
 
 export const getStoredLanguage = (): Language | null => {
   const stored = safeStorage.getItem(LANGUAGE_STORAGE_KEY);
