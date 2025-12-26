@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
 import { PlayIcon, VideoIcon, ChartIcon, BrainIcon, EyeIcon, EarIcon, BeakerIcon } from './Icons';
 import { useLanguage } from '../context/LanguageContext';
+import LabButtonAnchor from './labui/LabButtonAnchor';
 
 type Video = {
   id: string;
@@ -482,20 +483,19 @@ export default function VideoSection() {
               {isArabic ? 'المزيد من المحتوى التعليمي والعروض الحية' : 'More educational content and live sessions'}
             </div>
           </div>
-          <a
+          <LabButtonAnchor
             href="https://www.youtube.com/@BerardAIT"
             target="_blank"
             rel="noreferrer"
+            variant="primary"
             style={{
-              ...styles.primaryBtn,
-              textDecoration: 'none',
               background: '#FF0000',
               padding: '14px 28px',
               fontSize: 14,
             }}
           >
             {isArabic ? 'دخول القناة' : 'Visit channel'}
-          </a>
+          </LabButtonAnchor>
         </div>
 
         <p style={{ ...styles.muted, marginTop: 20, textAlign: 'center', fontSize: 12 }}>

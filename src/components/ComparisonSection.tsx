@@ -2,6 +2,7 @@ import { useState, useCallback, memo } from 'react';
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, brandColors, spacing, radius, typography, colors } from './styles';
 import { useLanguage } from '../context/LanguageContext';
 import LabCard from './labui/LabCard';
+import LabButtonAnchor from './labui/LabButtonAnchor';
 
 type Program = {
   id: string;
@@ -569,11 +570,10 @@ const ComparisonSection = memo(function ComparisonSection() {
 
       {/* CTA */}
       <div style={{ display: 'flex', gap: spacing[3], flexWrap: 'wrap', justifyContent: 'center' }}>
-        <a
+        <LabButtonAnchor
           href="#pptx"
+          variant="primary"
           style={{
-            ...styles.primaryBtn,
-            textDecoration: 'none',
             background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
             padding: `${spacing[3.5]}px ${spacing[7]}px`,
             display: 'inline-flex',
@@ -582,12 +582,11 @@ const ComparisonSection = memo(function ComparisonSection() {
           }}
         >
           <span aria-hidden="true">📊</span> {isArabic ? 'شاهد التفاصيل في الشرائح' : 'See Details in the Slides'}
-        </a>
-        <a
+        </LabButtonAnchor>
+        <LabButtonAnchor
           href="#contact"
+          variant="ghost"
           style={{
-            ...styles.ghostBtn,
-            textDecoration: 'none',
             borderColor: brandCyan,
             color: brandCyan,
             padding: `${spacing[3.5]}px ${spacing[7]}px`,
@@ -597,7 +596,7 @@ const ComparisonSection = memo(function ComparisonSection() {
           }}
         >
           <span aria-hidden="true">💬</span> {isArabic ? 'اطلب استشارة' : 'Request a Consultation'}
-        </a>
+        </LabButtonAnchor>
       </div>
       </LabCard>
     </section>

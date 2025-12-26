@@ -4,6 +4,7 @@ import { getBrainFunctionBySlug, BRAIN_FUNCTIONS, type BrainFunction } from '../
 import { brandCyan, brandPurple, brandPink, brandInk } from '../components/styles';
 import { useLanguage } from '../context/LanguageContext';
 import { renderBrainFunctionIcon, toneFromColor } from '../components/icons/index';
+import { LabShell } from '../components/labui/LabShell';
 
 // Mini circuit brain for navigation
 function MiniCircuitBrain({ currentSlug }: { currentSlug: string }) {
@@ -198,13 +199,14 @@ const BrainFunctionPage = memo(function BrainFunctionPage() {
   const backLabel = isArabic ? 'العودة إلى خريطة الدماغ' : 'Back to Brain Map';
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: `radial-gradient(ellipse at top, rgba(20,26,45,1) 0%, ${brandInk} 100%)`,
-      color: '#fff',
-      fontFamily: 'Cairo, system-ui, sans-serif',
-    }}>
-      <style>{css}</style>
+    <LabShell variant="primary">
+      <div style={{
+        minHeight: '100vh',
+        background: `radial-gradient(ellipse at top, rgba(20,26,45,1) 0%, ${brandInk} 100%)`,
+        color: '#fff',
+        fontFamily: 'Cairo, system-ui, sans-serif',
+      }}>
+        <style>{css}</style>
 
       {/* Header */}
       <header style={{
@@ -550,7 +552,8 @@ const BrainFunctionPage = memo(function BrainFunctionPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </LabShell>
   );
 });
 

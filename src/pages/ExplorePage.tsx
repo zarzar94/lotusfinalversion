@@ -12,28 +12,28 @@ import FadeIn from '../components/FadeIn';
 import PageNavigationCards from '../components/PageNavigationCards';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
-import { styles } from '../components/styles';
+import { LabShell, LabShellContent } from '../components/labui/LabShell';
 
 function ExplorePage() {
   const { isArabic } = useLanguage();
   usePageTitle();
 
   return (
-    <div style={styles.page}>
+    <LabShell variant="primary">
       <BackgroundFX />
       <Header />
 
-      <main style={styles.container}>
+      <LabShellContent>
         <PageNavigationCards isArabic={isArabic} />
 
         <FadeIn delay={100} direction="none" scale scaleFrom={0.98}>
           <Footer />
         </FadeIn>
-      </main>
+      </LabShellContent>
 
       <WhatsAppFab />
       <ScrollToTopButton />
-    </div>
+    </LabShell>
   );
 }
 

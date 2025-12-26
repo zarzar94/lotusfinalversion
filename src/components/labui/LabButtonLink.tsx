@@ -1,8 +1,10 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { CSSProperties, MouseEvent, ReactNode } from 'react';
+import { Link, type LinkProps } from 'react-router-dom';
 
 import { buildLabButtonStyles, type LabButtonSize, type LabButtonVariant } from './labButtonStyles';
 
-type LabButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+type LabButtonLinkProps = Omit<LinkProps, 'to'> & {
+  to: LinkProps['to'];
   variant?: LabButtonVariant;
   size?: LabButtonSize;
   leftIcon?: ReactNode;
@@ -10,12 +12,14 @@ type LabButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean;
   fullWidth?: boolean;
   className?: string;
+  style?: CSSProperties;
+  disabled?: boolean;
 };
 
-export default function LabButton({
+export default function LabButtonLink({
+  to,
   variant = 'primary',
   size = 'md',
-  type = 'button',
   leftIcon,
   rightIcon,
   loading = false,
@@ -23,20 +27,38 @@ export default function LabButton({
   className,
   style,
   disabled,
+  onClick,
+  tabIndex,
   children,
   ...rest
-}: LabButtonProps) {
+}: LabButtonLinkProps) {
   const isDisabled = disabled || loading;
-  const mergedStyle = buildLabButtonStyles({ variant, size, fullWidth, style });
+  const mergedStyle = buildLabButtonStyles({
+    variant,
+    size,
+    fullWidth,
+    style: {
+      ...(isDisabled ? { pointerEvents: 'none' } : null),
+      ...style,
+    },
+  });
+
+  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (isDisabled) {
+      event.preventDefault();
+      return;
+    }
+    onClick?.(event);
+  };
 
   return (
-    <button
-      type={type}
-      disabled={isDisabled}
-      aria-busy={loading || undefined}
-      aria-disabled={isDisabled || undefined}
+    <Link
+      to={to}
       className={['lab-btn', className].filter(Boolean).join(' ')}
+      aria-disabled={isDisabled || undefined}
+      tabIndex={isDisabled ? -1 : tabIndex}
       style={mergedStyle}
+      onClick={handleClick}
       {...rest}
     >
       <span className="lab-btn__content">
@@ -54,6 +76,6 @@ export default function LabButton({
           </span>
         ) : null}
       </span>
-    </button>
+    </Link>
   );
 }

@@ -16,7 +16,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "lint": "eslint src --ext .ts,.tsx",
-    "qa:assets": "node scripts/qa-assets.mjs"
+    "qa:assets": "node scripts/qa-assets.mjs",
+    "qa:buttons": "node scripts/qa-buttons.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^9.88.17",

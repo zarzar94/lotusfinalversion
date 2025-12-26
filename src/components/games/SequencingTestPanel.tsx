@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from '../styles';
+import LabButton from '../labui/LabButton';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../../utils/pdf';
 import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import { mean } from './stats';
@@ -363,18 +364,22 @@ export default function SequencingTestPanel({
               <div key={s.id} style={styles.section}>
                 <div style={{ fontWeight: 900 }}>{s.label}</div>
                 <div style={styles.muted}>{Math.round(s.freq)} Hz</div>
-                <button onClick={() => playTone(ensure(), { freq: s.freq, duration: 0.30, volume: 0.22 })} style={{ ...styles.ghostBtn, marginTop: 10, borderColor: 'rgba(143,211,204,0.25)' }}>
+                <LabButton variant="ghost" onClick={() => playTone(ensure(), { freq: s.freq, duration: 0.30, volume: 0.22 })} style={{ marginTop: 10 }}>
                   استمع
-                </button>
+                </LabButton>
               </div>
             ))}
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, gap: 10, flexWrap: 'wrap' }}>
-            <button onClick={begin} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}>
+            <LabButton onClick={begin}>
               ابدأ الاختبار
-            </button>
-            {onCancel ? <button onClick={onCancel} style={styles.ghostBtn}>إغلاق</button> : null}
+            </LabButton>
+            {onCancel ? (
+              <LabButton variant="ghost" onClick={onCancel}>
+                إغلاق
+              </LabButton>
+            ) : null}
           </div>
         </div>
       ) : null}
@@ -411,9 +416,9 @@ export default function SequencingTestPanel({
                 {gamePoints} pts
               </span>
               <span style={styles.chip}>✅ {score}/{round - 1}</span>
-              <button onClick={replay} disabled={replays >= 1} style={replays >= 1 ? styles.disabledBtn : styles.ghostBtn}>
+              <LabButton variant="ghost" onClick={replay} disabled={replays >= 1}>
                 🔁 إعادة تشغيل (مرة واحدة)
-              </button>
+              </LabButton>
             </div>
           </div>
 
@@ -488,12 +493,12 @@ export default function SequencingTestPanel({
             </p>
             {enableExports ? (
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
-                <button onClick={downloadPdf} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}>
+                <LabButton onClick={downloadPdf}>
                   تنزيل PDF
-                </button>
-                <button onClick={downloadCsv} style={{ ...styles.ghostBtn, borderColor: 'rgba(143,211,204,0.25)' }}>
+                </LabButton>
+                <LabButton variant="ghost" onClick={downloadCsv}>
                   تنزيل CSV
-                </button>
+                </LabButton>
               </div>
             ) : null}
           </div>

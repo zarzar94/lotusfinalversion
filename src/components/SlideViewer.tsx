@@ -9,6 +9,8 @@ import { MicroscopeIcon, FlaskIcon, SearchIcon, DownloadIcon, XIcon, ChevronLeft
 import { useLanguage } from '../context/LanguageContext';
 import { useVisitorMode, type VisitorMode } from '../context/VisitorModeContext';
 import LabCard from './labui/LabCard';
+import LabButton from './labui/LabButton';
+import LabButtonAnchor from './labui/LabButtonAnchor';
 
 // Define slide categories based on visitor mode relevance
 type SlideCategory = 'all' | 'school' | 'parent' | 'clinician' | 'science';
@@ -426,30 +428,18 @@ const MicroscopeModal = ({
             </div>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
-            <a
+            <LabButtonAnchor
               href={assetUrl(slide.image)}
               download
-              style={{
-                ...styles.ghostBtn,
-                textDecoration: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
+              variant="ghost"
+              style={{ display: 'flex', alignItems: 'center', gap: 6 }}
             >
               <DownloadIcon size={16} />
               {isArabic ? 'تحميل' : 'Download'}
-            </a>
-            <button
-              type="button"
-              onClick={onClose}
-              style={{
-                ...styles.ghostBtn,
-                padding: '10px',
-              }}
-            >
+            </LabButtonAnchor>
+            <LabButton variant="ghost" onClick={onClose} style={{ padding: '10px' }}>
               <XIcon size={18} />
-            </button>
+            </LabButton>
           </div>
         </div>
 
@@ -590,16 +580,15 @@ const MicroscopeModal = ({
                 <FlaskIcon size={16} color={brandPink} />
                 {isArabic ? 'بيانات العينة المستخرجة' : 'Extracted Sample Data'}
               </div>
-              <button
-                type="button"
-                style={styles.ghostBtn}
+              <LabButton
+                variant="ghost"
                 onClick={() => {
                   void navigator.clipboard.writeText(`${slide.title}\n\n${slide.body}`);
                 }}
               >
                 <CopyIcon size={14} />
                 {isArabic ? 'نسخ' : 'Copy'}
-              </button>
+              </LabButton>
             </div>
             <pre style={{
               margin: 0,
@@ -1052,9 +1041,8 @@ const SlideViewer = () => {
                   {slides.length} / {pptxSlides.length}
                 </span>
               </div>
-              <button
-                type="button"
-                style={exporting ? styles.disabledBtn : styles.ghostBtn}
+              <LabButton
+                variant="ghost"
                 onClick={exportSlidesPdf}
                 disabled={exporting}
               >
@@ -1064,10 +1052,9 @@ const SlideViewer = () => {
                     ? (isArabic ? `جارٍ التصدير… (${exportProgress.current}/${exportProgress.total})` : `Exporting… (${exportProgress.current}/${exportProgress.total})`)
                     : (isArabic ? 'جارٍ التصدير…' : 'Exporting…'))
                   : (isArabic ? 'تقرير PDF' : 'PDF Report')}
-              </button>
-              <button
-                type="button"
-                style={exporting ? styles.disabledBtn : styles.ghostBtn}
+              </LabButton>
+              <LabButton
+                variant="ghost"
                 onClick={exportSlidesImagesPdf}
                 disabled={exporting}
               >
@@ -1075,7 +1062,7 @@ const SlideViewer = () => {
                 {exporting && exportProgress?.mode === 'slides'
                   ? (isArabic ? `جارٍ تصدير الشرائح… (${exportProgress.current}/${exportProgress.total})` : `Exporting slides… (${exportProgress.current}/${exportProgress.total})`)
                   : (isArabic ? 'PDF الشرائح' : 'Slides PDF')}
-              </button>
+              </LabButton>
             </div>
           </div>
 
@@ -1120,22 +1107,16 @@ const SlideViewer = () => {
                 placeholder={isArabic ? 'ابحث في العينات (مثال: APD، #12، 5-10...)' : 'Search samples (e.g., APD, #12, 5-10...)'}
               />
             </div>
-            <a
+            <LabButtonAnchor
               href={assetUrl('downloads/berard-profile.pdf')}
               target="_blank"
               rel="noreferrer"
-              className="lab-btn"
-              style={{
-                ...styles.ghostBtn,
-                textDecoration: 'none',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-              }}
+              variant="ghost"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
             >
               <MicroscopeIcon size={16} />
               {isArabic ? 'ملف المختبر' : 'Lab Profile'}
-            </a>
+            </LabButtonAnchor>
           </div>
 
           <p style={{ ...styles.muted, fontSize: 12, opacity: 0.75 }}>

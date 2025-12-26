@@ -1,4 +1,5 @@
 import { styles, brandCyan, brandPink, brandPurpleDark } from './styles';
+import LabButtonAnchor from './labui/LabButtonAnchor';
 import { useLanguage } from '../context/LanguageContext';
 
 const ProgramOverview = () => {
@@ -50,22 +51,34 @@ const ProgramOverview = () => {
             {t('programOverview.whySchoolsDescription')}
           </p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
-            <a href="/assessment#games" style={{ ...styles.primaryBtn, textDecoration: 'none' }}>{t('programOverview.startInteractive')}</a>
-            <a href="/partners#schools" style={{ ...styles.ghostBtn, textDecoration: 'none' }}>{t('programOverview.schoolPartnerships')}</a>
+            <LabButtonAnchor href="/assessment#games" variant="primary">
+              {t('programOverview.startInteractive')}
+            </LabButtonAnchor>
+            <LabButtonAnchor href="/partners#schools" variant="ghost">
+              {t('programOverview.schoolPartnerships')}
+            </LabButtonAnchor>
           </div>
         </div>
       </div>
 
       <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-        <a href="/results#results" style={{ ...styles.primaryBtn, textDecoration: 'none', background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}>
+        <LabButtonAnchor
+          href="/results#results"
+          variant="primary"
+          style={{ background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}
+        >
           {t('programOverview.viewResults')}
-        </a>
-        <a href="/assessment#checklist" style={{ ...styles.ghostBtn, textDecoration: 'none', borderColor: 'rgba(143,211,204,0.25)' }}>
+        </LabButtonAnchor>
+        <LabButtonAnchor
+          href="/assessment#checklist"
+          variant="ghost"
+          style={{ borderColor: 'rgba(143,211,204,0.25)' }}
+        >
           {t('programOverview.startChecklist')}
-        </a>
-        <a href="/contact#contact" style={{ ...styles.ghostBtn, textDecoration: 'none', color: brandCyan }}>
+        </LabButtonAnchor>
+        <LabButtonAnchor href="/contact#contact" variant="ghost" style={{ color: brandCyan }}>
           {t('programOverview.bookContact')}
-        </a>
+        </LabButtonAnchor>
       </div>
     </section>
   );

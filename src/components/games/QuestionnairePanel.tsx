@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
+import LabButton from '../labui/LabButton';
 import type { GameResult, TestOutcome } from './types';
 
 const questions = [
@@ -79,13 +80,13 @@ export default function QuestionnairePanel({
                 const val = v as Answer;
                 const active = answers[idx] === val;
                 return (
-                  <button
+                  <LabButton
                     key={v}
-                    onClick={() => setAnswers((a) => a.map((x, i) => (i === idx ? val : x))) }
-                    style={active ? { ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` } : styles.ghostBtn}
+                    onClick={() => setAnswers((a) => a.map((x, i) => (i === idx ? val : x)))}
+                    variant={active ? 'primary' : 'ghost'}
                   >
                     {label(val)}
-                  </button>
+                  </LabButton>
                 );
               })}
             </div>
@@ -101,10 +102,14 @@ export default function QuestionnairePanel({
         <p style={{ ...styles.muted, marginTop: 6 }}>{message}</p>
 
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 10, gap: 10, flexWrap: 'wrap' }}>
-          <button onClick={submit} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}>
+          <LabButton onClick={submit}>
             حفظ النتيجة
-          </button>
-          {onCancel ? <button onClick={onCancel} style={styles.ghostBtn}>إغلاق</button> : null}
+          </LabButton>
+          {onCancel ? (
+            <LabButton variant="ghost" onClick={onCancel}>
+              إغلاق
+            </LabButton>
+          ) : null}
         </div>
 
         {submitted ? <div style={{ marginTop: 10, color: brandCyan, fontWeight: 900, textAlign: 'center' }}>تم الحفظ ✅</div> : null}

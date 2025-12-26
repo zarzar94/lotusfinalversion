@@ -10,6 +10,7 @@ import {
   radius,
 } from './styles';
 import { useLanguage } from '../context/LanguageContext';
+import LabButtonAnchor from './labui/LabButtonAnchor';
 
 const css = `
   @keyframes hudPulse {
@@ -466,24 +467,20 @@ export default function NeuroplasticitySection() {
       </div>
 
       <div style={{ marginTop: 20, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-        <a href="#overview" style={{
-          ...styles.primaryBtn,
-          textDecoration: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-        }}>
+        <LabButtonAnchor
+          href="#overview"
+          variant="primary"
+          style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+        >
           <span>📚</span> {isArabic ? 'تعرف على البرنامج' : 'Explore the Program'}
-        </a>
-        <a href="#results" style={{
-          ...styles.ghostBtn,
-          textDecoration: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-        }}>
+        </LabButtonAnchor>
+        <LabButtonAnchor
+          href="#results"
+          variant="ghost"
+          style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+        >
           <span>📊</span> {isArabic ? 'شاهد النتائج' : 'See Results'}
-        </a>
+        </LabButtonAnchor>
       </div>
 
       {/* System Status Footer */}

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles, attentionModule } from '../../styles';
+import LabButton from '../labui/LabButton';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import { mean, stdDev } from './stats';
 import type { GameResult, TestOutcome } from './types';
@@ -354,12 +355,12 @@ export default function FocusedAttentionTestPanel({
                   <div style={styles.muted}>{t('auto.FocusedAttentionTestPanel.k12', "Distractors: Other tones")}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
-                  <button onClick={() => playExample(AUDIO_TARGET_FREQ)} style={styles.primaryBtn}>
+                  <LabButton onClick={() => playExample(AUDIO_TARGET_FREQ)}>
                     {t('auto.FocusedAttentionTestPanel.k13', "Play target tone")}
-                  </button>
-                  <button onClick={() => playExample(AUDIO_DISTRACTORS[0])} style={styles.ghostBtn}>
+                  </LabButton>
+                  <LabButton variant="ghost" onClick={() => playExample(AUDIO_DISTRACTORS[0])}>
                     {t('auto.FocusedAttentionTestPanel.k14', "Play distractor")}
-                  </button>
+                  </LabButton>
                 </div>
               </div>
             ) : (
@@ -371,13 +372,13 @@ export default function FocusedAttentionTestPanel({
               </div>
             )}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
-              <button onClick={startPractice} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}>
+              <LabButton onClick={startPractice}>
                 {t('auto.FocusedAttentionTestPanel.k16', "Start Practice")}
-              </button>
+              </LabButton>
               {onCancel ? (
-                <button onClick={onCancel} style={styles.ghostBtn}>
+                <LabButton variant="ghost" onClick={onCancel}>
                   {t('auto.FocusedAttentionTestPanel.k17', "Cancel")}
-                </button>
+                </LabButton>
               ) : null}
             </div>
           </div>
@@ -403,18 +404,14 @@ export default function FocusedAttentionTestPanel({
           </div>
 
           <div style={{ marginTop: 12, padding: 16, borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.2)' }}>
-            <button
+            <LabButton
               onClick={respond}
-              style={{
-                ...styles.primaryBtn,
-                width: '100%',
-                padding: '16px 14px',
-                fontSize: 16,
-                background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})`,
-              }}
+              fullWidth
+              size="lg"
+              style={{ padding: '16px 14px', fontSize: 16 }}
             >
               {t('auto.FocusedAttentionTestPanel.k20', "Respond")}
-            </button>
+            </LabButton>
             {feedback ? (
               <div style={{ marginTop: 8, color: brandCyan, fontWeight: 700, textAlign: 'center' }}>
                 {feedback}

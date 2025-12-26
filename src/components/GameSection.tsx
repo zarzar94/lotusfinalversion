@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState, useRef, useCallback, memo } from 'react';
 
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, radius, spacing, typography, transitions, modalScale } from './styles';
 import LabCard from './labui/LabCard';
+import LabButton from './labui/LabButton';
+import LabButtonAnchor from './labui/LabButtonAnchor';
 import {
   BrainCircuitIcon,
   WaveformIcon,
@@ -1130,20 +1132,18 @@ const GameSection = memo(function GameSection() {
             justifyContent: 'center',
             marginBottom: 16,
           }}>
-            <button
-              type="button"
+            <LabButton
               onClick={() => {
                 setBriefingMode(null);
                 setMode('suite');
               }}
               style={{
-                ...styles.primaryBtn,
                 background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
-                color: '#05060d',
+                padding: `${spacing[3]}px ${spacing[4]}px`,
               }}
             >
               {t('games.startFullSuite')}
-            </button>
+            </LabButton>
           </div>
 
           {/* Test Cards Grid */}
@@ -1385,11 +1385,10 @@ const GameSection = memo(function GameSection() {
                 </div>
               </div>
             </div>
-            <a
+            <LabButtonAnchor
               href={lastNext.hash}
+              variant="primary"
               style={{
-                ...styles.primaryBtn,
-                textDecoration: 'none',
                 background: `linear-gradient(135deg, ${brandPurpleDark}, ${lastNext.tone})`,
                 boxShadow: `0 8px 24px ${lastNext.tone}33`,
                 padding: '14px 24px',
@@ -1398,7 +1397,7 @@ const GameSection = memo(function GameSection() {
               }}
             >
               {lastNext.label}
-            </a>
+            </LabButtonAnchor>
           </div>
         </LabCard>
       ) : null}

@@ -1,5 +1,6 @@
 import { Component, type ReactNode, type ErrorInfo } from 'react';
 import { styles, brandPink } from './styles';
+import LabButton from './labui/LabButton';
 
 interface Props {
   children: ReactNode;
@@ -38,12 +39,9 @@ class ErrorBoundary extends Component<Props, State> {
           <p style={styles.muted}>
             يرجى تحديث الصفحة والمحاولة مرة أخرى. إذا استمرت المشكلة، تواصل معنا.
           </p>
-          <button
-            onClick={() => window.location.reload()}
-            style={{ ...styles.primaryBtn, marginTop: 16 }}
-          >
+          <LabButton variant="primary" onClick={() => window.location.reload()} style={{ marginTop: 16 }}>
             تحديث الصفحة
-          </button>
+          </LabButton>
         </div>
       );
     }

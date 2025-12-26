@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { styles, brandCyan, brandPink, brandPurple } from '../styles';
+import LabButton from '../labui/LabButton';
 
 const presets: Record<string, number[]> = {
   neutral: [25, 35, 45, 50, 45, 35, 25, 15],
@@ -61,19 +62,19 @@ const SoundLabSimulation = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {
             <span style={styles.kicker}>{t.preset}</span>
             <div style={{ display: 'flex', gap: 8 }}>
               {Object.keys(presets).map((preset) => (
-                <button
+                <LabButton
                   key={preset}
-                  type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={() => handlePresetChange(preset as keyof typeof presets)}
                   style={{
-                    ...styles.ghostBtn,
                     padding: '8px 12px',
                     borderColor: selectedPreset === preset ? brandCyan : 'rgba(255,255,255,0.08)',
                     background: selectedPreset === preset ? 'rgba(143,211,204,0.12)' : 'transparent',
                   }}
                 >
                   {preset}
-                </button>
+                </LabButton>
               ))}
             </div>
           </div>

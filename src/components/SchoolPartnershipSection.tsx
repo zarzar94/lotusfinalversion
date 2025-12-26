@@ -1,5 +1,5 @@
 import { useMemo, useCallback, useState } from 'react';
-import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, spacing } from './styles';
+import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, brandInk, colors, shadows, spacing } from './styles';
 import { CLINIC } from '../data/clinic';
 import { handleWhatsApp } from '../utils/whatsapp';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
@@ -8,6 +8,8 @@ import { downloadSessionCsv, downloadSessionPdf } from './games/report';
 import type { AssessmentSession, TestOutcome } from './games/types';
 import { SchoolIcon, CheckCircleIcon, UsersIcon, ChartIcon, ClockIcon, DocumentIcon, StarIcon } from './Icons';
 import LabCard from './labui/LabCard';
+import LabButton from './labui/LabButton';
+import LabButtonAnchor from './labui/LabButtonAnchor';
 
 // Impact Statistics
 const IMPACT_STATS = {
@@ -405,9 +407,13 @@ const SchoolPartnershipSection = () => {
             <p style={{ ...styles.muted, marginTop: 6 }}>
               {t('schools.demoInstructions')}
             </p>
-            <a href="/assessment#games" style={{ ...styles.primaryBtn, textDecoration: 'none', marginTop: 10, display: 'inline-flex' }}>
+            <LabButtonAnchor
+              href="/assessment#games"
+              variant="primary"
+              style={{ marginTop: 10, display: 'inline-flex' }}
+            >
               {t('schools.runSimulation')}
-            </a>
+            </LabButtonAnchor>
           </LabCard>
         </LabCard>
 
@@ -460,22 +466,19 @@ const SchoolPartnershipSection = () => {
               </div>
             </div>
           </div>
-          <button
-            type="button"
+          <LabButton
             onClick={handleDownloadDemoPack}
             disabled={isDownloading}
             style={{
-              ...styles.primaryBtn,
               background: isDownloading
-                ? 'linear-gradient(135deg, rgba(143,211,204,0.6), rgba(175,132,186,0.6))'
-                : 'linear-gradient(135deg, #1aa37a, #8FD3CC)',
-              color: '#05060d',
-              opacity: isDownloading ? 0.7 : 1,
-              cursor: isDownloading ? 'wait' : 'pointer',
+                ? `linear-gradient(135deg, ${colors.successLight}, ${brandCyan}44)`
+                : `linear-gradient(135deg, ${colors.success}, ${brandCyan})`,
+              color: brandInk,
+              boxShadow: isDownloading ? 'none' : shadows.glow.success,
             }}
           >
             {isDownloading ? demoPack.buttonLoading : demoPack.button}
-          </button>
+          </LabButton>
         </div>
 
         <div style={{
@@ -575,19 +578,22 @@ const SchoolPartnershipSection = () => {
             </ul>
 
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
-              <a
+              <LabButtonAnchor
                 href="/contact#contact"
+                variant="primary"
                 style={{
-                  ...styles.primaryBtn,
-                  textDecoration: 'none',
                   background: `linear-gradient(135deg, ${tier.color}, ${brandPink})`,
                 }}
               >
                 {t('schools.requestQuote')}
-              </a>
-              <a href="/faq#comparison" style={{ ...styles.ghostBtn, textDecoration: 'none', borderColor: `${tier.color}44` }}>
+              </LabButtonAnchor>
+              <LabButtonAnchor
+                href="/faq#comparison"
+                variant="ghost"
+                style={{ borderColor: `${tier.color}44` }}
+              >
                 {t('schools.comparePrograms')}
-              </a>
+              </LabButtonAnchor>
             </div>
           </LabCard>
         ))}
@@ -663,32 +669,26 @@ const SchoolPartnershipSection = () => {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <button
-            type="button"
+          <LabButton
             onClick={() => handleWhatsApp(t('schools.cta.whatsappMessage'))}
             style={{
-              ...styles.primaryBtn,
-              background: '#25D366',
+              background: colors.success,
+              color: brandInk,
+              boxShadow: shadows.glow.success,
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              cursor: 'pointer',
-              border: 'none',
             }}
           >
             💬 {t('schools.cta.whatsappButton')}
-          </button>
-          <a
+          </LabButton>
+          <LabButtonAnchor
             href="/contact#contact"
-            style={{
-              ...styles.ghostBtn,
-              textDecoration: 'none',
-              borderColor: brandPurple,
-              color: brandPurple,
-            }}
+            variant="ghost"
+            style={{ borderColor: brandPurple, color: brandPurple }}
           >
             {t('schools.cta.contactForm')}
-          </a>
+          </LabButtonAnchor>
         </div>
       </div>
       </LabCard>

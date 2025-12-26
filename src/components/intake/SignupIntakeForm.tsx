@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { styles, brandCyan, brandPink } from '../styles';
+import LabButton from '../labui/LabButton';
 
 type StepId = 'patient' | 'guardian' | 'medical' | 'auditory' | 'school' | 'consent' | 'review';
 
@@ -133,24 +134,25 @@ const SignupIntakeForm = ({ locale = 'ar', onSubmit }: { locale?: 'ar' | 'en'; o
       </div>
 
       <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between' }}>
-        <button
+        <LabButton
           type="button"
+          variant="ghost"
           onClick={() => setCurrent((c) => Math.max(0, c - 1))}
-          style={{ ...styles.ghostBtn, padding: '10px 16px', opacity: current === 0 ? 0.5 : 1 }}
           disabled={current === 0}
+          style={{ padding: '10px 16px' }}
         >
           السابق
-        </button>
+        </LabButton>
         <div style={{ display: 'flex', gap: 8 }}>
           {current < steps.length - 1 && (
-            <button type="button" onClick={handleNext} style={{ ...styles.primaryBtn, padding: '10px 16px' }}>
+            <LabButton type="button" onClick={handleNext} style={{ padding: '10px 16px' }}>
               التالي
-            </button>
+            </LabButton>
           )}
           {current === steps.length - 1 && (
-            <button type="button" onClick={handleSubmit} style={{ ...styles.primaryBtn, padding: '10px 16px' }}>
+            <LabButton type="button" onClick={handleSubmit} style={{ padding: '10px 16px' }}>
               إرسال
-            </button>
+            </LabButton>
           )}
         </div>
       </div>

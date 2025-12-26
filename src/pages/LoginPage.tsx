@@ -4,7 +4,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useUser } from '../context/UserContext';
 import LoginModal from '../components/auth/LoginModal';
-import { brandCyan, brandPurple, colors, radius, spacing, typography } from '../components/styles';
+import { colors, spacing, typography } from '../components/styles';
+import { LabShell } from '../components/labui/LabShell';
+import LabCard from '../components/labui/LabCard';
+import LabButton from '../components/labui/LabButton';
 
 function LoginPage() {
   const { isArabic } = useLanguage();
@@ -31,62 +34,47 @@ function LoginPage() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: spacing[6],
-        background: 'radial-gradient(circle at top, rgba(143,211,204,0.08), transparent 55%)',
-      }}
-    >
+    <LabShell variant="primary">
       <div
         style={{
-          maxWidth: 560,
-          width: '100%',
-          background: colors.surface.card,
-          borderRadius: radius.xl,
-          border: `1px solid ${colors.border.default}`,
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           padding: spacing[6],
-          textAlign: 'center',
         }}
       >
-        <div style={{ fontSize: 40, marginBottom: spacing[3] }}>🔐</div>
-        <div
+        <LabCard
+          padding={spacing[6]}
           style={{
-            fontSize: typography.size['2xl'],
-            fontWeight: typography.weight.black,
-            color: colors.text.primary,
+            maxWidth: 560,
+            width: '100%',
+            textAlign: 'center',
           }}
         >
-          {isArabic ? 'تسجيل الدخول' : 'Sign In'}
-        </div>
-        <p style={{ marginTop: spacing[2], color: colors.text.secondary }}>
-          {isArabic
-            ? 'سجّل الدخول للوصول إلى لوحات القياس والبيانات.'
-            : 'Sign in to access dashboards and reports.'}
-        </p>
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          style={{
-            marginTop: spacing[4],
-            padding: '12px 18px',
-            borderRadius: radius.full,
-            border: 'none',
-            background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
-            color: '#05060d',
-            fontWeight: 800,
-            cursor: 'pointer',
-          }}
-        >
-          {isArabic ? 'فتح تسجيل الدخول' : 'Open Sign In'}
-        </button>
+          <div style={{ fontSize: 40, marginBottom: spacing[3] }}>🔐</div>
+          <div
+            style={{
+              fontSize: typography.size['2xl'],
+              fontWeight: typography.weight.black,
+              color: colors.text.primary,
+            }}
+          >
+            {isArabic ? 'تسجيل الدخول' : 'Sign In'}
+          </div>
+          <p style={{ marginTop: spacing[2], color: colors.text.secondary }}>
+            {isArabic
+              ? 'سجّل الدخول للوصول إلى لوحات القياس والبيانات.'
+              : 'Sign in to access dashboards and reports.'}
+          </p>
+          <LabButton onClick={() => setIsOpen(true)} style={{ marginTop: spacing[4] }}>
+            {isArabic ? 'فتح تسجيل الدخول' : 'Open Sign In'}
+          </LabButton>
+        </LabCard>
       </div>
 
       <LoginModal isOpen={isOpen} onClose={handleClose} />
-    </div>
+    </LabShell>
   );
 }
 

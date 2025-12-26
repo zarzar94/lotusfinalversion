@@ -1,4 +1,5 @@
 import { styles, brandCyan, brandPink, brandPurple } from '../styles';
+import LabButtonAnchor from '../labui/LabButtonAnchor';
 
 const milestones = [
   { year: '2022', title: 'الإطلاق', desc: 'تأسيس مختبر الصوت وتطوير أول بروتوكول عربي ثنائي اللغة.' },
@@ -93,7 +94,9 @@ const AboutUsSection = () => (
           <div style={{ ...styles.h3, margin: 0 }}>الرسالة والرؤية</div>
           <div style={{ ...styles.kicker, opacity: 0.8 }}>مستقبل مختبر صوت مدعوم بالذكاء الاصطناعي</div>
         </div>
-        <a href="#contact" style={{ ...styles.primaryBtn, textDecoration: 'none' }}>تواصل الآن</a>
+        <LabButtonAnchor href="#contact" variant="primary">
+          تواصل الآن
+        </LabButtonAnchor>
       </div>
       <p style={styles.bodyText}>
         نصمم تجارب علاجية بصرية وسمعية متكاملة، مع دعم لغوي عربي/إنجليزي وتوافق كامل مع اتجاه الكتابة RTL.

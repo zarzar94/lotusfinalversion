@@ -5,6 +5,7 @@ import App from './App';
 import { processOfflineQueue } from './services/api';
 import { readUserScopedStorage } from './utils/userStorage';
 import './styles/animations.css';
+import './components/labui/labui.css';
 
 // Apply reduced motion setting ASAP (before first render) to avoid animation flashes.
 try {

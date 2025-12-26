@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles, binauralModule } from '../../styles';
+import LabButton from '../labui/LabButton';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import type { GameResult, TestOutcome } from './types';
 
@@ -290,13 +291,13 @@ export default function DichoticListeningTestPanel({
               {t('auto.DichoticListeningTestPanel.k5', "You will hear different syllables or numbers in each ear. In integration, report both ears. In separation, focus on the instructed ear.")}
             </p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
-              <button onClick={startPractice} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}>
+              <LabButton onClick={startPractice}>
                 {t('auto.DichoticListeningTestPanel.k6', "Start Practice")}
-              </button>
+              </LabButton>
               {onCancel ? (
-                <button onClick={onCancel} style={styles.ghostBtn}>
+                <LabButton variant="ghost" onClick={onCancel}>
                   {t('auto.DichoticListeningTestPanel.k7', "Cancel")}
-                </button>
+                </LabButton>
               ) : null}
             </div>
           </div>
@@ -393,19 +394,17 @@ export default function DichoticListeningTestPanel({
             </div>
           )}
 
-          <button
+          <LabButton
             onClick={submit}
             disabled={!played}
+            fullWidth
             style={{
-              ...styles.primaryBtn,
-              width: '100%',
               marginTop: 12,
               background: played ? `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` : 'rgba(255,255,255,0.2)',
-              cursor: played ? 'pointer' : 'not-allowed',
             }}
           >
             {t('auto.DichoticListeningTestPanel.k12', "Submit Response")}
-          </button>
+          </LabButton>
         </div>
       ) : null}
 

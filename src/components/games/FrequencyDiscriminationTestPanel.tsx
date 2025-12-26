@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
+import LabButton from '../labui/LabButton';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import { mean, median, stdDev } from './stats';
 import type { GameResult, TestOutcome } from './types';
@@ -237,17 +238,21 @@ export default function FrequencyDiscriminationTestPanel({
             <div style={styles.section}>
               <div style={{ fontWeight: 900 }}>مثال (مرجع)</div>
               <div style={styles.muted}>{REF} Hz</div>
-              <button onClick={() => playExample(REF)} style={{ ...styles.primaryBtn, marginTop: 10 }}>استمع</button>
+              <LabButton onClick={() => playExample(REF)} style={{ marginTop: 10 }}>
+                استمع
+              </LabButton>
             </div>
             <div style={styles.section}>
               <div style={{ fontWeight: 900 }}>مثال (أعلى)</div>
               <div style={styles.muted}>{REF + 80} Hz</div>
-              <button onClick={() => playExample(REF + 80)} style={{ ...styles.ghostBtn, marginTop: 10, borderColor: 'rgba(143,211,204,0.25)' }}>استمع</button>
+              <LabButton variant="ghost" onClick={() => playExample(REF + 80)} style={{ marginTop: 10 }}>
+                استمع
+              </LabButton>
             </div>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, gap: 10, flexWrap: 'wrap' }}>
-            <button
+            <LabButton
               onClick={() => {
                 rowsRef.current = [];
                 deltasRef.current = [];
@@ -260,12 +265,13 @@ export default function FrequencyDiscriminationTestPanel({
                 setLastFeedback(null);
                 setStage('running');
               }}
-              style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}
             >
               ابدأ الاختبار
-            </button>
+            </LabButton>
             {onCancel ? (
-              <button onClick={onCancel} style={styles.ghostBtn}>إغلاق</button>
+              <LabButton variant="ghost" onClick={onCancel}>
+                إغلاق
+              </LabButton>
             ) : null}
           </div>
         </div>
@@ -324,25 +330,21 @@ export default function FrequencyDiscriminationTestPanel({
           <div style={{ marginTop: 12, ...styles.section }}>
             <div style={{ fontWeight: 900, color: brandPurpleDark }}>الخطوة 1</div>
             <p style={{ ...styles.muted, marginTop: 6 }}>اضغط "استمع" لتشغيل النغمتين.</p>
-            <button
-              onClick={playTrial}
-              disabled={busy}
-              style={busy ? styles.disabledBtn : { ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}
-            >
+            <LabButton onClick={playTrial} disabled={busy}>
               ▶︎ استمع
-            </button>
+            </LabButton>
           </div>
 
           <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
             <div style={{ fontWeight: 900, color: brandPurpleDark }}>الخطوة 2</div>
             <p style={{ ...styles.muted, marginTop: 6 }}>اختر: أيهما أعلى؟</p>
             <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', marginTop: 10 }}>
-              <button onClick={() => answer(1)} disabled={!canAnswer} style={!canAnswer ? styles.disabledBtn : styles.primaryBtn}>
+              <LabButton onClick={() => answer(1)} disabled={!canAnswer}>
                 الأولى أعلى
-              </button>
-              <button onClick={() => answer(2)} disabled={!canAnswer} style={!canAnswer ? styles.disabledBtn : styles.primaryBtn}>
+              </LabButton>
+              <LabButton onClick={() => answer(2)} disabled={!canAnswer}>
                 الثانية أعلى
-              </button>
+              </LabButton>
             </div>
             <div style={{ marginTop: 10, ...styles.muted }}>لا تظهر الإجابة الصحيحة أثناء الاختبار لتقليل التحيّز.</div>
           </div>

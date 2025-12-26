@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { styles, brandCyan, brandPink } from '../styles';
+import LabButton from '../labui/LabButton';
 
 type StageId =
   | 'welcome'
@@ -147,28 +148,23 @@ const VirtualAssessmentFlow = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {
       </div>
 
         <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between' }}>
-          <button
-            type="button"
+          <LabButton
+            variant="ghost"
             onClick={() => setCurrent((c) => Math.max(0, c - 1))}
-            style={{ ...styles.ghostBtn, padding: '10px 16px', opacity: current === 0 ? 0.5 : 1 }}
             disabled={current === 0}
+            style={{ padding: '10px 16px' }}
           >
             {t.back}
-          </button>
+          </LabButton>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              type="button"
+            <LabButton
+              variant="primary"
               onClick={() => setCurrent((c) => Math.min(localizedStages.length - 1, c + 1))}
-              style={{
-                ...styles.primaryBtn,
-                padding: '10px 16px',
-                opacity: canContinue ? 1 : 0.5,
-                cursor: canContinue ? 'pointer' : 'not-allowed',
-              }}
               disabled={!canContinue || current === localizedStages.length - 1}
+              style={{ padding: '10px 16px' }}
             >
               {current === localizedStages.length - 2 ? t.submit : t.next}
-            </button>
+            </LabButton>
           {current === localizedStages.length - 1 && <span style={styles.chip}>{t.complete}</span>}
           </div>
         </div>

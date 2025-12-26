@@ -27,6 +27,7 @@ import {
   typography,
   colors,
 } from './styles';
+import LabButtonAnchor from './labui/LabButtonAnchor';
 
 type FAQItem = {
   question: string;
@@ -516,9 +517,9 @@ const FAQSection = memo(function FAQSection() {
             {isArabic ? 'تواصل معنا وسنرد عليك في أقرب وقت' : 'Contact us and we’ll get back to you soon.'}
           </div>
         </div>
-        <a href="#contact" style={{ ...styles.primaryBtn, textDecoration: 'none' }}>
+        <LabButtonAnchor href="#contact" variant="primary">
           {isArabic ? 'تواصل معنا' : 'Contact Us'}
-        </a>
+        </LabButtonAnchor>
       </div>
     </section>
   );

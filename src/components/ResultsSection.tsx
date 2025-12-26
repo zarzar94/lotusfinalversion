@@ -13,6 +13,8 @@ import {
   spacing,
   radius,
 } from './styles';
+import LabButton from './labui/LabButton';
+import LabButtonAnchor from './labui/LabButtonAnchor';
 
 type CaseStudy = {
   slideId: number;
@@ -333,24 +335,20 @@ const ResultsSection = () => {
       </div>
 
       <div style={{ marginTop: 20, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-        <a href="#pptx" style={{
-          ...styles.primaryBtn,
-          textDecoration: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-        }}>
+        <LabButtonAnchor
+          href="#pptx"
+          variant="primary"
+          style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+        >
           <span>📑</span> عرض جميع الشرائح
-        </a>
-        <a href="#contact" style={{
-          ...styles.ghostBtn,
-          textDecoration: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-        }}>
+        </LabButtonAnchor>
+        <LabButtonAnchor
+          href="#contact"
+          variant="ghost"
+          style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+        >
           <span>📋</span> اطلب تقييم / عرض للمدرسة
-        </a>
+        </LabButtonAnchor>
       </div>
 
       {/* System Status Footer */}
@@ -436,9 +434,9 @@ const ResultsSection = () => {
                 </span>
                 <div style={{ fontWeight: 900, fontSize: 18, color: brandPurpleDark }}>{activeSlide.title}</div>
               </div>
-              <button type="button" style={styles.ghostBtn} onClick={() => setActiveSlideId(null)}>
+              <LabButton variant="ghost" onClick={() => setActiveSlideId(null)}>
                 إغلاق
-              </button>
+              </LabButton>
             </div>
 
             <div style={{ marginTop: 14, borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.10)' }}>
@@ -455,12 +453,16 @@ const ResultsSection = () => {
             ) : null}
 
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
-              <a href={assetUrl(activeSlide.image)} download style={{ ...styles.primaryBtn, textDecoration: 'none' }}>
+              <LabButtonAnchor href={assetUrl(activeSlide.image)} download variant="primary">
                 تحميل الصورة
-              </a>
-              <a href="#pptx" style={{ ...styles.ghostBtn, textDecoration: 'none' }} onClick={() => setActiveSlideId(null)}>
+              </LabButtonAnchor>
+              <LabButtonAnchor
+                href="#pptx"
+                variant="ghost"
+                onClick={() => setActiveSlideId(null)}
+              >
                 فتح في عارض الشرائح
-              </a>
+              </LabButtonAnchor>
             </div>
           </div>
         </div>

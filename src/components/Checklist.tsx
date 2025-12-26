@@ -31,6 +31,8 @@ import {
   GamepadIcon,
 } from './Icons';
 import LabCard from './labui/LabCard';
+import LabButton from './labui/LabButton';
+import LabButtonAnchor from './labui/LabButtonAnchor';
 
 // Category icons and colors for visual appeal
 const CATEGORY_CONFIG: Record<string, { icon: ReactNode; color: string }> = {
@@ -1120,27 +1122,53 @@ const Checklist = () => {
 
       {/* Quick Actions */}
       <div style={{ marginTop: 24, display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
-        <a href={assetUrl('downloads/Check list (2).pdf')} target="_blank" rel="noreferrer" style={{ ...styles.ghostBtn, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+        <LabButtonAnchor
+          href={assetUrl('downloads/Check list (2).pdf')}
+          variant="ghost"
+          target="_blank"
+          rel="noreferrer"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+        >
           <DocumentIcon size={16} /> PDF الرسمي
-        </a>
+        </LabButtonAnchor>
         {selectedCount > 0 && (
           <>
-            <button type="button" style={{ ...styles.dangerBtn, display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={clearAll}>
+            <LabButton
+              variant="ghost"
+              onClick={clearAll}
+              style={{
+                background: colors.errorLight,
+                border: `1px solid ${colors.error}33`,
+                color: colors.error,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
               <TrashIcon size={16} /> مسح الكل
-            </button>
-            <button
-              type="button"
-              style={{ ...(exporting ? styles.disabledBtn : styles.primaryBtn), display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            </LabButton>
+            <LabButton
+              variant="primary"
               onClick={exportSelectedPdf}
               disabled={exporting}
+              style={exporting ? { background: colors.border.default, color: colors.text.muted, boxShadow: 'none' } : undefined}
             >
               <ChartIcon size={16} /> {exporting ? 'تصدير...' : `تصدير التقرير (${selectedCount})`}
-            </button>
+            </LabButton>
           </>
         )}
-        <a href="#games" style={{ ...styles.primaryBtn, textDecoration: 'none', background: `linear-gradient(135deg, ${brandPurple}, ${brandPink})`, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+        <LabButtonAnchor
+          href="#games"
+          variant="primary"
+          style={{
+            background: `linear-gradient(135deg, ${brandPurple}, ${brandPink})`,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
           <GamepadIcon size={16} /> الألعاب السمعية
-        </a>
+        </LabButtonAnchor>
       </div>
 
       {/* Result Summary with Visitor Mode Integration */}

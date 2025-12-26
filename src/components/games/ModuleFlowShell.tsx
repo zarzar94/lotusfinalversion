@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPurpleDark, styles, instructionFlow } from '../../styles';
+import LabButton from '../labui/LabButton';
 
 type ModulePhase = 'instructions' | 'practice' | 'main';
 
@@ -112,22 +113,13 @@ export default function ModuleFlowShell({
         {phase !== 'main' ? (
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, gap: 10, flexWrap: 'wrap' }}>
             {onCancel ? (
-              <button onClick={onCancel} style={styles.ghostBtn}>
+              <LabButton variant="ghost" onClick={onCancel}>
                 {t('games.close')}
-              </button>
+              </LabButton>
             ) : null}
-            <button
-              onClick={advance}
-              disabled={!nextEnabled}
-              style={{
-                ...styles.primaryBtn,
-                background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})`,
-                opacity: nextEnabled ? 1 : 0.6,
-                cursor: nextEnabled ? 'pointer' : 'not-allowed',
-              }}
-            >
+            <LabButton onClick={advance} disabled={!nextEnabled}>
               {nextLabel}
-            </button>
+            </LabButton>
           </div>
         ) : null}
       </div>

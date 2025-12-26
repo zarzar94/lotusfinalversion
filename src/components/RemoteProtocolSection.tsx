@@ -1,4 +1,5 @@
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import LabButtonAnchor from './labui/LabButtonAnchor';
 import { useLanguage } from '../context/LanguageContext';
 
 const steps = [
@@ -328,16 +329,16 @@ export default function RemoteProtocolSection() {
         gap: 10,
         flexWrap: 'wrap',
       }}>
-        <a href="#contact" style={{
-          ...styles.primaryBtn,
-          textDecoration: 'none',
-          background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
-        }}>
+        <LabButtonAnchor
+          href="#contact"
+          variant="primary"
+          style={{ background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})` }}
+        >
           {t('remoteProtocol.inquire')}
-        </a>
-        <a href="#faq" style={{ ...styles.ghostBtn, textDecoration: 'none' }}>
+        </LabButtonAnchor>
+        <LabButtonAnchor href="#faq" variant="ghost">
           {t('nav.faq')}
-        </a>
+        </LabButtonAnchor>
       </div>
 
       <style>{`

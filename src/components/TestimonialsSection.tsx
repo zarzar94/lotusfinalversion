@@ -16,6 +16,7 @@ import {
   AlertIcon,
   ShieldCheckIcon,
 } from './Icons';
+import LabButtonAnchor from './labui/LabButtonAnchor';
 
 type Testimonial = {
   id: string;
@@ -905,30 +906,34 @@ export default function TestimonialsSection() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
-          <a href="#contact" style={{
-            ...styles.primaryBtn,
-            textDecoration: 'none',
-            padding: '14px 28px',
-            fontSize: 15,
-            borderRadius: 14,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-          }}>
+          <LabButtonAnchor
+            href="#contact"
+            variant="primary"
+            style={{
+              padding: '14px 28px',
+              fontSize: 15,
+              borderRadius: 14,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
             <PhoneIcon size={18} /> احجز استشارة مجانية
-          </a>
-          <a href="#checklist" style={{
-            ...styles.ghostBtn,
-            textDecoration: 'none',
-            padding: '14px 28px',
-            fontSize: 15,
-            borderRadius: 14,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-          }}>
+          </LabButtonAnchor>
+          <LabButtonAnchor
+            href="#checklist"
+            variant="ghost"
+            style={{
+              padding: '14px 28px',
+              fontSize: 15,
+              borderRadius: 14,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
             <MicroscopeIcon size={18} /> جرب الماسح العصبي
-          </a>
+          </LabButtonAnchor>
         </div>
       </div>
 

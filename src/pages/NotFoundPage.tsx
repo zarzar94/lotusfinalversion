@@ -21,8 +21,8 @@ import {
   typography,
   spacing,
   radius,
-  styles,
 } from '../components/styles';
+import { LabShell, LabShellContent } from '../components/labui/LabShell';
 
 function NotFoundPage() {
   const { isArabic } = useLanguage();
@@ -54,12 +54,12 @@ function NotFoundPage() {
   `;
 
   return (
-    <div style={styles.page}>
+    <LabShell variant="primary">
       <style>{css}</style>
       <BackgroundFX />
       <Header />
 
-      <main style={styles.container}>
+      <LabShellContent>
         <div
           style={{
             display: 'flex',
@@ -313,11 +313,11 @@ function NotFoundPage() {
         <FadeIn delay={100} direction="none" scale scaleFrom={0.98}>
           <Footer />
         </FadeIn>
-      </main>
+      </LabShellContent>
 
       <WhatsAppFab />
       <ScrollToTopButton />
-    </div>
+    </LabShell>
   );
 }
 

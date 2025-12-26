@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from './styles';
+import LabButtonAnchor from './labui/LabButtonAnchor';
 import { useLanguage } from '../context/LanguageContext';
 
 const timelineSteps = [
@@ -420,11 +421,13 @@ export default function TreatmentTimeline() {
           <div style={{ fontWeight: 900, fontSize: 16, color: '#fff' }}>{t('cta.headline')}</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>{t('cta.subheadline')}</div>
         </div>
-        <a href="#contact" style={{
-          ...styles.primaryBtn,
-          textDecoration: 'none',
-          padding: '12px 24px',
-        }}>{t('cta.bookConsultation')}</a>
+        <LabButtonAnchor
+          href="#contact"
+          variant="primary"
+          style={{ padding: '12px 24px' }}
+        >
+          {t('cta.bookConsultation')}
+        </LabButtonAnchor>
       </div>
     </section>
   );

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles, snrModule } from '../../styles';
+import LabButton from '../labui/LabButton';
 import { ensureAudio, safeCloseAudio, setBabbleNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import type { GameResult, SpeechInNoiseMetrics, TestOutcome } from './types';
 import { calculateFatigueIndex } from './scoring';
@@ -366,13 +367,13 @@ export default function SpeechInNoiseTestPanel({
               {t('auto.SpeechInNoiseTestPanel.k5', "You will hear a sentence with background noise. Select the correct words after listening.")}
             </p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
-              <button onClick={startPractice} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}>
+              <LabButton onClick={startPractice}>
                 {t('auto.SpeechInNoiseTestPanel.k6', "Start Practice")}
-              </button>
+              </LabButton>
               {onCancel ? (
-                <button onClick={onCancel} style={styles.ghostBtn}>
+                <LabButton variant="ghost" onClick={onCancel}>
                   {t('auto.SpeechInNoiseTestPanel.k7', "Cancel")}
-                </button>
+                </LabButton>
               ) : null}
             </div>
           </div>
@@ -417,18 +418,16 @@ export default function SpeechInNoiseTestPanel({
             </div>
           </div>
 
-          <button
+          <LabButton
             onClick={submit}
             disabled={!played}
+            fullWidth
             style={{
-              ...styles.primaryBtn,
-              width: '100%',
               background: played ? `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` : 'rgba(255,255,255,0.2)',
-              cursor: played ? 'pointer' : 'not-allowed',
             }}
           >
             {t('auto.SpeechInNoiseTestPanel.k9', "Submit Response")}
-          </button>
+          </LabButton>
         </div>
       ) : null}
 

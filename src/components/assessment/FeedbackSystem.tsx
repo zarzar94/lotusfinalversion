@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { styles, brandCyan, brandPink } from '../styles';
+import LabButton from '../labui/LabButton';
 
 interface FeedbackPayload {
   categories: Record<string, number>;
@@ -65,19 +66,19 @@ const FeedbackSystem = ({ locale = 'ar', onSubmit }: { locale?: 'ar' | 'en'; onS
               <span style={{ flex: 1, ...styles.bodyText }}>{category}</span>
               <div style={{ display: 'flex', gap: 4 }}>
                 {Array.from({ length: 5 }).map((_, idx) => (
-                  <button
+                  <LabButton
                     key={idx}
-                    type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setCategories({ ...categories, [category]: idx + 1 })}
                     style={{
-                      ...styles.ghostBtn,
                       padding: '6px 10px',
                       borderColor: (categories[category] ?? 0) > idx ? brandCyan : 'rgba(255,255,255,0.08)',
                       background: (categories[category] ?? 0) > idx ? 'rgba(143,211,204,0.12)' : 'transparent',
                     }}
                   >
                     {(idx + 1).toString()}
-                  </button>
+                  </LabButton>
                 ))}
               </div>
             </div>
@@ -122,9 +123,9 @@ const FeedbackSystem = ({ locale = 'ar', onSubmit }: { locale?: 'ar' | 'en'; onS
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <button type="button" onClick={handleSubmit} style={{ ...styles.primaryBtn, padding: '10px 16px' }}>
+        <LabButton variant="primary" onClick={handleSubmit} style={{ padding: '10px 16px' }}>
           {t.submit}
-        </button>
+        </LabButton>
       </div>
     </section>
   );

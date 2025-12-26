@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
+import LabButton from '../labui/LabButton';
+import LabButtonAnchor from '../labui/LabButtonAnchor';
 import type { AssessmentSession, GameResult, TestKey, TestOutcome } from './types';
 import { resultMeta } from './types';
 import HeadphoneCheckPanel, { HeadphoneCheckResult } from './HeadphoneCheckPanel';
@@ -108,6 +110,10 @@ export default function AssessmentSuiteModal({
     if (composite.result === 'medium') return { title: t('games.nextStep.medium'), hash: '#games', color: brandPurpleDark };
     return { title: t('games.nextStep.high'), hash: '/partners#schools', color: brandCyan };
   }, [composite.result, t]);
+  const ctaStyle = useMemo(
+    () => ({ '--lab-btn-bg': `linear-gradient(135deg, ${brandPurpleDark}, ${cta.color})` } as CSSProperties),
+    [cta.color]
+  );
 
   if (!open) return null;
 
@@ -132,7 +138,9 @@ export default function AssessmentSuiteModal({
           </div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
             <span style={styles.chip}>{stepLabel()}</span>
-            <button onClick={close} style={styles.ghostBtn}>{t('games.close')}</button>
+            <LabButton variant="ghost" onClick={close}>
+              {t('games.close')}
+            </LabButton>
           </div>
         </div>
 
@@ -160,12 +168,12 @@ export default function AssessmentSuiteModal({
               </ul>
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
-                <button onClick={() => setStep('headphone')} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}>
+                <LabButton onClick={() => setStep('headphone')}>
                   {t('games.suite.startSession')}
-                </button>
-                <button onClick={() => setStep('questionnaire')} style={{ ...styles.ghostBtn, borderColor: 'rgba(175,132,186,0.25)' }}>
+                </LabButton>
+                <LabButton variant="ghost" onClick={() => setStep('questionnaire')}>
                   {t('games.suite.startWithQuestionnaire')}
-                </button>
+                </LabButton>
               </div>
             </div>
 
@@ -266,13 +274,13 @@ export default function AssessmentSuiteModal({
                   <div style={{ fontWeight: 900, color: resultMeta[composite.result].color }}>{t('games.suite.summaryTitle')} {composite.label}</div>
                   <p style={{ ...styles.muted, marginTop: 6 }}>{composite.message}</p>
                 </div>
-                <a
+                <LabButtonAnchor
                   href={cta.hash}
                   onClick={() => onClose()}
-                  style={{ ...styles.primaryBtn, textDecoration: 'none', background: `linear-gradient(135deg, ${brandPurpleDark}, ${cta.color})` }}
+                  style={ctaStyle}
                 >
                   {cta.title}
-                </a>
+                </LabButtonAnchor>
               </div>
 
               <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
@@ -327,19 +335,15 @@ export default function AssessmentSuiteModal({
               </div>
 
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
-                <button
-                  onClick={() => downloadSessionCsv(session, { lang: reportLang, template: reportTemplate })}
-                  style={{ ...styles.ghostBtn, borderColor: 'rgba(143,211,204,0.25)' }}
-                >
+                <LabButton variant="ghost" onClick={() => downloadSessionCsv(session, { lang: reportLang, template: reportTemplate })}>
                   {t('games.exportCsvSummary')}
-                </button>
-                <button
-                  onClick={() => downloadSessionPdf(session, { lang: reportLang, template: reportTemplate }, { label: composite.label, message: composite.message })}
-                  style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})` }}
-                >
+                </LabButton>
+                <LabButton onClick={() => downloadSessionPdf(session, { lang: reportLang, template: reportTemplate }, { label: composite.label, message: composite.message })}>
                   {t('games.exportPdfReport')}
-                </button>
-                <button onClick={() => setStep('attention')} style={styles.ghostBtn}>{t('games.suite.retryTests')}</button>
+                </LabButton>
+                <LabButton variant="ghost" onClick={() => setStep('attention')}>
+                  {t('games.suite.retryTests')}
+                </LabButton>
               </div>
               <p style={{ ...styles.muted, marginTop: 8 }}>
                 {t('clinical.disclaimer')}

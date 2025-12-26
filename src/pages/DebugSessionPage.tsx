@@ -3,6 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { getAllSessions } from '../utils/sessionStorage';
 import type { LabModuleMetrics } from '../types/moduleMetrics';
 import { brandCyan, brandPurple, colors, spacing, radius, typography } from '../components/styles';
+import { LabShell } from '../components/labui/LabShell';
 
 const formatTimestamp = (timestamp: string, locale: string) => {
   const date = new Date(timestamp);
@@ -31,30 +32,31 @@ export default function DebugSessionPage() {
   };
 
   return (
-    <section
-      className="page-container"
-      style={{
-        maxWidth: 1000,
-        margin: '0 auto',
-        padding: `${spacing[6]}px ${spacing[4]}px`,
-        direction,
-      }}
-    >
-      <div style={{ marginBottom: spacing[5] }}>
-        <h1
-          style={{
-            margin: 0,
-            fontSize: typography.size['2xl'],
-            fontWeight: typography.weight.black,
-            color: colors.text.primary,
-          }}
-        >
-          {t('debug.sessionHistoryTitle', 'Session History (Debug)')}
-        </h1>
-        <p style={{ margin: `${spacing[1]}px 0 0`, color: colors.text.secondary, fontSize: typography.size.sm }}>
-          {t('debug.sessionHistorySubtitle', 'Lab module metrics stored in localStorage.')}
-        </p>
-      </div>
+    <LabShell variant="primary">
+      <section
+        className="page-container"
+        style={{
+          maxWidth: 1000,
+          margin: '0 auto',
+          padding: `${spacing[6]}px ${spacing[4]}px`,
+          direction,
+        }}
+      >
+        <div style={{ marginBottom: spacing[5] }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: typography.size['2xl'],
+              fontWeight: typography.weight.black,
+              color: colors.text.primary,
+            }}
+          >
+            {t('debug.sessionHistoryTitle', 'Session History (Debug)')}
+          </h1>
+          <p style={{ margin: `${spacing[1]}px 0 0`, color: colors.text.secondary, fontSize: typography.size.sm }}>
+            {t('debug.sessionHistorySubtitle', 'Lab module metrics stored in localStorage.')}
+          </p>
+        </div>
 
       <div
         style={{
@@ -213,6 +215,7 @@ export default function DebugSessionPage() {
           {json}
         </pre>
       </div>
-    </section>
+      </section>
+    </LabShell>
   );
 }

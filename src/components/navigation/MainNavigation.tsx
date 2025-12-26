@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { styles, brandCyan, brandPink } from '../styles';
+import LabButton from '../labui/LabButton';
 
 const MainNavigation = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {
   const [open, setOpen] = useState(false);
@@ -44,17 +45,17 @@ const MainNavigation = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {
               </a>
             ))}
           </div>
-          <button
-            type="button"
+          <LabButton
+            variant="ghost"
             onClick={() => setLanguage((prev) => (prev === 'ar' ? 'en' : 'ar'))}
-            style={{ ...styles.ghostBtn, padding: '6px 10px', borderColor: brandCyan }}
+            style={{ padding: '6px 10px', borderColor: brandCyan }}
           >
             {language === 'ar' ? 'EN' : 'عربي'}
-          </button>
+          </LabButton>
           <div style={{ position: 'relative' }}>
-            <button type="button" onClick={() => setOpen((o) => !o)} style={{ ...styles.ghostBtn, padding: '6px 10px' }}>
+            <LabButton variant="ghost" onClick={() => setOpen((o) => !o)} style={{ padding: '6px 10px' }}>
               ☰
-            </button>
+            </LabButton>
             {open && (
               <div
                 style={{
@@ -76,8 +77,10 @@ const MainNavigation = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {
                   </a>
                 ))}
                 <div style={{ display: 'grid', gap: 6, marginTop: 8 }}>
-                  <button style={{ ...styles.primaryBtn, padding: '8px 12px' }}>ابدأ الآن</button>
-                  <button style={{ ...styles.ghostBtn, padding: '8px 12px', borderColor: brandPink }}>حجز استشارة</button>
+                  <LabButton variant="primary" style={{ padding: '8px 12px' }}>ابدأ الآن</LabButton>
+                  <LabButton variant="ghost" style={{ padding: '8px 12px', borderColor: brandPink }}>
+                    حجز استشارة
+                  </LabButton>
                 </div>
               </div>
             )}

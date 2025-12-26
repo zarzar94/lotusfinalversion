@@ -2,6 +2,7 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { useGamification } from '../../context/GamificationContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { styles, brandCyan, brandPurple, brandPink, brandPurpleDark } from '../styles';
+import LabButton from '../labui/LabButton';
 
 // Audio journey stages
 const JOURNEY_STAGES = [
@@ -445,17 +446,15 @@ export default function AudioJourney() {
         </p>
 
         {/* Play All Button */}
-        <button
+        <LabButton
+          variant="primary"
           onClick={playAllStages}
           disabled={isPlaying}
           style={{
-            ...styles.primaryBtn,
             marginTop: 16,
             display: 'flex',
             alignItems: 'center',
             gap: 8,
-            opacity: isPlaying ? 0.6 : 1,
-            cursor: isPlaying ? 'not-allowed' : 'pointer',
           }}
         >
           {isPlaying ? (
@@ -469,7 +468,7 @@ export default function AudioJourney() {
               {isArabic ? 'تشغيل الرحلة الكاملة' : 'Play full journey'}
             </>
           )}
-        </button>
+        </LabButton>
       </div>
 
       {/* Journey Progress Bar */}

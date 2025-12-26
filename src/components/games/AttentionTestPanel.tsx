@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
+import LabButton from '../labui/LabButton';
 import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import { clamp01, dPrime, mean } from './stats';
 import type { GameResult, TestOutcome } from './types';
@@ -386,16 +387,16 @@ export default function AttentionTestPanel({
             <div style={styles.section}>
               <div style={{ fontWeight: 900 }}>النغمة المستهدفة</div>
               <div style={styles.muted}>{isArabic ? 'نغمة عالية (الهدف)' : 'High tone (Target)'}</div>
-              <button onClick={() => playExample(TARGET_FREQ)} style={{ ...styles.primaryBtn, marginTop: 10 }}>
+              <LabButton onClick={() => playExample(TARGET_FREQ)} style={{ marginTop: 10 }}>
                 استمع
-              </button>
+              </LabButton>
             </div>
             <div style={styles.section}>
               <div style={{ fontWeight: 900 }}>مثال غير مستهدف</div>
               <div style={styles.muted}>{isArabic ? 'لا تضغط' : 'Do NOT tap'}</div>
-              <button onClick={() => playExample(NON_TARGET_FREQS[0])} style={{ ...styles.ghostBtn, marginTop: 10, borderColor: 'rgba(143,211,204,0.25)' }}>
+              <LabButton variant="ghost" onClick={() => playExample(NON_TARGET_FREQS[0])} style={{ marginTop: 10 }}>
                 استمع
-              </button>
+              </LabButton>
             </div>
           </div>
 
@@ -407,16 +408,16 @@ export default function AttentionTestPanel({
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, gap: 10, flexWrap: 'wrap' }}>
-            <button onClick={() => setStage('practice')} style={{ ...styles.ghostBtn, borderColor: 'rgba(175,132,186,0.25)' }}>
+            <LabButton variant="ghost" onClick={() => setStage('practice')}>
               تدريب سريع
-            </button>
-            <button onClick={start} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}>
+            </LabButton>
+            <LabButton onClick={start}>
               ابدأ الاختبار
-            </button>
+            </LabButton>
             {onCancel ? (
-              <button onClick={onCancel} style={styles.ghostBtn}>
+              <LabButton variant="ghost" onClick={onCancel}>
                 إغلاق
-              </button>
+              </LabButton>
             ) : null}
           </div>
         </div>
@@ -430,14 +431,14 @@ export default function AttentionTestPanel({
               جرّب الآن: اضغط فقط مع النغمة العالية جداً.
             </p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
-              <button onClick={() => playExample(TARGET_FREQ)} style={styles.primaryBtn}>تشغيل Target</button>
-              <button onClick={() => playExample(NON_TARGET_FREQS[2])} style={styles.ghostBtn}>تشغيل Non‑Target</button>
+              <LabButton onClick={() => playExample(TARGET_FREQ)}>تشغيل Target</LabButton>
+              <LabButton variant="ghost" onClick={() => playExample(NON_TARGET_FREQS[2])}>تشغيل Non‑Target</LabButton>
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
-              <button onClick={start} style={{ ...styles.primaryBtn, background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandPink})` }}>
+              <LabButton onClick={start}>
                 ابدأ الاختبار الحقيقي
-              </button>
-              <button onClick={() => setStage('intro')} style={styles.ghostBtn}>رجوع</button>
+              </LabButton>
+              <LabButton variant="ghost" onClick={() => setStage('intro')}>رجوع</LabButton>
             </div>
           </div>
         </div>
@@ -521,11 +522,11 @@ export default function AttentionTestPanel({
           {/* Response Button */}
           <div style={{ marginTop: 12, padding: 18, borderRadius: 16, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(0,0,0,0.18)' }}>
             <div style={{ fontWeight: 900, marginBottom: 10 }}>زر الاستجابة</div>
-            <button
+            <LabButton
               onClick={respond}
+              fullWidth
+              size="lg"
               style={{
-                ...styles.primaryBtn,
-                width: '100%',
                 padding: '18px 16px',
                 fontSize: 18,
                 background: feedback === 'hit' || feedback === 'combo'
@@ -537,7 +538,7 @@ export default function AttentionTestPanel({
               }}
             >
               👆 اضغط عند سماع Target
-            </button>
+            </LabButton>
             <div style={{ marginTop: 10, ...styles.muted }}>
               نصيحة: لا تضغط بسرعة. الضغط العشوائي يزيد الاندفاع ويؤثر على النتيجة.
             </div>
