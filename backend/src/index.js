@@ -60,6 +60,7 @@ app.use(cors({
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
   max: parseInt(process.env.RATE_LIMIT_MAX) || 100,
+  skip: (req) => req.path === '/health',
   message: {
     success: false,
     error: { code: 'RATE_LIMITED', message: 'Too many requests, please try again later' },
