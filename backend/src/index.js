@@ -57,10 +57,17 @@ app.use(cors({
 }));
 
 // Rate limiting
+const isE2E = process.env.VITE_E2E === 'true' || process.env.E2E === 'true';
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
   max: parseInt(process.env.RATE_LIMIT_MAX) || 100,
-  skip: (req) => req.path === '/health',
+  skip: (req) => {
+    if (req.path === '/health') return true;
+    if (!isE2E) return false;
+    if (req.method === 'POST' && req.path === '/auth/login') return true;
+    if (req.method === 'POST' && req.path === '/sync') return true;
+    return false;
+  },
   message: {
     success: false,
     error: { code: 'RATE_LIMITED', message: 'Too many requests, please try again later' },
