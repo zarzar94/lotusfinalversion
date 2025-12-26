@@ -43,6 +43,8 @@
 - `GET /sessions?limit&offset` (auth) → `SessionsListResponse`. `src/services/api.ts:463`, `src/types/api.ts:257`
 - `GET /sessions/:id` (auth) → `SessionResponse`. `src/services/api.ts:467`, `src/types/api.ts:251`
 - `DELETE /sessions/:id` (auth). `src/services/api.ts:471`
+- `GET /sessions/analysis/patient?patientId&testKey` (auth) → `SessionAnalysisResponse`. `src/services/api.ts:482`, `backend/src/routes/sessions.js:230`
+- `GET /sessions/analysis/school?school` (auth) → `SchoolSessionsAnalysisResponse`. `src/services/api.ts:489`, `src/types/api.ts:285`
 
 ### Sync
 - `POST /sync` (auth) → `SyncRequest/Response`. `src/services/api.ts:482`, `src/types/api.ts:268`
@@ -54,15 +56,16 @@
 ## Backend-only endpoints (غير مستخدمة من الواجهة حالياً)
 - `POST /sync/beacon` (نقل بيانات عند unload). `backend/src/routes/sync.js:190`
 - `GET /clinical/patient/:patientId` (clinician/super_admin). `backend/src/routes/clinical.js:166`
-- `GET /sessions/analysis/progress` (تحليل تقدّم). `backend/src/routes/sessions.js:152`
 - `/password/*`, `/upload/*`, `/admin/*`. `backend/src/index.js:114`
 
 ## RBAC/Scoping (Backend)
 - أغلب المسارات تُحمى بـ `authenticate` في الراوترات. `backend/src/routes/clinical.js:12`, `backend/src/routes/sessions.js:12`
 - تفويض إضافي لمسارات حساسة (مثال: patient progress). `backend/src/routes/clinical.js:166`
+- `GET /sessions/analysis/patient`: clinician/super_admin, patient self, parent linked, school_admin with same school. `backend/src/routes/sessions.js:230`
+- `GET /sessions/analysis/school`: school_admin (own school) or clinician/super_admin with explicit `school`. `backend/src/routes/sessions.js:265`
 
 ## Data Shapes (مختصر)
-- `ApiUser`, `ClinicalProgress`, `GamificationState`, `UserSettings`, `AssessmentSession`, `SyncRequest/Response`. `src/types/api.ts:49`
+- `ApiUser`, `ClinicalProgress`, `GamificationState`, `UserSettings`, `AssessmentSession`, `SessionAnalysisResponse`, `SchoolSessionsSummary`, `SyncRequest/Response`. `src/types/api.ts:49`
 
 ## Response Conventions
 - أغلب الردود: `{ success: boolean, ... }` مع `error` عند الفشل. `src/types/api.ts:306`

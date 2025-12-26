@@ -18,6 +18,10 @@
 - `/login` يعمل ويغلق/يفتح الـ modal بشكل صحيح. `src/App.tsx:646`
 - RoleGuard على لوحات: `school_admin`, `parent`, `clinician`. `src/App.tsx:659`
 - `/settings` يتطلب auth. `src/App.tsx:721`
+## التحليلات (Analytics)
+- Clinician/Parent: `GET /sessions/analysis/patient?patientId&testKey` يعيد trend. `backend/src/routes/sessions.js:230`
+- School Admin: `GET /sessions/analysis/school` يعيد summary + module averages. `backend/src/routes/sessions.js:265`
+- تأكد من ظهور توجه attention في المخططات الطويلة. `src/components/dashboards/LongitudinalCharts.tsx:238`
 
 ## الألعاب والتقييم (Assessment Suite)
 - Headphone check يعمل قبل البدء، ثم الوحدات بالترتيب. `src/components/games/AssessmentSuiteModal.tsx:40`
@@ -35,6 +39,10 @@
 ## Offline + Sync
 - تحقق من queue عند فقد الاتصال ثم استعادته. `src/services/api.ts:181`, `public/sw.js:56`
 - تحقق من `SyncContext` عند إعادة الاتصال. `src/context/SyncContext.tsx:93`
+## بيانات Seed (Smoke Test)
+- `npm run seed` يضيف Lotus School ويربط parent->patient. `backend/src/utils/seed.js`
+- الجلسات المولدة تشمل outcomes + scoreLabel + score100 للتحليلات. `backend/src/utils/seed.js`
+- حسابات الاختبار: admin/clinician/school_admin/parent/patient (شاهد مخرجات seed).
 
 ## PWA/Service Worker
 - `sw.js` يُسجَّل عند load. `src/main.tsx:31`
