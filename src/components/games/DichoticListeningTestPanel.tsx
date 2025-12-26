@@ -1,10 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
-import { brandCyan, brandPink, brandPurpleDark, styles, binauralModule } from '../../styles';
+import { brandCyan, brandPurpleDark, styles } from '../../styles';
 import LabButton from '../labui/LabButton';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import type { GameResult, TestOutcome } from './types';
+import {
+  CalibrationStep,
+  MetricsSummaryPanel,
+  ModuleFrame,
+  ModuleHeader,
+  PracticeTrialsStep,
+} from './ui';
 
 type Stimulus = {
   label: string;
@@ -269,28 +276,30 @@ export default function DichoticListeningTestPanel({
     return '';
   }, [practiceIndex, stage, trialIndex]);
 
+  const summaryTone = summary
+    ? summary.result === 'high'
+      ? 'success'
+      : summary.result === 'medium'
+        ? 'warning'
+        : 'error'
+    : 'neutral';
+
   return (
-    <div style={styles.section}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-        <div>
-          <div style={{ fontWeight: 900, color: brandCyan }}>
-            {t('auto.DichoticListeningTestPanel.k2', "Dichotic Listening")}
-          </div>
-          <div style={styles.muted}>
-            {t('auto.DichoticListeningTestPanel.k3', "Syllables or numbers are presented to each ear.")}
-          </div>
-        </div>
-        {progressLabel ? <span style={styles.chip}>{progressLabel}</span> : null}
-      </div>
+    <ModuleFrame>
+      <ModuleHeader
+        title={t('auto.DichoticListeningTestPanel.k2', "Dichotic Listening")}
+        subtitle={t('auto.DichoticListeningTestPanel.k3', "Syllables or numbers are presented to each ear.")}
+        tone="cyan"
+        status={progressLabel || undefined}
+        statusTone="cyan"
+      />
 
       {stage === 'intro' ? (
-        <div style={{ marginTop: 12 }}>
-          <div style={{ ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900 }}>{t('auto.DichoticListeningTestPanel.k4', "Instructions")}</div>
-            <p style={{ ...styles.bodyText, marginTop: 8 }}>
-              {t('auto.DichoticListeningTestPanel.k5', "You will hear different syllables or numbers in each ear. In integration, report both ears. In separation, focus on the instructed ear.")}
-            </p>
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
+        <CalibrationStep
+          title={t('auto.DichoticListeningTestPanel.k4', "Instructions")}
+          description={t('auto.DichoticListeningTestPanel.k5', "You will hear different syllables or numbers in each ear. In integration, report both ears. In separation, focus on the instructed ear.")}
+          actions={(
+            <>
               <LabButton onClick={startPractice}>
                 {t('auto.DichoticListeningTestPanel.k6', "Start Practice")}
               </LabButton>
@@ -299,13 +308,19 @@ export default function DichoticListeningTestPanel({
                   {t('auto.DichoticListeningTestPanel.k7', "Cancel")}
                 </LabButton>
               ) : null}
-            </div>
-          </div>
-        </div>
+            </>
+          )}
+        />
       ) : null}
 
       {(stage === 'practice' || stage === 'running') && current ? (
-        <div style={{ marginTop: 16 }}>
+        <PracticeTrialsStep
+          title={stage === 'practice'
+            ? t('auto.DichoticListeningTestPanel.k13', "Practice Trial")
+            : t('auto.DichoticListeningTestPanel.k14', "Test Trial")}
+          status={progressLabel || undefined}
+          statusTone="purple"
+        >
           <div style={{
             padding: 16,
             borderRadius: 16,
@@ -405,35 +420,23 @@ export default function DichoticListeningTestPanel({
           >
             {t('auto.DichoticListeningTestPanel.k12', "Submit Response")}
           </LabButton>
-        </div>
+        </PracticeTrialsStep>
       ) : null}
 
       {stage === 'done' && summary ? (
-        <div style={{ marginTop: 16 }}>
-          <div style={{ ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900, color: summary.result === 'high' ? brandCyan : summary.result === 'medium' ? brandPurpleDark : brandPink }}>
-              {summary.message}
-            </div>
-            <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', marginTop: 12 }}>
-              {[
-                { label: t('dichotic.leftEarRecall'), value: `${summary.leftPct}%` },
-                { label: t('dichotic.rightEarRecall'), value: `${summary.rightPct}%` },
-                { label: t('dichotic.balanceIndex'), value: `${summary.balanceIndex}` },
-                { label: t('dichotic.separationAccuracy'), value: `${summary.separationPct}%` },
-                { label: t('dichotic.intrusions'), value: summary.intrusions },
-              ].map((item) => (
-                <div key={item.label} style={{ padding: 10, borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.2)' }}>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>{item.label}</div>
-                  <div style={{ fontWeight: 800, marginTop: 4 }}>{item.value}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ marginTop: 12, ...styles.muted }}>
-              {t('clinical.screeningDisclaimer')}
-            </div>
-          </div>
-        </div>
+        <MetricsSummaryPanel
+          title={summary.message}
+          tone={summaryTone}
+          metrics={[
+            { label: t('dichotic.leftEarRecall'), value: `${summary.leftPct}%` },
+            { label: t('dichotic.rightEarRecall'), value: `${summary.rightPct}%` },
+            { label: t('dichotic.balanceIndex'), value: `${summary.balanceIndex}` },
+            { label: t('dichotic.separationAccuracy'), value: `${summary.separationPct}%` },
+            { label: t('dichotic.intrusions'), value: summary.intrusions },
+          ]}
+          footer={t('clinical.screeningDisclaimer')}
+        />
       ) : null}
-    </div>
+    </ModuleFrame>
   );
 }
