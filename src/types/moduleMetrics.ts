@@ -9,6 +9,7 @@ export type SessionQualityFlag = {
 
 export type LabModuleMetrics = {
   moduleId: TestKey | 'unknown';
+  sessionId?: string;
   timestamp: string;
   rawMetrics: Record<string, number>;
   metrics: TestMetrics;

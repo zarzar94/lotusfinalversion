@@ -63,6 +63,8 @@ interface PatientData {
   nextAppointment?: number;
 }
 
+const isMongoId = (value?: string | null): boolean => Boolean(value && /^[a-f\d]{24}$/i.test(value));
+
 // ═══════════════════════════════════════════════════════════════════════════
 // MOCK DATA
 // ═══════════════════════════════════════════════════════════════════════════
@@ -773,6 +775,8 @@ export default function ClinicianDashboard() {
   useEffect(() => {
     let cancelled = false;
     const token = getToken();
+    const patientId = selectedPatient?.id;
+    const usePatientScope = isMongoId(patientId);
 
     if (!token || !isAuthenticated || !isOnline) {
       setAnalysis(null);
@@ -783,7 +787,11 @@ export default function ClinicianDashboard() {
     }
 
     setAnalysisLoading(true);
-    sessionsApi.getProgressAnalysis(trendModule)
+    const request = usePatientScope
+      ? sessionsApi.getPatientProgressAnalysis(patientId as string, trendModule)
+      : sessionsApi.getProgressAnalysis(trendModule);
+
+    request
       .then((response) => {
         if (cancelled) return;
         setAnalysis(response.success ? response.trend ?? null : null);
@@ -800,7 +808,7 @@ export default function ClinicianDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [trendModule, isAuthenticated, isOnline]);
+  }, [trendModule, isAuthenticated, isOnline, selectedPatient?.id]);
 
   const stats = useMemo(() => {
     const total = MOCK_PATIENTS.length;

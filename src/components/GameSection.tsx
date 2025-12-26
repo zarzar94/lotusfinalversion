@@ -703,7 +703,7 @@ const GameSection = memo(function GameSection() {
     };
     saveSession(session);
 
-    const labMetrics = buildLabMetrics(outcome);
+    const labMetrics = buildLabMetrics(outcome, sessionIdRef.current);
     saveLabSession(labMetrics);
   }, []);
 

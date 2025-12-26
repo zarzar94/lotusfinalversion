@@ -70,6 +70,7 @@ const normalizeSession = (value: unknown): LabModuleMetrics | null => {
   if (!value || typeof value !== 'object') return null;
   const raw = value as Record<string, unknown>;
   const moduleId = (typeof raw.moduleId === 'string' ? raw.moduleId : 'unknown') as LabModuleMetrics['moduleId'];
+  const sessionId = typeof raw.sessionId === 'string' ? raw.sessionId : undefined;
   const timestamp = typeof raw.timestamp === 'string' ? raw.timestamp : new Date().toISOString();
   const scoreValue = toNumber(raw.score100);
   const score100 = scoreValue !== null ? clampScore(scoreValue) : 0;
@@ -85,6 +86,7 @@ const normalizeSession = (value: unknown): LabModuleMetrics | null => {
 
   return {
     moduleId,
+    sessionId,
     timestamp,
     rawMetrics,
     metrics,

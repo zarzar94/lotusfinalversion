@@ -288,6 +288,21 @@ export interface SessionAnalysisResponse {
   error?: string;
 }
 
+export interface SchoolSessionsSummary {
+  school: string;
+  totalSessions: number;
+  uniqueUsers: number;
+  averagePoints: number;
+  averageScore: number;
+  moduleAverages: Record<string, number>;
+}
+
+export interface SchoolSessionsAnalysisResponse {
+  success: boolean;
+  summary?: SchoolSessionsSummary;
+  error?: string;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // SYNC TYPES
 // ═══════════════════════════════════════════════════════════════════════════

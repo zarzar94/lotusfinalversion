@@ -26,6 +26,7 @@ import type {
   SessionResponse,
   SessionsListResponse,
   SessionAnalysisResponse,
+  SchoolSessionsAnalysisResponse,
   SyncRequest,
   SyncResponse,
 } from '../types/api';
@@ -481,6 +482,22 @@ export const sessionsApi = {
     const query = params.toString();
     const endpoint = query ? `/sessions/analysis/progress?${query}` : '/sessions/analysis/progress';
     return fetchWithAuth<SessionAnalysisResponse>(endpoint);
+  },
+
+  getPatientProgressAnalysis: async (patientId: string, testKey?: string): Promise<SessionAnalysisResponse> => {
+    const params = new URLSearchParams();
+    params.set('patientId', patientId);
+    if (testKey) params.set('testKey', testKey);
+    const endpoint = `/sessions/analysis/patient?${params.toString()}`;
+    return fetchWithAuth<SessionAnalysisResponse>(endpoint);
+  },
+
+  getSchoolAnalysis: async (school?: string): Promise<SchoolSessionsAnalysisResponse> => {
+    const params = new URLSearchParams();
+    if (school) params.set('school', school);
+    const query = params.toString();
+    const endpoint = query ? `/sessions/analysis/school?${query}` : '/sessions/analysis/school';
+    return fetchWithAuth<SchoolSessionsAnalysisResponse>(endpoint);
   },
 };
 

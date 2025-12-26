@@ -1,7 +1,10 @@
-import { useState, useMemo, memo } from 'react';
+import { useState, useMemo, useEffect, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
 import { useSessionMetrics } from '../../hooks/useSessionMetrics';
+import { getToken, sessionsApi } from '../../services/api';
+import type { SchoolSessionsSummary } from '../../types/api';
+import { getAverageModuleScore, getUniqueSessionStats } from '../../utils/sessionStats';
 import {
   BackNavigation,
   SectionNav,
@@ -331,10 +334,48 @@ StudentTable.displayName = 'StudentTable';
 
 export default function SchoolDashboard() {
   const { isArabic, direction, t } = useLanguage();
-  const { user } = useUser();
+  const { user, isAuthenticated, isOnline } = useUser();
   const hasAccess = usePermission('school_analytics');
   const { sessions: sessionMetrics } = useSessionMetrics();
   const [filter, setFilter] = useState<'all' | 'at_risk' | 'on_track' | 'completed'>('all');
+  const [schoolSummary, setSchoolSummary] = useState<SchoolSessionsSummary | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const token = getToken();
+    const role = user?.role;
+    const canFetch = Boolean(
+      token && isAuthenticated && isOnline && role && ['school_admin', 'super_admin', 'clinician'].includes(role)
+    );
+
+    if (!canFetch) {
+      setSchoolSummary(null);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    if (role !== 'school_admin' && !user?.school) {
+      setSchoolSummary(null);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    sessionsApi.getSchoolAnalysis(role === 'school_admin' ? undefined : user?.school)
+      .then((response) => {
+        if (cancelled) return;
+        setSchoolSummary(response.success ? response.summary ?? null : null);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setSchoolSummary(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, isOnline, user?.role, user?.school]);
 
   const filteredStudents = useMemo(() => {
     if (filter === 'all') return MOCK_STUDENTS;
@@ -345,22 +386,18 @@ export default function SchoolDashboard() {
     const totalStudents = MOCK_STUDENTS.length;
     const completed = MOCK_STUDENTS.filter(s => s.status === 'completed').length;
     const atRisk = MOCK_STUDENTS.filter(s => s.status === 'at_risk').length;
-    const attentionSessions = sessionMetrics.filter((session) => session.moduleId === 'attention');
-    const avgAttentionFromSessions = attentionSessions.length > 0
-      ? Math.round(attentionSessions.reduce((sum, s) => sum + s.score100, 0) / attentionSessions.length)
-      : null;
-    const avgProgressFromSessions = sessionMetrics.length > 0
-      ? Math.round(sessionMetrics.reduce((sum, s) => sum + s.score100, 0) / sessionMetrics.length)
-      : null;
-    const avgAttention = avgAttentionFromSessions ?? Math.round(
+    const sessionStats = getUniqueSessionStats(sessionMetrics);
+    const avgAttentionFromSessions = getAverageModuleScore(sessionMetrics, 'attention');
+    const avgProgressFromSessions = sessionStats.totalSessions > 0 ? sessionStats.averageScore : null;
+    const avgAttention = schoolSummary?.moduleAverages?.attention ?? avgAttentionFromSessions ?? Math.round(
       MOCK_STUDENTS.reduce((sum, s) => sum + s.attentionScore, 0) / totalStudents
     );
-    const avgProgress = avgProgressFromSessions ?? Math.round(
+    const avgProgress = schoolSummary?.averageScore ?? avgProgressFromSessions ?? Math.round(
       MOCK_STUDENTS.reduce((sum, s) => sum + (s.sessionsCompleted / s.totalSessions) * 100, 0) / totalStudents
     );
 
     return { totalStudents, completed, atRisk, avgAttention, avgProgress };
-  }, [sessionMetrics]);
+  }, [schoolSummary, sessionMetrics]);
 
   if (!hasAccess) {
     return (

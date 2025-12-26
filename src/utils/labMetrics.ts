@@ -109,7 +109,7 @@ const resultToBand = (result: GameResult): LabModuleMetrics['band'] => {
   return 'low';
 };
 
-export const buildLabMetrics = (outcome: TestOutcome): LabModuleMetrics => {
+export const buildLabMetrics = (outcome: TestOutcome, sessionId?: string): LabModuleMetrics => {
   const metrics = outcome.metrics as Record<string, unknown>;
   const rawMetrics = extractNumericMetrics(metrics);
   const fatigueScore = getNumericMetric(metrics, 'fatigueScore');
@@ -119,6 +119,7 @@ export const buildLabMetrics = (outcome: TestOutcome): LabModuleMetrics => {
 
   return {
     moduleId: outcome.key,
+    sessionId,
     timestamp: new Date().toISOString(),
     rawMetrics,
     metrics: outcome.metrics,
@@ -137,6 +138,7 @@ export const buildLabMetricsFromApiOutcome = (
   moduleId: TestKey | 'unknown',
   outcome: ApiTestOutcome,
   timestamp?: number,
+  sessionId?: string,
 ): LabModuleMetrics => {
   const metrics = (outcome.metrics && typeof outcome.metrics === 'object'
     ? outcome.metrics
@@ -149,6 +151,7 @@ export const buildLabMetricsFromApiOutcome = (
 
   return {
     moduleId,
+    sessionId,
     timestamp: new Date(timestamp ?? Date.now()).toISOString(),
     rawMetrics,
     metrics: (outcome.metrics ?? {}) as TestMetrics,

@@ -72,7 +72,7 @@ export default function AssessmentSuiteModal({
 
   const persistOutcome = (outcome: TestOutcome) => {
     upsertOutcome(outcome);
-    saveLabSession(buildLabMetrics(outcome));
+    saveLabSession(buildLabMetrics(outcome, session.id));
   };
 
   const setHeadphone = (hc: HeadphoneCheckResult) => {

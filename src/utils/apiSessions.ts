@@ -30,6 +30,7 @@ export const mapApiSessionToLabMetrics = (session: AssessmentSession): LabModule
   if (!session?.outcomes || typeof session.outcomes !== 'object') return [];
 
   const timestamp = getSessionTimestamp(session);
+  const sessionId = session.id;
   return Object.entries(session.outcomes)
     .map(([key, outcome]) => {
       if (!outcome || typeof outcome !== 'object') return null;
@@ -37,6 +38,7 @@ export const mapApiSessionToLabMetrics = (session: AssessmentSession): LabModule
         toModuleId(key),
         outcome as ApiTestOutcome,
         timestamp,
+        sessionId,
       );
     })
     .filter((entry): entry is LabModuleMetrics => entry !== null);
