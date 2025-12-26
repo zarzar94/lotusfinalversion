@@ -5,7 +5,6 @@
 
 import { memo, useState } from 'react';
 import Header from '../components/Header';
-import { styles } from '../components/styles';
 import BackgroundFX from '../components/BackgroundFX';
 import Footer from '../components/Footer';
 import WhatsAppFab from '../components/WhatsAppFab';
@@ -15,6 +14,7 @@ import CircuitDecoration from '../components/CircuitDecoration';
 import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { LabShell, LabShellContent } from '../components/labui/LabShell';
 import { SPECIALIST, CENTRE_INFO } from '../data/specialist';
 import { CLINIC } from '../data/clinic';
 import { assetUrl } from '../utils/asset';
@@ -886,11 +886,11 @@ function AboutPage() {
   usePageTitle(isArabic ? 'من نحن - Lotus × Bérard AIT' : 'About Us - Lotus × Bérard AIT');
 
   return (
-    <div style={styles.page}>
+    <LabShell variant="primary">
       <BackgroundFX />
       <Header />
 
-      <main style={styles.container}>
+      <LabShellContent>
         <BackNavigation
           to="/"
           label={isArabic ? 'الصفحة الرئيسية' : 'Home'}
@@ -915,7 +915,7 @@ function AboutPage() {
         <FadeIn delay={100} direction="none" scale scaleFrom={0.98}>
           <Footer />
         </FadeIn>
-      </main>
+      </LabShellContent>
 
       <WhatsAppFab />
       <ScrollToTopButton />
@@ -934,7 +934,7 @@ function AboutPage() {
           }
         }
       `}</style>
-    </div>
+    </LabShell>
   );
 }
 

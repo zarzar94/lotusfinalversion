@@ -5,7 +5,6 @@
 
 import { lazy, Suspense, memo } from 'react';
 import Header from '../components/Header';
-import { styles } from '../components/styles';
 import BackgroundFX from '../components/BackgroundFX';
 import Footer from '../components/Footer';
 import WhatsAppFab from '../components/WhatsAppFab';
@@ -15,6 +14,7 @@ import FadeIn from '../components/FadeIn';
 import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { LabShell, LabShellContent } from '../components/labui/LabShell';
 import {
   colors,
   typography,
@@ -94,11 +94,11 @@ function ResultsPage() {
   usePageTitle();
 
   return (
-    <div style={styles.page}>
+    <LabShell variant="primary">
       <BackgroundFX />
       <Header />
 
-      <main style={styles.container}>
+      <LabShellContent>
         <BackNavigation
           to="/"
           label={isArabic ? 'الصفحة الرئيسية' : 'Home'}
@@ -130,11 +130,11 @@ function ResultsPage() {
         <FadeIn delay={100} direction="none" scale scaleFrom={0.98}>
           <Footer />
         </FadeIn>
-      </main>
+      </LabShellContent>
 
       <WhatsAppFab />
       <ScrollToTopButton />
-    </div>
+    </LabShell>
   );
 }
 

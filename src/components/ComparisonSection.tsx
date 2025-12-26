@@ -1,6 +1,7 @@
 import { useState, useCallback, memo } from 'react';
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, brandColors, spacing, radius, typography, colors } from './styles';
 import { useLanguage } from '../context/LanguageContext';
+import LabCard from './labui/LabCard';
 
 type Program = {
   id: string;
@@ -433,7 +434,8 @@ const ComparisonSection = memo(function ComparisonSection() {
   }, []);
 
   return (
-    <section id="comparison" style={styles.sectionCard} aria-labelledby="comparison-title">
+    <section id="comparison" aria-labelledby="comparison-title" style={{ scrollMarginTop: 92, marginBottom: spacing[5] }}>
+      <LabCard variant="panel">
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: spacing[8] }}>
         <div
@@ -597,6 +599,7 @@ const ComparisonSection = memo(function ComparisonSection() {
           <span aria-hidden="true">💬</span> {isArabic ? 'اطلب استشارة' : 'Request a Consultation'}
         </a>
       </div>
+      </LabCard>
     </section>
   );
 });

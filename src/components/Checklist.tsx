@@ -30,6 +30,7 @@ import {
   ChartIcon,
   GamepadIcon,
 } from './Icons';
+import LabCard from './labui/LabCard';
 
 // Category icons and colors for visual appeal
 const CATEGORY_CONFIG: Record<string, { icon: ReactNode; color: string }> = {
@@ -725,14 +726,18 @@ const Checklist = () => {
   const currentSelectedInCategory = currentCategory?.items.filter(item => selected[item.id]).length || 0;
 
   return (
-    <section id="checklist" style={{
-      ...styles.sectionCard,
-      background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
-      border: '1px solid rgba(143,211,204,0.15)',
-      boxShadow: '0 15px 40px rgba(0,0,0,0.4), 0 0 60px rgba(143,211,204,0.08)',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
+    <section id="checklist" style={{ scrollMarginTop: 92, marginBottom: spacing[5] }}>
+      <LabCard
+        variant="panel"
+        padding={spacing[6]}
+        style={{
+          background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+          border: '1px solid rgba(143,211,204,0.15)',
+          boxShadow: '0 15px 40px rgba(0,0,0,0.4), 0 0 60px rgba(143,211,204,0.08)',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
       {/* Top glow bar */}
       <div style={{
         position: 'absolute',
@@ -1280,6 +1285,7 @@ const Checklist = () => {
           </p>
         </div>
       </div>
+      </LabCard>
     </section>
   );
 };

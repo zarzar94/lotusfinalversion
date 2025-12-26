@@ -1,5 +1,5 @@
 import { useMemo, useCallback, useState } from 'react';
-import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, spacing } from './styles';
 import { CLINIC } from '../data/clinic';
 import { handleWhatsApp } from '../utils/whatsapp';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
@@ -7,6 +7,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { downloadSessionCsv, downloadSessionPdf } from './games/report';
 import type { AssessmentSession, TestOutcome } from './games/types';
 import { SchoolIcon, CheckCircleIcon, UsersIcon, ChartIcon, ClockIcon, DocumentIcon, StarIcon } from './Icons';
+import LabCard from './labui/LabCard';
 
 // Impact Statistics
 const IMPACT_STATS = {
@@ -286,8 +287,9 @@ const SchoolPartnershipSection = () => {
     }
   }, [isArabic, isDownloading, t]);
   return (
-    <section id="schools" style={styles.sectionCard}>
-      <div style={styles.sectionHeader}>
+    <section id="schools" style={{ scrollMarginTop: 92, marginBottom: spacing[5] }}>
+      <LabCard variant="panel">
+        <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
           <h2 style={styles.h2}>{t('schools.title')}</h2>
           <span style={{ ...styles.chip, background: 'rgba(143,211,204,0.12)', borderColor: 'rgba(143,211,204,0.25)' }}>
@@ -378,7 +380,7 @@ const SchoolPartnershipSection = () => {
       </div>
 
       <div style={{ display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
-        <div style={styles.section}>
+        <LabCard variant="surface">
           <h3 style={{ ...styles.h3, marginTop: 0 }}>{t('schools.whatYouGet')}</h3>
           <ul style={{ margin: 0, paddingInlineStart: 18, lineHeight: 1.85, opacity: 0.92 }}>
             <li>{t('schools.benefits.demo')}</li>
@@ -386,9 +388,9 @@ const SchoolPartnershipSection = () => {
             <li>{t('schools.benefits.workshop')}</li>
             <li>{t('schools.benefits.templates')}</li>
           </ul>
-        </div>
+        </LabCard>
 
-        <div style={styles.section}>
+        <LabCard variant="surface">
           <h3 style={{ ...styles.h3, marginTop: 0 }}>{t('schools.suitableFor')}</h3>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <span style={styles.chip}>{t('schools.audiences.schools')}</span>
@@ -398,7 +400,7 @@ const SchoolPartnershipSection = () => {
             <span style={{ ...styles.chip, background: 'rgba(176,18,112,0.12)', borderColor: 'rgba(176,18,112,0.25)' }}>{t('schools.audiences.senInclusion')}</span>
           </div>
 
-          <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
+          <LabCard variant="surface" style={{ marginTop: 12, marginBottom: 0 }}>
             <div style={{ fontWeight: 900, color: brandCyan }}>{t('schools.tryDemoNow')}</div>
             <p style={{ ...styles.muted, marginTop: 6 }}>
               {t('schools.demoInstructions')}
@@ -406,10 +408,10 @@ const SchoolPartnershipSection = () => {
             <a href="/assessment#games" style={{ ...styles.primaryBtn, textDecoration: 'none', marginTop: 10, display: 'inline-flex' }}>
               {t('schools.runSimulation')}
             </a>
-          </div>
-        </div>
+          </LabCard>
+        </LabCard>
 
-        <div style={styles.section}>
+        <LabCard variant="surface">
           <h3 style={{ ...styles.h3, marginTop: 0 }}>{t('schools.whyAdvanced')}</h3>
           <ul style={{ margin: 0, paddingInlineStart: 18, lineHeight: 1.85, opacity: 0.92 }}>
             <li>{t('schools.advantages.interactive')}</li>
@@ -417,7 +419,7 @@ const SchoolPartnershipSection = () => {
             <li>{t('schools.advantages.clearOptions')}</li>
             <li>{t('schools.advantages.arabicFirst')}</li>
           </ul>
-        </div>
+        </LabCard>
       </div>
 
       {/* Demo Pack Download */}
@@ -525,12 +527,15 @@ const SchoolPartnershipSection = () => {
       <h3 style={{ ...styles.h3, marginTop: 24, marginBottom: 16 }}>{t('schools.packagesTitle')}</h3>
       <div style={{ display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
         {tiers.map((tier) => (
-          <div key={tier.name} style={{
-            ...styles.sectionCard,
-            marginBottom: 0,
-            position: 'relative',
-            border: tier.popular ? `2px solid ${tier.color}` : undefined,
-          }}>
+          <LabCard
+            key={tier.name}
+            variant="panel"
+            style={{
+              marginBottom: 0,
+              position: 'relative',
+              border: tier.popular ? `2px solid ${tier.color}` : undefined,
+            }}
+          >
             {tier.popular && (
               <div style={{
                 position: 'absolute',
@@ -584,17 +589,17 @@ const SchoolPartnershipSection = () => {
                 {t('schools.comparePrograms')}
               </a>
             </div>
-          </div>
+          </LabCard>
         ))}
       </div>
 
       {/* Important Note */}
-      <div style={{ marginTop: 14, ...styles.section, marginBottom: 0 }}>
+      <LabCard variant="surface" style={{ marginTop: 14, marginBottom: 0 }}>
         <div style={{ fontWeight: 900, color: brandPurpleDark }}>{t('schools.importantNote')}</div>
         <p style={{ ...styles.muted, marginTop: 6 }}>
           {t('schools.importantNoteText')}
         </p>
-      </div>
+      </LabCard>
 
       {/* School Testimonial */}
       <div style={{
@@ -686,6 +691,7 @@ const SchoolPartnershipSection = () => {
           </a>
         </div>
       </div>
+      </LabCard>
     </section>
   );
 };

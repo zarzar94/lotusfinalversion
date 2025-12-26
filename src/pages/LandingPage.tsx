@@ -18,6 +18,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useClinicalSync } from '../hooks/useClinicalSync';
 import { usePageTitle } from '../hooks/usePageTitle';
 import ExperienceJourney from '../components/ExperienceJourney';
+import { LabShell, LabShellContent } from '../components/labui/LabShell';
 import {
   brandCyan,
   brandPurple,
@@ -26,7 +27,6 @@ import {
   typography,
   spacing,
   radius,
-  styles,
 } from '../components/styles';
 
 // Lazy load credentials
@@ -435,11 +435,11 @@ function LandingPage() {
   usePageTitle();
 
   return (
-    <div style={styles.page}>
+    <LabShell variant="hero" scanline>
       <BackgroundFX />
       <Header />
 
-      <main style={styles.container}>
+      <LabShellContent>
         {/* HERO - Interactive Brain Dashboard */}
         <FadeIn duration={1000} scale blur blurAmount={8}>
           <HeroCircuitBrain />
@@ -463,11 +463,11 @@ function LandingPage() {
         <FadeIn delay={100} direction="none" scale scaleFrom={0.98}>
           <Footer />
         </FadeIn>
-      </main>
+      </LabShellContent>
 
       <WhatsAppFab />
       <ScrollToTopButton />
-    </div>
+    </LabShell>
   );
 }
 

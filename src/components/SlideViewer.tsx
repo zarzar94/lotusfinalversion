@@ -8,6 +8,7 @@ import { brandCyan, brandPink, brandPurple, brandPanel, styles, transitions, col
 import { MicroscopeIcon, FlaskIcon, SearchIcon, DownloadIcon, XIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon } from './Icons';
 import { useLanguage } from '../context/LanguageContext';
 import { useVisitorMode, type VisitorMode } from '../context/VisitorModeContext';
+import LabCard from './labui/LabCard';
 
 // Define slide categories based on visitor mode relevance
 type SlideCategory = 'all' | 'school' | 'parent' | 'clinician' | 'science';
@@ -1013,26 +1014,26 @@ const SlideViewer = () => {
   `, []);
 
   return (
-    <section id="pptx" style={{
-      ...styles.sectionCard,
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      <style>{css}</style>
+    <section id="pptx" style={{ scrollMarginTop: 92, marginBottom: spacing[5] }}>
+      <LabCard
+        variant="panel"
+        style={{ position: 'relative', overflow: 'hidden' }}
+      >
+        <style>{css}</style>
 
-      {/* Lab background */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        backgroundImage: `
-          linear-gradient(${brandCyan}05 1px, transparent 1px),
-          linear-gradient(90deg, ${brandCyan}05 1px, transparent 1px)
-        `,
-        backgroundSize: '40px 40px',
-        pointerEvents: 'none',
-      }} />
+        {/* Lab background */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `
+            linear-gradient(${brandCyan}05 1px, transparent 1px),
+            linear-gradient(90deg, ${brandCyan}05 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px',
+          pointerEvents: 'none',
+        }} />
 
-      <div style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ position: 'relative', zIndex: 1 }}>
         <div style={styles.sectionHeader}>
           <div style={styles.sectionHeaderRow}>
             <h2 style={styles.h2}>{isArabic ? 'مختبر العينات (PPTX)' : 'Sample Lab (PPTX)'}</h2>
@@ -1302,7 +1303,8 @@ const SlideViewer = () => {
             modalRef={modalRef}
           />
         )}
-      </div>
+        </div>
+      </LabCard>
     </section>
   );
 };
