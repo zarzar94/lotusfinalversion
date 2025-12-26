@@ -47,6 +47,7 @@ import {
   HeadsetIcon,
   ShieldMedicalIcon,
   CheckCircleIcon,
+  ChevronDownIcon,
 } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -345,13 +346,13 @@ const ChildProgressCard = memo(({
           {/* Expand Arrow */}
           <span
             style={{
-              fontSize: typography.size.lg,
-              color: colors.text.muted,
+              display: 'inline-flex',
+              alignItems: 'center',
               transform: isExpanded ? 'rotate(180deg)' : 'none',
               transition: transitions.fast,
             }}
           >
-            ▼
+            <ChevronDownIcon size={18} tone="muted" style={{ color: colors.text.muted }} />
           </span>
         </div>
       </div>

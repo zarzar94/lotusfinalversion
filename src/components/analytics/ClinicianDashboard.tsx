@@ -45,6 +45,7 @@ import {
   WaveformIcon,
   ReportIcon,
   StarIcon,
+  XIcon,
 } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -437,7 +438,7 @@ const PatientDetailModal = memo(({
             transition: transitions.fast,
           }}
         >
-          ✕
+          <XIcon size={18} tone="muted" />
         </button>
 
         <div style={{ padding: spacing[6] }}>

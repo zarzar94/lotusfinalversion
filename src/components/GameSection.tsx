@@ -12,6 +12,10 @@ import {
   ReportIcon,
   SchoolIcon,
   ShieldMedicalIcon,
+  PlayIcon,
+  CircleIcon,
+  MicroscopeIcon,
+  XIcon,
 } from './icons/index';
 
 import AssessmentSuiteModal from './games/AssessmentSuiteModal';
@@ -310,7 +314,7 @@ function MedicalMonitor({
                 transition: 'all 0.2s ease',
               }}
             >
-              ✕
+              <XIcon size={16} tone="error" />
             </button>
           </div>
         </div>
@@ -530,7 +534,14 @@ function TestCard({
               fontFamily: 'system-ui',
               transition: 'color 0.3s ease',
             }}>
-              {isHovered ? `\u25B6 ${labels.statusActive}` : `\u25CB ${labels.statusIdle}`}
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                {isHovered ? (
+                  <PlayIcon size={12} tone="muted" style={{ color: '#22c55e' }} />
+                ) : (
+                  <CircleIcon size={12} tone="muted" style={{ color: 'rgba(255,255,255,0.3)' }} />
+                )}
+                <span>{isHovered ? labels.statusActive : labels.statusIdle}</span>
+              </span>
             </span>
           </div>
           <Waveform color={waveformColor} type={waveformType} active={isHovered} />
@@ -626,7 +637,14 @@ function TestCard({
             fontWeight: 700,
             color: isHovered ? waveformColor : 'rgba(255,255,255,0.45)',
           }}>
-            {isHovered ? `\u{1F52C} ${labels.startModule}` : `\u25CB ${labels.available}`}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              {isHovered ? (
+                <MicroscopeIcon size={14} tone="muted" style={{ color: waveformColor }} />
+              ) : (
+                <CircleIcon size={12} tone="muted" style={{ color: 'rgba(255,255,255,0.45)' }} />
+              )}
+              <span>{isHovered ? labels.startModule : labels.available}</span>
+            </span>
           </span>
         </div>
       </div>
