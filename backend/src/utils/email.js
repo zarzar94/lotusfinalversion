@@ -263,6 +263,11 @@ export async function sendProgressUpdate(email, name, progress) {
 
 // Verify SMTP connection
 export async function verifyEmailConnection() {
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    console.warn('SMTP credentials missing; skipping email verification.');
+    return false;
+  }
+
   try {
     await transporter.verify();
     console.log('✅ Email server connection verified');
