@@ -4,35 +4,75 @@
 
 import mongoose from 'mongoose';
 
+const keysEqual = (left = {}, right = {}) => {
+  const leftEntries = Object.entries(left);
+  const rightEntries = Object.entries(right);
+  if (leftEntries.length !== rightEntries.length) return false;
+  return leftEntries.every(([key, value], index) => {
+    const [rightKey, rightValue] = rightEntries[index] || [];
+    return key === rightKey && value === rightValue;
+  });
+};
+
+const findIndexByKey = (indexes, key) => indexes.find((index) => keysEqual(index.key, key));
+
+const normalizeOption = (value) => (value ? JSON.stringify(value) : '');
+
+const warnIfOptionMismatch = (collectionName, indexSpec, existingIndex) => {
+  if (!existingIndex) return;
+
+  const mismatches = [];
+  if (indexSpec.unique && !existingIndex.unique) mismatches.push('unique');
+  if (indexSpec.sparse && !existingIndex.sparse) mismatches.push('sparse');
+  if (
+    indexSpec.partialFilterExpression &&
+    normalizeOption(indexSpec.partialFilterExpression) !== normalizeOption(existingIndex.partialFilterExpression)
+  ) {
+    mismatches.push('partialFilterExpression');
+  }
+
+  if (mismatches.length > 0) {
+    console.warn(
+      `Index options mismatch on ${collectionName} (${JSON.stringify(indexSpec.key)}): ${mismatches.join(', ')}`
+    );
+  }
+};
+
+const ensureIndexes = async (collectionName, collection, indexSpecs) => {
+  const existingIndexes = await collection.indexes();
+  const missingIndexes = [];
+
+  for (const spec of indexSpecs) {
+    const existingIndex = findIndexByKey(existingIndexes, spec.key);
+    if (existingIndex) {
+      warnIfOptionMismatch(collectionName, spec, existingIndex);
+      continue;
+    }
+    missingIndexes.push(spec);
+  }
+
+  if (missingIndexes.length > 0) {
+    await collection.createIndexes(missingIndexes);
+  }
+};
+
 export const createIndexes = async () => {
   try {
     const db = mongoose.connection.db;
 
     // User indexes
     const userCollection = db.collection('users');
-    const existingUserIndexes = await userCollection.indexes();
-    const emailIndex = existingUserIndexes.find((index) => index.key?.email === 1);
-
-    if (emailIndex && !emailIndex.unique) {
-      console.warn('User email index exists but is not unique; keeping existing index.');
-    }
-
     const userIndexes = [
+      { key: { email: 1 }, unique: true, name: 'email_unique' },
       { key: { role: 1 }, name: 'role_idx' },
       { key: { clinic: 1 }, sparse: true, name: 'clinic_idx' },
       { key: { school: 1 }, sparse: true, name: 'school_idx' },
       { key: { isActive: 1, lastLogin: -1 }, name: 'active_login_idx' },
     ];
-
-    // Skip creating the email index if it already exists (legacy name email_1).
-    if (!emailIndex) {
-      userIndexes.unshift({ key: { email: 1 }, unique: true, name: 'email_unique' });
-    }
-
-    await userCollection.createIndexes(userIndexes);
+    await ensureIndexes('users', userCollection, userIndexes);
 
     // ClinicalProgress indexes
-    await db.collection('clinicalprogresses').createIndexes([
+    await ensureIndexes('clinicalprogresses', db.collection('clinicalprogresses'), [
       { key: { userId: 1 }, unique: true, name: 'userId_unique' },
       { key: { treatmentPhase: 1 }, name: 'phase_idx' },
       { key: { sessionsCompleted: -1 }, name: 'sessions_idx' },
@@ -40,19 +80,19 @@ export const createIndexes = async () => {
     ]);
 
     // Gamification indexes
-    await db.collection('gamifications').createIndexes([
+    await ensureIndexes('gamifications', db.collection('gamifications'), [
       { key: { userId: 1 }, unique: true, name: 'userId_unique' },
       { key: { totalPoints: -1 }, name: 'points_idx' },
       { key: { level: -1 }, name: 'level_idx' },
     ]);
 
     // Settings indexes
-    await db.collection('settings').createIndexes([
+    await ensureIndexes('settings', db.collection('settings'), [
       { key: { userId: 1 }, unique: true, name: 'userId_unique' },
     ]);
 
     // Session indexes
-    await db.collection('sessions').createIndexes([
+    await ensureIndexes('sessions', db.collection('sessions'), [
       { key: { userId: 1, createdAt: -1 }, name: 'user_date_idx' },
       {
         key: { userId: 1, clientId: 1 },
@@ -65,13 +105,13 @@ export const createIndexes = async () => {
     ]);
 
     // Notes indexes
-    await db.collection('notes').createIndexes([
+    await ensureIndexes('notes', db.collection('notes'), [
       { key: { patientId: 1, createdAt: -1 }, name: 'patient_date_idx' },
       { key: { authorId: 1, createdAt: -1 }, name: 'author_date_idx' },
     ]);
 
     // Signatures indexes
-    await db.collection('signatures').createIndexes([
+    await ensureIndexes('signatures', db.collection('signatures'), [
       { key: { userId: 1, signedAt: -1 }, name: 'user_signed_idx' },
       { key: { patientId: 1, signedAt: -1 }, name: 'patient_signed_idx' },
     ]);
