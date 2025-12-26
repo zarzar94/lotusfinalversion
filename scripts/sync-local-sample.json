@@ -1,0 +1,79 @@
+{
+  "clinicalProgress": {
+    "sessionsCompleted": 4,
+    "sessionDates": [1700000000000, 1700086400000],
+    "attentionScore": 70,
+    "processingSpeed": 65,
+    "auditoryDiscrimination": 72,
+    "weeklyGoalsMet": 2,
+    "treatmentPhase": "active",
+    "streak": 3,
+    "lastActivityDate": 1700086400000,
+    "updatedAt": 1700090000000
+  },
+  "gamification": {
+    "exploredBrainRegions": ["frontal"],
+    "slidesViewed": [1, 2],
+    "gamesCompleted": ["attention"],
+    "videosWatched": ["intro"],
+    "achievements": [
+      {
+        "id": "first_steps",
+        "unlocked": true,
+        "unlockedAt": 1700090000000,
+        "points": 10
+      }
+    ],
+    "totalPoints": 25,
+    "maxScrollProgress": 50,
+    "audioJourneyProgress": 10,
+    "totalTimeSpent": 120,
+    "checklistCompleted": true,
+    "clinicalSessionsCompleted": 1,
+    "clinicalStreak": 2,
+    "lastClinicalActivity": 1700090000000,
+    "sessionStartTime": 1700089000000
+  },
+  "settings": {
+    "language": "en",
+    "visitorMode": "parent",
+    "notifications": {
+      "achievements": true,
+      "reminders": true,
+      "updates": true,
+      "email": false
+    },
+    "display": {
+      "reducedMotion": false,
+      "highContrast": false,
+      "fontSize": "medium"
+    },
+    "privacy": {
+      "shareProgress": false,
+      "anonymousAnalytics": true
+    },
+    "audio": {
+      "soundEffects": true,
+      "volume": 70
+    },
+    "updatedAt": 1700090000000
+  },
+  "sessions": [
+    {
+      "id": "local-session-1",
+      "userId": "user-id-here",
+      "date": 1700086400000,
+      "outcomes": {
+        "attention": {
+          "result": "high",
+          "scoreLabel": "88"
+        }
+      },
+      "compositeResult": "high",
+      "totalPoints": 120,
+      "achievements": ["first_steps"],
+      "duration": 600,
+      "createdAt": 1700086400000
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "gamification": {
+    "exploredBrainRegions": ["temporal", "parietal"],
+    "slidesViewed": [3, 4, 5],
+    "gamesCompleted": ["frequency", "sequence"],
+    "videosWatched": ["overview"],
+    "achievements": [
+      {
+        "id": "first_steps",
+        "unlocked": true,
+        "unlockedAt": 1700095000000,
+        "points": 10
+      },
+      {
+        "id": "game_starter",
+        "unlocked": true,
+        "unlockedAt": 1700096000000,
+        "points": 25
+      }
+    ],
+    "totalPoints": 85,
+    "maxScrollProgress": 65,
+    "audioJourneyProgress": 20,
+    "totalTimeSpent": 240,
+    "checklistCompleted": true,
+    "clinicalSessionsCompleted": 2,
+    "clinicalStreak": 3,
+    "lastClinicalActivity": 1700096000000,
+    "sessionStartTime": 1700094500000
+  }
+}

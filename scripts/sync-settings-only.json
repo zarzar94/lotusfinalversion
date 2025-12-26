@@ -1,0 +1,26 @@
+{
+  "settings": {
+    "language": "en",
+    "visitorMode": "clinician",
+    "notifications": {
+      "achievements": false,
+      "reminders": true,
+      "updates": false,
+      "email": true
+    },
+    "display": {
+      "reducedMotion": true,
+      "highContrast": true,
+      "fontSize": "large"
+    },
+    "privacy": {
+      "shareProgress": true,
+      "anonymousAnalytics": false
+    },
+    "audio": {
+      "soundEffects": false,
+      "volume": 40
+    },
+    "updatedAt": 1700100000000
+  }
+}
