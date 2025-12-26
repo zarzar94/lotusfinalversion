@@ -3,6 +3,7 @@
 ## Automated checks
 - `node scripts/qa-assets.mjs` - PASS (120 checks) - verifies slide images and thumbnails, downloads (`Check list (2).pdf`, `berard-profile.pdf`), fonts (`Cairo-Regular.ttf`, `Cairo-Bold.ttf`), and branding icons under `public/`.
 - `VITE_E2E=true npm run test:e2e -- --project=chromium --grep "Seeded dashboard smoke"` - PASS (4 tests, re-run) - seeded auth, dashboards, analytics calls, and resources download.
+- `VITE_E2E=true npm run test:e2e` - PASS (125 tests, 20 skipped) - full Playwright matrix across Chromium, Firefox, WebKit, and mobile projects.
 - Seeded API smoke (auth + analytics endpoints) - PASS - `/api/sessions/analysis/children`, `/api/sessions/analysis/patients`, `/api/sessions/analysis/progress`, `/api/sessions/analysis/school`.
 
 ## Recommended manual checks
