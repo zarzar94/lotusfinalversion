@@ -15,6 +15,13 @@ import {
   getStarRating,
   getStarEmoji,
 } from './scoring';
+import {
+  CalibrationStep,
+  MetricsSummaryPanel,
+  ModuleFrame,
+  ModuleHeader,
+  PracticeTrialsStep,
+} from './ui';
 
 type Trial = {
   i: number;
@@ -79,6 +86,18 @@ export default function AttentionTestPanel({
   const [falseAlarms, setFalseAlarms] = useState(0);
   const [impulsiveTaps, setImpulsiveTaps] = useState(0);
   const [msg, setMsg] = useState<string | null>(null);
+  const [summary, setSummary] = useState<{
+    result: GameResult;
+    score100: number;
+    avgRt: number;
+    hits: number;
+    falseAlarms: number;
+    impulsiveTaps: number;
+    points: number;
+    dPrime: number;
+    fatigueIndex: string;
+    message: string;
+  } | null>(null);
 
   // Enhanced gamification state
   const [points, setPoints] = useState(0);
@@ -152,6 +171,7 @@ export default function AttentionTestPanel({
     setFalseAlarms(0);
     setImpulsiveTaps(0);
     setMsg(null);
+    setSummary(null);
     setTrialIndex(0);
     setPoints(0);
     setCombo(createComboState());
@@ -360,106 +380,125 @@ export default function AttentionTestPanel({
       })),
     };
 
+    setSummary({
+      result,
+      score100,
+      avgRt,
+      hits: h,
+      falseAlarms: fa,
+      impulsiveTaps: impulsive,
+      points,
+      dPrime: dp,
+      fatigueIndex: fatigueAnalysis.fatigueIndex,
+      message,
+    });
     setStage('done');
     onDone(outcome);
   };
 
   const progressPct = useMemo(() => Math.round((trialIndex / TOTAL) * 100), [trialIndex]);
+  const objectiveLabel = isArabic ? 'U.U^OU^O1US' : 'Objective';
+  const progressTitle = isArabic
+    ? `${trialIndex}/${TOTAL} (${progressPct}%)`
+    : `Progress: ${trialIndex}/${TOTAL} (${progressPct}%)`;
+  const summaryTone = summary
+    ? summary.result === 'high'
+      ? 'success'
+      : summary.result === 'medium'
+        ? 'warning'
+        : 'error'
+    : 'neutral';
 
   return (
-    <div style={styles.section}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-        <div>
-          <div style={{ fontWeight: 900, color: brandCyan }}>اختبار الانتباه السمعي تحت الضوضاء</div>
-          <div style={styles.muted}>فحص موضوعي قصير (Go/No-Go) لقياس الانتباه الانتقائي والاندفاعية.</div>
-        </div>
-        <span style={styles.chip}>{isArabic ? 'موضوعي' : 'Objective'}</span>
-      </div>
+    <ModuleFrame>
+      <ModuleHeader
+        title={'OOrOO"OO OU,OU+OO"OU OU,O3U.O1US OO-O OU,OU^OOO'}
+        subtitle={'U?O-O U.U^OU^O1US U,OUSO (Go/No-Go) U,U,USOO3 OU,OU+OO"OU OU,OU+OU,OOUS U^OU,OU+O_U?OO1USOc.'}
+        tone="cyan"
+        status={objectiveLabel}
+        statusTone="cyan"
+      />
 
+      
       {stage === 'intro' ? (
-        <div style={{ marginTop: 12 }}>
+        <CalibrationStep title={objectiveLabel}>
           <p style={styles.bodyText}>
-            ستسمع سلسلة من النغمات. <b>اضغط زر الاستجابة فقط</b> عندما تسمع <b style={{ color: brandPink }}>النغمة العالية جداً</b>.
-            ستزداد الضوضاء تدريجياً.
+            O3O?O3U.O1 O3U,O3U,Oc U.U+ OU,U+O?U.OO?. <b>OOO?O? O?O? OU,OO3O?O?OO"Oc U?U,O?</b> O1U+O_U.O O?O3U.O1 <b style={{ color: brandPink }}>OU,U+O?U.Oc OU,O1OU,USOc O?O_OU&lt;</b>.
+            O3O?O?O_OO_ OU,OU^OOO? O?O_O?USO?USOU&lt;.
           </p>
 
           <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', marginTop: 12 }}>
             <div style={styles.section}>
-              <div style={{ fontWeight: 900 }}>النغمة المستهدفة</div>
-              <div style={styles.muted}>{isArabic ? 'نغمة عالية (الهدف)' : 'High tone (Target)'}</div>
+              <div style={{ fontWeight: 900 }}>OU,U+O?U.Oc OU,U.O3O?U?O_U?Oc</div>
+              <div style={styles.muted}>{isArabic ? 'U+O?U.Oc O1OU,USOc (OU,U?O_U?)' : 'High tone (Target)'}</div>
               <LabButton onClick={() => playExample(TARGET_FREQ)} style={{ marginTop: 10 }}>
-                استمع
+                OO3O?U.O1
               </LabButton>
             </div>
             <div style={styles.section}>
-              <div style={{ fontWeight: 900 }}>مثال غير مستهدف</div>
-              <div style={styles.muted}>{isArabic ? 'لا تضغط' : 'Do NOT tap'}</div>
+              <div style={{ fontWeight: 900 }}>U.O?OU, O?USO? U.O3O?U?O_U?</div>
+              <div style={styles.muted}>{isArabic ? 'U,O O?OO?O?' : 'Do NOT tap'}</div>
               <LabButton variant="ghost" onClick={() => playExample(NON_TARGET_FREQS[0])} style={{ marginTop: 10 }}>
-                استمع
+                OO3O?U.O1
               </LabButton>
             </div>
           </div>
 
           <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900, color: brandPurpleDark }}>ملاحظة</div>
+            <div style={{ fontWeight: 900, color: brandPurpleDark }}>U.U,OO-O,Oc</div>
             <p style={{ ...styles.muted, marginTop: 6 }}>
-              هذا فحص تفاعلي إرشادي (Screening) وليس تشخيصاً طبياً. لتحويله لاختبار معياري نحتاج معايرة سماعات ومعايير عمرية.
+              U?O?O U?O-O? O?U?OO1U,US OO?O'OO_US (Screening) U^U,USO3 O?O'OrUSO?OU&lt; O?O"USOU&lt;. U,O?O-U^USU,U? U,OOrO?O"OO? U.O1USOO?US U+O-O?OO? U.O1OUSO?Oc O3U.OO1OO? U^U.O1OUSUSO? O1U.O?USOc.
             </p>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, gap: 10, flexWrap: 'wrap' }}>
             <LabButton variant="ghost" onClick={() => setStage('practice')}>
-              تدريب سريع
+              O?O_O?USO" O3O?USO1
             </LabButton>
             <LabButton onClick={start}>
-              ابدأ الاختبار
+              OO"O_O? OU,OOrO?O"OO?
             </LabButton>
             {onCancel ? (
               <LabButton variant="ghost" onClick={onCancel}>
-                إغلاق
+                OO?U,OU,
               </LabButton>
             ) : null}
           </div>
-        </div>
+        </CalibrationStep>
       ) : null}
 
+      
       {stage === 'practice' ? (
-        <div style={{ marginTop: 12 }}>
-          <div style={styles.section}>
-            <div style={{ fontWeight: 900, color: brandCyan }}>تدريب (10 ثوانٍ)</div>
-            <p style={{ ...styles.muted, marginTop: 6 }}>
-              جرّب الآن: اضغط فقط مع النغمة العالية جداً.
-            </p>
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
-              <LabButton onClick={() => playExample(TARGET_FREQ)}>تشغيل Target</LabButton>
-              <LabButton variant="ghost" onClick={() => playExample(NON_TARGET_FREQS[2])}>تشغيل Non‑Target</LabButton>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
-              <LabButton onClick={start}>
-                ابدأ الاختبار الحقيقي
-              </LabButton>
-              <LabButton variant="ghost" onClick={() => setStage('intro')}>رجوع</LabButton>
-            </div>
+        <PracticeTrialsStep
+          title={'O?O_O?USO" (10 O?U^OU+U?)'}
+          description={'O?O?U`O" OU,O?U+: OOO?O? U?U,O? U.O1 OU,U+O?U.Oc OU,O1OU,USOc O?O_OU&lt;.'}
+        >
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
+            <LabButton onClick={() => playExample(TARGET_FREQ)}>O?O'O?USU, Target</LabButton>
+            <LabButton variant="ghost" onClick={() => playExample(NON_TARGET_FREQS[2])}>O?O'O?USU, Non??`Target</LabButton>
           </div>
-        </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
+            <LabButton onClick={start}>
+              OO"O_O? OU,OOrO?O"OO? OU,O-U,USU,US
+            </LabButton>
+            <LabButton variant="ghost" onClick={() => setStage('intro')}>O?O?U^O1</LabButton>
+          </div>
+        </PracticeTrialsStep>
       ) : null}
 
+
+      
       {stage === 'running' ? (
-        <div style={{ marginTop: 12 }}>
-          {/* Progress and Stats Row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-            <div>
-              <div style={{ fontWeight: 900 }}>التقدم: {trialIndex}/{TOTAL} ({progressPct}%)</div>
-              <div style={styles.muted}>اضغط فقط عند سماع النغمة العالية جداً.</div>
-            </div>
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-              <span style={styles.chip}>Hits ✅ {hits}</span>
-              <span style={{ ...styles.chip, background: 'rgba(176,18,112,0.14)', borderColor: 'rgba(176,18,112,0.25)' }}>FA ✖ {falseAlarms}</span>
-              <span style={{ ...styles.chip, background: 'rgba(143,132,186,0.14)', borderColor: 'rgba(143,132,186,0.25)' }}>اندفاع ⚡ {impulsiveTaps}</span>
-            </div>
+        <PracticeTrialsStep
+          title={progressTitle}
+          description={'OOO?O? U?U,O? O1U+O_ O3U.OO1 OU,U+O?U.Oc OU,O1OU,USOc O?O_OU&lt;.'}
+        >
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={styles.chip}>Hits ?o. {hits}</span>
+            <span style={{ ...styles.chip, background: 'rgba(176,18,112,0.14)', borderColor: 'rgba(176,18,112,0.25)' }}>FA ?o- {falseAlarms}</span>
+            <span style={{ ...styles.chip, background: 'rgba(143,132,186,0.14)', borderColor: 'rgba(143,132,186,0.25)' }}>OU+O_U?OO1 ?s? {impulsiveTaps}</span>
           </div>
 
-          {/* Points and Combo Display */}
           <div style={{
             marginTop: 12,
             display: 'flex',
@@ -489,13 +528,12 @@ export default function AttentionTestPanel({
             }}>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }}>COMBO</div>
               <div style={{ fontSize: 24, fontWeight: 900, color: brandPurpleDark }}>
-                {combo.streak}🔥
-                {combo.multiplier > 1 && <span style={{ fontSize: 14, marginLeft: 4 }}>×{combo.multiplier.toFixed(1)}</span>}
+                {combo.streak}dY"?
+                {combo.multiplier > 1 && <span style={{ fontSize: 14, marginLeft: 4 }}>A-{combo.multiplier.toFixed(1)}</span>}
               </div>
             </div>
           </div>
 
-          {/* Real-time Feedback Indicator */}
           {feedback && (
             <div style={{
               marginTop: 12,
@@ -512,16 +550,15 @@ export default function AttentionTestPanel({
                 : feedback === 'combo' ? '#FFD700'
                 : brandPink,
             }}>
-              {feedback === 'hit' && `✓ +${lastPointChange}`}
-              {feedback === 'combo' && `🔥 COMBO! +${lastPointChange}`}
-              {feedback === 'fa' && `✗ ${lastPointChange}`}
-              {feedback === 'miss' && `⊘ Missed`}
+              {feedback === 'hit' && `?o" +${lastPointChange}`}
+              {feedback === 'combo' && `dY"? COMBO! +${lastPointChange}`}
+              {feedback === 'fa' && `?o- ${lastPointChange}`}
+              {feedback === 'miss' && `?S~ Missed`}
             </div>
           )}
 
-          {/* Response Button */}
           <div style={{ marginTop: 12, padding: 18, borderRadius: 16, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(0,0,0,0.18)' }}>
-            <div style={{ fontWeight: 900, marginBottom: 10 }}>زر الاستجابة</div>
+            <div style={{ fontWeight: 900, marginBottom: 10 }}>O?O? OU,OO3O?O?OO"Oc</div>
             <LabButton
               onClick={respond}
               fullWidth
@@ -537,10 +574,10 @@ export default function AttentionTestPanel({
                 transition: 'background 0.2s ease',
               }}
             >
-              👆 اضغط عند سماع Target
+              dY`+ OOO?O? O1U+O_ O3U.OO1 Target
             </LabButton>
             <div style={{ marginTop: 10, ...styles.muted }}>
-              نصيحة: لا تضغط بسرعة. الضغط العشوائي يزيد الاندفاع ويؤثر على النتيجة.
+              U+O?USO-Oc: U,O O?OO?O? O"O3O?O1Oc. OU,OO?O? OU,O1O'U^OO?US USO?USO_ OU,OU+O_U?OO1 U^USOO?O? O1U,U% OU,U+O?USO?Oc.
             </div>
           </div>
 
@@ -553,15 +590,29 @@ export default function AttentionTestPanel({
               100% { transform: scale(1); opacity: 1; }
             }
           `}</style>
-        </div>
+        </PracticeTrialsStep>
       ) : null}
 
-      {stage === 'done' ? (
-        <div style={{ marginTop: 12, textAlign: 'center' }}>
-          <div style={{ fontWeight: 900 }}>تم حفظ النتيجة ✅</div>
-          <p style={{ ...styles.muted, marginTop: 6 }}>يمكنك الآن الانتقال للاختبار التالي.</p>
-        </div>
+
+      
+      {stage === 'done' && summary ? (
+        <MetricsSummaryPanel
+          title={'O?U. O-U?O, OU,U+O?USO?Oc ?o.'}
+          subtitle={'USU.U?U+U? OU,O?U+ OU,OU+O?U,OU, U,U,OOrO?O"OO? OU,O?OU,US.'}
+          tone={summaryTone}
+          metrics={[
+            { label: 'Score', value: `${summary.score100}/100` },
+            { label: "d'", value: summary.dPrime.toFixed(2) },
+            { label: 'Avg RT', value: summary.avgRt ? `${summary.avgRt} ms` : '--' },
+            { label: 'Hits', value: summary.hits },
+            { label: 'False alarms', value: summary.falseAlarms },
+            { label: 'Points', value: summary.points },
+            { label: 'Fatigue', value: summary.fatigueIndex },
+          ]}
+          footer={summary.message}
+        />
       ) : null}
-    </div>
+
+    </ModuleFrame>
   );
 }

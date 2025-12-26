@@ -1,12 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
-import { brandCyan, brandPink, brandPurpleDark, styles, attentionModule } from '../../styles';
+import { brandCyan, styles } from '../../styles';
 import LabButton from '../labui/LabButton';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import { mean, stdDev } from './stats';
 import type { GameResult, TestOutcome } from './types';
 import { calculateFatigueIndex, getStarEmoji, getStarRating } from './scoring';
+import {
+  CalibrationStep,
+  MetricsSummaryPanel,
+  ModuleFrame,
+  ModuleHeader,
+  PracticeTrialsStep,
+} from './ui';
 
 type StimulusMode = 'visual' | 'audio';
 
@@ -329,23 +336,29 @@ export default function FocusedAttentionTestPanel({
     return '';
   }, [practiceIndex, stage, trialIndex]);
 
+  const summaryTone = summary
+    ? summary.result === 'high'
+      ? 'success'
+      : summary.result === 'medium'
+        ? 'warning'
+        : 'error'
+    : 'neutral';
+
   return (
-    <div style={styles.section}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-        <div>
-          <div style={{ fontWeight: 900, color: brandCyan }}>
-            {t('auto.FocusedAttentionTestPanel.k10', "Focused Auditory Attention")}
-          </div>
-          <div style={styles.muted}>{shortInstruction}</div>
-        </div>
-        {progressLabel ? <span style={styles.chip}>{progressLabel}</span> : null}
-      </div>
+    <ModuleFrame>
+      <ModuleHeader
+        title={t('auto.FocusedAttentionTestPanel.k10', "Focused Auditory Attention")}
+        subtitle={shortInstruction}
+        tone="cyan"
+        status={progressLabel || undefined}
+        statusTone="cyan"
+      />
 
       {stage === 'intro' ? (
-        <div style={{ marginTop: 12 }}>
-          <div style={{ ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900 }}>{t('auto.FocusedAttentionTestPanel.k11', "Instructions")}</div>
-            <p style={{ ...styles.bodyText, marginTop: 8 }}>{introInstruction}</p>
+        <CalibrationStep
+          title={t('auto.FocusedAttentionTestPanel.k11', "Instructions")}
+          description={introInstruction}
+        >
             {isAudioMode ? (
               <div style={{ marginTop: 12 }}>
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -381,12 +394,17 @@ export default function FocusedAttentionTestPanel({
                 </LabButton>
               ) : null}
             </div>
-          </div>
-        </div>
+        </CalibrationStep>
       ) : null}
 
       {stage === 'practice' || stage === 'running' ? (
-        <div style={{ marginTop: 16 }}>
+        <PracticeTrialsStep
+          title={stage === 'practice'
+            ? t('auto.FocusedAttentionTestPanel.k18', "Practice Trial")
+            : t('auto.FocusedAttentionTestPanel.k19', "Test Trial")}
+          status={progressLabel || undefined}
+          statusTone="purple"
+        >
           <div style={{
             padding: 18,
             borderRadius: 16,
@@ -394,16 +412,13 @@ export default function FocusedAttentionTestPanel({
             background: 'rgba(0,0,0,0.18)',
             textAlign: 'center',
           }}>
-            <div style={{ fontWeight: 700, color: 'rgba(255,255,255,0.6)', fontSize: 12 }}>
-              {stage === 'practice' ? (t('auto.FocusedAttentionTestPanel.k18', "Practice Trial")) : (t('auto.FocusedAttentionTestPanel.k19', "Test Trial"))}
-            </div>
             <div style={{ fontSize: 56, fontWeight: 900, marginTop: 12, minHeight: 68, color: stimulusVisible ? '#fff' : 'rgba(255,255,255,0.2)' }}>
               {stimulusVisible ? (stimulus?.label ?? '--') : '--'}
             </div>
             <div style={{ marginTop: 12, ...styles.muted }}>{responsePrompt}</div>
           </div>
 
-          <div style={{ marginTop: 12, padding: 16, borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.2)' }}>
+          <div style={{ padding: 16, borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.2)' }}>
             <LabButton
               onClick={respond}
               fullWidth
@@ -418,35 +433,23 @@ export default function FocusedAttentionTestPanel({
               </div>
             ) : null}
           </div>
-        </div>
+        </PracticeTrialsStep>
       ) : null}
 
       {stage === 'done' && summary ? (
-        <div style={{ marginTop: 16 }}>
-          <div style={{ ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900, color: summary.result === 'high' ? brandCyan : summary.result === 'medium' ? brandPurpleDark : brandPink }}>
-              {summary.message}
-            </div>
-            <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', marginTop: 12 }}>
-              {[
-                { label: t('attention.performance'), value: `${summary.score100}/100` },
-                { label: t('attention.consistency'), value: `${summary.consistency}/100` },
-                { label: t('attention.lapses'), value: summary.lapses },
-                { label: t('attention.avgReaction'), value: summary.avgRt ? `${summary.avgRt} ms` : '--' },
-                { label: t('attention.fatigueSlope'), value: `${summary.fatigueSlope}%` },
-              ].map((item) => (
-                <div key={item.label} style={{ padding: 10, borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.2)' }}>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>{item.label}</div>
-                  <div style={{ fontWeight: 800, marginTop: 4 }}>{item.value}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ marginTop: 12, ...styles.muted }}>
-              {t('clinical.screeningDisclaimer')}
-            </div>
-          </div>
-        </div>
+        <MetricsSummaryPanel
+          title={summary.message}
+          tone={summaryTone}
+          metrics={[
+            { label: t('attention.performance'), value: `${summary.score100}/100` },
+            { label: t('attention.consistency'), value: `${summary.consistency}/100` },
+            { label: t('attention.lapses'), value: summary.lapses },
+            { label: t('attention.avgReaction'), value: summary.avgRt ? `${summary.avgRt} ms` : '--' },
+            { label: t('attention.fatigueSlope'), value: `${summary.fatigueSlope}%` },
+          ]}
+          footer={t('clinical.screeningDisclaimer')}
+        />
       ) : null}
-    </div>
+    </ModuleFrame>
   );
 }
