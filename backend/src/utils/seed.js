@@ -21,6 +21,8 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/lotus_
 // SEED DATA
 // ═══════════════════════════════════════════════════════════════════════════
 
+const DEFAULT_SCHOOL = 'Lotus School';
+
 const users = [
   {
     email: 'admin@lotusait.com',
@@ -36,6 +38,7 @@ const users = [
     name: 'د. سارة أحمد',
     nameEn: 'Dr. Sarah Ahmed',
     role: 'clinician',
+    school: DEFAULT_SCHOOL,
     phone: '+966500000002',
   },
   {
@@ -44,6 +47,7 @@ const users = [
     name: 'مدرسة النور',
     nameEn: 'Al-Noor School',
     role: 'school_admin',
+    school: DEFAULT_SCHOOL,
     phone: '+966500000003',
   },
   {
@@ -52,6 +56,7 @@ const users = [
     name: 'أحمد محمد',
     nameEn: 'Ahmed Mohammed',
     role: 'parent',
+    school: DEFAULT_SCHOOL,
     phone: '+966500000004',
   },
   {
@@ -60,6 +65,7 @@ const users = [
     name: 'يوسف أحمد',
     nameEn: 'Youssef Ahmed',
     role: 'patient',
+    school: DEFAULT_SCHOOL,
     phone: '+966500000005',
     dateOfBirth: new Date('2015-03-15'),
   },
@@ -101,6 +107,14 @@ async function seedUsers() {
     });
     createdUsers.push(user);
     console.log(`   ✓ Created ${userData.role}: ${userData.email}`);
+  }
+
+  const parent = createdUsers.find(u => u.role === 'parent');
+  const patient = createdUsers.find(u => u.role === 'patient');
+  if (parent && patient) {
+    parent.children = [patient._id];
+    await parent.save();
+    console.log('   Linked parent to patient');
   }
 
   return createdUsers;
@@ -192,38 +206,56 @@ async function seedSettings(users) {
 }
 
 async function seedSessions(users) {
-  console.log('📝 Seeding assessment sessions...');
+  console.log('dY"? Seeding assessment sessions...');
 
   const patient = users.find(u => u.role === 'patient');
   if (!patient) return;
 
-  const sessionTypes = ['attention', 'frequency', 'sequencing', 'questionnaire'];
+  const resultFromScore = (score) => {
+    if (score >= 70) return 'high';
+    if (score >= 40) return 'medium';
+    return 'low';
+  };
 
-  for (let i = 0; i < 8; i++) {
-    const sessionDate = new Date(Date.now() - (30 - i * 3) * 24 * 60 * 60 * 1000);
+  const buildOutcome = (score, metrics = {}) => ({
+    result: resultFromScore(score),
+    scoreLabel: `Score ${score}/100`,
+    metrics: { score100: score, ...metrics },
+  });
+
+  const sessionPlan = [
+    { key: 'attention', score: 45, metrics: { accuracyPct: 45, hitRate: 0.45, rtVariability: 18 } },
+    { key: 'frequency', score: 55, metrics: { accuracyPct: 55, discriminationHz: 12, consistencyStdHz: 6 } },
+    { key: 'sequence', score: 50, metrics: { accuracyPct: 50, totalScore: 10, totalQuestions: 10 } },
+    { key: 'questionnaire', score: 70, metrics: { totalScore: 18, totalQuestions: 10 } },
+    { key: 'attention', score: 62, metrics: { accuracyPct: 62, hitRate: 0.62 } },
+    { key: 'dichotic_listening', score: 58, metrics: { leftAccuracyPct: 55, rightAccuracyPct: 61 } },
+    { key: 'speech_in_noise', score: 42, metrics: { accuracyPct: 42, snrThresholdDb: 8 } },
+    { key: 'attention', score: 80, metrics: { accuracyPct: 80, hitRate: 0.8 } },
+  ];
+
+  const dayMs = 24 * 60 * 60 * 1000;
+  for (let i = 0; i < sessionPlan.length; i += 1) {
+    const plan = sessionPlan[i];
+    const sessionDate = new Date(Date.now() - (30 - i * 3) * dayMs);
+    const outcome = buildOutcome(plan.score, plan.metrics);
 
     await Session.create({
       userId: patient._id,
-      type: sessionTypes[i % sessionTypes.length],
-      completedAt: sessionDate,
-      duration: 15 + Math.random() * 10, // 15-25 minutes
-      score: 65 + Math.random() * 30, // 65-95 score
-      results: {
-        correctResponses: 18 + Math.floor(Math.random() * 7),
-        totalTrials: 25,
-        reactionTime: 350 + Math.random() * 150,
-        accuracy: 0.72 + Math.random() * 0.23,
+      outcomes: {
+        [plan.key]: outcome,
       },
-      metadata: {
-        device: 'web',
-        browser: 'Chrome',
-        headphonesVerified: true,
-      },
+      compositeResult: outcome.result,
+      totalPoints: Math.round(plan.score * 2 + 40),
+      duration: Math.round(900 + Math.random() * 200),
+      createdAt: sessionDate,
+      updatedAt: sessionDate,
     });
   }
 
-  console.log('   ✓ Created 8 assessment sessions');
+  console.log(`   Created ${sessionPlan.length} assessment sessions`);
 }
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 // MAIN
