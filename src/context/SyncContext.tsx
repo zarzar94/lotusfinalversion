@@ -92,6 +92,7 @@ export function SyncProvider({ children }: { children: ReactNode }) {
     error: null,
   }));
   const localChangeTimeoutRef = useRef<number | null>(null);
+  const syncInFlightRef = useRef<Promise<void> | null>(null);
 
   // Check API availability
   const checkApiAvailability = useCallback(async () => {
@@ -142,172 +143,183 @@ export function SyncProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Sync function
-  const sync = useCallback(async () => {
-    // Skip if not authenticated
-    if (!getToken()) {
-      return;
+  const sync = useCallback(() => {
+    if (syncInFlightRef.current) {
+      return syncInFlightRef.current;
     }
 
-    const userId = getStoredUserId();
-    if (!userId) {
-      return;
-    }
-
-    const clinicalKey = getUserScopedKey('lotus_clinical_progress', userId);
-    const gamificationKey = getUserScopedKey('lotus_gamification_state', userId);
-    const sessionsKey = getUserScopedKey('berard-ait-sessions', userId);
-    const settingsKey = getUserScopedKey('lotus_user_settings', userId);
-
-    // Skip if offline
-    if (!state.isOnline) {
-      setState(prev => ({ ...prev, status: 'offline' }));
-      return;
-    }
-
-    setState(prev => ({ ...prev, status: 'syncing', error: null }));
-
-    try {
-      // Gather local data
-      const localData: Record<string, unknown> = {};
-
-      // Clinical progress
-      try {
-        const clinicalRaw = localStorage.getItem(clinicalKey);
-        if (clinicalRaw) {
-          localData.clinicalProgress = JSON.parse(clinicalRaw);
-        }
-      } catch {
-        // Ignore parse errors
+    const run = (async () => {
+      // Skip if not authenticated
+      if (!getToken()) {
+        return;
       }
 
-      // Gamification state
-      try {
-        const gamificationRaw = localStorage.getItem(gamificationKey);
-        if (gamificationRaw) {
-          localData.gamification = JSON.parse(gamificationRaw);
-        }
-      } catch {
-        // Ignore parse errors
+      const userId = getStoredUserId();
+      if (!userId) {
+        return;
       }
 
-      // Settings
-      try {
-        const settingsRaw = localStorage.getItem(settingsKey);
-        const language = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-        const visitorMode = localStorage.getItem(VISITOR_MODE_STORAGE_KEY);
-        const languageUpdatedAt = toNumber(localStorage.getItem(LANGUAGE_UPDATED_AT_KEY));
-        const visitorUpdatedAt = toNumber(localStorage.getItem(VISITOR_MODE_UPDATED_AT_KEY));
+      const clinicalKey = getUserScopedKey('lotus_clinical_progress', userId);
+      const gamificationKey = getUserScopedKey('lotus_gamification_state', userId);
+      const sessionsKey = getUserScopedKey('berard-ait-sessions', userId);
+      const settingsKey = getUserScopedKey('lotus_user_settings', userId);
 
-        let storedSettings: Record<string, unknown> = {};
-        let settingsUpdatedAt: number | null = null;
-        if (settingsRaw) {
-          const parsed = JSON.parse(settingsRaw);
-          if (parsed && typeof parsed === 'object') {
-            const { updatedAt, userId, ...rest } = parsed as Record<string, unknown>;
-            storedSettings = rest;
-            settingsUpdatedAt = toNumber(updatedAt);
+      // Skip if offline
+      if (!state.isOnline) {
+        setState(prev => ({ ...prev, status: 'offline' }));
+        return;
+      }
+
+      setState(prev => ({ ...prev, status: 'syncing', error: null }));
+
+      try {
+        // Gather local data
+        const localData: Record<string, unknown> = {};
+
+        // Clinical progress
+        try {
+          const clinicalRaw = localStorage.getItem(clinicalKey);
+          if (clinicalRaw) {
+            localData.clinicalProgress = JSON.parse(clinicalRaw);
           }
+        } catch {
+          // Ignore parse errors
         }
 
-        const updatedAtCandidates = [settingsUpdatedAt, languageUpdatedAt, visitorUpdatedAt]
-          .filter((value): value is number => value !== null);
-        const combinedUpdatedAt = updatedAtCandidates.length > 0
-          ? Math.max(...updatedAtCandidates)
-          : null;
-
-        localData.settings = {
-          ...storedSettings,
-          language: language || 'ar',
-          visitorMode: visitorMode || 'parent',
-          ...(combinedUpdatedAt !== null ? { updatedAt: combinedUpdatedAt } : {}),
-        };
-      } catch {
-        // Ignore parse errors
-      }
-
-      // Sessions
-      try {
-        const sessionsRaw = localStorage.getItem(sessionsKey);
-        if (sessionsRaw) {
-          localData.sessions = JSON.parse(sessionsRaw);
-        }
-      } catch {
-        // Ignore parse errors
-      }
-
-      // Perform sync
-      const response = await syncApi.sync({
-        lastSyncAt: state.lastSyncAt || 0,
-        localData,
-      });
-
-      if (response.success) {
-        // Update local storage with server data
-        if (response.serverData.clinicalProgress) {
-          localStorage.setItem(
-            clinicalKey,
-            JSON.stringify(response.serverData.clinicalProgress)
-          );
-        }
-
-        if (response.serverData.gamification) {
-          localStorage.setItem(
-            gamificationKey,
-            JSON.stringify(response.serverData.gamification)
-          );
-        }
-
-        if (response.serverData.settings) {
-          const {
-            language,
-            visitorMode,
-            updatedAt,
-            ...otherSettings
-          } = response.serverData.settings;
-          localStorage.setItem(settingsKey, JSON.stringify({ ...otherSettings, updatedAt }));
-          if (language) localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
-          if (visitorMode) localStorage.setItem(VISITOR_MODE_STORAGE_KEY, visitorMode);
-          if (typeof updatedAt === 'number') {
-            localStorage.setItem(LANGUAGE_UPDATED_AT_KEY, updatedAt.toString());
-            localStorage.setItem(VISITOR_MODE_UPDATED_AT_KEY, updatedAt.toString());
+        // Gamification state
+        try {
+          const gamificationRaw = localStorage.getItem(gamificationKey);
+          if (gamificationRaw) {
+            localData.gamification = JSON.parse(gamificationRaw);
           }
+        } catch {
+          // Ignore parse errors
         }
 
-        if (response.serverData.sessions) {
-          localStorage.setItem(
-            sessionsKey,
-            JSON.stringify(response.serverData.sessions)
-          );
+        // Settings
+        try {
+          const settingsRaw = localStorage.getItem(settingsKey);
+          const language = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+          const visitorMode = localStorage.getItem(VISITOR_MODE_STORAGE_KEY);
+          const languageUpdatedAt = toNumber(localStorage.getItem(LANGUAGE_UPDATED_AT_KEY));
+          const visitorUpdatedAt = toNumber(localStorage.getItem(VISITOR_MODE_UPDATED_AT_KEY));
+
+          let storedSettings: Record<string, unknown> = {};
+          let settingsUpdatedAt: number | null = null;
+          if (settingsRaw) {
+            const parsed = JSON.parse(settingsRaw);
+            if (parsed && typeof parsed === 'object') {
+              const { updatedAt, userId, ...rest } = parsed as Record<string, unknown>;
+              storedSettings = rest;
+              settingsUpdatedAt = toNumber(updatedAt);
+            }
+          }
+
+          const updatedAtCandidates = [settingsUpdatedAt, languageUpdatedAt, visitorUpdatedAt]
+            .filter((value): value is number => value !== null);
+          const combinedUpdatedAt = updatedAtCandidates.length > 0
+            ? Math.max(...updatedAtCandidates)
+            : null;
+
+          localData.settings = {
+            ...storedSettings,
+            language: language || 'ar',
+            visitorMode: visitorMode || 'parent',
+            ...(combinedUpdatedAt !== null ? { updatedAt: combinedUpdatedAt } : {}),
+          };
+        } catch {
+          // Ignore parse errors
         }
 
-        // Update sync state
-        const syncTime = response.syncedAt;
-        localStorage.setItem(LAST_SYNC_KEY, syncTime.toString());
+        // Sessions
+        try {
+          const sessionsRaw = localStorage.getItem(sessionsKey);
+          if (sessionsRaw) {
+            localData.sessions = JSON.parse(sessionsRaw);
+          }
+        } catch {
+          // Ignore parse errors
+        }
 
+        // Perform sync
+        const response = await syncApi.sync({
+          lastSyncAt: state.lastSyncAt || 0,
+          localData,
+        });
+
+        if (response.success) {
+          // Update local storage with server data
+          if (response.serverData.clinicalProgress) {
+            localStorage.setItem(
+              clinicalKey,
+              JSON.stringify(response.serverData.clinicalProgress)
+            );
+          }
+
+          if (response.serverData.gamification) {
+            localStorage.setItem(
+              gamificationKey,
+              JSON.stringify(response.serverData.gamification)
+            );
+          }
+
+          if (response.serverData.settings) {
+            const {
+              language,
+              visitorMode,
+              updatedAt,
+              ...otherSettings
+            } = response.serverData.settings;
+            localStorage.setItem(settingsKey, JSON.stringify({ ...otherSettings, updatedAt }));
+            if (language) localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+            if (visitorMode) localStorage.setItem(VISITOR_MODE_STORAGE_KEY, visitorMode);
+            if (typeof updatedAt === 'number') {
+              localStorage.setItem(LANGUAGE_UPDATED_AT_KEY, updatedAt.toString());
+              localStorage.setItem(VISITOR_MODE_UPDATED_AT_KEY, updatedAt.toString());
+            }
+          }
+
+          if (response.serverData.sessions) {
+            localStorage.setItem(
+              sessionsKey,
+              JSON.stringify(response.serverData.sessions)
+            );
+          }
+
+          // Update sync state
+          const syncTime = response.syncedAt;
+          localStorage.setItem(LAST_SYNC_KEY, syncTime.toString());
+
+          setState(prev => ({
+            ...prev,
+            status: 'synced',
+            lastSyncAt: syncTime,
+            pendingChanges: 0,
+          }));
+
+          clearPendingChanges();
+
+          // Dispatch event for contexts to reload
+          window.dispatchEvent(new CustomEvent('lotus-data-synced', {
+            detail: response.serverData,
+          }));
+        } else {
+          throw new Error(response.error || 'Sync failed');
+        }
+      } catch (error) {
+        console.error('Sync error:', error);
         setState(prev => ({
           ...prev,
-          status: 'synced',
-          lastSyncAt: syncTime,
-          pendingChanges: 0,
+          status: 'error',
+          error: error instanceof Error ? error.message : 'Sync failed',
         }));
-
-        clearPendingChanges();
-
-        // Dispatch event for contexts to reload
-        window.dispatchEvent(new CustomEvent('lotus-data-synced', {
-          detail: response.serverData,
-        }));
-      } else {
-        throw new Error(response.error || 'Sync failed');
       }
-    } catch (error) {
-      console.error('Sync error:', error);
-      setState(prev => ({
-        ...prev,
-        status: 'error',
-        error: error instanceof Error ? error.message : 'Sync failed',
-      }));
-    }
+    })();
+
+    syncInFlightRef.current = run;
+    return run.finally(() => {
+      syncInFlightRef.current = null;
+    });
   }, [state.isOnline, state.lastSyncAt, clearPendingChanges]);
 
   // Track local changes and schedule syncs.

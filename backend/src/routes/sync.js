@@ -231,6 +231,19 @@ const mergeGamificationState = (gamification, localState) => {
     gamification.totalPoints = totalPoints;
     changed = true;
   }
+  const nextLevel = totalPoints < 50
+    ? 1
+    : totalPoints < 150
+      ? 2
+      : totalPoints < 300
+        ? 3
+        : totalPoints < 500
+          ? 4
+          : 5;
+  if (nextLevel !== gamification.level) {
+    gamification.level = nextLevel;
+    changed = true;
+  }
 
   const maxScrollProgress = Math.max(gamification.maxScrollProgress || 0, localState.maxScrollProgress || 0);
   if (maxScrollProgress !== gamification.maxScrollProgress) {
@@ -374,6 +387,60 @@ const buildConflict = ({ field, resolution, localValue, serverValue, localUpdate
   serverUpdatedAt: serverUpdatedAt ?? undefined,
 });
 
+const isVersionError = (error) => error && error.name === 'VersionError';
+
+const buildGamificationUpdate = (doc) => {
+  const source = doc?.toObject ? doc.toObject() : doc || {};
+  return {
+    achievements: source.achievements,
+    totalPoints: source.totalPoints,
+    level: source.level,
+    exploredBrainRegions: source.exploredBrainRegions,
+    slidesViewed: source.slidesViewed,
+    checklistCompleted: source.checklistCompleted,
+    gamesCompleted: source.gamesCompleted,
+    audioJourneyProgress: source.audioJourneyProgress,
+    totalTimeSpent: source.totalTimeSpent,
+    maxScrollProgress: source.maxScrollProgress,
+    videosWatched: source.videosWatched,
+    clinicalSessionsCompleted: source.clinicalSessionsCompleted,
+    clinicalStreak: source.clinicalStreak,
+    lastClinicalActivity: source.lastClinicalActivity,
+    treatmentPhase: source.treatmentPhase,
+  };
+};
+
+const persistGamificationMerge = async ({ userId, gamificationDoc, localGamification }) => {
+  const attemptUpdate = async (doc) => {
+    const merged = mergeGamificationState(doc, localGamification);
+    if (!merged) return doc;
+
+    const update = buildGamificationUpdate(doc);
+    const updatedDoc = await Gamification.findOneAndUpdate(
+      { _id: doc._id, userId },
+      { $set: update, $currentDate: { updatedAt: true } },
+      { new: true, runValidators: true }
+    );
+
+    return updatedDoc || doc;
+  };
+
+  try {
+    return await attemptUpdate(gamificationDoc);
+  } catch (error) {
+    if (!isVersionError(error)) {
+      throw error;
+    }
+
+    const fresh = await Gamification.findOne({ userId });
+    if (!fresh) {
+      throw error;
+    }
+
+    return attemptUpdate(fresh);
+  }
+};
+
 const syncUserData = async ({ userId, lastSyncAt, localData }) => {
   const serverData = {};
   const conflicts = [];
@@ -434,6 +501,7 @@ const syncUserData = async ({ userId, lastSyncAt, localData }) => {
     ? localData.gamification
     : null;
   if (gamification) {
+    let gamificationDoc = gamification;
     const serverUpdatedAt = gamification.updatedAt?.getTime() || 0;
     const localUpdatedAt = getLatestTimestamp(localGamification, [
       'updatedAt',
@@ -444,16 +512,17 @@ const syncUserData = async ({ userId, lastSyncAt, localData }) => {
     const serverChanged = serverUpdatedAt > lastSyncTime;
 
     if (localGamification) {
-      const merged = mergeGamificationState(gamification, localGamification);
-      if (merged) {
-        await gamification.save();
-      }
+      gamificationDoc = await persistGamificationMerge({
+        userId,
+        gamificationDoc,
+        localGamification,
+      });
 
       if (localChanged && serverChanged) {
         conflicts.push(buildConflict({
           field: 'gamification',
           localValue: localGamification,
-          serverValue: gamification.toJSON(),
+          serverValue: gamificationDoc.toJSON(),
           resolution: 'merge',
           localUpdatedAt,
           serverUpdatedAt,
@@ -461,7 +530,7 @@ const syncUserData = async ({ userId, lastSyncAt, localData }) => {
       }
     }
 
-    serverData.gamification = gamification.toJSON();
+    serverData.gamification = gamificationDoc.toJSON();
   } else if (localGamification) {
     const newGamification = await Gamification.create({
       userId,
