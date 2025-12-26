@@ -41,6 +41,13 @@ const userSchema = new mongoose.Schema({
   school: {
     type: String,
   },
+  grade: {
+    type: String,
+    trim: true,
+  },
+  dateOfBirth: {
+    type: Date,
+  },
   children: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -108,6 +115,7 @@ userSchema.methods.toJSON = function() {
     avatar: obj.avatar,
     clinic: obj.clinic,
     school: obj.school,
+    grade: obj.grade,
     children: obj.children?.map(c => c.toString()),
     createdAt: obj.createdAt.getTime(),
     lastLogin: obj.lastLogin.getTime(),

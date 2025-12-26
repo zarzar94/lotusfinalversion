@@ -44,9 +44,9 @@ import LongitudinalCharts from '../dashboards/LongitudinalCharts';
 interface PatientData {
   id: string;
   name: string;
-  nameAr: string;
+  nameAr?: string;
   email: string;
-  age: number;
+  age?: number | null;
   startDate: number;
   sessionsCompleted: number;
   totalSessions: number;
@@ -169,7 +169,11 @@ const PatientRow = memo(({
   onSelect: () => void;
 }) => {
   const { t } = useLanguage();
-  const progressPercent = Math.round((patient.sessionsCompleted / patient.totalSessions) * 100);
+  const progressPercent = patient.totalSessions > 0
+    ? Math.round((patient.sessionsCompleted / patient.totalSessions) * 100)
+    : 0;
+  const nameAr = patient.nameAr || patient.name;
+  const ageLabel = Number.isFinite(patient.age) ? patient.age : '--';
 
   const phaseConfig = {
     assessment: { color: brandPurple, label: { en: 'Assessment', ar: 'auto.ClinicianDashboard.k49' } },
@@ -231,7 +235,7 @@ const PatientRow = memo(({
                 color: colors.text.primary,
               }}
             >
-              {isArabic ? t(patient.nameAr, patient.name) : patient.name}
+              {isArabic ? t(nameAr, patient.name) : patient.name}
             </div>
             <div
               style={{
@@ -239,7 +243,7 @@ const PatientRow = memo(({
                 color: colors.text.muted,
               }}
             >
-              {patient.age} {t('auto.ClinicianDashboard.k3', "y/o")}
+              {ageLabel} {t('auto.ClinicianDashboard.k3', "y/o")}
             </div>
           </div>
         </div>
@@ -348,7 +352,11 @@ const PatientDetailModal = memo(({
   onClose: () => void;
 }) => {
   const { t } = useLanguage();
-  const progressPercent = Math.round((patient.sessionsCompleted / patient.totalSessions) * 100);
+  const progressPercent = patient.totalSessions > 0
+    ? Math.round((patient.sessionsCompleted / patient.totalSessions) * 100)
+    : 0;
+  const nameAr = patient.nameAr || patient.name;
+  const ageLabel = Number.isFinite(patient.age) ? patient.age : '--';
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString(isArabic ? 'ar-SA' : 'en-US', {
@@ -457,7 +465,7 @@ const PatientDetailModal = memo(({
                   color: colors.text.primary,
                 }}
               >
-                {isArabic ? t(patient.nameAr, patient.name) : patient.name}
+                {isArabic ? t(nameAr, patient.name) : patient.name}
               </h2>
               <p
                 style={{
@@ -466,7 +474,7 @@ const PatientDetailModal = memo(({
                   color: colors.text.secondary,
                 }}
               >
-                {patient.age} {t('auto.ClinicianDashboard.k4', "years old")} • {patient.email}
+                {ageLabel} {t('auto.ClinicianDashboard.k4', "years old")} • {patient.email}
               </p>
               <p
                 style={{
@@ -755,6 +763,7 @@ export default function ClinicianDashboard() {
   const { isArabic, direction, t } = useLanguage();
   const { user, isAuthenticated, isOnline } = useUser();
   const hasAccess = usePermission('view_patient_reports');
+  const [patientData, setPatientData] = useState<PatientData[] | null>(null);
   const [selectedPatient, setSelectedPatient] = useState<PatientData | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPhase, setFilterPhase] = useState<string>('all');
@@ -762,15 +771,58 @@ export default function ClinicianDashboard() {
   const [analysis, setAnalysis] = useState<SessionProgressTrend | null>(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
 
+  useEffect(() => {
+    let cancelled = false;
+    const token = getToken();
+    const canFetch = Boolean(token && isAuthenticated && isOnline && hasAccess);
+
+    if (!canFetch) {
+      setPatientData(null);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    sessionsApi.getPatientsAnalysis(user?.school)
+      .then((response) => {
+        if (cancelled) return;
+        if (response.success && Array.isArray(response.patients)) {
+          const normalized = response.patients.map((patient) => ({
+            ...patient,
+            nameAr: patient.nameAr || patient.name,
+            age: Number.isFinite(patient.age) ? patient.age : null,
+            notes: Array.isArray(patient.notes) ? patient.notes : [],
+          }));
+          setPatientData(normalized);
+          return;
+        }
+        setPatientData([]);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setPatientData([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hasAccess, isAuthenticated, isOnline, user?.id, user?.school]);
+
+  const patients = useMemo(() => {
+    if (patientData !== null) return patientData;
+    return MOCK_PATIENTS;
+  }, [patientData]);
+
   const filteredPatients = useMemo(() => {
-    return MOCK_PATIENTS.filter((patient) => {
+    const searchLower = searchTerm.toLowerCase();
+    return patients.filter((patient) => {
       const matchesSearch =
-        patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.nameAr.includes(searchTerm);
+        patient.name.toLowerCase().includes(searchLower) ||
+        (patient.nameAr || '').includes(searchTerm);
       const matchesPhase = filterPhase === 'all' || patient.treatmentPhase === filterPhase;
       return matchesSearch && matchesPhase;
     });
-  }, [searchTerm, filterPhase]);
+  }, [patients, searchTerm, filterPhase]);
 
   useEffect(() => {
     let cancelled = false;
@@ -811,16 +863,18 @@ export default function ClinicianDashboard() {
   }, [trendModule, isAuthenticated, isOnline, selectedPatient?.id]);
 
   const stats = useMemo(() => {
-    const total = MOCK_PATIENTS.length;
-    const active = MOCK_PATIENTS.filter((p) => p.treatmentPhase === 'active').length;
-    const completed = MOCK_PATIENTS.filter((p) => p.treatmentPhase === 'completed').length;
+    const total = patients.length;
+    const active = patients.filter((p) => p.treatmentPhase === 'active').length;
+    const completed = patients.filter((p) => p.treatmentPhase === 'completed').length;
     const avgImprovement = analysis
       ? analysis.improvement
-      : Math.round(
-        MOCK_PATIENTS.reduce((sum, p) => sum + (p.attentionScore - p.attentionBaseline), 0) / total
-      );
+      : total > 0
+        ? Math.round(
+          patients.reduce((sum, p) => sum + (p.attentionScore - p.attentionBaseline), 0) / total
+        )
+        : 0;
     return { total, active, completed, avgImprovement };
-  }, [analysis]);
+  }, [analysis, patients]);
 
   if (!hasAccess) {
     return (
@@ -1207,10 +1261,10 @@ export default function ClinicianDashboard() {
             title={t('auto.ClinicianDashboard.k31', "Attention Score Distribution")}
             titleAr="توزيع درجات الانتباه"
             data={[
-              { label: '<50', labelAr: 'auto.ClinicianDashboard.k38', value: MOCK_PATIENTS.filter(p => p.attentionScore < 50).length * 25, color: '#ef4444' },
-              { label: '50-69', labelAr: 'auto.ClinicianDashboard.k39', value: MOCK_PATIENTS.filter(p => p.attentionScore >= 50 && p.attentionScore < 70).length * 25, color: '#f59e0b' },
-              { label: '70-84', labelAr: 'auto.ClinicianDashboard.k40', value: MOCK_PATIENTS.filter(p => p.attentionScore >= 70 && p.attentionScore < 85).length * 25, color: brandCyan },
-              { label: '85+', labelAr: 'auto.ClinicianDashboard.k41', value: MOCK_PATIENTS.filter(p => p.attentionScore >= 85).length * 25, color: '#22c55e' },
+              { label: '<50', labelAr: 'auto.ClinicianDashboard.k38', value: patients.filter(p => p.attentionScore < 50).length * 25, color: '#ef4444' },
+              { label: '50-69', labelAr: 'auto.ClinicianDashboard.k39', value: patients.filter(p => p.attentionScore >= 50 && p.attentionScore < 70).length * 25, color: '#f59e0b' },
+              { label: '70-84', labelAr: 'auto.ClinicianDashboard.k40', value: patients.filter(p => p.attentionScore >= 70 && p.attentionScore < 85).length * 25, color: brandCyan },
+              { label: '85+', labelAr: 'auto.ClinicianDashboard.k41', value: patients.filter(p => p.attentionScore >= 85).length * 25, color: '#22c55e' },
             ]}
             isArabic={isArabic}
             height={140}
@@ -1253,13 +1307,13 @@ export default function ClinicianDashboard() {
       </div>
 
       {/* Alerts Section */}
-      {MOCK_PATIENTS.some(p => p.streak === 0 && p.treatmentPhase === 'active') && (
+      {patients.some(p => p.streak === 0 && p.treatmentPhase === 'active') && (
         <div style={{ marginTop: spacing[4] }}>
           <InfoCard
             title={t('auto.ClinicianDashboard.k32', "Alert: Inactive Patients")}
             titleAr="تنبيه: مرضى غير نشطين"
-            content={`${MOCK_PATIENTS.filter(p => p.streak === 0 && p.treatmentPhase === 'active').length} ${t('auto.ClinicianDashboard.k33', "patients in active treatment haven't practiced in over 2 days")}`}
-            contentAr={`${MOCK_PATIENTS.filter(p => p.streak === 0 && p.treatmentPhase === 'active').length} مرضى في العلاج النشط لم يمارسوا منذ أكثر من يومين`}
+            content={`${patients.filter(p => p.streak === 0 && p.treatmentPhase === 'active').length} ${t('auto.ClinicianDashboard.k33', "patients in active treatment haven't practiced in over 2 days")}`}
+            contentAr={`${patients.filter(p => p.streak === 0 && p.treatmentPhase === 'active').length} مرضى في العلاج النشط لم يمارسوا منذ أكثر من يومين`}
             variant="warning"
             isArabic={isArabic}
             actions={[

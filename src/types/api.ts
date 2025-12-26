@@ -55,6 +55,7 @@ export interface ApiUser {
   avatar?: string;
   clinic?: string;
   school?: string;
+  grade?: string;
   children?: string[];
   createdAt: number;
   lastLogin: number;
@@ -288,6 +289,56 @@ export interface SessionAnalysisResponse {
   error?: string;
 }
 
+export interface ParentChildSummary {
+  id: string;
+  name: string;
+  nameAr?: string;
+  age?: number | null;
+  sessionsCompleted: number;
+  totalSessions: number;
+  attentionScore: number;
+  processingSpeed: number;
+  auditoryDiscrimination: number;
+  streak: number;
+  lastActivity: number;
+  treatmentPhase: 'assessment' | 'active' | 'maintenance' | 'completed';
+  weeklyProgress: number[];
+}
+
+export interface ParentChildrenAnalysisResponse {
+  success: boolean;
+  children?: ParentChildSummary[];
+  error?: string;
+}
+
+export interface ClinicianPatientSummary {
+  id: string;
+  name: string;
+  nameAr?: string;
+  email: string;
+  age?: number | null;
+  startDate: number;
+  sessionsCompleted: number;
+  totalSessions: number;
+  attentionScore: number;
+  attentionBaseline: number;
+  processingSpeed: number;
+  processingBaseline: number;
+  auditoryDiscrimination: number;
+  auditoryBaseline: number;
+  streak: number;
+  lastActivity: number;
+  treatmentPhase: 'assessment' | 'active' | 'maintenance' | 'completed';
+  notes: string[];
+  nextAppointment?: number;
+}
+
+export interface ClinicianPatientsAnalysisResponse {
+  success: boolean;
+  patients?: ClinicianPatientSummary[];
+  error?: string;
+}
+
 export interface SchoolSessionsSummary {
   school: string;
   totalSessions: number;
@@ -297,9 +348,41 @@ export interface SchoolSessionsSummary {
   moduleAverages: Record<string, number>;
 }
 
+export interface SchoolStudentSummary {
+  id: string;
+  name: string;
+  nameAr?: string;
+  grade: string;
+  gradeAr?: string;
+  sessionsCompleted: number;
+  totalSessions: number;
+  attentionScore: number;
+  processingSpeed: number;
+  lastActivity: number;
+  status: 'on_track' | 'needs_attention' | 'at_risk' | 'completed';
+}
+
+export interface SchoolWeeklyProgress {
+  week: string;
+  weekAr: string;
+  sessionsCompleted: number;
+  averageScore: number;
+  activeStudents: number;
+}
+
+export interface SchoolGradeDistribution {
+  grade: string;
+  gradeAr: string;
+  count: number;
+  averageProgress: number;
+}
+
 export interface SchoolSessionsAnalysisResponse {
   success: boolean;
   summary?: SchoolSessionsSummary;
+  students?: SchoolStudentSummary[];
+  weekly?: SchoolWeeklyProgress[];
+  gradeDistribution?: SchoolGradeDistribution[];
   error?: string;
 }
 

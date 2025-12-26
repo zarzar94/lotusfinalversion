@@ -26,6 +26,8 @@ import type {
   SessionResponse,
   SessionsListResponse,
   SessionAnalysisResponse,
+  ParentChildrenAnalysisResponse,
+  ClinicianPatientsAnalysisResponse,
   SchoolSessionsAnalysisResponse,
   SyncRequest,
   SyncResponse,
@@ -474,6 +476,18 @@ export const sessionsApi = {
     return fetchWithAuth(`/sessions/${sessionId}`, {
       method: 'DELETE',
     });
+  },
+
+  getChildrenAnalysis: async (): Promise<ParentChildrenAnalysisResponse> => {
+    return fetchWithAuth<ParentChildrenAnalysisResponse>('/sessions/analysis/children');
+  },
+
+  getPatientsAnalysis: async (school?: string): Promise<ClinicianPatientsAnalysisResponse> => {
+    const params = new URLSearchParams();
+    if (school) params.set('school', school);
+    const query = params.toString();
+    const endpoint = query ? `/sessions/analysis/patients?${query}` : '/sessions/analysis/patients';
+    return fetchWithAuth<ClinicianPatientsAnalysisResponse>(endpoint);
   },
 
   getProgressAnalysis: async (testKey?: string): Promise<SessionAnalysisResponse> => {

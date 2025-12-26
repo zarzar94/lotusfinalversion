@@ -3,7 +3,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
 import { useSessionMetrics } from '../../hooks/useSessionMetrics';
 import { getToken, sessionsApi } from '../../services/api';
-import type { SchoolSessionsSummary } from '../../types/api';
+import type { SchoolSessionsAnalysisResponse } from '../../types/api';
 import { getAverageModuleScore, getUniqueSessionStats } from '../../utils/sessionStats';
 import {
   BackNavigation,
@@ -42,7 +42,7 @@ import {
 interface StudentData {
   id: string;
   name: string;
-  nameAr: string;
+  nameAr?: string;
   grade: string;
   gradeAr?: string;
   sessionsCompleted: number;
@@ -55,7 +55,7 @@ interface StudentData {
 
 interface WeeklyProgress {
   week: string;
-  weekAr: string;
+  weekAr?: string;
   sessionsCompleted: number;
   averageScore: number;
   activeStudents: number;
@@ -63,7 +63,7 @@ interface WeeklyProgress {
 
 interface GradeDistribution {
   grade: string;
-  gradeAr: string;
+  gradeAr?: string;
   count: number;
   averageProgress: number;
   color: string;
@@ -114,7 +114,7 @@ const ProgressBarChart = memo(({
   isArabic: boolean;
 }) => {
   const { t } = useLanguage();
-  const maxSessions = Math.max(...data.map(d => d.sessionsCompleted));
+  const maxSessions = Math.max(1, ...data.map(d => d.sessionsCompleted));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[3] }}>
@@ -128,7 +128,7 @@ const ProgressBarChart = memo(({
               textAlign: isArabic ? 'right' : 'left',
             }}
           >
-            {isArabic ? t(week.weekAr, week.week) : week.week}
+            {isArabic ? t(week.weekAr || week.week, week.week) : week.week}
           </div>
           <div
             style={{
@@ -250,7 +250,11 @@ const StudentTable = memo(({
         <tbody>
           {students.map(student => {
             const status = statusColors[student.status];
-            const progressPercent = Math.round((student.sessionsCompleted / student.totalSessions) * 100);
+            const progressPercent = student.totalSessions > 0
+              ? Math.round((student.sessionsCompleted / student.totalSessions) * 100)
+              : 0;
+            const nameAr = student.nameAr || student.name;
+            const gradeLabel = student.gradeAr || student.grade;
 
             return (
               <tr
@@ -261,10 +265,10 @@ const StudentTable = memo(({
                 }}
               >
                 <td style={{ padding: spacing[3], color: colors.text.primary, fontWeight: typography.weight.semibold }}>
-                  {isArabic ? t(student.nameAr, student.name) : student.name}
+                  {isArabic ? t(nameAr, student.name) : student.name}
                 </td>
                 <td style={{ padding: spacing[3], color: colors.text.secondary }}>
-                  {isArabic ? t(student.gradeAr ?? student.grade, student.grade) : student.grade}
+                  {isArabic ? t(gradeLabel, student.grade) : student.grade}
                 </td>
                 <td style={{ padding: spacing[3] }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
@@ -338,7 +342,7 @@ export default function SchoolDashboard() {
   const hasAccess = usePermission('school_analytics');
   const { sessions: sessionMetrics } = useSessionMetrics();
   const [filter, setFilter] = useState<'all' | 'at_risk' | 'on_track' | 'completed'>('all');
-  const [schoolSummary, setSchoolSummary] = useState<SchoolSessionsSummary | null>(null);
+  const [schoolAnalysis, setSchoolAnalysis] = useState<SchoolSessionsAnalysisResponse | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -349,14 +353,14 @@ export default function SchoolDashboard() {
     );
 
     if (!canFetch) {
-      setSchoolSummary(null);
+      setSchoolAnalysis(null);
       return () => {
         cancelled = true;
       };
     }
 
     if (role !== 'school_admin' && !user?.school) {
-      setSchoolSummary(null);
+      setSchoolAnalysis(null);
       return () => {
         cancelled = true;
       };
@@ -365,11 +369,11 @@ export default function SchoolDashboard() {
     sessionsApi.getSchoolAnalysis(role === 'school_admin' ? undefined : user?.school)
       .then((response) => {
         if (cancelled) return;
-        setSchoolSummary(response.success ? response.summary ?? null : null);
+        setSchoolAnalysis(response.success ? response : null);
       })
       .catch(() => {
         if (cancelled) return;
-        setSchoolSummary(null);
+        setSchoolAnalysis(null);
       });
 
     return () => {
@@ -377,27 +381,70 @@ export default function SchoolDashboard() {
     };
   }, [isAuthenticated, isOnline, user?.role, user?.school]);
 
+  const hasSchoolData = schoolAnalysis !== null;
+  const schoolSummary = schoolAnalysis?.summary ?? null;
+
+  const students = useMemo(() => {
+    if (!hasSchoolData) return MOCK_STUDENTS;
+    const apiStudents = schoolAnalysis?.students ?? [];
+    return apiStudents.map((student) => ({
+      ...student,
+      nameAr: student.nameAr || student.name,
+      grade: student.grade || '--',
+      gradeAr: student.gradeAr || student.grade || '--',
+    }));
+  }, [hasSchoolData, schoolAnalysis]);
+
+  const weeklyProgress = useMemo(() => {
+    if (!hasSchoolData) return MOCK_WEEKLY;
+    const apiWeekly = schoolAnalysis?.weekly ?? [];
+    return apiWeekly.map((week) => ({
+      ...week,
+      weekAr: week.weekAr || week.week,
+    }));
+  }, [hasSchoolData, schoolAnalysis]);
+
+  const gradeDistribution = useMemo(() => {
+    if (!hasSchoolData) return MOCK_GRADES;
+    const apiGrades = schoolAnalysis?.gradeDistribution ?? [];
+    const palette = [brandPink, brandCyan, brandPurple, '#22c55e', '#f59e0b', '#ef4444'];
+    return apiGrades.map((grade, index) => ({
+      grade: grade.grade,
+      gradeAr: grade.gradeAr || grade.grade,
+      count: grade.count,
+      averageProgress: grade.averageProgress,
+      color: palette[index % palette.length],
+    }));
+  }, [hasSchoolData, schoolAnalysis]);
+
   const filteredStudents = useMemo(() => {
-    if (filter === 'all') return MOCK_STUDENTS;
-    return MOCK_STUDENTS.filter(s => s.status === filter);
-  }, [filter]);
+    if (filter === 'all') return students;
+    return students.filter(s => s.status === filter);
+  }, [filter, students]);
 
   const metrics = useMemo(() => {
-    const totalStudents = MOCK_STUDENTS.length;
-    const completed = MOCK_STUDENTS.filter(s => s.status === 'completed').length;
-    const atRisk = MOCK_STUDENTS.filter(s => s.status === 'at_risk').length;
+    const totalStudents = students.length;
+    const completed = students.filter(s => s.status === 'completed').length;
+    const atRisk = students.filter(s => s.status === 'at_risk').length;
     const sessionStats = getUniqueSessionStats(sessionMetrics);
     const avgAttentionFromSessions = getAverageModuleScore(sessionMetrics, 'attention');
     const avgProgressFromSessions = sessionStats.totalSessions > 0 ? sessionStats.averageScore : null;
-    const avgAttention = schoolSummary?.moduleAverages?.attention ?? avgAttentionFromSessions ?? Math.round(
-      MOCK_STUDENTS.reduce((sum, s) => sum + s.attentionScore, 0) / totalStudents
+    const avgAttention = schoolSummary?.moduleAverages?.attention ?? avgAttentionFromSessions ?? (
+      totalStudents > 0
+        ? Math.round(students.reduce((sum, s) => sum + s.attentionScore, 0) / totalStudents)
+        : 0
     );
-    const avgProgress = schoolSummary?.averageScore ?? avgProgressFromSessions ?? Math.round(
-      MOCK_STUDENTS.reduce((sum, s) => sum + (s.sessionsCompleted / s.totalSessions) * 100, 0) / totalStudents
+    const avgProgress = schoolSummary?.averageScore ?? avgProgressFromSessions ?? (
+      totalStudents > 0
+        ? Math.round(
+          students.reduce((sum, s) => sum + (s.totalSessions > 0 ? (s.sessionsCompleted / s.totalSessions) * 100 : 0), 0)
+          / totalStudents
+        )
+        : 0
     );
 
     return { totalStudents, completed, atRisk, avgAttention, avgProgress };
-  }, [schoolSummary, sessionMetrics]);
+  }, [schoolSummary, sessionMetrics, students]);
 
   if (!hasAccess) {
     return (
@@ -530,7 +577,7 @@ export default function SchoolDashboard() {
           >
             {t('auto.SchoolDashboard.k22', "Weekly Progress")}
           </h3>
-          <ProgressBarChart data={MOCK_WEEKLY} isArabic={isArabic} />
+          <ProgressBarChart data={weeklyProgress} isArabic={isArabic} />
         </div>
 
         {/* Grade Distribution */}
@@ -553,7 +600,7 @@ export default function SchoolDashboard() {
             {t('auto.SchoolDashboard.k23', "Grade Distribution")}
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[3] }}>
-            {MOCK_GRADES.map(grade => (
+            {gradeDistribution.map(grade => (
               <div key={grade.grade} style={{ display: 'flex', alignItems: 'center', gap: spacing[3] }}>
                 <div
                   style={{
@@ -562,7 +609,7 @@ export default function SchoolDashboard() {
                     color: colors.text.secondary,
                   }}
                 >
-                  {isArabic ? t(grade.gradeAr, grade.grade) : grade.grade}
+                  {isArabic ? t(grade.gradeAr || grade.grade, grade.grade) : grade.grade}
                 </div>
                 <div
                   style={{
@@ -693,9 +740,9 @@ export default function SchoolDashboard() {
           <LineChart
             title={t('auto.SchoolDashboard.k26', "Weekly Score Trend")}
             titleAr="اتجاه الدرجات الأسبوعي"
-            data={MOCK_WEEKLY.map(w => ({
+            data={weeklyProgress.map(w => ({
               label: w.week.replace('Week ', 'W'),
-              labelAr: w.weekAr.replace('الأسبوع ', 'أ'),
+              labelAr: (w.weekAr || w.week).replace('الأسبوع ', 'أ'),
               value: w.averageScore,
             }))}
             isArabic={isArabic}
@@ -808,3 +855,4 @@ export default function SchoolDashboard() {
     </section>
   );
 }
+

@@ -1,7 +1,8 @@
-import { useState, useMemo, memo } from 'react';
+import { useState, useMemo, useEffect, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
 import { useSessionMetrics } from '../../hooks/useSessionMetrics';
+import { getToken, sessionsApi } from '../../services/api';
 import {
   BackNavigation,
   SectionNav,
@@ -44,8 +45,8 @@ import { getStreakDays, getUniqueSessionStats } from '../../utils/sessionStats';
 interface ChildData {
   id: string;
   name: string;
-  nameAr: string;
-  age: number;
+  nameAr?: string;
+  age?: number | null;
   sessionsCompleted: number;
   totalSessions: number;
   attentionScore: number;
@@ -54,7 +55,7 @@ interface ChildData {
   streak: number;
   lastActivity: number;
   treatmentPhase: 'assessment' | 'active' | 'maintenance' | 'completed';
-  weeklyProgress: number[];
+  weeklyProgress?: number[];
 }
 
 // Milestone type is imported from shared
@@ -163,8 +164,16 @@ const ChildProgressCard = memo(({
   onToggle: () => void;
 }) => {
   const { t } = useLanguage();
-  const progressPercent = Math.round((child.sessionsCompleted / child.totalSessions) * 100);
+  const totalSessions = child.totalSessions > 0 ? child.totalSessions : 0;
+  const progressPercent = totalSessions > 0
+    ? Math.round((child.sessionsCompleted / totalSessions) * 100)
+    : 0;
   const milestones = getMilestones(child.sessionsCompleted);
+  const weeklyProgress = Array.isArray(child.weeklyProgress)
+    ? [...child.weeklyProgress, 0, 0, 0, 0, 0].slice(0, 5)
+    : [0, 0, 0, 0, 0];
+  const nameAr = child.nameAr || child.name;
+  const ageLabel = Number.isFinite(child.age) ? child.age : '--';
 
   const phaseColors = {
     assessment: brandPurple,
@@ -236,7 +245,7 @@ const ChildProgressCard = memo(({
                 color: colors.text.primary,
               }}
             >
-              {isArabic ? t(child.nameAr, child.name) : child.name}
+              {isArabic ? t(nameAr, child.name) : child.name}
             </div>
             <div
               style={{
@@ -247,7 +256,7 @@ const ChildProgressCard = memo(({
                 gap: spacing[3],
               }}
             >
-              <span>{isArabic ? `${child.age} سنوات` : `${child.age} years old`}</span>
+              <span>{isArabic ? `${ageLabel} سنوات` : `${ageLabel} years old`}</span>
               <span style={{ color: colors.border.default }}>•</span>
               <span style={{ color: phaseColors[child.treatmentPhase] }}>
                 {isArabic ? phaseLabels[child.treatmentPhase].ar : phaseLabels[child.treatmentPhase].en}
@@ -439,9 +448,9 @@ const ChildProgressCard = memo(({
                 <div key={day} style={{ flex: 1, textAlign: 'center' }}>
                   <div
                     style={{
-                      height: Math.max(8, child.weeklyProgress[i] * 20),
+                      height: Math.max(8, weeklyProgress[i] * 20),
                       background:
-                        child.weeklyProgress[i] > 0
+                        weeklyProgress[i] > 0
                           ? `linear-gradient(180deg, ${brandCyan}, ${brandPurple})`
                           : colors.border.subtle,
                       borderRadius: radius.sm,
@@ -541,18 +550,59 @@ ScoreCard.displayName = 'ScoreCard';
 
 export default function ParentDashboard() {
   const { isArabic, direction, t } = useLanguage();
-  const { user } = useUser();
+  const { user, isAuthenticated, isOnline } = useUser();
   const hasAccess = usePermission('view_child_reports');
   const { sessions: sessionMetrics } = useSessionMetrics();
+  const [childrenData, setChildrenData] = useState<ChildData[] | null>(null);
   const [expandedChild, setExpandedChild] = useState<string | null>(MOCK_CHILDREN[0]?.id || null);
 
+  useEffect(() => {
+    let cancelled = false;
+    const token = getToken();
+    const canFetch = Boolean(token && isAuthenticated && isOnline && hasAccess && user?.role === 'parent');
+
+    if (!canFetch) {
+      setChildrenData(null);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    sessionsApi.getChildrenAnalysis()
+      .then((response) => {
+        if (cancelled) return;
+        if (response.success && Array.isArray(response.children)) {
+          const normalized = response.children.map((child) => ({
+            ...child,
+            nameAr: child.nameAr || child.name,
+            age: Number.isFinite(child.age) ? child.age : null,
+            weeklyProgress: Array.isArray(child.weeklyProgress)
+              ? [...child.weeklyProgress, 0, 0, 0, 0, 0].slice(0, 5)
+              : [0, 0, 0, 0, 0],
+          }));
+          setChildrenData(normalized);
+          return;
+        }
+        setChildrenData([]);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setChildrenData([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hasAccess, isAuthenticated, isOnline, user?.id, user?.role]);
+
   const children = useMemo(() => {
-    // In production, filter by user.children IDs
+    if (childrenData !== null) return childrenData;
     return MOCK_CHILDREN;
-  }, []);
+  }, [childrenData]);
+  const hasApiChildren = childrenData !== null;
 
   const overallStats = useMemo(() => {
-    if (sessionMetrics.length > 0) {
+    if (!hasApiChildren && sessionMetrics.length > 0) {
       const sessionStats = getUniqueSessionStats(sessionMetrics);
       const totalSessions = sessionStats.totalSessions;
       const avgProgress = sessionStats.averageScore;
@@ -563,14 +613,19 @@ export default function ParentDashboard() {
     }
 
     const totalSessions = children.reduce((sum, c) => sum + c.sessionsCompleted, 0);
-    const avgProgress = Math.round(
-      children.reduce((sum, c) => sum + (c.sessionsCompleted / c.totalSessions) * 100, 0) / children.length
-    );
+    const avgProgress = children.length > 0
+      ? Math.round(
+        children.reduce((sum, c) => {
+          const progress = c.totalSessions > 0 ? (c.sessionsCompleted / c.totalSessions) * 100 : 0;
+          return sum + progress;
+        }, 0) / children.length
+      )
+      : 0;
     const totalStreak = children.reduce((sum, c) => sum + c.streak, 0);
     const activeChildren = children.filter(c => c.treatmentPhase === 'active').length;
 
     return { totalSessions, avgProgress, totalStreak, activeChildren };
-  }, [children, sessionMetrics]);
+  }, [children, hasApiChildren, sessionMetrics]);
 
   if (!hasAccess) {
     return (
