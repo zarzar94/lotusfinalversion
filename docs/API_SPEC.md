@@ -50,6 +50,8 @@
 - `POST /sync` (auth) ? `SyncRequest/Response`. `src/services/api.ts:524`, `src/types/api.ts:393`
 - `GET /sync/last` (auth). `src/services/api.ts:531`
 - `conflicts[]` includes `field`, `resolution` (`local|server|merge`), `localUpdatedAt`, `serverUpdatedAt`. `src/types/api.ts:411`, `backend/src/routes/sync.js:408`
+- Sync retries gamification merges on optimistic concurrency errors and persists via `findOneAndUpdate` + `$set`. `backend/src/routes/sync.js:390`, `backend/src/routes/sync.js:419`
+- Client-side sync calls are serialized per tab to avoid overlapping `POST /sync`. `src/context/SyncContext.tsx:95`
 - Settings resolution uses `updatedAt` plus `lotus_language_updated_at` / `lotus_visitor_mode_updated_at` to pick local/server. `src/context/SyncContext.tsx:212`, `src/context/LanguageContext.tsx:100`, `src/context/VisitorModeContext.tsx:130`
 - Clinical + gamification merge with union/max and return `merge` conflict when both sides changed. `backend/src/routes/sync.js:402`, `backend/src/routes/sync.js:447`
 

@@ -41,6 +41,7 @@
 - ???? ?? `SyncContext` ??? ????? ???????. `src/context/SyncContext.tsx:103`
 - Conflict check: change settings/language in two sessions, run `/sync`, verify `conflicts[]` includes `resolution` + timestamps and the latest settings apply. `backend/src/routes/sync.js:473`, `src/context/SyncContext.tsx:193`
 - Gamification merge: unlock achievements offline in two sessions, sync, confirm union lists/points + `merge` conflict. `backend/src/routes/sync.js:432`, `src/context/GamificationContext.tsx:545`
+- Sync retry: trigger overlapping sync requests (rapid refresh or multi-tab) and confirm `/sync` stays 200 with merged gamification (no VersionError). `backend/src/routes/sync.js:390`, `backend/src/routes/sync.js:419`, `src/context/SyncContext.tsx:95`
 - Clinical merge: complete sessions offline, sync, confirm sessionDates union + max counters. `backend/src/routes/sync.js:390`
 ## ?????? Seed (Smoke Test)
 - `npm run seed` ???? Lotus School ????? parent->patient. `backend/src/utils/seed.js`
