@@ -9,7 +9,7 @@ import {
   brandPink,
   brandPurple,
   colors,
-  performanceBands,
+  labTech,
   radius,
   spacing,
   typography,
@@ -29,16 +29,32 @@ type ChartPoint = {
 
 type EarMode = 'combined' | 'left' | 'right' | 'balance';
 
+const hexToRgba = (hex: string, alpha: number) => {
+  if (!hex.startsWith('#')) return hex;
+  let value = hex.slice(1);
+  if (value.length === 3) {
+    value = value
+      .split('')
+      .map((char) => char + char)
+      .join('');
+  }
+  if (value.length !== 6) return hex;
+  const r = Number.parseInt(value.slice(0, 2), 16);
+  const g = Number.parseInt(value.slice(2, 4), 16);
+  const b = Number.parseInt(value.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 const bandColors: Record<LabModuleMetrics['band'], string> = {
-  high: performanceBands.high.stroke,
-  mid: performanceBands.mid.stroke,
-  low: performanceBands.low.stroke,
+  high: colors.success,
+  mid: colors.warning,
+  low: colors.error,
 };
 
 const bandBackgrounds = [
-  { min: 70, max: 100, color: performanceBands.high.fill },
-  { min: 40, max: 70, color: performanceBands.mid.fill },
-  { min: 0, max: 40, color: performanceBands.low.fill },
+  { min: 70, max: 100, color: hexToRgba(colors.success, 0.08) },
+  { min: 40, max: 70, color: hexToRgba(colors.warning, 0.08) },
+  { min: 0, max: 40, color: hexToRgba(colors.error, 0.08) },
 ];
 
 const VIEWBOX_W = 100;
@@ -638,7 +654,21 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             </div>
           ) : null}
         </div>
-        <svg width="100%" height={lineHeight} viewBox={`0 0 ${VIEWBOX_W} ${lineHeight}`} preserveAspectRatio="none">
+        <svg
+          width="100%"
+          height={lineHeight}
+          viewBox={`0 0 ${VIEWBOX_W} ${lineHeight}`}
+          preserveAspectRatio="none"
+          role="img"
+          aria-label={t('dashboard.scoreTrendAria', 'Score trend chart')}
+        >
+          <defs>
+            <linearGradient id="scoreLineGlow" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor={brandCyan} stopOpacity="0.15" />
+              <stop offset="50%" stopColor={brandCyan} stopOpacity="0.45" />
+              <stop offset="100%" stopColor={brandCyan} stopOpacity="0.15" />
+            </linearGradient>
+          </defs>
           {bandBackgrounds.map((band) => {
             const top = valueToY(band.max, lineHeight);
             const bottom = valueToY(band.min, lineHeight);
@@ -654,6 +684,23 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             );
           })}
 
+          {Array.from({ length: 6 }).map((_, index) => {
+            const x = VIEWBOX_PADDING_X + (index * (VIEWBOX_W - VIEWBOX_PADDING_X * 2)) / 5;
+            return (
+              <line
+                key={`grid-x-${index}`}
+                x1={x}
+                y1={VIEWBOX_PADDING_Y}
+                x2={x}
+                y2={lineHeight - VIEWBOX_BOTTOM_OFFSET}
+                stroke={labTech.borders.subtle}
+                strokeWidth={0.4}
+                strokeDasharray="1,6"
+                opacity={0.6}
+              />
+            );
+          })}
+
           {[0, 25, 50, 75, 100].map((pct) => {
             const y = valueToY(pct, lineHeight);
             return (
@@ -663,7 +710,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                 y1={y}
                 x2={VIEWBOX_W - VIEWBOX_PADDING_X}
                 y2={y}
-                stroke={colors.border.subtle}
+                stroke={labTech.borders.subtle}
                 strokeWidth={0.4}
                 strokeDasharray="2,2"
               />
@@ -694,6 +741,15 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             />
           ) : null}
 
+          <path
+            d={scorePath}
+            fill="none"
+            stroke="url(#scoreLineGlow)"
+            strokeWidth={4.2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity={0.7}
+          />
           <path
             d={scorePath}
             fill="none"
@@ -734,6 +790,8 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                 fill={colors.surface.base}
                 stroke={bandColors[point.band]}
                 strokeWidth={1.4}
+                tabIndex={0}
+                aria-label={point.tooltip}
                 onMouseEnter={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `score-${index}`, 'score')}
                 onFocus={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `score-${index}`, 'score')}
                 onMouseLeave={clearTooltip}
@@ -827,7 +885,31 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
           >
             {t('dashboard.fatigueTrendTitle', 'Fatigue Index')}
           </div>
-          <svg width="100%" height={FATIGUE_VIEWBOX_H} viewBox={`0 0 ${VIEWBOX_W} ${FATIGUE_VIEWBOX_H}`} preserveAspectRatio="none">
+          <svg
+            width="100%"
+            height={FATIGUE_VIEWBOX_H}
+            viewBox={`0 0 ${VIEWBOX_W} ${FATIGUE_VIEWBOX_H}`}
+            preserveAspectRatio="none"
+            role="img"
+            aria-label={t('dashboard.fatigueTrendAria', 'Fatigue trend chart')}
+          >
+            {Array.from({ length: 6 }).map((_, index) => {
+              const x = VIEWBOX_PADDING_X + (index * (VIEWBOX_W - VIEWBOX_PADDING_X * 2)) / 5;
+              return (
+                <line
+                  key={`fatigue-grid-x-${index}`}
+                  x1={x}
+                  y1={VIEWBOX_PADDING_Y}
+                  x2={x}
+                  y2={FATIGUE_VIEWBOX_H - VIEWBOX_BOTTOM_OFFSET}
+                  stroke={labTech.borders.subtle}
+                  strokeWidth={0.4}
+                  strokeDasharray="1,6"
+                  opacity={0.6}
+                />
+              );
+            })}
+
             {[0, 25, 50, 75, 100].map((pct) => {
               const y = valueToY(pct, FATIGUE_VIEWBOX_H);
               return (
@@ -837,7 +919,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                   y1={y}
                   x2={VIEWBOX_W - VIEWBOX_PADDING_X}
                   y2={y}
-                  stroke={colors.border.subtle}
+                  stroke={labTech.borders.subtle}
                   strokeWidth={0.4}
                   strokeDasharray="2,2"
                 />
@@ -858,6 +940,8 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                   height={barHeight}
                   rx={1.6}
                   fill={brandPurple}
+                  tabIndex={0}
+                  aria-label={point.tooltip}
                   onMouseEnter={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `fatigue-${index}`, 'fatigue')}
                   onFocus={(event) => setTooltipFromEvent(event, point.tooltip, point.label, `fatigue-${index}`, 'fatigue')}
                   onMouseLeave={clearTooltip}
