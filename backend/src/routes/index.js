@@ -8,3 +8,5 @@ export { default as gamificationRoutes } from './gamification.js';
 export { default as settingsRoutes } from './settings.js';
 export { default as sessionsRoutes } from './sessions.js';
 export { default as syncRoutes } from './sync.js';
+export { default as notesRoutes } from './notes.js';
+export { default as signaturesRoutes } from './signatures.js';

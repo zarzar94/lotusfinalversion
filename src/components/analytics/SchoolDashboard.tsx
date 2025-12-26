@@ -1,6 +1,7 @@
 import { useState, useMemo, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
+import { useSessionMetrics } from '../../hooks/useSessionMetrics';
 import {
   BackNavigation,
   SectionNav,
@@ -332,6 +333,7 @@ export default function SchoolDashboard() {
   const { isArabic, direction, t } = useLanguage();
   const { user } = useUser();
   const hasAccess = usePermission('school_analytics');
+  const { sessions: sessionMetrics } = useSessionMetrics();
   const [filter, setFilter] = useState<'all' | 'at_risk' | 'on_track' | 'completed'>('all');
 
   const filteredStudents = useMemo(() => {
@@ -343,11 +345,22 @@ export default function SchoolDashboard() {
     const totalStudents = MOCK_STUDENTS.length;
     const completed = MOCK_STUDENTS.filter(s => s.status === 'completed').length;
     const atRisk = MOCK_STUDENTS.filter(s => s.status === 'at_risk').length;
-    const avgAttention = Math.round(MOCK_STUDENTS.reduce((sum, s) => sum + s.attentionScore, 0) / totalStudents);
-    const avgProgress = Math.round(MOCK_STUDENTS.reduce((sum, s) => sum + (s.sessionsCompleted / s.totalSessions) * 100, 0) / totalStudents);
+    const attentionSessions = sessionMetrics.filter((session) => session.moduleId === 'attention');
+    const avgAttentionFromSessions = attentionSessions.length > 0
+      ? Math.round(attentionSessions.reduce((sum, s) => sum + s.score100, 0) / attentionSessions.length)
+      : null;
+    const avgProgressFromSessions = sessionMetrics.length > 0
+      ? Math.round(sessionMetrics.reduce((sum, s) => sum + s.score100, 0) / sessionMetrics.length)
+      : null;
+    const avgAttention = avgAttentionFromSessions ?? Math.round(
+      MOCK_STUDENTS.reduce((sum, s) => sum + s.attentionScore, 0) / totalStudents
+    );
+    const avgProgress = avgProgressFromSessions ?? Math.round(
+      MOCK_STUDENTS.reduce((sum, s) => sum + (s.sessionsCompleted / s.totalSessions) * 100, 0) / totalStudents
+    );
 
     return { totalStudents, completed, atRisk, avgAttention, avgProgress };
-  }, []);
+  }, [sessionMetrics]);
 
   if (!hasAccess) {
     return (

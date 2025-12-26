@@ -27,6 +27,8 @@ import {
   settingsRoutes,
   sessionsRoutes,
   syncRoutes,
+  notesRoutes,
+  signaturesRoutes,
 } from './routes/index.js';
 import passwordRoutes from './routes/password.js';
 import uploadRoutes from './routes/upload.js';
@@ -117,6 +119,8 @@ app.use('/api/gamification', gamificationRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/sessions', sessionsRoutes);
 app.use('/api/sync', syncRoutes);
+app.use('/api/notes', notesRoutes);
+app.use('/api/signatures', signaturesRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 

@@ -261,6 +261,33 @@ export interface SessionsListResponse {
   error?: string;
 }
 
+export interface SessionAnalysisOverview {
+  totalSessions: number;
+  lastSession?: AssessmentSession;
+  averagePoints: number;
+}
+
+export interface SessionTrendPoint {
+  date: number;
+  result: GameResult;
+  scoreLabel: string;
+}
+
+export interface SessionProgressTrend {
+  testKey: string;
+  sessions: SessionTrendPoint[];
+  improvement: number;
+  trend: 'improving' | 'declining' | 'stable';
+}
+
+export interface SessionAnalysisResponse {
+  success: boolean;
+  overview?: SessionAnalysisOverview;
+  trend?: SessionProgressTrend | null;
+  message?: string;
+  error?: string;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // SYNC TYPES
 // ═══════════════════════════════════════════════════════════════════════════

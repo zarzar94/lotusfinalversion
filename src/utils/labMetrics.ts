@@ -1,4 +1,5 @@
-import type { GameResult, TestOutcome } from '../components/games/types';
+import type { GameResult, TestKey, TestMetrics, TestOutcome } from '../components/games/types';
+import type { TestOutcome as ApiTestOutcome } from '../types/api';
 import type { LabModuleMetrics, SessionQualityFlag } from '../types/moduleMetrics';
 import { normalizeQualityFlagCollection } from './qualityFlags';
 
@@ -58,13 +59,11 @@ const extractScoreFromLabel = (scoreLabel: string): number | null => {
   return null;
 };
 
-const deriveScore100 = (outcome: TestOutcome): number => {
-  const metrics = outcome.metrics as Record<string, unknown>;
-
+const deriveScore100FromData = (metrics: Record<string, unknown>, scoreLabel: string): number => {
   const direct = getNumericMetric(metrics, 'score100');
   if (direct !== null) return clampScore(direct);
 
-  const fromLabel = extractScoreFromLabel(outcome.scoreLabel);
+  const fromLabel = extractScoreFromLabel(scoreLabel);
   if (fromLabel !== null && Number.isFinite(fromLabel)) {
     return clampScore(fromLabel);
   }
@@ -83,6 +82,11 @@ const deriveScore100 = (outcome: TestOutcome): number => {
   }
 
   return 0;
+};
+
+const deriveScore100 = (outcome: TestOutcome): number => {
+  const metrics = outcome.metrics as Record<string, unknown>;
+  return deriveScore100FromData(metrics, outcome.scoreLabel);
 };
 
 const deriveConsistency = (metrics: Record<string, unknown>): number | undefined => {
@@ -120,6 +124,35 @@ export const buildLabMetrics = (outcome: TestOutcome): LabModuleMetrics => {
     metrics: outcome.metrics,
     trials: outcome.trials,
     score100: deriveScore100(outcome),
+    band: resultToBand(outcome.result),
+    fatigueIndex: fatigueScore !== null ? clampScore(fatigueScore) : undefined,
+    fatigueSlope: fatigueSlope !== null ? fatigueSlope : undefined,
+    consistency: deriveConsistency(metrics),
+    notes,
+    qualityFlags,
+  };
+};
+
+export const buildLabMetricsFromApiOutcome = (
+  moduleId: TestKey | 'unknown',
+  outcome: ApiTestOutcome,
+  timestamp?: number,
+): LabModuleMetrics => {
+  const metrics = (outcome.metrics && typeof outcome.metrics === 'object'
+    ? outcome.metrics
+    : {}) as Record<string, unknown>;
+  const rawMetrics = extractNumericMetrics(metrics);
+  const fatigueScore = getNumericMetric(metrics, 'fatigueScore');
+  const fatigueSlope = getNumericMetric(metrics, 'fatigueSlope');
+  const notes = typeof metrics.note === 'string' ? metrics.note : undefined;
+  const qualityFlags = extractQualityFlags(metrics);
+
+  return {
+    moduleId,
+    timestamp: new Date(timestamp ?? Date.now()).toISOString(),
+    rawMetrics,
+    metrics: (outcome.metrics ?? {}) as TestMetrics,
+    score100: deriveScore100FromData(metrics, outcome.scoreLabel),
     band: resultToBand(outcome.result),
     fatigueIndex: fatigueScore !== null ? clampScore(fatigueScore) : undefined,
     fatigueSlope: fatigueSlope !== null ? fatigueSlope : undefined,

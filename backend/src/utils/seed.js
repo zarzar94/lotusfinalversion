@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -93,10 +92,9 @@ async function seedUsers() {
   const createdUsers = [];
 
   for (const userData of users) {
-    const hashedPassword = await bcrypt.hash(userData.password, 12);
     const user = await User.create({
       ...userData,
-      password: hashedPassword,
+      password: userData.password,
       isVerified: true,
       createdAt: new Date(),
       updatedAt: new Date(),

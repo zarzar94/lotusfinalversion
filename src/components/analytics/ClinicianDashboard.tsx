@@ -1,6 +1,8 @@
-import { useState, useMemo, useCallback, memo } from 'react';
+import { useState, useMemo, useCallback, useEffect, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
+import { getToken, sessionsApi } from '../../services/api';
+import type { SessionProgressTrend } from '../../types/api';
 import {
   BackNavigation,
   SectionNav,
@@ -749,12 +751,14 @@ ScoreComparisonCard.displayName = 'ScoreComparisonCard';
 
 export default function ClinicianDashboard() {
   const { isArabic, direction, t } = useLanguage();
-  const { user } = useUser();
+  const { user, isAuthenticated, isOnline } = useUser();
   const hasAccess = usePermission('view_patient_reports');
   const [selectedPatient, setSelectedPatient] = useState<PatientData | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPhase, setFilterPhase] = useState<string>('all');
   const [trendModule, setTrendModule] = useState<'attention' | 'frequency' | 'sequence' | 'questionnaire'>('attention');
+  const [analysis, setAnalysis] = useState<SessionProgressTrend | null>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
 
   const filteredPatients = useMemo(() => {
     return MOCK_PATIENTS.filter((patient) => {
@@ -766,15 +770,49 @@ export default function ClinicianDashboard() {
     });
   }, [searchTerm, filterPhase]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const token = getToken();
+
+    if (!token || !isAuthenticated || !isOnline) {
+      setAnalysis(null);
+      setAnalysisLoading(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    setAnalysisLoading(true);
+    sessionsApi.getProgressAnalysis(trendModule)
+      .then((response) => {
+        if (cancelled) return;
+        setAnalysis(response.success ? response.trend ?? null : null);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setAnalysis(null);
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setAnalysisLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [trendModule, isAuthenticated, isOnline]);
+
   const stats = useMemo(() => {
     const total = MOCK_PATIENTS.length;
     const active = MOCK_PATIENTS.filter((p) => p.treatmentPhase === 'active').length;
     const completed = MOCK_PATIENTS.filter((p) => p.treatmentPhase === 'completed').length;
-    const avgImprovement = Math.round(
-      MOCK_PATIENTS.reduce((sum, p) => sum + (p.attentionScore - p.attentionBaseline), 0) / total
-    );
+    const avgImprovement = analysis
+      ? analysis.improvement
+      : Math.round(
+        MOCK_PATIENTS.reduce((sum, p) => sum + (p.attentionScore - p.attentionBaseline), 0) / total
+      );
     return { total, active, completed, avgImprovement };
-  }, []);
+  }, [analysis]);
 
   if (!hasAccess) {
     return (
@@ -878,7 +916,7 @@ export default function ClinicianDashboard() {
           <StatCard
             variant="horizontal"
             label={t('auto.ClinicianDashboard.k22', "Avg Improvement")}
-            value={`+${stats.avgImprovement}%`}
+            value={analysisLoading ? '...' : `+${stats.avgImprovement}%`}
             icon="📈"
             color="#f59e0b"
           />

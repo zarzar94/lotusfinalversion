@@ -50,6 +50,18 @@ export const createIndexes = async () => {
       { key: { compositeResult: 1 }, sparse: true, name: 'result_idx' },
     ]);
 
+    // Notes indexes
+    await db.collection('notes').createIndexes([
+      { key: { patientId: 1, createdAt: -1 }, name: 'patient_date_idx' },
+      { key: { authorId: 1, createdAt: -1 }, name: 'author_date_idx' },
+    ]);
+
+    // Signatures indexes
+    await db.collection('signatures').createIndexes([
+      { key: { userId: 1, signedAt: -1 }, name: 'user_signed_idx' },
+      { key: { patientId: 1, signedAt: -1 }, name: 'patient_signed_idx' },
+    ]);
+
     console.log('✓ MongoDB indexes created successfully');
   } catch (error) {
     console.error('Failed to create indexes:', error);

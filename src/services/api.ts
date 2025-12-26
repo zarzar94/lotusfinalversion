@@ -25,6 +25,7 @@ import type {
   SaveSessionRequest,
   SessionResponse,
   SessionsListResponse,
+  SessionAnalysisResponse,
   SyncRequest,
   SyncResponse,
 } from '../types/api';
@@ -472,6 +473,14 @@ export const sessionsApi = {
     return fetchWithAuth(`/sessions/${sessionId}`, {
       method: 'DELETE',
     });
+  },
+
+  getProgressAnalysis: async (testKey?: string): Promise<SessionAnalysisResponse> => {
+    const params = new URLSearchParams();
+    if (testKey) params.set('testKey', testKey);
+    const query = params.toString();
+    const endpoint = query ? `/sessions/analysis/progress?${query}` : '/sessions/analysis/progress';
+    return fetchWithAuth<SessionAnalysisResponse>(endpoint);
   },
 };
 

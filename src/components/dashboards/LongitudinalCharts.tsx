@@ -1,7 +1,7 @@
 import type React from 'react';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { getAllSessions } from '../../utils/sessionStorage';
+import { useSessionMetrics } from '../../hooks/useSessionMetrics';
 import type { LabModuleMetrics, SessionQualityFlag } from '../../types/moduleMetrics';
 import {
   analytics,
@@ -238,9 +238,9 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   const [showRolling, setShowRolling] = useState(true);
   const [showBestMarker, setShowBestMarker] = useState(true);
   const [earMode, setEarMode] = useState<EarMode>('combined');
+  const { sessions: allSessions, isLoading } = useSessionMetrics();
 
   const sessions = useMemo(() => {
-    const allSessions = getAllSessions();
     return allSessions
       .filter((session) => session.moduleId === moduleId)
       .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
@@ -429,6 +429,24 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   }, [baselineScore, rollingScores, scoredSessions, sessions]);
 
   if (scoredSessions.length === 0) {
+    if (isLoading) {
+      return (
+        <div
+          style={{
+            padding: spacing[5],
+            borderRadius: radius.xl,
+            border: `1px solid ${colors.border.default}`,
+            background: colors.surface.card,
+            textAlign: 'center',
+          }}
+        >
+          <div style={{ fontSize: typography.size.sm, color: colors.text.muted }}>
+            {t('dashboard.loadingHistory', 'Loading session history...')}
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div
         style={{

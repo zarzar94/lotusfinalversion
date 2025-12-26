@@ -1,6 +1,7 @@
 import { useState, useMemo, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
+import { useSessionMetrics } from '../../hooks/useSessionMetrics';
 import {
   BackNavigation,
   SectionNav,
@@ -34,6 +35,7 @@ import {
   analytics,
 } from '../../styles';
 import LongitudinalCharts from '../dashboards/LongitudinalCharts';
+import type { LabModuleMetrics } from '../../types/moduleMetrics';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -144,6 +146,35 @@ const getMilestones = (sessions: number): Milestone[] => [
     points: 300,
   },
 ];
+
+const getStreakDaysFromSessions = (sessions: LabModuleMetrics[]): number => {
+  if (sessions.length === 0) return 0;
+  const uniqueDates = Array.from(new Set(
+    sessions.map((session) => new Date(session.timestamp).toDateString())
+  ));
+  if (uniqueDates.length === 0) return 0;
+
+  const sortedDates = uniqueDates
+    .map((date) => new Date(date).getTime())
+    .sort((a, b) => b - a);
+
+  const today = new Date().toDateString();
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  const latest = new Date(sortedDates[0]).toDateString();
+
+  if (latest !== today && latest !== yesterday) return 0;
+
+  let streak = 1;
+  for (let i = 1; i < sortedDates.length; i += 1) {
+    const diffDays = Math.round((sortedDates[i - 1] - sortedDates[i]) / 86400000);
+    if (diffDays === 1) {
+      streak += 1;
+    } else {
+      break;
+    }
+  }
+  return streak;
+};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CHILD PROGRESS CARD
@@ -541,6 +572,7 @@ export default function ParentDashboard() {
   const { isArabic, direction, t } = useLanguage();
   const { user } = useUser();
   const hasAccess = usePermission('view_child_reports');
+  const { sessions: sessionMetrics } = useSessionMetrics();
   const [expandedChild, setExpandedChild] = useState<string | null>(MOCK_CHILDREN[0]?.id || null);
 
   const children = useMemo(() => {
@@ -549,6 +581,17 @@ export default function ParentDashboard() {
   }, []);
 
   const overallStats = useMemo(() => {
+    if (sessionMetrics.length > 0) {
+      const totalSessions = sessionMetrics.length;
+      const avgProgress = Math.round(
+        sessionMetrics.reduce((sum, session) => sum + session.score100, 0) / totalSessions
+      );
+      const totalStreak = getStreakDaysFromSessions(sessionMetrics);
+      const activeChildren = children.filter(c => c.treatmentPhase === 'active').length;
+
+      return { totalSessions, avgProgress, totalStreak, activeChildren };
+    }
+
     const totalSessions = children.reduce((sum, c) => sum + c.sessionsCompleted, 0);
     const avgProgress = Math.round(
       children.reduce((sum, c) => sum + (c.sessionsCompleted / c.totalSessions) * 100, 0) / children.length
@@ -557,7 +600,7 @@ export default function ParentDashboard() {
     const activeChildren = children.filter(c => c.treatmentPhase === 'active').length;
 
     return { totalSessions, avgProgress, totalStreak, activeChildren };
-  }, [children]);
+  }, [children, sessionMetrics]);
 
   if (!hasAccess) {
     return (
