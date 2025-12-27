@@ -19,7 +19,7 @@ import {
   shadows,
   transitions,
 } from './styles';
-import { renderLabIcon, BrainCircuitIcon, SparklesIcon } from './icons';
+import { renderLabIcon, BrainCircuitIcon, SparklesIcon } from './icons/index';
 
 const WELCOME_STORAGE_KEY = 'lotus_welcome_shown';
 
@@ -385,7 +385,7 @@ const WelcomeModal = memo(({ forceShow = false, onClose }: WelcomeModalProps) =>
                             fontSize: 14,
                           }}
                         >
-                          ✓
+                          {renderLabIcon('\u2713', { size: 14, tone: 'success' })}
                         </div>
                       )}
 
@@ -508,7 +508,7 @@ const WelcomeModal = memo(({ forceShow = false, onClose }: WelcomeModalProps) =>
                     animation: 'successPop 0.5s ease-out',
                   }}
                 >
-                  ✓
+                  {renderLabIcon('\u2713', { size: 40, tone: 'success' })}
                 </div>
 
                 <h2

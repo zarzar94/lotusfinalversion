@@ -15,7 +15,7 @@ import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
-import { BrainCircuitIcon } from '../components/icons';
+import { BrainCircuitIcon } from '../components/icons/index';
 import {
   brandPink,
   colors,

@@ -13,6 +13,7 @@ import {
   shadows,
   transitions,
 } from '../styles';
+import { renderLabIcon } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -33,8 +34,8 @@ const DEMO_ACCOUNTS: { role: UserRole; email: string; label: string; labelAr: st
   { role: 'patient', email: 'demo@patient.com', label: 'Patient', labelAr: 'auto.LoginModal.k17', icon: '👤', color: brandCyan, description: 'Track your AIT sessions', descriptionAr: 'auto.LoginModal.k18' },
   { role: 'parent', email: 'demo@parent.com', label: 'Parent', labelAr: 'auto.LoginModal.k19', icon: '👨‍👩‍👧', color: brandPurple, description: 'Monitor children progress', descriptionAr: 'auto.LoginModal.k20' },
   { role: 'clinician', email: 'demo@clinician.com', label: 'Clinician', labelAr: 'auto.LoginModal.k21', icon: '👨‍⚕️', color: brandPink, description: 'Manage patient records', descriptionAr: 'auto.LoginModal.k22' },
-  { role: 'school_admin', email: 'demo@school.com', label: 'School Admin', labelAr: 'auto.LoginModal.k23', icon: '🏫', color: '#f59e0b', description: 'View school analytics', descriptionAr: 'auto.LoginModal.k24' },
-  { role: 'super_admin', email: 'demo@admin.com', label: 'Admin', labelAr: 'auto.LoginModal.k25', icon: '⚙️', color: '#ef4444', description: 'Full system access', descriptionAr: 'auto.LoginModal.k26' },
+  { role: 'school_admin', email: 'demo@school.com', label: 'School Admin', labelAr: 'auto.LoginModal.k23', icon: '🏫', color: colors.warning, description: 'View school analytics', descriptionAr: 'auto.LoginModal.k24' },
+  { role: 'super_admin', email: 'demo@admin.com', label: 'Admin', labelAr: 'auto.LoginModal.k25', icon: '⚙️', color: colors.error, description: 'Full system access', descriptionAr: 'auto.LoginModal.k26' },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -220,7 +221,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
             transition: transitions.fast,
           }}
         >
-          ✕
+          {renderLabIcon('✕', { size: 12, tone: 'muted' })}
         </button>
 
         <div className="login-modal-content" style={{ padding: spacing[6] }}>
@@ -240,7 +241,9 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 fontSize: 28,
               }}
             >
-              {mode === 'demo' ? '🎮' : '🔐'}
+              {mode === 'demo'
+                ? renderLabIcon('🎮', { size: 24, tone: 'cyan' })
+                : renderLabIcon('🔐', { size: 24, tone: 'cyan' })}
             </div>
             <h2
               style={{
@@ -288,7 +291,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
                       fontSize: 22,
                     }}
                   >
-                    {account.icon}
+                    {renderLabIcon(account.icon, { size: 22, style: { color: account.color } })}
                   </div>
                   <div style={{ textAlign: isArabic ? 'right' : 'left', flex: 1 }}>
                     <div
@@ -453,7 +456,7 @@ function LoginModal({ isOpen, onClose }: LoginModalProps) {
                     background: 'rgba(239,68,68,0.1)',
                     border: '1px solid rgba(239,68,68,0.3)',
                     borderRadius: radius.md,
-                    color: '#ef4444',
+                    color: colors.error,
                     fontSize: typography.size.sm,
                     marginBottom: spacing[4],
                   }}

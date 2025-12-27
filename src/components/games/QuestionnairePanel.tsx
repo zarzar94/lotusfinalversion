@@ -114,7 +114,7 @@ export default function QuestionnairePanel({
             ) : null}
           </div>
 
-          {submitted ? <div style={{ marginTop: 10, color: brandCyan, fontWeight: 900, textAlign: 'center' }}>تم الحفظ ✅</div> : null}
+          {submitted ? <div style={{ marginTop: 10, color: brandCyan, fontWeight: 900, textAlign: 'center' }}>تم الحفظ</div> : null}
         </div>
       </PracticeTrialsStep>
     </ModuleFrame>

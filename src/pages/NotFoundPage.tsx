@@ -13,7 +13,7 @@ import Footer from '../components/Footer';
 import WhatsAppFab from '../components/WhatsAppFab';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import FadeIn from '../components/FadeIn';
-import { renderLabIcon, HomeIcon, MailIcon, MapPinIcon } from '../components/icons';
+import { renderLabIcon, HomeIcon, MailIcon, MapPinIcon } from '../components/icons/index';
 import {
   brandCyan,
   brandPurple,

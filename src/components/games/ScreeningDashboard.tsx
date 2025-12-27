@@ -9,6 +9,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurple, colors, radius, spacing, typography, transitions, shadows, brandPurpleDark } from '../styles';
 import { getSessions, type StoredSession } from './scoring';
 import { resultMeta, type GameResult, type TestOutcome } from './types';
+import { renderLabIcon } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // GAUGE COMPONENT
@@ -35,10 +36,10 @@ const Gauge = memo(function Gauge({
   const progress = Math.min(100, Math.max(0, value));
   const offset = circumference - (progress / 100) * circumference;
 
-  const getResultLevel = (v: number): { labelEn: string; labelAr: string; emoji: string } => {
-    if (v >= 70) return { labelEn: 'Strong', labelAr: 'auto.ScreeningDashboard.k23', emoji: '⭐' };
-    if (v >= 40) return { labelEn: 'Moderate', labelAr: 'auto.ScreeningDashboard.k24', emoji: '◐' };
-    return { labelEn: 'Needs Attention', labelAr: 'auto.ScreeningDashboard.k25', emoji: '○' };
+  const getResultLevel = (v: number): { labelEn: string; labelAr: string; icon: string; tone: 'success' | 'warning' | 'error' } => {
+    if (v >= 70) return { labelEn: 'Strong', labelAr: 'auto.ScreeningDashboard.k23', icon: '✓', tone: 'success' };
+    if (v >= 40) return { labelEn: 'Moderate', labelAr: 'auto.ScreeningDashboard.k24', icon: '⚠️', tone: 'warning' };
+    return { labelEn: 'Needs Attention', labelAr: 'auto.ScreeningDashboard.k25', icon: '✕', tone: 'error' };
   };
 
   const level = getResultLevel(value);
@@ -100,7 +101,10 @@ const Gauge = memo(function Gauge({
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {level.emoji} {isArabic ? t(level.labelAr, level.labelEn) : level.labelEn}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+              {renderLabIcon(level.icon, { size: 12, tone: level.tone })}
+              <span>{isArabic ? t(level.labelAr, level.labelEn) : level.labelEn}</span>
+            </span>
           </div>
         </div>
       </div>
@@ -165,7 +169,7 @@ const TrendChart = memo(function TrendChart({
 
   const trend = data[data.length - 1] - data[0];
   const trendIcon = trend > 0 ? '↑' : trend < 0 ? '↓' : '→';
-  const trendColor = trend > 0 ? '#22c55e' : trend < 0 ? '#ef4444' : colors.text.muted;
+  const trendColor = trend > 0 ? colors.success : trend < 0 ? colors.error : colors.text.muted;
 
   return (
     <div>
@@ -279,7 +283,7 @@ const ResultCard = memo(function ResultCard({
         fontSize: 24,
         flexShrink: 0,
       }}>
-        {icon}
+        {renderLabIcon(icon, { size: 24, style: { color } })}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
@@ -319,7 +323,10 @@ const ResultCard = memo(function ResultCard({
           fontWeight: typography.weight.bold,
           flexShrink: 0,
         }}>
-          {result === 'high' ? '⭐' : result === 'medium' ? '◐' : '○'}
+          {renderLabIcon(
+            result === 'high' ? '✓' : result === 'medium' ? '⚠️' : '✕',
+            { size: 16, style: { color: '#fff' } },
+          )}
         </div>
       )}
     </div>
@@ -403,25 +410,22 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
   const insights = useMemo(() => {
     if (!metrics) return [];
 
-    const baseInsights: Array<{ icon: string; textEn: string; textAr: string; priority: 'info' | 'warning' | 'success' }> = [];
+    const baseInsights: Array<{ textEn: string; textAr: string; priority: 'info' | 'warning' | 'success' }> = [];
 
     if (metrics.overallAvg >= 70) {
       baseInsights.push({
-        icon: '⭐',
         textEn: 'Strong auditory processing indicators across tests.',
         textAr: 'auto.ScreeningDashboard.k26',
         priority: 'success',
       });
     } else if (metrics.overallAvg >= 40) {
       baseInsights.push({
-        icon: '◐',
         textEn: 'Mixed results suggest targeted evaluation may be beneficial.',
         textAr: 'auto.ScreeningDashboard.k27',
         priority: 'info',
       });
     } else if (metrics.totalTests > 0) {
       baseInsights.push({
-        icon: '⚠️',
         textEn: 'Results suggest professional auditory processing evaluation is recommended.',
         textAr: 'auto.ScreeningDashboard.k28',
         priority: 'warning',
@@ -431,7 +435,6 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
     // Add visitor-specific insights
     if (isSchool) {
       baseInsights.push({
-        icon: '🏫',
         textEn: 'School screening data can be aggregated for classroom-level insights.',
         textAr: 'auto.ScreeningDashboard.k29',
         priority: 'info',
@@ -440,7 +443,6 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
 
     if (isParent && metrics.overallAvg < 50) {
       baseInsights.push({
-        icon: '📅',
         textEn: 'Consider booking a professional screening with our team.',
         textAr: 'auto.ScreeningDashboard.k30',
         priority: 'warning',
@@ -449,7 +451,6 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
 
     if (isClinician) {
       baseInsights.push({
-        icon: '📊',
         textEn: 'Raw data and detailed metrics available for clinical documentation.',
         textAr: 'auto.ScreeningDashboard.k31',
         priority: 'info',
@@ -486,7 +487,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
         border: `1px solid ${colors.border.default}`,
         textAlign: 'center',
       }}>
-        <div style={{ fontSize: 48, marginBottom: spacing[4] }}>📊</div>
+        <div style={{ fontSize: 48, marginBottom: spacing[4] }}>{renderLabIcon('\u{1F4CA}', { size: 40, tone: 'cyan' })}</div>
         <h3 style={{
           margin: `0 0 ${spacing[2]}px`,
           fontSize: typography.size.xl,
@@ -556,7 +557,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
               fontSize: 24,
               animation: 'pulseGlow 3s ease-in-out infinite',
             }}>
-              📈
+              {renderLabIcon('\u{1F4C8}', { size: 24, style: { color: config.color } })}
             </div>
             <div>
               <h3 style={{
@@ -700,36 +701,52 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                     fontWeight: typography.weight.bold,
                     color: config.color,
                   }}>
-                    {t('auto.ScreeningDashboard.k15', "💡 Personalized Insights")}
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+                      {renderLabIcon('\u{1F4A1}', { size: 16, tone: 'warning' })}
+                      <span>{t('auto.ScreeningDashboard.k15', "Personalized Insights")}</span>
+                    </span>
                   </h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[2] }}>
-                    {insights.map((insight, i) => (
-                      <div
-                        key={i}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: spacing[3],
-                          padding: spacing[3],
-                          background: insight.priority === 'warning'
-                            ? 'rgba(245,158,11,0.08)'
-                            : insight.priority === 'success'
-                              ? 'rgba(34,197,94,0.08)'
-                              : 'rgba(255,255,255,0.03)',
-                          borderRadius: radius.lg,
-                        }}
-                      >
-                        <span style={{ fontSize: 18 }}>{insight.icon}</span>
-                        <p style={{
-                          margin: 0,
-                          fontSize: typography.size.sm,
-                          color: colors.text.secondary,
-                          lineHeight: typography.lineHeight.relaxed,
-                        }}>
-                          {isArabic ? t(insight.textAr, insight.textEn) : insight.textEn}
-                        </p>
-                      </div>
-                    ))}
+                    {insights.map((insight, i) => {
+                      const insightTone = insight.priority === 'success'
+                        ? 'success'
+                        : insight.priority === 'warning'
+                          ? 'warning'
+                          : 'cyan';
+                      const insightIcon = insight.priority === 'success'
+                        ? '✓'
+                        : insight.priority === 'warning'
+                          ? '⚠️'
+                          : '\u{1F4A1}';
+
+                      return (
+                        <div
+                          key={i}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: spacing[3],
+                            padding: spacing[3],
+                            background: insight.priority === 'warning'
+                              ? 'rgba(245,158,11,0.08)'
+                              : insight.priority === 'success'
+                                ? 'rgba(34,197,94,0.08)'
+                                : 'rgba(255,255,255,0.03)',
+                            borderRadius: radius.lg,
+                          }}
+                        >
+                          <span style={{ fontSize: 18 }}>{renderLabIcon(insightIcon, { size: 18, tone: insightTone })}</span>
+                          <p style={{
+                            margin: 0,
+                            fontSize: typography.size.sm,
+                            color: colors.text.secondary,
+                            lineHeight: typography.lineHeight.relaxed,
+                          }}>
+                            {isArabic ? t(insight.textAr, insight.textEn) : insight.textEn}
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -807,7 +824,10 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                             fontSize: 12,
                           }}
                         >
-                          {o.result === 'high' ? '⭐' : o.result === 'medium' ? '◐' : '○'}
+                          {renderLabIcon(
+                            o.result === 'high' ? '✓' : o.result === 'medium' ? '⚠️' : '✕',
+                            { size: 12, style: { color: resultMeta[o.result].color } },
+                          )}
                         </div>
                       ))}
                     </div>
@@ -882,7 +902,10 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
             fontSize: typography.size.xs,
             color: colors.text.muted,
           }}>
-            {t('auto.ScreeningDashboard.k22', "⚕️ These are non-diagnostic screening results")}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+              {renderLabIcon('\u2695', { size: 16, tone: 'muted' })}
+              <span>{t('auto.ScreeningDashboard.k22', "These are non-diagnostic screening results")}</span>
+            </span>
           </p>
           <a
             href={config.ctaPath}

@@ -19,7 +19,7 @@ import {
   buttons,
   dashboardExport,
 } from '../styles';
-import { renderLabIcon, ChecklistIcon, ReportIcon, DownloadIcon } from './icons';
+import { renderLabIcon, ChecklistIcon, ReportIcon, DownloadIcon } from './icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -522,7 +522,7 @@ export const ReportsExport: React.FC<ReportsExportProps> = ({
                     ...(isSelected ? styles.checkboxChecked : {}),
                   }}
                 >
-                  {isSelected ? '✓' : ''}
+                  {isSelected ? renderLabIcon('\u2713', { size: 12, tone: 'success' }) : null}
                 </div>
                 <div style={styles.sectionContent}>
                   <div style={styles.sectionName}>
@@ -603,9 +603,19 @@ export const ReportsExport: React.FC<ReportsExportProps> = ({
           onClick={handleExport}
           disabled={isExporting}
         >
-          {isExporting
-            ? isArabic ? '⏳ جاري التصدير...' : '⏳ Exporting...'
-            : isArabic ? `📥 تصدير ${reportFormats.find(f => f.id === selectedFormat)?.name}` : `📥 Export ${reportFormats.find(f => f.id === selectedFormat)?.name}`}
+          {isExporting ? (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              {renderLabIcon('\u{23F3}', { size: 16, tone: 'muted' })}
+              {isArabic ? 'جاري التصدير...' : 'Exporting...'}
+            </span>
+          ) : (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <DownloadIcon size={16} tone="cyan" />
+              {isArabic
+                ? `تصدير ${reportFormats.find(f => f.id === selectedFormat)?.name}`
+                : `Export ${reportFormats.find(f => f.id === selectedFormat)?.name}`}
+            </span>
+          )}
         </button>
       </div>
     </div>

@@ -3,6 +3,8 @@ import { translations } from '../i18n/translations';
 import { detectPreferredLanguage, LANGUAGE_STORAGE_KEY, LANGUAGE_UPDATED_AT_KEY } from '../utils/language';
 import { safeStorage } from '../utils/storage';
 import { notifyLocalChange } from '../utils/sync';
+import { colors } from '../components/styles';
+import { BrainCircuitIcon } from '../components/icons/index';
 
 export type Language = 'ar' | 'en';
 export type Direction = 'rtl' | 'ltr';
@@ -274,8 +276,8 @@ function LanguageSelectionOverlay({ onSelect, currentLanguage }: LanguageSelecti
             width: 8,
             height: 8,
             borderRadius: '50%',
-            background: '#22c55e',
-            boxShadow: '0 0 10px #22c55e',
+            background: colors.success,
+            boxShadow: `0 0 10px ${colors.success}`,
             animation: 'pulse 2s ease-in-out infinite',
           }} />
           <span style={{
@@ -295,7 +297,7 @@ function LanguageSelectionOverlay({ onSelect, currentLanguage }: LanguageSelecti
           marginBottom: 16,
           filter: 'drop-shadow(0 0 20px rgba(143,211,204,0.4))',
         }}>
-          🧠
+          <BrainCircuitIcon size={48} tone="cyan" />
         </div>
 
         <h1 style={{

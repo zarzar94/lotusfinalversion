@@ -17,6 +17,7 @@ import {
   radius,
   shadows,
 } from './styles';
+import { renderLabIcon } from './icons/index';
 
 // Mode configurations with enhanced lab-tech styling
 const MODE_CONFIGS: Record<VisitorMode, {
@@ -48,8 +49,8 @@ const MODE_CONFIGS: Record<VisitorMode, {
   },
   school: {
     icon: '🏫',
-    color: '#f59e0b',
-    gradient: `linear-gradient(135deg, #f59e0b25, #f59e0b10)`,
+    color: colors.warning,
+    gradient: `linear-gradient(135deg, ${colors.warning}25, ${colors.warning}10)`,
     titleEn: 'Schools & Universities',
     titleAr: 'auto.LabModeSelector.k13',
     descEn: 'Run classroom screening demos and build student support plans',
@@ -158,8 +159,8 @@ const ModeCard = memo(({
             width: 6,
             height: 6,
             borderRadius: '50%',
-            background: isActive ? '#22c55e' : 'rgba(255,255,255,0.3)',
-            boxShadow: isActive ? '0 0 8px #22c55e' : 'none',
+            background: isActive ? colors.success : 'rgba(255,255,255,0.3)',
+            boxShadow: isActive ? `0 0 8px ${colors.success}` : 'none',
             animation: isActive ? 'statusPulse 2s ease-in-out infinite' : 'none',
           }}
         />
@@ -196,7 +197,7 @@ const ModeCard = memo(({
           boxShadow: isActive ? `0 4px 16px ${config.color}40` : 'none',
         }}
       >
-        {config.icon}
+        {renderLabIcon(config.icon, { size: 22, style: { color: config.color } })}
       </div>
 
       {/* Title */}
@@ -400,8 +401,8 @@ const LabModeSelector = memo(function LabModeSelector() {
               width: 8,
               height: 8,
               borderRadius: '50%',
-              background: '#22c55e',
-              boxShadow: '0 0 8px #22c55e',
+              background: colors.success,
+              boxShadow: `0 0 8px ${colors.success}`,
             }}
           />
           <span
@@ -482,7 +483,7 @@ const LabModeSelector = memo(function LabModeSelector() {
             fontFamily: 'monospace',
           }}
         >
-          {t('auto.LabModeSelector.k7', "💡 You can change your path anytime from settings")}
+          {t('auto.LabModeSelector.k7', "You can change your path anytime from settings")}
         </p>
       </div>
     </section>

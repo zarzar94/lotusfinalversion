@@ -13,7 +13,7 @@ import {
   PhoneIcon,
   type IconProps,
   type IconTone,
-} from '../icons';
+} from '../icons/index';
 import {
   brandCyan,
   brandPurple,

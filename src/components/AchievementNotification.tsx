@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useGamification, type Achievement } from '../context/GamificationContext';
-import { renderLabIcon, SparklesIcon } from './icons';
+import { renderLabIcon, SparklesIcon } from './icons/index';
 import { brandCyan, brandPurple, brandPink, colors } from './styles';
 
 // Generate random particles for confetti effect

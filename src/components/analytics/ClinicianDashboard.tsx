@@ -189,8 +189,8 @@ const PatientRow = memo(({
   const phaseConfig = {
     assessment: { color: brandPurple, label: { en: 'Assessment', ar: 'auto.ClinicianDashboard.k49' } },
     active: { color: brandCyan, label: { en: 'Active', ar: 'auto.ClinicianDashboard.k50' } },
-    maintenance: { color: '#f59e0b', label: { en: 'Maintenance', ar: 'auto.ClinicianDashboard.k51' } },
-    completed: { color: '#22c55e', label: { en: 'Completed', ar: 'auto.ClinicianDashboard.k52' } },
+    maintenance: { color: colors.warning, label: { en: 'Maintenance', ar: 'auto.ClinicianDashboard.k51' } },
+    completed: { color: colors.success, label: { en: 'Completed', ar: 'auto.ClinicianDashboard.k52' } },
   };
 
   const phase = phaseConfig[patient.treatmentPhase];
@@ -294,7 +294,7 @@ const PatientRow = memo(({
           style={{
             fontSize: typography.size.sm,
             fontWeight: typography.weight.bold,
-            color: patient.attentionScore >= 70 ? '#22c55e' : patient.attentionScore >= 50 ? '#f59e0b' : '#ef4444',
+            color: patient.attentionScore >= 70 ? colors.success : patient.attentionScore >= 50 ? colors.warning : colors.error,
           }}
         >
           {patient.attentionScore}%
@@ -303,7 +303,7 @@ const PatientRow = memo(({
           <span
             style={{
               fontSize: typography.size.xs,
-              color: '#22c55e',
+              color: colors.success,
               marginLeft: spacing[1],
             }}
           >
@@ -755,7 +755,7 @@ const ScoreComparisonCard = memo(({
           borderRadius: radius.full,
           fontSize: typography.size.xs,
           fontWeight: typography.weight.bold,
-          color: improvement > 0 ? '#22c55e' : colors.text.muted,
+          color: improvement > 0 ? colors.success : colors.text.muted,
           display: 'inline-block',
         }}
       >
@@ -1035,14 +1035,14 @@ export default function ClinicianDashboard() {
             label={t('auto.ClinicianDashboard.k21', "Completed")}
             value={stats.completed}
             icon={<CheckCircleIcon size={20} tone="success" />}
-            color="#22c55e"
+            color={colors.success}
           />
           <StatCard
             variant="horizontal"
             label={t('auto.ClinicianDashboard.k22', "Avg Improvement")}
             value={analysisLoading ? '...' : `+${stats.avgImprovement}%`}
             icon={<WaveformIcon size={20} tone="warning" />}
-            color="#f59e0b"
+            color={colors.warning}
           />
         </div>
       </PageTransition>
@@ -1323,10 +1323,10 @@ export default function ClinicianDashboard() {
             title={t('auto.ClinicianDashboard.k31', "Attention Score Distribution")}
             titleAr="توزيع درجات الانتباه"
             data={[
-              { label: '<50', labelAr: 'auto.ClinicianDashboard.k38', value: patients.filter(p => p.attentionScore < 50).length * 25, color: '#ef4444' },
-              { label: '50-69', labelAr: 'auto.ClinicianDashboard.k39', value: patients.filter(p => p.attentionScore >= 50 && p.attentionScore < 70).length * 25, color: '#f59e0b' },
+              { label: '<50', labelAr: 'auto.ClinicianDashboard.k38', value: patients.filter(p => p.attentionScore < 50).length * 25, color: colors.error },
+              { label: '50-69', labelAr: 'auto.ClinicianDashboard.k39', value: patients.filter(p => p.attentionScore >= 50 && p.attentionScore < 70).length * 25, color: colors.warning },
               { label: '70-84', labelAr: 'auto.ClinicianDashboard.k40', value: patients.filter(p => p.attentionScore >= 70 && p.attentionScore < 85).length * 25, color: brandCyan },
-              { label: '85+', labelAr: 'auto.ClinicianDashboard.k41', value: patients.filter(p => p.attentionScore >= 85).length * 25, color: '#22c55e' },
+              { label: '85+', labelAr: 'auto.ClinicianDashboard.k41', value: patients.filter(p => p.attentionScore >= 85).length * 25, color: colors.success },
             ]}
             isArabic={isArabic}
             height={140}

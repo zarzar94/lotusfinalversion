@@ -5,6 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useScrollState } from '../hooks/useScrollManager';
 import { positionInlineStart, positionInlineEnd } from '../utils/rtl';
 import { colors, radius, spacing, typography, transitions } from './styles';
+import { renderLabIcon } from './icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STICKY SMART CTA
@@ -35,10 +36,10 @@ const StickySmartCTA = memo(function StickySmartCTA() {
 
   // Get icon based on mode
   const ctaIcon = useMemo(() => {
-    if (isSchool) return '🏫';
-    if (isParent) return '📋';
-    if (isClinician) return '🩺';
-    return '✨';
+    if (isSchool) return '\u{1F3EB}';
+    if (isParent) return '\u{1F4CB}';
+    if (isClinician) return '\u{1FA7A}';
+    return '\u2728';
   }, [isSchool, isParent, isClinician]);
 
   // Get secondary text
@@ -122,7 +123,7 @@ const StickySmartCTA = memo(function StickySmartCTA() {
               transition: transitions.bounce,
             }}
           >
-            {ctaIcon}
+            {renderLabIcon(ctaIcon, { size: 18, tone: 'cyan' })}
           </button>
         ) : (
           // Expanded state
@@ -155,7 +156,7 @@ const StickySmartCTA = memo(function StickySmartCTA() {
                 color: colors.text.muted,
               }}
             >
-              ✕
+              {renderLabIcon('\u2715', { size: 12, tone: 'muted' })}
             </button>
 
             <div className="sticky-cta-content" style={{
@@ -175,7 +176,7 @@ const StickySmartCTA = memo(function StickySmartCTA() {
                 fontSize: 24,
                 flexShrink: 0,
               }}>
-                {ctaIcon}
+                {renderLabIcon(ctaIcon, { size: 16, tone: 'cyan' })}
               </div>
 
               {/* Content */}
@@ -227,7 +228,7 @@ const StickySmartCTA = memo(function StickySmartCTA() {
               fontSize: typography.size.xs,
               color: colors.text.muted,
             }}>
-              <span style={{ color: '#22c55e' }}>●</span>
+              <span style={{ color: colors.success }}>●</span>
               {isArabic ? 'خدمة موجهة بإشراف مختصين' : 'Clinician-supervised service'}
             </div>
           </div>

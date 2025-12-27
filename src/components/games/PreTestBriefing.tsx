@@ -7,6 +7,7 @@ import { memo, useMemo, useCallback, useState, useEffect } from 'react';
 import { useVisitorMode } from '../../context/VisitorModeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurple, colors, radius, spacing, typography, transitions, shadows, modalScale } from '../styles';
+import { renderLabIcon } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -87,7 +88,7 @@ const TEST_BRIEFINGS: Record<string, TestBriefing> = {
       'شريط التقدم يظهر الإنجاز',
       'النتائج تظهر بعد كل اختبار',
     ],
-    color: '#22c55e',
+    color: colors.success,
   },
   attention: {
     id: 'attention',
@@ -656,7 +657,7 @@ const PreTestBriefing = memo(function PreTestBriefing({
                   transition: transitions.fast,
                 }}
               >
-                ✕
+                {renderLabIcon('\u2715', { size: 16, tone: 'muted' })}
               </button>
             </div>
 
@@ -683,7 +684,10 @@ const PreTestBriefing = memo(function PreTestBriefing({
                 textTransform: 'uppercase',
                 letterSpacing: 1,
               }}>
-                {t('auto.PreTestBriefing.k2', "📋 PROTOCOL")}
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+                  {renderLabIcon('\U0001F4CB', { size: 16, tone: 'cyan' })}
+                  <span>{t('auto.PreTestBriefing.k2', "PROTOCOL")}</span>
+                </span>
               </h3>
               <div style={{
                 display: 'grid',
@@ -714,11 +718,14 @@ const PreTestBriefing = memo(function PreTestBriefing({
                 margin: `0 0 ${spacing[3]}px`,
                 fontSize: typography.size.sm,
                 fontWeight: typography.weight.black,
-                color: '#22c55e',
+                color: colors.success,
                 textTransform: 'uppercase',
                 letterSpacing: 1,
               }}>
-                {t('auto.PreTestBriefing.k3', "✓ REQUIREMENTS (Click to confirm)")}
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+                  {renderLabIcon('\u2713', { size: 16, tone: 'success' })}
+                  <span>{t('auto.PreTestBriefing.k3', "REQUIREMENTS (Click to confirm)")}</span>
+                </span>
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[2] }}>
                 {requirements.map((item, i) => (
@@ -744,8 +751,8 @@ const PreTestBriefing = memo(function PreTestBriefing({
                       width: 24,
                       height: 24,
                       borderRadius: radius.md,
-                      background: checkedItems.has(i) ? '#22c55e' : 'rgba(255,255,255,0.1)',
-                      border: `2px solid ${checkedItems.has(i) ? '#22c55e' : colors.border.default}`,
+                      background: checkedItems.has(i) ? colors.success : 'rgba(255,255,255,0.1)',
+                      border: `2px solid ${checkedItems.has(i) ? colors.success : colors.border.default}`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -755,7 +762,7 @@ const PreTestBriefing = memo(function PreTestBriefing({
                       flexShrink: 0,
                       transition: transitions.fast,
                     }}>
-                      {checkedItems.has(i) ? '✓' : ''}
+                      {checkedItems.has(i) ? renderLabIcon('\u2713', { size: 14, tone: 'success' }) : null}
                     </div>
                     {item}
                   </button>
@@ -773,7 +780,10 @@ const PreTestBriefing = memo(function PreTestBriefing({
                 textTransform: 'uppercase',
                 letterSpacing: 1,
               }}>
-                {t('auto.PreTestBriefing.k4', "👁 WHAT TO EXPECT")}
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+                  {renderLabIcon('\U0001F441', { size: 16, tone: 'cyan' })}
+                  <span>{t('auto.PreTestBriefing.k4', "WHAT TO EXPECT")}</span>
+                </span>
               </h3>
               <div style={{
                 display: 'flex',
@@ -848,7 +858,7 @@ const PreTestBriefing = memo(function PreTestBriefing({
               alignItems: 'center',
               gap: spacing[3],
             }}>
-              <span style={{ fontSize: 20 }}>⚕️</span>
+              <span style={{ fontSize: 20 }}>{renderLabIcon('\u2695', { size: 18, tone: 'muted' })}</span>
               <p style={{
                 margin: 0,
                 fontSize: typography.size.xs,

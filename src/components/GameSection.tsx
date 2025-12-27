@@ -283,13 +283,13 @@ function MedicalMonitor({
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                background: isActive ? '#22c55e' : 'rgba(255,255,255,0.3)',
-                boxShadow: isActive ? '0 0 8px #22c55e' : 'none',
+                background: isActive ? colors.success : 'rgba(255,255,255,0.3)',
+                boxShadow: isActive ? `0 0 8px ${colors.success}` : 'none',
                 animation: isActive ? 'blink 1s ease-in-out infinite' : 'none',
               }} />
               <span style={{
                 fontSize: 10,
-                color: isActive ? '#22c55e' : 'rgba(255,255,255,0.5)',
+                color: isActive ? colors.success : 'rgba(255,255,255,0.5)',
                 fontWeight: 700,
               }}>
                 {statusText}
@@ -309,7 +309,7 @@ function MedicalMonitor({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#ef4444',
+                color: colors.error,
                 fontSize: 16,
                 transition: 'all 0.2s ease',
               }}
@@ -354,7 +354,7 @@ function MedicalMonitor({
               <div style={{
                 fontSize: 26,
                 fontWeight: 900,
-                color: '#22c55e',
+                color: colors.success,
                 fontFamily: 'system-ui',
               }}>
                 {statusText}
@@ -500,13 +500,13 @@ function TestCard({
             width: 6,
             height: 6,
             borderRadius: '50%',
-            background: isHovered ? '#22c55e' : 'rgba(255,255,255,0.3)',
-            boxShadow: isHovered ? '0 0 8px #22c55e' : 'none',
+            background: isHovered ? colors.success : 'rgba(255,255,255,0.3)',
+            boxShadow: isHovered ? `0 0 8px ${colors.success}` : 'none',
             animation: isHovered ? 'blink 1s ease-in-out infinite' : 'none',
           }} />
           <span style={{
             fontSize: 9,
-            color: isHovered ? '#22c55e' : 'rgba(255,255,255,0.4)',
+            color: isHovered ? colors.success : 'rgba(255,255,255,0.4)',
             fontWeight: 600,
           }}>{isHovered ? labels.statusReady : labels.statusStandby}</span>
         </div>
@@ -530,13 +530,13 @@ function TestCard({
             <span style={{
               fontSize: 14,
               fontWeight: 900,
-              color: isHovered ? '#22c55e' : 'rgba(255,255,255,0.3)',
+              color: isHovered ? colors.success : 'rgba(255,255,255,0.3)',
               fontFamily: 'system-ui',
               transition: 'color 0.3s ease',
             }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 {isHovered ? (
-                  <PlayIcon size={12} tone="muted" style={{ color: '#22c55e' }} />
+                  <PlayIcon size={12} tone="muted" style={{ color: colors.success }} />
                 ) : (
                   <CircleIcon size={12} tone="muted" style={{ color: 'rgba(255,255,255,0.3)' }} />
                 )}
@@ -787,7 +787,7 @@ const GameSection = memo(function GameSection() {
         desc: t('games.modules.suite.measure'),
         outputs: [outputLabels.rt, outputLabels.accuracy, outputLabels.threshold, outputLabels.span],
         tag: t('games.tags.suite'),
-        color: '#22c55e',
+        color: colors.success,
         waveType: 'ecg' as const,
       },
       {
@@ -1027,11 +1027,11 @@ const GameSection = memo(function GameSection() {
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                background: '#22c55e',
+                background: colors.success,
                 animation: 'blink 2s ease-in-out infinite',
-                boxShadow: '0 0 8px #22c55e',
+                boxShadow: `0 0 8px ${colors.success}`,
               }} />
-              <span style={{ fontSize: 10, color: '#22c55e', fontWeight: 700 }}>{t('games.lab.systemReady')}</span>
+              <span style={{ fontSize: 10, color: colors.success, fontWeight: 700 }}>{t('games.lab.systemReady')}</span>
             </div>
             <div style={{
               padding: '6px 12px',
@@ -1220,9 +1220,9 @@ const GameSection = memo(function GameSection() {
             {[
               {
                 mode: 'suite',
-                color: '#22c55e',
+                color: colors.success,
                 label: t('games.tags.suite'),
-                icon: <BrainCircuitIcon size={14} tone="muted" style={{ color: '#22c55e' }} />,
+                icon: <BrainCircuitIcon size={14} tone="muted" style={{ color: colors.success }} />,
               },
               {
                 mode: 'attention',

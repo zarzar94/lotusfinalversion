@@ -1,5 +1,5 @@
 import type { LabModuleMetrics } from '../../types/moduleMetrics';
-import { brandCyan, brandPink, brandPurple } from '../styles';
+import { brandCyan, brandPink, brandPurple, colors } from '../styles';
 
 export const MODULE_ORDER = [
   'attention',
@@ -25,7 +25,7 @@ const MODULE_COLORS: Record<string, string> = {
   attention: '#3B82F6',
   focused_attention: '#0EA5E9',
   frequency: '#8B5CF6',
-  sequence: '#F59E0B',
+  sequence: colors.warning,
   dichotic_listening: '#10B981',
   speech_in_noise: '#F97316',
   questionnaire: brandPink,
@@ -43,21 +43,21 @@ const BAND_META: Record<LabModuleMetrics['band'], {
     labelAr: 'عالٍ',
     summary: 'Strong performance in this module.',
     summaryAr: 'أداء قوي في هذا المحور.',
-    color: '#22c55e',
+    color: colors.success,
   },
   mid: {
     label: 'Moderate',
     labelAr: 'متوسط',
     summary: 'Stable performance with room to grow.',
     summaryAr: 'أداء مستقر مع مجال للتحسن.',
-    color: '#f59e0b',
+    color: colors.warning,
   },
   low: {
     label: 'Needs Review',
     labelAr: 'بحاجة لمراجعة',
     summary: 'Consider a quiet re-check.',
     summaryAr: 'قد يفيد إعادة الاختبار في مكان هادئ.',
-    color: '#ef4444',
+    color: colors.error,
   },
 };
 

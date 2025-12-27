@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getBrainFunctionBySlug, BRAIN_FUNCTIONS, type BrainFunction } from '../data/brainFunctions';
 import { brandCyan, brandPurple, brandPink, brandInk } from '../components/styles';
 import { useLanguage } from '../context/LanguageContext';
-import { renderBrainFunctionIcon, toneFromColor } from '../components/icons/index';
+import { renderBrainFunctionIcon, renderLabIcon, toneFromColor } from '../components/icons/index';
 import { LabShell } from '../components/labui/LabShell';
 
 // Mini circuit brain for navigation
@@ -420,7 +420,7 @@ const BrainFunctionPage = memo(function BrainFunctionPage() {
                       color: color,
                       fontSize: 16,
                     }}>
-                      ✓
+                      {renderLabIcon('✓', { size: 12, tone: 'success' })}
                     </span>
                     <span style={{
                       fontSize: 14,

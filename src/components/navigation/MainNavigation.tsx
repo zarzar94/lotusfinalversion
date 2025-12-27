@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { styles, brandCyan, brandPink } from '../styles';
+import { MenuIcon } from '../Icons';
 import LabButton from '../labui/LabButton';
 
 const MainNavigation = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {
@@ -54,7 +55,7 @@ const MainNavigation = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {
           </LabButton>
           <div style={{ position: 'relative' }}>
             <LabButton variant="ghost" onClick={() => setOpen((o) => !o)} style={{ padding: '6px 10px' }}>
-              ☰
+              <MenuIcon size={18} />
             </LabButton>
             {open && (
               <div

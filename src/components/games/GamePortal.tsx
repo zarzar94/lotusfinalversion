@@ -4,8 +4,9 @@
  */
 
 import React, { useEffect, useMemo, useState, useRef, useCallback, memo } from 'react';
-import { brandCyan, brandPink, brandPurple } from '../styles';
+import { brandCyan, brandPink, brandPurple, colors as uiColors } from '../styles';
 import { useLanguage } from '../../context/LanguageContext';
+import { renderLabIcon } from '../icons/index';
 import {
   GAME_ACHIEVEMENTS,
   checkGameAchievements,
@@ -23,7 +24,7 @@ const CONNECTION_DISTANCE = 80;
 // Language-aware game configuration
 // Language-aware game configuration
 const getGameConfig = (isArabic: boolean) => [
-  { mode: 'suite', icon: '🧪', title: isArabic ? 'التقييم الشامل' : 'Full Assessment', desc: isArabic ? '6 اختبارات' : '6 Tests', color: '#22c55e', gradient: 'linear-gradient(135deg, #22c55e, #16a34a)' },
+  { mode: 'suite', icon: '🧪', title: isArabic ? 'التقييم الشامل' : 'Full Assessment', desc: isArabic ? '6 اختبارات' : '6 Tests', color: uiColors.success, gradient: `linear-gradient(135deg, ${uiColors.success}, #16a34a)` },
   { mode: 'attention', icon: '🎯', title: isArabic ? 'الانتباه' : 'Attention', desc: isArabic ? 'استجب/لا تستجب' : 'Go/No-Go', color: '#3B82F6', gradient: 'linear-gradient(135deg, #3B82F6, #2563EB)' },
   { mode: 'focused_attention', icon: '🎯', title: isArabic ? 'الانتباه المركز' : 'Focused Attention', desc: 'CPT', color: '#0EA5E9', gradient: 'linear-gradient(135deg, #0EA5E9, #0284C7)' },
   { mode: 'frequency', icon: '🎚️', title: isArabic ? 'تمييز التردد' : 'Frequency', desc: isArabic ? 'تكيفي' : 'Adaptive', color: '#8B5CF6', gradient: 'linear-gradient(135deg, #8B5CF6, #7C3AED)' },
@@ -88,7 +89,7 @@ const AnimatedBackground = memo(function AnimatedBackground() {
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
-    const colors = [brandCyan, brandPink, brandPurple, '#22c55e', '#3B82F6'];
+    const colors = [brandCyan, brandPink, brandPurple, uiColors.success, '#3B82F6'];
     let width = 0;
     let height = 0;
 
@@ -230,7 +231,9 @@ const StatBadge = memo(function StatBadge({
         animation: animate ? 'glowPulse 2s ease-in-out infinite' : undefined,
       }}
     >
-      <div style={{ fontSize: 20, marginBottom: 4, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>{icon}</div>
+      <div style={{ fontSize: 20, marginBottom: 4, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>
+        {renderLabIcon(icon, { size: 20, style: { color } })}
+      </div>
       <div style={{
         fontSize: 20,
         fontWeight: 900,
@@ -317,7 +320,7 @@ const PortalHeader = memo(function PortalHeader({
                 animation: 'portalPulse 3s ease-in-out infinite',
               }}
             >
-              🧠
+              {renderLabIcon('\U0001F9E0', { size: 28, tone: 'cyan', glow: true })}
             </div>
             <div>
               <h2
@@ -440,7 +443,7 @@ const GameCard = memo(function GameCard({
             zIndex: 1,
           }}
         >
-          {game.icon}
+          {renderLabIcon(game.icon, { size: 32, style: { color: game.color } })}
         </div>
         <div
           style={{
@@ -560,7 +563,10 @@ const AchievementCard = memo(function AchievementCard({
           transition: 'filter 0.3s ease',
         }}
       >
-        {isUnlocked ? achievement.icon : '🔒'}
+        {renderLabIcon(isUnlocked ? achievement.icon : '\U0001F512', {
+          size: 32,
+          tone: isUnlocked ? 'cyan' : 'muted',
+        })}
       </div>
       <div
         style={{
@@ -615,7 +621,7 @@ const AchievementShowcase = memo(function AchievementShowcase({
           textAlign: 'center',
         }}
       >
-        <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.4 }}>🏆</div>
+        <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.4 }}>{renderLabIcon('\U0001F3C6', { size: 36, tone: 'warning' })}</div>
         <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: 600 }}>
           {t('auto.GamePortal.k7', "Complete tests to unlock achievements!")}
         </div>
@@ -727,7 +733,11 @@ const SessionItem = memo(function SessionItem({
               fontSize: 13,
             }}
           >
-            {outcome?.result === 'high' ? '⭐' : outcome?.result === 'medium' ? '✓' : '○'}
+            {outcome?.result === 'high'
+              ? renderLabIcon('\u2B50', { size: 14, tone: 'warning' })
+              : outcome?.result === 'medium'
+                ? renderLabIcon('\u2713', { size: 14, tone: 'success' })
+                : renderLabIcon('\u25CB', { size: 14, tone: 'muted' })}
           </div>
         ))}
       </div>
@@ -773,7 +783,7 @@ const SessionHistory = memo(function SessionHistory({
           textAlign: 'center',
         }}
       >
-        <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.4 }}>📊</div>
+        <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.4 }}>{renderLabIcon('\U0001F4CA', { size: 36, tone: 'cyan' })}</div>
         <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: 600 }}>
           {t('auto.GamePortal.k12', "No sessions completed yet")}
         </div>
@@ -820,7 +830,9 @@ const SectionTitle = memo(function SectionTitle({
       direction: isArabic ? 'rtl' : 'ltr',
       textAlign: isArabic ? 'right' : 'left',
     }}>
-      <span style={{ fontSize: 22, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>{icon}</span>
+      <span style={{ fontSize: 22, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>
+        {renderLabIcon(icon, { size: 22, tone: 'cyan' })}
+      </span>
       <div>
         <div style={{ fontWeight: 800, fontSize: 16, color: '#fff' }}>{title}</div>
         <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -869,7 +881,7 @@ const TipsBanner = memo(function TipsBanner({ isArabic }: { isArabic: boolean })
           animation: 'floatUp 3s ease-in-out infinite',
         }}
       >
-        💡
+        {renderLabIcon('\U0001F4A1', { size: 24, tone: 'warning' })}
       </div>
       <div style={{ flex: 1, direction: isArabic ? 'rtl' : 'ltr', textAlign: isArabic ? 'right' : 'left' }}>
         <div style={{ fontWeight: 700, fontSize: 14, color: brandCyan, marginBottom: 3 }}>
@@ -897,7 +909,7 @@ const TipsBanner = memo(function TipsBanner({ isArabic }: { isArabic: boolean })
             }}
             title={isArabic ? t(tip.textAr, tip.textEn) : tip.textEn}
           >
-            {tip.icon}
+            {renderLabIcon(tip.icon, { size: 16, tone: 'cyan' })}
           </div>
         ))}
       </div>

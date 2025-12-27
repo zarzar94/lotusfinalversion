@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, colors, styles } from './styles';
 import { useVisitorMode, type VisitorMode } from '../context/VisitorModeContext';
 import { useLanguage } from '../context/LanguageContext';
-import { renderLabIcon } from './icons';
+import { renderLabIcon } from './icons/index';
 
 interface Credential {
   id: string;
@@ -228,7 +228,9 @@ export default function CredentialsBanner() {
           borderRadius: 30,
           marginBottom: 12,
         }}>
-          <span style={{ fontSize: 18 }}>🏅</span>
+          <span style={{ fontSize: 18 }}>
+            {renderLabIcon('\u{1F3C5}', { size: 18, tone: 'warning' })}
+          </span>
           <span style={{ fontSize: 13, fontWeight: 700, color: brandCyan }}>
             {t('auto.CredentialsBanner.k2', "Certifications & Credentials")}
           </span>

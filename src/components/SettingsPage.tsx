@@ -17,7 +17,7 @@ import {
   UserIcon,
   WarningTriangleIcon,
   WaveformIcon,
-} from './icons';
+} from './icons/index';
 import {
   brandCyan,
   brandPurple,

@@ -19,6 +19,7 @@ import {
   buttons,
   instructionFlow,
 } from '../../styles';
+import { renderLabIcon } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -473,7 +474,7 @@ export const PracticeTrials: React.FC<PracticeTrialsProps> = ({
                 style={styles.practiceButton}
                 onClick={handleStartPractice}
               >
-                ▶️
+                {renderLabIcon('\U0001F3AC', { size: 18, tone: 'cyan' })}
               </button>
             ) : (
               <>
@@ -485,7 +486,7 @@ export const PracticeTrials: React.FC<PracticeTrialsProps> = ({
                   }}
                   onClick={handlePracticeResponse}
                 >
-                  🎯
+                  {renderLabIcon('\U0001F3AF', { size: 22, tone: 'cyan' })}
                 </button>
                 <div style={styles.practiceTimer}>
                   {practiceTimeLeft}s
@@ -493,9 +494,14 @@ export const PracticeTrials: React.FC<PracticeTrialsProps> = ({
               </>
             )}
             <p style={styles.practiceHint}>
-              {isPracticing
-                ? isArabic ? '🎧 استمع واضغط!' : '🎧 Listen and tap!'
-                : isArabic ? 'اضغط للبدء' : 'Tap to start'}
+              {isPracticing ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+                  {renderLabIcon('\U0001F3A7', { size: 16, tone: 'cyan' })}
+                  <span>{isArabic ? 'استمع واضغط!' : 'Listen and tap!'}</span>
+                </span>
+              ) : (
+                isArabic ? 'اضغط للبدء' : 'Tap to start'
+              )}
             </p>
           </div>
         )}

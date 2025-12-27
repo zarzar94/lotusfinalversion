@@ -17,6 +17,7 @@ import {
   transitions,
   shadows,
 } from '../styles';
+import { renderLabIcon } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -255,7 +256,7 @@ export const MetricDisplay = memo(({
           alignItems: 'center',
           gap: spacing[2],
         }}>
-          <span style={{ fontSize: 16 }}>{icon}</span>
+          <span style={{ fontSize: 16 }}>{renderLabIcon(icon, { size: 16, style: { color } })}</span>
           <span style={{
             fontSize: typography.size.xs,
             fontWeight: typography.weight.bold,
@@ -268,7 +269,7 @@ export const MetricDisplay = memo(({
           <span style={{
             fontSize: typography.size.xs,
             fontWeight: typography.weight.bold,
-            color: change > 0 ? '#22c55e' : '#ef4444',
+            color: change > 0 ? colors.success : colors.error,
             display: 'flex',
             alignItems: 'center',
             gap: 2,
@@ -361,7 +362,7 @@ export const PointsBreakdown = memo(({
         alignItems: 'center',
         gap: spacing[2],
       }}>
-        💰 {t('auto.SessionSummary.k5', "Points Breakdown")}
+        {renderLabIcon('\U0001F4B0', { size: 16, tone: 'warning' })} {t('auto.SessionSummary.k5', "Points Breakdown")}
       </h4>
 
       <div style={{ marginBottom: spacing[3] }}>
@@ -381,7 +382,7 @@ export const PointsBreakdown = memo(({
               alignItems: 'center',
               gap: spacing[2],
             }}>
-              <span style={{ fontSize: 14 }}>{row.icon}</span>
+              <span style={{ fontSize: 14 }}>{renderLabIcon(row.icon, { size: 14, tone: 'muted' })}</span>
               <span style={{
                 fontSize: typography.size.sm,
                 color: colors.text.secondary,
@@ -473,7 +474,7 @@ export const LevelProgressDisplay = memo(({
               fontSize: 32,
               display: 'inline-block',
             }}>
-              🎉
+              {renderLabIcon('\U0001F389', { size: 32, tone: 'pink' })}
             </span>
             <div style={{
               fontSize: typography.size.sm,
@@ -590,10 +591,10 @@ const SessionAchievements = memo(({
 
   const categoryColors: Record<string, string> = {
     performance: brandCyan,
-    streak: '#f59e0b',
+    streak: colors.warning,
     milestone: brandPurple,
     mastery: brandPink,
-    special: '#22c55e',
+    special: colors.success,
   };
 
   return (
@@ -614,7 +615,7 @@ const SessionAchievements = memo(({
           alignItems: 'center',
           gap: spacing[2],
         }}>
-          🏆 {t('auto.SessionSummary.k8', "New Achievements!")}
+          {renderLabIcon('\U0001F3C6', { size: 16, tone: 'warning' })} {t('auto.SessionSummary.k8', "New Achievements!")}
         </h4>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[2] }}>
@@ -644,7 +645,7 @@ const SessionAchievements = memo(({
                   justifyContent: 'center',
                   fontSize: 24,
                 }}>
-                  {achievement.icon}
+                  {renderLabIcon(achievement.icon, { size: 24, style: { color } })}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{
@@ -713,7 +714,7 @@ const GoalProgressSection = memo(({
         alignItems: 'center',
         gap: spacing[2],
       }}>
-        🎯 {t('auto.SessionSummary.k9', "Goal Progress")}
+        {renderLabIcon('\U0001F3AF', { size: 16, tone: 'cyan' })} {t('auto.SessionSummary.k9', "Goal Progress")}
       </h4>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[3] }}>
@@ -738,26 +739,26 @@ const GoalProgressSection = memo(({
                   <span style={{
                     fontSize: typography.size.sm,
                     fontWeight: typography.weight.bold,
-                    color: goal.completed ? '#22c55e' : colors.text.primary,
+                    color: goal.completed ? colors.success : colors.text.primary,
                   }}>
                     {isArabic ? t(goal.goalTitleAr, goal.goalTitle) : goal.goalTitle}
                   </span>
                   {goal.completed && (
                     <span style={{
                       padding: `${spacing[0.5]}px ${spacing[1.5]}px`,
-                      background: '#22c55e',
+                      background: colors.success,
                       borderRadius: radius.full,
                       fontSize: typography.size.xs,
                       fontWeight: typography.weight.bold,
                       color: 'white',
                     }}>
-                      ✓
+                      {renderLabIcon('\u2713', { size: 12, style: { color: 'white' } })}
                     </span>
                   )}
                 </div>
                 <span style={{
                   fontSize: typography.size.xs,
-                  color: '#22c55e',
+                  color: colors.success,
                   fontWeight: typography.weight.bold,
                 }}>
                   +{gained}
@@ -783,7 +784,7 @@ const GoalProgressSection = memo(({
                 <div style={{
                   height: '100%',
                   width: `${Math.min(progressAfter, 100)}%`,
-                  background: goal.completed ? '#22c55e' : brandCyan,
+                  background: goal.completed ? colors.success : brandCyan,
                   borderRadius: radius.full,
                   transition: transitions.slow,
                 }} />
@@ -822,10 +823,10 @@ const RecommendationsSection = memo(({
   if (!recommendations || recommendations.length === 0) return null;
 
   const typeStyles: Record<string, { color: string; bg: string }> = {
-    strength: { color: '#22c55e', bg: 'rgba(34,197,94,0.1)' },
+    strength: { color: colors.success, bg: colors.successLight },
     improvement: { color: brandPurple, bg: `${brandPurple}10` },
     tip: { color: brandCyan, bg: `${brandCyan}10` },
-    challenge: { color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+    challenge: { color: colors.warning, bg: colors.warningLight },
   };
 
   return (
@@ -844,7 +845,7 @@ const RecommendationsSection = memo(({
         alignItems: 'center',
         gap: spacing[2],
       }}>
-        💡 {t('auto.SessionSummary.k10', "Recommendations")}
+        {renderLabIcon('\U0001F4A1', { size: 16, tone: 'warning' })} {t('auto.SessionSummary.k10', "Recommendations")}
       </h4>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[2] }}>
@@ -862,7 +863,7 @@ const RecommendationsSection = memo(({
                 borderRadius: radius.lg,
               }}
             >
-              <span style={{ fontSize: 20 }}>{rec.icon}</span>
+              <span style={{ fontSize: 20 }}>{renderLabIcon(rec.icon, { size: 20, style: { color: style.color } })}</span>
               <div>
                 <div style={{
                   fontSize: typography.size.sm,
@@ -918,9 +919,9 @@ const StreakDisplay = memo(({
       <div style={{
         padding: spacing[4],
         background: isNewRecord
-          ? 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(239,68,68,0.1))'
-          : `rgba(245,158,11,0.1)`,
-        border: `1px solid ${isNewRecord ? '#f59e0b' : 'rgba(245,158,11,0.3)'}`,
+          ? `linear-gradient(135deg, ${colors.warningLight}, ${colors.errorLight})`
+          : colors.warningSubtle,
+        border: `1px solid ${isNewRecord ? colors.warning : colors.warningLight}`,
         borderRadius: radius.lg,
         textAlign: 'center',
       }}>
@@ -929,12 +930,12 @@ const StreakDisplay = memo(({
           marginBottom: spacing[2],
           animation: 'streakFlame 1s ease-in-out infinite',
         }}>
-          🔥
+          {renderLabIcon('\U0001F525', { size: 36, tone: 'warning', glow: true })}
         </div>
         <div style={{
           fontSize: typography.size['2xl'],
           fontWeight: typography.weight.black,
-          color: '#f59e0b',
+          color: colors.warning,
           marginBottom: spacing[1],
         }}>
           {current} {t('auto.SessionSummary.k11', "Days")}
@@ -943,15 +944,20 @@ const StreakDisplay = memo(({
           fontSize: typography.size.xs,
           color: colors.text.secondary,
         }}>
-          {isNewRecord
-            ? (t('auto.SessionSummary.k12', "🎉 New Record!"))
-            : (t('auto.SessionSummary.k13', "Keep it up!"))}
+          {isNewRecord ? (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+              {renderLabIcon('\U0001F389', { size: 14, tone: 'pink' })}
+              <span>{t('auto.SessionSummary.k12', "New Record!")}</span>
+            </span>
+          ) : (
+            t('auto.SessionSummary.k13', "Keep it up!")
+          )}
         </div>
         {streakBonus && (
           <div style={{
             marginTop: spacing[2],
             padding: `${spacing[1]}px ${spacing[2]}px`,
-            background: '#f59e0b',
+            background: colors.warning,
             borderRadius: radius.full,
             fontSize: typography.size.xs,
             fontWeight: typography.weight.bold,
@@ -1023,7 +1029,7 @@ export const SessionSummaryCard = memo(({
                 cursor: 'pointer',
               }}
             >
-              ✕
+              {renderLabIcon('\u2715', { size: 16, tone: 'muted' })}
             </button>
           )}
 
@@ -1032,7 +1038,7 @@ export const SessionSummaryCard = memo(({
             fontSize: 48,
             marginBottom: spacing[2],
           }}>
-            {motivationalMessage.icon}
+            {renderLabIcon(motivationalMessage.icon, { size: 48, tone: 'cyan' })}
           </div>
           <h2 style={{
             margin: `0 0 ${spacing[2]}px`,
@@ -1093,7 +1099,7 @@ export const SessionSummaryCard = memo(({
               <div style={{
                 fontSize: typography.size['2xl'],
                 fontWeight: typography.weight.black,
-                color: '#22c55e',
+                color: colors.success,
               }}>
                 {session.metrics.accuracy}%
               </div>
@@ -1157,7 +1163,7 @@ export const SessionSummaryCard = memo(({
                 unit="s"
                 unitAr="ث"
                 icon="⏱️"
-                color="#22c55e"
+                color={colors.success}
                 isArabic={isArabic}
               />
             </div>
@@ -1348,7 +1354,7 @@ export const QuickSessionStats = memo(({
           alignItems: 'center',
           gap: spacing[2],
         }}>
-          <span style={{ fontSize: 20 }}>🎮</span>
+          <span style={{ fontSize: 20 }}>{renderLabIcon('\U0001F3AE', { size: 20, tone: 'cyan' })}</span>
           <div>
             <div style={{
               fontSize: typography.size.sm,
@@ -1397,9 +1403,9 @@ export const QuickSessionStats = memo(({
         {session.streakInfo.current > 0 && (
           <div style={{
             fontSize: typography.size.xs,
-            color: '#f59e0b',
+            color: colors.warning,
           }}>
-            🔥 {session.streakInfo.current}
+            {renderLabIcon('\U0001F525', { size: 12, tone: 'warning' })} {session.streakInfo.current}
           </div>
         )}
       </div>

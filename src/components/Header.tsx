@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect, useCallback, memo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { brandPurple, brandCyan, brandPink, brandPanel, colors, radius, spacing, typography, transitions } from './styles';
 import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, PhoneIcon, HelpIcon, HomeIcon, UsersIcon } from './Icons';
-import { renderLabIcon } from './icons';
+import { renderLabIcon } from './icons/index';
 import BrainLogo from './BrainLogo';
 import LanguageToggle from './LanguageToggle';
 import ModeSwitcher from './ModeSwitcher';

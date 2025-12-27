@@ -398,7 +398,7 @@ export const AchievementBadge = memo(({
 
   const categoryColors: Record<string, string> = {
     clinical: brandPink,
-    engagement: '#f59e0b',
+    engagement: colors.warning,
     mastery: brandPurple,
     exploration: brandCyan,
   };

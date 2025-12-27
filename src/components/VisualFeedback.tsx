@@ -12,6 +12,7 @@ import {
   spacing,
   radius,
 } from './styles';
+import { renderLabIcon } from './icons/index';
 
 // Context for global feedback system
 interface FeedbackContextType {
@@ -174,7 +175,9 @@ export const FeedbackProvider = memo(({ children }: { children: ReactNode }) => 
             }}
           >
             <span style={{ fontSize: 16 }}>
-              {toast.type === 'success' ? '✓' : '✕'}
+              {toast.type === 'success'
+                ? renderLabIcon('\u2713', { size: 16, tone: 'success' })
+                : renderLabIcon('\u2715', { size: 16, tone: 'error' })}
             </span>
             <span
               style={{

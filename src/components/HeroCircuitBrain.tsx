@@ -23,6 +23,7 @@ import {
   WaveformIcon,
   BrainCircuitIcon,
   CheckCircleIcon,
+  renderLabIcon,
 } from './icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -187,7 +188,7 @@ const InfoModal = memo(({
             zIndex: 10,
           }}
         >
-          ✕
+          {renderLabIcon('✕', { size: 12, tone: 'muted' })}
         </button>
 
         {/* Content */}
@@ -367,7 +368,10 @@ const InfoModal = memo(({
                     animation: `benefitPop 0.3s ease-out ${0.3 + i * 0.05}s both`,
                   }}
                 >
-                  <span style={{ color: node.color }}>✓</span> {benefit}
+                  <span style={{ color: node.color }}>
+                    {renderLabIcon('✓', { size: 12, tone: 'success' })}
+                  </span>
+                  {benefit}
                 </span>
               ))}
             </div>
@@ -913,13 +917,17 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
             borderTop: `1px solid ${colors.border.subtle}`,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1.5] }}>
-              <span style={{ color: brandCyan }}>✓</span>
+              <span style={{ color: brandCyan }}>
+                {renderLabIcon('✓', { size: 12, tone: 'success' })}
+              </span>
               <span style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
                 {isArabic ? 'معتمد دولياً' : 'Internationally Certified'}
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1.5] }}>
-              <span style={{ color: brandPurple }}>✓</span>
+              <span style={{ color: brandPurple }}>
+                {renderLabIcon('✓', { size: 12, tone: 'success' })}
+              </span>
               <span style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
                 {isArabic ? '+500 حالة ناجحة' : '500+ Success Cases'}
               </span>

@@ -8,7 +8,7 @@ import { colors, spacing, typography } from '../components/styles';
 import { LabShell } from '../components/labui/LabShell';
 import LabCard from '../components/labui/LabCard';
 import LabButton from '../components/labui/LabButton';
-import { LockIcon } from '../components/icons';
+import { LockIcon } from '../components/icons/index';
 
 function LoginPage() {
   const { isArabic } = useLanguage();

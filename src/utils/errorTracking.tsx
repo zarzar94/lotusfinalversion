@@ -53,7 +53,7 @@ class ErrorTracker {
     if (this.enabled) {
       this.setupGlobalHandlers();
       this.startFlushInterval();
-      console.log('🔍 Error tracking initialized');
+      console.log('Error tracking initialized');
     }
   }
 
@@ -157,7 +157,7 @@ class ErrorTracker {
 
     // Log to console in development
     if (import.meta.env.DEV) {
-      console.group('🚨 Error Captured');
+      console.group('Error Captured');
       console.error(err);
       console.log('Context:', event.context);
       console.log('Breadcrumbs:', event.breadcrumbs);

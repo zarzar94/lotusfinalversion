@@ -12,7 +12,7 @@ import {
   colors,
 } from './styles';
 import { BrainIcon, HeadphonesIcon, CheckCircleIcon, ShieldIcon, StarIcon } from './Icons';
-import { renderLabIcon, ShieldMedicalIcon } from './icons';
+import { renderLabIcon, ShieldMedicalIcon } from './icons/index';
 
 interface BenefitItem {
   id: string;

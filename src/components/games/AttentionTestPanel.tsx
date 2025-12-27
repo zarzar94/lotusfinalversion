@@ -331,7 +331,7 @@ export default function AttentionTestPanel({
 
     // Add fatigue note if relevant
     if (fatigueAnalysis.fatigueIndex === 'high') {
-      message += ' ⚠️ لوحظ انخفاض في الأداء نحو نهاية الاختبار، مما قد يشير إلى إرهاق سمعي.';
+      message += ' تنبيه: لوحظ انخفاض في الأداء نحو نهاية الاختبار، مما قد يشير إلى إرهاق سمعي.';
     } else if (fatigueAnalysis.fatigueIndex === 'moderate') {
       message += ' تراجع طفيف في الأداء نحو النهاية.';
     }

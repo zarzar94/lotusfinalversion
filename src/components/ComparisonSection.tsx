@@ -3,6 +3,7 @@ import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, brandColors
 import { useLanguage } from '../context/LanguageContext';
 import LabCard from './labui/LabCard';
 import LabButtonAnchor from './labui/LabButtonAnchor';
+import { renderLabIcon } from './icons/index';
 
 type Program = {
   id: string;
@@ -212,7 +213,7 @@ const ProgramCard = memo(function ProgramCard({
             fontSize: typography.size['2xl'],
           }}
         >
-          {program.icon}
+          {renderLabIcon(program.icon, { size: 26, style: { color: program.color } })}
         </div>
         <div style={{ flex: 1 }}>
           <div
@@ -280,7 +281,10 @@ const ProgramCard = memo(function ProgramCard({
                   marginBottom: spacing[1],
                 }}
               >
-                {isArabic ? '🎯 الهدف' : '🎯 Goal'}
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  {renderLabIcon('🎯', { size: 14, tone: 'cyan' })}
+                  <span>{isArabic ? 'الهدف' : 'Goal'}</span>
+                </span>
               </div>
               <div
                 style={{
@@ -309,7 +313,10 @@ const ProgramCard = memo(function ProgramCard({
                     marginBottom: spacing[1],
                   }}
                 >
-                  {isArabic ? '⚙️ التطبيق' : '⚙️ Format'}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    {renderLabIcon('⚙️', { size: 14, tone: 'muted' })}
+                    <span>{isArabic ? 'التطبيق' : 'Format'}</span>
+                  </span>
                 </div>
                 <div
                   style={{
@@ -367,7 +374,10 @@ const ProgramCard = memo(function ProgramCard({
                   marginBottom: spacing[1],
                 }}
               >
-                {isArabic ? '💡 ملاحظات' : '💡 Notes'}
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  {renderLabIcon('💡', { size: 14, tone: 'cyan' })}
+                  <span>{isArabic ? 'ملاحظات' : 'Notes'}</span>
+                </span>
               </div>
               <div
                 style={{
@@ -409,7 +419,7 @@ const QuestionItem = memo(function QuestionItem({ icon, text }: { icon: string; 
       }}
     >
       <span style={{ fontSize: typography.size.lg }} aria-hidden="true">
-        {icon}
+        {renderLabIcon(icon, { size: 18, tone: 'cyan' })}
       </span>
       <span
         style={{
@@ -451,7 +461,7 @@ const ComparisonSection = memo(function ComparisonSection() {
           }}
         >
           <span style={{ fontSize: typography.size['2xl'] }} aria-hidden="true">
-            🧭
+            {renderLabIcon('🧭', { size: 22, tone: 'cyan' })}
           </span>
           <span style={{ fontWeight: typography.weight.bold, color: brandCyan }}>
             {isArabic ? 'اختيار النهج المناسب' : 'Choosing the Right Approach'}
@@ -517,7 +527,7 @@ const ComparisonSection = memo(function ComparisonSection() {
           }}
         >
           <span style={{ fontSize: typography.size['2xl'] }} aria-hidden="true">
-            ❓
+            {renderLabIcon('❓', { size: 22, tone: 'warning' })}
           </span>
           <h3
             style={{
@@ -559,7 +569,7 @@ const ComparisonSection = memo(function ComparisonSection() {
         }}
       >
         <span style={{ fontSize: typography.size['2xl'] }} aria-hidden="true">
-          ⚠️
+          {renderLabIcon('⚠️', { size: 22, tone: 'warning' })}
         </span>
         <span style={{ fontSize: typography.size.sm, color: colors.text.secondary }}>
           {isArabic
@@ -581,7 +591,8 @@ const ComparisonSection = memo(function ComparisonSection() {
             gap: spacing[2],
           }}
         >
-          <span aria-hidden="true">📊</span> {isArabic ? 'شاهد التفاصيل في الشرائح' : 'See Details in the Slides'}
+          <span aria-hidden="true">{renderLabIcon('📊', { size: 16, tone: 'cyan' })}</span>
+          {isArabic ? 'شاهد التفاصيل في الشرائح' : 'See Details in the Slides'}
         </LabButtonAnchor>
         <LabButtonAnchor
           href="#contact"
@@ -595,7 +606,8 @@ const ComparisonSection = memo(function ComparisonSection() {
             gap: spacing[2],
           }}
         >
-          <span aria-hidden="true">💬</span> {isArabic ? 'اطلب استشارة' : 'Request a Consultation'}
+          <span aria-hidden="true">{renderLabIcon('💬', { size: 16, tone: 'cyan' })}</span>
+          {isArabic ? 'اطلب استشارة' : 'Request a Consultation'}
         </LabButtonAnchor>
       </div>
       </LabCard>

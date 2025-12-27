@@ -19,6 +19,7 @@ import {
   shadows,
   transitions,
 } from './styles';
+import { renderLabIcon } from './icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -86,10 +87,10 @@ const NotificationItem = memo(({
 }) => {
   const typeConfig = {
     achievement: { color: brandCyan, bgColor: `${brandCyan}12` },
-    reminder: { color: '#f59e0b', bgColor: 'rgba(245,158,11,0.12)' },
+    reminder: { color: colors.warning, bgColor: colors.warningLight },
     info: { color: brandPurple, bgColor: `${brandPurple}12` },
-    success: { color: '#22c55e', bgColor: 'rgba(34,197,94,0.12)' },
-    warning: { color: '#ef4444', bgColor: 'rgba(239,68,68,0.12)' },
+    success: { color: colors.success, bgColor: colors.successLight },
+    warning: { color: colors.error, bgColor: colors.errorLight },
   };
 
   const config = typeConfig[notification.type];
@@ -149,7 +150,7 @@ const NotificationItem = memo(({
             flexShrink: 0,
           }}
         >
-          {notification.icon}
+          {renderLabIcon(notification.icon, { size: 18, style: { color: config.color } })}
         </div>
 
         {/* Content */}
@@ -225,7 +226,7 @@ const NotificationItem = memo(({
             transition: transitions.fast,
           }}
         >
-          ✕
+          {renderLabIcon('\u2715', { size: 12, tone: 'muted' })}
         </button>
       </div>
     </div>
@@ -423,7 +424,7 @@ export default function NotificationCenter() {
             boxShadow: shadows.md,
           }}
         >
-          🔔
+          {renderLabIcon('\u{1F514}', { size: 20, tone: isOpen ? 'cyan' : 'muted' })}
           {unreadCount > 0 && (
             <div
               style={{
@@ -433,7 +434,7 @@ export default function NotificationCenter() {
                 minWidth: 18,
                 height: 18,
                 borderRadius: radius.full,
-                background: '#ef4444',
+                background: colors.error,
                 color: 'white',
                 fontSize: 10,
                 fontWeight: typography.weight.bold,
@@ -479,7 +480,9 @@ export default function NotificationCenter() {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
-                <span style={{ fontSize: 18 }}>🔔</span>
+                <span style={{ fontSize: 18 }}>
+                  {renderLabIcon('\u{1F514}', { size: 18, tone: 'cyan' })}
+                </span>
                 <span
                   style={{
                     fontSize: typography.size.base,
@@ -543,7 +546,9 @@ export default function NotificationCenter() {
                     color: colors.text.muted,
                   }}
                 >
-                  <div style={{ fontSize: 32, marginBottom: spacing[2], opacity: 0.5 }}>🔕</div>
+                  <div style={{ fontSize: 32, marginBottom: spacing[2], opacity: 0.5 }}>
+                    {renderLabIcon('\u{1F515}', { size: 32, tone: 'muted' })}
+                  </div>
                   <div style={{ fontSize: typography.size.sm }}>
                     {t('auto.NotificationCenter.k5', "No notifications")}
                   </div>

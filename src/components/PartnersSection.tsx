@@ -18,6 +18,7 @@ import {
   cards,
   buttons,
 } from '../styles';
+import { renderLabIcon } from './icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -53,7 +54,7 @@ const partners: Partner[] = [
     nameAr: 'المدرسة الدولية بالرياض',
     description: 'Leading international school implementing AIT screening programs for students with learning differences.',
     descriptionAr: 'مدرسة دولية رائدة تنفذ برامج فحص AIT للطلاب ذوي صعوبات التعلم.',
-    logo: '🏫',
+    logo: '\u{1F3EB}',
     location: 'Riyadh, Saudi Arabia',
     locationAr: 'الرياض، المملكة العربية السعودية',
     partnerSince: '2020',
@@ -69,7 +70,7 @@ const partners: Partner[] = [
     nameAr: 'مستشفى الملك فيصل التخصصي',
     description: 'Partnership for clinical referrals and research collaboration in pediatric auditory processing.',
     descriptionAr: 'شراكة للإحالات السريرية والتعاون البحثي في معالجة السمع لدى الأطفال.',
-    logo: '🏥',
+    logo: '\u{1F3E5}',
     location: 'Riyadh, Saudi Arabia',
     locationAr: 'الرياض، المملكة العربية السعودية',
     partnerSince: '2019',
@@ -85,7 +86,7 @@ const partners: Partner[] = [
     nameAr: 'الجمعية السعودية للتوحد',
     description: 'Collaborative programs to support families of children with autism spectrum disorder.',
     descriptionAr: 'برامج تعاونية لدعم أسر الأطفال المصابين باضطراب طيف التوحد.',
-    logo: '💙',
+    logo: '\u{1F499}',
     location: 'National',
     locationAr: 'على المستوى الوطني',
     partnerSince: '2021',
@@ -101,7 +102,7 @@ const partners: Partner[] = [
     nameAr: 'أكاديمية الفيصل',
     description: 'Private academy with integrated auditory support services for students with APD.',
     descriptionAr: 'أكاديمية خاصة مع خدمات دعم سمعي متكاملة للطلاب ذوي اضطراب المعالجة السمعية.',
-    logo: '📚',
+    logo: '\u{1F4DA}',
     location: 'Jeddah, Saudi Arabia',
     locationAr: 'جدة، المملكة العربية السعودية',
     partnerSince: '2022',
@@ -117,7 +118,7 @@ const partners: Partner[] = [
     nameAr: 'مركز نمو الطفل',
     description: 'Multidisciplinary pediatric clinic offering complementary OT and speech therapy services.',
     descriptionAr: 'عيادة أطفال متعددة التخصصات تقدم خدمات العلاج الوظيفي والنطق التكميلية.',
-    logo: '👶',
+    logo: '\u{1F476}',
     location: 'Dammam, Saudi Arabia',
     locationAr: 'الدمام، المملكة العربية السعودية',
     partnerSince: '2021',
@@ -133,7 +134,7 @@ const partners: Partner[] = [
     nameAr: 'مختبر الأعصاب في كاوست',
     description: 'Research collaboration studying neuroplasticity and auditory processing interventions.',
     descriptionAr: 'تعاون بحثي يدرس المرونة العصبية وتدخلات المعالجة السمعية.',
-    logo: '🔬',
+    logo: '\u{1F52C}',
     location: 'Thuwal, Saudi Arabia',
     locationAr: 'ثول، المملكة العربية السعودية',
     partnerSince: '2023',
@@ -517,14 +518,17 @@ export const PartnersSection: React.FC = () => {
                     background: `${partner.color}20`,
                   }}
                 >
-                  {partner.logo}
+                  {renderLabIcon(partner.logo, { size: 32, style: { color: partner.color } })}
                 </div>
                 <div style={styles.partnerMeta}>
                   <h3 style={styles.partnerName}>
                     {isArabic ? partner.nameAr : partner.name}
                   </h3>
                   <p style={styles.partnerLocation}>
-                    📍 {isArabic ? partner.locationAr : partner.location}
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                      {renderLabIcon('\u{1F4CD}', { size: 14, tone: 'cyan' })}
+                      {isArabic ? partner.locationAr : partner.location}
+                    </span>
                   </p>
                 </div>
               </div>
@@ -543,7 +547,10 @@ export const PartnersSection: React.FC = () => {
 
               <div style={styles.partnerFooter}>
                 <span style={styles.partnerSince}>
-                  🤝 {isArabic ? `شريك منذ ${partner.partnerSince}` : `Partner since ${partner.partnerSince}`}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    {renderLabIcon('\u{1F91D}', { size: 14, tone: 'cyan' })}
+                    {isArabic ? `شريك منذ ${partner.partnerSince}` : `Partner since ${partner.partnerSince}`}
+                  </span>
                 </span>
                 {partner.website && (
                   <button style={styles.viewButton}>

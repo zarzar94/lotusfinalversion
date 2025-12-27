@@ -17,6 +17,7 @@ import {
   shadows,
 } from '../styles';
 import { useLanguage } from '../../context/LanguageContext';
+import { renderLabIcon } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -232,7 +233,7 @@ export const MOCK_GOALS: Goal[] = [
     status: 'completed',
     completedAt: Date.now() - 3600000,
     icon: '🎯',
-    color: '#22c55e',
+    color: colors.success,
     reward: { type: 'points', value: 20, icon: '✨' },
   },
   {
@@ -249,7 +250,7 @@ export const MOCK_GOALS: Goal[] = [
     createdBy: 'parent',
     status: 'active',
     icon: '🔥',
-    color: '#f59e0b',
+    color: colors.warning,
   },
   {
     id: 'goal_4',
@@ -290,6 +291,7 @@ export const GoalProgressRing = memo(({
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   const isComplete = current >= target;
+  const iconSize = Math.max(12, Math.round(size * 0.25));
 
   const css = `
     @keyframes progressRingFill {
@@ -331,7 +333,7 @@ export const GoalProgressRing = memo(({
             cy={size / 2}
             r={(size - strokeWidth) / 2}
             fill="none"
-            stroke={isComplete ? '#22c55e' : color}
+            stroke={isComplete ? colors.success : color}
             strokeWidth={strokeWidth}
             strokeLinecap="round"
             strokeDasharray={circumference}
@@ -352,13 +354,15 @@ export const GoalProgressRing = memo(({
           justifyContent: 'center',
         }}>
           {icon && (
-            <span style={{ fontSize: size * 0.25, marginBottom: 2 }}>{icon}</span>
+            <span style={{ marginBottom: 2 }}>
+              {renderLabIcon(icon, { size: iconSize, tone: 'cyan' })}
+            </span>
           )}
           {showPercentage && (
             <span style={{
               fontSize: size * 0.18,
               fontWeight: typography.weight.black,
-              color: isComplete ? '#22c55e' : colors.text.primary,
+              color: isComplete ? colors.success : colors.text.primary,
             }}>
               {Math.round(percentage)}%
             </span>
@@ -435,7 +439,7 @@ export const GoalCard = memo(({
           </div>
         </div>
         {isComplete && (
-          <span style={{ fontSize: 20 }}>✅</span>
+          <span style={{ fontSize: 20 }}>{renderLabIcon('\u2705', { size: 18, tone: 'success' })}</span>
         )}
       </div>
     );
@@ -457,13 +461,13 @@ export const GoalCard = memo(({
           top: spacing[2],
           right: spacing[2],
           padding: `${spacing[1]}px ${spacing[2]}px`,
-          background: '#22c55e',
+          background: colors.success,
           borderRadius: radius.full,
           fontSize: typography.size.xs,
           fontWeight: typography.weight.bold,
           color: 'white',
         }}>
-          ✓ {t('auto.GoalSetting.k1', "Complete")}
+          {renderLabIcon('\u2713', { size: 14, style: { color: 'white' } })} {t('auto.GoalSetting.k1', "Complete")}
         </div>
       )}
 
@@ -484,7 +488,7 @@ export const GoalCard = memo(({
           justifyContent: 'center',
           fontSize: 24,
         }}>
-          {goal.icon}
+          {renderLabIcon(goal.icon, { size: 24, style: { color } })}
         </div>
         <div style={{ flex: 1 }}>
           <h4 style={{
@@ -517,7 +521,7 @@ export const GoalCard = memo(({
           <span style={{
             fontSize: typography.size.lg,
             fontWeight: typography.weight.black,
-            color: isComplete ? '#22c55e' : color,
+            color: isComplete ? colors.success : color,
           }}>
             {goal.current}
           </span>
@@ -538,7 +542,7 @@ export const GoalCard = memo(({
             height: '100%',
             width: `${progress}%`,
             background: isComplete
-              ? '#22c55e'
+              ? colors.success
               : `linear-gradient(90deg, ${color}, ${brandPurple})`,
             borderRadius: radius.full,
             transition: transitions.slow,
@@ -631,7 +635,7 @@ export const GoalCard = memo(({
                 border: `1px solid rgba(239,68,68,0.3)`,
                 borderRadius: radius.md,
                 fontSize: typography.size.xs,
-                color: '#ef4444',
+                color: colors.error,
                 cursor: 'pointer',
               }}
             >
@@ -720,7 +724,7 @@ export const GoalList = memo(({
             fontWeight: typography.weight.bold,
             color: colors.text.primary,
           }}>
-            🎯 {isArabic ? t(titleAr, title) : title}
+            {renderLabIcon('\U0001F3AF', { size: 18, tone: 'cyan' })} {isArabic ? t(titleAr, title) : title}
           </h3>
           <span style={{
             fontSize: typography.size.sm,
@@ -774,7 +778,7 @@ export const GoalList = memo(({
             fontWeight: typography.weight.bold,
             color: colors.text.muted,
           }}>
-            ✅ {t('auto.GoalSetting.k7', "Completed")}
+            {renderLabIcon('\u2705', { size: 16, tone: 'success' })} {t('auto.GoalSetting.k7', "Completed")}
           </h4>
           <div style={{
             display: 'flex',
@@ -800,7 +804,7 @@ export const GoalList = memo(({
           textAlign: 'center',
           color: colors.text.muted,
         }}>
-          <div style={{ fontSize: 48, marginBottom: spacing[3] }}>🎯</div>
+          <div style={{ fontSize: 48, marginBottom: spacing[3] }}>{renderLabIcon('\U0001F3AF', { size: 48, tone: 'muted' })}</div>
           <p style={{ margin: 0 }}>
             {t('auto.GoalSetting.k8', "No goals yet. Create one to get started!")}
           </p>
@@ -866,7 +870,7 @@ export const GoalCreator = memo(({
           transition: transitions.fast,
         }}
       >
-        <span style={{ fontSize: 20 }}>➕</span>
+        <span style={{ fontSize: 20 }}>{renderLabIcon('\U0001F3AF', { size: 18, tone: 'cyan' })}</span>
         {t('auto.GoalSetting.k9', "Create New Goal")}
       </button>
     );
@@ -906,7 +910,7 @@ export const GoalCreator = memo(({
             cursor: 'pointer',
           }}
         >
-          ✕
+          {renderLabIcon('\u2715', { size: 16, tone: 'muted' })}
         </button>
       </div>
 
@@ -933,7 +937,7 @@ export const GoalCreator = memo(({
                 transition: transitions.fast,
               }}
             >
-              <div style={{ fontSize: 24, marginBottom: spacing[1] }}>{preset.icon}</div>
+              <div style={{ fontSize: 24, marginBottom: spacing[1] }}>{renderLabIcon(preset.icon, { size: 24, tone: isSelected ? 'cyan' : 'muted' })}</div>
               <div style={{
                 fontSize: typography.size.xs,
                 fontWeight: typography.weight.bold,
@@ -1056,7 +1060,7 @@ export const GoalSummary = memo(({
         gap: spacing[2],
         marginBottom: spacing[3],
       }}>
-        <span style={{ fontSize: 20 }}>🎯</span>
+        <span style={{ fontSize: 20 }}>{renderLabIcon('\U0001F3AF', { size: 20, tone: 'cyan' })}</span>
         <h4 style={{
           margin: 0,
           fontSize: typography.size.sm,
@@ -1091,7 +1095,7 @@ export const GoalSummary = memo(({
           <div style={{
             fontSize: typography.size['2xl'],
             fontWeight: typography.weight.black,
-            color: '#22c55e',
+            color: colors.success,
           }}>
             {stats.completed}
           </div>
@@ -1121,7 +1125,7 @@ export const GoalSummary = memo(({
           <div style={{
             fontSize: typography.size['2xl'],
             fontWeight: typography.weight.black,
-            color: '#f59e0b',
+            color: colors.warning,
           }}>
             {stats.nearComplete}
           </div>
@@ -1164,7 +1168,7 @@ export const GoalCelebration = memo(({
     }
   `;
 
-  const confettiColors = [brandCyan, brandPurple, brandPink, '#22c55e', '#f59e0b'];
+  const confettiColors = [brandCyan, brandPurple, brandPink, colors.success, colors.warning];
 
   return (
     <>
@@ -1244,7 +1248,7 @@ export const GoalCelebration = memo(({
             fontSize: 48,
             boxShadow: `0 0 40px ${brandCyan}40`,
           }}>
-            🏆
+            {renderLabIcon('\U0001F3C6', { size: 48, tone: 'warning', glow: true })}
           </div>
 
           {/* Title */}
@@ -1256,7 +1260,7 @@ export const GoalCelebration = memo(({
             letterSpacing: 2,
             marginBottom: spacing[2],
           }}>
-            {t('auto.GoalSetting.k18', "🎉 Goal Complete!")}
+            {renderLabIcon('\U0001F389', { size: 16, tone: 'pink' })} {t('auto.GoalSetting.k18', "Goal Complete!")}
           </div>
           <h2 style={{
             margin: `0 0 ${spacing[3]}px`,
@@ -1291,7 +1295,7 @@ export const GoalCelebration = memo(({
                 fontWeight: typography.weight.bold,
                 marginBottom: spacing[2],
               }}>
-                🎁 {t('auto.GoalSetting.k19', "Your Reward")}
+                {renderLabIcon('\U0001F381', { size: 16, tone: 'pink' })} {t('auto.GoalSetting.k19', "Your Reward")}
               </div>
               <div style={{
                 display: 'flex',
@@ -1299,7 +1303,7 @@ export const GoalCelebration = memo(({
                 justifyContent: 'center',
                 gap: spacing[2],
               }}>
-                <span style={{ fontSize: 28 }}>{goal.reward.icon}</span>
+                <span style={{ fontSize: 28 }}>{renderLabIcon(goal.reward.icon, { size: 28, tone: 'pink' })}</span>
                 <span style={{
                   fontSize: typography.size.lg,
                   fontWeight: typography.weight.bold,

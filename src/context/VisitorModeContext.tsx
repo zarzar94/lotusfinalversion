@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, R
 import { useLocation } from 'react-router-dom';
 import { notifyLocalChange } from '../utils/sync';
 import { SchoolIcon, ParentIcon, ClinicianIcon } from '../components/icons/index';
+import { colors } from '../components/styles';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // VISITOR MODE TYPES
@@ -38,7 +39,7 @@ export const VISITOR_MODES: Record<VisitorMode, VisitorModeConfig> = {
     ctaLabel: 'Request School Demo',
     ctaLabelAr: 'اطلب تجربة مدرسية',
     ctaPath: '/contact?mode=school',
-    color: '#f59e0b',
+    color: colors.warning,
     priority: ['hero', 'school-partnership', 'games', 'results', 'program', 'checklist', 'contact'],
   },
   parent: {

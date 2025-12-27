@@ -19,6 +19,7 @@ import {
   buttons,
   forms,
 } from '../../styles';
+import { renderLabIcon } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -536,7 +537,9 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({
     return (
       <div style={styles.container}>
         <div style={styles.successMessage}>
-          <div style={styles.successIcon}>✅</div>
+          <div style={styles.successIcon}>
+            {renderLabIcon('✅', { size: 36, tone: 'success' })}
+          </div>
           <div style={styles.successTitle}>
             {isArabic ? 'تم تأكيد الحجز!' : 'Booking Confirmed!'}
           </div>
@@ -557,7 +560,10 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({
     <div style={styles.container}>
       <div style={styles.header}>
         <h2 style={styles.title}>
-          {isArabic ? '📅 حجز موعد' : '📅 Book Appointment'}
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            {renderLabIcon('📅', { size: 18, tone: 'cyan' })}
+            <span>{isArabic ? 'حجز موعد' : 'Book Appointment'}</span>
+          </span>
         </h2>
         <p style={styles.subtitle}>
           {isArabic
@@ -581,7 +587,7 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({
             }}
           >
             <span style={styles.stepNumber}>
-              {idx + 1 < step ? '✓' : idx + 1}
+              {idx + 1 < step ? renderLabIcon('✓', { size: 12, tone: 'success' }) : idx + 1}
             </span>
             <span>{label}</span>
           </div>
@@ -600,7 +606,9 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({
               }}
               onClick={() => handleTypeSelect(type.id)}
             >
-              <div style={styles.typeIcon}>{type.icon}</div>
+              <div style={styles.typeIcon}>
+                {renderLabIcon(type.icon, { size: 24, tone: 'cyan' })}
+              </div>
               <div style={styles.typeLabel}>{type.label}</div>
               <div style={styles.typeDescription}>{type.description}</div>
             </div>
@@ -855,7 +863,10 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({
           </button>
         ) : (
           <button style={styles.submitButton} onClick={handleSubmit}>
-            {isArabic ? '✓ تأكيد الحجز' : '✓ Confirm Booking'}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              {renderLabIcon('✓', { size: 14, tone: 'success' })}
+              <span>{isArabic ? 'تأكيد الحجز' : 'Confirm Booking'}</span>
+            </span>
           </button>
         )}
       </div>

@@ -1,3 +1,5 @@
+import { colors } from '../components/styles';
+
 /**
  * Specialist Profile Data
  * Lead practitioner information for Lotus × Bérard AIT
@@ -72,7 +74,7 @@ export const SPECIALIST: Specialist = {
       descriptionEn: 'Alexandria University',
       year: '1987',
       icon: '🎧',
-      color: '#22c55e',
+      color: colors.success,
     },
   ],
   bioAr: `محمد كمال عرفة هو أخصائي تخاطب ذو خبرة تمتد لأكثر من 35 عاماً في مجال اضطرابات التواصل والمعالجة السمعية. حاصل على شهادة ممارس معتمد في طريقة Bérard AIT من لندن، وقد عمل مع مئات الأسر في المملكة العربية السعودية والإمارات.
@@ -128,7 +130,7 @@ We offer the Bérard AIT auditory integration program as one of our specialized 
       nameAr: 'الدعم النفسي',
       nameEn: 'Psychological Support',
       icon: '💚',
-      color: '#22c55e',
+      color: colors.success,
     },
   ],
   values: [

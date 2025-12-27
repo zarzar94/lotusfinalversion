@@ -19,6 +19,7 @@ import {
   shadows,
   transitions,
 } from './styles';
+import { renderLabIcon } from './icons/index';
 
 interface Shortcut {
   key: string;
@@ -262,7 +263,7 @@ const KeyboardShortcuts = memo(() => {
                   justifyContent: 'center',
                 }}
               >
-                ✕
+                {renderLabIcon('\u2715', { size: 12, tone: 'muted' })}
               </button>
             </div>
 
@@ -345,7 +346,9 @@ const KeyboardShortcuts = memo(() => {
                 gap: spacing[2],
               }}
             >
-              <span style={{ fontSize: 14 }}>💡</span>
+              <span style={{ fontSize: 14 }}>
+                {renderLabIcon('\u{1F4A1}', { size: 14, tone: 'warning' })}
+              </span>
               <span
                 style={{
                   fontSize: typography.size.sm,

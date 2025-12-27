@@ -39,8 +39,8 @@ const CATEGORY_CONFIG: Record<string, { icon: ReactNode; color: string }> = {
   'صعوبات أكاديمية ولغوية': { icon: <BookIcon size={20} />, color: brandCyan },
   'مؤشرات سمعية': { icon: <EarIcon size={20} />, color: brandPink },
   'تعلم وتركيز ووظائف تنفيذية': { icon: <BrainIcon size={20} />, color: brandPurple },
-  'توازن وحركة': { icon: <BalanceIcon size={20} />, color: '#22c55e' },
-  'سلوك ومزاج وصحة عامة': { icon: <HeartIcon size={20} />, color: '#f59e0b' },
+  'توازن وحركة': { icon: <BalanceIcon size={20} />, color: colors.success },
+  'سلوك ومزاج وصحة عامة': { icon: <HeartIcon size={20} />, color: colors.warning },
   'تشخيصات/حالات شائعة مرتبطة بالسمع/التعلم': { icon: <MicroscopeIcon size={20} />, color: brandPurpleDark },
 };
 
@@ -229,7 +229,7 @@ function Missile({ active, startPos, targetPos, onImpact, color }: MissileProps)
           <div style={{
             width: 10,
             height: 30,
-            background: 'linear-gradient(180deg, #dc2626 0%, #991b1b 50%, #7f1d1d 100%)',
+            background: `linear-gradient(180deg, ${colors.error} 0%, #991b1b 50%, #7f1d1d 100%)`,
             borderRadius: '5px 5px 2px 2px',
             position: 'relative',
             boxShadow: '0 0 15px rgba(220,38,38,0.8)',
@@ -353,7 +353,7 @@ function LaunchButton({ onClick, disabled, buttonRef }: LaunchButtonProps) {
         borderRadius: '50%',
         background: isPressed
           ? 'linear-gradient(145deg, #7f1d1d 0%, #991b1b 50%, #b91c1c 100%)'
-          : 'linear-gradient(145deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%)',
+          : `linear-gradient(145deg, ${colors.error} 0%, #b91c1c 50%, #991b1b 100%)`,
         boxShadow: isPressed
           ? 'inset 0 4px 15px rgba(0,0,0,0.5)'
           : `inset 0 -4px 15px rgba(0,0,0,0.3), inset 0 4px 15px rgba(255,255,255,0.1), 0 4px 20px rgba(220,38,38,0.4)`,
@@ -850,11 +850,11 @@ const Checklist = () => {
               width: 8,
               height: 8,
               borderRadius: '50%',
-              background: '#22c55e',
+              background: colors.success,
               animation: 'blink 2s ease-in-out infinite',
-              boxShadow: '0 0 8px #22c55e',
+              boxShadow: `0 0 8px ${colors.success}`,
             }} />
-            <span style={{ fontSize: 10, color: '#22c55e', fontWeight: 700 }}>{t('labTech.scanning')}</span>
+            <span style={{ fontSize: 10, color: colors.success, fontWeight: 700 }}>{t('labTech.scanning')}</span>
           </div>
           <span style={{
             ...styles.chip,
@@ -1305,9 +1305,9 @@ const Checklist = () => {
 
       {/* Disclaimer */}
       <div style={{ marginTop: 20, padding: 14, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 12, display: 'flex', alignItems: 'flex-start', gap: 10, position: 'relative', zIndex: 1 }}>
-        <AlertIcon size={24} color="#f59e0b" style={{ flexShrink: 0 }} />
+        <AlertIcon size={24} color={colors.warning} style={{ flexShrink: 0 }} />
         <div>
-          <div style={{ fontWeight: 800, color: '#f59e0b', marginBottom: 4, fontSize: 13 }}>تنبيه</div>
+          <div style={{ fontWeight: 800, color: colors.warning, marginBottom: 4, fontSize: 13 }}>تنبيه</div>
           <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
             هذه أداة فحص أولية وليست تشخيصاً. للتقييم الدقيق استشر مختصاً.
           </p>

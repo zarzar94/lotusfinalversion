@@ -190,8 +190,8 @@ const ChildProgressCard = memo(({
   const phaseColors = {
     assessment: brandPurple,
     active: brandCyan,
-    maintenance: '#f59e0b',
-    completed: '#22c55e',
+    maintenance: colors.warning,
+    completed: colors.success,
   };
 
   const phaseLabels = {
@@ -335,7 +335,7 @@ const ChildProgressCard = memo(({
                 style={{
                   fontSize: typography.size.sm,
                   fontWeight: typography.weight.bold,
-                  color: '#f59e0b',
+                  color: colors.warning,
                 }}
               >
                 {child.streak}
@@ -794,7 +794,7 @@ export default function ParentDashboard() {
             label={t('auto.ParentDashboard.k15', "Total Streaks")}
             value={overallStats.totalStreak}
             icon={<StarIcon size={20} tone="warning" />}
-            color="#f59e0b"
+            color={colors.warning}
           />
         </div>
       </PageTransition>

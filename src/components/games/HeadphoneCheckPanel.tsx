@@ -14,6 +14,7 @@ import {
 import { useLanguage } from '../../context/LanguageContext';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import { ModuleFrame } from './ui';
+import { renderLabIcon } from '../icons/index';
 
 export type HeadphoneCheckResult = {
   supported: boolean;
@@ -231,7 +232,7 @@ const VolumeCalibration = ({
               marginBottom: spacing[1],
             }}
           >
-            🎚️ {text.title}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>{renderLabIcon('\U0001F39A', { size: 18, tone: 'cyan' })}<span>{text.title}</span></span>
           </h3>
           <p
             style={{
@@ -265,7 +266,7 @@ const VolumeCalibration = ({
             textAlign: isArabic ? 'right' : 'left',
           }}
         >
-          💡 {text.instruction}
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>{renderLabIcon('\U0001F4A1', { size: 16, tone: 'warning' })}<span>{text.instruction}</span></span>
         </p>
 
         <div style={{ marginBottom: spacing[4] }}>
@@ -323,7 +324,12 @@ const VolumeCalibration = ({
           }}
         >
           <LabButton onClick={playTestTone} disabled={isPlaying}>
-            {isPlaying ? '🔊' : '▶︎'} {text.playBtn}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+              {isPlaying
+                ? renderLabIcon('\U0001F50A', { size: 16, tone: 'cyan' })
+                : renderLabIcon('\U0001F3AC', { size: 16, tone: 'cyan' })}
+              <span>{text.playBtn}</span>
+            </span>
           </LabButton>
         </div>
       </div>
@@ -343,7 +349,7 @@ const VolumeCalibration = ({
           </LabButton>
         )}
         <LabButton onClick={onConfirm}>
-          ✓ {text.confirmBtn}
+          {renderLabIcon('\u2713', { size: 16, tone: 'success' })} {text.confirmBtn}
         </LabButton>
       </div>
 
@@ -511,7 +517,7 @@ export default function HeadphoneCheckPanel({
             marginBottom: spacing[3],
           }}
         >
-          <span style={{ fontSize: 20 }}>⚠️</span>
+          <span style={{ fontSize: 20 }}>{renderLabIcon('\u26A0', { size: 18, tone: 'warning' })}</span>
           <span
             style={{
               fontWeight: 900,
@@ -596,7 +602,7 @@ export default function HeadphoneCheckPanel({
               marginBottom: spacing[1],
             }}
           >
-            🎧 {text.headphoneTitle}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>{renderLabIcon('\U0001F3A7', { size: 18, tone: 'cyan' })}<span>{text.headphoneTitle}</span></span>
           </h3>
           <p
             style={{
@@ -641,7 +647,7 @@ export default function HeadphoneCheckPanel({
             textAlign: isArabic ? 'right' : 'left',
           }}
         >
-          💡 {text.speakerNote}
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>{renderLabIcon('\U0001F4A1', { size: 16, tone: 'warning' })}<span>{text.speakerNote}</span></span>
         </p>
 
         <div
@@ -654,7 +660,12 @@ export default function HeadphoneCheckPanel({
           }}
         >
           <LabButton onClick={playTrial} disabled={playing}>
-            {playing ? '🔊' : '▶︎'} {text.playBtn}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+              {playing
+                ? renderLabIcon('\U0001F50A', { size: 16, tone: 'cyan' })
+                : renderLabIcon('\U0001F3AC', { size: 16, tone: 'cyan' })}
+              <span>{text.playBtn}</span>
+            </span>
           </LabButton>
           <LabButton
             onClick={() => answer(-1)}

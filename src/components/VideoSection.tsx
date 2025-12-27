@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, colors } from './styles';
 import { PlayIcon, VideoIcon, ChartIcon, BrainIcon, EyeIcon, EarIcon, BeakerIcon } from './Icons';
 import { useLanguage } from '../context/LanguageContext';
 import LabButtonAnchor from './labui/LabButtonAnchor';
@@ -235,7 +235,7 @@ const LabMonitor = ({ video, isHovered, isArabic, onHover }: {
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                background: '#22c55e',
+                background: colors.success,
                 animation: 'pulse 2s infinite',
               }} />
               <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>LAB</span>

@@ -12,6 +12,7 @@ import {
 } from './styles';
 import { useLanguage } from '../context/LanguageContext';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { renderLabIcon } from './icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PLATFORM MODULE DEFINITIONS
@@ -176,7 +177,7 @@ const ModuleCard = memo(({
           boxShadow: isHovered ? `0 4px 16px ${module.color}30` : 'none',
           transition: transitions.normal,
         }}>
-          {module.icon}
+          {renderLabIcon(module.icon, { size: 20, style: { color: module.color } })}
         </div>
 
         {/* Badge */}
@@ -270,7 +271,7 @@ const PLATFORM_METRICS: PlatformMetric[] = [
     labelAr: 'auto.PlatformNav.k18',
     labelEn: 'Success Rate',
     icon: '📈',
-    color: '#22c55e',
+    color: colors.success,
     trend: 'up',
   },
   {
@@ -446,7 +447,7 @@ export default function PlatformNav() {
               justifyContent: 'center',
               fontSize: 16,
             }}>
-              {metric.icon}
+              {renderLabIcon(metric.icon, { size: 16, style: { color: metric.color } })}
             </div>
 
             {/* Value and label */}
@@ -466,7 +467,7 @@ export default function PlatformNav() {
                   {isArabic ? t(metric.valueAr, metric.valueEn) : metric.valueEn}
                 </span>
                 {metric.trend === 'up' && (
-                  <span style={{ color: '#22c55e', fontSize: 12 }}>↑</span>
+                  <span style={{ color: colors.success, fontSize: 12 }}>↑</span>
                 )}
               </div>
               <div style={{
@@ -495,8 +496,8 @@ export default function PlatformNav() {
             width: 6,
             height: 6,
             borderRadius: '50%',
-            background: '#22c55e',
-            boxShadow: '0 0 8px #22c55e',
+            background: colors.success,
+            boxShadow: `0 0 8px ${colors.success}`,
             animation: 'pulseGlow 2s ease-in-out infinite',
           }} />
           <span>{t('auto.PlatformNav.k4', "System Online")}</span>

@@ -20,7 +20,7 @@ import {
   shadows,
   transitions,
 } from './styles';
-import { renderLabIcon, MapPinIcon, SearchIcon, SparklesIcon, CalendarIcon } from './icons';
+import { renderLabIcon, MapPinIcon, SearchIcon, SparklesIcon, CalendarIcon } from './icons/index';
 
 // Navigation item type
 interface NavItem {
@@ -360,7 +360,7 @@ const SmartNavigationDrawer = memo(() => {
                 justifyContent: 'center',
               }}
             >
-              ✕
+              {renderLabIcon('\u2715', { size: 12, tone: 'muted' })}
             </button>
           </div>
 
@@ -815,7 +815,7 @@ export const ContinueWhereYouLeftOff = memo(() => {
           cursor: 'pointer',
         }}
       >
-        ✕
+        {renderLabIcon('\u2715', { size: 12, tone: 'muted' })}
       </button>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: spacing[3] }}>

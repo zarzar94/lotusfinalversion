@@ -7,6 +7,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { downloadSessionCsv, downloadSessionPdf } from './games/report';
 import type { AssessmentSession, TestOutcome } from './games/types';
 import { SchoolIcon, CheckCircleIcon, UsersIcon, ChartIcon, ClockIcon, DocumentIcon, StarIcon } from './Icons';
+import { renderLabIcon } from './icons/index';
 import LabCard from './labui/LabCard';
 import LabButton from './labui/LabButton';
 import LabButtonAnchor from './labui/LabButtonAnchor';
@@ -41,7 +42,7 @@ const getProcessSteps = (t: (key: string) => string) => [
   },
   {
     step: 4,
-    icon: <CheckCircleIcon size={24} color="#22c55e" />,
+    icon: <CheckCircleIcon size={24} color={colors.success} />,
     title: t('schools.process.step4Title'),
     description: t('schools.process.step4Desc'),
   },
@@ -295,14 +296,17 @@ const SchoolPartnershipSection = () => {
         <div style={styles.sectionHeaderRow}>
           <h2 style={styles.h2}>{t('schools.title')}</h2>
           <span style={{ ...styles.chip, background: 'rgba(143,211,204,0.12)', borderColor: 'rgba(143,211,204,0.25)' }}>
-            🏫 {t('schools.badge')}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              {renderLabIcon('\u{1F3EB}', { size: 14, tone: 'cyan' })}
+              {t('schools.badge')}
+            </span>
           </span>
         </div>
         <p style={styles.bodyText}>
           {t('schools.description')}
         </p>
         <p style={styles.muted}>
-          ✅ {t('schools.disclaimer')}
+          {renderLabIcon('\u2705', { size: 12, tone: 'success' })} {t('schools.disclaimer')}
         </p>
       </div>
 
@@ -331,7 +335,7 @@ const SchoolPartnershipSection = () => {
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>{t('schools.stats.teachers')}</div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 32, fontWeight: 900, color: '#22c55e' }}>{IMPACT_STATS.satisfaction}%</div>
+          <div style={{ fontSize: 32, fontWeight: 900, color: colors.success }}>{IMPACT_STATS.satisfaction}%</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>{t('schools.stats.satisfaction')}</div>
         </div>
       </div>
@@ -623,7 +627,7 @@ const SchoolPartnershipSection = () => {
           fontSize: 48,
           opacity: 0.15,
           color: brandCyan,
-        }}>❝</div>
+        }}>"</div>
         <div style={{ position: 'relative', zIndex: 1 }}>
           <p style={{ fontSize: 15, lineHeight: 1.8, color: 'rgba(255,255,255,0.85)', fontStyle: 'italic', margin: 0 }}>
             {t('schools.testimonial.quote')}
@@ -638,7 +642,9 @@ const SchoolPartnershipSection = () => {
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: 20,
-            }}>👩‍🏫</div>
+            }}>
+              {renderLabIcon('\u{1F469}\u{200D}\u{1F3EB}', { size: 20, tone: 'cyan' })}
+            </div>
             <div>
               <div style={{ fontWeight: 800, fontSize: 14 }}>{t('schools.testimonial.author')}</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{t('schools.testimonial.role')}</div>
@@ -662,7 +668,10 @@ const SchoolPartnershipSection = () => {
       }}>
         <div>
           <div style={{ fontSize: 20, fontWeight: 900, color: '#fff', marginBottom: 6 }}>
-            🏫 {t('schools.cta.title')}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              {renderLabIcon('\u{1F3EB}', { size: 18, tone: 'cyan' })}
+              {t('schools.cta.title')}
+            </span>
           </div>
           <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)' }}>
             {t('schools.cta.subtitle')}
@@ -680,7 +689,10 @@ const SchoolPartnershipSection = () => {
               gap: 8,
             }}
           >
-            💬 {t('schools.cta.whatsappButton')}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              {renderLabIcon('\u{1F4AC}', { size: 16, tone: 'cyan' })}
+              {t('schools.cta.whatsappButton')}
+            </span>
           </LabButton>
           <LabButtonAnchor
             href="/contact#contact"

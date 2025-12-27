@@ -11,6 +11,7 @@ import {
   spacing,
   typography,
 } from './styles';
+import { renderLabIcon } from './icons/index';
 
 // Futuristic journey flow for the landing page
 // Keeps everything inline to align with existing design tokens
@@ -89,7 +90,7 @@ const steps: JourneyStep[] = [
     description: 'Track change with dashboards, exportables, and research-aligned markers.',
     descriptionAr: 'تابع التغيير عبر لوحات تحكم وقابليات تصدير ومؤشرات بحثية.',
     path: '/results',
-    accent: '#22c55e',
+    accent: colors.success,
     tags: [
       { en: 'Live dashboards', ar: 'لوحات حية' },
       { en: 'Clinician ready', ar: 'جاهز للأخصائي' },
@@ -192,7 +193,7 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
               }}
             >
               <span role="img" aria-hidden>
-                🚀
+                {renderLabIcon('🚀', { size: 14, tone: 'cyan' })}
               </span>
               {header.badge}
             </div>

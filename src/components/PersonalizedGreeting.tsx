@@ -21,11 +21,25 @@ import {
   shadows,
   transitions,
 } from './styles';
+import { renderLabIcon } from './icons/index';
 
 // Storage keys
 const VISIT_STATS_KEY = 'lotus_visit_stats';
 const STREAK_KEY = 'lotus_engagement_streak';
 const VISITED_PAGES_KEY = 'lotus_visited_pages';
+const ICON_SPARKLES = '\u2728';
+const ICON_CONFETTI = '\u{1F389}';
+const ICON_FIRE = '\u{1F525}';
+const ICON_STAR = '\u{2B50}';
+const ICON_STAR_ALT = '\u{1F31F}';
+const ICON_DIAMOND = '\u{1F48E}';
+const ICON_TROPHY = '\u{1F3C6}';
+const ICON_WAVE = '\u{1F44B}';
+const ICON_CLOCK = '\u{1F550}';
+const ICON_BOOKS = '\u{1F4DA}';
+const ICON_TARGET = '\u{1F3AF}';
+const ICON_CLIPBOARD = '\u{1F4CB}';
+const ICON_CHECK = '\u2713';
 
 // Streak data interface
 interface StreakData {
@@ -65,9 +79,9 @@ const PersonalizedGreeting = memo(({
   const [greeting, setGreeting] = useState<{
     main: string;
     sub: string;
-    emoji: string;
-    specialMessage?: string;
-  }>({ main: '', sub: '', emoji: '' });
+    icon: string;
+    specialMessage?: { text: string; icon?: string };
+  }>({ main: '', sub: '', icon: '' });
 
   const [streakData, setStreakData] = useState<StreakData>({
     currentStreak: 0,
@@ -140,50 +154,53 @@ const PersonalizedGreeting = memo(({
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
     let timeGreeting: { ar: string; en: string };
-    let emoji: string;
-    let specialMessage: { ar: string; en: string } | undefined;
+    let greetingIcon = ICON_SPARKLES;
+    let specialMessage: { text: { ar: string; en: string }; icon?: string } | undefined;
 
     // Time-based greeting with more variety
     if (hour >= 5 && hour < 12) {
       const morningGreetings = [
-        { ar: 'صباح الخير', en: 'Good morning', emoji: '🌅' },
-        { ar: 'صباح النور', en: 'Rise and shine', emoji: '☀️' },
-        { ar: 'أسعد الله صباحك', en: 'Have a wonderful morning', emoji: '🌞' },
+        { ar: 'صباح الخير', en: 'Good morning', icon: ICON_SPARKLES },
+        { ar: 'صباح النور', en: 'Rise and shine', icon: ICON_STAR },
+        { ar: 'أسعد الله صباحك', en: 'Have a wonderful morning', icon: ICON_STAR_ALT },
       ];
       const selected = morningGreetings[Math.floor(Math.random() * morningGreetings.length)];
       timeGreeting = { ar: selected.ar, en: selected.en };
-      emoji = selected.emoji;
+      greetingIcon = selected.icon;
     } else if (hour >= 12 && hour < 17) {
       timeGreeting = { ar: 'مساء الخير', en: 'Good afternoon' };
-      emoji = '☀️';
+      greetingIcon = ICON_SPARKLES;
     } else if (hour >= 17 && hour < 21) {
       timeGreeting = { ar: 'مساء النور', en: 'Good evening' };
-      emoji = '🌆';
+      greetingIcon = ICON_STAR;
     } else {
       timeGreeting = { ar: 'مساء الخير', en: 'Good night' };
-      emoji = '🌙';
+      greetingIcon = ICON_STAR_ALT;
     }
 
     // Special messages based on context
     if (isWeekend) {
       specialMessage = {
-        ar: 'نهاية أسبوع سعيدة! 🎉',
-        en: 'Happy weekend! 🎉',
+        text: { ar: 'نهاية أسبوع سعيدة!', en: 'Happy weekend!' },
+        icon: ICON_CONFETTI,
       };
     } else if (streakData.currentStreak >= 7) {
       specialMessage = {
-        ar: `${streakData.currentStreak} أيام متتالية! 🔥`,
-        en: `${streakData.currentStreak} day streak! 🔥`,
+        text: {
+          ar: `${streakData.currentStreak} أيام متتالية!`,
+          en: `${streakData.currentStreak} day streak!`,
+        },
+        icon: ICON_FIRE,
       };
     } else if (streakData.totalVisits === 1) {
       specialMessage = {
-        ar: 'مرحباً بك لأول مرة! ✨',
-        en: 'Welcome for the first time! ✨',
+        text: { ar: 'مرحباً بك لأول مرة!', en: 'Welcome for the first time!' },
+        icon: ICON_SPARKLES,
       };
     } else if (streakData.totalVisits === 10) {
       specialMessage = {
-        ar: 'زيارتك العاشرة! أنت رائع! 🌟',
-        en: '10th visit! You\'re awesome! 🌟',
+        text: { ar: 'زيارتك العاشرة! أنت رائع!', en: '10th visit! You\'re awesome!' },
+        icon: ICON_STAR_ALT,
       };
     }
 
@@ -245,11 +262,12 @@ const PersonalizedGreeting = memo(({
     setGreeting({
       main: greetingText,
       sub: isArabic ? subtitles.ar[subtitleIndex] : subtitles.en[subtitleIndex],
-      emoji,
+      icon: greetingIcon,
       specialMessage: specialMessage
-        ? isArabic
-          ? specialMessage.ar
-          : specialMessage.en
+        ? {
+            text: isArabic ? specialMessage.text.ar : specialMessage.text.en,
+            icon: specialMessage.icon,
+          }
         : undefined,
     });
 
@@ -289,7 +307,7 @@ const PersonalizedGreeting = memo(({
 
   // Mode colors
   const modeColors = {
-    school: '#f59e0b',
+    school: colors.warning,
     parent: brandPurple,
     clinician: brandPink,
   };
@@ -303,21 +321,21 @@ const PersonalizedGreeting = memo(({
       recs.push({
         path: '/assessment',
         label: { ar: 'جرب التقييم الذاتي', en: 'Try Self-Assessment' },
-        icon: '🎯',
+        icon: ICON_TARGET,
       });
     }
     if (!visited.includes('/program') && mode === 'parent') {
       recs.push({
         path: '/program',
         label: { ar: 'تعرف على البرنامج', en: 'Learn About Program' },
-        icon: '📋',
+        icon: ICON_CLIPBOARD,
       });
     }
     if (!visited.includes('/results')) {
       recs.push({
         path: '/results',
         label: { ar: 'شاهد النتائج', en: 'See Results' },
-        icon: '⭐',
+        icon: ICON_STAR,
       });
     }
 
@@ -335,7 +353,9 @@ const PersonalizedGreeting = memo(({
           direction: isArabic ? 'rtl' : 'ltr',
         }}
       >
-        <span style={{ fontSize: sizeConfig.iconSize }}>{greeting.emoji}</span>
+        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+          {renderLabIcon(greeting.icon, { size: sizeConfig.iconSize, style: { color: brandCyan } })}
+        </span>
         <span
           style={{
             fontSize: sizeConfig.main,
@@ -356,7 +376,7 @@ const PersonalizedGreeting = memo(({
               color: brandCyan,
             }}
           >
-            🔥 {streakData.currentStreak}
+            {renderLabIcon(ICON_FIRE, { size: 12, tone: 'warning' })} {streakData.currentStreak}
           </span>
         )}
       </div>
@@ -403,7 +423,7 @@ const PersonalizedGreeting = memo(({
                   animation: 'greetingBounce 1s ease-out',
                 }}
               >
-                {greeting.emoji}
+                {renderLabIcon(greeting.icon, { size: 48, style: { color: modeColors[mode] } })}
               </div>
 
               {/* Main greeting */}
@@ -452,9 +472,15 @@ const PersonalizedGreeting = memo(({
                       fontSize: typography.size.sm,
                       fontWeight: typography.weight.bold,
                       color: brandCyan,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: spacing[1],
                     }}
                   >
-                    {greeting.specialMessage}
+                    {greeting.specialMessage.icon
+                      ? renderLabIcon(greeting.specialMessage.icon, { size: 12, tone: 'cyan' })
+                      : null}
+                    {greeting.specialMessage.text}
                   </span>
                 </div>
               )}
@@ -479,7 +505,7 @@ const PersonalizedGreeting = memo(({
                     marginBottom: spacing[1],
                   }}
                 >
-                  🔥
+                  {renderLabIcon(ICON_FIRE, { size: 28, tone: 'warning' })}
                 </div>
                 <div
                   style={{
@@ -528,7 +554,7 @@ const PersonalizedGreeting = memo(({
                 color: modeColors[mode],
               }}
             >
-              {config.icon}
+              {renderLabIcon(config.icon, { size: 16, style: { color: modeColors[mode] } })}
               <span>{isArabic ? config.labelAr : config.label}</span>
             </span>
 
@@ -547,7 +573,7 @@ const PersonalizedGreeting = memo(({
                   color: brandPurple,
                 }}
               >
-                ⭐ {isArabic ? `المستوى ${level}` : `Level ${level}`}
+                {renderLabIcon(ICON_STAR, { size: 14, tone: 'warning' })} {isArabic ? `المستوى ${level}` : `Level ${level}`}
               </span>
             )}
 
@@ -565,7 +591,7 @@ const PersonalizedGreeting = memo(({
                   color: colors.text.secondary,
                 }}
               >
-                💎 {points} {isArabic ? 'نقطة' : 'pts'}
+                {renderLabIcon(ICON_DIAMOND, { size: 14, tone: 'cyan' })} {points} {isArabic ? 'نقطة' : 'pts'}
               </span>
             )}
           </div>
@@ -608,7 +634,7 @@ const PersonalizedGreeting = memo(({
                       transition: transitions.fast,
                     }}
                   >
-                    <span>{rec.icon}</span>
+                    <span>{renderLabIcon(rec.icon, { size: 16, tone: 'cyan' })}</span>
                     <span>{isArabic ? rec.label.ar : rec.label.en}</span>
                   </button>
                 ))}
@@ -630,7 +656,9 @@ const PersonalizedGreeting = memo(({
             }}
           >
             {/* Emoji */}
-            <span style={{ fontSize: sizeConfig.iconSize }}>{greeting.emoji}</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+              {renderLabIcon(greeting.icon, { size: sizeConfig.iconSize, style: { color: brandCyan } })}
+            </span>
 
             {/* Main greeting */}
             <h2
@@ -659,7 +687,7 @@ const PersonalizedGreeting = memo(({
                   gap: spacing[1],
                 }}
               >
-                🔥 {streakData.currentStreak}
+                {renderLabIcon(ICON_FIRE, { size: 12, tone: 'warning' })} {streakData.currentStreak}
               </span>
             )}
           </div>
@@ -700,7 +728,7 @@ const PersonalizedGreeting = memo(({
                   color: modeColors[mode],
                 }}
               >
-                {config.icon}
+                {renderLabIcon(config.icon, { size: 14, style: { color: modeColors[mode] } })}
                 <span>{isArabic ? config.labelAr : config.label}</span>
               </span>
             </div>
@@ -721,9 +749,15 @@ const PersonalizedGreeting = memo(({
                 style={{
                   fontSize: typography.size.sm,
                   color: brandCyan,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: spacing[1],
                 }}
               >
-                {greeting.specialMessage}
+                {greeting.specialMessage.icon
+                  ? renderLabIcon(greeting.specialMessage.icon, { size: 12, tone: 'cyan' })
+                  : null}
+                {greeting.specialMessage.text}
               </span>
             </div>
           )}
@@ -750,7 +784,7 @@ const PersonalizedGreeting = memo(({
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                background: [brandCyan, brandPurple, brandPink, '#f59e0b'][i % 4],
+                background: [brandCyan, brandPurple, brandPink, colors.warning][i % 4],
                 animation: `confetti-burst 1s ease-out ${i * 0.05}s forwards`,
               }}
             />
@@ -868,22 +902,22 @@ export const QuickStats = memo(({
 
   const statItems = [
     showVisitCount && stats.visitCount > 1 && {
-      icon: '👋',
+      icon: ICON_WAVE,
       label: isArabic ? `زيارتك رقم ${stats.visitCount}` : `Visit #${stats.visitCount}`,
       color: brandCyan,
     },
     showStreak && stats.streak > 1 && {
-      icon: '🔥',
+      icon: ICON_FIRE,
       label: isArabic ? `${stats.streak} أيام متتالية` : `${stats.streak} day streak`,
-      color: '#f59e0b',
+      color: colors.warning,
     },
     showLastVisit && stats.lastVisit && {
-      icon: '🕐',
+      icon: ICON_CLOCK,
       label: `${isArabic ? 'آخر زيارة: ' : 'Last: '}${formatLastVisit(stats.lastVisit)}`,
       color: brandPurple,
     },
     showProgress && stats.pagesExplored > 1 && {
-      icon: '📚',
+      icon: ICON_BOOKS,
       label: isArabic ? `${stats.pagesExplored} صفحات` : `${stats.pagesExplored} pages`,
       color: brandPink,
     },
@@ -914,7 +948,9 @@ export const QuickStats = memo(({
             border: `1px solid ${item.color}15`,
           }}
         >
-          <span style={{ fontSize: 16 }}>{item.icon}</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+            {renderLabIcon(item.icon, { size: 16, style: { color: item.color } })}
+          </span>
           <span
             style={{
               fontSize: typography.size.sm,
@@ -939,10 +975,13 @@ export const ReturningUserBanner = memo(() => {
   const { isArabic } = useLanguage();
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
-  const [bannerData, setBannerData] = useState({
+  const [bannerData, setBannerData] = useState<{
+    visitCount: number;
+    streak: number;
+    milestone?: { text: string; icon?: string };
+  }>({
     visitCount: 1,
     streak: 0,
-    milestone: '',
   });
 
   useEffect(() => {
@@ -952,11 +991,11 @@ export const ReturningUserBanner = memo(() => {
     const streakData = streakRaw ? JSON.parse(streakRaw) : { currentStreak: 0 };
 
     // Determine milestone
-    let milestone = '';
-    if (stats.count === 5) milestone = isArabic ? 'زائر منتظم! 🌟' : 'Regular visitor! 🌟';
-    else if (stats.count === 10) milestone = isArabic ? 'عضو نشط! 💎' : 'Active member! 💎';
-    else if (stats.count === 25) milestone = isArabic ? 'متميز! 🏆' : 'Outstanding! 🏆';
-    else if (streakData.currentStreak === 7) milestone = isArabic ? 'أسبوع كامل! 🔥' : 'Full week streak! 🔥';
+    let milestone: { text: string; icon?: string } | undefined;
+    if (stats.count === 5) milestone = { text: isArabic ? 'زائر منتظم!' : 'Regular visitor!', icon: ICON_STAR_ALT };
+    else if (stats.count === 10) milestone = { text: isArabic ? 'عضو نشط!' : 'Active member!', icon: ICON_DIAMOND };
+    else if (stats.count === 25) milestone = { text: isArabic ? 'متميز!' : 'Outstanding!', icon: ICON_TROPHY };
+    else if (streakData.currentStreak === 7) milestone = { text: isArabic ? 'أسبوع كامل!' : 'Full week streak!', icon: ICON_FIRE };
 
     if ((stats.count > 1 && stats.count <= 10) || milestone) {
       setBannerData({
@@ -1008,7 +1047,7 @@ export const ReturningUserBanner = memo(() => {
           cursor: 'pointer',
         }}
       >
-        ✕
+        {renderLabIcon('\u2715', { size: 12, tone: 'muted' })}
       </button>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: spacing[3] }}>
@@ -1024,7 +1063,7 @@ export const ReturningUserBanner = memo(() => {
             fontSize: 24,
           }}
         >
-          🎉
+          {renderLabIcon(ICON_CONFETTI, { size: 24, tone: 'pink' })}
         </div>
         <div style={{ flex: 1 }}>
           <p
@@ -1047,9 +1086,15 @@ export const ReturningUserBanner = memo(() => {
                 fontSize: typography.size.sm,
                 color: brandCyan,
                 fontWeight: typography.weight.medium,
+                display: 'flex',
+                alignItems: 'center',
+                gap: spacing[1],
               }}
             >
-              {bannerData.milestone}
+              {bannerData.milestone.icon
+                ? renderLabIcon(bannerData.milestone.icon, { size: 12, tone: 'cyan' })
+                : null}
+              {bannerData.milestone.text}
             </p>
           )}
           {bannerData.streak > 1 && !bannerData.milestone && (
@@ -1060,7 +1105,8 @@ export const ReturningUserBanner = memo(() => {
                 color: colors.text.secondary,
               }}
             >
-              🔥 {isArabic ? `${bannerData.streak} أيام متتالية` : `${bannerData.streak} day streak`}
+              {renderLabIcon(ICON_FIRE, { size: 12, tone: 'warning' })}{' '}
+              {isArabic ? `${bannerData.streak} أيام متتالية` : `${bannerData.streak} day streak`}
             </p>
           )}
         </div>
@@ -1150,7 +1196,9 @@ export const EngagementStreak = memo(() => {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
-          <span style={{ fontSize: 24 }}>🔥</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+            {renderLabIcon(ICON_FIRE, { size: 20, tone: 'warning' })}
+          </span>
           <div>
             <p
               style={{
@@ -1227,7 +1275,11 @@ export const EngagementStreak = memo(() => {
                   border: isToday ? `2px solid ${brandCyan}` : 'none',
                 }}
               >
-                {hasActivity && <span style={{ color: 'white', fontSize: 12 }}>✓</span>}
+                {hasActivity && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    {renderLabIcon(ICON_CHECK, { size: 12, tone: 'success' })}
+                  </span>
+                )}
               </div>
               <span
                 style={{

@@ -178,7 +178,7 @@ const formatTooltip = (
     return `${label}${description}`;
   });
 
-  return `${base}\n⚠️ ${flagLines.join('\n⚠️ ')}`;
+  return `${base}\n! ${flagLines.join('\n! ')}`;
 };
 
 const MetricCard = memo(({
@@ -776,7 +776,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                 fill={colors.info}
                 style={{ fontSize: typography.size.xxs, fontWeight: typography.weight.bold }}
               >
-                ★
+                *
               </text>
             </g>
           ) : null}
@@ -816,7 +816,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
                   fontSize={typography.size.xxs}
                   fill={colors.warning}
                 >
-                  ⚠
+                  !
                 </text>
               ) : null}
             </g>

@@ -7,6 +7,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { renderLabIcon } from './icons/index';
 import {
   brand,
   gradients,
@@ -563,7 +564,9 @@ export const SuccessStoriesSection: React.FC = () => {
               )}
 
               <div style={styles.storyHeader}>
-                <span style={styles.storyIcon}>{story.icon}</span>
+                <span style={styles.storyIcon}>
+                  {renderLabIcon(story.icon, { size: 32, tone: 'cyan' })}
+                </span>
                 <div style={styles.storyMeta}>
                   <h3 style={styles.storyTitle}>
                     {isArabic ? story.titleAr : story.title}
@@ -630,7 +633,10 @@ export const SuccessStoriesSection: React.FC = () => {
 
               <div style={styles.storyFooter}>
                 <span style={styles.duration}>
-                  🗓️ {isArabic ? story.treatmentDurationAr : story.treatmentDuration}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    {renderLabIcon('\u{1F5D3}', { size: 14, tone: 'muted' })}
+                    {isArabic ? story.treatmentDurationAr : story.treatmentDuration}
+                  </span>
                 </span>
                 <button style={styles.readMore}>
                   {isArabic ? 'قراءة المزيد' : 'Read More'}

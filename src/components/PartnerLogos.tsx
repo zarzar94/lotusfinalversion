@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, type CSSProperties } from 'react';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, colors } from './styles';
 import { useLanguage } from '../context/LanguageContext';
-import { renderLabIcon, SparklesIcon } from './icons';
+import { renderLabIcon, SparklesIcon } from './icons/index';
 
 interface Partner {
   id: string;
@@ -425,7 +425,10 @@ export default function PartnerLogos() {
             color: '#fff',
             marginBottom: 8,
           }}>
-            {isArabic ? '🌟 انضم لشبكة شركائنا' : '🌟 Join Our Partner Network'}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              {renderLabIcon('\u{2B50}', { size: 16, tone: 'warning' })}
+              {isArabic ? 'انضم لشبكة شركائنا' : 'Join Our Partner Network'}
+            </span>
           </div>
           <p style={{
             margin: '0 0 16px',

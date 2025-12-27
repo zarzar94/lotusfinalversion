@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from './styles';
+import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors } from './styles';
+import { renderLabIcon } from './icons/index';
 import LabButtonAnchor from './labui/LabButtonAnchor';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -22,7 +23,7 @@ const timelineSteps = [
     description: 'الجلسة الأولى مع موسيقى معدلة الترددات',
     descriptionEn: 'First listening session with calibrated music',
     icon: '🎧',
-    color: '#22c55e',
+    color: colors.success,
     details: ['30 دقيقة صباحاً', '30 دقيقة مساءً', 'راحة بين الجلسات'],
     detailsEn: ['30 min morning session', '30 min evening session', 'Rest between sessions'],
   },
@@ -44,7 +45,7 @@ const timelineSteps = [
     description: 'بداية ظهور التحسينات الملموسة',
     descriptionEn: 'Noticeable improvements start to appear',
     icon: '⚡',
-    color: '#F59E0B',
+    color: colors.warning,
     details: ['تحسن الانتباه', 'هدوء أكبر', 'تواصل أفضل'],
     detailsEn: ['Improved attention', 'Better listening', 'Calmer responses'],
   },
@@ -76,7 +77,7 @@ const benefits = [
   { icon: '🎯', label: 'تحسن التركيز', labelEn: 'Improved Focus', description: 'تقارير أولياء الأمور', descriptionEn: 'Parent reports' },
   { icon: '👂', label: 'معالجة سمعية', labelEn: 'Auditory Processing', description: 'ملاحظات سريرية', descriptionEn: 'Clinical observations' },
   { icon: '💬', label: 'تواصل أفضل', labelEn: 'Better Communication', description: 'تغذية راجعة', descriptionEn: 'Feedback' },
-  { icon: '😴', label: 'نوم محسّن', labelEn: 'Improved Sleep', description: 'ملاحظات العائلات', descriptionEn: 'Family observations' },
+  { icon: '\u{1F31F}', label: 'نوم محسّن', labelEn: 'Improved Sleep', description: 'ملاحظات العائلات', descriptionEn: 'Family observations' },
 ];
 
 export default function TreatmentTimeline() {
@@ -243,9 +244,9 @@ export default function TreatmentTimeline() {
                     <span style={{
                       fontSize: 10,
                       padding: '2px 6px',
-                      background: '#22c55e33',
+                      background: `${colors.success}33`,
                       borderRadius: 4,
-                      color: '#22c55e',
+                      color: colors.success,
                     }}>
                       {isArabic ? '● الآن' : '● Now'}
                     </span>
@@ -308,7 +309,7 @@ export default function TreatmentTimeline() {
                 marginBottom: 16,
                 boxShadow: `0 0 30px ${timelineSteps[activeStep].color}33`,
               }}>
-                {timelineSteps[activeStep].icon}
+                {renderLabIcon(timelineSteps[activeStep].icon, { size: 32, style: { color: timelineSteps[activeStep].color } })}
               </div>
 
               {/* Title */}
@@ -351,7 +352,7 @@ export default function TreatmentTimeline() {
                     fontSize: 12,
                     color: 'rgba(255,255,255,0.8)',
                   }}>
-                    ✓ {detail}
+                    {renderLabIcon('\u2713', { size: 12, tone: 'success' })} {detail}
                   </span>
                 ))}
               </div>
@@ -375,7 +376,9 @@ export default function TreatmentTimeline() {
                 alignItems: 'center',
                 textAlign: 'center',
               }}>
-                <span style={{ fontSize: 28, marginBottom: 8 }}>{benefit.icon}</span>
+                <span style={{ fontSize: 28, marginBottom: 8 }}>
+                  {renderLabIcon(benefit.icon, { size: 28, tone: 'cyan' })}
+                </span>
                 <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>
                   {isArabic ? benefit.label : benefit.labelEn}
                 </span>

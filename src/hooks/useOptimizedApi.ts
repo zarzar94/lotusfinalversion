@@ -757,7 +757,7 @@ export function usePerformanceMonitor(componentName: string): PerformanceMetrics
 
     // Log slow renders in development
     if (import.meta.env.DEV && renderTime > 16) {
-      console.warn(`⚠️ Slow render in ${componentName}: ${renderTime.toFixed(2)}ms`);
+      console.warn(`Slow render in ${componentName}: ${renderTime.toFixed(2)}ms`);
     }
   });
 

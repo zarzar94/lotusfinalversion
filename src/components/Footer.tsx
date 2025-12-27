@@ -21,6 +21,7 @@ import {
 } from './Icons';
 import BrainLogo from './BrainLogo';
 import { useLanguage } from '../context/LanguageContext';
+import { renderLabIcon } from './icons/index';
 
 type SocialLink = {
   name: string;
@@ -52,7 +53,7 @@ const QUICK_LINKS: QuickLink[] = [
   { translationKey: 'nav.science', to: '/science', icon: <BrainIcon size={16} /> },
   { translationKey: 'nav.resources', to: '/resources', icon: <HelpIcon size={16} /> },
   { translationKey: 'nav.faq', to: '/faq', icon: <HelpIcon size={16} /> },
-  { translationKey: 'nav.about', to: '/about', icon: '🏛️' },
+  { translationKey: 'nav.about', to: '/about', icon: renderLabIcon('🏛️', { size: 16, tone: 'cyan' }) },
   { translationKey: 'nav.contact', to: '/contact', icon: <PhoneIcon size={16} /> },
 ];
 
@@ -76,8 +77,8 @@ const Footer = () => {
       100% { transform: translateX(100%); }
     }
     @keyframes statusPulse {
-      0%, 100% { opacity: 1; box-shadow: 0 0 6px #22c55e; }
-      50% { opacity: 0.6; box-shadow: 0 0 10px #22c55e; }
+      0%, 100% { opacity: 1; box-shadow: 0 0 6px ${colors.success}; }
+      50% { opacity: 0.6; box-shadow: 0 0 10px ${colors.success}; }
     }
     @keyframes glowBar {
       0%, 100% { opacity: 0.6; }
@@ -396,7 +397,7 @@ const Footer = () => {
                 border: '1px solid rgba(34,197,94,0.2)',
                 borderRadius: 12,
                 textDecoration: 'none',
-                color: '#22c55e',
+                color: colors.success,
                 fontWeight: 800,
                 fontSize: 14,
               }}
@@ -540,7 +541,7 @@ const Footer = () => {
                 width: 6,
                 height: 6,
                 borderRadius: '50%',
-                background: '#22c55e',
+                background: colors.success,
                 animation: 'statusPulse 2s ease-in-out infinite',
               }} />
               <span style={{ fontFamily: 'monospace', fontSize: 10 }}>{t('labTech.systemOnline')}</span>

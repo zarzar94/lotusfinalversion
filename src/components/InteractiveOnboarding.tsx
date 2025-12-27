@@ -19,6 +19,7 @@ import {
   shadows,
   transitions,
 } from './styles';
+import { renderLabIcon } from './icons/index';
 
 // Tour step definition
 interface TourStep {
@@ -61,7 +62,7 @@ export const useTour = () => {
 const TOUR_STEPS: TourStep[] = [
   {
     id: 'welcome',
-    title: { ar: 'مرحباً بك في لوتس! 🎉', en: 'Welcome to Lotus! 🎉' },
+    title: { ar: 'مرحباً بك في لوتس!', en: 'Welcome to Lotus!' },
     content: {
       ar: 'دعني أرشدك في جولة سريعة للتعرف على المنصة ومميزاتها',
       en: "Let me guide you through a quick tour to discover the platform's features",
@@ -139,7 +140,7 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     id: 'complete',
-    title: { ar: 'أنت جاهز! 🎊', en: "You're All Set! 🎊" },
+    title: { ar: 'أنت جاهز!', en: "You're All Set!" },
     content: {
       ar: 'الآن أنت تعرف طريقك. استكشف المنصة بحرية!',
       en: 'Now you know your way around. Explore the platform freely!',
@@ -430,7 +431,7 @@ const TourOverlay = memo(() => {
                 fontSize: 28,
               }}
             >
-              {step.icon}
+              {renderLabIcon(step.icon, { size: 20, tone: 'cyan' })}
             </div>
             <span
               style={{
@@ -619,7 +620,7 @@ export const StartTourButton = memo(() => {
         transition: transitions.fast,
       }}
     >
-      <span>🎓</span>
+      <span>{renderLabIcon('\u{1F393}', { size: 16, tone: 'cyan' })}</span>
       <span>{isArabic ? 'جولة تعريفية' : 'Take a Tour'}</span>
     </button>
   );

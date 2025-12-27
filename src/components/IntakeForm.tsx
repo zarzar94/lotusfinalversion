@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, memo } from 'react';
-import { styles, brandCyan, brandPink, brandPurple } from './styles';
+import { styles, brandCyan, brandPink, brandPurple, colors } from './styles';
 import { BrainIcon, UserIcon, HeartIcon, ChartIcon, CheckCircleIcon, ClipboardIcon } from './Icons';
+import { renderLabIcon } from './icons/index';
 import { useLanguage } from '../context/LanguageContext';
 
 /**
@@ -164,7 +165,7 @@ const ImprovementSelector = memo(({ value, onChange, label }: {
       <span style={{ fontSize: 13, color: '#5a4a3a' }}>{label}</span>
       <div style={{ display: 'flex', gap: 6 }}>
         {[
-          { v: 'clear' as ImprovementLevel, l: isArabic ? 'واضح' : 'Clear', c: '#22c55e' },
+          { v: 'clear' as ImprovementLevel, l: isArabic ? 'واضح' : 'Clear', c: colors.success },
           { v: 'slight' as ImprovementLevel, l: isArabic ? 'بسيط' : 'Slight', c: brandCyan },
           { v: 'none' as ImprovementLevel, l: isArabic ? 'لا' : 'No', c: '#9a8a7a' },
         ].map((opt) => (
@@ -387,7 +388,10 @@ I would like to book an assessment appointment
             {/* Father */}
             <div style={{ padding: 20, background: '#f8faf9', borderRadius: 6, marginBottom: 20, border: '1px solid #c4d8d4' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#3a5a4a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                {isArabic ? '👨 بيانات الأب' : '👨 Father Details'}
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                  {renderLabIcon('\u{1F468}', { size: 16, tone: 'muted' })}
+                  <span>{isArabic ? '?????? ????' : 'Father Details'}</span>
+                </span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
                 <NotepadField label={isArabic ? 'الاسم' : 'Name'}>
@@ -407,7 +411,10 @@ I would like to book an assessment appointment
             {/* Mother */}
             <div style={{ padding: 20, background: '#faf5f8', borderRadius: 6, border: '1px solid #d8c4c8' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#5a3a4a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                {isArabic ? '👩 بيانات الأم' : '👩 Mother Details'}
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                  {renderLabIcon('\u{1F469}', { size: 16, tone: 'muted' })}
+                  <span>{isArabic ? '?????? ????' : 'Mother Details'}</span>
+                </span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
                 <NotepadField label={isArabic ? 'الاسم' : 'Name'}>
@@ -683,7 +690,7 @@ I would like to book an assessment appointment
                 >
                   {step.icon}
                   {isArabic ? step.titleAr : step.titleEn}
-                  {currentStep > step.id && <CheckCircleIcon size={14} color="#22c55e" />}
+                  {currentStep > step.id && <CheckCircleIcon size={14} color={colors.success} />}
                 </button>
               ))}
             </div>
@@ -765,7 +772,7 @@ I would like to book an assessment appointment
                     padding: '10px 24px',
                     borderRadius: 6,
                     border: 'none',
-                    background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                    background: `linear-gradient(135deg, ${colors.success}, #16a34a)`,
                     color: '#fff',
                     cursor: 'pointer',
                     fontSize: 14,
@@ -773,7 +780,10 @@ I would like to book an assessment appointment
                     boxShadow: '0 4px 12px rgba(34,197,94,0.3)',
                   }}
                 >
-                  {isArabic ? '📤 إرسال عبر واتساب' : '📤 Send via WhatsApp'}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                    {renderLabIcon('\u{1F4DE}', { size: 16, tone: 'success' })}
+                    <span>{isArabic ? '????? ??? ??????' : 'Send via WhatsApp'}</span>
+                  </span>
                 </button>
               )}
             </div>
@@ -793,13 +803,21 @@ I would like to book an assessment appointment
         <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.8 }}>
           {isArabic ? (
             <>
-              <strong style={{ color: brandPink }}>⚠ تنبيه:</strong> لا يعتبر برنامج Berard AIT علاجاً في حد ذاته،
-              وإنما هو إعادة تدريب للدماغ عن طريق السمع لتحسين المعالجة الحسية.
+              <strong style={{ color: brandPink, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                {renderLabIcon('\u{26A0}\u{FE0F}', { size: 12, tone: 'warning' })}
+                تنبيه:
+              </strong>{' '}
+              لا يعتبر برنامج Berard AIT علاجاً في حد ذاته، وإنما هو إعادة تدريب للدماغ عن طريق السمع لتحسين المعالجة
+              الحسية.
             </>
           ) : (
             <>
-              <strong style={{ color: brandPink }}>⚠ Note:</strong> Berard AIT is not a treatment in itself; it is a
-              brain retraining approach through listening to improve sensory processing.
+              <strong style={{ color: brandPink, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                {renderLabIcon('\u{26A0}\u{FE0F}', { size: 12, tone: 'warning' })}
+                Note:
+              </strong>{' '}
+              Berard AIT is not a treatment in itself; it is a brain retraining approach through listening to improve
+              sensory processing.
             </>
           )}
         </p>

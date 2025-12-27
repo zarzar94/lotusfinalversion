@@ -13,6 +13,7 @@ import {
   shadows,
   colors,
 } from './styles';
+import { renderLabIcon } from './icons/index';
 
 export default function AchievementToast() {
   const { recentUnlock, clearRecentUnlock, state } = useGamification();
@@ -163,10 +164,21 @@ export default function AchievementToast() {
   const categoryColor = {
     exploration: brandCyan,
     learning: brandPurple,
-    mastery: '#f59e0b',
+    mastery: colors.warning,
     engagement: brandPink,
-    clinical: '#22c55e',
+    clinical: colors.success,
   }[recentUnlock.category];
+
+  const confettiColors = [
+    brandCyan,
+    brandPurple,
+    brandPink,
+    colors.warning,
+    colors.success,
+    colors.text.primary,
+    brandCyan,
+    brandPurple,
+  ];
 
   return (
     <>
@@ -222,11 +234,11 @@ export default function AchievementToast() {
               left: '50%',
               width: 6,
               height: 6,
-              background: [brandCyan, brandPurple, brandPink, '#f59e0b', '#22c55e', '#fff', brandCyan, brandPurple][i],
+              background: confettiColors[i],
               borderRadius: radius.full,
               animation: `confetti 1.2s ease-out ${i * 0.08}s forwards`,
               transform: `rotate(${i * 45}deg) translateX(${35 + i * 8}px)`,
-              boxShadow: `0 0 6px ${[brandCyan, brandPurple, brandPink, '#f59e0b', '#22c55e', '#fff', brandCyan, brandPurple][i]}`,
+              boxShadow: `0 0 6px ${confettiColors[i]}`,
             }}
           />
         ))}
@@ -254,7 +266,7 @@ export default function AchievementToast() {
           }}
         >
           <span style={{ filter: `drop-shadow(0 0 10px ${categoryColor})` }}>
-            {recentUnlock.icon}
+            {renderLabIcon(recentUnlock.icon, { size: 28, style: { color: categoryColor } })}
           </span>
         </div>
 
@@ -378,10 +390,13 @@ export default function AchievementToast() {
           <div style={{
             fontSize: 8,
             fontFamily: 'monospace',
-            color: '#22c55e',
+            color: colors.success,
             letterSpacing: 1,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
           }}>
-            ✓ UNLOCKED
+            {renderLabIcon('✓', { size: 10, tone: 'success' })} UNLOCKED
           </div>
         </div>
       </div>

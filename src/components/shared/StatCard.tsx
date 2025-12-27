@@ -109,7 +109,7 @@ function StatCard({
                 marginTop: spacing[2],
                 fontSize: typography.size.xs,
                 fontWeight: typography.weight.bold,
-                color: trend.isPositive ? '#22c55e' : '#ef4444',
+                color: trend.isPositive ? colors.success : colors.error,
               }}
             >
               {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
@@ -179,7 +179,7 @@ function StatCard({
                 style={{
                   fontSize: typography.size.xs,
                   fontWeight: typography.weight.bold,
-                  color: trend.isPositive ? '#22c55e' : '#ef4444',
+                  color: trend.isPositive ? colors.success : colors.error,
                   flexShrink: 0,
                 }}
               >
@@ -314,7 +314,7 @@ function StatCard({
                   borderRadius: radius.full,
                   fontSize: typography.size.xs,
                   fontWeight: typography.weight.bold,
-                  color: trend.isPositive ? '#22c55e' : '#ef4444',
+                  color: trend.isPositive ? colors.success : colors.error,
                 }}
               >
                 {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%

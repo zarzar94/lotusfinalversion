@@ -18,7 +18,7 @@ import {
   shadows,
   colors,
 } from './styles';
-import { renderLabIcon, MessageIcon } from './icons';
+import { renderLabIcon, MessageIcon } from './icons/index';
 
 // Activity types
 interface Activity {
@@ -472,7 +472,7 @@ export default function ActivityFeed() {
                   transition: transitions.fast,
                 }}
               >
-                ✕
+                {renderLabIcon('\u2715', { size: 12, tone: 'muted' })}
               </button>
             </div>
 

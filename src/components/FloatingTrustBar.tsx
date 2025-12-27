@@ -19,6 +19,7 @@ import {
   shadows,
   transitions,
 } from './styles';
+import { renderLabIcon } from './icons/index';
 
 interface TrustNotification {
   id: string;
@@ -225,7 +226,7 @@ const FloatingTrustBar = memo(() => {
           }}
           aria-label={isArabic ? 'إغلاق' : 'Close'}
         >
-          ✕
+          {renderLabIcon('✕', { size: 12, tone: 'muted' })}
         </button>
 
         {/* Content */}
@@ -249,7 +250,7 @@ const FloatingTrustBar = memo(() => {
               flexShrink: 0,
             }}
           >
-            {currentNotification.icon}
+            {renderLabIcon(currentNotification.icon, { size: 22, tone: 'cyan' })}
           </div>
 
           {/* Text */}

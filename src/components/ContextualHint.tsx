@@ -5,7 +5,7 @@
 
 import { memo, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { renderLabIcon } from './icons';
+import { renderLabIcon } from './icons/index';
 import {
   brandCyan,
   brandPurple,
@@ -37,7 +37,7 @@ const ContextualHint = memo(({
   delay = 500,
   showOnce = false,
   storageKey,
-  icon = '💡',
+  icon = '\u{1F4A1}',
   trigger = 'hover',
   autoShowDelay = 3000,
   maxWidth = 240,

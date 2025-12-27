@@ -8,8 +8,10 @@ import {
   audioColors,
   spacing,
   radius,
+  colors,
 } from './styles';
 import { useLanguage } from '../context/LanguageContext';
+import { renderLabIcon } from './icons/index';
 import LabButtonAnchor from './labui/LabButtonAnchor';
 
 const css = `
@@ -157,7 +159,7 @@ export default function NeuroplasticitySection() {
               boxShadow: `0 0 25px ${brandCyan}15`,
               animation: 'synapseFire 3s ease-in-out infinite',
             }}>
-              🧠
+              {renderLabIcon('\u{1F9E0}', { size: 24, tone: 'cyan' })}
             </div>
             <div>
               <h2 style={{ ...styles.h2, margin: 0 }}>
@@ -189,7 +191,7 @@ export default function NeuroplasticitySection() {
               borderRadius: 8,
               fontSize: 10,
               fontWeight: 700,
-              color: '#22c55e',
+              color: colors.success,
               fontFamily: 'monospace',
             }}>
               EVIDENCE-BASED
@@ -417,7 +419,7 @@ export default function NeuroplasticitySection() {
             justifyContent: 'center',
             fontSize: 24,
           }}>
-            🧠
+            {renderLabIcon('\u{1F9E0}', { size: 24, tone: 'cyan' })}
           </div>
           <div>
             <div style={{ fontWeight: 800, color: brandCyan }}>
@@ -472,14 +474,20 @@ export default function NeuroplasticitySection() {
           variant="primary"
           style={{ display: 'flex', alignItems: 'center', gap: 8 }}
         >
-          <span>📚</span> {isArabic ? 'تعرف على البرنامج' : 'Explore the Program'}
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+            {renderLabIcon('\u{1F4DA}', { size: 16, tone: 'cyan' })}
+            {isArabic ? 'تعرف على البرنامج' : 'Explore the Program'}
+          </span>
         </LabButtonAnchor>
         <LabButtonAnchor
           href="#results"
           variant="ghost"
           style={{ display: 'flex', alignItems: 'center', gap: 8 }}
         >
-          <span>📊</span> {isArabic ? 'شاهد النتائج' : 'See Results'}
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+            {renderLabIcon('\u{1F4CA}', { size: 16, tone: 'cyan' })}
+            {isArabic ? 'شاهد النتائج' : 'See Results'}
+          </span>
         </LabButtonAnchor>
       </div>
 
@@ -516,13 +524,13 @@ export default function NeuroplasticitySection() {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: '#22c55e',
-              boxShadow: '0 0 6px #22c55e',
+              background: colors.success,
+              boxShadow: `0 0 6px ${colors.success}`,
             }} />
             <span style={{
               fontSize: 9,
               fontFamily: 'monospace',
-              color: '#22c55e',
+              color: colors.success,
               letterSpacing: 0.5,
             }}>
               PEER REVIEWED

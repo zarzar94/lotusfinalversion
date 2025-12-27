@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, type UserRole } from '../../context/UserContext';
-import { ChevronDownIcon, renderLabIcon } from '../icons';
+import { ChevronDownIcon, renderLabIcon } from '../icons/index';
 import {
   brandCyan,
   brandPurple,
@@ -277,7 +277,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
           <div style={{ padding: spacing[2] }}>
             {/* View Profile / Settings */}
             <MenuItem
-              icon="👤"
+              icon="\u{1F464}"
               label={t('auto.ProfileMenu.k6', "My Profile")}
               onClick={() => {
                 setIsOpen(false);
@@ -288,7 +288,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             {/* Patient Progress (if patient) */}
             {user?.role === 'patient' && (
               <MenuItem
-                icon="📈"
+                icon="\u{1F4C8}"
                 label={t('auto.ProfileMenu.k7', "My Progress")}
                 onClick={() => {
                   setIsOpen(false);
@@ -301,7 +301,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             {/* Parent Dashboard (if parent) */}
             {hasPermission('view_child_reports') && (
               <MenuItem
-                icon="👨‍👩‍👧"
+                icon="\u{1F468}\u{200D}\u{1F469}\u{200D}\u{1F467}"
                 label={t('auto.ProfileMenu.k8', "Children Progress")}
                 onClick={() => {
                   setIsOpen(false);
@@ -313,7 +313,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             {/* Clinician Dashboard (if clinician) */}
             {hasPermission('view_patient_reports') && (
               <MenuItem
-                icon="🏥"
+                icon="\u{1F3E5}"
                 label={t('auto.ProfileMenu.k9', "Patients Dashboard")}
                 onClick={() => {
                   setIsOpen(false);
@@ -325,7 +325,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             {/* School Analytics (if permitted) */}
             {hasPermission('school_analytics') && !hasPermission('global_analytics') && (
               <MenuItem
-                icon="📊"
+                icon="\u{1F4CA}"
                 label={t('auto.ProfileMenu.k10', "School Analytics")}
                 onClick={() => {
                   setIsOpen(false);
@@ -338,7 +338,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             {hasPermission('global_analytics') && (
               <>
                 <MenuItem
-                  icon="🏥"
+                  icon="\u{1F3E5}"
                   label={t('auto.ProfileMenu.k11', "Clinician Dashboard")}
                   onClick={() => {
                     setIsOpen(false);
@@ -346,7 +346,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                   }}
                 />
                 <MenuItem
-                  icon="🏫"
+                  icon="\u{1F3EB}"
                   label={t('auto.ProfileMenu.k12', "School Dashboard")}
                   onClick={() => {
                     setIsOpen(false);
@@ -354,7 +354,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                   }}
                 />
                 <MenuItem
-                  icon="👨‍👩‍👧"
+                  icon="\u{1F468}\u{200D}\u{1F469}\u{200D}\u{1F467}"
                   label={t('auto.ProfileMenu.k13', "Parent Dashboard")}
                   onClick={() => {
                     setIsOpen(false);
@@ -366,7 +366,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
 
             {/* Settings */}
             <MenuItem
-              icon="⚙️"
+              icon="\u2699\uFE0F"
               label={t('auto.ProfileMenu.k14', "Settings")}
               onClick={() => {
                 setIsOpen(false);
@@ -377,7 +377,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             {/* Export Progress (for patients) */}
             {user?.role === 'patient' && (
               <MenuItem
-                icon="📄"
+                icon="\u{1F4C4}"
                 label={t('auto.ProfileMenu.k15', "Export Report")}
                 onClick={() => {
                   setIsOpen(false);
@@ -398,7 +398,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
 
             {/* Logout */}
             <MenuItem
-              icon="🚪"
+              icon="\u{1F6AA}"
               label={t('auto.ProfileMenu.k16', "Sign Out")}
               onClick={handleLogout}
               danger

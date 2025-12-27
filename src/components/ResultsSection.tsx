@@ -16,7 +16,7 @@ import {
 } from './styles';
 import LabButton from './labui/LabButton';
 import LabButtonAnchor from './labui/LabButtonAnchor';
-import { renderLabIcon, ChartIcon, WarningTriangleIcon, ChecklistIcon, ReportIcon, DownloadIcon } from './icons';
+import { renderLabIcon, ChartIcon, WarningTriangleIcon, ChecklistIcon, ReportIcon, DownloadIcon } from './icons/index';
 
 type CaseStudy = {
   slideId: number;

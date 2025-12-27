@@ -8,7 +8,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useVisitorMode } from '../context/VisitorModeContext';
 import { useGamification } from '../context/GamificationContext';
-import { renderLabIcon } from './icons';
+import { renderLabIcon } from './icons/index';
 import {
   brandCyan,
   brandPurple,

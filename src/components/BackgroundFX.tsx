@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, memo } from 'react';
 
 import { brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import { renderLabIcon } from './icons/index';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 /**
@@ -542,27 +543,41 @@ const BackgroundFX = memo(() => {
       >
         {/* Professional icons */}
         <div className="floatIcon medical" style={{ position: 'absolute', top: '8%', right: '12%', fontSize: 48 }}>
-          <span style={{ filter: 'drop-shadow(0 0 20px rgba(143, 211, 204, 0.5))' }}>🎧</span>
+          <span style={{ filter: 'drop-shadow(0 0 20px rgba(143, 211, 204, 0.5))' }}>
+            {renderLabIcon('🎧', { size: 44, tone: 'cyan' })}
+          </span>
         </div>
         <div className="floatIcon medical" style={{ position: 'absolute', top: '55%', right: '8%', fontSize: 52 }}>
-          <span style={{ filter: 'drop-shadow(0 0 20px rgba(175, 132, 186, 0.5))' }}>🧠</span>
+          <span style={{ filter: 'drop-shadow(0 0 20px rgba(175, 132, 186, 0.5))' }}>
+            {renderLabIcon('🧠', { size: 48, tone: 'purple' })}
+          </span>
         </div>
         <div className="floatIcon medical" style={{ position: 'absolute', top: '75%', left: '6%', fontSize: 44 }}>
-          <span style={{ filter: 'drop-shadow(0 0 20px rgba(176, 18, 112, 0.3))' }}>🔬</span>
+          <span style={{ filter: 'drop-shadow(0 0 20px rgba(176, 18, 112, 0.3))' }}>
+            {renderLabIcon('🔬', { size: 40, tone: 'pink' })}
+          </span>
         </div>
 
         {/* Child-friendly icons */}
         <div className="floatIcon playful" style={{ position: 'absolute', top: '22%', left: '8%', fontSize: 38 }}>
-          <span style={{ filter: 'drop-shadow(0 0 15px rgba(143, 211, 204, 0.4))' }}>♫</span>
+          <span style={{ filter: 'drop-shadow(0 0 15px rgba(143, 211, 204, 0.4))' }}>
+            {renderLabIcon('♫', { size: 34, tone: 'cyan' })}
+          </span>
         </div>
         <div className="floatIcon playful" style={{ position: 'absolute', top: '42%', left: '5%', fontSize: 32 }}>
-          <span style={{ filter: 'drop-shadow(0 0 15px rgba(255, 215, 0, 0.4))' }}>⭐</span>
+          <span style={{ filter: 'drop-shadow(0 0 15px rgba(255, 215, 0, 0.4))' }}>
+            {renderLabIcon('⭐', { size: 28, tone: 'warning' })}
+          </span>
         </div>
         <div className="floatIcon playful" style={{ position: 'absolute', top: '35%', right: '6%', fontSize: 36 }}>
-          <span style={{ filter: 'drop-shadow(0 0 15px rgba(175, 132, 186, 0.4))' }}>🎵</span>
+          <span style={{ filter: 'drop-shadow(0 0 15px rgba(175, 132, 186, 0.4))' }}>
+            {renderLabIcon('🎵', { size: 32, tone: 'purple' })}
+          </span>
         </div>
         <div className="floatIcon playful" style={{ position: 'absolute', top: '88%', right: '15%', fontSize: 30 }}>
-          <span style={{ filter: 'drop-shadow(0 0 15px rgba(143, 211, 204, 0.4))' }}>💫</span>
+          <span style={{ filter: 'drop-shadow(0 0 15px rgba(143, 211, 204, 0.4))' }}>
+            {renderLabIcon('💫', { size: 26, tone: 'cyan' })}
+          </span>
         </div>
 
         {/* Sound wave decorations */}

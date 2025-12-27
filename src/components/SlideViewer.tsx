@@ -26,8 +26,8 @@ interface SlideCategoryConfig {
 
 const SLIDE_CATEGORIES: SlideCategoryConfig[] = [
   { id: 'all', labelEn: 'All Samples', labelAr: 'جميع العينات', icon: '🧪', color: brandCyan, slideIds: [] },
-  { id: 'school', labelEn: 'School Focus', labelAr: 'تركيز مدرسي', icon: '🏫', color: '#f59e0b', slideIds: [1, 2, 5, 10, 15, 20, 25, 30, 35] },
-  { id: 'parent', labelEn: 'Parent Guide', labelAr: 'دليل الأهل', icon: '👨‍👩‍👧', color: '#22c55e', slideIds: [3, 7, 12, 18, 22, 28, 33, 38, 42, 43, 44, 45, 46] },
+  { id: 'school', labelEn: 'School Focus', labelAr: 'تركيز مدرسي', icon: '🏫', color: colors.warning, slideIds: [1, 2, 5, 10, 15, 20, 25, 30, 35] },
+  { id: 'parent', labelEn: 'Parent Guide', labelAr: 'دليل الأهل', icon: '👨‍👩‍👧', color: colors.success, slideIds: [3, 7, 12, 18, 22, 28, 33, 38, 42, 43, 44, 45, 46] },
   { id: 'clinician', labelEn: 'Clinical Data', labelAr: 'بيانات سريرية', icon: '🔬', color: brandPurple, slideIds: [4, 8, 13, 17, 21, 26, 31, 36, 40] },
   { id: 'science', labelEn: 'Research', labelAr: 'أبحاث', icon: '📊', color: brandPink, slideIds: [6, 9, 14, 16, 19, 23, 27, 32, 37, 39] },
 ];

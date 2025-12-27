@@ -17,6 +17,7 @@ import {
   shadows,
   transitions,
 } from './styles';
+import { renderLabIcon } from './icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PDF GENERATION
@@ -379,7 +380,7 @@ export const ProgressExportButton = memo(({
         gap: spacing[2],
       }}
     >
-      <span>{isExporting ? '⏳' : '📄'}</span>
+      <span>{renderLabIcon(isExporting ? '\u{23F3}' : '\u{1F4C4}', { size: 16, tone: 'cyan' })}</span>
       {isExporting
         ? (t('auto.ProgressExport.k28', "Exporting..."))
         : (t('auto.ProgressExport.k29', "Export Report"))}

@@ -9,7 +9,7 @@ import {
   radius,
 } from './styles';
 import { useLanguage } from '../context/LanguageContext';
-import { renderLabIcon } from './icons';
+import { renderLabIcon } from './icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SECTION CATEGORY DEFINITIONS

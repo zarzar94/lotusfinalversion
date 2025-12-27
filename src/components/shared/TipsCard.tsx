@@ -21,6 +21,7 @@ import {
   ShieldMedicalIcon,
   CheckCircleIcon,
   WaveformIcon,
+  renderLabIcon,
 } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -344,8 +345,8 @@ export const InfoCard = memo(({
   const { t } = useLanguage();
   const variants = {
     info: { color: brandCyan, icon: icon ?? <ReportIcon size={18} tone="cyan" />, bgOpacity: '08' },
-    warning: { color: '#f59e0b', icon: icon ?? <ShieldMedicalIcon size={18} tone="warning" />, bgOpacity: '10' },
-    success: { color: '#22c55e', icon: icon ?? <CheckCircleIcon size={18} tone="success" />, bgOpacity: '08' },
+    warning: { color: colors.warning, icon: icon ?? <ShieldMedicalIcon size={18} tone="warning" />, bgOpacity: '10' },
+    success: { color: colors.success, icon: icon ?? <CheckCircleIcon size={18} tone="success" />, bgOpacity: '08' },
     tip: { color: brandPurple, icon: icon ?? <BrainCircuitIcon size={18} tone="purple" />, bgOpacity: '08' },
     clinical: { color: brandPink, icon: icon ?? <WaveformIcon size={18} tone="pink" />, bgOpacity: '08' },
   };
@@ -529,7 +530,13 @@ export const GuidanceSteps = memo(({
                   : colors.text.muted,
                 flexShrink: 0,
               }}>
-                {isCompleted ? '✓' : variant === 'numbered' ? i + 1 : step.icon || '○'}
+                {isCompleted
+                  ? renderLabIcon('\u2713', { size: 14, tone: 'success' })
+                  : variant === 'numbered'
+                  ? i + 1
+                  : step.icon
+                  ? renderLabIcon(step.icon, { size: 16, tone: isActive ? 'cyan' : 'muted' })
+                  : 'o'}
               </div>
 
               {/* Content */}

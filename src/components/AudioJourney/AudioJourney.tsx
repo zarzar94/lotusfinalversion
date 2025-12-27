@@ -3,6 +3,7 @@ import { useGamification } from '../../context/GamificationContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { styles, brandCyan, brandPurple, brandPink, brandPurpleDark } from '../styles';
 import LabButton from '../labui/LabButton';
+import { renderLabIcon } from '../icons/index';
 
 // Audio journey stages
 const JOURNEY_STAGES = [
@@ -203,7 +204,9 @@ function AudioJourneyStage({ stage, index, active, completed, onActivate }: Audi
         transition: 'all 0.3s ease',
         boxShadow: active ? `0 0 30px ${stage.color}` : 'none',
       }}>
-        {completed ? '✓' : stage.icon}
+        {completed
+          ? renderLabIcon('✓', { size: 18, tone: 'success' })
+          : renderLabIcon(stage.icon, { size: 18, style: { color: stage.color } })}
       </div>
 
       {/* Content */}
@@ -425,7 +428,10 @@ export default function AudioJourney() {
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
           <h2 style={styles.h2}>
-            {isArabic ? '🎧 رحلة الصوت التفاعلية' : '🎧 Interactive Sound Journey'}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              {renderLabIcon('🎧', { size: 18, tone: 'cyan' })}
+              <span>{isArabic ? 'رحلة الصوت التفاعلية' : 'Interactive Sound Journey'}</span>
+            </span>
           </h2>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <span style={{
@@ -537,7 +543,9 @@ export default function AudioJourney() {
           borderRadius: 16,
           textAlign: 'center',
         }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>🎉</div>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>
+            {renderLabIcon('🎉', { size: 40, tone: 'pink' })}
+          </div>
           <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: brandCyan }}>
             {isArabic ? 'أحسنت! أكملت رحلة الصوت' : 'Nice! You completed the sound journey'}
           </h3>

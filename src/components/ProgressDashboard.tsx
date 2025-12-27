@@ -15,6 +15,7 @@ import {
   shadows,
   colors,
 } from './styles';
+import { renderLabIcon } from './icons/index';
 
 export default function ProgressDashboard() {
   const { state, getUnlockedAchievements, getNextAchievements, getClinicalAchievements } = useGamification();
@@ -293,7 +294,7 @@ export default function ProgressDashboard() {
                 fontSize: typography.size.xs,
                 color: colors.text.muted,
               }}>
-                ✕
+                {renderLabIcon('\u2715', { size: 10, tone: 'muted' })}
               </div>
             </div>
 
@@ -475,7 +476,10 @@ export default function ProgressDashboard() {
                   alignItems: 'center',
                   gap: spacing[1],
                 }}>
-                  🏥 {t('auto.ProgressDashboard.k7', "Treatment Progress")}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[2] }}>
+                    {renderLabIcon('\u{1F3E5}', { size: 16, tone: 'cyan' })}
+                    {t('auto.ProgressDashboard.k7', "Treatment Progress")}
+                  </span>
                 </div>
 
                 {/* Sessions Progress Bar */}
@@ -524,7 +528,10 @@ export default function ProgressDashboard() {
                       fontWeight: typography.weight.black,
                       color: state.clinicalStreak >= 3 ? brandCyan : colors.text.primary,
                     }}>
-                      {state.clinicalStreak}🔥
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+                        {state.clinicalStreak}
+                        {renderLabIcon('\u{1F525}', { size: 12, tone: 'warning' })}
+                      </span>
                     </div>
                     <div style={{
                       fontSize: 9,
@@ -551,7 +558,12 @@ export default function ProgressDashboard() {
                       {state.treatmentPhase === 'assessment' && (t('auto.ProgressDashboard.k10', "Assess"))}
                       {state.treatmentPhase === 'active' && (t('auto.ProgressDashboard.k11', "Active"))}
                       {state.treatmentPhase === 'maintenance' && (t('auto.ProgressDashboard.k12', "Maint."))}
-                      {state.treatmentPhase === 'completed' && (t('auto.ProgressDashboard.k13', "✓ Done"))}
+                      {state.treatmentPhase === 'completed' && (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+                          {renderLabIcon('\u2713', { size: 12, tone: 'success' })}
+                          {t('auto.ProgressDashboard.k13', "Done")}
+                        </span>
+                      )}
                     </div>
                     <div style={{
                       fontSize: 9,
@@ -616,7 +628,10 @@ export default function ProgressDashboard() {
               boxShadow: shadows.md,
             }}
           >
-            {t('auto.ProgressDashboard.k15', "👆 Click to see progress")}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+              {renderLabIcon('\u{1F446}', { size: 16, tone: 'cyan' })}
+              {t('auto.ProgressDashboard.k15', "Click to see progress")}
+            </span>
           </div>
         )}
       </div>

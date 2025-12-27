@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { assetUrl } from '../utils/asset';
-import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, colors } from './styles';
 import {
   XIcon,
   CheckIcon,
@@ -28,7 +28,6 @@ type Testimonial = {
   quote: string;
   improvement: string;
   improvementPercent: number;
-  avatar: string;
   rating: number;
   beforeAfter: {
     before: string[];
@@ -50,7 +49,6 @@ const testimonials: Testimonial[] = [
     quote: 'كانت ابنتي تعاني من صعوبة شديدة في تحمل الأصوات العالية في المدرسة. بعد البرنامج، أصبحت قادرة على المشاركة في الفصل بدون ألم أو انزعاج.',
     improvement: 'تحسن في تحمل الأصوات',
     improvementPercent: 85,
-    avatar: '👩',
     rating: 5,
     beforeAfter: {
       before: ['ألم من الأصوات العالية', 'تجنب المدرسة', 'عزلة اجتماعية'],
@@ -70,7 +68,6 @@ const testimonials: Testimonial[] = [
     quote: 'كان ابني يعاني من صعوبة في التركيز والفهم في الصف. لاحظنا تحسناً ملحوظاً في قدرته على متابعة التعليمات والقراءة بعد البرنامج.',
     improvement: 'تحسن في القراءة والانتباه',
     improvementPercent: 70,
-    avatar: '👨',
     rating: 5,
     beforeAfter: {
       before: ['صعوبة في القراءة', 'تشتت الانتباه', 'إحباط من المدرسة'],
@@ -89,7 +86,6 @@ const testimonials: Testimonial[] = [
     quote: 'ابنتي كانت تسمع ولكن لا تفهم. الآن أصبحت تستجيب بشكل أفضل وتتواصل معنا بوضوح أكبر.',
     improvement: 'تحسن كبير في فهم الكلام',
     improvementPercent: 90,
-    avatar: '👩',
     rating: 5,
     beforeAfter: {
       before: ['لا تفهم التعليمات', 'تأخر لغوي', 'صعوبة التواصل'],
@@ -109,7 +105,6 @@ const testimonials: Testimonial[] = [
     quote: 'كنت أعاني من طنين مزعج لسنوات. بعد البرنامج، انخفضت حدة الطنين بشكل ملحوظ وأصبحت أنام بشكل أفضل.',
     improvement: 'تخفيف ملحوظ في الطنين',
     improvementPercent: 60,
-    avatar: '👵',
     rating: 4,
     beforeAfter: {
       before: ['طنين مستمر', 'أرق', 'توتر وقلق'],
@@ -128,7 +123,6 @@ const testimonials: Testimonial[] = [
     quote: 'التغيير في قدرة ابني على التركيز كان مذهلاً. معلمته لاحظت الفرق في الأسبوع الأول بعد البرنامج.',
     improvement: 'تحسن في التركيز',
     improvementPercent: 75,
-    avatar: '👩',
     rating: 5,
     beforeAfter: {
       before: ['تشتت سريع', 'نسيان المهام', 'صعوبة الإنجاز'],
@@ -145,7 +139,7 @@ const conditionColors: Record<string, string> = {
   'Learning Difficulties': brandPurple,
   'APD/CAPD': brandCyan,
   Tinnitus: brandPurpleDark,
-  'Attention Issues': '#22c55e',
+  'Attention Issues': colors.success,
 };
 
 // Animated brain wave visualization
@@ -241,7 +235,7 @@ function TransformationJourney({ before, after, color, isActive }: {
         <div style={{
           fontSize: 10,
           fontWeight: 900,
-          color: '#ef4444',
+          color: colors.error,
           marginBottom: 10,
           display: 'flex',
           alignItems: 'center',
@@ -256,7 +250,7 @@ function TransformationJourney({ before, after, color, isActive }: {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-            <XIcon size={12} color="#ef4444" />
+            <XIcon size={12} color={colors.error} />
           </span>
           قبل العلاج
         </div>
@@ -276,7 +270,7 @@ function TransformationJourney({ before, after, color, isActive }: {
               width: 4,
               height: 4,
               borderRadius: '50%',
-              background: '#ef4444',
+              background: colors.error,
             }} />
             {item}
           </div>
@@ -295,7 +289,7 @@ function TransformationJourney({ before, after, color, isActive }: {
           height: 50,
           borderRadius: '50%',
           background: showAfter
-            ? `linear-gradient(135deg, ${color}, #22c55e)`
+            ? `linear-gradient(135deg, ${color}, ${colors.success})`
             : 'rgba(255,255,255,0.1)',
           display: 'flex',
           alignItems: 'center',
@@ -328,7 +322,7 @@ function TransformationJourney({ before, after, color, isActive }: {
         <div style={{
           fontSize: 10,
           fontWeight: 900,
-          color: '#22c55e',
+          color: colors.success,
           marginBottom: 10,
           display: 'flex',
           alignItems: 'center',
@@ -338,21 +332,21 @@ function TransformationJourney({ before, after, color, isActive }: {
             width: 20,
             height: 20,
             borderRadius: '50%',
-            background: showAfter ? '#22c55e' : 'rgba(34,197,94,0.2)',
+            background: showAfter ? colors.success : colors.successLight,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#fff',
             transition: 'all 0.5s ease',
           }}>
-            <CheckIcon size={12} color={showAfter ? '#fff' : '#22c55e'} />
+            <CheckIcon size={12} color={showAfter ? '#fff' : colors.success} />
           </span>
           بعد العلاج
         </div>
         {after.map((item, i) => (
           <div key={i} style={{
             fontSize: 11,
-            color: showAfter ? '#22c55e' : 'rgba(255,255,255,0.5)',
+            color: showAfter ? colors.success : 'rgba(255,255,255,0.5)',
             marginTop: 6,
             display: 'flex',
             alignItems: 'center',
@@ -365,7 +359,7 @@ function TransformationJourney({ before, after, color, isActive }: {
               width: 4,
               height: 4,
               borderRadius: '50%',
-              background: '#22c55e',
+              background: colors.success,
             }} />
             {item}
           </div>
@@ -458,7 +452,7 @@ function CaseStudyCard({
               width: 18,
               height: 18,
               borderRadius: '50%',
-              background: '#22c55e',
+              background: colors.success,
               border: '2px solid rgba(15,22,41,1)',
               display: 'flex',
               alignItems: 'center',
@@ -593,7 +587,7 @@ function CaseStudyCard({
             <div style={{
               width: isActive ? `${testimonial.improvementPercent}%` : '0%',
               height: '100%',
-              background: `linear-gradient(90deg, ${accentColor}, #22c55e)`,
+              background: `linear-gradient(90deg, ${accentColor}, ${colors.success})`,
               borderRadius: 4,
               transition: 'width 1s ease-out',
             }} />
@@ -601,7 +595,7 @@ function CaseStudyCard({
           <span style={{
             fontSize: 14,
             fontWeight: 900,
-            color: '#22c55e',
+            color: colors.success,
             fontFamily: 'monospace',
           }}>
             {testimonial.improvementPercent}%
@@ -796,7 +790,7 @@ export default function TestimonialsSection() {
           </span>
           <span style={{
             padding: '4px 10px',
-            background: '#22c55e',
+            background: colors.success,
             borderRadius: 20,
             fontSize: 10,
             color: '#fff',
@@ -952,7 +946,7 @@ export default function TestimonialsSection() {
         justifyContent: 'center',
         gap: 8,
       }}>
-        <AlertIcon size={16} color="#f59e0b" style={{ flexShrink: 0 }} />
+        <AlertIcon size={16} color={colors.warning} style={{ flexShrink: 0 }} />
         النتائج تختلف من شخص لآخر. جميع الشهادات حقيقية وموثقة بموافقة أصحابها. هذا ليس ضماناً للنتائج - استشر مختصاً للتقييم الشخصي.
       </div>
     </section>

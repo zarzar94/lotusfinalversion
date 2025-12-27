@@ -1,7 +1,7 @@
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, colors } from './styles';
 import LabButtonAnchor from './labui/LabButtonAnchor';
 import { useLanguage } from '../context/LanguageContext';
-import { renderLabIcon } from './icons';
+import { renderLabIcon } from './icons/index';
 
 const steps = [
   {

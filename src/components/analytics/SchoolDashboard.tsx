@@ -99,7 +99,7 @@ const MOCK_GRADES: GradeDistribution[] = [
   { grade: 'Grade 2', gradeAr: 'auto.SchoolDashboard.k43', count: 2, averageProgress: 35, color: brandPink },
   { grade: 'Grade 3', gradeAr: 'auto.SchoolDashboard.k44', count: 2, averageProgress: 80, color: brandCyan },
   { grade: 'Grade 4', gradeAr: 'auto.SchoolDashboard.k45', count: 2, averageProgress: 80, color: brandPurple },
-  { grade: 'Grade 5', gradeAr: 'auto.SchoolDashboard.k46', count: 2, averageProgress: 87, color: '#22c55e' },
+  { grade: 'Grade 5', gradeAr: 'auto.SchoolDashboard.k46', count: 2, averageProgress: 87, color: colors.success },
 ];
 
 // MetricCard replaced with StatCard from ../shared
@@ -199,10 +199,10 @@ const StudentTable = memo(({
 }) => {
   const { t } = useLanguage();
   const statusColors: Record<StudentData['status'], { bg: string; text: string; label: string; labelAr: string }> = {
-    on_track: { bg: 'rgba(34,197,94,0.15)', text: '#22c55e', label: 'On Track', labelAr: 'auto.SchoolDashboard.k47' },
+    on_track: { bg: colors.successLight, text: colors.success, label: 'On Track', labelAr: 'auto.SchoolDashboard.k47' },
     completed: { bg: 'rgba(143,211,204,0.15)', text: brandCyan, label: 'Completed', labelAr: 'auto.SchoolDashboard.k48' },
-    needs_attention: { bg: 'rgba(234,179,8,0.15)', text: '#eab308', label: 'Needs Attention', labelAr: 'auto.SchoolDashboard.k49' },
-    at_risk: { bg: 'rgba(239,68,68,0.15)', text: '#ef4444', label: 'At Risk', labelAr: 'auto.SchoolDashboard.k50' },
+    needs_attention: { bg: colors.warningLight, text: colors.warning, label: 'Needs Attention', labelAr: 'auto.SchoolDashboard.k49' },
+    at_risk: { bg: colors.errorLight, text: colors.error, label: 'At Risk', labelAr: 'auto.SchoolDashboard.k50' },
   };
 
   const getTimeAgo = (timestamp: number): string => {
@@ -301,7 +301,7 @@ const StudentTable = memo(({
                   <span
                     style={{
                       fontWeight: typography.weight.bold,
-                      color: student.attentionScore >= 80 ? '#22c55e' : student.attentionScore >= 60 ? '#eab308' : '#ef4444',
+                      color: student.attentionScore >= 80 ? colors.success : student.attentionScore >= 60 ? colors.warning : colors.error,
                     }}
                   >
                     {student.attentionScore}%
@@ -434,7 +434,7 @@ export default function SchoolDashboard() {
   const gradeDistribution = useMemo(() => {
     if (!hasSchoolData) return MOCK_GRADES;
     const apiGrades = schoolAnalysis?.gradeDistribution ?? [];
-    const palette = [brandPink, brandCyan, brandPurple, '#22c55e', '#f59e0b', '#ef4444'];
+    const palette = [brandPink, brandCyan, brandPurple, colors.success, colors.warning, colors.error];
     return apiGrades.map((grade, index) => ({
       grade: grade.grade,
       gradeAr: grade.gradeAr || grade.grade,
@@ -597,14 +597,14 @@ export default function SchoolDashboard() {
             value={metrics.completed}
             subtitle={t('auto.SchoolDashboard.k19', "Finished program")}
             icon={<CheckCircleIcon size={20} tone="success" />}
-            color="#22c55e"
+            color={colors.success}
           />
           <StatCard
             label={t('auto.SchoolDashboard.k20', "Need Attention")}
             value={metrics.atRisk}
             subtitle={t('auto.SchoolDashboard.k21', "At-risk students")}
             icon={<ShieldMedicalIcon size={20} tone="error" />}
-            color="#ef4444"
+            color={colors.error}
           />
         </div>
       </PageTransition>

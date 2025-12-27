@@ -16,6 +16,7 @@ import {
   transitions,
   shadows,
 } from '../styles';
+import { renderLabIcon } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -229,7 +230,7 @@ export const NarrativeCard = memo(({
         opacity: 0.3,
         fontSize: 40,
       }}>
-        ✨
+        {renderLabIcon('\u2728', { size: 40, tone: 'pink', glow: true })}
       </div>
 
       {/* Header */}
@@ -322,7 +323,7 @@ export const NarrativeCard = memo(({
           gap: spacing[3],
           opacity: 0.7,
         }}>
-          <span style={{ fontSize: 24, filter: 'grayscale(1)' }}>🔒</span>
+          <span style={{ fontSize: 24, filter: 'grayscale(1)' }}>{renderLabIcon('\U0001F512', { size: 20, tone: 'muted' })}</span>
           <div>
             <div style={{
               fontSize: typography.size.xs,
@@ -439,7 +440,7 @@ export const StoryProgress = memo(({
             }}
             title={isArabic ? t(chapter.titleAr, chapter.title) : chapter.title}
           >
-            {chapter.unlocked ? chapter.icon : '🔒'}
+            {renderLabIcon(chapter.unlocked ? chapter.icon : '\U0001F512', { size: 14, tone: chapter.unlocked ? 'cyan' : 'muted' })}
           </div>
         ))}
       </div>
@@ -520,7 +521,7 @@ export const StoryProgress = memo(({
                 fontSize: 14,
                 boxShadow: isCurrent ? shadows.glow.cyan : 'none',
               }}>
-                {chapter.unlocked ? chapter.icon : '🔒'}
+                {renderLabIcon(chapter.unlocked ? chapter.icon : '\U0001F512', { size: 14, tone: chapter.unlocked ? 'cyan' : 'muted' })}
               </div>
 
               {/* Content */}
@@ -628,7 +629,7 @@ export const ChapterUnlockModal = memo(({
                 left: `${10 + Math.random() * 80}%`,
               }}
             >
-              ✨
+              {renderLabIcon('\u2728', { size: 20, tone: 'pink' })}
             </span>
           ))}
 
@@ -646,7 +647,7 @@ export const ChapterUnlockModal = memo(({
             fontSize: 48,
             boxShadow: shadows.glow.purple,
           }}>
-            {chapter.icon}
+            {renderLabIcon(chapter.icon, { size: 48, tone: 'purple', glow: true })}
           </div>
 
           {/* Title */}
@@ -692,7 +693,7 @@ export const ChapterUnlockModal = memo(({
                 fontWeight: typography.weight.bold,
                 marginBottom: spacing[2],
               }}>
-                🎁 {t('auto.NarrativeSystem.k7', "Special Reward")}
+                {renderLabIcon('\U0001F381', { size: 16, tone: 'pink' })} {t('auto.NarrativeSystem.k7', "Special Reward")}
               </div>
               <div style={{
                 display: 'flex',
@@ -700,7 +701,7 @@ export const ChapterUnlockModal = memo(({
                 justifyContent: 'center',
                 gap: spacing[2],
               }}>
-                <span style={{ fontSize: 24 }}>{chapter.reward.icon}</span>
+                <span style={{ fontSize: 24 }}>{renderLabIcon(chapter.reward.icon, { size: 24, tone: 'cyan' })}</span>
                 <span style={{
                   fontSize: typography.size.lg,
                   fontWeight: typography.weight.bold,
@@ -770,7 +771,7 @@ export const StoryMotivation = memo(({
         color: colors.text.secondary,
         textAlign: 'center',
       }}>
-        🎓 {t('auto.NarrativeSystem.k9', "You're a true Sonic Master! Keep training to maintain your powers.")}
+        {renderLabIcon('\U0001F393', { size: 16, tone: 'warning' })} {t('auto.NarrativeSystem.k9', "You're a true Sonic Master! Keep training to maintain your powers.")}
       </div>
     );
   }

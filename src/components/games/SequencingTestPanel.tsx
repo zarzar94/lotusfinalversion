@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from '../styles';
 import LabButton from '../labui/LabButton';
+import { renderLabIcon } from '../icons/index';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../../utils/pdf';
 import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import { mean } from './stats';
@@ -450,9 +451,9 @@ export default function SequencingTestPanel({
               }}>
                 {gamePoints} pts
               </span>
-              <span style={styles.chip}>✅ {score}/{round - 1}</span>
+              <span style={styles.chip}>{renderLabIcon('\u2705', { size: 14, tone: 'success' })} {score}/{round - 1}</span>
               <LabButton variant="ghost" onClick={replay} disabled={replays >= 1}>
-                🔁 إعادة تشغيل (مرة واحدة)
+                {renderLabIcon('\U0001F501', { size: 14, tone: 'cyan' })} إعادة تشغيل (مرة واحدة)
               </LabButton>
             </div>
           </div>
@@ -470,9 +471,17 @@ export default function SequencingTestPanel({
               background: lastFeedback === 'correct' ? 'rgba(143,211,204,0.2)' : 'rgba(176,18,112,0.2)',
               color: lastFeedback === 'correct' ? brandCyan : brandPink,
             }}>
-              {lastFeedback === 'correct'
-                ? `✓ Correct! +${feedbackPoints}${replays === 0 ? ' (No Replay Bonus!)' : ''}`
-                : `✗ Wrong sequence ${feedbackPoints}`}
+              {lastFeedback === 'correct' ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  {renderLabIcon('\u2713', { size: 16, tone: 'success' })}
+                  <span>{`Correct! +${feedbackPoints}${replays === 0 ? ' (No Replay Bonus!)' : ''}`}</span>
+                </span>
+              ) : (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  {renderLabIcon('\u2717', { size: 16, tone: 'error' })}
+                  <span>{`Wrong sequence ${feedbackPoints}`}</span>
+                </span>
+              )}
             </div>
           )}
 
@@ -535,7 +544,12 @@ export default function SequencingTestPanel({
             footer={t('clinical.screeningDisclaimer')}
           />
           <CTAResultPanel
-            title={'تم حفظ النتيجة ✅'}
+            title={(
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                {renderLabIcon('\u2705', { size: 16, tone: 'success' })}
+                <span>تم حفظ النتيجة</span>
+              </span>
+            )}
             description={'يمكنك تنزيل تقرير المدارس (PDF/CSV) أو الانتقال للخلاصة.'}
             actions={enableExports ? (
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>

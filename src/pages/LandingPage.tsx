@@ -19,7 +19,7 @@ import { useClinicalSync } from '../hooks/useClinicalSync';
 import { usePageTitle } from '../hooks/usePageTitle';
 import ExperienceJourney from '../components/ExperienceJourney';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
-import { renderLabIcon, LightbulbIcon, MapPinIcon } from '../components/icons';
+import { renderLabIcon, LightbulbIcon, MapPinIcon } from '../components/icons/index';
 import {
   brandCyan,
   brandPurple,
@@ -242,7 +242,7 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
       description: 'Success stories and testimonials',
       descriptionAr: 'قصص النجاح والشهادات',
       icon: '📊',
-      color: '#22c55e',
+      color: colors.success,
       path: '/results',
     },
     {
@@ -252,7 +252,7 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
       description: 'Videos, presentations, and FAQs',
       descriptionAr: 'الفيديوهات والعروض والأسئلة الشائعة',
       icon: '📚',
-      color: '#f59e0b',
+      color: colors.warning,
       path: '/resources',
     },
     {

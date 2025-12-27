@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Float } from '@react-three/drei';
 import * as THREE from 'three';
 import { brandCyan, brandPurple, brandPink, modalScale } from '../styles';
+import { renderLabIcon } from '../icons/index';
 
 // Treatment area bubbles positioned on anatomical brain regions
 const BRAIN_BUBBLES = [
@@ -636,7 +637,7 @@ function BubbleInfoPanel({ bubble, onClose }: { bubble: typeof BRAIN_BUBBLES[num
         alignItems: 'center',
         gap: 10,
       }}>
-        <span style={{ fontSize: 20 }}>🎧</span>
+        <span style={{ fontSize: 20 }}>{renderLabIcon('🎧', { size: 18, tone: 'cyan' })}</span>
         <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.9)' }}>
           Berard AIT يستهدف هذه المنطقة من خلال التحفيز السمعي المتخصص
         </span>

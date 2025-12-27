@@ -15,7 +15,7 @@ import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
-import { renderLabIcon, MicroscopeIcon } from '../components/icons';
+import { renderLabIcon, MicroscopeIcon } from '../components/icons/index';
 import {
   brandCyan,
   brandPurple,

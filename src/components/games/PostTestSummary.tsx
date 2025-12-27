@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { useVisitorMode } from '../../context/VisitorModeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurple, colors, radius, spacing, typography, transitions, shadows } from '../styles';
+import { renderLabIcon } from '../icons/index';
 import type { TestOutcome, GameResult } from './types';
 import { resultMeta } from './types';
 
@@ -316,7 +317,11 @@ const PostTestSummary = memo(function PostTestSummary({
             animation: outcome.result === 'high' ? 'resultPulse 2s ease-in-out infinite' : undefined,
             boxShadow: `0 0 30px ${meta.color}40`,
           }}>
-            {outcome.result === 'high' ? '⭐' : outcome.result === 'medium' ? '◐' : '○'}
+            {outcome.result === 'high'
+              ? renderLabIcon('\u2B50', { size: 28, tone: 'warning' })
+              : outcome.result === 'medium'
+                ? renderLabIcon('\u25D0', { size: 28, tone: 'cyan' })
+                : renderLabIcon('\u25CB', { size: 28, tone: 'muted' })}
           </div>
 
           {/* Confetti for high results */}
@@ -335,7 +340,7 @@ const PostTestSummary = memo(function PostTestSummary({
                     opacity: 0,
                   }}
                 >
-                  {emoji}
+                  {renderLabIcon(emoji, { size: 22, tone: 'pink' })}
                 </span>
               ))}
             </div>
@@ -438,7 +443,10 @@ const PostTestSummary = memo(function PostTestSummary({
               textTransform: 'uppercase',
               letterSpacing: 1,
             }}>
-              {isArabic ? `📌 توصيات لـ${config.labelAr}` : `📌 RECOMMENDATIONS FOR ${config.label.toUpperCase()}`}
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+                {renderLabIcon('\U0001F4CC', { size: 16, tone: 'cyan' })}
+                <span>{isArabic ? `توصيات لـ${config.labelAr}` : `RECOMMENDATIONS FOR ${config.label.toUpperCase()}`}</span>
+              </span>
             </h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[3] }}>
@@ -468,7 +476,7 @@ const PostTestSummary = memo(function PostTestSummary({
                     fontSize: 24,
                     flexShrink: 0,
                   }}>
-                    {rec.icon}
+                    {renderLabIcon(rec.icon, { size: 24, style: { color: getPriorityColor(rec.priority) } })}
                   </div>
 
                   <div style={{ flex: 1 }}>
@@ -546,7 +554,10 @@ const PostTestSummary = memo(function PostTestSummary({
             textAlign: 'center',
             lineHeight: typography.lineHeight.relaxed,
           }}>
-            {t('auto.PostTestSummary.k4', "⚕️ These are non-diagnostic screening results. Consult a specialist for complete clinical evaluation.")}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+              {renderLabIcon('\u2695', { size: 16, tone: 'muted' })}
+              <span>{t('auto.PostTestSummary.k4', "These are non-diagnostic screening results. Consult a specialist for complete clinical evaluation.")}</span>
+            </span>
           </p>
         </div>
 
@@ -574,7 +585,7 @@ const PostTestSummary = memo(function PostTestSummary({
               gap: spacing[2],
             }}
           >
-            🔄 {t('auto.PostTestSummary.k5', "Retry Test")}
+            {renderLabIcon('\U0001F504', { size: 16, tone: 'cyan' })} {t('auto.PostTestSummary.k5', "Retry Test")}
           </button>
 
           <button
@@ -595,7 +606,7 @@ const PostTestSummary = memo(function PostTestSummary({
               gap: spacing[2],
             }}
           >
-            ✓ {t('auto.PostTestSummary.k6', "Done")}
+            {renderLabIcon('\u2713', { size: 16, style: { color: '#fff' } })} {t('auto.PostTestSummary.k6', "Done")}
           </button>
         </div>
       </div>

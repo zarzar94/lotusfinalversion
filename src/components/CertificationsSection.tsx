@@ -17,6 +17,7 @@ import {
   transitions,
   cards,
 } from '../styles';
+import { renderLabIcon } from './icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -407,7 +408,7 @@ export const CertificationsSection: React.FC = () => {
                     background: `${cert.color}20`,
                   }}
                 >
-                  {cert.icon}
+                  {renderLabIcon(cert.icon, { size: 26, style: { color: cert.color } })}
                 </div>
                 <div style={styles.certMeta}>
                   <p style={{ ...styles.certType, color: cert.color }}>
@@ -430,10 +431,16 @@ export const CertificationsSection: React.FC = () => {
 
               <div style={styles.certFooter}>
                 <span style={styles.certDate}>
-                  📅 {isArabic ? `منذ ${cert.issueDate}` : `Since ${cert.issueDate}`}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    {renderLabIcon('📅', { size: 12, tone: 'muted' })}
+                    <span>{isArabic ? `منذ ${cert.issueDate}` : `Since ${cert.issueDate}`}</span>
+                  </span>
                 </span>
                 <span style={{ ...styles.certBadge, ...styles.verifiedBadge }}>
-                  ✓ {isArabic ? 'موثق' : 'Verified'}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    {renderLabIcon('✓', { size: 12, tone: 'success' })}
+                    <span>{isArabic ? 'موثق' : 'Verified'}</span>
+                  </span>
                 </span>
               </div>
             </div>
@@ -444,7 +451,9 @@ export const CertificationsSection: React.FC = () => {
         <div style={styles.affiliationsBar}>
           {affiliations.map((aff, idx) => (
             <div key={idx} style={styles.affiliationItem}>
-              <div style={styles.affiliationLogo}>{aff.icon}</div>
+              <div style={styles.affiliationLogo}>
+                {renderLabIcon(aff.icon, { size: 28, tone: 'cyan' })}
+              </div>
               <span style={styles.affiliationName}>{aff.name}</span>
             </div>
           ))}
@@ -454,7 +463,7 @@ export const CertificationsSection: React.FC = () => {
         <div style={styles.trustBadges}>
           {trustBadges.map((badge, idx) => (
             <div key={idx} style={styles.trustBadge}>
-              <span>{badge.icon}</span>
+              <span>{renderLabIcon(badge.icon, { size: 16, tone: 'cyan' })}</span>
               <span>{badge.label}</span>
             </div>
           ))}

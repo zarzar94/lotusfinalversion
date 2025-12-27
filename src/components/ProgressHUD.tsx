@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useGamification } from '../context/GamificationContext';
-import { brandCyan, brandPink, brandPurple } from './styles';
+import { brandCyan, brandPink, brandPurple, colors } from './styles';
+import { renderLabIcon } from './icons/index';
 
 // Advanced HUD container with tech aesthetic
 const hudContainerStyle: React.CSSProperties = {
@@ -191,8 +192,8 @@ export default function ProgressHUD() {
 
     /* Status Pulse */
     @keyframes statusPulse {
-      0%, 100% { opacity: 1; box-shadow: 0 0 6px #22c55e; }
-      50% { opacity: 0.6; box-shadow: 0 0 12px #22c55e; }
+      0%, 100% { opacity: 1; box-shadow: 0 0 6px ${colors.success}; }
+      50% { opacity: 0.6; box-shadow: 0 0 12px ${colors.success}; }
     }
 
     .hud-scan-line {
@@ -348,8 +349,8 @@ export default function ProgressHUD() {
                   width: 6,
                   height: 6,
                   borderRadius: '50%',
-                  background: '#22c55e',
-                  boxShadow: '0 0 8px #22c55e',
+                  background: colors.success,
+                  boxShadow: `0 0 8px ${colors.success}`,
                 }} />
                 {unlockedAchievements.length} إنجاز
               </div>
@@ -425,8 +426,8 @@ export default function ProgressHUD() {
                     width: 6,
                     height: 6,
                     borderRadius: '50%',
-                    background: isMaxLevel ? brandCyan : '#22c55e',
-                    boxShadow: `0 0 8px ${isMaxLevel ? brandCyan : '#22c55e'}`,
+                    background: isMaxLevel ? brandCyan : colors.success,
+                    boxShadow: `0 0 8px ${isMaxLevel ? brandCyan : colors.success}`,
                   }} />
                   {isMaxLevel ? 'المستوى الأقصى' : `${xpToNextLevel} XP للمستوى التالي`}
                 </div>
@@ -545,9 +546,9 @@ export default function ProgressHUD() {
                     </div>
                     <span style={{
                       fontSize: 12,
-                      color: '#22c55e',
-                      textShadow: '0 0 8px #22c55e',
-                    }}>✓</span>
+                      color: colors.success,
+                      textShadow: `0 0 8px ${colors.success}`,
+                    }}>{renderLabIcon('\u2713', { size: 12, tone: 'success' })}</span>
                   </div>
                 ))}
               </div>
@@ -591,7 +592,7 @@ export default function ProgressHUD() {
                       fontSize: 14,
                       color: 'rgba(255,255,255,0.25)',
                       filter: 'grayscale(1)',
-                    }}>🔒</span>
+                    }}>{renderLabIcon('\u{1F512}', { size: 14, tone: 'muted' })}</span>
                   </div>
                 ))}
               </div>
@@ -626,13 +627,13 @@ export default function ProgressHUD() {
                 width: 5,
                 height: 5,
                 borderRadius: '50%',
-                background: '#22c55e',
-                boxShadow: '0 0 6px #22c55e',
+                background: colors.success,
+                boxShadow: `0 0 6px ${colors.success}`,
               }} />
               <span style={{
                 fontSize: 9,
                 fontFamily: 'monospace',
-                color: '#22c55e',
+                color: colors.success,
                 letterSpacing: 1,
               }}>ACTIVE</span>
             </div>

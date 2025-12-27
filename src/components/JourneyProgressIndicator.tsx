@@ -19,6 +19,7 @@ import {
   shadows,
   transitions,
 } from './styles';
+import { renderLabIcon } from './icons/index';
 
 interface JourneyStep {
   id: string;
@@ -292,7 +293,15 @@ const JourneyProgressIndicator = memo(() => {
                         flexShrink: 0,
                       }}
                     >
-                      {isVisited ? (isCurrent ? step.icon : '✓') : step.icon}
+                      {renderLabIcon(
+                        isVisited ? (isCurrent ? step.icon : '\u2713') : step.icon,
+                        {
+                          size: 16,
+                          style: {
+                            color: isCurrent ? brandCyan : isVisited ? colors.success : colors.text.muted,
+                          },
+                        }
+                      )}
                     </div>
 
                     {/* Label */}
@@ -435,7 +444,7 @@ const JourneyProgressIndicator = memo(() => {
               zIndex: 1,
             }}
           >
-            {isExpanded ? '✕' : '🧭'}
+            {renderLabIcon(isExpanded ? '✕' : '🧭', { size: 16, tone: 'muted' })}
           </span>
 
           {/* Notification dot for next step */}

@@ -799,7 +799,7 @@ export const ScoreTrend = memo(({
         <span style={{
           fontSize: typography.size.xs,
           fontWeight: typography.weight.bold,
-          color: isPositive ? '#22c55e' : '#ef4444',
+          color: isPositive ? colors.success : colors.error,
           display: 'flex',
           alignItems: 'center',
           gap: 2,

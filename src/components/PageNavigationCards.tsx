@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import CircuitDecoration from './CircuitDecoration';
 import FadeIn from './FadeIn';
 import { brandCyan, brandPurple, brandPink, colors, typography, spacing, radius } from './styles';
-import { renderLabIcon } from './icons';
+import { renderLabIcon } from './icons/index';
 import { useLanguage } from '../context/LanguageContext';
 
 // Enhanced Navigation Card Component

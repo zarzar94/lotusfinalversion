@@ -16,6 +16,7 @@ import {
   transitions,
   shadows,
 } from '../styles';
+import { renderLabIcon } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -121,7 +122,9 @@ export const RankBadge = memo(({ rank, size = 'md' }: RankBadgeProps) => {
       boxShadow: shadow,
       border: rank > 3 ? `1px solid ${colors.border.default}` : 'none',
     }}>
-      {rank <= 3 ? icon : rank}
+      {rank <= 3
+        ? renderLabIcon(icon, { size: config.fontSize * 1.2, style: { color: 'rgba(255,255,255,0.9)' } })
+        : rank}
     </div>
   );
 });
@@ -168,11 +171,11 @@ export const UserRankCard = memo(({
             alignItems: 'center',
             gap: spacing[1],
             padding: `${spacing[1]}px ${spacing[2]}px`,
-            background: rankChange > 0 ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
+            background: rankChange > 0 ? colors.successLight : colors.errorLight,
             borderRadius: radius.full,
             fontSize: typography.size.xs,
             fontWeight: typography.weight.bold,
-            color: rankChange > 0 ? '#22c55e' : '#ef4444',
+            color: rankChange > 0 ? colors.success : colors.error,
           }}>
             {rankChange > 0 ? '↑' : '↓'} {Math.abs(rankChange)}
           </div>
@@ -265,9 +268,16 @@ export const UserRankCard = memo(({
           <div style={{
             fontSize: typography.size.lg,
             fontWeight: typography.weight.bold,
-            color: entry.streak > 0 ? '#f59e0b' : colors.text.primary,
+            color: entry.streak > 0 ? colors.warning : colors.text.primary,
           }}>
-            {entry.streak > 0 ? `🔥${entry.streak}` : '-'}
+            {entry.streak > 0 ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+                {renderLabIcon('\U0001F525', { size: 14, tone: 'warning' })}
+                <span>{entry.streak}</span>
+              </span>
+            ) : (
+              '-'
+            )}
           </div>
           <div style={{
             fontSize: typography.size.xs,
@@ -341,7 +351,12 @@ const LeaderboardRow = memo(({
         fontSize: 18,
         border: `1px solid ${entry.isCurrentUser ? brandCyan : colors.border.default}`,
       }}>
-        {entry.badge || entry.name[0]}
+        {entry.badge
+          ? renderLabIcon(entry.badge, {
+            size: 18,
+            style: { color: entry.isCurrentUser ? brandCyan : colors.text.muted },
+          })
+          : entry.name[0]}
       </div>
 
       {/* Name */}
@@ -383,10 +398,13 @@ const LeaderboardRow = memo(({
       {showStreak && entry.streak > 0 && (
         <div style={{
           fontSize: typography.size.sm,
-          color: '#f59e0b',
+          color: colors.warning,
           fontWeight: typography.weight.bold,
         }}>
-          🔥{entry.streak}
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: spacing[1] }}>
+            {renderLabIcon('\U0001F525', { size: 14, tone: 'warning' })}
+            <span>{entry.streak}</span>
+          </span>
         </div>
       )}
 
@@ -468,7 +486,7 @@ export const Leaderboard = memo(({
             alignItems: 'center',
             gap: spacing[2],
           }}>
-            🏆 {isArabic ? titleAr || 'قائمة المتصدرين' : title || 'Leaderboard'}
+            {renderLabIcon('\U0001F3C6', { size: 18, tone: 'warning' })} {isArabic ? titleAr || 'قائمة المتصدرين' : title || 'Leaderboard'}
           </h4>
           {onViewMore && (
             <button
@@ -534,7 +552,7 @@ export const Leaderboard = memo(({
           fontWeight: typography.weight.bold,
           color: colors.text.primary,
         }}>
-          🏆 {isArabic ? titleAr || 'قائمة المتصدرين' : title || 'Leaderboard'}
+          {renderLabIcon('\U0001F3C6', { size: 18, tone: 'warning' })} {isArabic ? titleAr || 'قائمة المتصدرين' : title || 'Leaderboard'}
         </h3>
 
         {currentUser && (
@@ -605,7 +623,7 @@ export const Leaderboard = memo(({
           alignItems: 'center',
           gap: spacing[2],
         }}>
-          🏆 {isArabic ? titleAr || 'قائمة المتصدرين' : title || 'Leaderboard'}
+          {renderLabIcon('\U0001F3C6', { size: 18, tone: 'warning' })} {isArabic ? titleAr || 'قائمة المتصدرين' : title || 'Leaderboard'}
         </h3>
 
         {/* Time filter */}

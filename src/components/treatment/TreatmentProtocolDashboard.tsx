@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from '../styles';
+import { renderLabIcon } from '../icons/index';
 
 export type SessionStatus = 'pending' | 'scheduled' | 'completed';
 
@@ -104,12 +105,28 @@ const TreatmentProtocolDashboard = ({ locale = 'ar', plan = defaultPlan }: Treat
         </div>
         <p style={styles.bodyText}>{t.subtitle}</p>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <span style={pillStyle}>✅ {summary.completed} {t.completed}</span>
-          <span style={{ ...pillStyle, background: 'rgba(175,132,186,0.12)', borderColor: 'rgba(175,132,186,0.25)' }}>
-            🗓️ {summary.scheduled} {t.scheduled}
+          <span style={{ ...pillStyle, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            {renderLabIcon('\u2705', { size: 12, tone: 'success' })} {summary.completed} {t.completed}
           </span>
-          <span style={{ ...pillStyle, background: 'rgba(176,18,112,0.12)', borderColor: 'rgba(176,18,112,0.25)' }}>
-            ⏳ {summary.pending} {t.pending}
+          <span style={{
+            ...pillStyle,
+            background: 'rgba(175,132,186,0.12)',
+            borderColor: 'rgba(175,132,186,0.25)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+          }}>
+            {renderLabIcon('\u{1F5D3}\u{FE0F}', { size: 12, tone: 'muted' })} {summary.scheduled} {t.scheduled}
+          </span>
+          <span style={{
+            ...pillStyle,
+            background: 'rgba(176,18,112,0.12)',
+            borderColor: 'rgba(176,18,112,0.25)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+          }}>
+            {renderLabIcon('\u23F3', { size: 12, tone: 'warning' })} {summary.pending} {t.pending}
           </span>
         </div>
       </div>
@@ -176,7 +193,9 @@ const TreatmentProtocolDashboard = ({ locale = 'ar', plan = defaultPlan }: Treat
                       </div>
                       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                         {Array.from({ length: 5 }).map((_, starIdx) => (
-                          <span key={starIdx}>{starIdx < session.stars ? '⭐' : '☆'}</span>
+                          <span key={starIdx}>
+                            {renderLabIcon('\u2B50', { size: 14, tone: starIdx < session.stars ? 'warning' : 'muted' })}
+                          </span>
                         ))}
                       </div>
                       <div style={{ display: 'grid', gap: 4 }}>

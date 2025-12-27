@@ -11,7 +11,9 @@ import {
   soundLabStyles,
   labTech,
   labTechStyles,
+  colors,
 } from './styles';
+import { renderLabIcon } from './icons/index';
 
 interface FrequencyBand {
   id: string;
@@ -69,7 +71,7 @@ const frequencyBands: FrequencyBand[] = [
     labelEn: 'Mid-High Frequencies',
     minHz: 3000,
     maxHz: 8000,
-    color: '#22c55e',
+    color: colors.success,
     description: 'مهمة للتمييز بين الأصوات المتشابهة',
     descriptionEn: 'Fine-detail band (3–8 kHz) supporting discrimination between similar sounds.',
     affected: ['الوضوح', 'التمييز', 'الانتباه'],
@@ -540,7 +542,7 @@ export default function AudioSpectrumDemo() {
               fontSize: 22,
               boxShadow: `0 0 20px ${brandCyan}15`,
             }}>
-              🎛️
+              {renderLabIcon('🎛️', { size: 20, tone: 'cyan' })}
             </div>
             <div>
               <h2 style={{ ...styles.h2, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -579,7 +581,7 @@ export default function AudioSpectrumDemo() {
               borderRadius: 8,
               fontSize: 10,
               fontWeight: 700,
-              color: isPlaying ? '#22c55e' : 'rgba(255,255,255,0.5)',
+              color: isPlaying ? colors.success : 'rgba(255,255,255,0.5)',
               fontFamily: 'monospace',
               letterSpacing: 0.5,
             }}>
@@ -658,7 +660,7 @@ export default function AudioSpectrumDemo() {
                 justifyContent: 'center',
                 fontSize: 16,
               }}>
-                📊
+                {renderLabIcon('📊', { size: 16, tone: 'cyan' })}
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -705,7 +707,7 @@ export default function AudioSpectrumDemo() {
                 style={{
                   padding: '8px 16px',
                   background: isPlaying
-                    ? 'linear-gradient(135deg, #ef4444, #dc2626)'
+                    ? `linear-gradient(135deg, ${colors.error}, ${colors.error})`
                     : `linear-gradient(135deg, ${audioColors.mid}, ${brandPurple})`,
                   border: 'none',
                   borderRadius: 10,
@@ -816,7 +818,10 @@ export default function AudioSpectrumDemo() {
               color: brandCyan,
               marginBottom: 12,
             }}>
-              {isArabic ? '🎚️ أنماط السمع' : '🎚️ Hearing Profiles'}
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                {renderLabIcon('🎚️', { size: 16, tone: 'cyan' })}
+                <span>{isArabic ? 'أنماط السمع' : 'Hearing Profiles'}</span>
+              </span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {presets.map((preset) => (

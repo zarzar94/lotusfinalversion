@@ -21,7 +21,7 @@ import {
   UserIcon,
   WaveformIcon,
   renderLabIcon,
-} from '../components/icons';
+} from '../components/icons/index';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';

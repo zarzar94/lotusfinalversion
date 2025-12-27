@@ -25,6 +25,7 @@ import {
   DocumentIcon,
   UserIcon,
 } from './Icons';
+import { renderLabIcon } from './icons/index';
 
 // Protocol phases configuration
 const PROTOCOL_PHASES = [
@@ -59,7 +60,7 @@ const PROTOCOL_PHASES = [
     durationAr: 'auto.ClinicalProtocolSection.k11',
     descEn: 'Progress evaluation and protocol adjustments if needed',
     descAr: 'auto.ClinicalProtocolSection.k12',
-    color: '#f59e0b',
+    color: colors.warning,
   },
   {
     id: 'completion',
@@ -70,7 +71,7 @@ const PROTOCOL_PHASES = [
     durationAr: 'auto.ClinicalProtocolSection.k14',
     descEn: 'Final measurements and comprehensive progress report',
     descAr: 'auto.ClinicalProtocolSection.k15',
-    color: '#22c55e',
+    color: colors.success,
   },
 ];
 
@@ -83,7 +84,7 @@ const SAFETY_ITEMS = [
     titleAr: 'auto.ClinicalProtocolSection.k16',
     descEn: 'Our assessments are educational screenings. They do not replace clinical diagnosis by licensed professionals.',
     descAr: 'auto.ClinicalProtocolSection.k17',
-    color: '#f59e0b',
+    color: colors.warning,
   },
   {
     id: 'supervision',
@@ -508,13 +509,13 @@ const ClinicalProtocolSection = memo(function ClinicalProtocolSection() {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: '#22c55e',
-              boxShadow: '0 0 6px #22c55e',
+              background: colors.success,
+              boxShadow: `0 0 6px ${colors.success}`,
             }} />
             <span style={{
               fontSize: 9,
               fontWeight: 700,
-              color: '#22c55e',
+              color: colors.success,
               fontFamily: 'monospace',
             }}>
               CERTIFIED
@@ -638,7 +639,10 @@ const ClinicalProtocolSection = memo(function ClinicalProtocolSection() {
             lineHeight: typography.lineHeight.relaxed,
           }}
         >
-          {t('auto.ClinicalProtocolSection.k3', "📋 For complete protocol documentation and policies, please contact our clinical team.")}
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            {renderLabIcon('📋', { size: 14, tone: 'cyan' })}
+            <span>{t('auto.ClinicalProtocolSection.k3', 'For complete protocol documentation and policies, please contact our clinical team.')}</span>
+          </span>
         </p>
       </div>
 
@@ -677,13 +681,13 @@ const ClinicalProtocolSection = memo(function ClinicalProtocolSection() {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: '#22c55e',
-              boxShadow: '0 0 6px #22c55e',
+              background: colors.success,
+              boxShadow: `0 0 6px ${colors.success}`,
             }} />
             <span style={{
               fontSize: 9,
               fontFamily: 'monospace',
-              color: '#22c55e',
+              color: colors.success,
               letterSpacing: 0.5,
             }}>
               BÉRARD AIT CERTIFIED
@@ -704,7 +708,7 @@ const ClinicalProtocolSection = memo(function ClinicalProtocolSection() {
             10 DAYS • 20 SESSIONS
           </span>
           <div style={{ display: 'flex', gap: 3 }}>
-            {[brandCyan, brandPurple, '#f59e0b', '#22c55e'].map((color, i) => (
+            {[brandCyan, brandPurple, colors.warning, colors.success].map((color, i) => (
               <div key={i} style={{
                 width: 12,
                 height: 4,

@@ -283,7 +283,7 @@ export function measureTime<T>(name: string, fn: () => T): T {
   } finally {
     const duration = performance.now() - start;
     if (import.meta.env.DEV && duration > 16) {
-      console.warn(`⚠️ Slow operation "${name}": ${duration.toFixed(2)}ms`);
+      console.warn(`Slow operation "${name}": ${duration.toFixed(2)}ms`);
     }
   }
 }
@@ -304,7 +304,7 @@ export function mark(name: string): () => void {
     if (import.meta.env.DEV) {
       const measure = performance.getEntriesByName(name)[0];
       if (measure && measure.duration > 16) {
-        console.warn(`⚠️ Slow operation "${name}": ${measure.duration.toFixed(2)}ms`);
+        console.warn(`Slow operation "${name}": ${measure.duration.toFixed(2)}ms`);
       }
     }
 

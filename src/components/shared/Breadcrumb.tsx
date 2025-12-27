@@ -13,7 +13,7 @@ import {
   spacing,
   radius,
 } from '../styles';
-import { renderLabIcon } from '../icons';
+import { renderLabIcon } from '../icons/index';
 
 interface BreadcrumbItem {
   label: string;
