@@ -13,6 +13,7 @@ import {
 } from '../styles';
 import { useLanguage } from '../../context/LanguageContext';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
+import { ModuleFrame } from './ui';
 
 export type HeadphoneCheckResult = {
   supported: boolean;
@@ -471,28 +472,37 @@ export default function HeadphoneCheckPanel({
   // Volume calibration phase
   if (phase === 'volume') {
     return (
-      <VolumeCalibration
-        onConfirm={() => {
-          setVolumeConfirmed(true);
-          setPhase('headphone');
-        }}
-        onSkip={onSkip}
-        isArabic={isArabic}
-      />
+      <ModuleFrame
+        padding={0}
+        style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}
+      >
+        <VolumeCalibration
+          onConfirm={() => {
+            setVolumeConfirmed(true);
+            setPhase('headphone');
+          }}
+          onSkip={onSkip}
+          isArabic={isArabic}
+        />
+      </ModuleFrame>
     );
   }
 
   // Unsupported browser
   if (!supported) {
     return (
-      <div
-        style={{
-          padding: spacing[5],
-          background: 'linear-gradient(135deg, rgba(26,31,46,0.95), rgba(13,17,23,0.95))',
-          border: `1px solid ${brandPink}30`,
-          borderRadius: radius.xl,
-        }}
+      <ModuleFrame
+        padding={0}
+        style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}
       >
+        <div
+          style={{
+            padding: spacing[5],
+            background: 'linear-gradient(135deg, rgba(26,31,46,0.95), rgba(13,17,23,0.95))',
+            border: `1px solid ${brandPink}30`,
+            borderRadius: radius.xl,
+          }}
+        >
         <div
           style={{
             display: 'flex',
@@ -533,22 +543,27 @@ export default function HeadphoneCheckPanel({
             </LabButton>
           )}
         </div>
-      </div>
+        </div>
+      </ModuleFrame>
     );
   }
 
   // Headphone check phase
   return (
-    <div
-      style={{
-        padding: spacing[5],
-        background: 'linear-gradient(135deg, rgba(26,31,46,0.95), rgba(13,17,23,0.95))',
-        border: `1px solid ${brandPurple}20`,
-        borderRadius: radius.xl,
-        position: 'relative',
-        overflow: 'hidden',
-      }}
+    <ModuleFrame
+      padding={0}
+      style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}
     >
+      <div
+        style={{
+          padding: spacing[5],
+          background: 'linear-gradient(135deg, rgba(26,31,46,0.95), rgba(13,17,23,0.95))',
+          border: `1px solid ${brandPurple}20`,
+          borderRadius: radius.xl,
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
       {/* Scan line */}
       <div
         style={{
@@ -711,5 +726,7 @@ export default function HeadphoneCheckPanel({
         }
       `}</style>
     </div>
+  
+    </ModuleFrame>
   );
 }

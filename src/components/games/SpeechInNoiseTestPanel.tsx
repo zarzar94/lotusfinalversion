@@ -1,12 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
-import { brandCyan, brandPink, brandPurpleDark, styles, snrModule } from '../../styles';
+import { brandCyan, brandPurpleDark, styles } from '../../styles';
 import LabButton from '../labui/LabButton';
 import { ensureAudio, safeCloseAudio, setBabbleNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import type { GameResult, SpeechInNoiseMetrics, TestOutcome } from './types';
 import { calculateFatigueIndex } from './scoring';
 import { mean } from './stats';
+import {
+  CalibrationStep,
+  MetricsSummaryPanel,
+  ModuleFrame,
+  ModuleHeader,
+  PracticeTrialsStep,
+} from './ui';
 
 type Sentence = {
   text: string;
@@ -344,29 +351,30 @@ export default function SpeechInNoiseTestPanel({
     if (stage === 'running') return `${trialIndex}/${MAX_TRIALS}`;
     return '';
   }, [practiceIndex, stage, trialIndex]);
+  const summaryTone = summary
+    ? summary.result === 'high'
+      ? 'success'
+      : summary.result === 'medium'
+        ? 'warning'
+        : 'error'
+    : 'neutral';
 
   return (
-    <div style={styles.section}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-        <div>
-          <div style={{ fontWeight: 900, color: brandCyan }}>
-            {t('auto.SpeechInNoiseTestPanel.k2', "Speech-in-Noise")}
-          </div>
-          <div style={styles.muted}>
-            {t('auto.SpeechInNoiseTestPanel.k3', "Listen to the sentence and select the words you heard.")}
-          </div>
-        </div>
-        {progressLabel ? <span style={styles.chip}>{progressLabel}</span> : null}
-      </div>
+    <ModuleFrame>
+      <ModuleHeader
+        title={t('auto.SpeechInNoiseTestPanel.k2', "Speech-in-Noise")}
+        subtitle={t('auto.SpeechInNoiseTestPanel.k3', "Listen to the sentence and select the words you heard.")}
+        tone="cyan"
+        status={progressLabel || undefined}
+        statusTone="purple"
+      />
 
       {stage === 'intro' ? (
-        <div style={{ marginTop: 12 }}>
-          <div style={{ ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900 }}>{t('auto.SpeechInNoiseTestPanel.k4', "Instructions")}</div>
-            <p style={{ ...styles.bodyText, marginTop: 8 }}>
-              {t('auto.SpeechInNoiseTestPanel.k5', "You will hear a sentence with background noise. Select the correct words after listening.")}
-            </p>
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
+        <CalibrationStep
+          title={t('auto.SpeechInNoiseTestPanel.k4', "Instructions")}
+          description={t('auto.SpeechInNoiseTestPanel.k5', "You will hear a sentence with background noise. Select the correct words after listening.")}
+          actions={(
+            <>
               <LabButton onClick={startPractice}>
                 {t('auto.SpeechInNoiseTestPanel.k6', "Start Practice")}
               </LabButton>
@@ -375,13 +383,17 @@ export default function SpeechInNoiseTestPanel({
                   {t('auto.SpeechInNoiseTestPanel.k7', "Cancel")}
                 </LabButton>
               ) : null}
-            </div>
-          </div>
-        </div>
+            </>
+          )}
+        />
       ) : null}
 
       {(stage === 'practice' || stage === 'running') && current ? (
-        <div style={{ marginTop: 16 }}>
+        <PracticeTrialsStep
+          title={t('auto.SpeechInNoiseTestPanel.k8', "Select the words you heard")}
+          status={progressLabel || undefined}
+          statusTone="purple"
+        >
           <div style={{
             padding: 16,
             borderRadius: 16,
@@ -428,36 +440,22 @@ export default function SpeechInNoiseTestPanel({
           >
             {t('auto.SpeechInNoiseTestPanel.k9', "Submit Response")}
           </LabButton>
-        </div>
+        </PracticeTrialsStep>
       ) : null}
 
       {stage === 'done' && summary ? (
-        <div style={{ marginTop: 16 }}>
-          <div style={{ ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900, color: summary.result === 'high' ? brandCyan : summary.result === 'medium' ? brandPurpleDark : brandPink }}>
-              {summary.message}
-            </div>
-            <div style={{ marginTop: 6, ...styles.muted }}>
-              {summary.interpretation}
-            </div>
-            <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', marginTop: 12 }}>
-              {[
-                { label: t('speechInNoise.snrThreshold'), value: formatSnr(summary.snrThreshold) },
-                { label: t('speechInNoise.recognitionAccuracy'), value: `${summary.accuracy}%` },
-                { label: t('speechInNoise.noiseTolerance'), value: summary.noiseTolerance },
-              ].map((item) => (
-                <div key={item.label} style={{ padding: 10, borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.2)' }}>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>{item.label}</div>
-                  <div style={{ fontWeight: 800, marginTop: 4 }}>{item.value}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ marginTop: 12, ...styles.muted }}>
-              {t('clinical.screeningDisclaimer')}
-            </div>
-          </div>
-        </div>
+        <MetricsSummaryPanel
+          title={summary.message}
+          subtitle={summary.interpretation}
+          tone={summaryTone}
+          metrics={[
+            { label: t('speechInNoise.snrThreshold'), value: formatSnr(summary.snrThreshold) },
+            { label: t('speechInNoise.recognitionAccuracy'), value: `${summary.accuracy}%` },
+            { label: t('speechInNoise.noiseTolerance'), value: summary.noiseTolerance },
+          ]}
+          footer={t('clinical.screeningDisclaimer')}
+        />
       ) : null}
-    </div>
+    </ModuleFrame>
   );
 }
