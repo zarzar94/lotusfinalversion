@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
@@ -7,6 +7,13 @@ import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import { mean, median, stdDev } from './stats';
 import type { GameResult, TestOutcome } from './types';
 import { FREQUENCY_POINTS, getStarRating, getStarEmoji } from './scoring';
+import {
+  CalibrationStep,
+  MetricsSummaryPanel,
+  ModuleFrame,
+  ModuleHeader,
+  PracticeTrialsStep,
+} from './ui';
 
 type TrialRow = {
   i: number;
@@ -26,7 +33,7 @@ export default function FrequencyDiscriminationTestPanel({
   onDone: (outcome: TestOutcome) => void;
   onCancel?: () => void;
 }) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const audioRef = useRef<AudioContext | null>(null);
   const ensure = () => ensureAudio(audioRef);
 
@@ -45,6 +52,15 @@ export default function FrequencyDiscriminationTestPanel({
   const [points, setPoints] = useState(0);
   const [lastFeedback, setLastFeedback] = useState<'correct' | 'incorrect' | null>(null);
   const [feedbackPoints, setFeedbackPoints] = useState(0);
+  const [summary, setSummary] = useState<{
+    result: GameResult;
+    thresholdHz: number;
+    accuracy: number;
+    finalPoints: number;
+    consistency: number;
+    avgRt: number;
+    message: string;
+  } | null>(null);
 
   const deltasRef = useRef<number[]>([]);
   const rowsRef = useRef<TrialRow[]>([]);
@@ -185,16 +201,16 @@ export default function FrequencyDiscriminationTestPanel({
 
     const message =
       result === 'high'
-        ? 'تمييز قوي لفروقات التردد الصغيرة (ضمن هذا الفحص).'
+        ? '╪¬┘à┘è┘è╪▓ ┘é┘ê┘è ┘ä┘ü╪▒┘ê┘é╪º╪¬ ╪º┘ä╪¬╪▒╪»╪» ╪º┘ä╪╡╪║┘è╪▒╪⌐ (╪╢┘à┘å ┘ç╪░╪º ╪º┘ä┘ü╪¡╪╡).'
         : result === 'medium'
-          ? 'تمييز متوسط — قد تظهر الصعوبة أكثر مع الضوضاء أو الكلام السريع.'
-          : 'تمييز ضعيف نسبيًا ضمن هذا الفحص. إذا كان هناك صعوبات مستمرة في الواقع، يفضل تقييم متخصص.';
+          ? '╪¬┘à┘è┘è╪▓ ┘à╪¬┘ê╪│╪╖ ΓÇö ┘é╪» ╪¬╪╕┘ç╪▒ ╪º┘ä╪╡╪╣┘ê╪¿╪⌐ ╪ú┘â╪½╪▒ ┘à╪╣ ╪º┘ä╪╢┘ê╪╢╪º╪í ╪ú┘ê ╪º┘ä┘â┘ä╪º┘à ╪º┘ä╪│╪▒┘è╪╣.'
+          : '╪¬┘à┘è┘è╪▓ ╪╢╪╣┘è┘ü ┘å╪│╪¿┘è┘ï╪º ╪╢┘à┘å ┘ç╪░╪º ╪º┘ä┘ü╪¡╪╡. ╪Ñ╪░╪º ┘â╪º┘å ┘ç┘å╪º┘â ╪╡╪╣┘ê╪¿╪º╪¬ ┘à╪│╪¬┘à╪▒╪⌐ ┘ü┘è ╪º┘ä┘ê╪º┘é╪╣╪î ┘è┘ü╪╢┘ä ╪¬┘é┘è┘è┘à ┘à╪¬╪«╪╡╪╡.';
 
     const outcome: TestOutcome = {
       key: 'frequency',
-      title: 'اختبار تمييز التردد (2IFC Adaptive)',
+      title: '╪º╪«╪¬╪¿╪º╪▒ ╪¬┘à┘è┘è╪▓ ╪º┘ä╪¬╪▒╪»╪» (2IFC Adaptive)',
       result,
-      scoreLabel: `${getStarEmoji(starRating)} Threshold≈${thresholdHz}Hz • ${accuracy}% • ${finalPoints}pts`,
+      scoreLabel: `${getStarEmoji(starRating)} ThresholdΓëê${thresholdHz}Hz ΓÇó ${accuracy}% ΓÇó ${finalPoints}pts`,
       message,
       metrics: {
         referenceHz: REF,
@@ -211,42 +227,58 @@ export default function FrequencyDiscriminationTestPanel({
       trials: rows,
     };
 
+    setSummary({
+      result,
+      thresholdHz,
+      accuracy,
+      finalPoints,
+      consistency,
+      avgRt,
+      message,
+    });
     setStage('done');
     onDone(outcome);
   };
 
   const canAnswer = played && !busy;
+  const summaryTone = summary
+    ? summary.result === 'high'
+      ? 'success'
+      : summary.result === 'medium'
+        ? 'warning'
+        : 'error'
+    : 'neutral';
 
   return (
-    <div style={styles.section}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-        <div>
-          <div style={{ fontWeight: 900, color: brandCyan }}>اختبار تمييز التردد (Frequency Discrimination)</div>
-          <div style={styles.muted}>اختبار موضوعي بنمط 2IFC مع صعوبة تكيفية لتقدير "عتبة التمييز".</div>
-        </div>
-        <span style={styles.chip}>{isArabic ? 'موضوعي' : 'Objective'}</span>
-      </div>
+    <ModuleFrame>
+      <ModuleHeader
+        title={'OOrOO"OO OU.USUSO? OU,OOO_O_ (Frequency Discrimination)'}
+        subtitle={'OOrOO"OO U.U^OU^O1US O"U+U.O? 2IFC U.O1 O?O1U^O"Oc OU?USU?USOc U,OU,O_USO "O1OO"Oc OU,OU.USUSO?".'}
+        tone="cyan"
+        status={isArabic ? 'U.U^OU^O1US' : 'Objective'}
+        statusTone="cyan"
+      />
 
       {stage === 'intro' ? (
-        <div style={{ marginTop: 12 }}>
+        <CalibrationStep title={t('auto.FrequencyDiscriminationTestPanel.k1', 'Instructions')}>
           <p style={styles.bodyText}>
-            ستسمع نغمتين (الأولى ثم الثانية). اختر أيهما أعلى ترددًا. سيضبط النظام الصعوبة تلقائيًا ليقدّر
-            <b style={{ color: brandPink }}> أصغر فرق يمكن تمييزه</b> ضمن هذا الفحص.
+            ╪│╪¬╪│┘à╪╣ ┘å╪║┘à╪¬┘è┘å (╪º┘ä╪ú┘ê┘ä┘ë ╪½┘à ╪º┘ä╪½╪º┘å┘è╪⌐). ╪º╪«╪¬╪▒ ╪ú┘è┘ç┘à╪º ╪ú╪╣┘ä┘ë ╪¬╪▒╪»╪»┘ï╪º. ╪│┘è╪╢╪¿╪╖ ╪º┘ä┘å╪╕╪º┘à ╪º┘ä╪╡╪╣┘ê╪¿╪⌐ ╪¬┘ä┘é╪º╪ª┘è┘ï╪º ┘ä┘è┘é╪»┘æ╪▒
+            <b style={{ color: brandPink }}> ╪ú╪╡╪║╪▒ ┘ü╪▒┘é ┘è┘à┘â┘å ╪¬┘à┘è┘è╪▓┘ç</b> ╪╢┘à┘å ┘ç╪░╪º ╪º┘ä┘ü╪¡╪╡.
           </p>
 
           <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', marginTop: 12 }}>
             <div style={styles.section}>
-              <div style={{ fontWeight: 900 }}>مثال (مرجع)</div>
+              <div style={{ fontWeight: 900 }}>┘à╪½╪º┘ä (┘à╪▒╪¼╪╣)</div>
               <div style={styles.muted}>{REF} Hz</div>
               <LabButton onClick={() => playExample(REF)} style={{ marginTop: 10 }}>
-                استمع
+                ╪º╪│╪¬┘à╪╣
               </LabButton>
             </div>
             <div style={styles.section}>
-              <div style={{ fontWeight: 900 }}>مثال (أعلى)</div>
+              <div style={{ fontWeight: 900 }}>┘à╪½╪º┘ä (╪ú╪╣┘ä┘ë)</div>
               <div style={styles.muted}>{REF + 80} Hz</div>
               <LabButton variant="ghost" onClick={() => playExample(REF + 80)} style={{ marginTop: 10 }}>
-                استمع
+                ╪º╪│╪¬┘à╪╣
               </LabButton>
             </div>
           </div>
@@ -263,26 +295,27 @@ export default function FrequencyDiscriminationTestPanel({
                 setPlayed(false);
                 setPoints(0);
                 setLastFeedback(null);
+                setSummary(null);
                 setStage('running');
               }}
             >
-              ابدأ الاختبار
+              ╪º╪¿╪»╪ú ╪º┘ä╪º╪«╪¬╪¿╪º╪▒
             </LabButton>
             {onCancel ? (
               <LabButton variant="ghost" onClick={onCancel}>
-                إغلاق
+                ╪Ñ╪║┘ä╪º┘é
               </LabButton>
             ) : null}
           </div>
-        </div>
+        </CalibrationStep>
       ) : null}
 
       {stage === 'running' ? (
-        <div style={{ marginTop: 12 }}>
+        <PracticeTrialsStep title={isArabic ? `${i}/${TRIALS}` : `Trial ${i}/${TRIALS}`}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
             <div>
               <div style={{ fontWeight: 900 }}>Trial {i}/{TRIALS}</div>
-              <div style={styles.muted}>Delta الحالي: {delta} Hz {delta < 30 && '🎯'}</div>
+              <div style={styles.muted}>Delta ╪º┘ä╪¡╪º┘ä┘è: {delta} Hz {delta < 30 && '≡ƒÄ»'}</div>
             </div>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
               <span style={{
@@ -292,7 +325,7 @@ export default function FrequencyDiscriminationTestPanel({
               }}>
                 {points} pts
               </span>
-              <span style={styles.chip}>{isArabic ? '2IFC • تكيفي' : '2IFC • Adaptive'}</span>
+              <span style={styles.chip}>{isArabic ? '2IFC ΓÇó ╪¬┘â┘è┘ü┘è' : '2IFC ΓÇó Adaptive'}</span>
             </div>
           </div>
 
@@ -306,7 +339,7 @@ export default function FrequencyDiscriminationTestPanel({
             textAlign: 'center',
           }}>
             <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>
-              Difficulty: {delta < 30 ? '🔥 Hard' : delta < 60 ? '⚡ Medium' : '📊 Easy'} ({delta}Hz difference)
+              Difficulty: {delta < 30 ? '≡ƒöÑ Hard' : delta < 60 ? 'ΓÜí Medium' : '≡ƒôè Easy'} ({delta}Hz difference)
             </span>
           </div>
 
@@ -323,30 +356,30 @@ export default function FrequencyDiscriminationTestPanel({
               background: lastFeedback === 'correct' ? 'rgba(143,211,204,0.2)' : 'rgba(176,18,112,0.2)',
               color: lastFeedback === 'correct' ? brandCyan : brandPink,
             }}>
-              {lastFeedback === 'correct' ? `✓ Correct! +${feedbackPoints}` : `✗ Wrong ${feedbackPoints}`}
+              {lastFeedback === 'correct' ? `Γ£ô Correct! +${feedbackPoints}` : `Γ£ù Wrong ${feedbackPoints}`}
             </div>
           )}
 
           <div style={{ marginTop: 12, ...styles.section }}>
-            <div style={{ fontWeight: 900, color: brandPurpleDark }}>الخطوة 1</div>
-            <p style={{ ...styles.muted, marginTop: 6 }}>اضغط "استمع" لتشغيل النغمتين.</p>
+            <div style={{ fontWeight: 900, color: brandPurpleDark }}>╪º┘ä╪«╪╖┘ê╪⌐ 1</div>
+            <p style={{ ...styles.muted, marginTop: 6 }}>╪º╪╢╪║╪╖ "╪º╪│╪¬┘à╪╣" ┘ä╪¬╪┤╪║┘è┘ä ╪º┘ä┘å╪║┘à╪¬┘è┘å.</p>
             <LabButton onClick={playTrial} disabled={busy}>
-              ▶︎ استمع
+              Γû╢∩╕Ä ╪º╪│╪¬┘à╪╣
             </LabButton>
           </div>
 
           <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900, color: brandPurpleDark }}>الخطوة 2</div>
-            <p style={{ ...styles.muted, marginTop: 6 }}>اختر: أيهما أعلى؟</p>
+            <div style={{ fontWeight: 900, color: brandPurpleDark }}>╪º┘ä╪«╪╖┘ê╪⌐ 2</div>
+            <p style={{ ...styles.muted, marginTop: 6 }}>╪º╪«╪¬╪▒: ╪ú┘è┘ç┘à╪º ╪ú╪╣┘ä┘ë╪ƒ</p>
             <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', marginTop: 10 }}>
               <LabButton onClick={() => answer(1)} disabled={!canAnswer}>
-                الأولى أعلى
+                ╪º┘ä╪ú┘ê┘ä┘ë ╪ú╪╣┘ä┘ë
               </LabButton>
               <LabButton onClick={() => answer(2)} disabled={!canAnswer}>
-                الثانية أعلى
+                ╪º┘ä╪½╪º┘å┘è╪⌐ ╪ú╪╣┘ä┘ë
               </LabButton>
             </div>
-            <div style={{ marginTop: 10, ...styles.muted }}>لا تظهر الإجابة الصحيحة أثناء الاختبار لتقليل التحيّز.</div>
+            <div style={{ marginTop: 10, ...styles.muted }}>┘ä╪º ╪¬╪╕┘ç╪▒ ╪º┘ä╪Ñ╪¼╪º╪¿╪⌐ ╪º┘ä╪╡╪¡┘è╪¡╪⌐ ╪ú╪½┘å╪º╪í ╪º┘ä╪º╪«╪¬╪¿╪º╪▒ ┘ä╪¬┘é┘ä┘è┘ä ╪º┘ä╪¬╪¡┘è┘æ╪▓.</div>
           </div>
 
           <style>{`
@@ -356,15 +389,23 @@ export default function FrequencyDiscriminationTestPanel({
               100% { transform: scale(1); opacity: 1; }
             }
           `}</style>
-        </div>
+        </PracticeTrialsStep>
       ) : null}
 
-      {stage === 'done' ? (
-        <div style={{ marginTop: 12, textAlign: 'center' }}>
-          <div style={{ fontWeight: 900 }}>تم حفظ النتيجة ✅</div>
-          <p style={{ ...styles.muted, marginTop: 6 }}>يمكنك الآن الانتقال للاختبار التالي.</p>
-        </div>
+      {stage === 'done' && summary ? (
+        <MetricsSummaryPanel
+          title={summary.message}
+          tone={summaryTone}
+          metrics={[
+            { label: 'Threshold', value: `${summary.thresholdHz} Hz` },
+            { label: 'Accuracy', value: `${summary.accuracy}%` },
+            { label: 'Points', value: summary.finalPoints },
+            { label: 'Consistency', value: summary.consistency },
+            { label: 'Avg RT', value: summary.avgRt ? `${summary.avgRt} ms` : '--' },
+          ]}
+          footer={t('clinical.screeningDisclaimer')}
+        />
       ) : null}
-    </div>
+    </ModuleFrame>
   );
 }
