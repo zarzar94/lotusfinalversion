@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import LabButton from '../labui/LabButton';
 import type { GameResult, TestOutcome } from './types';
+import { ModuleFrame, ModuleHeader, PracticeTrialsStep } from './ui';
 
 const questions = [
   'هل يطلب الطفل تكرار الكلام كثيراً (؟ماذا/هاه)؟',
@@ -62,58 +63,60 @@ export default function QuestionnairePanel({
   };
 
   return (
-    <div style={styles.section}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-        <div>
-          <div style={{ fontWeight: 900, color: brandCyan }}>استبيان مؤشرات للأهل (غير تشخيصي)</div>
-          <div style={styles.muted}>يدعم نتائج الاختبارات الموضوعية لكنه لا يكفي وحده لاتخاذ قرار.</div>
-        </div>
-        <span style={styles.chip}>{isArabic ? 'ذاتي' : 'Subjective'}</span>
-      </div>
+    <ModuleFrame>
+      <ModuleHeader
+        title={<>استبيان مؤشرات للأهل (غير تشخيصي)</>}
+        subtitle={<>يدعم نتائج الاختبارات الموضوعية لكنه لا يكفي وحده لاتخاذ قرار.</>}
+        tone="cyan"
+        status={isArabic ? 'ذاتي' : 'Subjective'}
+        statusTone="purple"
+      />
 
-      <div style={{ marginTop: 12, display: 'grid', gap: 12 }}>
-        {questions.map((q, idx) => (
-          <div key={q} style={{ ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900 }}>{idx + 1}. {q}</div>
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
-              {[0, 1, 2].map((v) => {
-                const val = v as Answer;
-                const active = answers[idx] === val;
-                return (
-                  <LabButton
-                    key={v}
-                    onClick={() => setAnswers((a) => a.map((x, i) => (i === idx ? val : x)))}
-                    variant={active ? 'primary' : 'ghost'}
-                  >
-                    {label(val)}
-                  </LabButton>
-                );
-              })}
+      <PracticeTrialsStep title={isArabic ? 'ذاتي' : 'Subjective'}>
+        <div style={{ marginTop: 12, display: 'grid', gap: 12 }}>
+          {questions.map((q, idx) => (
+            <div key={q} style={{ ...styles.section, marginBottom: 0 }}>
+              <div style={{ fontWeight: 900 }}>{idx + 1}. {q}</div>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
+                {[0, 1, 2].map((v) => {
+                  const val = v as Answer;
+                  const active = answers[idx] === val;
+                  return (
+                    <LabButton
+                      key={v}
+                      onClick={() => setAnswers((a) => a.map((x, i) => (i === idx ? val : x)))}
+                      variant={active ? 'primary' : 'ghost'}
+                    >
+                      {label(val)}
+                    </LabButton>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
-        <div style={{ fontWeight: 900, color: brandPurpleDark }}>النتيجة المبدئية</div>
-        <p style={{ ...styles.muted, marginTop: 6 }}>
-          مجموع النقاط: <b style={{ color: brandPink }}>{score}</b> / {questions.length * 2}
-        </p>
-        <p style={{ ...styles.muted, marginTop: 6 }}>{message}</p>
-
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 10, gap: 10, flexWrap: 'wrap' }}>
-          <LabButton onClick={submit}>
-            حفظ النتيجة
-          </LabButton>
-          {onCancel ? (
-            <LabButton variant="ghost" onClick={onCancel}>
-              إغلاق
-            </LabButton>
-          ) : null}
+          ))}
         </div>
 
-        {submitted ? <div style={{ marginTop: 10, color: brandCyan, fontWeight: 900, textAlign: 'center' }}>تم الحفظ ✅</div> : null}
-      </div>
-    </div>
+        <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
+          <div style={{ fontWeight: 900, color: brandPurpleDark }}>النتيجة المبدئية</div>
+          <p style={{ ...styles.muted, marginTop: 6 }}>
+            مجموع النقاط: <b style={{ color: brandPink }}>{score}</b> / {questions.length * 2}
+          </p>
+          <p style={{ ...styles.muted, marginTop: 6 }}>{message}</p>
+
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 10, gap: 10, flexWrap: 'wrap' }}>
+            <LabButton onClick={submit}>
+              حفظ النتيجة
+            </LabButton>
+            {onCancel ? (
+              <LabButton variant="ghost" onClick={onCancel}>
+                إغلاق
+              </LabButton>
+            ) : null}
+          </div>
+
+          {submitted ? <div style={{ marginTop: 10, color: brandCyan, fontWeight: 900, textAlign: 'center' }}>تم الحفظ ✅</div> : null}
+        </div>
+      </PracticeTrialsStep>
+    </ModuleFrame>
   );
 }
