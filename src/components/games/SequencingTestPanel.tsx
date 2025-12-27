@@ -8,6 +8,14 @@ import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise, type N
 import { mean } from './stats';
 import type { GameResult, TestOutcome } from './types';
 import { SEQUENCE_POINTS, getStarRating, getStarEmoji } from './scoring';
+import {
+  CalibrationStep,
+  CTAResultPanel,
+  MetricsSummaryPanel,
+  ModuleFrame,
+  ModuleHeader,
+  PracticeTrialsStep,
+} from './ui';
 
 type ShapeId = 'circle' | 'square' | 'triangle';
 
@@ -50,7 +58,7 @@ export default function SequencingTestPanel({
   onCancel?: () => void;
   enableExports?: boolean;
 }) {
-  const { isArabic } = useLanguage();
+  const { isArabic, t } = useLanguage();
   const audioRef = useRef<AudioContext | null>(null);
   const noiseRef: NoiseRef = useRef(null);
 
@@ -70,6 +78,15 @@ export default function SequencingTestPanel({
   const [gamePoints, setGamePoints] = useState(0);
   const [lastFeedback, setLastFeedback] = useState<'correct' | 'incorrect' | null>(null);
   const [feedbackPoints, setFeedbackPoints] = useState(0);
+  const [summary, setSummary] = useState<{
+    result: GameResult;
+    span: number;
+    accuracy: number;
+    finalPoints: number;
+    avgRt: number;
+    maxNoise: string;
+    message: string;
+  } | null>(null);
 
   const rowsRef = useRef<RoundRow[]>([]);
   const clickTimesRef = useRef<number[]>([]);
@@ -155,6 +172,7 @@ export default function SequencingTestPanel({
     setMaxSpan(0);
     setGamePoints(0);
     setLastFeedback(null);
+    setSummary(null);
     await startRound(1, 2);
   };
 
@@ -266,6 +284,8 @@ export default function SequencingTestPanel({
           ? 'تسلسل سمعي متوسط — قد تتأثر الذاكرة السمعية عند زيادة الضوضاء أو طول التعليمات.'
           : 'تسلسل سمعي منخفض ضمن هذا الفحص. إذا كان ذلك ينعكس على اتباع التعليمات داخل الصف، ننصح بتقييم متخصص.';
 
+    const maxNoise = rows.length ? Math.max(...rows.map((r) => r.noiseLevel)).toFixed(2) : '0.00';
+
     const outcome: TestOutcome = {
       key: 'sequence',
       title: 'اختبار التسلسل/الذاكرة السمعية تحت الضوضاء (Classroom Sequencing)',
@@ -278,7 +298,7 @@ export default function SequencingTestPanel({
         accuracyPct: accuracy,
         maxSpan: span,
         avgReactionMs: avgRt,
-        maxNoiseLevel: Math.max(...rows.map((r) => r.noiseLevel)).toFixed(2),
+        maxNoiseLevel: maxNoise,
         replayPolicy: 'one replay max per round',
         gamePoints: finalPoints,
         starRating,
@@ -287,6 +307,15 @@ export default function SequencingTestPanel({
       trials: rows,
     };
 
+    setSummary({
+      result,
+      span,
+      accuracy,
+      finalPoints,
+      avgRt,
+      maxNoise,
+      message,
+    });
     setStage('done');
     onDone(outcome);
   };
@@ -342,19 +371,26 @@ export default function SequencingTestPanel({
   };
 
   const roundProgress = useMemo(() => `${round}/${ROUNDS}`, [round, ROUNDS]);
+  const summaryTone = summary
+    ? summary.result === 'high'
+      ? 'success'
+      : summary.result === 'medium'
+        ? 'warning'
+        : 'error'
+    : 'neutral';
 
   return (
-    <div style={styles.section}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-        <div>
-          <div style={{ fontWeight: 900, color: brandCyan }}>اختبار التسلسل/الذاكرة السمعية تحت الضوضاء</div>
-          <div style={styles.muted}>اختبار موضوعي يحاكي اتباع تعليمات متعددة داخل الصف مع ضوضاء متزايدة.</div>
-        </div>
-        <span style={styles.chip}>{isArabic ? 'موضوعي • عرض مدرسي' : 'Objective • School Demo'}</span>
-      </div>
+    <ModuleFrame>
+      <ModuleHeader
+        title={'اختبار التسلسل/الذاكرة السمعية تحت الضوضاء'}
+        subtitle={'اختبار موضوعي يحاكي اتباع تعليمات متعددة داخل الصف مع ضوضاء متزايدة.'}
+        tone="cyan"
+        status={isArabic ? 'موضوعي • عرض مدرسي' : 'Objective • School Demo'}
+        statusTone="cyan"
+      />
 
       {stage === 'intro' ? (
-        <div style={{ marginTop: 12 }}>
+        <CalibrationStep title={isArabic ? 'موضوعي • عرض مدرسي' : 'Objective • School Demo'}>
           <p style={styles.bodyText}>
             ستسمع سلسلة من النغمات (تمثل أوامر/أشكال). بعد ذلك اضغط الأشكال <b style={{ color: brandPink }}>بالترتيب نفسه</b>. سيزداد طول السلسلة تدريجياً.
           </p>
@@ -381,32 +417,31 @@ export default function SequencingTestPanel({
               </LabButton>
             ) : null}
           </div>
-        </div>
+        </CalibrationStep>
       ) : null}
 
       {stage === 'listening' ? (
-        <div style={{ marginTop: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-            <div>
-              <div style={{ fontWeight: 900 }}>Round {roundProgress}</div>
-              <div style={styles.muted}>الطول الحالي: {length} • Noise: {noiseLevel.toFixed(2)}</div>
-            </div>
-            <span style={styles.chip}>استمع…</span>
-          </div>
+        <PracticeTrialsStep
+          title={`Round ${roundProgress}`}
+          description={`الطول الحالي: ${length} • Noise: ${noiseLevel.toFixed(2)}`}
+          status="استمع…"
+          statusTone="purple"
+        >
+          
           <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
             <div style={{ fontWeight: 900, color: brandPurpleDark }}>تشغيل السلسلة</div>
             <p style={{ ...styles.muted, marginTop: 6 }}>استمع جيدًا. ستظهر أزرار الإدخال بعد انتهاء التشغيل.</p>
           </div>
-        </div>
+        </PracticeTrialsStep>
       ) : null}
 
       {stage === 'responding' ? (
-        <div style={{ marginTop: 12 }}>
+        <PracticeTrialsStep
+          title={`Round ${roundProgress}`}
+          description={`أدخل التسلسل: ${chosen.length}/${target.length} • Noise: ${noiseLevel.toFixed(2)}`}
+        >
+          
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-            <div>
-              <div style={{ fontWeight: 900 }}>Round {roundProgress}</div>
-              <div style={styles.muted}>أدخل التسلسل: {chosen.length}/{target.length} • Noise: {noiseLevel.toFixed(2)}</div>
-            </div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
               <span style={{
                 ...styles.chip,
@@ -481,17 +516,28 @@ export default function SequencingTestPanel({
               إعادة التشغيل تقلل من دقة القياس. تم السماح بها مرة واحدة لكل جولة فقط.
             </p>
           </div>
-        </div>
+        </PracticeTrialsStep>
       ) : null}
 
-      {stage === 'done' ? (
-        <div style={{ marginTop: 12 }}>
-          <div style={{ ...styles.section, marginBottom: 0 }}>
-            <div style={{ fontWeight: 900, color: brandCyan }}>تم حفظ النتيجة ✅</div>
-            <p style={{ ...styles.muted, marginTop: 6 }}>
-              يمكنك تنزيل تقرير المدارس (PDF/CSV) أو الانتقال للخلاصة.
-            </p>
-            {enableExports ? (
+      
+      {stage === 'done' && summary ? (
+        <>
+          <MetricsSummaryPanel
+            title={summary.message}
+            tone={summaryTone}
+            metrics={[
+              { label: 'Span', value: summary.span },
+              { label: 'Accuracy', value: `${summary.accuracy}%` },
+              { label: 'Points', value: summary.finalPoints },
+              { label: 'Avg RT', value: summary.avgRt ? `${summary.avgRt} ms` : '--' },
+              { label: 'Max Noise', value: summary.maxNoise },
+            ]}
+            footer={t('clinical.screeningDisclaimer')}
+          />
+          <CTAResultPanel
+            title={'تم حفظ النتيجة ✅'}
+            description={'يمكنك تنزيل تقرير المدارس (PDF/CSV) أو الانتقال للخلاصة.'}
+            actions={enableExports ? (
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
                 <LabButton onClick={downloadPdf}>
                   تنزيل PDF
@@ -500,9 +546,9 @@ export default function SequencingTestPanel({
                   تنزيل CSV
                 </LabButton>
               </div>
-            ) : null}
-          </div>
-        </div>
+            ) : undefined}
+          />
+        </>
       ) : null}
 
       <style>{`
@@ -512,6 +558,6 @@ export default function SequencingTestPanel({
           100% { transform: scale(1); opacity: 1; }
         }
       `}</style>
-    </div>
+    </ModuleFrame>
   );
 }
