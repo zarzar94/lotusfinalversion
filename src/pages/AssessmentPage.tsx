@@ -15,6 +15,7 @@ import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
+import { renderLabIcon, MicroscopeIcon } from '../components/icons';
 import {
   brandCyan,
   brandPurple,
@@ -58,15 +59,14 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
           height: 32,
           borderRadius: radius.md,
           background: `linear-gradient(135deg, ${brandCyan}22, ${brandPurple}22)`,
-          border: `1px solid ${brandCyan}44`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 16,
-        }}
-      >
-        🔬
-      </div>
+        border: `1px solid ${brandCyan}44`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <MicroscopeIcon size={18} tone="cyan" />
+    </div>
       <span
         style={{
           fontSize: typography.size.sm,
@@ -79,14 +79,14 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
       </span>
       <div
         style={{
-          width: 8,
-          height: 8,
-          borderRadius: '50%',
-          background: '#22c55e',
-          boxShadow: '0 0 8px #22c55e',
-          animation: 'pulse 2s ease-in-out infinite',
-        }}
-      />
+        width: 8,
+        height: 8,
+        borderRadius: '50%',
+        background: colors.success,
+        boxShadow: `0 0 8px ${colors.success}`,
+        animation: 'pulse 2s ease-in-out infinite',
+      }}
+    />
     </div>
 
     <h1
@@ -133,7 +133,7 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
       {[
         { icon: '📋', label: isArabic ? 'قائمة المراجعة' : 'Checklist', color: brandCyan },
         { icon: '🧪', label: isArabic ? '5 اختبارات' : '5 Tests', color: brandPurple },
-        { icon: '📊', label: isArabic ? 'تقارير PDF' : 'PDF Reports', color: '#22c55e' },
+        { icon: '📊', label: isArabic ? 'تقارير PDF' : 'PDF Reports', color: colors.success },
       ].map((item, i) => (
         <div
           key={i}
@@ -147,7 +147,9 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
             borderRadius: radius.lg,
           }}
         >
-          <span style={{ fontSize: 16 }}>{item.icon}</span>
+          <span style={{ fontSize: 16 }}>
+            {renderLabIcon(item.icon, { size: 16, style: { color: item.color } })}
+          </span>
           <span style={{ fontSize: typography.size.xs, color: item.color, fontWeight: 700 }}>
             {item.label}
           </span>

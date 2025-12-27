@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGamification, type Achievement } from '../context/GamificationContext';
-import { brandCyan, brandPurple, brandPink } from './styles';
+import { renderLabIcon, SparklesIcon } from './icons';
+import { brandCyan, brandPurple, brandPink, colors } from './styles';
 
 // Generate random particles for confetti effect
 const generateParticles = (count: number) => {
@@ -10,7 +11,7 @@ const generateParticles = (count: number) => {
     delay: Math.random() * 0.5,
     duration: 1 + Math.random() * 1,
     size: 4 + Math.random() * 6,
-    color: [brandCyan, brandPurple, brandPink, '#FFD700', '#FF6B6B'][Math.floor(Math.random() * 5)],
+    color: [brandCyan, brandPurple, brandPink, colors.warning, colors.error][Math.floor(Math.random() * 5)],
   }));
 };
 
@@ -58,6 +59,9 @@ const labelStyle: React.CSSProperties = {
   letterSpacing: 2,
   color: brandCyan,
   fontWeight: 800,
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
 };
 
 const titleStyle: React.CSSProperties = {
@@ -173,9 +177,14 @@ export default function AchievementNotification() {
           />
         ))}
 
-        <div style={iconStyle}>{currentAchievement.icon}</div>
+        <div style={iconStyle}>
+          {renderLabIcon(currentAchievement.icon, { size: 42, tone: 'cyan' })}
+        </div>
         <div style={contentStyle}>
-          <span style={labelStyle}>🎉 إنجاز جديد!</span>
+          <span style={labelStyle}>
+            <SparklesIcon tone="cyan" size={14} />
+            إنجاز جديد!
+          </span>
           <h4 style={titleStyle}>{currentAchievement.titleAr}</h4>
           <p style={descStyle}>{currentAchievement.descriptionAr}</p>
         </div>

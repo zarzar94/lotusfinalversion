@@ -20,6 +20,7 @@ import {
   shadows,
   transitions,
 } from './styles';
+import { renderLabIcon, MapPinIcon, SearchIcon, SparklesIcon, CalendarIcon } from './icons';
 
 // Navigation item type
 interface NavItem {
@@ -49,7 +50,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: '🎯',
     label: { ar: 'التقييم', en: 'Assessment' },
     description: { ar: 'تقييم ذاتي وألعاب تشخيصية', en: 'Self-assessment and diagnostic games' },
-    color: '#f59e0b',
+    color: 'colors.warning',
     keywords: ['test', 'check', 'evaluate', 'تقييم', 'اختبار', 'فحص'],
   },
   {
@@ -76,7 +77,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: '📊',
     label: { ar: 'النتائج', en: 'Results' },
     description: { ar: 'قصص النجاح والشهادات', en: 'Success stories and testimonials' },
-    color: '#22c55e',
+    color: 'colors.success',
     keywords: ['success', 'testimonials', 'results', 'نتائج', 'نجاح', 'شهادات'],
   },
   {
@@ -85,7 +86,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: '📚',
     label: { ar: 'الموارد', en: 'Resources' },
     description: { ar: 'فيديوهات وعروض وأسئلة شائعة', en: 'Videos, presentations, and FAQ' },
-    color: '#3b82f6',
+    color: 'colors.info',
     keywords: ['video', 'faq', 'resources', 'موارد', 'فيديو', 'أسئلة'],
   },
   {
@@ -279,7 +280,9 @@ const SmartNavigationDrawer = memo(() => {
         }}
         aria-label={isArabic ? 'فتح التنقل' : 'Open navigation'}
       >
-        <span style={{ fontSize: 20 }}>🧭</span>
+        <span style={{ fontSize: 20 }}>
+          <MapPinIcon size={20} tone="cyan" />
+        </span>
       </button>
 
       {/* Backdrop */}
@@ -392,7 +395,7 @@ const SmartNavigationDrawer = memo(() => {
                 opacity: 0.5,
               }}
             >
-              🔍
+              <SearchIcon size={16} tone="muted" />
             </span>
           </div>
         </div>
@@ -422,7 +425,9 @@ const SmartNavigationDrawer = memo(() => {
                   gap: spacing[2],
                 }}
               >
-                <span>✨</span>
+                <span>
+                  <SparklesIcon size={14} tone="cyan" />
+                </span>
                 {isArabic ? 'موصى به لك' : 'Recommended for You'}
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[2] }}>
@@ -457,7 +462,9 @@ const SmartNavigationDrawer = memo(() => {
                   gap: spacing[2],
                 }}
               >
-                <span>🕐</span>
+                <span>
+                  <CalendarIcon size={14} tone="muted" />
+                </span>
                 {isArabic ? 'الصفحات الأخيرة' : 'Recent Pages'}
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[2] }}>
@@ -593,15 +600,14 @@ const NavButton = memo(({ item, isArabic, isActive, isRecommended, onClick }: Na
           height: 40,
           borderRadius: radius.md,
           background: `${item.color}15`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 20,
-          flexShrink: 0,
-        }}
-      >
-        {item.icon}
-      </div>
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+      }}
+    >
+        {renderLabIcon(item.icon, { size: 20, style: { color: item.color } })}
+    </div>
 
       {/* Text */}
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -826,7 +832,7 @@ export const ContinueWhereYouLeftOff = memo(() => {
             flexShrink: 0,
           }}
         >
-          {lastPage.icon}
+          {renderLabIcon(lastPage.icon, { size: 24, style: { color: lastPage.color } })}
         </div>
         <div style={{ flex: 1 }}>
           <p

@@ -19,6 +19,7 @@ import { useClinicalSync } from '../hooks/useClinicalSync';
 import { usePageTitle } from '../hooks/usePageTitle';
 import ExperienceJourney from '../components/ExperienceJourney';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
+import { renderLabIcon, LightbulbIcon, MapPinIcon } from '../components/icons';
 import {
   brandCyan,
   brandPurple,
@@ -126,7 +127,7 @@ const NavigationCard = memo(({
           zIndex: 1,
         }}
       >
-        {page.icon}
+        {renderLabIcon(page.icon, { size: 28, style: { color: page.color } })}
       </div>
 
       {/* Title */}
@@ -329,7 +330,9 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
             marginBottom: spacing[4],
           }}
         >
-          <span style={{ fontSize: 14 }}>🧭</span>
+          <span style={{ fontSize: 14 }}>
+            <MapPinIcon size={14} tone="cyan" />
+          </span>
           <span
             style={{
               fontSize: typography.size.xs,
@@ -411,7 +414,9 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
             borderRadius: radius.full,
           }}
         >
-          <span style={{ fontSize: 16 }}>💡</span>
+          <span style={{ fontSize: 16 }}>
+            <LightbulbIcon size={16} tone="cyan" />
+          </span>
           <span
             style={{
               fontSize: typography.size.sm,

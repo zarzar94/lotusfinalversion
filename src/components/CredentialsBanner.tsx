@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from './styles';
+import { brandCyan, brandPink, brandPurple, brandPurpleDark, colors, styles } from './styles';
 import { useVisitorMode, type VisitorMode } from '../context/VisitorModeContext';
 import { useLanguage } from '../context/LanguageContext';
+import { renderLabIcon } from './icons';
 
 interface Credential {
   id: string;
@@ -30,7 +31,7 @@ const credentials: Credential[] = [
     title: 'Licensed Practitioner',
     titleAr: 'auto.CredentialsBanner.k5',
     icon: '✅',
-    color: '#22c55e',
+    color: colors.success,
     description: 'حاصل على ترخيص ممارسة العلاج السمعي التكاملي',
     descriptionEn: 'Licensed to practice auditory integration therapy',
     relevantModes: ['clinician', 'parent'],
@@ -70,7 +71,7 @@ const credentials: Credential[] = [
     title: 'School Partnership Program',
     titleAr: 'auto.CredentialsBanner.k9',
     icon: '🏫',
-    color: '#f59e0b',
+    color: colors.warning,
     description: 'برامج فحص وتدريب مخصصة للمؤسسات التعليمية',
     descriptionEn: 'Specialized screening and training programs for educational institutions',
     relevantModes: ['school'],
@@ -212,7 +213,10 @@ export default function CredentialsBanner() {
           fontWeight: 700,
           color: visitorConfig.color,
         }}>
-          {visitorConfig.icon} {t('auto.CredentialsBanner.k1', "Highlighted for you")}
+          <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+            {renderLabIcon(visitorConfig.icon, { size: 14, style: { color: visitorConfig.color } })}
+          </span>
+          {t('auto.CredentialsBanner.k1', "Highlighted for you")}
         </div>
         <div style={{
           display: 'inline-flex',
@@ -301,7 +305,7 @@ export default function CredentialsBanner() {
                   color: '#fff',
                   boxShadow: `0 2px 8px ${visitorConfig.color}50`,
                 }}>
-                  {visitorConfig.icon}
+                  {renderLabIcon(visitorConfig.icon, { size: 12, style: { color: '#fff' } })}
                 </div>
               )}
 
@@ -316,11 +320,10 @@ export default function CredentialsBanner() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 24,
                 animation: isHovered ? 'float 2s ease-in-out infinite' : 'none',
                 boxShadow: isHovered ? `0 0 20px ${cred.color}44` : 'none',
               }}>
-                {cred.icon}
+                {renderLabIcon(cred.icon, { size: 24, style: { color: cred.color } })}
               </div>
 
               {/* Title */}
@@ -391,7 +394,9 @@ export default function CredentialsBanner() {
                 boxShadow: isPartnerRelevant ? `0 0 15px ${visitorConfig.color}20` : 'none',
               }}
             >
-              <span style={{ fontSize: 20 }}>{partner.icon}</span>
+              <span style={{ fontSize: 20 }}>
+                {renderLabIcon(partner.icon, { size: 20, style: { color: isPartnerRelevant ? visitorConfig.color : brandCyan } })}
+              </span>
               <div>
                 <div style={{
                   fontSize: 18,

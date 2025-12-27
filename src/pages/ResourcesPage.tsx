@@ -15,6 +15,7 @@ import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
+import { BookIcon } from '../components/icons';
 import {
   colors,
   typography,
@@ -43,17 +44,19 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
         alignItems: 'center',
         gap: spacing[2],
         padding: `${spacing[2]}px ${spacing[4]}px`,
-        background: 'rgba(245,158,11,0.15)',
+        background: colors.warningLight,
         borderRadius: radius.full,
         marginBottom: spacing[4],
       }}
     >
-      <span style={{ fontSize: 20 }}>📚</span>
+      <span style={{ fontSize: 20 }}>
+        <BookIcon size={20} tone="warning" />
+      </span>
       <span
         style={{
           fontSize: typography.size.sm,
           fontWeight: typography.weight.bold,
-          color: '#f59e0b',
+          color: colors.warning,
         }}
       >
         {isArabic ? 'مصادر التعلم' : 'Learning Resources'}

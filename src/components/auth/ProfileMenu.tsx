@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, type UserRole } from '../../context/UserContext';
+import { ChevronDownIcon, renderLabIcon } from '../icons';
 import {
   brandCyan,
   brandPurple,
@@ -24,7 +25,7 @@ const ROLE_INFO: Record<UserRole, { label: string; labelAr: string; icon: string
   parent: { label: 'Parent', labelAr: 'auto.ProfileMenu.k19', icon: '👨‍👩‍👧', color: brandPurple },
   clinician: { label: 'Clinician', labelAr: 'auto.ProfileMenu.k20', icon: '👨‍⚕️', color: brandPurple },
   school_admin: { label: 'School Admin', labelAr: 'auto.ProfileMenu.k21', icon: '🏫', color: brandPink },
-  super_admin: { label: 'Admin', labelAr: 'auto.ProfileMenu.k22', icon: '⚙️', color: '#f59e0b' },
+  super_admin: { label: 'Admin', labelAr: 'auto.ProfileMenu.k22', icon: '⚙️', color: colors.warning },
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -82,7 +83,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
           transition: transitions.fast,
         }}
       >
-        <span>👤</span>
+        <span>{renderLabIcon(roleInfo.icon, { size: 16, style: { color: brandCyan } })}</span>
         {t('auto.ProfileMenu.k1', "Sign In")}
       </button>
     );
@@ -122,7 +123,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             fontSize: 16,
           }}
         >
-          {roleInfo.icon}
+          {renderLabIcon(roleInfo.icon, { size: 16, style: { color: roleInfo.color } })}
         </div>
 
         {/* Name & Role */}
@@ -158,7 +159,7 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
             transition: transitions.fast,
           }}
         >
-          ▼
+          <ChevronDownIcon size={12} tone="muted" />
         </span>
       </button>
 
@@ -258,13 +259,14 @@ function ProfileMenu({ onLoginClick }: ProfileMenuProps) {
                     style={{
                       marginTop: spacing[1.5],
                       fontSize: 10,
-                      color: '#f59e0b',
+                      color: colors.warning,
                       display: 'flex',
                       alignItems: 'center',
                       gap: spacing[1],
                     }}
                   >
-                    🔥 {clinicalProgress.streak} {t('auto.ProfileMenu.k5', "day streak")}
+                    {renderLabIcon('??', { size: 12, tone: 'warning' })}
+                    {clinicalProgress.streak} {t('auto.ProfileMenu.k5', "day streak")}
                   </div>
                 )}
               </div>
@@ -458,7 +460,7 @@ const MenuItem = memo(({
       background: 'transparent',
       border: 'none',
       borderRadius: radius.md,
-      color: danger ? '#ef4444' : colors.text.primary,
+      color: danger ? colors.error : colors.text.primary,
       fontSize: typography.size.sm,
       fontWeight: typography.weight.medium,
       fontFamily: typography.fontFamily,
@@ -468,14 +470,16 @@ const MenuItem = memo(({
     }}
     onMouseEnter={(e) => {
       (e.target as HTMLButtonElement).style.background = danger
-        ? 'rgba(239,68,68,0.1)'
+        ? colors.errorSubtle
         : `${brandCyan}10`;
     }}
     onMouseLeave={(e) => {
       (e.target as HTMLButtonElement).style.background = 'transparent';
     }}
   >
-    <span style={{ fontSize: 16 }}>{icon}</span>
+    <span style={{ fontSize: 16 }}>
+      {renderLabIcon(icon, { size: 16, tone: danger ? 'error' : 'muted' })}
+    </span>
     {label}
   </button>
 ));

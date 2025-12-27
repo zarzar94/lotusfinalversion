@@ -13,6 +13,7 @@ import {
   spacing,
   radius,
 } from '../styles';
+import { renderLabIcon } from '../icons';
 
 interface BreadcrumbItem {
   label: string;
@@ -128,7 +129,11 @@ function Breadcrumb({ showHome = true, showIcon = true }: BreadcrumbProps) {
                   borderRadius: radius.sm,
                 }}
               >
-                {showIcon && item.icon && <span style={{ fontSize: 14 }}>{item.icon}</span>}
+                {showIcon && item.icon && (
+                  <span style={{ fontSize: 14 }}>
+                    {renderLabIcon(item.icon, { size: 14, style: { color: brandCyan } })}
+                  </span>
+                )}
                 {label}
               </span>
             ) : (
@@ -153,7 +158,11 @@ function Breadcrumb({ showHome = true, showIcon = true }: BreadcrumbProps) {
                   e.currentTarget.style.background = 'transparent';
                 }}
               >
-                {showIcon && item.icon && <span style={{ fontSize: 14 }}>{item.icon}</span>}
+                {showIcon && item.icon && (
+                  <span style={{ fontSize: 14 }}>
+                    {renderLabIcon(item.icon, { size: 14, style: { color: colors.text.secondary } })}
+                  </span>
+                )}
                 {label}
               </Link>
             )}

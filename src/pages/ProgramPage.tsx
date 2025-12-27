@@ -15,6 +15,7 @@ import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
+import { ChecklistIcon } from '../components/icons';
 import {
   brandPurple,
   colors,
@@ -49,7 +50,9 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
         marginBottom: spacing[4],
       }}
     >
-      <span style={{ fontSize: 20 }}>📋</span>
+      <span style={{ fontSize: 20 }}>
+        <ChecklistIcon size={20} tone="purple" />
+      </span>
       <span
         style={{
           fontSize: typography.size.sm,

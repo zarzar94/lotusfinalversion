@@ -12,6 +12,7 @@ import {
   colors,
 } from './styles';
 import { BrainIcon, HeadphonesIcon, CheckCircleIcon, ShieldIcon, StarIcon } from './Icons';
+import { renderLabIcon, ShieldMedicalIcon } from './icons';
 
 interface BenefitItem {
   id: string;
@@ -313,7 +314,9 @@ export default function WhatIsAIT() {
             borderRadius: 30,
             marginBottom: spacing[4],
           }}>
-            <span style={{ fontSize: 18 }}>🏥</span>
+            <span style={{ fontSize: 18 }}>
+              <ShieldMedicalIcon size={18} tone="cyan" />
+            </span>
             <span style={{
               fontSize: typography.size.sm,
               fontWeight: typography.weight.bold,
@@ -452,7 +455,7 @@ export default function WhatIsAIT() {
                 color: visitorConfig.color,
                 border: `1px solid ${visitorConfig.color}40`,
               }}>
-                {visitorConfig.icon} {isArabic ? visitorConfig.labelAr : visitorConfig.label}
+                {renderLabIcon(visitorConfig.icon, { size: 14, style: { color: visitorConfig.color } })} {isArabic ? visitorConfig.labelAr : visitorConfig.label}
               </div>
             </div>
 
@@ -556,8 +559,10 @@ export default function WhatIsAIT() {
                     flexShrink: 0,
                     transition: 'all 0.3s ease',
                   }}>
-                    {typeof step.icon === 'string' ? step.icon : step.stepNumber}
-                  </div>
+                    {typeof step.icon === 'string'
+                      ? renderLabIcon(step.icon, { size: 18, style: { color: isActive ? '#fff' : brandCyan } })
+                      : step.stepNumber}
+                </div>
 
                   {/* Content */}
                   <div style={{ flex: 1 }}>
@@ -670,7 +675,7 @@ export default function WhatIsAIT() {
                       color: '#fff',
                       boxShadow: `0 2px 8px ${visitorConfig.color}50`,
                     }}>
-                      {visitorConfig.icon}
+                      {renderLabIcon(visitorConfig.icon, { size: 12, style: { color: '#fff' } })}
                     </div>
                   )}
 
@@ -691,7 +696,9 @@ export default function WhatIsAIT() {
                     transition: 'transform 0.3s ease',
                     transform: isHovered ? 'scale(1.1)' : 'scale(1)',
                   }}>
-                    {typeof benefit.icon === 'string' ? benefit.icon : benefit.icon}
+                    {typeof benefit.icon === 'string'
+                      ? renderLabIcon(benefit.icon, { size: 22, style: { color: relevant ? visitorConfig.color : brandCyan } })
+                      : benefit.icon}
                   </div>
 
                   {/* Title */}

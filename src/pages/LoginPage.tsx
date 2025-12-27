@@ -8,6 +8,7 @@ import { colors, spacing, typography } from '../components/styles';
 import { LabShell } from '../components/labui/LabShell';
 import LabCard from '../components/labui/LabCard';
 import LabButton from '../components/labui/LabButton';
+import { LockIcon } from '../components/icons';
 
 function LoginPage() {
   const { isArabic } = useLanguage();
@@ -52,7 +53,9 @@ function LoginPage() {
             textAlign: 'center',
           }}
         >
-          <div style={{ fontSize: 40, marginBottom: spacing[3] }}>🔐</div>
+          <div style={{ fontSize: 40, marginBottom: spacing[3] }}>
+            <LockIcon size={32} tone="cyan" />
+          </div>
           <div
             style={{
               fontSize: typography.size['2xl'],

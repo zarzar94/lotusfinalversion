@@ -19,6 +19,7 @@ import {
   buttons,
   dashboardExport,
 } from '../styles';
+import { renderLabIcon, ChecklistIcon, ReportIcon, DownloadIcon } from './icons';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -455,7 +456,10 @@ export const ReportsExport: React.FC<ReportsExportProps> = ({
       {/* Header */}
       <div style={styles.header}>
         <h2 style={styles.title}>
-          {isArabic ? '📊 تصدير التقرير' : '📊 Export Report'}
+          <span style={{ display: 'inline-flex', alignItems: 'center', marginInlineEnd: spacing[2] }}>
+            <ReportIcon size={20} tone="cyan" />
+          </span>
+          {isArabic ? 'تصدير التقرير' : 'Export Report'}
         </h2>
         <p style={styles.subtitle}>
           {isArabic
@@ -484,7 +488,10 @@ export const ReportsExport: React.FC<ReportsExportProps> = ({
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing[4] }}>
           <h3 style={styles.sectionTitle}>
-            📋 {isArabic ? 'أقسام التقرير' : 'Report Sections'}
+            <span style={{ display: 'inline-flex', alignItems: 'center', marginInlineEnd: spacing[2] }}>
+              <ChecklistIcon size={18} tone="cyan" />
+            </span>
+            {isArabic ? 'أقسام التقرير' : 'Report Sections'}
           </h3>
           <div style={{ display: 'flex', gap: spacing[2] }}>
             <button style={styles.selectAllButton} onClick={selectAll}>
@@ -519,7 +526,7 @@ export const ReportsExport: React.FC<ReportsExportProps> = ({
                 </div>
                 <div style={styles.sectionContent}>
                   <div style={styles.sectionName}>
-                    {section.icon} {isArabic ? section.nameAr : section.name}
+                    {renderLabIcon(section.icon, { size: 16, style: { color: brand.cyan } })} {isArabic ? section.nameAr : section.name}
                     {section.required && (
                       <span style={styles.requiredBadge}>
                         {isArabic ? 'مطلوب' : 'Required'}
@@ -539,7 +546,10 @@ export const ReportsExport: React.FC<ReportsExportProps> = ({
       {/* Format Selection */}
       <div>
         <h3 style={styles.sectionTitle}>
-          📁 {isArabic ? 'تنسيق الملف' : 'File Format'}
+          <span style={{ display: 'inline-flex', alignItems: 'center', marginInlineEnd: spacing[2] }}>
+            <DownloadIcon size={18} tone="cyan" />
+          </span>
+          {isArabic ? 'تنسيق الملف' : 'File Format'}
         </h3>
         <div style={styles.formatSelector}>
           {reportFormats.map(format => (
@@ -551,7 +561,9 @@ export const ReportsExport: React.FC<ReportsExportProps> = ({
               }}
               onClick={() => setSelectedFormat(format.id)}
             >
-              <div style={styles.formatIcon}>{format.icon}</div>
+              <div style={styles.formatIcon}>
+                {renderLabIcon(format.icon, { size: 24, style: { color: brand.cyan } })}
+              </div>
               <div style={styles.formatName}>{format.name}</div>
               <div style={styles.formatDescription}>
                 {isArabic ? format.descriptionAr : format.description}
@@ -569,7 +581,7 @@ export const ReportsExport: React.FC<ReportsExportProps> = ({
         <div style={styles.previewContent}>
           {selectedSectionDetails.map(section => (
             <div key={section.id} style={styles.previewItem}>
-              <span>{section.icon}</span>
+              <span>{renderLabIcon(section.icon, { size: 16, style: { color: brand.cyan } })}</span>
               <span>{isArabic ? section.nameAr : section.name}</span>
             </div>
           ))}

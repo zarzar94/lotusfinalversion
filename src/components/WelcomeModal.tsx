@@ -19,6 +19,7 @@ import {
   shadows,
   transitions,
 } from './styles';
+import { renderLabIcon, BrainCircuitIcon, SparklesIcon } from './icons';
 
 const WELCOME_STORAGE_KEY = 'lotus_welcome_shown';
 
@@ -100,7 +101,7 @@ const WelcomeModal = memo(({ forceShow = false, onClose }: WelcomeModalProps) =>
       description: isArabic
         ? 'ابحث عن حلول للطلاب وبرامج الشراكة'
         : 'Looking for student solutions and partnership programs',
-      color: '#f59e0b',
+      color: 'colors.warning',
       recommended: isArabic ? 'التقييم' : 'Assessment',
     },
     {
@@ -194,10 +195,9 @@ const WelcomeModal = memo(({ forceShow = false, onClose }: WelcomeModalProps) =>
                     justifyContent: 'center',
                     margin: '0 auto',
                     marginBottom: spacing[6],
-                    fontSize: 40,
                   }}
                 >
-                  🧠
+                  <BrainCircuitIcon size={40} tone="cyan" />
                 </div>
 
                 {/* Title */}
@@ -255,7 +255,9 @@ const WelcomeModal = memo(({ forceShow = false, onClose }: WelcomeModalProps) =>
                         border: `1px solid ${brandCyan}15`,
                       }}
                     >
-                      <div style={{ fontSize: 24, marginBottom: spacing[2] }}>{feature.icon}</div>
+                      <div style={{ fontSize: 24, marginBottom: spacing[2] }}>
+                        {renderLabIcon(feature.icon, { size: 24, style: { color: brandCyan } })}
+                      </div>
                       <div
                         style={{
                           fontSize: typography.size.sm,
@@ -398,11 +400,10 @@ const WelcomeModal = memo(({ forceShow = false, onClose }: WelcomeModalProps) =>
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: 24,
                             flexShrink: 0,
                           }}
                         >
-                          {path.icon}
+                          {renderLabIcon(path.icon, { size: 24, style: { color: path.color } })}
                         </div>
 
                         {/* Text */}
@@ -444,7 +445,9 @@ const WelcomeModal = memo(({ forceShow = false, onClose }: WelcomeModalProps) =>
                             gap: spacing[1],
                           }}
                         >
-                          <span style={{ fontSize: 12 }}>✨</span>
+                          <span style={{ fontSize: 12 }}>
+                            <SparklesIcon size={12} tone="cyan" />
+                          </span>
                           <span
                             style={{
                               fontSize: typography.size.xs,

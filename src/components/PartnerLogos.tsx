@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, type CSSProperties } from 'react';
-import { brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import { brandCyan, brandPink, brandPurple, brandPurpleDark, colors } from './styles';
 import { useLanguage } from '../context/LanguageContext';
+import { renderLabIcon, SparklesIcon } from './icons';
 
 interface Partner {
   id: string;
@@ -50,7 +51,7 @@ const partners: Partner[] = [
     nameEn: 'Autism Support Network',
     type: 'organization',
     icon: '💙',
-    color: '#3B82F6',
+    color: 'colors.info',
     description: 'دعم العائلات والمصابين بالتوحد',
     descriptionEn: 'Support for families and individuals with autism',
   },
@@ -60,7 +61,7 @@ const partners: Partner[] = [
     nameEn: 'Therapy Clinics UAE',
     type: 'clinic',
     icon: '🏥',
-    color: '#22c55e',
+    color: 'colors.success',
     description: 'شبكة من 8+ عيادات شريكة',
     descriptionEn: 'Network of 8+ partner clinics',
   },
@@ -297,7 +298,9 @@ export default function PartnerLogos() {
             borderRadius: 30,
             marginBottom: 16,
           }}>
-            <span style={{ fontSize: 18 }}>🤝</span>
+            <span style={{ fontSize: 18 }}>
+              <SparklesIcon size={18} tone="cyan" />
+            </span>
             <span style={{ fontSize: 13, fontWeight: 700, color: brandCyan }}>
               {isArabic ? 'شركاؤنا في النجاح' : 'Partners in Success'}
             </span>
@@ -334,7 +337,7 @@ export default function PartnerLogos() {
                 {animatedStats[index]}
               </div>
               <div style={statLabelStyle}>
-                <span>{stat.icon}</span>
+                <span>{renderLabIcon(stat.icon, { size: 14, style: { color: brandCyan } })}</span>
                 {isArabic ? stat.labelAr : stat.labelEn}
               </div>
             </div>
@@ -367,7 +370,7 @@ export default function PartnerLogos() {
                 animation: hoveredPartner === partner.id ? 'float 2s ease-in-out infinite' : 'none',
                 boxShadow: hoveredPartner === partner.id ? `0 0 30px ${partner.color}30` : 'none',
               }}>
-                {partner.icon}
+                {renderLabIcon(partner.icon, { size: 26, style: { color: partner.color } })}
               </div>
 
               {/* Name */}

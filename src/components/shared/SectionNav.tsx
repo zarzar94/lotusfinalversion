@@ -3,8 +3,17 @@
  * Provides quick access to different sections from dashboards
  */
 
-import { memo, useState, useEffect, useMemo } from 'react';
+import { memo, useMemo, type ReactNode } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import {
+  BookIcon,
+  BrainCircuitIcon,
+  GamepadIcon,
+  InfoIcon,
+  PhoneIcon,
+  type IconProps,
+  type IconTone,
+} from '../icons';
 import {
   brandCyan,
   brandPurple,
@@ -23,7 +32,8 @@ interface SectionItem {
   href: string;
   labelEn: string;
   labelAr: string;
-  icon: string;
+  icon: (props: IconProps) => ReactNode;
+  tone: IconTone;
   color: string;
   description: string;
   descriptionAr: string;
@@ -35,7 +45,8 @@ const SECTIONS: SectionItem[] = [
     href: '/#overview',
     labelEn: 'Program',
     labelAr: 'auto.SectionNav.k1',
-    icon: '🎧',
+    icon: BookIcon,
+    tone: 'cyan',
     color: brandCyan,
     description: 'Learn about AIT therapy',
     descriptionAr: 'auto.SectionNav.k2',
@@ -45,7 +56,8 @@ const SECTIONS: SectionItem[] = [
     href: '/#checklist',
     labelEn: 'Neural Scanner',
     labelAr: 'auto.SectionNav.k3',
-    icon: '🧠',
+    icon: BrainCircuitIcon,
+    tone: 'purple',
     color: brandPurple,
     description: 'Auditory processing assessment',
     descriptionAr: 'auto.SectionNav.k4',
@@ -55,7 +67,8 @@ const SECTIONS: SectionItem[] = [
     href: '/#games',
     labelEn: 'Games',
     labelAr: 'auto.SectionNav.k5',
-    icon: '🎮',
+    icon: GamepadIcon,
+    tone: 'pink',
     color: brandPink,
     description: 'Brain training activities',
     descriptionAr: 'auto.SectionNav.k6',
@@ -65,8 +78,9 @@ const SECTIONS: SectionItem[] = [
     href: '/#faq',
     labelEn: 'FAQ',
     labelAr: 'auto.SectionNav.k7',
-    icon: '❓',
-    color: '#f59e0b',
+    icon: InfoIcon,
+    tone: 'warning',
+    color: colors.warning,
     description: 'Frequently asked questions',
     descriptionAr: 'auto.SectionNav.k8',
   },
@@ -75,8 +89,9 @@ const SECTIONS: SectionItem[] = [
     href: '/#contact',
     labelEn: 'Contact',
     labelAr: 'auto.SectionNav.k9',
-    icon: '📞',
-    color: '#22c55e',
+    icon: PhoneIcon,
+    tone: 'success',
+    color: colors.success,
     description: 'Get in touch with us',
     descriptionAr: 'auto.SectionNav.k10',
   },
@@ -105,15 +120,6 @@ function SectionNav({
   titleAr,
 }: SectionNavProps) {
   const { isArabic, direction, t } = useLanguage();
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < breakpoints.md);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
   const filteredSections = useMemo(() => {
     let sections = SECTIONS;
     if (include?.length) {
@@ -125,7 +131,7 @@ function SectionNav({
     return sections;
   }, [include, exclude]);
 
-  const displayTitle = isArabic ? (titleAr || 'استكشف المنصة') : (title || 'Explore Platform');
+  const displayTitle = isArabic ? (titleAr || '?????? ??????') : (title || 'Explore Platform');
 
   // Responsive CSS
   const responsiveCss = `
@@ -187,60 +193,62 @@ function SectionNav({
           </h3>
         )}
         <div className="section-nav-grid">
-          {filteredSections.map((section) => (
-            <a
-              key={section.id}
-              href={section.href}
-              className="section-card"
-              style={{
-                '--hover-color': section.color,
-                textDecoration: 'none',
-                padding: spacing[4],
-                background: `linear-gradient(135deg, ${section.color}08, transparent)`,
-                border: `1px solid ${colors.border.default}`,
-                borderRadius: radius.xl,
-                transition: transitions.bounce,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: spacing[2],
-              } as React.CSSProperties}
-            >
-              <div
+          {filteredSections.map((section) => {
+            const IconComponent = section.icon;
+            return (
+              <a
+                key={section.id}
+                href={section.href}
+                className="section-card"
                 style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: radius.lg,
-                  background: `${section.color}20`,
+                  '--hover-color': section.color,
+                  textDecoration: 'none',
+                  padding: spacing[4],
+                  background: `linear-gradient(135deg, ${section.color}08, transparent)`,
+                  border: `1px solid ${colors.border.default}`,
+                  borderRadius: radius.xl,
+                  transition: transitions.bounce,
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 24,
-                }}
+                  flexDirection: 'column',
+                  gap: spacing[2],
+                } as React.CSSProperties}
               >
-                {section.icon}
-              </div>
-              <div
-                style={{
-                  fontSize: typography.size.md,
-                  fontWeight: typography.weight.bold,
-                  color: colors.text.primary,
-                }}
-              >
-                {isArabic ? t(section.labelAr, section.labelEn) : section.labelEn}
-              </div>
-              {showDescriptions && (
                 <div
                   style={{
-                    fontSize: typography.size.xs,
-                    color: colors.text.muted,
-                    lineHeight: typography.lineHeight.relaxed,
+                    width: 48,
+                    height: 48,
+                    borderRadius: radius.lg,
+                    background: `${section.color}20`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 >
-                  {isArabic ? t(section.descriptionAr, section.description) : section.description}
+                  <IconComponent size={22} tone={section.tone} />
                 </div>
-              )}
-            </a>
-          ))}
+                <div
+                  style={{
+                    fontSize: typography.size.md,
+                    fontWeight: typography.weight.bold,
+                    color: colors.text.primary,
+                  }}
+                >
+                  {isArabic ? t(section.labelAr, section.labelEn) : section.labelEn}
+                </div>
+                {showDescriptions && (
+                  <div
+                    style={{
+                      fontSize: typography.size.xs,
+                      color: colors.text.muted,
+                      lineHeight: typography.lineHeight.relaxed,
+                    }}
+                  >
+                    {isArabic ? t(section.descriptionAr, section.description) : section.description}
+                  </div>
+                )}
+              </a>
+            );
+          })}
         </div>
       </div>
     );
@@ -265,46 +273,48 @@ function SectionNav({
         </h3>
       )}
       <div className="section-nav-pills">
-        {filteredSections.map((section) => (
-          <a
-            key={section.id}
-            href={section.href}
-            className="section-pill"
-            style={{
-              '--hover-color': `${section.color}60`,
-              '--hover-bg': `${section.color}15`,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: spacing[2],
-              padding: `${spacing[2]}px ${spacing[3]}px`,
-              background: 'rgba(255,255,255,0.04)',
-              border: `1px solid ${colors.border.default}`,
-              borderRadius: radius.full,
-              textDecoration: 'none',
-              color: colors.text.primary,
-              fontSize: typography.size.sm,
-              fontWeight: typography.weight.semibold,
-              transition: transitions.fast,
-              whiteSpace: 'nowrap',
-            } as React.CSSProperties}
-          >
-            <span
+        {filteredSections.map((section) => {
+          const IconComponent = section.icon;
+          return (
+            <a
+              key={section.id}
+              href={section.href}
+              className="section-pill"
               style={{
-                width: 28,
-                height: 28,
-                borderRadius: radius.md,
-                background: `${section.color}20`,
-                display: 'flex',
+                '--hover-color': `${section.color}60`,
+                '--hover-bg': `${section.color}15`,
+                display: 'inline-flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 14,
-              }}
+                gap: spacing[2],
+                padding: `${spacing[2]}px ${spacing[3]}px`,
+                background: 'rgba(255,255,255,0.04)',
+                border: `1px solid ${colors.border.default}`,
+                borderRadius: radius.full,
+                textDecoration: 'none',
+                color: colors.text.primary,
+                fontSize: typography.size.sm,
+                fontWeight: typography.weight.semibold,
+                transition: transitions.fast,
+                whiteSpace: 'nowrap',
+              } as React.CSSProperties}
             >
-              {section.icon}
-            </span>
-            {isArabic ? t(section.labelAr, section.labelEn) : section.labelEn}
-          </a>
-        ))}
+              <span
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: radius.md,
+                  background: `${section.color}20`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <IconComponent size={16} tone={section.tone} />
+              </span>
+              {isArabic ? t(section.labelAr, section.labelEn) : section.labelEn}
+            </a>
+          );
+        })}
       </div>
     </div>
   );

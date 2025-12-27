@@ -15,6 +15,7 @@ import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
+import { RocketIcon } from '../components/icons';
 import {
   brandCyan,
   colors,
@@ -47,10 +48,12 @@ const PageHeader = memo(() => {
           padding: `${spacing[2]}px ${spacing[4]}px`,
           background: `${brandCyan}15`,
           borderRadius: radius.full,
-          marginBottom: spacing[4],
-        }}
-      >
-        <span style={{ fontSize: 20 }} aria-hidden="true">🚀</span>
+        marginBottom: spacing[4],
+      }}
+    >
+      <span style={{ fontSize: 20 }} aria-hidden="true">
+        <RocketIcon size={20} tone="cyan" />
+      </span>
         <span
           style={{
             fontSize: typography.size.sm,

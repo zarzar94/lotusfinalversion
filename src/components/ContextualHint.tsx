@@ -5,6 +5,7 @@
 
 import { memo, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { renderLabIcon } from './icons';
 import {
   brandCyan,
   brandPurple,
@@ -244,7 +245,9 @@ const ContextualHint = memo(({
             }}
           >
             {icon && (
-              <span style={{ fontSize: 14, flexShrink: 0 }}>{icon}</span>
+              <span style={{ fontSize: 14, flexShrink: 0 }}>
+                {renderLabIcon(icon, { size: 14, tone: 'cyan' })}
+              </span>
             )}
             <span
               style={{
@@ -282,7 +285,7 @@ const ContextualHint = memo(({
               }}
               aria-label={isArabic ? 'إغلاق' : 'Close'}
             >
-              ✕
+              {renderLabIcon('✕', { size: 12, tone: 'muted' })}
             </button>
           )}
         </div>
@@ -400,7 +403,7 @@ export const PageHints = memo(({ hints }: PageHintProps) => {
                   flexShrink: 0,
                 }}
               >
-                {hint.icon || '💡'}
+                {renderLabIcon(hint.icon || '💡', { size: 18, tone: 'cyan' })}
               </div>
               <div style={{ flex: 1 }}>
                 <p

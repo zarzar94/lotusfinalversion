@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect, useCallback, memo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { brandPurple, brandCyan, brandPink, brandPanel, colors, radius, spacing, typography, transitions } from './styles';
 import { MenuIcon, XIcon, BrainIcon, HeadphonesIcon, PhoneIcon, HelpIcon, HomeIcon, UsersIcon } from './Icons';
+import { renderLabIcon } from './icons';
 import BrainLogo from './BrainLogo';
 import LanguageToggle from './LanguageToggle';
 import ModeSwitcher from './ModeSwitcher';
@@ -503,6 +504,8 @@ const Header = memo(function Header() {
             {visibleNavItems.map((item) => {
               const isActive = isActivePath(item.path);
               const isPriority = item.priority?.[visitorMode] === 1; // Top priority for current mode
+              const iconColor = isActive ? (item.color ?? brandCyan) : isPriority ? visitorConfig.color : colors.text.muted;
+              const iconNode = renderLabIcon(item.icon, { size: 14, style: { color: iconColor } });
               return (
                 <Link
                   key={item.id}
@@ -547,8 +550,8 @@ const Header = memo(function Header() {
                       border: '2px solid rgba(11,15,28,0.9)',
                     }} />
                   )}
-                  <span style={{ fontSize: 14, opacity: isActive ? 1 : isPriority ? 0.9 : 0.7 }}>
-                    {item.icon}
+                  <span className="nav-icon" style={{ fontSize: 14, opacity: isActive ? 1 : isPriority ? 0.9 : 0.7 }}>
+                    {iconNode}
                   </span>
                   {t(item.translationKey)}
                 </Link>
@@ -574,7 +577,7 @@ const Header = memo(function Header() {
                   border: `1px solid ${brandCyan}30`,
                 }}
               >
-                <span>{dashboardLink.icon}</span>
+                <span>{renderLabIcon(dashboardLink.icon, { size: 16, style: { color: brandCyan } })}</span>
                 {t(dashboardLink.translationKey)}
               </Link>
             )}
@@ -743,7 +746,7 @@ const Header = memo(function Header() {
               justifyContent: 'center',
               fontSize: 18,
             }}>
-              🏠
+              {renderLabIcon('??', { size: 18, style: { color: brandCyan } })}
             </span>
             {t('nav.home')}
           </Link>
@@ -752,6 +755,8 @@ const Header = memo(function Header() {
           {visibleNavItems.filter((item) => item.id !== 'home').map((item, index) => {
             const isActive = isActivePath(item.path);
             const isPriority = item.priority?.[visitorMode] === 1;
+            const iconColor = isActive ? (item.color ?? brandCyan) : isPriority ? visitorConfig.color : colors.text.muted;
+            const iconNode = renderLabIcon(item.icon, { size: 18, style: { color: iconColor } });
             return (
               <Link
                 key={item.id}
@@ -809,10 +814,9 @@ const Header = memo(function Header() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: typeof item.icon === 'string' ? 18 : 16,
-                  color: isActive ? item.color : isPriority ? visitorConfig.color : undefined,
+                  fontSize: 18,
                 }}>
-                  {item.icon}
+                  {iconNode}
                 </span>
                 {t(item.translationKey)}
                 {isActive && (
@@ -858,7 +862,7 @@ const Header = memo(function Header() {
                 justifyContent: 'center',
                 fontSize: 18,
               }}>
-                {dashboardLink.icon}
+                {renderLabIcon(dashboardLink.icon, { size: 18, style: { color: brandCyan } })}
               </span>
               {t(dashboardLink.translationKey)}
             </Link>

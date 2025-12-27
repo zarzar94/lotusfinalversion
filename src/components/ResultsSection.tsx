@@ -12,9 +12,11 @@ import {
   audioColors,
   spacing,
   radius,
+  colors,
 } from './styles';
 import LabButton from './labui/LabButton';
 import LabButtonAnchor from './labui/LabButtonAnchor';
+import { renderLabIcon, ChartIcon, WarningTriangleIcon, ChecklistIcon, ReportIcon, DownloadIcon } from './icons';
 
 type CaseStudy = {
   slideId: number;
@@ -130,10 +132,9 @@ const ResultsSection = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 22,
               boxShadow: `0 0 20px ${brandPink}15`,
             }}>
-              📊
+              <ChartIcon size={22} tone="pink" />
             </div>
             <div>
               <h2 style={{ ...styles.h2, margin: 0 }}>نتائج ودراسات حالة (قبل / بعد)</h2>
@@ -158,12 +159,12 @@ const ResultsSection = () => {
             </span>
             <span style={{
               padding: '6px 12px',
-              background: 'rgba(34,197,94,0.12)',
-              border: '1px solid rgba(34,197,94,0.3)',
+              background: colors.successLight,
+              border: `1px solid ${colors.success}4d`,
               borderRadius: 8,
               fontSize: 10,
               fontWeight: 700,
-              color: '#22c55e',
+              color: colors.success,
               fontFamily: 'monospace',
             }}>
               {caseStudies.length} RECORDS
@@ -177,14 +178,16 @@ const ResultsSection = () => {
         <div style={{
           marginTop: 8,
           padding: '8px 14px',
-          background: 'rgba(245,158,11,0.08)',
-          border: '1px solid rgba(245,158,11,0.2)',
+          background: colors.warningSubtle,
+          border: `1px solid ${colors.warning}33`,
           borderRadius: 8,
           display: 'flex',
           alignItems: 'center',
           gap: 8,
         }}>
-          <span style={{ fontSize: 14 }}>⚠️</span>
+          <span style={{ fontSize: 14 }}>
+            <WarningTriangleIcon size={14} tone="warning" />
+          </span>
           <p style={{ ...styles.muted, margin: 0, fontSize: 12 }}>
             لا تشكّل هذه الأمثلة تشخيصاً طبياً. أي قرار علاجي يجب أن يكون عبر مختص.
           </p>
@@ -299,7 +302,7 @@ const ResultsSection = () => {
                   width: 4,
                   height: 4,
                   borderRadius: '50%',
-                  background: '#f59e0b',
+                  background: colors.warning,
                 }} />
                 {cs.focus}
               </div>
@@ -340,14 +343,14 @@ const ResultsSection = () => {
           variant="primary"
           style={{ display: 'flex', alignItems: 'center', gap: 8 }}
         >
-          <span>📑</span> عرض جميع الشرائح
+          <ReportIcon size={16} tone="cyan" /> عرض جميع الشرائح
         </LabButtonAnchor>
         <LabButtonAnchor
           href="#contact"
           variant="ghost"
           style={{ display: 'flex', alignItems: 'center', gap: 8 }}
         >
-          <span>📋</span> اطلب تقييم / عرض للمدرسة
+          <ChecklistIcon size={16} tone="cyan" /> اطلب تقييم / عرض للمدرسة
         </LabButtonAnchor>
       </div>
 
@@ -384,13 +387,13 @@ const ResultsSection = () => {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: '#22c55e',
-              boxShadow: '0 0 6px #22c55e',
+              background: colors.success,
+              boxShadow: `0 0 6px ${colors.success}`,
             }} />
             <span style={{
               fontSize: 9,
               fontFamily: 'monospace',
-              color: '#22c55e',
+              color: colors.success,
               letterSpacing: 0.5,
             }}>
               DATA VERIFIED
@@ -430,7 +433,7 @@ const ResultsSection = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
                 <span style={{ ...styles.chip, background: 'rgba(176,18,112,0.14)', borderColor: 'rgba(176,18,112,0.25)' }}>
-                  📊 شريحة {activeSlide.id}
+                  <ChartIcon size={14} tone="pink" /> شريحة {activeSlide.id}
                 </span>
                 <div style={{ fontWeight: 900, fontSize: 18, color: brandPurpleDark }}>{activeSlide.title}</div>
               </div>

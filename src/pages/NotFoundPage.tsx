@@ -13,6 +13,7 @@ import Footer from '../components/Footer';
 import WhatsAppFab from '../components/WhatsAppFab';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import FadeIn from '../components/FadeIn';
+import { renderLabIcon, HomeIcon, MailIcon, MapPinIcon } from '../components/icons';
 import {
   brandCyan,
   brandPurple,
@@ -184,7 +185,9 @@ function NotFoundPage() {
                   transform: isHovered === 'home' ? 'translateY(-4px) scale(1.02)' : 'translateY(0) scale(1)',
                 }}
               >
-                <span style={{ fontSize: 20 }}>🏠</span>
+                <span style={{ fontSize: 20 }}>
+                  <HomeIcon size={20} tone="cyan" />
+                </span>
                 {isArabic ? 'العودة للرئيسية' : 'Go Home'}
               </Link>
 
@@ -209,7 +212,9 @@ function NotFoundPage() {
                   transform: isHovered === 'contact' ? 'translateY(-2px)' : 'translateY(0)',
                 }}
               >
-                <span style={{ fontSize: 20 }}>✉️</span>
+                <span style={{ fontSize: 20 }}>
+                  <MailIcon size={20} tone="cyan" />
+                </span>
                 {isArabic ? 'تواصل معنا' : 'Contact Us'}
               </Link>
             </div>
@@ -249,7 +254,7 @@ function NotFoundPage() {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                  🧭
+                  <MapPinIcon size={16} tone="cyan" />
                 </span>
                 {isArabic ? 'روابط مفيدة' : 'Helpful Links'}
               </h3>
@@ -265,8 +270,8 @@ function NotFoundPage() {
                   { path: '/assessment', label: isArabic ? 'التقييم' : 'Assessment', icon: '🎯', color: brandCyan },
                   { path: '/program', label: isArabic ? 'البرنامج' : 'Program', icon: '📋', color: brandPurple },
                   { path: '/science', label: isArabic ? 'العلوم' : 'Science', icon: '🧠', color: brandPink },
-                  { path: '/results', label: isArabic ? 'النتائج' : 'Results', icon: '📊', color: '#22c55e' },
-                  { path: '/resources', label: isArabic ? 'الموارد' : 'Resources', icon: '📚', color: '#f59e0b' },
+                  { path: '/results', label: isArabic ? 'النتائج' : 'Results', icon: '📊', color: colors.success },
+                  { path: '/resources', label: isArabic ? 'الموارد' : 'Resources', icon: '📚', color: colors.warning },
                   { path: '/contact', label: isArabic ? 'تواصل' : 'Contact', icon: '📞', color: brandCyan },
                 ].map((link) => (
                   <Link
@@ -300,7 +305,7 @@ function NotFoundPage() {
                       justifyContent: 'center',
                       fontSize: 14,
                     }}>
-                      {link.icon}
+                      {renderLabIcon(link.icon, { size: 14, style: { color: link.color } })}
                     </span>
                     {link.label}
                   </Link>

@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import CircuitDecoration from './CircuitDecoration';
 import FadeIn from './FadeIn';
 import { brandCyan, brandPurple, brandPink, colors, typography, spacing, radius } from './styles';
+import { renderLabIcon } from './icons';
 import { useLanguage } from '../context/LanguageContext';
 
 // Enhanced Navigation Card Component
@@ -104,7 +105,7 @@ const NavigationCard = memo(({
           zIndex: 1,
         }}
       >
-        {page.icon}
+        {renderLabIcon(page.icon, { size: 28, style: { color: page.color } })}
       </div>
 
       {/* Title */}
@@ -220,7 +221,7 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
       description: 'Success stories and testimonials',
       descriptionAr: 'auto.PageNavigationCards.k12',
       icon: '📊',
-      color: '#22c55e',
+      color: colors.success,
       path: '/results',
     },
     {
@@ -230,7 +231,7 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
       description: 'Videos, presentations, and FAQs',
       descriptionAr: 'auto.PageNavigationCards.k14',
       icon: '📚',
-      color: '#f59e0b',
+      color: colors.warning,
       path: '/resources',
     },
     {
@@ -308,7 +309,9 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
             marginBottom: spacing[4],
           }}
         >
-          <span style={{ fontSize: 14 }}>🧭</span>
+          <span style={{ fontSize: 14 }}>
+            {renderLabIcon('🧭', { size: 14, tone: 'cyan' })}
+          </span>
           <span
             style={{
               fontSize: typography.size.xs,
@@ -388,7 +391,9 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
             borderRadius: radius.full,
           }}
         >
-          <span style={{ fontSize: 16 }}>💡</span>
+          <span style={{ fontSize: 16 }}>
+            {renderLabIcon('💡', { size: 16, tone: 'cyan' })}
+          </span>
           <span
             style={{
               fontSize: typography.size.sm,

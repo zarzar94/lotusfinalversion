@@ -2,12 +2,22 @@
  * SettingsPage - User preferences and account settings
  */
 
-import { useState, useCallback, useEffect, memo } from 'react';
+import { useState, useCallback, useEffect, memo, type ReactNode } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useUser } from '../context/UserContext';
 import { readUserScopedStorage, writeUserScopedStorage } from '../utils/userStorage';
 import { notifyLocalChange } from '../utils/sync';
 import { BackNavigation, SectionNav, ResponsiveStyles } from './shared';
+import {
+  BellIcon,
+  CheckCircleIcon,
+  LockIcon,
+  MonitorIcon,
+  SettingsIcon,
+  UserIcon,
+  WarningTriangleIcon,
+  WaveformIcon,
+} from './icons';
 import {
   brandCyan,
   brandPurple,
@@ -346,8 +356,8 @@ const SettingSection = memo(({
   children,
 }: {
   title: string;
-  icon: string;
-  children: React.ReactNode;
+  icon: ReactNode;
+  children: ReactNode;
 }) => (
   <div
     style={{
@@ -371,7 +381,7 @@ const SettingSection = memo(({
         borderBottom: `1px solid ${colors.border.subtle}`,
       }}
     >
-      <span style={{ fontSize: 18 }}>{icon}</span>
+      <span style={{ display: 'inline-flex' }}>{icon}</span>
       {title}
     </h3>
     <div>{children}</div>
@@ -478,7 +488,7 @@ export default function SettingsPage() {
               fontSize: 24,
             }}
           >
-            ⚙️
+            <SettingsIcon tone="cyan" size={24} />
           </div>
           <h1
             style={{
@@ -496,21 +506,25 @@ export default function SettingsPage() {
           <span
             style={{
               padding: `${spacing[1.5]}px ${spacing[3]}px`,
-              background: 'rgba(34,197,94,0.15)',
-              color: '#22c55e',
+              background: colors.successLight,
+              color: colors.success,
               borderRadius: radius.full,
               fontSize: typography.size.xs,
               fontWeight: typography.weight.bold,
               animation: 'fadeIn 0.3s ease-out',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: spacing[1],
             }}
           >
-            ✓ {text.saved}
+            <CheckCircleIcon tone="success" size={14} />
+            {text.saved}
           </span>
         )}
       </div>
 
       {/* Account Section */}
-      <SettingSection title={text.account} icon="👤">
+      <SettingSection title={text.account} icon={<UserIcon tone="cyan" size={18} />}>
         <div
           style={{
             display: 'flex',
@@ -531,7 +545,7 @@ export default function SettingsPage() {
               fontSize: 28,
             }}
           >
-            {user?.name?.[0] || '👤'}
+            {user?.name?.[0] ? user?.name?.[0] : <UserIcon tone="muted" size={22} />}
           </div>
           <div style={{ flex: 1 }}>
             {isEditing ? (
@@ -563,7 +577,7 @@ export default function SettingsPage() {
                     fontWeight: typography.weight.bold,
                   }}
                 >
-                  ✓
+                  <CheckCircleIcon tone="cyan" size={14} />
                 </button>
               </div>
             ) : (
@@ -650,7 +664,7 @@ export default function SettingsPage() {
       </SettingSection>
 
       {/* Notifications Section */}
-      <SettingSection title={text.notifications} icon="🔔">
+      <SettingSection title={text.notifications} icon={<BellIcon tone="warning" size={18} />}>
         <SettingToggle
           label={t('auto.SettingsPage.k12', "Achievement Notifications")}
           description={t('auto.SettingsPage.k13', "Get notified when you unlock achievements")}
@@ -672,7 +686,7 @@ export default function SettingsPage() {
       </SettingSection>
 
       {/* Display Section */}
-      <SettingSection title={text.display} icon="🎨">
+      <SettingSection title={text.display} icon={<MonitorIcon tone="purple" size={18} />}>
         <SettingToggle
           label={t('auto.SettingsPage.k18', "Reduced Motion")}
           description={t('auto.SettingsPage.k19', "Minimize animations and motion effects")}
@@ -698,7 +712,7 @@ export default function SettingsPage() {
       </SettingSection>
 
       {/* Audio Section */}
-      <SettingSection title={text.audio} icon="🔊">
+      <SettingSection title={text.audio} icon={<WaveformIcon tone="pink" size={18} />}>
         <SettingToggle
           label={t('auto.SettingsPage.k26', "Sound Effects")}
           description={t('auto.SettingsPage.k27', "Achievement sounds and interaction effects")}
@@ -713,7 +727,7 @@ export default function SettingsPage() {
       </SettingSection>
 
       {/* Privacy Section */}
-      <SettingSection title={text.privacy} icon="🔒">
+      <SettingSection title={text.privacy} icon={<LockIcon tone="purple" size={18} />}>
         <SettingToggle
           label={t('auto.SettingsPage.k29', "Share Progress")}
           description={t('auto.SettingsPage.k30', "Allow your clinician to view your progress")}
@@ -732,8 +746,8 @@ export default function SettingsPage() {
       <div
         style={{
           padding: spacing[5],
-          background: 'rgba(239,68,68,0.08)',
-          border: '1px solid rgba(239,68,68,0.25)',
+          background: colors.errorSubtle,
+          border: `1px solid ${colors.errorLight}`,
           borderRadius: radius.xl,
         }}
       >
@@ -742,10 +756,14 @@ export default function SettingsPage() {
             margin: `0 0 ${spacing[4]}px`,
             fontSize: typography.size.base,
             fontWeight: typography.weight.bold,
-            color: '#ef4444',
+            color: colors.error,
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing[2],
           }}
         >
-          ⚠️ {t('auto.SettingsPage.k33', "Danger Zone")}
+          <WarningTriangleIcon tone="error" size={16} />
+          {t('auto.SettingsPage.k33', "Danger Zone")}
         </h3>
         <div style={{ display: 'flex', gap: spacing[3], flexWrap: 'wrap' }}>
           <button
@@ -768,9 +786,9 @@ export default function SettingsPage() {
             style={{
               padding: `${spacing[2.5]}px ${spacing[4]}px`,
               background: 'transparent',
-              border: '1px solid rgba(239,68,68,0.5)',
+              border: `1px solid ${colors.error}`,
               borderRadius: radius.md,
-              color: '#ef4444',
+              color: colors.error,
               cursor: 'pointer',
               fontSize: typography.size.sm,
               fontWeight: typography.weight.semibold,

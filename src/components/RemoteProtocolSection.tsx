@@ -1,6 +1,7 @@
-import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, colors } from './styles';
 import LabButtonAnchor from './labui/LabButtonAnchor';
 import { useLanguage } from '../context/LanguageContext';
+import { renderLabIcon } from './icons';
 
 const steps = [
   {
@@ -80,7 +81,7 @@ export default function RemoteProtocolSection() {
               width: 8,
               height: 8,
               borderRadius: '50%',
-              background: '#22c55e',
+              background: colors.success,
               animation: 'pulse 2s ease-in-out infinite',
             }} />
             {t('common.startNow')}
@@ -107,8 +108,8 @@ export default function RemoteProtocolSection() {
             alignItems: 'center',
             gap: 8,
             padding: '6px 12px',
-            background: 'rgba(34,197,94,0.2)',
-            border: '1px solid rgba(34,197,94,0.3)',
+            background: `${colors.success}33`,
+            border: `1px solid ${colors.success}4d`,
             borderRadius: 8,
             marginBottom: 12,
           }}>
@@ -116,9 +117,9 @@ export default function RemoteProtocolSection() {
               width: 8,
               height: 8,
               borderRadius: '50%',
-              background: '#22c55e',
+              background: colors.success,
             }} />
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#22c55e' }}>LIVE SESSION</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: colors.success }}>LIVE SESSION</span>
           </div>
                     <h3 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>
             {isArabic ? (
@@ -159,7 +160,7 @@ export default function RemoteProtocolSection() {
             justifyContent: 'center',
             fontSize: 32,
           }}>
-            💻
+            {renderLabIcon('💻', { size: 32, style: { color: brandCyan } })}
           </div>
           <div style={{
             width: 70,
@@ -172,7 +173,7 @@ export default function RemoteProtocolSection() {
             justifyContent: 'center',
             fontSize: 32,
           }}>
-            📡
+            {renderLabIcon('📡', { size: 32, style: { color: brandPurple } })}
           </div>
           <div style={{
             width: 70,
@@ -185,7 +186,7 @@ export default function RemoteProtocolSection() {
             justifyContent: 'center',
             fontSize: 32,
           }}>
-            🎧
+            {renderLabIcon('🎧', { size: 32, style: { color: brandPink } })}
           </div>
         </div>
       </div>
@@ -235,7 +236,9 @@ export default function RemoteProtocolSection() {
                   alignItems: 'center',
                   gap: 8,
                 }}>
-                  <span style={{ fontSize: 20 }}>{step.icon}</span>
+                  <span style={{ fontSize: 20 }}>
+                    {renderLabIcon(step.icon, { size: 20, style: { color: brandCyan } })}
+                  </span>
                   <span style={{ fontWeight: 800, fontSize: 15 }}>{isArabic ? step.title : step.titleEn}</span>
                 </div>
                 <p style={{ ...styles.muted, marginTop: 4, marginBottom: 0 }}>
@@ -285,7 +288,9 @@ export default function RemoteProtocolSection() {
                 background: 'rgba(175,132,186,0.08)',
                 borderRadius: 10,
               }}>
-                <span style={{ fontSize: 18 }}>{req.icon}</span>
+                <span style={{ fontSize: 18 }}>
+                  {renderLabIcon(req.icon, { size: 18, style: { color: brandPurple } })}
+                </span>
                 <span style={{ fontSize: 14, opacity: 0.9 }}>{isArabic ? req.text : req.textEn}</span>
               </div>
             ))}
@@ -313,7 +318,9 @@ export default function RemoteProtocolSection() {
                 borderRadius: 10,
                 textAlign: 'center',
               }}>
-                <span style={{ fontSize: 24 }}>{benefit.icon}</span>
+                <span style={{ fontSize: 24 }}>
+                  {renderLabIcon(benefit.icon, { size: 24, style: { color: brandCyan } })}
+                </span>
                 <div style={{ fontWeight: 700, fontSize: 13, marginTop: 6 }}>{isArabic ? benefit.title : benefit.titleEn}</div>
                 <div style={{ fontSize: 11, opacity: 0.7, marginTop: 2 }}>{isArabic ? benefit.description : benefit.descriptionEn}</div>
               </div>

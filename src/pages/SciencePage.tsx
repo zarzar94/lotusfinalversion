@@ -15,6 +15,7 @@ import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
+import { BrainCircuitIcon } from '../components/icons';
 import {
   brandPink,
   colors,
@@ -49,7 +50,9 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
         marginBottom: spacing[4],
       }}
     >
-      <span style={{ fontSize: 20 }}>🧠</span>
+      <span style={{ fontSize: 20 }}>
+        <BrainCircuitIcon size={20} tone="pink" />
+      </span>
       <span
         style={{
           fontSize: typography.size.sm,

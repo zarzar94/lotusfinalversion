@@ -9,6 +9,7 @@ import {
   radius,
 } from './styles';
 import { useLanguage } from '../context/LanguageContext';
+import { renderLabIcon } from './icons';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SECTION CATEGORY DEFINITIONS
@@ -227,7 +228,7 @@ function SectionDivider({ category, showNumber = true, number }: SectionDividerP
             justifyContent: 'center',
             fontSize: 18,
           }}>
-            {config.icon}
+            {renderLabIcon(config.icon, { size: 18, style: { color: config.color } })}
           </div>
 
           {/* Text */}

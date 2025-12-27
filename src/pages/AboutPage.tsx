@@ -12,6 +12,16 @@ import ScrollToTopButton from '../components/ScrollToTopButton';
 import FadeIn from '../components/FadeIn';
 import CircuitDecoration from '../components/CircuitDecoration';
 import { BackNavigation } from '../components/shared';
+import {
+  EyeIcon,
+  MailIcon,
+  MapPinIcon,
+  ReportIcon,
+  SchoolIcon,
+  UserIcon,
+  WaveformIcon,
+  renderLabIcon,
+} from '../components/icons';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
@@ -55,7 +65,7 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
         marginBottom: spacing[4],
       }}
     >
-      <span style={{ fontSize: 20 }}>🏛️</span>
+      <SchoolIcon tone="cyan" size={20} />
       <span
         style={{
           fontSize: typography.size.sm,
@@ -230,7 +240,7 @@ const SpecialistProfile = memo(({ isArabic }: { isArabic: boolean }) => {
                     opacity: 0.6,
                   }}
                 >
-                  👤
+                  <UserIcon tone="muted" size={80} />
                 </div>
               )}
             </div>
@@ -324,7 +334,7 @@ const SpecialistProfile = memo(({ isArabic }: { isArabic: boolean }) => {
                 gap: spacing[2],
               }}
             >
-              <span style={{ fontSize: 18 }}>🎓</span>
+              <SchoolIcon tone="purple" size={18} />
               {isArabic ? 'المؤهلات والخبرات' : 'Qualifications & Experience'}
             </h4>
 
@@ -355,7 +365,9 @@ const SpecialistProfile = memo(({ isArabic }: { isArabic: boolean }) => {
                       marginBottom: spacing[1],
                     }}
                   >
-                    <span style={{ fontSize: 16 }}>{cred.icon}</span>
+                    <span style={{ fontSize: 16 }}>
+                      {renderLabIcon(cred.icon, { size: 16, style: { color: cred.color } })}
+                    </span>
                     <span
                       style={{
                         fontSize: typography.size.sm,
@@ -405,7 +417,7 @@ const SpecialistProfile = memo(({ isArabic }: { isArabic: boolean }) => {
                 gap: spacing[2],
               }}
             >
-              <span style={{ fontSize: 18 }}>📝</span>
+              <ReportIcon tone="purple" size={18} />
               {isArabic ? 'نبذة تعريفية' : 'Biography'}
             </h4>
             <div
@@ -510,7 +522,7 @@ const CentreInfoSection = memo(({ isArabic }: { isArabic: boolean }) => {
             color: brandPurple,
           }}
         >
-          <span>📍</span>
+          <MapPinIcon tone="purple" size={14} />
           {isArabic ? centre.locationAr : centre.locationEn}
         </div>
       </div>
@@ -642,7 +654,7 @@ const CentreInfoSection = memo(({ isArabic }: { isArabic: boolean }) => {
                     marginBottom: spacing[3],
                   }}
                 >
-                  {value.icon}
+                  {renderLabIcon(value.icon, { size: 22, tone: 'cyan' })}
                 </div>
                 <h4
                   style={{
@@ -703,7 +715,9 @@ const CentreInfoSection = memo(({ isArabic }: { isArabic: boolean }) => {
                 borderRadius: radius.full,
               }}
             >
-              <span style={{ fontSize: 18 }}>{service.icon}</span>
+              <span style={{ fontSize: 18 }}>
+                {renderLabIcon(service.icon, { size: 18, style: { color: service.color } })}
+              </span>
               <span
                 style={{
                   fontSize: typography.size.sm,
@@ -827,7 +841,7 @@ const ConnectSection = memo(({ isArabic }: { isArabic: boolean }) => {
             boxShadow: isHovered === 'contact' ? `0 10px 30px ${brandCyan}30` : 'none',
           }}
         >
-          <span style={{ fontSize: 20 }}>✉️</span>
+          <MailIcon tone="cyan" size={20} />
           {isArabic ? 'تواصل معنا' : 'Contact Us'}
         </a>
       </div>
@@ -842,9 +856,9 @@ const ConnectSection = memo(({ isArabic }: { isArabic: boolean }) => {
         }}
       >
         {[
-          { key: 'instagram', icon: '📸', url: CLINIC.socials.instagram },
-          { key: 'facebook', icon: '👥', url: CLINIC.socials.facebook },
-          { key: 'tiktok', icon: '🎵', url: CLINIC.socials.tiktok },
+          { key: 'instagram', icon: <EyeIcon tone="pink" size={20} />, url: CLINIC.socials.instagram },
+          { key: 'facebook', icon: <UserIcon tone="cyan" size={20} />, url: CLINIC.socials.facebook },
+          { key: 'tiktok', icon: <WaveformIcon tone="purple" size={20} />, url: CLINIC.socials.tiktok },
         ].map((social) => (
           <a
             key={social.key}

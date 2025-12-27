@@ -18,6 +18,7 @@ import {
   shadows,
   colors,
 } from './styles';
+import { renderLabIcon, MessageIcon } from './icons';
 
 // Activity types
 interface Activity {
@@ -80,11 +81,10 @@ const ActivityItem = memo(function ActivityItem({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: 18,
-          flexShrink: 0,
-        }}
-      >
-        {activity.icon}
+        flexShrink: 0,
+      }}
+    >
+        {renderLabIcon(activity.icon, { size: 18, style: { color: activity.color } })}
       </div>
 
       {/* Content */}
@@ -221,7 +221,7 @@ export default function ActivityFeed() {
         icon: '✅',
         messageAr: `تم إكمال قائمة التحقق بنجاح!`,
         messageEn: `Successfully completed the checklist!`,
-        color: '#22c55e',
+        color: 'colors.success',
         points: 40,
       });
     }
@@ -245,7 +245,7 @@ export default function ActivityFeed() {
         icon: '🎉',
         messageAr: `تهانينا! وصلت للمستوى ${state.level}`,
         messageEn: `Congratulations! Reached Level ${state.level}`,
-        color: '#f59e0b',
+        color: 'colors.warning',
         points: 50,
       });
     }
@@ -267,7 +267,7 @@ export default function ActivityFeed() {
         icon: '🏁',
         messageAr: `تم تصفح الصفحة بالكامل!`,
         messageEn: `Scrolled through the entire page!`,
-        color: '#22c55e',
+        color: 'colors.success',
         points: 25,
       });
     }
@@ -311,7 +311,7 @@ export default function ActivityFeed() {
         icon: tip.icon,
         messageAr: tip.messageAr,
         messageEn: tip.messageEn,
-        color: '#f59e0b',
+        color: 'colors.warning',
       });
       tipIndexRef.current = 1;
     }, 5000);
@@ -325,7 +325,7 @@ export default function ActivityFeed() {
           icon: tip.icon,
           messageAr: tip.messageAr,
           messageEn: tip.messageEn,
-          color: '#f59e0b',
+          color: 'colors.warning',
         });
         tipIndexRef.current++;
       }
@@ -446,7 +446,9 @@ export default function ActivityFeed() {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
-                <span style={{ fontSize: 18 }}>💬</span>
+                <span style={{ fontSize: 18 }}>
+                  <MessageIcon size={18} tone="cyan" />
+                </span>
                 <span
                   style={{
                     fontSize: typography.size.sm,
@@ -552,7 +554,7 @@ export default function ActivityFeed() {
               position: 'relative',
             }}
           >
-            💬
+            <MessageIcon size={16} tone="cyan" />
             {hasNewActivity && (
               <div
                 style={{

@@ -8,6 +8,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useVisitorMode } from '../context/VisitorModeContext';
 import { useGamification } from '../context/GamificationContext';
+import { renderLabIcon } from './icons';
 import {
   brandCyan,
   brandPurple,
@@ -267,7 +268,7 @@ export const ScrollBasedCTA = memo(() => {
           cursor: 'pointer',
         }}
       >
-        ✕
+        {renderLabIcon('✕', { size: 12, tone: 'muted' })}
       </button>
 
       {/* Content */}
@@ -285,7 +286,7 @@ export const ScrollBasedCTA = memo(() => {
             flexShrink: 0,
           }}
         >
-          {currentMilestone.icon}
+          {renderLabIcon(currentMilestone.icon, { size: 24, style: { color: brandCyan } })}
         </div>
         <p
           style={{
@@ -429,10 +430,10 @@ export const EngagementCelebration = memo(() => {
               justifyContent: 'center',
               fontSize: 50,
               boxShadow: `0 0 60px ${brandCyan}50`,
-            }}
-          >
-            {celebration.icon}
-          </div>
+          }}
+        >
+          {renderLabIcon(celebration.icon, { size: 48, style: { color: brandCyan } })}
+        </div>
           <div
             style={{
               padding: `${spacing[2]}px ${spacing[5]}px`,
@@ -466,7 +467,7 @@ export const EngagementCelebration = memo(() => {
               width: 10,
               height: 10,
               borderRadius: i % 2 === 0 ? '50%' : '2px',
-              background: [brandCyan, brandPurple, brandPink, '#f59e0b', '#22c55e'][i % 5],
+              background: [brandCyan, brandPurple, brandPink, colors.warning, colors.success][i % 5],
               animation: `confetti-${i % 4} 1s ease-out forwards`,
             }}
           />
@@ -548,7 +549,9 @@ export const TimeOnPageTracker = memo(() => {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: spacing[3] }}>
-        <span style={{ fontSize: 28 }}>⏱️</span>
+        <span style={{ fontSize: 28 }}>
+          {renderLabIcon('⏱️', { size: 24, tone: 'purple' })}
+        </span>
         <div>
           <p
             style={{
