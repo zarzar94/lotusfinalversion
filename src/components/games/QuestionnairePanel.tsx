@@ -3,8 +3,9 @@ import { useMemo, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import LabButton from '../labui/LabButton';
+import { renderLabIcon } from '../icons/index';
 import type { GameResult, TestOutcome } from './types';
-import { ModuleFrame, ModuleHeader, PracticeTrialsStep } from './ui';
+import { CTAResultPanel, MetricsSummaryPanel, ModuleFrame, ModuleHeader, PracticeTrialsStep } from './ui';
 
 const questions = [
   'هل يطلب الطفل تكرار الكلام كثيراً (؟ماذا/هاه)؟',
@@ -33,6 +34,7 @@ export default function QuestionnairePanel({
   const [submitted, setSubmitted] = useState(false);
 
   const score = useMemo(() => answers.reduce<number>((s, a) => s + a, 0), [answers]);
+  const maxScore = questions.length * 2;
 
   const result: GameResult = score <= 4 ? 'high' : score <= 9 ? 'medium' : 'low';
 
@@ -43,12 +45,19 @@ export default function QuestionnairePanel({
         ? 'هناك مؤشرات متوسطة. ننصح بمقارنة ذلك مع الاختبارات الموضوعية داخل الموقع للحصول على صورة أقوى.'
         : 'مؤشرات مرتفعة حسب الاستبيان. إذا كانت الأعراض مستمرة في المدرسة/البيت، يفضّل تقييم متخصص.';
 
+  const summaryTone = result === 'high' ? 'success' : result === 'medium' ? 'warning' : 'error';
+  const resultLabel = result === 'high'
+    ? isArabic ? 'مرتفع' : 'High'
+    : result === 'medium'
+      ? isArabic ? 'متوسط' : 'Medium'
+      : isArabic ? 'منخفض' : 'Low';
+
   const submit = () => {
     const outcome: TestOutcome = {
       key: 'questionnaire',
       title: 'استبيان مؤشرات (Subjective Checklist)',
       result,
-      scoreLabel: `Score=${score}/${questions.length * 2}`,
+      scoreLabel: `Score=${score}/${maxScore}`,
       message,
       metrics: {
         totalQuestions: questions.length,
@@ -99,7 +108,7 @@ export default function QuestionnairePanel({
         <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
           <div style={{ fontWeight: 900, color: brandPurpleDark }}>النتيجة المبدئية</div>
           <p style={{ ...styles.muted, marginTop: 6 }}>
-            مجموع النقاط: <b style={{ color: brandPink }}>{score}</b> / {questions.length * 2}
+            مجموع النقاط: <b style={{ color: brandPink }}>{score}</b> / {maxScore}
           </p>
           <p style={{ ...styles.muted, marginTop: 6 }}>{message}</p>
 
@@ -114,9 +123,38 @@ export default function QuestionnairePanel({
             ) : null}
           </div>
 
-          {submitted ? <div style={{ marginTop: 10, color: brandCyan, fontWeight: 900, textAlign: 'center' }}>تم الحفظ</div> : null}
         </div>
       </PracticeTrialsStep>
+
+      {submitted ? (
+        <>
+          <MetricsSummaryPanel
+            title={isArabic ? 'ملخص الاستبيان' : 'Questionnaire summary'}
+            subtitle={message}
+            tone={summaryTone}
+            metrics={[
+              { label: isArabic ? 'النتيجة' : 'Result', value: resultLabel },
+              { label: isArabic ? 'النقاط' : 'Score', value: `${score}/${maxScore}` },
+              { label: isArabic ? 'الأسئلة' : 'Questions', value: questions.length },
+            ]}
+            footer={isArabic ? 'استبيان ذاتي غير تشخيصي.' : 'Subjective questionnaire, not a diagnosis.'}
+          />
+          <CTAResultPanel
+            title={(
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                {renderLabIcon('\u2705', { size: 16, tone: 'success' })}
+                <span>{isArabic ? 'تم حفظ النتيجة' : 'Result saved'}</span>
+              </span>
+            )}
+            description={isArabic ? 'يمكنك العودة للوحة أو بدء جلسة أخرى.' : 'You can return to the dashboard or start another session.'}
+            actions={onCancel ? (
+              <LabButton variant="ghost" onClick={onCancel}>
+                {isArabic ? 'إغلاق' : 'Close'}
+              </LabButton>
+            ) : undefined}
+          />
+        </>
+      ) : null}
     </ModuleFrame>
   );
 }

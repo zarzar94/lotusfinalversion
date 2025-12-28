@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import LabButton from '../labui/LabButton';
+import { renderLabIcon } from '../icons/index';
 import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import { clamp01, dPrime, mean } from './stats';
 import type { GameResult, TestOutcome } from './types';
@@ -17,6 +18,7 @@ import {
 } from './scoring';
 import {
   CalibrationStep,
+  CTAResultPanel,
   MetricsSummaryPanel,
   ModuleFrame,
   ModuleHeader,
@@ -596,21 +598,37 @@ export default function AttentionTestPanel({
 
       
       {stage === 'done' && summary ? (
-        <MetricsSummaryPanel
-          title={'O?U. O-U?O, OU,U+O?USO?Oc ?o.'}
-          subtitle={'USU.U?U+U? OU,O?U+ OU,OU+O?U,OU, U,U,OOrO?O"OO? OU,O?OU,US.'}
-          tone={summaryTone}
-          metrics={[
-            { label: 'Score', value: `${summary.score100}/100` },
-            { label: "d'", value: summary.dPrime.toFixed(2) },
-            { label: 'Avg RT', value: summary.avgRt ? `${summary.avgRt} ms` : '--' },
-            { label: 'Hits', value: summary.hits },
-            { label: 'False alarms', value: summary.falseAlarms },
-            { label: 'Points', value: summary.points },
-            { label: 'Fatigue', value: summary.fatigueIndex },
-          ]}
-          footer={summary.message}
-        />
+        <>
+          <MetricsSummaryPanel
+            title={'O?U. O-U?O, OU,U+O?USO?Oc ?o.'}
+            subtitle={'USU.U?U+U? OU,O?U+ OU,OU+O?U,OU, U,U,OOrO?O"OO? OU,O?OU,US.'}
+            tone={summaryTone}
+            metrics={[
+              { label: 'Score', value: `${summary.score100}/100` },
+              { label: "d'", value: summary.dPrime.toFixed(2) },
+              { label: 'Avg RT', value: summary.avgRt ? `${summary.avgRt} ms` : '--' },
+              { label: 'Hits', value: summary.hits },
+              { label: 'False alarms', value: summary.falseAlarms },
+              { label: 'Points', value: summary.points },
+              { label: 'Fatigue', value: summary.fatigueIndex },
+            ]}
+            footer={summary.message}
+          />
+          <CTAResultPanel
+            title={(
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                {renderLabIcon('\u2705', { size: 16, tone: 'success' })}
+                <span>{isArabic ? 'تم حفظ النتيجة' : 'Result saved'}</span>
+              </span>
+            )}
+            description={isArabic ? 'يمكنك العودة للوحة أو بدء جلسة أخرى.' : 'You can return to the dashboard or start another session.'}
+            actions={onCancel ? (
+              <LabButton variant="ghost" onClick={onCancel}>
+                {isArabic ? 'إغلاق' : 'Close'}
+              </LabButton>
+            ) : undefined}
+          />
+        </>
       ) : null}
 
     </ModuleFrame>

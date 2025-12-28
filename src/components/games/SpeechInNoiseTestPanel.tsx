@@ -3,12 +3,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPurpleDark, styles } from '../../styles';
 import LabButton from '../labui/LabButton';
+import { renderLabIcon } from '../icons/index';
 import { ensureAudio, safeCloseAudio, setBabbleNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import type { GameResult, SpeechInNoiseMetrics, TestOutcome } from './types';
 import { calculateFatigueIndex } from './scoring';
 import { mean } from './stats';
 import {
   CalibrationStep,
+  CTAResultPanel,
   MetricsSummaryPanel,
   ModuleFrame,
   ModuleHeader,
@@ -444,17 +446,33 @@ export default function SpeechInNoiseTestPanel({
       ) : null}
 
       {stage === 'done' && summary ? (
-        <MetricsSummaryPanel
-          title={summary.message}
-          subtitle={summary.interpretation}
-          tone={summaryTone}
-          metrics={[
-            { label: t('speechInNoise.snrThreshold'), value: formatSnr(summary.snrThreshold) },
-            { label: t('speechInNoise.recognitionAccuracy'), value: `${summary.accuracy}%` },
-            { label: t('speechInNoise.noiseTolerance'), value: summary.noiseTolerance },
-          ]}
-          footer={t('clinical.screeningDisclaimer')}
-        />
+        <>
+          <MetricsSummaryPanel
+            title={summary.message}
+            subtitle={summary.interpretation}
+            tone={summaryTone}
+            metrics={[
+              { label: t('speechInNoise.snrThreshold'), value: formatSnr(summary.snrThreshold) },
+              { label: t('speechInNoise.recognitionAccuracy'), value: `${summary.accuracy}%` },
+              { label: t('speechInNoise.noiseTolerance'), value: summary.noiseTolerance },
+            ]}
+            footer={t('clinical.screeningDisclaimer')}
+          />
+          <CTAResultPanel
+            title={(
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                {renderLabIcon('\u2705', { size: 16, tone: 'success' })}
+                <span>{isArabic ? 'تم حفظ النتيجة' : 'Result saved'}</span>
+              </span>
+            )}
+            description={isArabic ? 'يمكنك العودة للوحة أو بدء جلسة أخرى.' : 'You can return to the dashboard or start another session.'}
+            actions={onCancel ? (
+              <LabButton variant="ghost" onClick={onCancel}>
+                {isArabic ? 'إغلاق' : 'Close'}
+              </LabButton>
+            ) : undefined}
+          />
+        </>
       ) : null}
     </ModuleFrame>
   );

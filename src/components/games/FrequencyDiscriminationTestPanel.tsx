@@ -3,12 +3,14 @@
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import LabButton from '../labui/LabButton';
+import { renderLabIcon } from '../icons/index';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import { mean, median, stdDev } from './stats';
 import type { GameResult, TestOutcome } from './types';
 import { FREQUENCY_POINTS, getStarRating, getStarEmoji } from './scoring';
 import {
   CalibrationStep,
+  CTAResultPanel,
   MetricsSummaryPanel,
   ModuleFrame,
   ModuleHeader,
@@ -393,18 +395,34 @@ export default function FrequencyDiscriminationTestPanel({
       ) : null}
 
       {stage === 'done' && summary ? (
-        <MetricsSummaryPanel
-          title={summary.message}
-          tone={summaryTone}
-          metrics={[
-            { label: 'Threshold', value: `${summary.thresholdHz} Hz` },
-            { label: 'Accuracy', value: `${summary.accuracy}%` },
-            { label: 'Points', value: summary.finalPoints },
-            { label: 'Consistency', value: summary.consistency },
-            { label: 'Avg RT', value: summary.avgRt ? `${summary.avgRt} ms` : '--' },
-          ]}
-          footer={t('clinical.screeningDisclaimer')}
-        />
+        <>
+          <MetricsSummaryPanel
+            title={summary.message}
+            tone={summaryTone}
+            metrics={[
+              { label: 'Threshold', value: `${summary.thresholdHz} Hz` },
+              { label: 'Accuracy', value: `${summary.accuracy}%` },
+              { label: 'Points', value: summary.finalPoints },
+              { label: 'Consistency', value: summary.consistency },
+              { label: 'Avg RT', value: summary.avgRt ? `${summary.avgRt} ms` : '--' },
+            ]}
+            footer={t('clinical.screeningDisclaimer')}
+          />
+          <CTAResultPanel
+            title={(
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                {renderLabIcon('\u2705', { size: 16, tone: 'success' })}
+                <span>{isArabic ? 'تم حفظ النتيجة' : 'Result saved'}</span>
+              </span>
+            )}
+            description={isArabic ? 'يمكنك العودة للوحة أو بدء جلسة أخرى.' : 'You can return to the dashboard or start another session.'}
+            actions={onCancel ? (
+              <LabButton variant="ghost" onClick={onCancel}>
+                {isArabic ? 'إغلاق' : 'Close'}
+              </LabButton>
+            ) : undefined}
+          />
+        </>
       ) : null}
     </ModuleFrame>
   );

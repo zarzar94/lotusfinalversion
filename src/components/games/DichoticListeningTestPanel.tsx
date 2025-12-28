@@ -3,10 +3,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPurpleDark, styles } from '../../styles';
 import LabButton from '../labui/LabButton';
+import { renderLabIcon } from '../icons/index';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import type { GameResult, TestOutcome } from './types';
 import {
   CalibrationStep,
+  CTAResultPanel,
   MetricsSummaryPanel,
   ModuleFrame,
   ModuleHeader,
@@ -424,18 +426,34 @@ export default function DichoticListeningTestPanel({
       ) : null}
 
       {stage === 'done' && summary ? (
-        <MetricsSummaryPanel
-          title={summary.message}
-          tone={summaryTone}
-          metrics={[
-            { label: t('dichotic.leftEarRecall'), value: `${summary.leftPct}%` },
-            { label: t('dichotic.rightEarRecall'), value: `${summary.rightPct}%` },
-            { label: t('dichotic.balanceIndex'), value: `${summary.balanceIndex}` },
-            { label: t('dichotic.separationAccuracy'), value: `${summary.separationPct}%` },
-            { label: t('dichotic.intrusions'), value: summary.intrusions },
-          ]}
-          footer={t('clinical.screeningDisclaimer')}
-        />
+        <>
+          <MetricsSummaryPanel
+            title={summary.message}
+            tone={summaryTone}
+            metrics={[
+              { label: t('dichotic.leftEarRecall'), value: `${summary.leftPct}%` },
+              { label: t('dichotic.rightEarRecall'), value: `${summary.rightPct}%` },
+              { label: t('dichotic.balanceIndex'), value: `${summary.balanceIndex}` },
+              { label: t('dichotic.separationAccuracy'), value: `${summary.separationPct}%` },
+              { label: t('dichotic.intrusions'), value: summary.intrusions },
+            ]}
+            footer={t('clinical.screeningDisclaimer')}
+          />
+          <CTAResultPanel
+            title={(
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                {renderLabIcon('\u2705', { size: 16, tone: 'success' })}
+                <span>{isArabic ? 'تم حفظ النتيجة' : 'Result saved'}</span>
+              </span>
+            )}
+            description={isArabic ? 'يمكنك العودة للوحة أو بدء جلسة أخرى.' : 'You can return to the dashboard or start another session.'}
+            actions={onCancel ? (
+              <LabButton variant="ghost" onClick={onCancel}>
+                {isArabic ? 'إغلاق' : 'Close'}
+              </LabButton>
+            ) : undefined}
+          />
+        </>
       ) : null}
     </ModuleFrame>
   );

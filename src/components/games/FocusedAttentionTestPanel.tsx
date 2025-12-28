@@ -3,12 +3,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, styles } from '../../styles';
 import LabButton from '../labui/LabButton';
+import { renderLabIcon } from '../icons/index';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import { mean, stdDev } from './stats';
 import type { GameResult, TestOutcome } from './types';
 import { calculateFatigueIndex, getStarEmoji, getStarRating } from './scoring';
 import {
   CalibrationStep,
+  CTAResultPanel,
   MetricsSummaryPanel,
   ModuleFrame,
   ModuleHeader,
@@ -437,18 +439,34 @@ export default function FocusedAttentionTestPanel({
       ) : null}
 
       {stage === 'done' && summary ? (
-        <MetricsSummaryPanel
-          title={summary.message}
-          tone={summaryTone}
-          metrics={[
-            { label: t('attention.performance'), value: `${summary.score100}/100` },
-            { label: t('attention.consistency'), value: `${summary.consistency}/100` },
-            { label: t('attention.lapses'), value: summary.lapses },
-            { label: t('attention.avgReaction'), value: summary.avgRt ? `${summary.avgRt} ms` : '--' },
-            { label: t('attention.fatigueSlope'), value: `${summary.fatigueSlope}%` },
-          ]}
-          footer={t('clinical.screeningDisclaimer')}
-        />
+        <>
+          <MetricsSummaryPanel
+            title={summary.message}
+            tone={summaryTone}
+            metrics={[
+              { label: t('attention.performance'), value: `${summary.score100}/100` },
+              { label: t('attention.consistency'), value: `${summary.consistency}/100` },
+              { label: t('attention.lapses'), value: summary.lapses },
+              { label: t('attention.avgReaction'), value: summary.avgRt ? `${summary.avgRt} ms` : '--' },
+              { label: t('attention.fatigueSlope'), value: `${summary.fatigueSlope}%` },
+            ]}
+            footer={t('clinical.screeningDisclaimer')}
+          />
+          <CTAResultPanel
+            title={(
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                {renderLabIcon('\u2705', { size: 16, tone: 'success' })}
+                <span>{isArabic ? 'تم حفظ النتيجة' : 'Result saved'}</span>
+              </span>
+            )}
+            description={isArabic ? 'يمكنك العودة للوحة أو بدء جلسة أخرى.' : 'You can return to the dashboard or start another session.'}
+            actions={onCancel ? (
+              <LabButton variant="ghost" onClick={onCancel}>
+                {isArabic ? 'إغلاق' : 'Close'}
+              </LabButton>
+            ) : undefined}
+          />
+        </>
       ) : null}
     </ModuleFrame>
   );
