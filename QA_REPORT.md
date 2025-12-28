@@ -5,11 +5,14 @@
 - `VITE_E2E=true npm run test:e2e -- --project=chromium --grep "Seeded dashboard smoke"` - PASS (4 tests, re-run) - seeded auth, dashboards, analytics calls, and resources download.
 - `VITE_E2E=true npm run test:e2e` - PASS (125 tests, 20 skipped) - full Playwright matrix across Chromium, Firefox, WebKit, and mobile projects.
 - Seeded API smoke (auth + analytics endpoints) - PASS - `/api/sessions/analysis/children`, `/api/sessions/analysis/patients`, `/api/sessions/analysis/progress`, `/api/sessions/analysis/school`.
+- `npm run typecheck` - PASS.
+- `npm run build` - PASS.
 
 ## Recommended manual checks
 - Slides: open `#pptx`; confirm thumbnails load, modal opens, arrow keys/PageUp/PageDown navigate, Esc closes, and "Slides Summary PDF" downloads.
 - Checklist: select a few items, ensure counts and recommendation update, "Official PDF" link works, "Your selections" PDF exports with Arabic text rendered.
 - Screening Lab: run each test (attention Go/No-Go, frequency 2IFC, sequencing demo, questionnaire) and the multi-test suite; confirm CSV/PDF exports download and include metrics; headphone check behaves as expected.
+- CTA panels: finish Attention, Focused Attention, Frequency, Dichotic, Speech-in-Noise, Questionnaire, Sequencing and confirm the "Result saved" card shows, Close is present when available, and the summary layout is intact.
 - Contact/WhatsApp: contact form validates phone, sends to WhatsApp with prefilled message; floating WhatsApp FAB opens chat; optional email/social links open correctly.
 - Layout/RTL: header links scroll to anchors, mobile menu behaves, inputs needing LTR (phone) stay LTR, general responsiveness on phone and desktop.
 
