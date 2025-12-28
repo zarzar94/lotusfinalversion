@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import LabButton from '../labui/LabButton';
 import { renderLabIcon } from '../icons/index';
+import HeadphoneCheckPanel, { type HeadphoneCheckResult } from './HeadphoneCheckPanel';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import { mean, median, stdDev } from './stats';
 import type { GameResult, TestOutcome } from './types';
@@ -63,6 +64,9 @@ export default function FrequencyDiscriminationTestPanel({
     avgRt: number;
     message: string;
   } | null>(null);
+  const [deviceCheckOpen, setDeviceCheckOpen] = useState(false);
+  const [deviceCheckResult, setDeviceCheckResult] = useState<HeadphoneCheckResult | null>(null);
+  const [deviceCheckSkipped, setDeviceCheckSkipped] = useState(false);
 
   const deltasRef = useRef<number[]>([]);
   const rowsRef = useRef<TrialRow[]>([]);
@@ -250,6 +254,32 @@ export default function FrequencyDiscriminationTestPanel({
         ? 'warning'
         : 'error'
     : 'neutral';
+  const deviceCheckLabel = isArabic ? 'فحص السماعات' : 'Device check';
+  const deviceCheckHint = deviceCheckResult
+    ? deviceCheckResult.supported
+      ? deviceCheckResult.passed
+        ? (isArabic ? 'تم فحص السماعات بنجاح.' : 'Headphone check complete.')
+        : (isArabic ? 'لم يجتز الفحص — تأكد من مستوى الصوت قبل البدء.' : 'Headphone check failed — confirm volume before starting.')
+      : (isArabic ? 'المتصفح لا يدعم اختبار الاستريو.' : 'Stereo check not supported in this browser.')
+    : deviceCheckSkipped
+      ? (isArabic ? 'تم تجاوز فحص السماعات.' : 'Headphone check skipped.')
+      : (isArabic ? 'يوصى بفحص السماعات وضبط مستوى الصوت قبل البدء.' : 'Run a device check to confirm headphones and volume.');
+
+  if (deviceCheckOpen) {
+    return (
+      <HeadphoneCheckPanel
+        onDone={(result) => {
+          setDeviceCheckResult(result);
+          setDeviceCheckSkipped(false);
+          setDeviceCheckOpen(false);
+        }}
+        onSkip={() => {
+          setDeviceCheckSkipped(true);
+          setDeviceCheckOpen(false);
+        }}
+      />
+    );
+  }
 
   return (
     <ModuleFrame>
@@ -262,7 +292,7 @@ export default function FrequencyDiscriminationTestPanel({
       />
 
       {stage === 'intro' ? (
-        <CalibrationStep title={t('auto.FrequencyDiscriminationTestPanel.k1', 'Instructions')}>
+        <CalibrationStep title={t('auto.FrequencyDiscriminationTestPanel.k1', 'Instructions')} hint={deviceCheckHint}>
           <p style={styles.bodyText}>
             ╪│╪¬╪│┘à╪╣ ┘å╪║┘à╪¬┘è┘å (╪º┘ä╪ú┘ê┘ä┘ë ╪½┘à ╪º┘ä╪½╪º┘å┘è╪⌐). ╪º╪«╪¬╪▒ ╪ú┘è┘ç┘à╪º ╪ú╪╣┘ä┘ë ╪¬╪▒╪»╪»┘ï╪º. ╪│┘è╪╢╪¿╪╖ ╪º┘ä┘å╪╕╪º┘à ╪º┘ä╪╡╪╣┘ê╪¿╪⌐ ╪¬┘ä┘é╪º╪ª┘è┘ï╪º ┘ä┘è┘é╪»┘æ╪▒
             <b style={{ color: brandPink }}> ╪ú╪╡╪║╪▒ ┘ü╪▒┘é ┘è┘à┘â┘å ╪¬┘à┘è┘è╪▓┘ç</b> ╪╢┘à┘å ┘ç╪░╪º ╪º┘ä┘ü╪¡╪╡.
@@ -286,6 +316,9 @@ export default function FrequencyDiscriminationTestPanel({
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, gap: 10, flexWrap: 'wrap' }}>
+            <LabButton variant="ghost" onClick={() => setDeviceCheckOpen(true)}>
+              {deviceCheckLabel}
+            </LabButton>
             <LabButton
               onClick={() => {
                 rowsRef.current = [];

@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPurpleDark, styles } from '../../styles';
 import LabButton from '../labui/LabButton';
 import { renderLabIcon } from '../icons/index';
+import HeadphoneCheckPanel, { type HeadphoneCheckResult } from './HeadphoneCheckPanel';
 import { ensureAudio, safeCloseAudio, setBabbleNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import type { GameResult, SpeechInNoiseMetrics, TestOutcome } from './types';
 import { calculateFatigueIndex } from './scoring';
@@ -128,6 +129,9 @@ export default function SpeechInNoiseTestPanel({
     message: string;
     interpretation: string;
   } | null>(null);
+  const [deviceCheckOpen, setDeviceCheckOpen] = useState(false);
+  const [deviceCheckResult, setDeviceCheckResult] = useState<HeadphoneCheckResult | null>(null);
+  const [deviceCheckSkipped, setDeviceCheckSkipped] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -360,6 +364,32 @@ export default function SpeechInNoiseTestPanel({
         ? 'warning'
         : 'error'
     : 'neutral';
+  const deviceCheckLabel = isArabic ? 'فحص السماعات' : 'Device check';
+  const deviceCheckHint = deviceCheckResult
+    ? deviceCheckResult.supported
+      ? deviceCheckResult.passed
+        ? (isArabic ? 'تم فحص السماعات بنجاح.' : 'Headphone check complete.')
+        : (isArabic ? 'لم يجتز الفحص — تأكد من مستوى الصوت قبل البدء.' : 'Headphone check failed — confirm volume before starting.')
+      : (isArabic ? 'المتصفح لا يدعم اختبار الاستريو.' : 'Stereo check not supported in this browser.')
+    : deviceCheckSkipped
+      ? (isArabic ? 'تم تجاوز فحص السماعات.' : 'Headphone check skipped.')
+      : (isArabic ? 'يوصى بفحص السماعات وضبط مستوى الصوت قبل البدء.' : 'Run a device check to confirm headphones and volume.');
+
+  if (deviceCheckOpen) {
+    return (
+      <HeadphoneCheckPanel
+        onDone={(result) => {
+          setDeviceCheckResult(result);
+          setDeviceCheckSkipped(false);
+          setDeviceCheckOpen(false);
+        }}
+        onSkip={() => {
+          setDeviceCheckSkipped(true);
+          setDeviceCheckOpen(false);
+        }}
+      />
+    );
+  }
 
   return (
     <ModuleFrame>
@@ -375,8 +405,12 @@ export default function SpeechInNoiseTestPanel({
         <CalibrationStep
           title={t('auto.SpeechInNoiseTestPanel.k4', "Instructions")}
           description={t('auto.SpeechInNoiseTestPanel.k5', "You will hear a sentence with background noise. Select the correct words after listening.")}
+          hint={deviceCheckHint}
           actions={(
             <>
+              <LabButton variant="ghost" onClick={() => setDeviceCheckOpen(true)}>
+                {deviceCheckLabel}
+              </LabButton>
               <LabButton onClick={startPractice}>
                 {t('auto.SpeechInNoiseTestPanel.k6', "Start Practice")}
               </LabButton>

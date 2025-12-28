@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from '../styles';
 import LabButton from '../labui/LabButton';
 import { renderLabIcon } from '../icons/index';
+import HeadphoneCheckPanel, { type HeadphoneCheckResult } from './HeadphoneCheckPanel';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../../utils/pdf';
 import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import { mean } from './stats';
@@ -88,6 +89,9 @@ export default function SequencingTestPanel({
     maxNoise: string;
     message: string;
   } | null>(null);
+  const [deviceCheckOpen, setDeviceCheckOpen] = useState(false);
+  const [deviceCheckResult, setDeviceCheckResult] = useState<HeadphoneCheckResult | null>(null);
+  const [deviceCheckSkipped, setDeviceCheckSkipped] = useState(false);
 
   const rowsRef = useRef<RoundRow[]>([]);
   const clickTimesRef = useRef<number[]>([]);
@@ -379,6 +383,32 @@ export default function SequencingTestPanel({
         ? 'warning'
         : 'error'
     : 'neutral';
+  const deviceCheckLabel = isArabic ? 'فحص السماعات' : 'Device check';
+  const deviceCheckHint = deviceCheckResult
+    ? deviceCheckResult.supported
+      ? deviceCheckResult.passed
+        ? (isArabic ? 'تم فحص السماعات بنجاح.' : 'Headphone check complete.')
+        : (isArabic ? 'لم يجتز الفحص — تأكد من مستوى الصوت قبل البدء.' : 'Headphone check failed — confirm volume before starting.')
+      : (isArabic ? 'المتصفح لا يدعم اختبار الاستريو.' : 'Stereo check not supported in this browser.')
+    : deviceCheckSkipped
+      ? (isArabic ? 'تم تجاوز فحص السماعات.' : 'Headphone check skipped.')
+      : (isArabic ? 'يوصى بفحص السماعات وضبط مستوى الصوت قبل البدء.' : 'Run a device check to confirm headphones and volume.');
+
+  if (deviceCheckOpen) {
+    return (
+      <HeadphoneCheckPanel
+        onDone={(result) => {
+          setDeviceCheckResult(result);
+          setDeviceCheckSkipped(false);
+          setDeviceCheckOpen(false);
+        }}
+        onSkip={() => {
+          setDeviceCheckSkipped(true);
+          setDeviceCheckOpen(false);
+        }}
+      />
+    );
+  }
 
   return (
     <ModuleFrame>
@@ -391,7 +421,8 @@ export default function SequencingTestPanel({
       />
 
       {stage === 'intro' ? (
-        <CalibrationStep title={isArabic ? 'موضوعي • عرض مدرسي' : 'Objective • School Demo'}>
+        <CalibrationStep title={isArabic ? 'موضوعي • عرض مدرسي' : 'Objective • School Demo'}
+          hint={deviceCheckHint}>
           <p style={styles.bodyText}>
             ستسمع سلسلة من النغمات (تمثل أوامر/أشكال). بعد ذلك اضغط الأشكال <b style={{ color: brandPink }}>بالترتيب نفسه</b>. سيزداد طول السلسلة تدريجياً.
           </p>
@@ -409,6 +440,9 @@ export default function SequencingTestPanel({
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, gap: 10, flexWrap: 'wrap' }}>
+            <LabButton variant="ghost" onClick={() => setDeviceCheckOpen(true)}>
+              {deviceCheckLabel}
+            </LabButton>
             <LabButton onClick={begin}>
               ابدأ الاختبار
             </LabButton>

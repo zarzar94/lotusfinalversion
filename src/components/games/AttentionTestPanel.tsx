@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import LabButton from '../labui/LabButton';
 import { renderLabIcon } from '../icons/index';
+import HeadphoneCheckPanel, { type HeadphoneCheckResult } from './HeadphoneCheckPanel';
 import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import { clamp01, dPrime, mean } from './stats';
 import type { GameResult, TestOutcome } from './types';
@@ -106,6 +107,9 @@ export default function AttentionTestPanel({
   const [combo, setCombo] = useState<ComboState>(createComboState);
   const [feedback, setFeedback] = useState<FeedbackType>(null);
   const [lastPointChange, setLastPointChange] = useState(0);
+  const [deviceCheckOpen, setDeviceCheckOpen] = useState(false);
+  const [deviceCheckResult, setDeviceCheckResult] = useState<HeadphoneCheckResult | null>(null);
+  const [deviceCheckSkipped, setDeviceCheckSkipped] = useState(false);
 
   const trialsRef = useRef<Trial[]>([]);
   const currentRef = useRef<{ idx: number; onset: number } | null>(null);
@@ -410,6 +414,32 @@ export default function AttentionTestPanel({
         ? 'warning'
         : 'error'
     : 'neutral';
+  const deviceCheckLabel = isArabic ? 'فحص السماعات' : 'Device check';
+  const deviceCheckHint = deviceCheckResult
+    ? deviceCheckResult.supported
+      ? deviceCheckResult.passed
+        ? (isArabic ? 'تم فحص السماعات بنجاح.' : 'Headphone check complete.')
+        : (isArabic ? 'لم يجتز الفحص — تأكد من مستوى الصوت قبل البدء.' : 'Headphone check failed — confirm volume before starting.')
+      : (isArabic ? 'المتصفح لا يدعم اختبار الاستريو.' : 'Stereo check not supported in this browser.')
+    : deviceCheckSkipped
+      ? (isArabic ? 'تم تجاوز فحص السماعات.' : 'Headphone check skipped.')
+      : (isArabic ? 'يوصى بفحص السماعات وضبط مستوى الصوت قبل البدء.' : 'Run a device check to confirm headphones and volume.');
+
+  if (deviceCheckOpen) {
+    return (
+      <HeadphoneCheckPanel
+        onDone={(result) => {
+          setDeviceCheckResult(result);
+          setDeviceCheckSkipped(false);
+          setDeviceCheckOpen(false);
+        }}
+        onSkip={() => {
+          setDeviceCheckSkipped(true);
+          setDeviceCheckOpen(false);
+        }}
+      />
+    );
+  }
 
   return (
     <ModuleFrame>
@@ -423,7 +453,7 @@ export default function AttentionTestPanel({
 
       
       {stage === 'intro' ? (
-        <CalibrationStep title={objectiveLabel}>
+        <CalibrationStep title={objectiveLabel} hint={deviceCheckHint}>
           <p style={styles.bodyText}>
             O3O?O3U.O1 O3U,O3U,Oc U.U+ OU,U+O?U.OO?. <b>OOO?O? O?O? OU,OO3O?O?OO"Oc U?U,O?</b> O1U+O_U.O O?O3U.O1 <b style={{ color: brandPink }}>OU,U+O?U.Oc OU,O1OU,USOc O?O_OU&lt;</b>.
             O3O?O?O_OO_ OU,OU^OOO? O?O_O?USO?USOU&lt;.
@@ -454,6 +484,9 @@ export default function AttentionTestPanel({
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, gap: 10, flexWrap: 'wrap' }}>
+            <LabButton variant="ghost" onClick={() => setDeviceCheckOpen(true)}>
+              {deviceCheckLabel}
+            </LabButton>
             <LabButton variant="ghost" onClick={() => setStage('practice')}>
               O?O_O?USO" O3O?USO1
             </LabButton>

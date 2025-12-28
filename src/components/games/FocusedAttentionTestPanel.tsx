@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { brandCyan, styles } from '../../styles';
 import LabButton from '../labui/LabButton';
 import { renderLabIcon } from '../icons/index';
+import HeadphoneCheckPanel, { type HeadphoneCheckResult } from './HeadphoneCheckPanel';
 import { ensureAudio, playTone, safeCloseAudio } from './audio';
 import { mean, stdDev } from './stats';
 import type { GameResult, TestOutcome } from './types';
@@ -98,6 +99,9 @@ export default function FocusedAttentionTestPanel({
     fatigueSlope: number;
     message: string;
   } | null>(null);
+  const [deviceCheckOpen, setDeviceCheckOpen] = useState(false);
+  const [deviceCheckResult, setDeviceCheckResult] = useState<HeadphoneCheckResult | null>(null);
+  const [deviceCheckSkipped, setDeviceCheckSkipped] = useState(false);
 
   const trialsRef = useRef<Trial[]>([]);
   const practiceRef = useRef<Trial[]>([]);
@@ -345,6 +349,32 @@ export default function FocusedAttentionTestPanel({
         ? 'warning'
         : 'error'
     : 'neutral';
+  const deviceCheckLabel = isArabic ? 'فحص السماعات' : 'Device check';
+  const deviceCheckHint = deviceCheckResult
+    ? deviceCheckResult.supported
+      ? deviceCheckResult.passed
+        ? (isArabic ? 'تم فحص السماعات بنجاح.' : 'Headphone check complete.')
+        : (isArabic ? 'لم يجتز الفحص — تأكد من مستوى الصوت قبل البدء.' : 'Headphone check failed — confirm volume before starting.')
+      : (isArabic ? 'المتصفح لا يدعم اختبار الاستريو.' : 'Stereo check not supported in this browser.')
+    : deviceCheckSkipped
+      ? (isArabic ? 'تم تجاوز فحص السماعات.' : 'Headphone check skipped.')
+      : (isArabic ? 'يوصى بفحص السماعات وضبط مستوى الصوت قبل البدء.' : 'Run a device check to confirm headphones and volume.');
+
+  if (deviceCheckOpen) {
+    return (
+      <HeadphoneCheckPanel
+        onDone={(result) => {
+          setDeviceCheckResult(result);
+          setDeviceCheckSkipped(false);
+          setDeviceCheckOpen(false);
+        }}
+        onSkip={() => {
+          setDeviceCheckSkipped(true);
+          setDeviceCheckOpen(false);
+        }}
+      />
+    );
+  }
 
   return (
     <ModuleFrame>
@@ -360,6 +390,7 @@ export default function FocusedAttentionTestPanel({
         <CalibrationStep
           title={t('auto.FocusedAttentionTestPanel.k11', "Instructions")}
           description={introInstruction}
+          hint={isAudioMode ? deviceCheckHint : undefined}
         >
             {isAudioMode ? (
               <div style={{ marginTop: 12 }}>
@@ -387,6 +418,11 @@ export default function FocusedAttentionTestPanel({
               </div>
             )}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
+              {isAudioMode ? (
+                <LabButton variant="ghost" onClick={() => setDeviceCheckOpen(true)}>
+                  {deviceCheckLabel}
+                </LabButton>
+              ) : null}
               <LabButton onClick={startPractice}>
                 {t('auto.FocusedAttentionTestPanel.k16', "Start Practice")}
               </LabButton>
