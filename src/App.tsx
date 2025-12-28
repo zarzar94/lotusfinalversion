@@ -1,12 +1,12 @@
 import { lazy, Suspense, memo, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import ErrorBoundary from './components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
 import { GamificationProvider } from './context/GamificationContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { SyncProvider } from './context/SyncContext';
-import { UserProvider, useUser } from './context/UserContext';
+import { UserProvider } from './context/UserContext';
 import { VisitorModeProvider } from './context/VisitorModeContext';
 import AchievementToast from './components/AchievementToast';
 import ProgressDashboard from './components/ProgressDashboard';
@@ -457,41 +457,6 @@ const ClinicalSync = memo(() => {
 });
 ClinicalSync.displayName = 'ClinicalSync';
 
-const E2EGlobalBanner = memo(() => {
-  const { isAuthenticated, isLoading, user } = useUser();
-  const location = useLocation();
-  const isE2E = import.meta.env.VITE_E2E === 'true';
-
-  if (!isE2E) return null;
-
-  return (
-    <div
-      data-e2e-app-auth={String(isAuthenticated)}
-      data-e2e-app-role={user?.role ?? 'guest'}
-      data-e2e-app-loading={String(isLoading)}
-      style={{
-        position: 'fixed',
-        top: 16,
-        right: 16,
-        zIndex: 1200,
-        padding: '8px 10px',
-        background: 'rgba(0,0,0,0.75)',
-        border: '1px solid rgba(255,255,255,0.15)',
-        borderRadius: 8,
-        color: '#fff',
-        fontSize: 11,
-        lineHeight: 1.4,
-        pointerEvents: 'none',
-        maxWidth: 260,
-      }}
-    >
-      <div>auth: {String(isAuthenticated)} role: {user?.role ?? 'guest'}</div>
-      <div>loading: {String(isLoading)}</div>
-      <div>path: {location.pathname}</div>
-    </div>
-  );
-});
-E2EGlobalBanner.displayName = 'E2EGlobalBanner';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // MAIN APP
@@ -546,7 +511,6 @@ function App() {
               <SyncProvider>
                 <GamificationProvider>
                   <ClinicalSync />
-                  <E2EGlobalBanner />
 
                   <div className="page-transition-wrapper">
                     <Routes>
