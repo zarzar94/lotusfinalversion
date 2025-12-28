@@ -106,6 +106,80 @@ export const moduleGradients = {
   questionnaire: `linear-gradient(135deg, ${brandPink}, #9D174D)`,
 };
 
+export const devicePalette = {
+  black: '#000000',
+  cameraGradient: 'radial-gradient(circle at 30% 30%, #2a2a3a, #0a0a12)',
+  cameraBorder: '#1a1a2a',
+  frameBorder: '#2c2c2e',
+  frameOutline: '#1a1a1a',
+  frameGradient: 'linear-gradient(180deg, #1c1c1e 0%, #000000 100%)',
+  screenGradientSubmitted: `linear-gradient(180deg, ${brandPurpleDark} 0%, #1a1a2e 50%, #0a0a14 100%)`,
+  screenGradientDefault: 'linear-gradient(180deg, #2d2d35 0%, #1c1c1e 30%, #0a0a0e 100%)',
+  screenTopFade: 'linear-gradient(180deg, rgba(28,28,30,1) 0%, transparent 100%)',
+  screenBottomFade: 'linear-gradient(180deg, transparent 0%, rgba(10,10,14,0.95) 20%)',
+  instagramGradient: 'linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+};
+
+export const intakePalette = {
+  ink: '#3a3020',
+  inkMuted: '#5a4a3a',
+  inkSoft: '#7a6a5a',
+  inkFaint: '#8a7a6a',
+  inkDisabled: '#a09080',
+  border: '#c4b8a8',
+  borderStrong: '#d4c8b8',
+  borderMuted: '#9a8a7a',
+  line: '#e8e0d8',
+  paper: '#faf8f5',
+  paperTop: '#fefcf9',
+  paperBottom: '#f8f4ee',
+  paperWarm: '#faf5f0',
+  paperTan: '#f5f0ea',
+  paperMint: '#f8faf9',
+  paperRose: '#faf5f8',
+  paperCool: '#f5fafa',
+  paperLavender: '#faf5fa',
+  clipboardStart: '#b89c72',
+  clipboardMid: '#9a8060',
+  clipboardEnd: '#8a7050',
+  clipMetalStart: '#e0e0e0',
+  clipMetalMid: '#a0a0a0',
+  clipMetalEnd: '#c0c0c0',
+  clipInnerStart: '#c8c8c8',
+  clipInnerEnd: '#888888',
+  clipArmStart: '#b0b0b0',
+  clipArmEnd: '#909090',
+  sectionFatherBorder: '#c4d8d4',
+  sectionFatherInk: '#3a5a4a',
+  sectionMotherBorder: '#d8c4c8',
+  sectionMotherInk: '#5a3a4a',
+  sectionHearingBorder: '#b8d4d4',
+  sectionHearingInk: '#3a5a5a',
+  sectionBehaviorBorder: '#d4b8d4',
+  sectionBehaviorInk: '#5a3a5a',
+  successDeep: '#16a34a',
+  white: '#ffffff',
+};
+
+export const brainRegionColors = {
+  auditory: '#FF6B35',
+  language: '#00A8CC',
+  music: '#C41E3A',
+  attention: '#1E40AF',
+  sensory: '#166534',
+  balance: '#15803D',
+  memory: '#EA580C',
+  learning: '#1E3A5F',
+  behavior: '#9333EA',
+  wellbeing: '#2563EB',
+};
+
+export const brain3dPalette = {
+  surface: '#e8b4bc',
+  highlight: '#ffffff',
+  labelText: '#1a1a2e',
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPOGRAPHY SCALE
 // Based on 1.25 ratio (Major Third) with 16px base

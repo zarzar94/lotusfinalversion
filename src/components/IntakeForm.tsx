@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, memo } from 'react';
-import { styles, brandCyan, brandPink, brandPurple, colors } from './styles';
+import { styles, brandCyan, brandPink, brandPurple, colors, intakePalette } from './styles';
 import { BrainIcon, UserIcon, HeartIcon, ChartIcon, CheckCircleIcon, ClipboardIcon } from './Icons';
 import { renderLabIcon } from './icons/index';
 import { useLanguage } from '../context/LanguageContext';
@@ -58,10 +58,10 @@ interface ProgressTracking {
 }
 
 const STEPS = [
-  { id: 1, titleAr: 'البيانات الشخصية', titleEn: 'Personal Details', icon: <UserIcon size={16} color="#5a4a3a" /> },
-  { id: 2, titleAr: 'ولي الأمر', titleEn: 'Parent/Guardian', icon: <HeartIcon size={16} color="#5a4a3a" /> },
-  { id: 3, titleAr: 'التاريخ الطبي', titleEn: 'Medical History', icon: <ClipboardIcon size={16} color="#5a4a3a" /> },
-  { id: 4, titleAr: 'متابعة التقدم', titleEn: 'Progress Tracking', icon: <ChartIcon size={16} color="#5a4a3a" /> },
+  { id: 1, titleAr: 'البيانات الشخصية', titleEn: 'Personal Details', icon: <UserIcon size={16} color={intakePalette.inkMuted} /> },
+  { id: 2, titleAr: 'ولي الأمر', titleEn: 'Parent/Guardian', icon: <HeartIcon size={16} color={intakePalette.inkMuted} /> },
+  { id: 3, titleAr: 'التاريخ الطبي', titleEn: 'Medical History', icon: <ClipboardIcon size={16} color={intakePalette.inkMuted} /> },
+  { id: 4, titleAr: 'متابعة التقدم', titleEn: 'Progress Tracking', icon: <ChartIcon size={16} color={intakePalette.inkMuted} /> },
 ];
 
 // Notepad styled input
@@ -69,9 +69,9 @@ const notepadInputStyle: React.CSSProperties = {
   width: '100%',
   padding: '10px 12px',
   borderRadius: 4,
-  border: '1px solid #c4b8a8',
+  border: `1px solid ${intakePalette.border}`,
   background: 'rgba(255,255,255,0.9)',
-  color: '#3a3020',
+  color: intakePalette.ink,
   fontSize: 14,
   fontFamily: "'Cairo', serif",
   outline: 'none',
@@ -85,10 +85,10 @@ const NotepadField = memo(({ label, required, children }: { label: string; requi
       marginBottom: 6,
       fontSize: 13,
       fontWeight: 700,
-      color: '#5a4a3a',
+      color: intakePalette.inkMuted,
     }}>
       {label}
-      {required && <span style={{ color: '#b01270', marginRight: 4 }}>*</span>}
+      {required && <span style={{ color: brandPink, marginRight: 4 }}>*</span>}
     </label>
     {children}
   </div>
@@ -113,23 +113,23 @@ const NotepadRadio = memo(({ options, value, onChange, name }: {
           padding: '8px 14px',
           borderRadius: 4,
           background: value === opt.value ? 'rgba(143,211,204,0.2)' : 'rgba(255,255,255,0.6)',
-          border: `1px solid ${value === opt.value ? brandCyan : '#c4b8a8'}`,
+          border: `1px solid ${value === opt.value ? brandCyan : intakePalette.border}`,
           cursor: 'pointer',
           fontSize: 13,
-          color: '#3a3020',
+          color: intakePalette.ink,
         }}
       >
         <div style={{
           width: 14,
           height: 14,
           borderRadius: '50%',
-          border: `2px solid ${value === opt.value ? brandCyan : '#9a8a7a'}`,
+          border: `2px solid ${value === opt.value ? brandCyan : intakePalette.borderMuted}`,
           background: value === opt.value ? brandCyan : 'transparent',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-          {value === opt.value && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff' }} />}
+          {value === opt.value && <div style={{ width: 6, height: 6, borderRadius: '50%', background: intakePalette.white }} />}
         </div>
         <input
           type="radio"
@@ -160,14 +160,14 @@ const ImprovementSelector = memo(({ value, onChange, label }: {
       justifyContent: 'space-between',
       alignItems: 'center',
       padding: '10px 0',
-      borderBottom: '1px dashed #d4c8b8',
+      borderBottom: `1px dashed ${intakePalette.borderStrong}`,
     }}>
-      <span style={{ fontSize: 13, color: '#5a4a3a' }}>{label}</span>
+      <span style={{ fontSize: 13, color: intakePalette.inkMuted }}>{label}</span>
       <div style={{ display: 'flex', gap: 6 }}>
         {[
           { v: 'clear' as ImprovementLevel, l: isArabic ? 'واضح' : 'Clear', c: colors.success },
           { v: 'slight' as ImprovementLevel, l: isArabic ? 'بسيط' : 'Slight', c: brandCyan },
-          { v: 'none' as ImprovementLevel, l: isArabic ? 'لا' : 'No', c: '#9a8a7a' },
+          { v: 'none' as ImprovementLevel, l: isArabic ? 'لا' : 'No', c: intakePalette.borderMuted },
         ].map((opt) => (
           <button
             key={opt.v}
@@ -176,9 +176,9 @@ const ImprovementSelector = memo(({ value, onChange, label }: {
             style={{
               padding: '4px 10px',
               borderRadius: 4,
-              border: `1px solid ${value === opt.v ? opt.c : '#c4b8a8'}`,
+              border: `1px solid ${value === opt.v ? opt.c : intakePalette.border}`,
               background: value === opt.v ? `${opt.c}15` : 'transparent',
-              color: value === opt.v ? opt.c : '#7a6a5a',
+              color: value === opt.v ? opt.c : intakePalette.inkSoft,
               fontSize: 11,
               cursor: 'pointer',
               fontWeight: value === opt.v ? 700 : 400,
@@ -327,14 +327,14 @@ I would like to book an assessment appointment
                   flex: 1,
                   padding: '16px',
                   borderRadius: 6,
-                  background: isChild === opt.val ? 'rgba(143,211,204,0.15)' : '#faf8f5',
-                  border: `2px solid ${isChild === opt.val ? brandCyan : '#d4c8b8'}`,
+                  background: isChild === opt.val ? 'rgba(143,211,204,0.15)' : intakePalette.paper,
+                  border: `2px solid ${isChild === opt.val ? brandCyan : intakePalette.borderStrong}`,
                   cursor: 'pointer',
                   textAlign: 'center',
                 }}>
                   <input type="radio" checked={isChild === opt.val} onChange={() => setIsChild(opt.val)} style={{ display: 'none' }} />
-                  <div style={{ fontWeight: 700, fontSize: 16, color: '#3a3020' }}>{opt.label}</div>
-                  <div style={{ fontSize: 11, color: '#7a6a5a' }}>{opt.desc}</div>
+                  <div style={{ fontWeight: 700, fontSize: 16, color: intakePalette.ink }}>{opt.label}</div>
+                  <div style={{ fontSize: 11, color: intakePalette.inkSoft }}>{opt.desc}</div>
                 </label>
               ))}
             </div>
@@ -372,7 +372,7 @@ I would like to book an assessment appointment
             </div>
 
             {/* Previous AIT */}
-            <div style={{ marginTop: 24, padding: 16, background: '#faf5f0', borderRadius: 6, border: '1px solid #d4c8b8' }}>
+            <div style={{ marginTop: 24, padding: 16, background: intakePalette.paperWarm, borderRadius: 6, border: `1px solid ${intakePalette.borderStrong}` }}>
               <NotepadField label={isArabic ? 'هل سبق أن خضعت لجلسات AIT؟' : 'Have you previously done AIT sessions?'}>
                 <NotepadRadio name="prevAIT" options={[{ value: 'yes', label: isArabic ? 'نعم' : 'Yes' }, { value: 'no', label: isArabic ? 'لا' : 'No' }]}
                   value={hadPreviousAIT} onChange={(v) => { setHadPreviousAIT(v); setIsReturningClient(v === 'yes'); }} />
@@ -386,8 +386,8 @@ I would like to book an assessment appointment
         return (
           <div>
             {/* Father */}
-            <div style={{ padding: 20, background: '#f8faf9', borderRadius: 6, marginBottom: 20, border: '1px solid #c4d8d4' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#3a5a4a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ padding: 20, background: intakePalette.paperMint, borderRadius: 6, marginBottom: 20, border: `1px solid ${intakePalette.sectionFatherBorder}` }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: intakePalette.sectionFatherInk, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                   {renderLabIcon('\u{1F468}', { size: 16, tone: 'muted' })}
                   <span>{isArabic ? '?????? ????' : 'Father Details'}</span>
@@ -409,8 +409,8 @@ I would like to book an assessment appointment
             </div>
 
             {/* Mother */}
-            <div style={{ padding: 20, background: '#faf5f8', borderRadius: 6, border: '1px solid #d8c4c8' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#5a3a4a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ padding: 20, background: intakePalette.paperRose, borderRadius: 6, border: `1px solid ${intakePalette.sectionMotherBorder}` }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: intakePalette.sectionMotherInk, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                   {renderLabIcon('\u{1F469}', { size: 16, tone: 'muted' })}
                   <span>{isArabic ? '?????? ????' : 'Mother Details'}</span>
@@ -437,9 +437,9 @@ I would like to book an assessment appointment
         return (
           <div>
             {/* Hearing */}
-            <div style={{ padding: 20, background: '#f5fafa', borderRadius: 6, marginBottom: 20, border: '1px solid #b8d4d4' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#3a5a5a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <BrainIcon size={18} color="#3a5a5a" /> {isArabic ? 'السمع والمعالجة' : 'Hearing & Processing'}
+            <div style={{ padding: 20, background: intakePalette.paperCool, borderRadius: 6, marginBottom: 20, border: `1px solid ${intakePalette.sectionHearingBorder}` }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: intakePalette.sectionHearingInk, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <BrainIcon size={18} color={intakePalette.sectionHearingInk} /> {isArabic ? 'السمع والمعالجة' : 'Hearing & Processing'}
               </div>
 
               <NotepadField label={isArabic ? 'ضعف سمعي؟' : 'Hearing impairment?'}>
@@ -462,9 +462,9 @@ I would like to book an assessment appointment
             </div>
 
             {/* Behavior */}
-            <div style={{ padding: 20, background: '#faf5fa', borderRadius: 6, border: '1px solid #d4b8d4' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#5a3a5a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <ChartIcon size={18} color="#5a3a5a" /> {isArabic ? 'السلوك والانتباه' : 'Behavior & Attention'}
+            <div style={{ padding: 20, background: intakePalette.paperLavender, borderRadius: 6, border: `1px solid ${intakePalette.sectionBehaviorBorder}` }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: intakePalette.sectionBehaviorInk, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <ChartIcon size={18} color={intakePalette.sectionBehaviorInk} /> {isArabic ? 'السلوك والانتباه' : 'Behavior & Attention'}
               </div>
 
               <NotepadField label={isArabic ? 'تشتت الانتباه؟' : 'Attention difficulty?'}>
@@ -491,9 +491,9 @@ I would like to book an assessment appointment
         return (
           <div>
             {/* Sensory */}
-            <div style={{ padding: 20, background: '#f5fafa', borderRadius: 6, marginBottom: 20, border: '1px solid #b8d4d4' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#3a5a5a', marginBottom: 16 }}>
-                <BrainIcon size={18} color="#3a5a5a" /> {isArabic ? 'التغيرات الحسية' : 'Sensory Changes'}
+            <div style={{ padding: 20, background: intakePalette.paperCool, borderRadius: 6, marginBottom: 20, border: `1px solid ${intakePalette.sectionHearingBorder}` }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: intakePalette.sectionHearingInk, marginBottom: 16 }}>
+                <BrainIcon size={18} color={intakePalette.sectionHearingInk} /> {isArabic ? 'التغيرات الحسية' : 'Sensory Changes'}
               </div>
               <ImprovementSelector label={isArabic ? 'الحساسية السمعية' : 'Sound sensitivity'} value={progressTracking.sensoryChanges.soundSensitivity}
                 onChange={(v) => updateSensoryChanges('soundSensitivity', v)} />
@@ -506,9 +506,9 @@ I would like to book an assessment appointment
             </div>
 
             {/* Behavioral */}
-            <div style={{ padding: 20, background: '#faf5fa', borderRadius: 6, border: '1px solid #d4b8d4' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#5a3a5a', marginBottom: 16 }}>
-                <ChartIcon size={18} color="#5a3a5a" /> {isArabic ? 'التغيرات السلوكية' : 'Behavioral Changes'}
+            <div style={{ padding: 20, background: intakePalette.paperLavender, borderRadius: 6, border: `1px solid ${intakePalette.sectionBehaviorBorder}` }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: intakePalette.sectionBehaviorInk, marginBottom: 16 }}>
+                <ChartIcon size={18} color={intakePalette.sectionBehaviorInk} /> {isArabic ? 'التغيرات السلوكية' : 'Behavioral Changes'}
               </div>
               <ImprovementSelector label={isArabic ? 'الانتباه والتركيز' : 'Attention & focus'} value={progressTracking.behavioralChanges.attention}
                 onChange={(v) => updateBehavioralChanges('attention', v)} />
@@ -533,13 +533,13 @@ I would like to book an assessment appointment
         repeating-linear-gradient(
           transparent 0px,
           transparent 27px,
-          #e8e0d8 28px
+          ${intakePalette.line} 28px
         ),
-        linear-gradient(180deg, #fefcf9 0%, #f8f4ee 100%);
+        linear-gradient(180deg, ${intakePalette.paperTop} 0%, ${intakePalette.paperBottom} 100%);
     }
     .notepad-paper::-webkit-scrollbar { width: 8px; }
-    .notepad-paper::-webkit-scrollbar-track { background: #e8e0d8; border-radius: 4px; }
-    .notepad-paper::-webkit-scrollbar-thumb { background: #c4b8a8; border-radius: 4px; }
+    .notepad-paper::-webkit-scrollbar-track { background: ${intakePalette.line}; border-radius: 4px; }
+    .notepad-paper::-webkit-scrollbar-thumb { background: ${intakePalette.border}; border-radius: 4px; }
   `, []);
 
   return (
@@ -570,7 +570,7 @@ I would like to book an assessment appointment
       }}>
         {/* Clipboard Board */}
         <div style={{
-          background: 'linear-gradient(180deg, #b89c72 0%, #9a8060 50%, #8a7050 100%)',
+          background: `linear-gradient(180deg, ${intakePalette.clipboardStart} 0%, ${intakePalette.clipboardMid} 50%, ${intakePalette.clipboardEnd} 100%)`,
           borderRadius: '20px 20px 12px 12px',
           padding: '60px 16px 16px',
           boxShadow: '0 20px 60px rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.1), inset 0 -2px 0 rgba(0,0,0,0.2)',
@@ -584,7 +584,7 @@ I would like to book an assessment appointment
             transform: 'translateX(-50%)',
             width: 120,
             height: 60,
-            background: 'linear-gradient(180deg, #e0e0e0 0%, #a0a0a0 50%, #c0c0c0 100%)',
+            background: `linear-gradient(180deg, ${intakePalette.clipMetalStart} 0%, ${intakePalette.clipMetalMid} 50%, ${intakePalette.clipMetalEnd} 100%)`,
             borderRadius: '8px 8px 0 0',
             boxShadow: '0 -5px 15px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.5)',
             display: 'flex',
@@ -596,7 +596,7 @@ I would like to book an assessment appointment
             <div style={{
               width: 80,
               height: 30,
-              background: 'linear-gradient(180deg, #c8c8c8 0%, #888 100%)',
+              background: `linear-gradient(180deg, ${intakePalette.clipInnerStart} 0%, ${intakePalette.clipInnerEnd} 100%)`,
               borderRadius: '4px 4px 0 0',
               boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)',
             }} />
@@ -616,14 +616,14 @@ I would like to book an assessment appointment
             <div style={{
               width: 30,
               height: 25,
-              background: 'linear-gradient(90deg, #b0b0b0, #909090)',
+              background: `linear-gradient(90deg, ${intakePalette.clipArmStart}, ${intakePalette.clipArmEnd})`,
               borderRadius: '0 0 6px 6px',
               boxShadow: '2px 2px 4px rgba(0,0,0,0.2)',
             }} />
             <div style={{
               width: 30,
               height: 25,
-              background: 'linear-gradient(90deg, #909090, #b0b0b0)',
+              background: `linear-gradient(90deg, ${intakePalette.clipArmEnd}, ${intakePalette.clipArmStart})`,
               borderRadius: '0 0 6px 6px',
               boxShadow: '-2px 2px 4px rgba(0,0,0,0.2)',
             }} />
@@ -641,18 +641,18 @@ I would like to book an assessment appointment
             {/* Paper Header - Hole punches */}
             <div style={{
               padding: '12px 20px',
-              borderBottom: '1px solid #d4c8b8',
+              borderBottom: `1px solid ${intakePalette.borderStrong}`,
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              background: '#faf8f5',
+              background: intakePalette.paper,
             }}>
               <div style={{ display: 'flex', gap: 30 }}>
-                <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#c4b8a8', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }} />
-                <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#c4b8a8', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }} />
-                <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#c4b8a8', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }} />
+                <div style={{ width: 12, height: 12, borderRadius: '50%', background: intakePalette.border, boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }} />
+                <div style={{ width: 12, height: 12, borderRadius: '50%', background: intakePalette.border, boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }} />
+                <div style={{ width: 12, height: 12, borderRadius: '50%', background: intakePalette.border, boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }} />
               </div>
-              <div style={{ fontSize: 12, color: '#8a7a6a', fontStyle: 'italic' }}>
+              <div style={{ fontSize: 12, color: intakePalette.inkFaint, fontStyle: 'italic' }}>
                 {t('auto.IntakeForm.k1', "Berard AIT - Sound Lab")}
               </div>
             </div>
@@ -662,8 +662,8 @@ I would like to book an assessment appointment
               display: 'flex',
               gap: 6,
               padding: '12px 16px',
-              background: '#f5f0ea',
-              borderBottom: '2px solid #d4c8b8',
+              background: intakePalette.paperTan,
+              borderBottom: `2px solid ${intakePalette.borderStrong}`,
               overflowX: 'auto',
             }}>
               {STEPS.slice(0, maxStep).map((step) => (
@@ -677,9 +677,9 @@ I would like to book an assessment appointment
                     padding: '8px 14px',
                     borderRadius: '6px 6px 0 0',
                     border: 'none',
-                    background: currentStep === step.id ? '#fefcf9' : 'transparent',
+                    background: currentStep === step.id ? intakePalette.paperTop : 'transparent',
                     boxShadow: currentStep === step.id ? '0 -2px 4px rgba(0,0,0,0.05)' : 'none',
-                    color: currentStep === step.id ? '#3a3020' : '#8a7a6a',
+                    color: currentStep === step.id ? intakePalette.ink : intakePalette.inkFaint,
                     cursor: 'pointer',
                     fontSize: 12,
                     fontWeight: currentStep === step.id ? 700 : 500,
@@ -696,12 +696,12 @@ I would like to book an assessment appointment
             </div>
 
             {/* Progress */}
-            <div style={{ padding: '8px 20px', background: '#faf8f5', borderBottom: '1px solid #e8e0d8' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#8a7a6a', marginBottom: 4 }}>
+            <div style={{ padding: '8px 20px', background: intakePalette.paper, borderBottom: `1px solid ${intakePalette.line}` }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: intakePalette.inkFaint, marginBottom: 4 }}>
                 <span>{isArabic ? 'التقدم' : 'Progress'}</span>
                 <span>{progress}%</span>
               </div>
-              <div style={{ height: 4, background: '#e8e0d8', borderRadius: 2 }}>
+              <div style={{ height: 4, background: intakePalette.line, borderRadius: 2 }}>
                 <div style={{
                   height: '100%',
                   width: `${progress}%`,
@@ -725,8 +725,8 @@ I would like to book an assessment appointment
             {/* Paper Footer - Navigation */}
             <div style={{
               padding: '16px 20px',
-              borderTop: '1px solid #d4c8b8',
-              background: '#faf8f5',
+              borderTop: `1px solid ${intakePalette.borderStrong}`,
+              background: intakePalette.paper,
               display: 'flex',
               justifyContent: 'space-between',
               gap: 12,
@@ -737,9 +737,9 @@ I would like to book an assessment appointment
                 style={{
                   padding: '10px 20px',
                   borderRadius: 6,
-                  border: '1px solid #c4b8a8',
-                  background: currentStep === 1 ? '#e8e0d8' : '#fefcf9',
-                  color: currentStep === 1 ? '#a09080' : '#5a4a3a',
+                  border: `1px solid ${intakePalette.border}`,
+                  background: currentStep === 1 ? intakePalette.line : intakePalette.paperTop,
+                  color: currentStep === 1 ? intakePalette.inkDisabled : intakePalette.inkMuted,
                   cursor: currentStep === 1 ? 'not-allowed' : 'pointer',
                   fontSize: 14,
                   fontWeight: 600,
@@ -756,7 +756,7 @@ I would like to book an assessment appointment
                     borderRadius: 6,
                     border: 'none',
                     background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
-                    color: '#fff',
+                    color: intakePalette.white,
                     cursor: 'pointer',
                     fontSize: 14,
                     fontWeight: 700,
@@ -772,8 +772,8 @@ I would like to book an assessment appointment
                     padding: '10px 24px',
                     borderRadius: 6,
                     border: 'none',
-                    background: `linear-gradient(135deg, ${colors.success}, #16a34a)`,
-                    color: '#fff',
+                    background: `linear-gradient(135deg, ${colors.success}, ${intakePalette.successDeep})`,
+                    color: intakePalette.white,
                     cursor: 'pointer',
                     fontSize: 14,
                     fontWeight: 700,

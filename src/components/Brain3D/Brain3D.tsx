@@ -2,21 +2,21 @@ import { useRef, useState, useMemo, useCallback, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Float } from '@react-three/drei';
 import * as THREE from 'three';
-import { brandCyan, brandPurple, brandPink, modalScale } from '../styles';
+import { brandCyan, brandPurple, brandPink, modalScale, brainRegionColors, brain3dPalette } from '../styles';
 import { renderLabIcon } from '../icons/index';
 
 // Treatment area bubbles positioned on anatomical brain regions
 const BRAIN_BUBBLES = [
-  { id: 'auditory', label: 'السمع', labelEn: 'Auditory', color: '#FF6B35', position: [1.8, -0.3, 0.5] as [number, number, number], size: 0.28 },
-  { id: 'language', label: 'اللغة', labelEn: 'Language', color: '#00A8CC', position: [1.5, 0.5, 1.3] as [number, number, number], size: 0.28 },
-  { id: 'music', label: 'الموسيقى', labelEn: 'Music', color: '#C41E3A', position: [-1.7, 0.0, 0.7] as [number, number, number], size: 0.24 },
-  { id: 'attention', label: 'التركيز', labelEn: 'Attention', color: '#1E40AF', position: [0, 1.4, 1.5] as [number, number, number], size: 0.30 },
-  { id: 'sensory', label: 'الحسي', labelEn: 'Sensory', color: '#166534', position: [1.0, 1.5, -0.2] as [number, number, number], size: 0.28 },
-  { id: 'balance', label: 'التوازن', labelEn: 'Balance', color: '#15803D', position: [0, -1.3, -1.7] as [number, number, number], size: 0.30 },
-  { id: 'memory', label: 'الذاكرة', labelEn: 'Memory', color: '#EA580C', position: [-1.2, -0.5, 0.1] as [number, number, number], size: 0.28 },
-  { id: 'learning', label: 'التعلم', labelEn: 'Learning', color: '#1E3A5F', position: [-0.7, 1.0, 1.7] as [number, number, number], size: 0.26 },
-  { id: 'behavior', label: 'السلوك', labelEn: 'Behavior', color: '#9333EA', position: [0.7, 0.7, 1.9] as [number, number, number], size: 0.28 },
-  { id: 'wellbeing', label: 'الرفاهية', labelEn: 'Well-Being', color: '#2563EB', position: [-1.0, 1.2, 0.7] as [number, number, number], size: 0.28 },
+  { id: 'auditory', label: 'السمع', labelEn: 'Auditory', color: brainRegionColors.auditory, position: [1.8, -0.3, 0.5] as [number, number, number], size: 0.28 },
+  { id: 'language', label: 'اللغة', labelEn: 'Language', color: brainRegionColors.language, position: [1.5, 0.5, 1.3] as [number, number, number], size: 0.28 },
+  { id: 'music', label: 'الموسيقى', labelEn: 'Music', color: brainRegionColors.music, position: [-1.7, 0.0, 0.7] as [number, number, number], size: 0.24 },
+  { id: 'attention', label: 'التركيز', labelEn: 'Attention', color: brainRegionColors.attention, position: [0, 1.4, 1.5] as [number, number, number], size: 0.30 },
+  { id: 'sensory', label: 'الحسي', labelEn: 'Sensory', color: brainRegionColors.sensory, position: [1.0, 1.5, -0.2] as [number, number, number], size: 0.28 },
+  { id: 'balance', label: 'التوازن', labelEn: 'Balance', color: brainRegionColors.balance, position: [0, -1.3, -1.7] as [number, number, number], size: 0.30 },
+  { id: 'memory', label: 'الذاكرة', labelEn: 'Memory', color: brainRegionColors.memory, position: [-1.2, -0.5, 0.1] as [number, number, number], size: 0.28 },
+  { id: 'learning', label: 'التعلم', labelEn: 'Learning', color: brainRegionColors.learning, position: [-0.7, 1.0, 1.7] as [number, number, number], size: 0.26 },
+  { id: 'behavior', label: 'السلوك', labelEn: 'Behavior', color: brainRegionColors.behavior, position: [0.7, 0.7, 1.9] as [number, number, number], size: 0.28 },
+  { id: 'wellbeing', label: 'الرفاهية', labelEn: 'Well-Being', color: brainRegionColors.wellbeing, position: [-1.0, 1.2, 0.7] as [number, number, number], size: 0.28 },
 ];
 
 // Neural connections between bubbles
@@ -164,10 +164,10 @@ function BrainMesh() {
 
   // Brain material with realistic coloring
   const brainMaterial = useMemo(() => new THREE.MeshPhongMaterial({
-    color: new THREE.Color('#e8b4bc'), // Pinkish gray brain color
+    color: new THREE.Color(brain3dPalette.surface), // Pinkish gray brain color
     emissive: new THREE.Color(brandCyan),
     emissiveIntensity: 0.08,
-    specular: new THREE.Color('#ffffff'),
+    specular: new THREE.Color(brain3dPalette.highlight),
     shininess: 15,
     transparent: true,
     opacity: 0.75,
@@ -400,7 +400,7 @@ function TreatmentBubble({ bubble, isHovered, isSelected, onClick, onHover }: Bu
       {(isHovered || isSelected) && (
         <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
           <torusGeometry args={[bubble.size * 1.4, 0.025, 8, 32]} />
-          <meshBasicMaterial color="#fff" transparent opacity={0.7} />
+          <meshBasicMaterial color={brain3dPalette.highlight} transparent opacity={0.7} />
         </mesh>
       )}
 
@@ -417,7 +417,7 @@ function TreatmentBubble({ bubble, isHovered, isSelected, onClick, onHover }: Bu
             color={bubble.color}
             emissive={bubble.color}
             emissiveIntensity={isHovered ? 0.5 : isSelected ? 0.35 : 0.15}
-            specular="#ffffff"
+            specular={brain3dPalette.highlight}
             shininess={30}
             transparent
             opacity={0.9}
@@ -447,7 +447,7 @@ function createLabelTexture(text: string, color: string, isHovered: boolean): HT
   ctx.roundRect(8, 8, 240, 64, 32);
   ctx.fill();
 
-  ctx.fillStyle = isHovered ? color : '#1a1a2e';
+  ctx.fillStyle = isHovered ? color : brain3dPalette.labelText;
   ctx.font = 'bold 32px Cairo, Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -487,11 +487,11 @@ function BrainScene({ onBubbleSelect }: { onBubbleSelect: (bubble: typeof BRAIN_
     <>
       {/* Lighting for brain visibility */}
       <ambientLight intensity={0.5} />
-      <pointLight position={[8, 8, 8]} intensity={0.8} color="#ffffff" />
+      <pointLight position={[8, 8, 8]} intensity={0.8} color={brain3dPalette.highlight} />
       <pointLight position={[-8, -5, -8]} intensity={0.5} color={brandCyan} />
-      <pointLight position={[0, 10, 0]} intensity={0.4} color="#ffffff" />
+      <pointLight position={[0, 10, 0]} intensity={0.4} color={brain3dPalette.highlight} />
       <pointLight position={[0, -8, 5]} intensity={0.3} color={brandPurple} />
-      <directionalLight position={[5, 5, 5]} intensity={0.3} color="#ffffff" />
+      <directionalLight position={[5, 5, 5]} intensity={0.3} color={brain3dPalette.highlight} />
 
       {/* Brain mesh */}
       <BrainMesh />
