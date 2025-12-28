@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, colors } from './styles';
+import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, brandColors, colors, videoPalette } from './styles';
 import { PlayIcon, VideoIcon, ChartIcon, BrainIcon, EyeIcon, EarIcon, BeakerIcon } from './Icons';
 import { useLanguage } from '../context/LanguageContext';
 import LabButtonAnchor from './labui/LabButtonAnchor';
@@ -117,7 +117,7 @@ const LabMonitor = ({ video, isHovered, isArabic, onHover }: {
     >
       {/* Monitor Frame */}
       <div style={{
-        background: 'linear-gradient(180deg, #2a2a3a 0%, #1a1a24 100%)',
+        background: `linear-gradient(180deg, ${videoPalette.monitorFrameTop} 0%, ${videoPalette.monitorFrameBottom} 100%)`,
         borderRadius: 16,
         padding: 8,
         border: '2px solid rgba(100,100,120,0.3)',
@@ -213,7 +213,7 @@ const LabMonitor = ({ video, isHovered, isArabic, onHover }: {
               top: 10,
               right: 10,
               background: cat.color,
-              color: '#fff',
+              color: colors.text.primary,
               padding: '4px 12px',
               borderRadius: 8,
               fontSize: 11,
@@ -282,7 +282,7 @@ const LabMonitor = ({ video, isHovered, isArabic, onHover }: {
         {/* Monitor Stand */}
         <div style={{
           height: 6,
-          background: 'linear-gradient(180deg, #3a3a4a, #2a2a3a)',
+          background: `linear-gradient(180deg, ${videoPalette.monitorStandTop}, ${videoPalette.monitorStandBottom})`,
           marginTop: 8,
           marginLeft: '30%',
           marginRight: '30%',
@@ -393,7 +393,7 @@ export default function VideoSection() {
             border: '1px solid rgba(255,255,255,0.05)',
           }}>
             {[
-              { key: 'all', label: isArabic ? `الكل (${videos.length})` : `All (${videos.length})`, color: '#fff' },
+              { key: 'all', label: isArabic ? `الكل (${videos.length})` : `All (${videos.length})`, color: colors.text.primary },
               { key: 'intro', label: isArabic ? categoryLabels.intro.labelAr : categoryLabels.intro.labelEn, color: brandCyan },
               { key: 'science', label: isArabic ? categoryLabels.science.labelAr : categoryLabels.science.labelEn, color: brandPurple },
               { key: 'results', label: isArabic ? categoryLabels.results.labelAr : categoryLabels.results.labelEn, color: brandPink },
@@ -467,16 +467,16 @@ export default function VideoSection() {
             width: 70,
             height: 70,
             borderRadius: 14,
-            background: '#FF0000',
+            background: brandColors.youtube,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             boxShadow: '0 0 30px rgba(255,0,0,0.3)',
           }}>
-            <PlayIcon size={32} color="#fff" />
+            <PlayIcon size={32} color={colors.text.primary} />
           </div>
           <div style={{ flex: 1, minWidth: 200 }}>
-            <div style={{ fontWeight: 800, fontSize: 17, color: '#fff' }}>
+            <div style={{ fontWeight: 800, fontSize: 17, color: colors.text.primary }}>
               {isArabic ? 'البث المباشر على YouTube' : 'Live on YouTube'}
             </div>
             <div style={{ ...styles.muted, marginTop: 6 }}>
@@ -489,7 +489,7 @@ export default function VideoSection() {
             rel="noreferrer"
             variant="primary"
             style={{
-              background: '#FF0000',
+              background: brandColors.youtube,
               padding: '14px 28px',
               fontSize: 14,
             }}

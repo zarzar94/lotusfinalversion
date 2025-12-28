@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, memo } from 'react';
 
-import { brandCyan, brandPink, brandPurple, brandPurpleDark } from './styles';
+import { brandCyan, brandPink, brandPurple, brandPurpleDark, brandColors, colors } from './styles';
 import { renderLabIcon } from './icons/index';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
@@ -117,13 +117,13 @@ const BackgroundFX = memo(() => {
     window.addEventListener('resize', resize);
 
     // Color palette
-    const colors = {
+    const palette = {
       cyan: brandCyan,
       pink: brandPink,
       purple: brandPurple,
       purpleDark: brandPurpleDark,
-      gold: '#FFD700',
-      white: '#FFFFFF',
+      gold: brandColors.gold,
+      white: colors.text.primary,
     };
 
     // Initialize particles - reduced count on mobile for performance
@@ -137,8 +137,8 @@ const BackgroundFX = memo(() => {
       const layer = Math.random() < 0.3 ? 0 : Math.random() < 0.6 ? 1 : 2;
       const types: Particle['type'][] = ['neuron', 'sound', 'ambient', 'star'];
       const type = types[Math.floor(Math.random() * types.length)];
-      const colorKeys = Object.keys(colors) as (keyof typeof colors)[];
-      const color = colors[colorKeys[Math.floor(Math.random() * colorKeys.length)]];
+      const colorKeys = Object.keys(palette) as (keyof typeof palette)[];
+      const color = palette[colorKeys[Math.floor(Math.random() * colorKeys.length)]];
 
       particles.push({
         x: Math.random() * w,
@@ -165,7 +165,7 @@ const BackgroundFX = memo(() => {
           radius: 0,
           maxRadius: 100 + Math.random() * 200,
           speed: 0.5 + Math.random() * 1,
-          color: Math.random() > 0.5 ? colors.cyan : colors.purple,
+          color: Math.random() > 0.5 ? palette.cyan : palette.purple,
           alpha: 0.15,
         });
       }
@@ -176,7 +176,7 @@ const BackgroundFX = memo(() => {
     const shapeTypes: FloatingShape['type'][] = ['circle', 'hexagon', 'diamond', 'star'];
 
     for (let i = 0; i < 12; i++) {
-      const colorKeys = Object.keys(colors) as (keyof typeof colors)[];
+      const colorKeys = Object.keys(palette) as (keyof typeof palette)[];
       floatingShapes.push({
         x: Math.random() * w,
         y: Math.random() * h,
@@ -184,7 +184,7 @@ const BackgroundFX = memo(() => {
         rotationSpeed: (Math.random() - 0.5) * 0.01,
         size: 20 + Math.random() * 40,
         type: shapeTypes[Math.floor(Math.random() * shapeTypes.length)],
-        color: colors[colorKeys[Math.floor(Math.random() * colorKeys.length)]],
+        color: palette[colorKeys[Math.floor(Math.random() * colorKeys.length)]],
         alpha: 0.05 + Math.random() * 0.1,
         floatOffset: Math.random() * Math.PI * 2,
         floatSpeed: 0.01 + Math.random() * 0.02,
@@ -565,7 +565,7 @@ const BackgroundFX = memo(() => {
           </span>
         </div>
         <div className="floatIcon playful" style={{ position: 'absolute', top: '42%', left: '5%', fontSize: 32 }}>
-          <span style={{ filter: 'drop-shadow(0 0 15px rgba(255, 215, 0, 0.4))' }}>
+          <span style={{ filter: `drop-shadow(0 0 15px ${brandColors.goldLight})` }}>
             {renderLabIcon('⭐', { size: 28, tone: 'warning' })}
           </span>
         </div>

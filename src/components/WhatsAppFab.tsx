@@ -4,11 +4,11 @@ import { handleWhatsApp } from '../utils/whatsapp';
 import { useLanguage } from '../context/LanguageContext';
 import { positionInlineStart } from '../utils/rtl';
 import { keyframes } from '../utils/animations';
-import { radius, brandColors, transitions } from './styles';
+import { radius, brandColors, colors, transitions } from './styles';
 
 // WhatsApp brand colors
 const WHATSAPP_GREEN = brandColors.whatsapp;
-const WHATSAPP_DARK = '#128C7E';
+const WHATSAPP_DARK = brandColors.whatsappDark;
 
 const WhatsAppFab = memo(() => {
   const { isArabic, t } = useLanguage();
@@ -51,7 +51,7 @@ const WhatsAppFab = memo(() => {
           ? `linear-gradient(135deg, ${WHATSAPP_GREEN}, ${WHATSAPP_DARK})`
           : WHATSAPP_GREEN,
         border: 'none',
-        color: '#fff',
+        color: colors.text.primary,
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',

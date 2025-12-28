@@ -27,9 +27,13 @@ export const brandColors = {
   pink: brandPink,
   // Functional colors (consistent across the app)
   whatsapp: '#25D366',
+  whatsappDark: '#128C7E',
   whatsappLight: 'rgba(37, 211, 102, 0.12)',
+  youtube: '#FF0000',
   linkedin: '#0077B5',
   linkedinLight: 'rgba(0, 119, 181, 0.12)',
+  gold: '#FFD700',
+  goldLight: 'rgba(255, 215, 0, 0.4)',
   // Status colors
   success: '#22c55e',
   warning: '#f59e0b',
@@ -118,6 +122,13 @@ export const devicePalette = {
   screenTopFade: 'linear-gradient(180deg, rgba(28,28,30,1) 0%, transparent 100%)',
   screenBottomFade: 'linear-gradient(180deg, transparent 0%, rgba(10,10,14,0.95) 20%)',
   instagramGradient: 'linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+};
+
+export const videoPalette = {
+  monitorFrameTop: '#2a2a3a',
+  monitorFrameBottom: '#1a1a24',
+  monitorStandTop: '#3a3a4a',
+  monitorStandBottom: '#2a2a3a',
 };
 
 export const intakePalette = {

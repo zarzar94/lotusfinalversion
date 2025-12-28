@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { assetUrl } from '../utils/asset';
-import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, colors } from './styles';
+import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, brandColors, colors } from './styles';
 import {
   XIcon,
   CheckIcon,
@@ -298,7 +298,7 @@ function TransformationJourney({ before, after, color, isActive }: {
           transition: 'all 0.5s ease',
           boxShadow: showAfter ? `0 0 30px ${color}44` : 'none',
         }}>
-          {showAfter ? <CheckIcon size={24} color="#fff" /> : <ArrowRightIcon size={20} color="rgba(255,255,255,0.6)" />}
+          {showAfter ? <CheckIcon size={24} color={colors.text.primary} /> : <ArrowRightIcon size={20} color="rgba(255,255,255,0.6)" />}
         </div>
         <div style={{
           fontSize: 9,
@@ -336,10 +336,10 @@ function TransformationJourney({ before, after, color, isActive }: {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#fff',
+            color: colors.text.primary,
             transition: 'all 0.5s ease',
           }}>
-            <CheckIcon size={12} color={showAfter ? '#fff' : colors.success} />
+            <CheckIcon size={12} color={showAfter ? colors.text.primary : colors.success} />
           </span>
           بعد العلاج
         </div>
@@ -458,7 +458,7 @@ function CaseStudyCard({
               alignItems: 'center',
               justifyContent: 'center',
             }}>
-              <CheckIcon size={10} color="#fff" />
+              <CheckIcon size={10} color={colors.text.primary} />
             </div>
           </div>
 
@@ -466,7 +466,7 @@ function CaseStudyCard({
             <div style={{
               fontWeight: 900,
               fontSize: 16,
-              color: '#fff',
+              color: colors.text.primary,
               display: 'flex',
               alignItems: 'center',
               gap: 8,
@@ -608,7 +608,7 @@ function CaseStudyCard({
             <StarIcon
               key={i}
               size={14}
-              color={i < testimonial.rating ? '#FFD700' : 'rgba(255,255,255,0.15)'}
+              color={i < testimonial.rating ? brandColors.gold : 'rgba(255,255,255,0.15)'}
               filled={i < testimonial.rating}
               style={{
                 filter: i < testimonial.rating ? 'drop-shadow(0 0 8px rgba(255,215,0,0.5))' : 'none',
@@ -653,7 +653,7 @@ function AggregateStats({ isVisible }: { isVisible: boolean }) {
     { value: `${counts.satisfaction}%`, label: 'نسبة الرضا', icon: <SmileIcon size={24} color={brandCyan} />, color: brandCyan },
     { value: `${counts.cases}+`, label: 'حالة ناجحة', icon: <TrophyIcon size={24} color={brandPurple} />, color: brandPurple },
     { value: `${counts.years}+`, label: 'سنوات خبرة', icon: <ClockIcon size={24} color={brandPink} />, color: brandPink },
-    { value: (counts.rating / 10).toFixed(1), label: 'تقييم عام', icon: <StarIcon size={24} color="#FFD700" filled />, color: '#FFD700' },
+    { value: (counts.rating / 10).toFixed(1), label: 'تقييم عام', icon: <StarIcon size={24} color={brandColors.gold} filled />, color: brandColors.gold },
   ];
 
   return (
@@ -777,12 +777,12 @@ export default function TestimonialsSection() {
           marginBottom: 16,
         }}>
           <span style={{ animation: 'float 3s ease-in-out infinite', display: 'flex' }}>
-            <StarIcon size={28} color="#FFD700" filled />
+            <StarIcon size={28} color={brandColors.gold} filled />
           </span>
           <span style={{
             fontSize: 14,
             fontWeight: 800,
-            background: 'linear-gradient(135deg, #FFD700, #fff)',
+            background: `linear-gradient(135deg, ${brandColors.gold}, ${colors.text.primary})`,
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
           }}>
@@ -793,13 +793,13 @@ export default function TestimonialsSection() {
             background: colors.success,
             borderRadius: 20,
             fontSize: 10,
-            color: '#fff',
+            color: colors.text.primary,
             fontWeight: 900,
             display: 'inline-flex',
             alignItems: 'center',
             gap: 4,
           }}>
-            <ShieldCheckIcon size={12} color="#fff" /> موثق
+            <ShieldCheckIcon size={12} color={colors.text.primary} /> موثق
           </span>
         </div>
 
@@ -887,7 +887,7 @@ export default function TestimonialsSection() {
           <div style={{
             fontSize: 20,
             fontWeight: 900,
-            color: '#fff',
+            color: colors.text.primary,
             marginBottom: 6,
             display: 'flex',
             alignItems: 'center',
