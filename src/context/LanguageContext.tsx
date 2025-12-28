@@ -3,7 +3,7 @@ import { translations } from '../i18n/translations';
 import { detectPreferredLanguage, LANGUAGE_STORAGE_KEY, LANGUAGE_UPDATED_AT_KEY } from '../utils/language';
 import { safeStorage } from '../utils/storage';
 import { notifyLocalChange } from '../utils/sync';
-import { colors } from '../components/styles';
+import { brandCyan, brandInk, brandPurpleDark, colors } from '../components/styles';
 import { BrainCircuitIcon } from '../components/icons/index';
 
 export type Language = 'ar' | 'en';
@@ -224,7 +224,7 @@ function LanguageSelectionOverlay({ onSelect, currentLanguage }: LanguageSelecti
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(180deg, #0d1117 0%, #05060d 100%)',
+        background: `linear-gradient(180deg, ${colors.surface.elevated} 0%, ${colors.surface.base} 100%)`,
         opacity: isAnimating ? 0 : 1,
         transition: 'opacity 0.5s ease',
       }}
@@ -283,7 +283,7 @@ function LanguageSelectionOverlay({ onSelect, currentLanguage }: LanguageSelecti
           <span style={{
             fontSize: 11,
             fontWeight: 800,
-            color: '#8FD3CC',
+            color: brandCyan,
             letterSpacing: 2,
             textTransform: 'uppercase',
           }}>
@@ -303,7 +303,7 @@ function LanguageSelectionOverlay({ onSelect, currentLanguage }: LanguageSelecti
         <h1 style={{
           fontSize: 24,
           fontWeight: 800,
-          color: '#f7f8fb',
+          color: colors.text.primary,
           marginBottom: 8,
           fontFamily: 'Cairo, sans-serif',
         }}>
@@ -336,7 +336,7 @@ function LanguageSelectionOverlay({ onSelect, currentLanguage }: LanguageSelecti
               padding: '20px 24px',
               borderRadius: 16,
               border: selectedLang === 'ar'
-                ? '2px solid #8FD3CC'
+                ? `2px solid ${brandCyan}`
                 : '1px solid rgba(255,255,255,0.1)',
               background: selectedLang === 'ar'
                 ? 'linear-gradient(135deg, rgba(143,211,204,0.15), rgba(175,132,186,0.1))'
@@ -353,7 +353,7 @@ function LanguageSelectionOverlay({ onSelect, currentLanguage }: LanguageSelecti
             <div style={{
               fontSize: 18,
               fontWeight: 700,
-              color: selectedLang === 'ar' ? '#8FD3CC' : '#f7f8fb',
+              color: selectedLang === 'ar' ? brandCyan : colors.text.primary,
               fontFamily: 'Cairo, sans-serif',
             }}>
               العربية
@@ -375,7 +375,7 @@ function LanguageSelectionOverlay({ onSelect, currentLanguage }: LanguageSelecti
               padding: '20px 24px',
               borderRadius: 16,
               border: selectedLang === 'en'
-                ? '2px solid #8FD3CC'
+                ? `2px solid ${brandCyan}`
                 : '1px solid rgba(255,255,255,0.1)',
               background: selectedLang === 'en'
                 ? 'linear-gradient(135deg, rgba(143,211,204,0.15), rgba(175,132,186,0.1))'
@@ -392,7 +392,7 @@ function LanguageSelectionOverlay({ onSelect, currentLanguage }: LanguageSelecti
             <div style={{
               fontSize: 18,
               fontWeight: 700,
-              color: selectedLang === 'en' ? '#8FD3CC' : '#f7f8fb',
+              color: selectedLang === 'en' ? brandCyan : colors.text.primary,
               fontFamily: 'Cairo, sans-serif',
             }}>
               English
@@ -415,8 +415,8 @@ function LanguageSelectionOverlay({ onSelect, currentLanguage }: LanguageSelecti
             padding: '16px 32px',
             borderRadius: 14,
             border: 'none',
-            background: 'linear-gradient(135deg, #774E87, #8FD3CC)',
-            color: '#05060d',
+            background: `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})`,
+            color: brandInk,
             fontSize: 16,
             fontWeight: 800,
             cursor: 'pointer',

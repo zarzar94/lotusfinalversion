@@ -5,7 +5,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { colors } from './styles';
+import { brandCyan, brandPurple, colors } from './styles';
 
 interface ScrollToTopProps {
   behavior?: ScrollBehavior;
@@ -61,9 +61,9 @@ export default function ScrollToTop({
       const fromRoute = getRouteName(prevPathRef.current);
       const toRoute = getRouteName(pathname);
 
-      console.group('%cNavigation', 'color: #8FD3CC; font-weight: bold;');
+      console.group('%cNavigation', `color: ${brandCyan}; font-weight: bold;`);
       console.log(`%cFrom: ${fromRoute}`, 'color: #999;');
-      console.log(`%cTo: ${toRoute}`, 'color: #AF84BA; font-weight: bold;');
+      console.log(`%cTo: ${toRoute}`, `color: ${brandPurple}; font-weight: bold;`);
       console.log(`%cPath: ${pathname}${search}${hash}`, 'color: #666;');
       console.log(`%cTime: ${navigationTime}ms`, `color: ${colors.success};`);
       console.groupEnd();

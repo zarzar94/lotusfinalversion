@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, R
 import { useLocation } from 'react-router-dom';
 import { notifyLocalChange } from '../utils/sync';
 import { SchoolIcon, ParentIcon, ClinicianIcon } from '../components/icons/index';
-import { colors } from '../components/styles';
+import { brandPink, brandPurple, colors } from '../components/styles';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // VISITOR MODE TYPES
@@ -52,7 +52,7 @@ export const VISITOR_MODES: Record<VisitorMode, VisitorModeConfig> = {
     ctaLabel: 'Book Screening',
     ctaLabelAr: 'احجز تقييم',
     ctaPath: '/contact?mode=parent',
-    color: '#AF84BA',
+    color: brandPurple,
     priority: ['hero', 'checklist', 'games', 'results', 'program', 'testimonials', 'contact'],
   },
   clinician: {
@@ -65,7 +65,7 @@ export const VISITOR_MODES: Record<VisitorMode, VisitorModeConfig> = {
     ctaLabel: 'Clinician Inquiry',
     ctaLabelAr: 'تواصل كأخصائي',
     ctaPath: '/contact?mode=clinician',
-    color: '#B01270',
+    color: brandPink,
     priority: ['hero', 'program', 'science', 'results', 'games', 'credentials', 'contact'],
   },
 };

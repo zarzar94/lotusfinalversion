@@ -16,6 +16,7 @@ import FadeIn from '../components/FadeIn';
 import { renderLabIcon, HomeIcon, MailIcon, MapPinIcon } from '../components/icons/index';
 import {
   brandCyan,
+  brandInk,
   brandPurple,
   brandPink,
   colors,
@@ -173,7 +174,7 @@ function NotFoundPage() {
                   gap: spacing[2],
                   padding: `${spacing[4]}px ${spacing[8]}px`,
                   background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
-                  color: '#05060d',
+                  color: brandInk,
                   borderRadius: radius.xl,
                   textDecoration: 'none',
                   fontWeight: typography.weight.black,

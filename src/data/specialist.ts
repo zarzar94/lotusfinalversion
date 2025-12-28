@@ -1,4 +1,4 @@
-import { colors } from '../components/styles';
+import { brandCyan, brandPink, brandPurple, colors } from '../components/styles';
 
 /**
  * Specialist Profile Data
@@ -46,7 +46,7 @@ export const SPECIALIST: Specialist = {
       descriptionEn: 'Certified in London',
       year: '2012',
       icon: '🎓',
-      color: '#8FD3CC',
+      color: brandCyan,
     },
     {
       id: 'autism-society',
@@ -55,7 +55,7 @@ export const SPECIALIST: Specialist = {
       descriptionAr: 'الجمعية السعودية للتوحد سابقاً',
       descriptionEn: 'Saudi Autism Society (Former)',
       icon: '🧩',
-      color: '#AF84BA',
+      color: brandPurple,
     },
     {
       id: 'ministry-supervisor',
@@ -64,7 +64,7 @@ export const SPECIALIST: Specialist = {
       descriptionAr: 'وزارة الشؤون الاجتماعية السعودية سابقاً',
       descriptionEn: 'Saudi Ministry of Social Affairs (Former)',
       icon: '📋',
-      color: '#B01270',
+      color: brandPink,
     },
     {
       id: 'phonetic-studies',
@@ -109,21 +109,21 @@ We offer the Bérard AIT auditory integration program as one of our specialized 
       nameAr: 'برنامج Bérard AIT',
       nameEn: 'Bérard AIT Program',
       icon: '🎧',
-      color: '#8FD3CC',
+      color: brandCyan,
     },
     {
       id: 'speech-therapy',
       nameAr: 'علاج التخاطب',
       nameEn: 'Speech Therapy',
       icon: '🗣️',
-      color: '#AF84BA',
+      color: brandPurple,
     },
     {
       id: 'occupational-therapy',
       nameAr: 'العلاج الوظيفي',
       nameEn: 'Occupational Therapy',
       icon: '🤲',
-      color: '#B01270',
+      color: brandPink,
     },
     {
       id: 'psychological-support',

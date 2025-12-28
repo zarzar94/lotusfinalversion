@@ -1,4 +1,5 @@
 import jsPDF from 'jspdf';
+import { brandCyan, brandPanel, brandPink } from '../components/styles';
 
 export type ReportLocale = 'ar' | 'en';
 
@@ -50,18 +51,18 @@ const applyBase = (doc: jsPDF, locale: ReportLocale) => {
   if (locale === 'ar') {
     // Right-to-left alignment for Arabic copy
     // jsPDF supports align option; we mirror layout with manual coordinates
-    doc.setTextColor('#0b0f1c');
+    doc.setTextColor(brandPanel);
   }
   doc.setFont('helvetica', 'normal');
 };
 
 const addHeader = (doc: jsPDF, title: string) => {
-  doc.setFillColor('#8FD3CC');
+  doc.setFillColor(brandCyan);
   doc.rect(0, 0, 210, 24, 'F');
-  doc.setTextColor('#0b0f1c');
+  doc.setTextColor(brandPanel);
   doc.setFontSize(18);
   doc.text(title, 12, 16);
-  doc.setDrawColor('#B01270');
+  doc.setDrawColor(brandPink);
   doc.line(12, 20, 198, 20);
 };
 
@@ -72,7 +73,7 @@ export class PDFReportGenerator {
     applyBase(doc, locale);
     addHeader(doc, headers[locale].assessment);
 
-    doc.setTextColor('#111827');
+    doc.setTextColor(brandPanel);
     doc.setFontSize(12);
     doc.text(`${locale === 'ar' ? 'المريض' : 'Patient'}: ${payload.patientName}`, 12, 36);
     doc.text(`${locale === 'ar' ? 'النتيجة' : 'Score'}: ${payload.score}`, 12, 46);

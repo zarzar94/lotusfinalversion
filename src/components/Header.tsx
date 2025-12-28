@@ -520,7 +520,7 @@ const Header = memo(function Header() {
                     padding: '8px 12px',
                     fontSize: 13,
                     fontWeight: 700,
-                    color: isActive ? brandCyan : isPriority ? visitorConfig.color : '#f7f8fb',
+                    color: isActive ? brandCyan : isPriority ? visitorConfig.color : colors.text.primary,
                     textDecoration: 'none',
                     borderRadius: 10,
                     background: isActive
@@ -638,7 +638,7 @@ const Header = memo(function Header() {
               {isMobileMenuOpen ? (
                 <XIcon size={22} color={brandCyan} />
               ) : (
-                <MenuIcon size={22} color="#f7f8fb" />
+                <MenuIcon size={22} color={colors.text.primary} />
               )}
             </button>
           </div>
@@ -724,7 +724,7 @@ const Header = memo(function Header() {
               padding: '14px 16px',
               fontSize: 15,
               fontWeight: 700,
-              color: isActivePath('/') && location.pathname === '/' ? brandCyan : '#f7f8fb',
+              color: isActivePath('/') && location.pathname === '/' ? brandCyan : colors.text.primary,
               textDecoration: 'none',
               borderRadius: 12,
               background: isActivePath('/') && location.pathname === '/'
@@ -769,7 +769,7 @@ const Header = memo(function Header() {
                   padding: '14px 16px',
                   fontSize: 15,
                   fontWeight: 700,
-                  color: isActive ? brandCyan : isPriority ? visitorConfig.color : '#f7f8fb',
+                  color: isActive ? brandCyan : isPriority ? visitorConfig.color : colors.text.primary,
                   textDecoration: 'none',
                   borderRadius: 12,
                   background: isActive

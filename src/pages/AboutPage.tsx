@@ -30,6 +30,7 @@ import { CLINIC } from '../data/clinic';
 import { assetUrl } from '../utils/asset';
 import {
   brandCyan,
+  brandInk,
   brandPurple,
   brandPink,
   brandColors,
@@ -292,7 +293,7 @@ const SpecialistProfile = memo(({ isArabic }: { isArabic: boolean }) => {
                 justifyContent: 'center',
                 fontSize: 14,
                 fontWeight: typography.weight.black,
-                color: '#05060d',
+                color: brandInk,
               }}
             >
               B
@@ -833,7 +834,7 @@ const ConnectSection = memo(({ isArabic }: { isArabic: boolean }) => {
             border: `1px solid ${isHovered === 'contact' ? 'transparent' : colors.border.emphasis}`,
             borderRadius: radius.xl,
             textDecoration: 'none',
-            color: isHovered === 'contact' ? '#05060d' : colors.text.primary,
+            color: isHovered === 'contact' ? brandInk : colors.text.primary,
             fontWeight: typography.weight.bold,
             fontSize: typography.size.md,
             transition: 'all 0.3s ease',

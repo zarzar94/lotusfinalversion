@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useMemo, useState, useRef, useCallback, memo } from 'react';
-import { brandCyan, brandPink, brandPurple, colors as uiColors } from '../styles';
+import { brandCyan, brandPink, brandPurple, colors as uiColors, moduleColors, moduleGradients, labTech } from '../styles';
 import { useLanguage } from '../../context/LanguageContext';
 import { renderLabIcon } from '../icons/index';
 import {
@@ -24,14 +24,14 @@ const CONNECTION_DISTANCE = 80;
 // Language-aware game configuration
 // Language-aware game configuration
 const getGameConfig = (isArabic: boolean) => [
-  { mode: 'suite', icon: '🧪', title: isArabic ? 'التقييم الشامل' : 'Full Assessment', desc: isArabic ? '6 اختبارات' : '6 Tests', color: uiColors.success, gradient: `linear-gradient(135deg, ${uiColors.success}, #16a34a)` },
-  { mode: 'attention', icon: '🎯', title: isArabic ? 'الانتباه' : 'Attention', desc: isArabic ? 'استجب/لا تستجب' : 'Go/No-Go', color: '#3B82F6', gradient: 'linear-gradient(135deg, #3B82F6, #2563EB)' },
-  { mode: 'focused_attention', icon: '🎯', title: isArabic ? 'الانتباه المركز' : 'Focused Attention', desc: 'CPT', color: '#0EA5E9', gradient: 'linear-gradient(135deg, #0EA5E9, #0284C7)' },
-  { mode: 'frequency', icon: '🎚️', title: isArabic ? 'تمييز التردد' : 'Frequency', desc: isArabic ? 'تكيفي' : 'Adaptive', color: '#8B5CF6', gradient: 'linear-gradient(135deg, #8B5CF6, #7C3AED)' },
-  { mode: 'sequence', icon: '🏫', title: isArabic ? 'التسلسل' : 'Sequence', desc: isArabic ? 'الذاكرة' : 'Memory', color: '#F59E0B', gradient: 'linear-gradient(135deg, #F59E0B, #D97706)' },
-  { mode: 'dichotic_listening', icon: '🎧', title: isArabic ? 'الاستماع الثنائي' : 'Dichotic', desc: isArabic ? 'تكامل + فصل' : 'Integration + Separation', color: '#10B981', gradient: 'linear-gradient(135deg, #10B981, #059669)' },
-  { mode: 'speech_in_noise', icon: '🔊', title: isArabic ? 'الكلام وسط الضجيج' : 'Speech in Noise', desc: isArabic ? 'SNR تكيفي' : 'Adaptive SNR', color: '#F97316', gradient: 'linear-gradient(135deg, #F97316, #EA580C)' },
-  { mode: 'questionnaire', icon: '📝', title: isArabic ? 'الاستبيان' : 'Questionnaire', desc: isArabic ? 'الأهل' : 'Parents', color: brandPink, gradient: `linear-gradient(135deg, ${brandPink}, #9D174D)` },
+  { mode: 'suite', icon: '🧪', title: isArabic ? 'التقييم الشامل' : 'Full Assessment', desc: isArabic ? '6 اختبارات' : '6 Tests', color: uiColors.success, gradient: moduleGradients.suite },
+  { mode: 'attention', icon: '🎯', title: isArabic ? 'الانتباه' : 'Attention', desc: isArabic ? 'استجب/لا تستجب' : 'Go/No-Go', color: moduleColors.attention, gradient: moduleGradients.attention },
+  { mode: 'focused_attention', icon: '🎯', title: isArabic ? 'الانتباه المركز' : 'Focused Attention', desc: 'CPT', color: moduleColors.focusedAttention, gradient: moduleGradients.focusedAttention },
+  { mode: 'frequency', icon: '🎚️', title: isArabic ? 'تمييز التردد' : 'Frequency', desc: isArabic ? 'تكيفي' : 'Adaptive', color: moduleColors.frequency, gradient: moduleGradients.frequency },
+  { mode: 'sequence', icon: '🏫', title: isArabic ? 'التسلسل' : 'Sequence', desc: isArabic ? 'الذاكرة' : 'Memory', color: moduleColors.sequence, gradient: moduleGradients.sequence },
+  { mode: 'dichotic_listening', icon: '🎧', title: isArabic ? 'الاستماع الثنائي' : 'Dichotic', desc: isArabic ? 'تكامل + فصل' : 'Integration + Separation', color: moduleColors.dichotic, gradient: moduleGradients.dichotic },
+  { mode: 'speech_in_noise', icon: '🔊', title: isArabic ? 'الكلام وسط الضجيج' : 'Speech in Noise', desc: isArabic ? 'SNR تكيفي' : 'Adaptive SNR', color: moduleColors.speechInNoise, gradient: moduleGradients.speechInNoise },
+  { mode: 'questionnaire', icon: '📝', title: isArabic ? 'الاستبيان' : 'Questionnaire', desc: isArabic ? 'الأهل' : 'Parents', color: brandPink, gradient: moduleGradients.questionnaire },
 ] as const;
 
 // ==================== CSS KEYFRAMES ====================
@@ -89,7 +89,7 @@ const AnimatedBackground = memo(function AnimatedBackground() {
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
-    const colors = [brandCyan, brandPink, brandPurple, uiColors.success, '#3B82F6'];
+    const colors = [brandCyan, brandPink, brandPurple, uiColors.success, moduleColors.attention];
     let width = 0;
     let height = 0;
 
@@ -275,7 +275,7 @@ const PortalHeader = memo(function PortalHeader({
       style={{
         position: 'relative',
         padding: '28px 24px',
-        background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+        background: labTech.backgrounds.primary,
         borderRadius: '24px 24px 0 0',
         borderBottom: '1px solid rgba(143,211,204,0.12)',
         overflow: 'hidden',
@@ -354,7 +354,7 @@ const PortalHeader = memo(function PortalHeader({
           <div style={{ display: 'flex', gap: 14 }}>
             <StatBadge icon="⭐" value={totalPoints.toLocaleString()} label={t('auto.GamePortal.k3', "Points")} color={brandCyan} animate={totalPoints > 0} />
             <StatBadge icon="🎮" value={sessionsCount.toString()} label={t('auto.GamePortal.k4', "Sessions")} color={brandPurple} />
-            {streak > 0 && <StatBadge icon="🔥" value={streak.toString()} label={t('auto.GamePortal.k5', "Streak")} color="#F59E0B" />}
+            {streak > 0 && <StatBadge icon="🔥" value={streak.toString()} label={t('auto.GamePortal.k5', "Streak")} color={uiColors.warning} />}
           </div>
         </div>
       </div>
@@ -1011,7 +1011,7 @@ export default function GamePortal({
   return (
     <div
       style={{
-        background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+        background: labTech.backgrounds.primary,
         borderRadius: 24,
         overflow: 'hidden',
         boxShadow: '0 30px 70px rgba(0,0,0,0.45), 0 0 60px rgba(143,211,204,0.06)',

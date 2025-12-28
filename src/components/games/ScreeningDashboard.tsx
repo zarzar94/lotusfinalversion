@@ -6,7 +6,7 @@
 import { memo, useMemo, useState, useCallback, useEffect } from 'react';
 import { useVisitorMode } from '../../context/VisitorModeContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { brandCyan, brandPink, brandPurple, colors, radius, spacing, typography, transitions, shadows, brandPurpleDark } from '../styles';
+import { brandCyan, brandPink, brandPurple, colors, moduleColors, radius, spacing, typography, transitions, shadows, brandPurpleDark } from '../styles';
 import { getSessions, type StoredSession } from './scoring';
 import { resultMeta, type GameResult, type TestOutcome } from './types';
 import { renderLabIcon } from '../icons/index';
@@ -629,7 +629,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                   <Gauge
                     value={metrics.averages['attention'].avg}
                     label={t('auto.ScreeningDashboard.k10', "Attention")}
-                    color="#3B82F6"
+                    color={moduleColors.attention}
                     size={100}
                     isArabic={isArabic}
                   />
@@ -638,7 +638,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                   <Gauge
                     value={metrics.averages['frequency'].avg}
                     label={t('auto.ScreeningDashboard.k11', "Frequency")}
-                    color="#8B5CF6"
+                    color={moduleColors.frequency}
                     size={100}
                     isArabic={isArabic}
                   />
@@ -647,7 +647,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                   <Gauge
                     value={metrics.averages['sequence'].avg}
                     label={t('auto.ScreeningDashboard.k12', "Sequence")}
-                    color="#F59E0B"
+                    color={moduleColors.sequence}
                     size={100}
                     isArabic={isArabic}
                   />
@@ -868,9 +868,9 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
                   <TrendChart
                     data={data.scores}
                     color={
-                      key === 'attention' ? '#3B82F6' :
-                      key === 'frequency' ? '#8B5CF6' :
-                      key === 'sequence' ? '#F59E0B' :
+                      key === 'attention' ? moduleColors.attention :
+                      key === 'frequency' ? moduleColors.frequency :
+                      key === 'sequence' ? moduleColors.sequence :
                       brandPink
                     }
                     label={

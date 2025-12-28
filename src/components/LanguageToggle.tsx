@@ -1,6 +1,6 @@
 import { memo, useCallback, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { brandCyan, brandPink, brandPurple, typography, spacing, radius, transitions, colors } from './styles';
+import { brandCyan, brandPurple, typography, spacing, radius, transitions, colors, labTech } from './styles';
 
 interface LanguageToggleProps {
   compact?: boolean;
@@ -121,7 +121,7 @@ const LanguageToggle = memo(function LanguageToggle({ compact = false }: Languag
           transform: 'translateX(-50%)',
           marginTop: 8,
           padding: '6px 12px',
-          background: 'linear-gradient(135deg, #1a1f2e, #0d1117)',
+          background: labTech.backgrounds.card,
           border: `1px solid ${brandCyan}44`,
           borderRadius: 8,
           fontSize: 11,

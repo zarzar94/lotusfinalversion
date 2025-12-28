@@ -19,6 +19,7 @@ import { ProgressExportButton } from './components/ProgressExport';
 import { useClinicalSync } from './hooks/useClinicalSync';
 import StickySmartCTA from './components/StickySmartCTA';
 import { readUserScopedStorage } from './utils/userStorage';
+import { brandCyan, brandInk, brandPink, brandPurple } from './components/styles';
 
 // Respect Vite base for subpath deployments (e.g., GitHub Pages)
 const rawBase = import.meta.env.BASE_URL ?? '/';
@@ -76,7 +77,7 @@ function PageLoader() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#05060d',
+        background: brandInk,
         position: 'relative',
         overflow: 'hidden',
         direction: isArabic ? 'rtl' : 'ltr',
@@ -117,8 +118,8 @@ function PageLoader() {
               position: 'absolute',
               inset: 0,
               border: '3px solid transparent',
-              borderTopColor: '#8FD3CC',
-              borderRightColor: '#AF84BA',
+              borderTopColor: brandCyan,
+              borderRightColor: brandPurple,
               borderRadius: '50%',
               animation: 'spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite',
             }}
@@ -142,7 +143,7 @@ function PageLoader() {
               transform: 'translate(-50%, -50%)',
               width: 12,
               height: 12,
-              background: '#8FD3CC',
+              background: brandCyan,
               borderRadius: '50%',
               boxShadow: '0 0 20px rgba(143,211,204,0.6)',
             }}
@@ -166,9 +167,9 @@ function PageLoader() {
                   transform: 'translateX(-50%)',
                   width: 6,
                   height: 6,
-                  background: ['#8FD3CC', '#AF84BA', '#B01270'][i],
+                  background: [brandCyan, brandPurple, brandPink][i],
                   borderRadius: '50%',
-                  boxShadow: `0 0 10px ${['#8FD3CC', '#AF84BA', '#B01270'][i]}`,
+                  boxShadow: `0 0 10px ${[brandCyan, brandPurple, brandPink][i]}`,
                 }}
               />
             </div>
@@ -178,7 +179,7 @@ function PageLoader() {
         {/* Text - Bilingual */}
         <div
           style={{
-            color: '#8FD3CC',
+            color: brandCyan,
             fontSize: 16,
             fontFamily: 'Cairo, sans-serif',
             fontWeight: 600,
@@ -247,7 +248,7 @@ const PageTransitionStyles = memo(() => (
 
     /* Global focus styles for accessibility */
     *:focus-visible {
-      outline: 2px solid #8FD3CC;
+      outline: 2px solid ${brandCyan};
       outline-offset: 2px;
     }
 

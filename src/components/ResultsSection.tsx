@@ -443,7 +443,7 @@ const ResultsSection = () => {
             </div>
 
             <div style={{ marginTop: 14, borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.10)' }}>
-              <img src={assetUrl(activeSlide.image)} alt={activeSlide.title} style={{ width: '100%', display: 'block', background: '#0f1629' }} />
+              <img src={assetUrl(activeSlide.image)} alt={activeSlide.title} style={{ width: '100%', display: 'block', background: colors.surface.input }} />
             </div>
 
             {activeSlide.body ? (

@@ -10,6 +10,7 @@ import { useGamification } from '../context/GamificationContext';
 import { positionInlineStart } from '../utils/rtl';
 import {
   brandCyan,
+  brandInk,
   brandPurple,
   brandPink,
   colors,
@@ -442,7 +443,7 @@ export default function NotificationCenter() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: `0 ${spacing[1]}px`,
-                border: '2px solid #05060d',
+                border: `2px solid ${brandInk}`,
               }}
             >
               {unreadCount > 9 ? '9+' : unreadCount}

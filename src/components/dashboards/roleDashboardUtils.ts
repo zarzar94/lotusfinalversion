@@ -1,5 +1,5 @@
 import type { LabModuleMetrics } from '../../types/moduleMetrics';
-import { brandCyan, brandPink, brandPurple, colors } from '../styles';
+import { brandCyan, brandPink, brandPurple, colors, moduleColors } from '../styles';
 
 export const MODULE_ORDER = [
   'attention',
@@ -22,12 +22,12 @@ const MODULE_LABELS: Record<string, { en: string; ar: string }> = {
 };
 
 const MODULE_COLORS: Record<string, string> = {
-  attention: '#3B82F6',
-  focused_attention: '#0EA5E9',
-  frequency: '#8B5CF6',
-  sequence: colors.warning,
-  dichotic_listening: '#10B981',
-  speech_in_noise: '#F97316',
+  attention: moduleColors.attention,
+  focused_attention: moduleColors.focusedAttention,
+  frequency: moduleColors.frequency,
+  sequence: moduleColors.sequence,
+  dichotic_listening: moduleColors.dichotic,
+  speech_in_noise: moduleColors.speechInNoise,
   questionnaire: brandPink,
 };
 

@@ -252,7 +252,7 @@ const LabMonitor = ({ video, isHovered, isArabic, onHover }: {
               margin: 0,
               fontSize: 14,
               fontWeight: 800,
-              color: '#f7f8fb',
+              color: colors.text.primary,
               lineHeight: 1.4,
             }}>
               {isArabic ? video.title : video.titleEn}

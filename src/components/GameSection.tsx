@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useRef, useCallback, memo } from 'react';
 
-import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, radius, spacing, typography, transitions, modalScale } from './styles';
+import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, labTech, moduleColors, radius, spacing, typography, transitions, modalScale } from './styles';
 import LabCard from './labui/LabCard';
 import LabButton from './labui/LabButton';
 import LabButtonAnchor from './labui/LabButtonAnchor';
@@ -215,7 +215,7 @@ function MedicalMonitor({
           style={{
             width: '100%',
             maxHeight: '90vh',
-            background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+            background: labTech.backgrounds.primary,
             borderRadius: 24,
             padding: 0,
             boxShadow: `0 40px 100px rgba(0,0,0,0.6), 0 0 80px ${waveformColor}15`,
@@ -797,7 +797,7 @@ const GameSection = memo(function GameSection() {
         desc: t('games.modules.attention.measure'),
         outputs: [outputLabels.rt, outputLabels.accuracy],
         tag: t('games.tags.attention'),
-        color: '#3B82F6',
+        color: moduleColors.attention,
         waveType: 'spo2' as const,
       },
       {
@@ -807,7 +807,7 @@ const GameSection = memo(function GameSection() {
         desc: t('games.cards.focusedAttention.desc', 'Measures sustained attention consistency over time'),
         outputs: [outputLabels.rt, outputLabels.accuracy],
         tag: t('games.focusedAttention'),
-        color: '#0EA5E9',
+        color: moduleColors.focusedAttention,
         waveType: 'spo2' as const,
       },
       {
@@ -817,7 +817,7 @@ const GameSection = memo(function GameSection() {
         desc: t('games.modules.frequency.measure'),
         outputs: [outputLabels.threshold, outputLabels.accuracy, outputLabels.rt],
         tag: t('games.tags.frequency'),
-        color: '#8B5CF6',
+        color: moduleColors.frequency,
         waveType: 'audio' as const,
       },
       {
@@ -827,7 +827,7 @@ const GameSection = memo(function GameSection() {
         desc: t('games.modules.sequence.measure'),
         outputs: [outputLabels.span, outputLabels.accuracy, outputLabels.rt],
         tag: t('games.tags.sequence'),
-        color: '#F59E0B',
+        color: moduleColors.sequence,
         waveType: 'resp' as const,
       },
       {
@@ -837,7 +837,7 @@ const GameSection = memo(function GameSection() {
         desc: t('games.cards.dichotic.desc', 'Assesses ear balance and separation accuracy'),
         outputs: [outputLabels.accuracy, outputLabels.profile],
         tag: t('games.dichoticListening'),
-        color: '#10B981',
+        color: moduleColors.dichotic,
         waveType: 'audio' as const,
       },
       {
@@ -847,7 +847,7 @@ const GameSection = memo(function GameSection() {
         desc: t('games.cards.speechInNoise.desc', 'Measures speech understanding with changing noise'),
         outputs: [outputLabels.threshold, outputLabels.accuracy],
         tag: t('games.speechInNoise'),
-        color: '#F97316',
+        color: moduleColors.speechInNoise,
         waveType: 'resp' as const,
       },
       {
@@ -961,7 +961,7 @@ const GameSection = memo(function GameSection() {
       <div style={{
         marginTop: 20,
         padding: 20,
-        background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+        background: labTech.backgrounds.primary,
         borderRadius: 20,
         boxShadow: '0 15px 40px rgba(0,0,0,0.4), 0 0 60px rgba(143,211,204,0.08)',
         border: '1px solid rgba(143,211,204,0.15)',
@@ -1226,39 +1226,39 @@ const GameSection = memo(function GameSection() {
               },
               {
                 mode: 'attention',
-                color: '#3B82F6',
+                color: moduleColors.attention,
                 label: t('games.tags.attention'),
-                icon: <WaveformIcon size={14} tone="muted" style={{ color: '#3B82F6' }} />,
+                icon: <WaveformIcon size={14} tone="muted" style={{ color: moduleColors.attention }} />,
               },
               {
                 mode: 'focused_attention',
-                color: '#0EA5E9',
+                color: moduleColors.focusedAttention,
                 label: t('games.focusedAttention'),
-                icon: <BrainCircuitIcon size={14} tone="muted" style={{ color: '#0EA5E9' }} />,
+                icon: <BrainCircuitIcon size={14} tone="muted" style={{ color: moduleColors.focusedAttention }} />,
               },
               {
                 mode: 'frequency',
-                color: '#8B5CF6',
+                color: moduleColors.frequency,
                 label: t('games.tags.frequency'),
-                icon: <SpectrogramIcon size={14} tone="muted" style={{ color: '#8B5CF6' }} />,
+                icon: <SpectrogramIcon size={14} tone="muted" style={{ color: moduleColors.frequency }} />,
               },
               {
                 mode: 'sequence',
-                color: '#F59E0B',
+                color: moduleColors.sequence,
                 label: t('games.tags.sequence'),
-                icon: <SchoolIcon size={14} tone="muted" style={{ color: '#F59E0B' }} />,
+                icon: <SchoolIcon size={14} tone="muted" style={{ color: moduleColors.sequence }} />,
               },
               {
                 mode: 'dichotic_listening',
-                color: '#10B981',
+                color: moduleColors.dichotic,
                 label: t('games.dichoticListening'),
-                icon: <HeadsetIcon size={14} tone="muted" style={{ color: '#10B981' }} />,
+                icon: <HeadsetIcon size={14} tone="muted" style={{ color: moduleColors.dichotic }} />,
               },
               {
                 mode: 'speech_in_noise',
-                color: '#F97316',
+                color: moduleColors.speechInNoise,
                 label: t('games.speechInNoise'),
-                icon: <WaveformIcon size={14} tone="muted" style={{ color: '#F97316' }} />,
+                icon: <WaveformIcon size={14} tone="muted" style={{ color: moduleColors.speechInNoise }} />,
               },
               {
                 mode: 'questionnaire',
@@ -1319,7 +1319,7 @@ const GameSection = memo(function GameSection() {
           padding={spacing[4]}
           style={{
             marginTop: spacing[6],
-            background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+            background: labTech.backgrounds.primary,
             border: '1px solid rgba(143,211,204,0.12)',
             boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
             position: 'relative',
@@ -1428,7 +1428,7 @@ const GameSection = memo(function GameSection() {
         open={mode === 'attention'}
         onClose={() => setMode(null)}
         title={t('games.cards.attention.fullTitle')}
-        waveformColor="#3B82F6"
+        waveformColor={moduleColors.attention}
         waveformType="spo2"
         statusText={isTestActive ? t('games.lab.statusTesting') : t('games.moduleStatusReady')}
         isActive={isTestActive}
@@ -1467,7 +1467,7 @@ const GameSection = memo(function GameSection() {
         open={mode === 'frequency'}
         onClose={() => setMode(null)}
         title={t('games.cards.frequency.fullTitle')}
-        waveformColor="#8B5CF6"
+        waveformColor={moduleColors.frequency}
         waveformType="audio"
         statusText={isTestActive ? t('games.lab.statusTesting') : t('games.moduleStatusReady')}
         isActive={isTestActive}
@@ -1506,7 +1506,7 @@ const GameSection = memo(function GameSection() {
         open={mode === 'sequence'}
         onClose={() => setMode(null)}
         title={t('games.cards.sequence.fullTitle')}
-        waveformColor="#F59E0B"
+        waveformColor={moduleColors.sequence}
         waveformType="resp"
         statusText={isTestActive ? t('games.lab.statusTesting') : t('games.moduleStatusReady')}
         isActive={isTestActive}

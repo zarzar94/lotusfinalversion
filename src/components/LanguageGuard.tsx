@@ -6,6 +6,7 @@
  */
 
 import { memo, type ReactNode, type CSSProperties } from 'react';
+import { brandCyan } from './styles';
 import { useLanguage } from '../context/LanguageContext';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -229,7 +230,7 @@ export const LanguageBadge = memo(function LanguageBadge({
         borderRadius: 8,
         fontSize: 11,
         fontWeight: 700,
-        color: '#8FD3CC',
+        color: brandCyan,
         zIndex: 9998,
         display: 'flex',
         alignItems: 'center',

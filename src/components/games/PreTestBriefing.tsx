@@ -6,7 +6,7 @@
 import { memo, useMemo, useCallback, useState, useEffect } from 'react';
 import { useVisitorMode } from '../../context/VisitorModeContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { brandCyan, brandPink, brandPurple, colors, radius, spacing, typography, transitions, shadows, modalScale } from '../styles';
+import { brandCyan, brandPink, brandPurple, colors, moduleColors, radius, spacing, typography, transitions, shadows, modalScale } from '../styles';
 import { renderLabIcon } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -135,7 +135,7 @@ const TEST_BRIEFINGS: Record<string, TestBriefing> = {
       'تجاهل الأصوات المشتتة',
       'الاختبار يصبح أصعب تدريجياً',
     ],
-    color: '#3B82F6',
+    color: moduleColors.attention,
   },
   frequency: {
     id: 'frequency',
@@ -182,7 +182,7 @@ const TEST_BRIEFINGS: Record<string, TestBriefing> = {
       'الصعوبة تتكيف مع الأداء',
       'بعض الأزواج ستبدو متشابهة جداً',
     ],
-    color: '#8B5CF6',
+    color: moduleColors.frequency,
   },
   sequence: {
     id: 'sequence',
@@ -229,7 +229,7 @@ const TEST_BRIEFINGS: Record<string, TestBriefing> = {
       'الضوضاء الخلفية تزداد',
       'تسلسلات أكثر تعقيداً مع الوقت',
     ],
-    color: '#F59E0B',
+    color: moduleColors.sequence,
   },
   focused_attention: {
     id: 'focused_attention',
@@ -276,7 +276,7 @@ const TEST_BRIEFINGS: Record<string, TestBriefing> = {
       'تجارب تدريبية أولاً',
       'عرض ملخص في النهاية',
     ],
-    color: '#0EA5E9',
+    color: moduleColors.focusedAttention,
   },
   dichotic_listening: {
     id: 'dichotic_listening',
@@ -323,7 +323,7 @@ const TEST_BRIEFINGS: Record<string, TestBriefing> = {
       'مجموعة تدريب قصيرة',
       'النتائج بعد الانتهاء',
     ],
-    color: '#10B981',
+    color: moduleColors.dichotic,
   },
   speech_in_noise: {
     id: 'speech_in_noise',
@@ -370,7 +370,7 @@ const TEST_BRIEFINGS: Record<string, TestBriefing> = {
       'يتكيف الضجيج مع الأداء',
       'عرض ملخص في النهاية',
     ],
-    color: '#F97316',
+    color: moduleColors.speechInNoise,
   },
   questionnaire: {
     id: 'questionnaire',

@@ -9,6 +9,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import {
   brandCyan,
+  brandInk,
   brandPurple,
   brandPink,
   typography,
@@ -565,7 +566,7 @@ export default function ActivityFeed() {
                   height: 10,
                   borderRadius: '50%',
                   background: brandCyan,
-                  border: '2px solid #05060d',
+                  border: `2px solid ${brandInk}`,
                   animation: prefersReducedMotion ? undefined : 'activityPulse 1s ease-in-out infinite',
                 }}
               />

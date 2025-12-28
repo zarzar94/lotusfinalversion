@@ -86,6 +86,26 @@ export const performanceBands = {
   },
 };
 
+export const moduleColors = {
+  attention: '#3B82F6',
+  focusedAttention: '#0EA5E9',
+  frequency: '#8B5CF6',
+  sequence: '#F59E0B',
+  dichotic: '#10B981',
+  speechInNoise: '#F97316',
+};
+
+export const moduleGradients = {
+  suite: `linear-gradient(135deg, ${colors.success}, #16a34a)`,
+  attention: `linear-gradient(135deg, ${moduleColors.attention}, #2563EB)`,
+  focusedAttention: `linear-gradient(135deg, ${moduleColors.focusedAttention}, #0284C7)`,
+  frequency: `linear-gradient(135deg, ${moduleColors.frequency}, #7C3AED)`,
+  sequence: `linear-gradient(135deg, ${moduleColors.sequence}, #D97706)`,
+  dichotic: `linear-gradient(135deg, ${moduleColors.dichotic}, #059669)`,
+  speechInNoise: `linear-gradient(135deg, ${moduleColors.speechInNoise}, #EA580C)`,
+  questionnaire: `linear-gradient(135deg, ${brandPink}, #9D174D)`,
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPOGRAPHY SCALE
 // Based on 1.25 ratio (Major Third) with 16px base

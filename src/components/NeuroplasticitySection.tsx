@@ -222,7 +222,7 @@ export default function NeuroplasticitySection() {
         <p style={{
           fontSize: 18,
           lineHeight: 1.8,
-          color: '#f7f8fb',
+          color: colors.text.primary,
           margin: 0,
           fontWeight: 500,
         }}>
@@ -395,7 +395,7 @@ export default function NeuroplasticitySection() {
         <p style={{
           fontSize: 16,
           lineHeight: 1.8,
-          color: '#f7f8fb',
+          color: colors.text.primary,
           margin: 0,
           fontStyle: 'italic',
         }}>

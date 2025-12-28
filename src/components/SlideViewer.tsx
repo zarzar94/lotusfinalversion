@@ -293,7 +293,7 @@ const FlaskSlideCard = memo(({
           <div style={{
             fontWeight: 800,
             fontSize: 13,
-            color: '#f7f8fb',
+            color: colors.text.primary,
             lineHeight: 1.4,
             marginBottom: 6,
           }}>
@@ -422,7 +422,7 @@ const MicroscopeModal = ({
                   {activeIndex + 1} {isArabic ? 'من' : 'of'} {slides.length}
                 </span>
               </div>
-              <div style={{ fontWeight: 800, fontSize: 16, marginTop: 4, color: '#f7f8fb' }}>
+              <div style={{ fontWeight: 800, fontSize: 16, marginTop: 4, color: colors.text.primary }}>
                 {slide.title}
               </div>
             </div>
@@ -446,7 +446,7 @@ const MicroscopeModal = ({
         {/* Microscope viewing area */}
         <div style={{
           position: 'relative',
-          background: '#0a0d14',
+          background: colors.surface.base,
           padding: 20,
         }}>
           {/* Flask switching animation overlay */}

@@ -1,9 +1,10 @@
 import { memo, type ReactNode } from 'react';
-import { Link, Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, type Permission } from '../../context/UserContext';
-import { brandCyan, brandPurple, colors, radius, spacing, typography } from '../styles';
+import { colors, radius, spacing, typography } from '../styles';
+import LabButtonLink from '../labui/LabButtonLink';
 
 type RequirePermissionProps = {
   permission: Permission;
@@ -48,32 +49,12 @@ export function AccessDenied({ isAuthenticated }: AccessDeniedProps) {
           {message}
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[3], marginTop: spacing[4] }}>
-          <Link
-            to="/"
-            style={{
-              padding: '10px 16px',
-              borderRadius: radius.full,
-              background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
-              color: '#05060d',
-              fontWeight: 700,
-              textDecoration: 'none',
-            }}
-          >
+          <LabButtonLink to="/" variant="primary">
             {t('common.goHome', 'Go Home')}
-          </Link>
-          <Link
-            to="/contact"
-            style={{
-              padding: '10px 16px',
-              borderRadius: radius.full,
-              border: `1px solid ${colors.border.default}`,
-              color: colors.text.primary,
-              textDecoration: 'none',
-              fontWeight: 700,
-            }}
-          >
+          </LabButtonLink>
+          <LabButtonLink to="/contact" variant="ghost">
             {t('common.contactUs', 'Contact Us')}
-          </Link>
+          </LabButtonLink>
         </div>
       </section>
     </main>

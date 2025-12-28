@@ -10,7 +10,7 @@ import {
   playLaunchSound,
   playExplosionSound,
 } from '../utils/audio';
-import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, radius, spacing, typography, transitions } from './styles';
+import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, labTech, radius, spacing, typography, transitions } from './styles';
 import { useGamification } from '../context/GamificationContext';
 import { useVisitorMode } from '../context/VisitorModeContext';
 import {
@@ -733,7 +733,7 @@ const Checklist = () => {
         variant="panel"
         padding={spacing[6]}
         style={{
-          background: 'linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%)',
+          background: labTech.backgrounds.primary,
           border: '1px solid rgba(143,211,204,0.15)',
           boxShadow: '0 15px 40px rgba(0,0,0,0.4), 0 0 60px rgba(143,211,204,0.08)',
           position: 'relative',

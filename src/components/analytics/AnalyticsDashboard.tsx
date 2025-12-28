@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { styles, brandCyan, brandPink, brandPurple } from '../styles';
+import { styles, brandCyan, brandPink, brandPurple, colors } from '../styles';
 
 const barData = [
   { label: 'انتباه', value: 78 },
@@ -61,7 +61,7 @@ const AnalyticsDashboard = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {
         start += slice;
       });
       donutCtx.globalAlpha = 1;
-      donutCtx.fillStyle = '#0b0f1c';
+      donutCtx.fillStyle = colors.surface.elevated;
       donutCtx.beginPath();
       donutCtx.arc(100, 100, 45, 0, Math.PI * 2);
       donutCtx.fill();

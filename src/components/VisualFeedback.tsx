@@ -6,6 +6,7 @@
 import { memo, useState, useEffect, useCallback, createContext, useContext, ReactNode } from 'react';
 import {
   brandCyan,
+  brandInk,
   brandPurple,
   brandPink,
   colors,
@@ -257,7 +258,7 @@ export const InteractiveButton = memo(({
   const variants = {
     primary: {
       background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
-      color: '#05060d',
+      color: brandInk,
       border: 'none',
     },
     secondary: {

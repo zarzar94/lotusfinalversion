@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   brandCyan,
+  brandInk,
   brandPink,
   brandPurple,
   colors,
@@ -438,7 +439,7 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
                         borderRadius: radius.full,
                         border: 'none',
                         background: `linear-gradient(135deg, ${step.accent}, ${brandCyan})`,
-                        color: '#05060d',
+                        color: brandInk,
                         fontWeight: typography.weight.bold,
                         cursor: 'pointer',
                         boxShadow: `0 12px 30px ${step.accent}35`,
@@ -508,7 +509,7 @@ export function ExperienceJourney({ isArabic }: { isArabic: boolean }) {
               borderRadius: radius.full,
               background: `linear-gradient(120deg, ${brandPurple}, ${brandCyan})`,
               border: 'none',
-              color: '#05060d',
+              color: brandInk,
               fontWeight: typography.weight.black,
               fontSize: typography.size.lg,
               cursor: 'pointer',
