@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { brandCyan, brandPurple } from './styles';
+import { brandCyan, brandPurple, logoPalette } from './styles';
 import { useLanguage } from '../context/LanguageContext';
 import { assetUrl } from '../utils/asset';
 
@@ -51,7 +51,7 @@ export const BrainLogoSVG = memo(({ size = 50, animated = false }: { size?: numb
         />
 
         {/* Organic brain folds/gyri */}
-        <g stroke="#0a3d3a" strokeWidth="2" fill="none" strokeLinecap="round">
+        <g stroke={logoPalette.circuitStroke} strokeWidth="2" fill="none" strokeLinecap="round">
           {/* Top lobe curves */}
           <path d="M18 28 Q28 22 38 26 Q46 28 50 32" />
           <path d="M16 38 Q26 34 36 36 Q44 38 50 42" />
@@ -65,7 +65,7 @@ export const BrainLogoSVG = memo(({ size = 50, animated = false }: { size?: numb
         </g>
 
         {/* Detailed fold accents */}
-        <g stroke="#0a3d3a" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.6">
+        <g stroke={logoPalette.circuitStroke} strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.6">
           <path d="M22 32 Q30 30 38 33" />
           <path d="M20 44 Q28 42 36 44" />
           <path d="M18 56 Q26 54 34 56" />
@@ -87,7 +87,7 @@ export const BrainLogoSVG = memo(({ size = 50, animated = false }: { size?: numb
              C80 78 72 84 62 86
              C56 87 52 86 50 85
              L50 12Z"
-          fill="#0d4a46"
+          fill={logoPalette.circuitFill}
         />
 
         {/* Circuit board grid lines */}
@@ -215,7 +215,7 @@ export const BrainLogoSVG = memo(({ size = 50, animated = false }: { size?: numb
       {/* Brain stem at bottom */}
       <path
         d="M44 82 Q50 92 50 96 Q50 92 56 82"
-        fill="#0a3d3a"
+        fill={logoPalette.circuitStroke}
         stroke={brandCyan}
         strokeWidth="0.5"
       />

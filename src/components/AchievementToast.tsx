@@ -361,7 +361,7 @@ export default function AchievementToast() {
           borderRadius: 4,
           fontSize: 11,
           fontWeight: 900,
-          color: '#fff',
+          color: colors.text.primary,
           letterSpacing: 0.5,
           boxShadow: `0 0 15px ${brandCyan}50, 0 4px 10px rgba(0,0,0,0.3)`,
           border: `1px solid ${brandCyan}60`,

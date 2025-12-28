@@ -602,7 +602,7 @@ export default function AudioSpectrumDemo() {
               borderRadius: 12,
               border: '1px solid rgba(239,68,68,0.35)',
               background: 'rgba(239,68,68,0.10)',
-              color: '#fecaca',
+              color: colors.errorSoft,
               fontSize: 12,
               fontWeight: 600,
             }}
@@ -706,16 +706,16 @@ export default function AudioSpectrumDemo() {
                 disabled={isAudioStarting}
                 style={{
                   padding: '8px 16px',
-                  background: isPlaying
-                    ? `linear-gradient(135deg, ${colors.error}, ${colors.error})`
-                    : `linear-gradient(135deg, ${audioColors.mid}, ${brandPurple})`,
-                  border: 'none',
-                  borderRadius: 10,
-                  color: '#fff',
-                  fontSize: 12,
-                  fontWeight: 800,
-                  cursor: isAudioStarting ? 'not-allowed' : 'pointer',
-                  opacity: isAudioStarting ? 0.7 : 1,
+                background: isPlaying
+                  ? `linear-gradient(135deg, ${colors.error}, ${colors.error})`
+                  : `linear-gradient(135deg, ${audioColors.mid}, ${brandPurple})`,
+                border: 'none',
+                borderRadius: 10,
+                color: colors.text.primary,
+                fontSize: 12,
+                fontWeight: 800,
+                cursor: isAudioStarting ? 'not-allowed' : 'pointer',
+                opacity: isAudioStarting ? 0.7 : 1,
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
@@ -987,7 +987,7 @@ export default function AudioSpectrumDemo() {
             <div style={{
               fontSize: 20,
               fontWeight: 900,
-              color: '#fff',
+              color: colors.text.primary,
               fontFamily: 'monospace',
             }}>
               {Math.round((animatedLevels[index] || 0) * 100)}%

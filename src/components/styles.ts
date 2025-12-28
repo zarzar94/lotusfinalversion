@@ -52,6 +52,7 @@ export const colors = {
   error: brandColors.error,
   errorSubtle: 'rgba(239, 68, 68, 0.08)',
   errorLight: 'rgba(239, 68, 68, 0.12)',
+  errorSoft: '#fecaca',
   info: brandColors.info,
   infoLight: 'rgba(59, 130, 246, 0.12)',
   text: {
@@ -189,6 +190,11 @@ export const brain3dPalette = {
   surface: '#e8b4bc',
   highlight: '#ffffff',
   labelText: '#1a1a2e',
+};
+
+export const logoPalette = {
+  circuitStroke: '#0a3d3a',
+  circuitFill: '#0d4a46',
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

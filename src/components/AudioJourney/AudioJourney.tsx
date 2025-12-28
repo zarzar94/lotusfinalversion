@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useGamification } from '../../context/GamificationContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { styles, brandCyan, brandPurple, brandPink, brandPurpleDark } from '../styles';
+import { styles, brandCyan, brandPurple, brandPink, brandPurpleDark, colors } from '../styles';
 import LabButton from '../labui/LabButton';
 import { renderLabIcon } from '../icons/index';
 
@@ -199,7 +199,7 @@ function AudioJourneyStage({ stage, index, active, completed, onActivate }: Audi
         justifyContent: 'center',
         fontSize: 24,
         fontWeight: 900,
-        color: completed || active ? '#fff' : 'rgba(255,255,255,0.5)',
+        color: completed || active ? colors.text.primary : colors.text.muted,
         flexShrink: 0,
         transition: 'all 0.3s ease',
         boxShadow: active ? `0 0 30px ${stage.color}` : 'none',
@@ -234,7 +234,7 @@ function AudioJourneyStage({ stage, index, active, completed, onActivate }: Audi
             </span>
           )}
         </div>
-        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#fff' }}>
+        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: colors.text.primary }}>
           {title}
         </h3>
         <p style={{ margin: '6px 0 0', fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>

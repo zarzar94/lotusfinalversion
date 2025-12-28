@@ -67,7 +67,7 @@ const labelStyle: React.CSSProperties = {
 const titleStyle: React.CSSProperties = {
   fontSize: 18,
   fontWeight: 900,
-  color: '#fff',
+  color: colors.text.primary,
   margin: 0,
 };
 
@@ -83,7 +83,7 @@ const pointsStyle: React.CSSProperties = {
   borderRadius: 12,
   fontSize: 14,
   fontWeight: 900,
-  color: '#fff',
+  color: colors.text.primary,
   display: 'flex',
   alignItems: 'center',
   gap: 4,
