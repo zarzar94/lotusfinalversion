@@ -107,7 +107,7 @@ function RadarBlip({ item, isSelected, angle, distance, color, onToggle, isHit, 
         width: isSelected ? 20 : 14,
         height: isSelected ? 20 : 14,
         borderRadius: '50%',
-        background: isSelected ? '#fff' : isSwept ? brandCyan : 'rgba(143,211,204,0.6)',
+        background: isSelected ? colors.text.primary : isSwept ? brandCyan : 'rgba(143,211,204,0.6)',
         boxShadow: isSelected ? `0 0 10px ${color}` : 'none',
         transition: 'all 0.2s ease',
       }} />
@@ -128,7 +128,7 @@ function RadarBlip({ item, isSelected, angle, distance, color, onToggle, isHit, 
           justifyContent: 'center',
         }}>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-            <path d="M20 6L9 17L4 12" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M20 6L9 17L4 12" stroke={colors.text.primary} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
       )}
@@ -145,7 +145,7 @@ function RadarBlip({ item, isSelected, angle, distance, color, onToggle, isHit, 
         padding: '6px 10px',
         fontSize: 11,
         fontWeight: 700,
-        color: '#fff',
+        color: colors.text.primary,
         whiteSpace: 'nowrap',
         marginBottom: 6,
         opacity: 0,
@@ -229,7 +229,7 @@ function Missile({ active, startPos, targetPos, onImpact, color }: MissileProps)
           <div style={{
             width: 10,
             height: 30,
-            background: `linear-gradient(180deg, ${colors.error} 0%, #991b1b 50%, #7f1d1d 100%)`,
+            background: `linear-gradient(180deg, ${colors.error} 0%, ${colors.errorDeep} 50%, ${colors.errorDarker} 100%)`,
             borderRadius: '5px 5px 2px 2px',
             position: 'relative',
             boxShadow: '0 0 15px rgba(220,38,38,0.8)',
@@ -241,7 +241,7 @@ function Missile({ active, startPos, targetPos, onImpact, color }: MissileProps)
               transform: 'translateX(-50%)',
               width: 6,
               height: 20,
-              background: 'linear-gradient(180deg, #fbbf24 0%, #f97316 40%, transparent 100%)',
+              background: `linear-gradient(180deg, ${colors.warningBright} 0%, ${colors.warningDeep} 40%, transparent 100%)`,
               borderRadius: '50%',
               filter: 'blur(2px)',
             }} />
@@ -262,7 +262,7 @@ function Missile({ active, startPos, targetPos, onImpact, color }: MissileProps)
             width: 80,
             height: 80,
             borderRadius: '50%',
-            background: `radial-gradient(circle, #fff 0%, ${color} 30%, #f97316 60%, transparent 70%)`,
+            background: `radial-gradient(circle, ${colors.text.primary} 0%, ${color} 30%, ${colors.warningDeep} 60%, transparent 70%)`,
             animation: 'explosionFlash 0.4s ease-out forwards',
           }} />
         </div>
@@ -319,7 +319,7 @@ function LaunchButton({ onClick, disabled, buttonRef }: LaunchButtonProps) {
         position: 'absolute',
         inset: 0,
         borderRadius: '50%',
-        background: 'linear-gradient(145deg, #3a3a3a 0%, #1a1a1a 50%, #2a2a2a 100%)',
+        background: `linear-gradient(145deg, ${colors.surface.input} 0%, ${colors.surface.base} 50%, ${colors.surface.elevated} 100%)`,
         boxShadow: `
           inset 0 2px 4px rgba(255,255,255,0.1),
           inset 0 -2px 4px rgba(0,0,0,0.3),
@@ -333,7 +333,7 @@ function LaunchButton({ onClick, disabled, buttonRef }: LaunchButtonProps) {
         position: 'absolute',
         inset: 6,
         borderRadius: '50%',
-        background: `repeating-conic-gradient(from 0deg, #fbbf24 0deg 10deg, #1a1a1a 10deg 20deg)`,
+        background: `repeating-conic-gradient(from 0deg, ${colors.warningBright} 0deg 10deg, ${colors.surface.base} 10deg 20deg)`,
         opacity: 0.9,
       }} />
 
@@ -342,7 +342,7 @@ function LaunchButton({ onClick, disabled, buttonRef }: LaunchButtonProps) {
         position: 'absolute',
         inset: 14,
         borderRadius: '50%',
-        background: 'linear-gradient(145deg, #2a2a2a 0%, #1a1a1a 100%)',
+        background: `linear-gradient(145deg, ${colors.surface.elevated} 0%, ${colors.surface.base} 100%)`,
         boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.5)',
       }} />
 
@@ -352,8 +352,8 @@ function LaunchButton({ onClick, disabled, buttonRef }: LaunchButtonProps) {
         inset: 20,
         borderRadius: '50%',
         background: isPressed
-          ? 'linear-gradient(145deg, #7f1d1d 0%, #991b1b 50%, #b91c1c 100%)'
-          : `linear-gradient(145deg, ${colors.error} 0%, #b91c1c 50%, #991b1b 100%)`,
+          ? `linear-gradient(145deg, ${colors.errorDarker} 0%, ${colors.errorDeep} 50%, ${colors.errorStrong} 100%)`
+          : `linear-gradient(145deg, ${colors.error} 0%, ${colors.errorStrong} 50%, ${colors.errorDeep} 100%)`,
         boxShadow: isPressed
           ? 'inset 0 4px 15px rgba(0,0,0,0.5)'
           : `inset 0 -4px 15px rgba(0,0,0,0.3), inset 0 4px 15px rgba(255,255,255,0.1), 0 4px 20px rgba(220,38,38,0.4)`,
@@ -379,11 +379,11 @@ function LaunchButton({ onClick, disabled, buttonRef }: LaunchButtonProps) {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#fff',
+        color: colors.text.primary,
         textShadow: '0 2px 4px rgba(0,0,0,0.5)',
         pointerEvents: 'none',
       }}>
-        <RocketIcon size={24} color="#fff" style={{ marginBottom: 2 }} />
+        <RocketIcon size={24} color={colors.text.primary} style={{ marginBottom: 2 }} />
         <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1 }}>إطلاق</span>
       </div>
 
@@ -458,7 +458,7 @@ function CategoryTab({ category, isActive, selectedCount, onClick, config }: Cat
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#fff',
+          color: colors.text.primary,
         }}>
           {selectedCount}
         </div>

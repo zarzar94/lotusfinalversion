@@ -9,6 +9,7 @@ import React, { useState, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import {
   brand,
+  colors,
   gradients,
   shadows,
   spacing,
@@ -17,6 +18,7 @@ import {
   transitions,
   cards,
   buttons,
+  accent,
 } from '../styles';
 import { renderLabIcon } from './icons/index';
 
@@ -109,7 +111,7 @@ const partners: Partner[] = [
     featured: false,
     services: ['Student Screening', 'Classroom Modifications', 'Teacher Training'],
     servicesAr: ['فحص الطلاب', 'تعديلات الصف', 'تدريب المعلمين'],
-    color: '#FFD700',
+    color: accent.gold,
   },
   {
     id: '5',
@@ -125,7 +127,7 @@ const partners: Partner[] = [
     featured: false,
     services: ['Co-Treatment', 'Referral Network', 'Case Coordination'],
     servicesAr: ['العلاج المشترك', 'شبكة الإحالة', 'تنسيق الحالات'],
-    color: '#00CED1',
+    color: accent.teal,
   },
   {
     id: '6',
@@ -141,7 +143,7 @@ const partners: Partner[] = [
     featured: false,
     services: ['Research Studies', 'Data Analysis', 'Publication Collaboration'],
     servicesAr: ['الدراسات البحثية', 'تحليل البيانات', 'التعاون في النشر'],
-    color: '#9370DB',
+    color: accent.violet,
   },
 ];
 
@@ -185,7 +187,7 @@ const styles = {
 
   subtitle: {
     fontSize: typography.size.lg,
-    color: '#888',
+    color: colors.text.muted,
     maxWidth: '600px',
     margin: '0 auto',
   } as React.CSSProperties,
@@ -215,8 +217,8 @@ const styles = {
 
   filterTabInactive: {
     background: 'transparent',
-    color: '#666',
-    border: '1px solid #333',
+    color: colors.text.disabled,
+    border: `1px solid ${colors.border.emphasis}`,
   } as React.CSSProperties,
 
   partnersGrid: {
@@ -242,7 +244,7 @@ const styles = {
     top: spacing[3],
     right: spacing[3],
     background: gradients.cyanPurple,
-    color: '#fff',
+    color: colors.text.primary,
     padding: `${spacing[1]} ${spacing[2]}`,
     borderRadius: radius.full,
     fontSize: typography.size.xs,
@@ -285,13 +287,13 @@ const styles = {
   partnerName: {
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
-    color: '#fff',
+    color: colors.text.primary,
     marginBottom: spacing[1],
   } as React.CSSProperties,
 
   partnerLocation: {
     fontSize: typography.size.sm,
-    color: '#888',
+    color: colors.text.muted,
     display: 'flex',
     alignItems: 'center',
     gap: spacing[1],
@@ -299,7 +301,7 @@ const styles = {
 
   partnerDescription: {
     fontSize: typography.size.sm,
-    color: '#aaa',
+    color: colors.text.secondary,
     lineHeight: 1.6,
     marginBottom: spacing[4],
   } as React.CSSProperties,
@@ -316,8 +318,8 @@ const styles = {
     borderRadius: radius.md,
     fontSize: typography.size.xs,
     background: `${brand.panel}`,
-    color: '#ccc',
-    border: '1px solid #333',
+    color: colors.text.secondary,
+    border: `1px solid ${colors.border.emphasis}`,
   } as React.CSSProperties,
 
   partnerFooter: {
@@ -325,12 +327,12 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingTop: spacing[4],
-    borderTop: '1px solid #333',
+    borderTop: `1px solid ${colors.border.emphasis}`,
   } as React.CSSProperties,
 
   partnerSince: {
     fontSize: typography.size.xs,
-    color: '#666',
+    color: colors.text.disabled,
   } as React.CSSProperties,
 
   viewButton: {
@@ -352,13 +354,13 @@ const styles = {
   ctaTitle: {
     fontSize: typography.size['2xl'],
     fontWeight: typography.weight.bold,
-    color: '#fff',
+    color: colors.text.primary,
     marginBottom: spacing[3],
   } as React.CSSProperties,
 
   ctaText: {
     fontSize: typography.size.base,
-    color: '#888',
+    color: colors.text.muted,
     maxWidth: '500px',
     margin: '0 auto',
     marginBottom: spacing[6],
@@ -396,7 +398,7 @@ const styles = {
 
   statLabel: {
     fontSize: typography.size.sm,
-    color: '#888',
+    color: colors.text.muted,
   } as React.CSSProperties,
 };
 

@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import {
   brand,
+  colors,
   gradients,
   shadows,
   spacing,
@@ -16,6 +17,7 @@ import {
   typography,
   transitions,
   cards,
+  accent,
 } from '../styles';
 import { renderLabIcon } from './icons/index';
 
@@ -95,7 +97,7 @@ const certifications: Certification[] = [
     description: 'Active member of the international professional organization dedicated to advancing auditory integration training practices and research.',
     descriptionAr: 'عضو نشط في المنظمة المهنية الدولية المكرسة لتطوير ممارسات وأبحاث تدريب التكامل السمعي.',
     icon: '🌐',
-    color: '#FFD700',
+    color: accent.gold,
   },
   {
     id: '5',
@@ -108,7 +110,7 @@ const certifications: Certification[] = [
     description: 'Specialized training in sensory processing disorders and their intersection with auditory processing challenges.',
     descriptionAr: 'تدريب متخصص في اضطرابات المعالجة الحسية وتقاطعها مع تحديات المعالجة السمعية.',
     icon: '🧠',
-    color: '#00CED1',
+    color: accent.teal,
   },
   {
     id: '6',
@@ -121,7 +123,7 @@ const certifications: Certification[] = [
     description: 'Board certification in pediatric developmental assessments and interventions, with focus on neurodevelopmental conditions.',
     descriptionAr: 'شهادة مجلس في تقييمات وتدخلات نمو الأطفال، مع التركيز على الحالات العصبية النمائية.',
     icon: '👶',
-    color: '#FF6B6B',
+    color: accent.coral,
   },
 ];
 
@@ -165,7 +167,7 @@ const styles = {
 
   subtitle: {
     fontSize: typography.size.lg,
-    color: '#888',
+    color: colors.text.muted,
     maxWidth: '600px',
     margin: '0 auto',
   } as React.CSSProperties,
@@ -232,18 +234,18 @@ const styles = {
   certName: {
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
-    color: '#fff',
+    color: colors.text.primary,
     marginBottom: spacing[1],
   } as React.CSSProperties,
 
   certIssuer: {
     fontSize: typography.size.sm,
-    color: '#888',
+    color: colors.text.muted,
   } as React.CSSProperties,
 
   certDescription: {
     fontSize: typography.size.sm,
-    color: '#aaa',
+    color: colors.text.secondary,
     lineHeight: 1.6,
     marginBottom: spacing[4],
   } as React.CSSProperties,
@@ -253,12 +255,12 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingTop: spacing[4],
-    borderTop: '1px solid #333',
+    borderTop: `1px solid ${colors.border.emphasis}`,
   } as React.CSSProperties,
 
   certDate: {
     fontSize: typography.size.xs,
-    color: '#666',
+    color: colors.text.disabled,
   } as React.CSSProperties,
 
   certBadge: {
@@ -300,7 +302,7 @@ const styles = {
     width: '80px',
     height: '80px',
     borderRadius: radius.lg,
-    background: '#fff',
+    background: colors.text.primary,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -309,7 +311,7 @@ const styles = {
 
   affiliationName: {
     fontSize: typography.size.xs,
-    color: '#888',
+    color: colors.text.muted,
     textAlign: 'center' as const,
     maxWidth: '100px',
   } as React.CSSProperties,
@@ -329,9 +331,9 @@ const styles = {
     padding: `${spacing[2]} ${spacing[4]}`,
     borderRadius: radius.full,
     background: `${brand.ink}`,
-    border: '1px solid #333',
+    border: `1px solid ${colors.border.emphasis}`,
     fontSize: typography.size.sm,
-    color: '#ccc',
+    color: colors.text.secondary,
   } as React.CSSProperties,
 };
 

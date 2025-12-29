@@ -39,6 +39,14 @@ export const brand = {
   linkedin: '#0077B5',
 } as const;
 
+// Accent colors for partner/certification highlights
+export const accent = {
+  gold: '#FFD700',
+  teal: '#00CED1',
+  violet: '#9370DB',
+  coral: '#FF6B6B',
+} as const;
+
 // ─────────────────────────────────────────────────────────────────────────────
 // AUDIO FREQUENCY COLORS
 // Frequency spectrum visualization palette

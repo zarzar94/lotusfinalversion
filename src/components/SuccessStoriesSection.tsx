@@ -10,6 +10,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { renderLabIcon } from './icons/index';
 import {
   brand,
+  colors,
   gradients,
   shadows,
   spacing,
@@ -234,7 +235,7 @@ const styles = {
 
   subtitle: {
     fontSize: typography.size.lg,
-    color: '#888',
+    color: colors.text.muted,
     maxWidth: '600px',
     margin: '0 auto',
   } as React.CSSProperties,
@@ -264,8 +265,8 @@ const styles = {
 
   filterTabInactive: {
     background: 'transparent',
-    color: '#666',
-    border: '1px solid #333',
+    color: colors.text.disabled,
+    border: `1px solid ${colors.border.emphasis}`,
   } as React.CSSProperties,
 
   storiesGrid: {
@@ -292,7 +293,7 @@ const styles = {
     top: spacing[3],
     right: spacing[3],
     background: gradients.cyanPurple,
-    color: '#fff',
+    color: colors.text.primary,
     padding: `${spacing[1]} ${spacing[2]}`,
     borderRadius: radius.full,
     fontSize: typography.size.xs,
@@ -318,7 +319,7 @@ const styles = {
   storyTitle: {
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
-    color: '#fff',
+    color: colors.text.primary,
     marginBottom: spacing[1],
   } as React.CSSProperties,
 
@@ -330,12 +331,12 @@ const styles = {
 
   storyAge: {
     fontSize: typography.size.xs,
-    color: '#666',
+    color: colors.text.disabled,
   } as React.CSSProperties,
 
   storySummary: {
     fontSize: typography.size.sm,
-    color: '#aaa',
+    color: colors.text.secondary,
     lineHeight: 1.6,
     marginBottom: spacing[4],
   } as React.CSSProperties,
@@ -354,7 +355,7 @@ const styles = {
 
   outcomeLabel: {
     fontSize: typography.size.xs,
-    color: '#888',
+    color: colors.text.muted,
     marginBottom: spacing[2],
   } as React.CSSProperties,
 
@@ -367,7 +368,7 @@ const styles = {
   outcomeBarTrack: {
     flex: 1,
     height: '8px',
-    background: '#222',
+    background: colors.surface.input,
     borderRadius: radius.full,
     overflow: 'hidden',
     position: 'relative' as const,
@@ -378,7 +379,7 @@ const styles = {
     left: 0,
     top: 0,
     height: '100%',
-    background: '#666',
+    background: colors.text.disabled,
     borderRadius: radius.full,
     transition: 'width 1s ease-out',
   } as React.CSSProperties,
@@ -401,7 +402,7 @@ const styles = {
   } as React.CSSProperties,
 
   outcomeValueBefore: {
-    color: '#666',
+    color: colors.text.disabled,
   } as React.CSSProperties,
 
   outcomeValueAfter: {
@@ -419,7 +420,7 @@ const styles = {
 
   testimonialQuote: {
     fontSize: typography.size.sm,
-    color: '#ccc',
+    color: colors.text.secondary,
     fontStyle: 'italic',
     lineHeight: 1.6,
     marginBottom: spacing[2],
@@ -436,12 +437,12 @@ const styles = {
     alignItems: 'center',
     marginTop: spacing[4],
     paddingTop: spacing[4],
-    borderTop: '1px solid #333',
+    borderTop: `1px solid ${colors.border.emphasis}`,
   } as React.CSSProperties,
 
   duration: {
     fontSize: typography.size.xs,
-    color: '#666',
+    color: colors.text.disabled,
   } as React.CSSProperties,
 
   readMore: {
@@ -476,7 +477,7 @@ const styles = {
 
   statLabel: {
     fontSize: typography.size.sm,
-    color: '#888',
+    color: colors.text.muted,
   } as React.CSSProperties,
 };
 

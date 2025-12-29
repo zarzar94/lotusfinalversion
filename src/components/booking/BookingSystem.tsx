@@ -9,6 +9,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import {
   brand,
+  colors,
   gradients,
   shadows,
   spacing,
@@ -140,8 +141,8 @@ const styles = {
 
   stepPending: {
     background: 'transparent',
-    color: '#666',
-    border: '1px solid #333',
+    color: colors.text.disabled,
+    border: `1px solid ${colors.border.emphasis}`,
   } as React.CSSProperties,
 
   stepNumber: {
@@ -183,13 +184,13 @@ const styles = {
   typeLabel: {
     fontSize: typography.size.base,
     fontWeight: typography.weight.bold,
-    color: '#fff',
+    color: colors.text.primary,
     marginBottom: spacing[1],
   } as React.CSSProperties,
 
   typeDescription: {
     fontSize: typography.size.xs,
-    color: '#888',
+    color: colors.text.muted,
   } as React.CSSProperties,
 
   calendarContainer: {
@@ -206,7 +207,7 @@ const styles = {
   calendarMonth: {
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
-    color: '#fff',
+    color: colors.text.primary,
   } as React.CSSProperties,
 
   calendarNav: {
@@ -230,7 +231,7 @@ const styles = {
   dayHeader: {
     textAlign: 'center' as const,
     fontSize: typography.size.xs,
-    color: '#666',
+    color: colors.text.disabled,
     padding: spacing[2],
   } as React.CSSProperties,
 
@@ -259,7 +260,7 @@ const styles = {
 
   dateCellUnavailable: {
     background: 'transparent',
-    color: '#444',
+    color: colors.text.disabled,
     cursor: 'not-allowed',
   } as React.CSSProperties,
 
@@ -287,13 +288,13 @@ const styles = {
 
   timeSlotSelected: {
     background: brand.purple,
-    color: '#fff',
+    color: colors.text.primary,
     border: `1px solid ${brand.purple}`,
   } as React.CSSProperties,
 
   timeSlotUnavailable: {
-    background: '#1a1a1a',
-    color: '#444',
+    background: colors.surface.input,
+    color: colors.text.disabled,
     cursor: 'not-allowed',
     textDecoration: 'line-through',
   } as React.CSSProperties,
@@ -315,7 +316,7 @@ const styles = {
   label: {
     display: 'block',
     fontSize: typography.size.sm,
-    color: '#888',
+    color: colors.text.muted,
     marginBottom: spacing[1],
   } as React.CSSProperties,
 
@@ -342,7 +343,7 @@ const styles = {
     gap: spacing[2],
     cursor: 'pointer',
     fontSize: typography.size.sm,
-    color: '#ccc',
+    color: colors.text.secondary,
   } as React.CSSProperties,
 
   summary: {
@@ -354,7 +355,7 @@ const styles = {
   summaryTitle: {
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
-    color: '#fff',
+    color: colors.text.primary,
     marginBottom: spacing[3],
   } as React.CSSProperties,
 
@@ -362,12 +363,12 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     padding: `${spacing[2]} 0`,
-    borderBottom: '1px solid #333',
+    borderBottom: `1px solid ${colors.border.emphasis}`,
     fontSize: typography.size.sm,
   } as React.CSSProperties,
 
   summaryLabel: {
-    color: '#888',
+    color: colors.text.muted,
   } as React.CSSProperties,
 
   summaryValue: {
@@ -415,7 +416,7 @@ const styles = {
   } as React.CSSProperties,
 
   successText: {
-    color: '#888',
+    color: colors.text.muted,
     marginBottom: spacing[4],
   } as React.CSSProperties,
 };
@@ -667,7 +668,7 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({
 
           {selectedDate && (
             <>
-              <h4 style={{ color: '#fff', marginBottom: spacing[3] }}>
+              <h4 style={{ color: colors.text.primary, marginBottom: spacing[3] }}>
                 {isArabic ? 'اختر الوقت:' : 'Select Time:'}
               </h4>
               <div style={styles.timeSlots}>
