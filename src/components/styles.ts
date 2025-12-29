@@ -32,6 +32,9 @@ export const brandColors = {
   youtube: '#FF0000',
   linkedin: '#0077B5',
   linkedinLight: 'rgba(0, 119, 181, 0.12)',
+  facebook: '#1877F2',
+  instagram: '#E4405F',
+  tiktok: '#ff0050',
   gold: '#FFD700',
   goldLight: 'rgba(255, 215, 0, 0.4)',
   // Status colors
@@ -200,6 +203,24 @@ export const brain3dPalette = {
 export const logoPalette = {
   circuitStroke: '#0a3d3a',
   circuitFill: '#0d4a46',
+};
+
+export const awardPalette = {
+  gold: {
+    start: '#FFD700',
+    end: '#FFA500',
+    shadow: 'rgba(255,215,0,0.4)',
+  },
+  silver: {
+    start: '#C0C0C0',
+    end: '#A0A0A0',
+    shadow: 'rgba(192,192,192,0.4)',
+  },
+  bronze: {
+    start: '#CD7F32',
+    end: '#8B4513',
+    shadow: 'rgba(205,127,50,0.4)',
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

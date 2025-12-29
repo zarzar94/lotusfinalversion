@@ -96,7 +96,7 @@ const ROLE_MESSAGING: Record<VisitorMode, {
 const BENEFITS: BenefitItem[] = [
   {
     id: 'listening',
-    icon: <HeadphonesIcon size={24} color="#fff" />,
+    icon: <HeadphonesIcon size={24} color={colors.text.primary} />,
     titleEn: 'Improved Listening Skills',
     titleAr: 'تحسين مهارات الاستماع',
     descriptionEn: 'Enhanced ability to filter and process auditory information in noisy environments',
@@ -105,7 +105,7 @@ const BENEFITS: BenefitItem[] = [
   },
   {
     id: 'focus',
-    icon: <BrainIcon size={24} color="#fff" />,
+    icon: <BrainIcon size={24} color={colors.text.primary} />,
     titleEn: 'Better Focus & Attention',
     titleAr: 'تركيز وانتباه أفضل',
     descriptionEn: 'Reduced auditory hypersensitivity leads to improved concentration',
@@ -132,7 +132,7 @@ const BENEFITS: BenefitItem[] = [
   },
   {
     id: 'evidence',
-    icon: <ShieldIcon size={24} color="#fff" />,
+    icon: <ShieldIcon size={24} color={colors.text.primary} />,
     titleEn: 'Evidence-Based Protocol',
     titleAr: 'بروتوكول قائم على الأدلة',
     descriptionEn: 'Backed by decades of research and documented clinical outcomes',
@@ -555,12 +555,12 @@ export default function WhatIsAIT() {
                     justifyContent: 'center',
                     fontSize: typography.size.lg,
                     fontWeight: typography.weight.black,
-                    color: isActive ? '#fff' : brandCyan,
+                    color: isActive ? colors.text.primary : brandCyan,
                     flexShrink: 0,
                     transition: 'all 0.3s ease',
                   }}>
                     {typeof step.icon === 'string'
-                      ? renderLabIcon(step.icon, { size: 18, style: { color: isActive ? '#fff' : brandCyan } })
+                      ? renderLabIcon(step.icon, { size: 18, style: { color: isActive ? colors.text.primary : brandCyan } })
                       : step.stepNumber}
                 </div>
 
@@ -672,10 +672,10 @@ export default function WhatIsAIT() {
                       borderRadius: 6,
                       fontSize: 10,
                       fontWeight: 800,
-                      color: '#fff',
+                      color: colors.text.primary,
                       boxShadow: `0 2px 8px ${visitorConfig.color}50`,
                     }}>
-                      {renderLabIcon(visitorConfig.icon, { size: 12, style: { color: '#fff' } })}
+                      {renderLabIcon(visitorConfig.icon, { size: 12, style: { color: colors.text.primary } })}
                     </div>
                   )}
 
@@ -753,7 +753,7 @@ export default function WhatIsAIT() {
               padding: `${spacing[3]}px ${spacing[6]}px`,
               background: `linear-gradient(135deg, ${visitorConfig.color}, ${visitorConfig.color}cc)`,
               borderRadius: radius.lg,
-              color: '#fff',
+              color: colors.text.primary,
               fontSize: typography.size.sm,
               fontWeight: typography.weight.bold,
               textDecoration: 'none',

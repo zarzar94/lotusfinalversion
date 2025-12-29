@@ -9,6 +9,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import {
   brand,
+  colors,
   gradients,
   shadows,
   spacing,
@@ -202,7 +203,7 @@ const styles = {
 
   subtitle: {
     fontSize: typography.size.sm,
-    color: '#888',
+    color: colors.text.muted,
   } as React.CSSProperties,
 
   patientInfo: {
@@ -216,20 +217,20 @@ const styles = {
 
   patientLabel: {
     fontSize: typography.size.xs,
-    color: '#666',
+    color: colors.text.disabled,
     marginBottom: spacing[1],
   } as React.CSSProperties,
 
   patientValue: {
     fontSize: typography.size.base,
-    color: '#fff',
+    color: colors.text.primary,
     fontWeight: typography.weight.bold,
   } as React.CSSProperties,
 
   sectionTitle: {
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
-    color: '#fff',
+    color: colors.text.primary,
     marginBottom: spacing[4],
     display: 'flex',
     alignItems: 'center',
@@ -289,7 +290,7 @@ const styles = {
   sectionName: {
     fontSize: typography.size.sm,
     fontWeight: typography.weight.bold,
-    color: '#fff',
+    color: colors.text.primary,
     marginBottom: spacing[1],
     display: 'flex',
     alignItems: 'center',
@@ -298,7 +299,7 @@ const styles = {
 
   sectionDescription: {
     fontSize: typography.size.xs,
-    color: '#888',
+    color: colors.text.muted,
     lineHeight: 1.4,
   } as React.CSSProperties,
 
@@ -337,13 +338,13 @@ const styles = {
   formatName: {
     fontSize: typography.size.base,
     fontWeight: typography.weight.bold,
-    color: '#fff',
+    color: colors.text.primary,
     marginBottom: spacing[1],
   } as React.CSSProperties,
 
   formatDescription: {
     fontSize: typography.size.xs,
-    color: '#888',
+    color: colors.text.muted,
   } as React.CSSProperties,
 
   previewSection: {
@@ -351,12 +352,12 @@ const styles = {
     background: `${brand.ink}`,
     borderRadius: radius.lg,
     marginBottom: spacing[6],
-    border: `1px solid #333`,
+    border: `1px solid ${colors.border.emphasis}`,
   } as React.CSSProperties,
 
   previewTitle: {
     fontSize: typography.size.sm,
-    color: '#666',
+    color: colors.text.disabled,
     marginBottom: spacing[3],
     textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
@@ -373,7 +374,7 @@ const styles = {
     alignItems: 'center',
     gap: spacing[2],
     padding: `${spacing[2]} 0`,
-    borderBottom: '1px solid #333',
+    borderBottom: `1px solid ${colors.border.emphasis}`,
     fontSize: typography.size.sm,
   } as React.CSSProperties,
 

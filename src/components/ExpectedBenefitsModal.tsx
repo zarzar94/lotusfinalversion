@@ -36,7 +36,7 @@ interface BenefitItem {
 const BENEFITS: BenefitItem[] = [
   {
     id: 'listening',
-    icon: <HeadphonesIcon size={22} color="#fff" />,
+    icon: <HeadphonesIcon size={22} color={colors.text.primary} />,
     titleEn: 'Improved Listening Skills',
     titleAr: 'auto.ExpectedBenefitsModal.k7',
     descriptionEn: 'Enhanced ability to filter and process auditory information in noisy environments',
@@ -45,7 +45,7 @@ const BENEFITS: BenefitItem[] = [
   },
   {
     id: 'focus',
-    icon: <BrainIcon size={22} color="#fff" />,
+    icon: <BrainIcon size={22} color={colors.text.primary} />,
     titleEn: 'Better Focus & Attention',
     titleAr: 'auto.ExpectedBenefitsModal.k9',
     descriptionEn: 'Reduced auditory hypersensitivity leads to improved concentration',
@@ -54,7 +54,7 @@ const BENEFITS: BenefitItem[] = [
   },
   {
     id: 'communication',
-    icon: <MessageIcon size={22} color="#fff" />,
+    icon: <MessageIcon size={22} color={colors.text.primary} />,
     titleEn: 'Enhanced Communication',
     titleAr: 'auto.ExpectedBenefitsModal.k11',
     descriptionEn: 'Improvements in speech clarity, language processing, and social interaction',
@@ -63,7 +63,7 @@ const BENEFITS: BenefitItem[] = [
   },
   {
     id: 'academic',
-    icon: <BookIcon size={22} color="#fff" />,
+    icon: <BookIcon size={22} color={colors.text.primary} />,
     titleEn: 'Academic Performance',
     titleAr: 'auto.ExpectedBenefitsModal.k13',
     descriptionEn: 'Better auditory processing supports reading, spelling, and classroom learning',
@@ -72,7 +72,7 @@ const BENEFITS: BenefitItem[] = [
   },
   {
     id: 'sensory',
-    icon: <TargetIcon size={22} color="#fff" />,
+    icon: <TargetIcon size={22} color={colors.text.primary} />,
     titleEn: 'Sensory Regulation',
     titleAr: 'auto.ExpectedBenefitsModal.k15',
     descriptionEn: 'Helps modulate sensory responses for improved emotional regulation',
@@ -81,7 +81,7 @@ const BENEFITS: BenefitItem[] = [
   },
   {
     id: 'evidence',
-    icon: <ShieldIcon size={22} color="#fff" />,
+    icon: <ShieldIcon size={22} color={colors.text.primary} />,
     titleEn: 'Evidence-Based Protocol',
     titleAr: 'auto.ExpectedBenefitsModal.k17',
     descriptionEn: 'Backed by decades of research and documented clinical outcomes',
@@ -320,7 +320,7 @@ export default function ExpectedBenefitsModal({
                     borderRadius: 6,
                     fontSize: 10,
                     fontWeight: 800,
-                    color: '#fff',
+                    color: colors.text.primary,
                     boxShadow: `0 2px 8px ${visitorConfig.color}50`,
                   }}>
                     {visitorConfig.icon}
@@ -397,7 +397,7 @@ export default function ExpectedBenefitsModal({
               padding: `${spacing[3]}px ${spacing[6]}px`,
               background: `linear-gradient(135deg, ${visitorConfig.color}, ${visitorConfig.color}cc)`,
               borderRadius: radius.lg,
-              color: '#fff',
+              color: colors.text.primary,
               fontSize: typography.size.sm,
               fontWeight: typography.weight.bold,
               textDecoration: 'none',

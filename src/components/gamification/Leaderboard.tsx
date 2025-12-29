@@ -10,6 +10,7 @@ import {
   brandPurple,
   brandPink,
   colors,
+  awardPalette,
   typography,
   spacing,
   radius,
@@ -95,11 +96,23 @@ export const RankBadge = memo(({ rank, size = 'md' }: RankBadgeProps) => {
   const getColors = () => {
     switch (rank) {
       case 1:
-        return { bg: 'linear-gradient(135deg, #FFD700, #FFA500)', icon: '🥇', shadow: '0 0 12px rgba(255,215,0,0.4)' };
+        return {
+          bg: `linear-gradient(135deg, ${awardPalette.gold.start}, ${awardPalette.gold.end})`,
+          icon: '🥇',
+          shadow: `0 0 12px ${awardPalette.gold.shadow}`,
+        };
       case 2:
-        return { bg: 'linear-gradient(135deg, #C0C0C0, #A0A0A0)', icon: '🥈', shadow: '0 0 12px rgba(192,192,192,0.4)' };
+        return {
+          bg: `linear-gradient(135deg, ${awardPalette.silver.start}, ${awardPalette.silver.end})`,
+          icon: '🥈',
+          shadow: `0 0 12px ${awardPalette.silver.shadow}`,
+        };
       case 3:
-        return { bg: 'linear-gradient(135deg, #CD7F32, #8B4513)', icon: '🥉', shadow: '0 0 12px rgba(205,127,50,0.4)' };
+        return {
+          bg: `linear-gradient(135deg, ${awardPalette.bronze.start}, ${awardPalette.bronze.end})`,
+          icon: '🥉',
+          shadow: `0 0 12px ${awardPalette.bronze.shadow}`,
+        };
       default:
         return { bg: colors.surface.card, icon: `#${rank}`, shadow: 'none' };
     }

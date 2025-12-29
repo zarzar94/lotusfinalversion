@@ -1,7 +1,7 @@
 import { ReactNode, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { CLINIC } from '../data/clinic';
-import { styles, brandCyan, brandPurple, brandPink, brandPanel, colors, radius, spacing, typography, labTech } from './styles';
+import { styles, brandCyan, brandPurple, brandPink, brandPanel, brandColors, colors, radius, spacing, typography, labTech } from './styles';
 import {
   MapPinIcon,
   CompassIcon,
@@ -31,11 +31,11 @@ type SocialLink = {
 };
 
 const social: SocialLink[] = [
-  { name: 'X', href: 'https://x.com/Berardaiteg', icon: <TwitterXIcon size={18} />, color: '#fff' },
-  { name: 'TikTok', href: 'https://vt.tiktok.com/ZSydLErRH/', icon: <TikTokIcon size={18} />, color: '#ff0050' },
-  { name: 'Instagram', href: 'https://www.instagram.com/berard.ait.eg?igsh=MXVjNmFnZng3MHcyMg==', icon: <InstagramIcon size={18} />, color: '#E4405F' },
-  { name: 'Facebook', href: 'https://www.facebook.com/share/14LfPuhkdVH/', icon: <FacebookIcon size={18} />, color: '#1877F2' },
-  { name: 'LinkedIn', href: 'https://www.linkedin.com/company/lotus-holistic-centre/', icon: <LinkedInIcon size={18} />, color: '#0A66C2' },
+  { name: 'X', href: 'https://x.com/Berardaiteg', icon: <TwitterXIcon size={18} />, color: colors.text.primary },
+  { name: 'TikTok', href: 'https://vt.tiktok.com/ZSydLErRH/', icon: <TikTokIcon size={18} />, color: brandColors.tiktok },
+  { name: 'Instagram', href: 'https://www.instagram.com/berard.ait.eg?igsh=MXVjNmFnZng3MHcyMg==', icon: <InstagramIcon size={18} />, color: brandColors.instagram },
+  { name: 'Facebook', href: 'https://www.facebook.com/share/14LfPuhkdVH/', icon: <FacebookIcon size={18} />, color: brandColors.facebook },
+  { name: 'LinkedIn', href: 'https://www.linkedin.com/company/lotus-holistic-centre/', icon: <LinkedInIcon size={18} />, color: brandColors.linkedin },
 ];
 
 // Quick links with proper page routes - using translation keys for consistency
@@ -334,7 +334,7 @@ const Footer = () => {
               border: '1px solid ${brandCyan}26',
               borderRadius: 16,
               textDecoration: 'none',
-              color: '#fff',
+              color: colors.text.primary,
             }}
           >
             <div style={{
