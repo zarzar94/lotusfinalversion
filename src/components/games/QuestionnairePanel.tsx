@@ -140,30 +140,28 @@ export default function QuestionnairePanel({
           ))}
         </div>
 
-        <div style={{ marginTop: 12, ...styles.section, marginBottom: 0 }}>
-          <div style={{ fontWeight: 900, color: brandPurpleDark }}>النتيجة المبدئية</div>
-          <p style={{ ...styles.muted, marginTop: 6 }}>
-            مجموع النقاط: <b style={{ color: brandPink }}>{score}</b> / {maxScore}
-          </p>
-          <p style={{ ...styles.muted, marginTop: 6 }}>{message}</p>
-
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 10, gap: 10, flexWrap: 'wrap' }}>
-            <LabButton onClick={submit}>
-              حفظ النتيجة
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, gap: 10, flexWrap: 'wrap' }}>
+          <LabButton onClick={submit}>
+            حفظ النتيجة
+          </LabButton>
+          {onCancel ? (
+            <LabButton variant="ghost" onClick={onCancel}>
+              إغلاق
             </LabButton>
-            {onCancel ? (
-              <LabButton variant="ghost" onClick={onCancel}>
-                إغلاق
-              </LabButton>
-            ) : null}
-          </div>
-
+          ) : null}
         </div>
-        </PracticeTrialsStep>
+      </PracticeTrialsStep>
       ) : null}
 
       {stage === 'done' ? (
         <>
+          <div style={{ ...styles.section, marginBottom: 12 }}>
+            <div style={{ fontWeight: 900, color: brandPurpleDark }}>النتيجة المبدئية</div>
+            <p style={{ ...styles.muted, marginTop: 6 }}>
+              مجموع النقاط: <b style={{ color: brandPink }}>{score}</b> / {maxScore}
+            </p>
+            <p style={{ ...styles.muted, marginTop: 6 }}>{message}</p>
+          </div>
           <MetricsSummaryPanel
             title={isArabic ? 'ملخص الاستبيان' : 'Questionnaire summary'}
             subtitle={message}
