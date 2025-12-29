@@ -576,7 +576,7 @@ export default function ParentDashboard() {
     sessions: sessionMetrics,
     source: sessionSource,
     isLoading: sessionsLoading,
-  } = useSessionMetrics();
+  } = useSessionMetrics({ enabled: hasAccess });
   const [childrenData, setChildrenData] = useState<ChildData[] | null>(null);
   const [expandedChild, setExpandedChild] = useState<string | null>(MOCK_CHILDREN[0]?.id || null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);

@@ -14,6 +14,7 @@ import {
   spacing,
   typography,
 } from '../styles';
+import { getFatigueDirection } from './roleDashboardUtils';
 
 type ChartVariant = 'parent' | 'clinician';
 
@@ -423,9 +424,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
       .map((session) => clampScore(session.fatigueIndex ?? 0));
     const fatigueSlope = fatigueValues.length > 1 ? computeSlope(fatigueValues) : 0;
 
-    let fatigueDirection: 'improving' | 'worsening' | 'stable' = 'stable';
-    if (fatigueSlope < -0.5) fatigueDirection = 'improving';
-    if (fatigueSlope > 0.5) fatigueDirection = 'worsening';
+    const fatigueDirection = getFatigueDirection(fatigueSlope);
 
     return {
       average,

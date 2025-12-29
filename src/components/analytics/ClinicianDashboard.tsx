@@ -42,6 +42,7 @@ import {
   average,
   computeSlope,
   formatTimestamp,
+  getFatigueDirection,
   getLatestByModule,
   normalizeFatigue01,
 } from '../dashboards/roleDashboardUtils';
@@ -791,7 +792,7 @@ export default function ClinicianDashboard() {
     sessions: sessionMetrics,
     source: sessionSource,
     isLoading: sessionsLoading,
-  } = useSessionMetrics();
+  } = useSessionMetrics({ enabled: hasAccess });
   const [patientData, setPatientData] = useState<PatientData[] | null>(null);
   const [selectedPatient, setSelectedPatient] = useState<PatientData | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -882,11 +883,7 @@ export default function ClinicianDashboard() {
   const fatigueSlope = useMemo(() => (
     fatigueValues.length >= 2 ? computeSlope(fatigueValues) : 0
   ), [fatigueValues]);
-  const fatigueDirection = fatigueSlope > 0.01
-    ? 'worsening'
-    : fatigueSlope < -0.01
-      ? 'improving'
-      : 'stable';
+  const fatigueDirection = getFatigueDirection(fatigueSlope, 'normalized');
   const consistencyValues = useMemo(() => (
     sessionMetrics
       .map((session) => session.consistency)
@@ -911,7 +908,7 @@ export default function ClinicianDashboard() {
         : t('auto.ClinicianDashboard.k60', 'No Data');
   const hasApiPatients = patientData !== null;
   const exportDisabled = sessionMetrics.length === 0;
-  const exportCsvDisabled = patients.length === 0;
+  const exportCsvDisabled = filteredPatients.length === 0;
 
   useEffect(() => {
     let cancelled = false;
@@ -983,7 +980,7 @@ export default function ClinicianDashboard() {
   }, [consistencyAverage, fatigueDirection, fatigueSlope, isArabic, latestByModule, sessionMetrics]);
 
   const handleExportCsv = useCallback(() => {
-    if (!patients.length) return;
+    if (!filteredPatients.length) return;
     const phaseLabels: Record<string, string> = {
       assessment: t('auto.ClinicianDashboard.k61', 'Assessment'),
       active: t('auto.ClinicianDashboard.k62', 'Active'),
@@ -999,7 +996,7 @@ export default function ClinicianDashboard() {
       t('auto.ClinicianDashboard.k70', 'Attention'),
       t('auto.ClinicianDashboard.k71', 'Last Active'),
     ];
-    const rows = patients.map((patient) => ([
+    const rows = filteredPatients.map((patient) => ([
       patient.name,
       patient.email,
       Number.isFinite(patient.age) ? patient.age : '',
@@ -1009,7 +1006,7 @@ export default function ClinicianDashboard() {
       formatTimestamp(new Date(patient.lastActivity).toISOString(), exportLocale),
     ]));
     downloadCsvRows([headers, ...rows], 'clinician-patients.csv');
-  }, [exportLocale, patients, t]);
+  }, [exportLocale, filteredPatients, t]);
 
   if (!hasAccess) {
     return (

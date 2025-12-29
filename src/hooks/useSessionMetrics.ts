@@ -17,6 +17,7 @@ type SessionMetricsState = {
 type SessionMetricsOptions = {
   allowDemo?: boolean;
   limit?: number;
+  enabled?: boolean;
 };
 
 const getLocalFallback = (allowDemo: boolean): { sessions: LabModuleMetrics[]; source: SessionMetricsSource } => {
@@ -35,6 +36,7 @@ export const useSessionMetrics = (options: SessionMetricsOptions = {}): SessionM
   const { isAuthenticated, isOnline, user } = useUser();
   const allowDemo = options.allowDemo ?? false;
   const limit = options.limit ?? 200;
+  const enabled = options.enabled ?? true;
 
   const fallback = useMemo(() => getLocalFallback(allowDemo), [allowDemo, user?.id]);
   const [state, setState] = useState<SessionMetricsState>({
@@ -58,6 +60,18 @@ export const useSessionMetrics = (options: SessionMetricsOptions = {}): SessionM
         error: prev.error,
       }));
     };
+
+    if (!enabled) {
+      setState({
+        sessions: [],
+        source: 'none',
+        isLoading: false,
+        error: null,
+      });
+      return () => {
+        cancelled = true;
+      };
+    }
 
     if (!token || !isAuthenticated || !isOnline) {
       refreshFallback();
@@ -97,7 +111,7 @@ export const useSessionMetrics = (options: SessionMetricsOptions = {}): SessionM
     return () => {
       cancelled = true;
     };
-  }, [allowDemo, isAuthenticated, isOnline, limit, user?.id]);
+  }, [allowDemo, enabled, isAuthenticated, isOnline, limit, user?.id]);
 
   return state;
 };

@@ -138,6 +138,21 @@ export const computeSlope = (values: number[]) => {
   return denominator === 0 ? 0 : numerator / denominator;
 };
 
+const FATIGUE_SLOPE_THRESHOLD_SCORE = 0.5;
+const FATIGUE_SLOPE_THRESHOLD_NORMALIZED = FATIGUE_SLOPE_THRESHOLD_SCORE / 100;
+
+export const getFatigueDirection = (
+  slope: number,
+  scale: 'score' | 'normalized' = 'score',
+): 'improving' | 'worsening' | 'stable' => {
+  const threshold = scale === 'normalized'
+    ? FATIGUE_SLOPE_THRESHOLD_NORMALIZED
+    : FATIGUE_SLOPE_THRESHOLD_SCORE;
+  if (slope < -threshold) return 'improving';
+  if (slope > threshold) return 'worsening';
+  return 'stable';
+};
+
 export const buildScoreTrendSeries = (
   sessions: LabModuleMetrics[],
   locale: string,

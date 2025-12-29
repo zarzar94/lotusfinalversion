@@ -351,7 +351,7 @@ export default function SchoolDashboard() {
     sessions: sessionMetrics,
     source: sessionSource,
     isLoading: sessionsLoading,
-  } = useSessionMetrics();
+  } = useSessionMetrics({ enabled: hasAccess });
   const [filter, setFilter] = useState<'all' | 'at_risk' | 'on_track' | 'completed'>('all');
   const [schoolAnalysis, setSchoolAnalysis] = useState<SchoolSessionsAnalysisResponse | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
