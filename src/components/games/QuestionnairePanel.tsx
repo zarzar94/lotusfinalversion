@@ -5,7 +5,14 @@ import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import LabButton from '../labui/LabButton';
 import { renderLabIcon } from '../icons/index';
 import type { GameResult, TestOutcome } from './types';
-import { CTAResultPanel, MetricsSummaryPanel, ModuleFrame, ModuleHeader, PracticeTrialsStep } from './ui';
+import {
+  CalibrationStep,
+  CTAResultPanel,
+  MetricsSummaryPanel,
+  ModuleFrame,
+  ModuleHeader,
+  PracticeTrialsStep,
+} from './ui';
 
 const questions = [
   'هل يطلب الطفل تكرار الكلام كثيراً (؟ماذا/هاه)؟',
@@ -31,7 +38,7 @@ export default function QuestionnairePanel({
 }) {
   const { isArabic } = useLanguage();
   const [answers, setAnswers] = useState<Answer[]>(Array(questions.length).fill(0));
-  const [submitted, setSubmitted] = useState(false);
+  const [stage, setStage] = useState<'intro' | 'questions' | 'done'>('intro');
 
   const score = useMemo(() => answers.reduce<number>((s, a) => s + a, 0), [answers]);
   const maxScore = questions.length * 2;
@@ -52,6 +59,12 @@ export default function QuestionnairePanel({
       ? isArabic ? 'متوسط' : 'Medium'
       : isArabic ? 'منخفض' : 'Low';
 
+  const introTitle = isArabic ? 'تهيئة سريعة قبل الاستبيان' : 'Quick setup before the questionnaire';
+  const introDescription = isArabic
+    ? 'اختر مكانًا هادئًا وأجب بصدق. هذا استبيان ذاتي وليس تشخيصًا.'
+    : 'Find a quiet moment and answer honestly. This is a subjective checklist, not a diagnosis.';
+  const introHint = isArabic ? 'يمكنك تعديل الإجابات قبل الإرسال.' : 'You can adjust answers before submitting.';
+
   const submit = () => {
     const outcome: TestOutcome = {
       key: 'questionnaire',
@@ -67,7 +80,7 @@ export default function QuestionnairePanel({
       trials: questions.map((q, idx) => ({ question: q, answer: label(answers[idx] as Answer), value: answers[idx] })),
     };
 
-    setSubmitted(true);
+    setStage('done');
     onDone(outcome);
   };
 
@@ -81,7 +94,29 @@ export default function QuestionnairePanel({
         statusTone="purple"
       />
 
-      <PracticeTrialsStep title={isArabic ? 'ذاتي' : 'Subjective'}>
+      {stage === 'intro' ? (
+        <CalibrationStep
+          title={introTitle}
+          description={introDescription}
+          hint={introHint}
+          tone="cyan"
+          actions={(
+            <>
+              <LabButton onClick={() => setStage('questions')}>
+                {isArabic ? 'ابدأ الاستبيان' : 'Start questionnaire'}
+              </LabButton>
+              {onCancel ? (
+                <LabButton variant="ghost" onClick={onCancel}>
+                  {isArabic ? 'إلغاء' : 'Cancel'}
+                </LabButton>
+              ) : null}
+            </>
+          )}
+        />
+      ) : null}
+
+      {stage === 'questions' ? (
+        <PracticeTrialsStep title={isArabic ? 'ذاتي' : 'Subjective'}>
         <div style={{ marginTop: 12, display: 'grid', gap: 12 }}>
           {questions.map((q, idx) => (
             <div key={q} style={{ ...styles.section, marginBottom: 0 }}>
@@ -124,9 +159,10 @@ export default function QuestionnairePanel({
           </div>
 
         </div>
-      </PracticeTrialsStep>
+        </PracticeTrialsStep>
+      ) : null}
 
-      {submitted ? (
+      {stage === 'done' ? (
         <>
           <MetricsSummaryPanel
             title={isArabic ? 'ملخص الاستبيان' : 'Questionnaire summary'}
