@@ -15,6 +15,7 @@ import {
   typography,
 } from '../styles';
 import { getFatigueDirection } from './roleDashboardUtils';
+import { renderLabIcon } from '../icons/index';
 
 type ChartVariant = 'parent' | 'clinician';
 
@@ -248,6 +249,11 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     label?: string;
     key: string;
     container: 'score' | 'fatigue';
+  } | null>(null);
+  const [bandTooltip, setBandTooltip] = useState<{
+    left: number;
+    top: number;
+    content: string;
   } | null>(null);
   const scoreChartRef = useRef<HTMLDivElement>(null);
   const fatigueChartRef = useRef<HTMLDivElement>(null);
@@ -538,6 +544,26 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   };
 
   const clearTooltip = () => setTooltip(null);
+  const clearBandTooltip = () => setBandTooltip(null);
+
+  const bandExplanation = t(
+    'dashboard.bandExplanation',
+    'High: 70–100\nMid: 40–69\nLow: 0–39\nNon-diagnostic screening bands.',
+  );
+  const bandHelpLabel = t('dashboard.bandHelpAria', 'Explain band ranges');
+
+  const setBandTooltipFromEvent = (
+    event: React.MouseEvent<HTMLElement> | React.FocusEvent<HTMLElement>,
+  ) => {
+    const wrapper = scoreChartRef.current?.getBoundingClientRect();
+    const target = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    if (!wrapper) return;
+    setBandTooltip({
+      left: target.x - wrapper.x + target.width / 2,
+      top: target.y - wrapper.y - 8,
+      content: bandExplanation,
+    });
+  };
 
   const chipStyle = (active: boolean) => ({
     padding: `${spacing[0.5]}px ${spacing[2]}px`,
@@ -576,6 +602,42 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             }}
           >
             <span>{title || t('dashboard.scoreTrendTitle', 'Score Trend')}</span>
+            <button
+              type="button"
+              aria-label={bandHelpLabel}
+              onMouseEnter={setBandTooltipFromEvent}
+              onFocus={setBandTooltipFromEvent}
+              onMouseLeave={clearBandTooltip}
+              onBlur={clearBandTooltip}
+              onClick={(event) => {
+                event.stopPropagation();
+                setBandTooltip((current) => (current ? null : (() => {
+                  const wrapper = scoreChartRef.current?.getBoundingClientRect();
+                  const target = (event.currentTarget as HTMLElement).getBoundingClientRect();
+                  if (!wrapper) return null;
+                  return {
+                    left: target.x - wrapper.x + target.width / 2,
+                    top: target.y - wrapper.y - 8,
+                    content: bandExplanation,
+                  };
+                })()));
+              }}
+              style={{
+                border: `1px solid ${colors.border.default}`,
+                background: colors.surface.card,
+                color: colors.text.muted,
+                borderRadius: radius.full,
+                width: 22,
+                height: 22,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: typography.size.xs,
+              }}
+            >
+              {renderLabIcon('\u2139\uFE0F', { size: 12, tone: 'muted' })}
+            </button>
             {stats ? (
               <span
                 style={{
@@ -860,6 +922,28 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
               </div>
             ) : null}
             <div>{tooltip.content}</div>
+          </div>
+        ) : null}
+        {bandTooltip ? (
+          <div
+            style={{
+              position: 'absolute',
+              left: bandTooltip.left,
+              top: bandTooltip.top,
+              transform: 'translate(-50%, -100%)',
+              padding: `${spacing[1]}px ${spacing[2]}px`,
+              background: colors.surface.overlay,
+              color: colors.text.primary,
+              border: `1px solid ${colors.border.default}`,
+              borderRadius: radius.md,
+              fontSize: typography.size.xs,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+              pointerEvents: 'none',
+              zIndex: 2,
+              whiteSpace: 'pre-line',
+            }}
+          >
+            {bandTooltip.content}
           </div>
         ) : null}
         {!trendReady ? (

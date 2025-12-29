@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
+import { useUser } from '../../context/UserContext';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles } from '../styles';
 import LabButton from '../labui/LabButton';
 import { renderLabIcon } from '../icons/index';
 import HeadphoneCheckPanel, { type HeadphoneCheckResult } from './HeadphoneCheckPanel';
-import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../../utils/pdf';
+import { downloadSessionCsv, downloadSessionPdf } from './report';
 import { ensureAudio, playTone, safeCloseAudio, setNoiseLevel, stopNoise, type NoiseRef } from './audio';
 import { mean } from './stats';
-import type { GameResult, TestOutcome } from './types';
+import type { AssessmentSession, GameResult, TestOutcome } from './types';
+import { resultMeta } from './types';
 import { SEQUENCE_POINTS, getStarRating, getStarEmoji } from './scoring';
 import {
   CalibrationStep,
@@ -61,6 +63,7 @@ export default function SequencingTestPanel({
   enableExports?: boolean;
 }) {
   const { isArabic, t } = useLanguage();
+  const { user } = useUser();
   const audioRef = useRef<AudioContext | null>(null);
   const noiseRef: NoiseRef = useRef(null);
 
@@ -96,6 +99,7 @@ export default function SequencingTestPanel({
   const rowsRef = useRef<RoundRow[]>([]);
   const clickTimesRef = useRef<number[]>([]);
   const feedbackTimerRef = useRef<number | null>(null);
+  const exportSessionRef = useRef<AssessmentSession | null>(null);
 
   const ensure = () => ensureAudio(audioRef);
 
@@ -312,6 +316,21 @@ export default function SequencingTestPanel({
       trials: rows,
     };
 
+    const exportSession: AssessmentSession = {
+      id: `SEQ-${Date.now().toString(36).toUpperCase()}`,
+      startedAt: Date.now(),
+      headphoneCheck: deviceCheckResult
+        ? {
+            supported: deviceCheckResult.supported,
+            passed: deviceCheckResult.passed,
+            correct: deviceCheckResult.correct,
+            total: deviceCheckResult.total,
+          }
+        : undefined,
+      outcomes: { sequence: outcome },
+    };
+    exportSessionRef.current = exportSession;
+
     setSummary({
       result,
       span,
@@ -326,53 +345,32 @@ export default function SequencingTestPanel({
   };
 
   const downloadCsv = () => {
-    const rows = rowsRef.current;
-    const header = ['round', 'length', 'target', 'chosen', 'correct', 'noise_level', 'replay_count', 'rt_ms'].join(',');
-    const lines = rows.map((r) => [
-      r.round,
-      r.length,
-      `"${r.target.join('-')}"`,
-      `"${r.chosen.join('-')}"`,
-      r.correct ? 1 : 0,
-      r.noiseLevel.toFixed(3),
-      r.replayCount,
-      `"${r.rtMs.join('|')}"`,
-    ].join(','));
-
-    const csv = [header, ...lines].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `Classroom-Sequencing-${Date.now()}.csv`;
-    a.click();
-    URL.revokeObjectURL(a.href);
+    const exportSession = exportSessionRef.current;
+    if (!exportSession) return;
+    downloadSessionCsv(exportSession, { lang: isArabic ? 'ar' : 'en', template: 'school' });
   };
 
   const downloadPdf = async () => {
-    const rows = rowsRef.current;
-    const doc = await createPdfDoc();
-    doc.setFont('Cairo', 'normal');
-
-    let y = 62;
-    doc.setFontSize(16);
-    y = writePdfText(doc, 'تقرير Demo — اختبار التسلسل/الذاكرة السمعية', PDF_MARGIN_X, y, { maxWidth: 520, lineHeight: 20 });
-
-    doc.setFontSize(11);
-    y = writePdfText(doc, 'ملاحظة: التقرير توضيحي وغير تشخيصي. يُستخدم للعرض داخل المدرسة بدون بيانات شخصية.', PDF_MARGIN_X, y + 10, { maxWidth: 520, lineHeight: 16 });
-
-    y += 12;
-    doc.setFontSize(10);
-
-    for (const r of rows) {
-      const line = `#${r.round} | len:${r.length} | target:${r.target.join('-')} | chosen:${r.chosen.join('-')} | ${r.correct ? '✓' : '✗'} | noise:${r.noiseLevel.toFixed(2)} | replay:${r.replayCount}`;
-      y = writePdfText(doc, line, PDF_MARGIN_X, y, { maxWidth: 520, lineHeight: 14 });
-      if (y > 760) {
-        doc.addPage();
-        y = 62;
-      }
-    }
-
-    doc.save(`Classroom-Sequencing-${Date.now()}.pdf`);
+    const exportSession = exportSessionRef.current;
+    if (!exportSession || !summary) return;
+    const signature = user
+      ? {
+          label: isArabic ? 'توقيع المدرسة' : 'School signature',
+          name: (isArabic ? user.nameAr ?? user.name : user.name ?? user.nameAr) ?? user.email ?? '',
+          title: user.school ?? (isArabic ? 'مدرسة' : 'School'),
+          date: new Date().toLocaleDateString(isArabic ? 'ar-SA' : 'en-US'),
+        }
+      : undefined;
+    const composite = {
+      label: resultMeta[summary.result]?.label ?? summary.result,
+      message: summary.message,
+    };
+    await downloadSessionPdf(
+      exportSession,
+      { lang: isArabic ? 'ar' : 'en', template: 'school' },
+      composite,
+      signature,
+    );
   };
 
   const roundProgress = useMemo(() => `${round}/${ROUNDS}`, [round, ROUNDS]);

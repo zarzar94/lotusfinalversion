@@ -124,3 +124,76 @@ export const writePdfText = (
 
   return cursorY;
 };
+
+export type PdfSignature = {
+  label: string;
+  name?: string;
+  title?: string;
+  date?: string;
+  imageDataUrl?: string;
+};
+
+export const drawSignatureBlock = (
+  doc: JsPDFInstance,
+  {
+    label,
+    name,
+    title,
+    date,
+    imageDataUrl,
+    y,
+    lineWidth = 220,
+    contentWidth,
+  }: PdfSignature & { y: number; lineWidth?: number; contentWidth?: number },
+): number => {
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const maxWidth = contentWidth ?? pageWidth - PDF_MARGIN_X * 2;
+  const isRtl = isArabicText(label);
+
+  const lineStart = isRtl ? pageWidth - PDF_MARGIN_X - lineWidth : PDF_MARGIN_X;
+  const lineEnd = isRtl ? pageWidth - PDF_MARGIN_X : PDF_MARGIN_X + lineWidth;
+
+  doc.setFont('Cairo', 'bold');
+  doc.setFontSize(11);
+  const labelY = writePdfText(doc, label, PDF_MARGIN_X, y, { maxWidth, lineHeight: 16 });
+
+  let lineY = labelY + 10;
+  if (imageDataUrl) {
+    lineY += 28;
+  }
+
+  doc.setDrawColor(120, 120, 140);
+  doc.setLineWidth(0.7);
+  doc.line(lineStart, lineY, lineEnd, lineY);
+
+  if (imageDataUrl) {
+    const imageWidth = 120;
+    const imageHeight = 32;
+    const imageX = isRtl ? lineEnd - imageWidth : lineStart;
+    const imageY = lineY - imageHeight - 4;
+    try {
+      doc.addImage(imageDataUrl, 'PNG', imageX, imageY, imageWidth, imageHeight);
+    } catch {
+      // Ignore signature image rendering errors.
+    }
+  }
+
+  let cursorY = lineY + 8;
+  if (name) {
+    doc.setFont('Cairo', 'bold');
+    doc.setFontSize(10);
+    cursorY = writePdfText(doc, name, PDF_MARGIN_X, cursorY, { maxWidth, lineHeight: 14 });
+  }
+  if (title) {
+    doc.setFont('Cairo', 'normal');
+    doc.setFontSize(9);
+    cursorY = writePdfText(doc, title, PDF_MARGIN_X, cursorY, { maxWidth, lineHeight: 12 });
+  }
+  if (date) {
+    doc.setFont('Cairo', 'normal');
+    doc.setFontSize(9);
+    cursorY = writePdfText(doc, date, PDF_MARGIN_X, cursorY, { maxWidth, lineHeight: 12 });
+  }
+
+  return cursorY + 4;
+};

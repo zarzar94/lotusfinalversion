@@ -6,7 +6,7 @@ import { useState, useCallback, useEffect, memo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useUser } from '../context/UserContext';
 import { useGamification } from '../context/GamificationContext';
-import { createPdfDoc, writePdfText, PDF_MARGIN_X } from '../utils/pdf';
+import { createPdfDoc, drawSignatureBlock, writePdfText, PDF_MARGIN_X } from '../utils/pdf';
 import {
   brandCyan,
   brandPurple,
@@ -83,6 +83,7 @@ const generateProgressPdf = async (
     unlockedAchievements: t('auto.ProgressExport.k24', "Unlocked Achievements"),
     footer: t('auto.ProgressExport.k25', "Lotus × Bérard AIT - Auditory Training Platform"),
     days: t('auto.ProgressExport.k26', "days"),
+    signature: t('auto.ProgressExport.k34', "Signature"),
   };
 
   const phaseLabels: Record<string, { en: string; ar: string }> = {
@@ -263,6 +264,18 @@ const generateProgressPdf = async (
   }
 
   // ════════════════════════════════════════════════════════════════════════
+  if (y > pageHeight - 120) {
+    doc.addPage();
+    y = 40;
+  }
+  y = drawSignatureBlock(doc, {
+    label: text.signature,
+    name: displayName || user.email || 'N/A',
+    title: user.role.charAt(0).toUpperCase() + user.role.slice(1),
+    date: dateStr,
+    y,
+  });
+
   // FOOTER
   // ════════════════════════════════════════════════════════════════════════
 

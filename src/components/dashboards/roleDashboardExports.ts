@@ -1,4 +1,4 @@
-import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../../utils/pdf';
+import { createPdfDoc, drawSignatureBlock, PDF_MARGIN_X, type PdfSignature, writePdfText } from '../../utils/pdf';
 import type { LabModuleMetrics } from '../../types/moduleMetrics';
 import { downloadBlob } from '../games/report';
 import {
@@ -47,10 +47,12 @@ export const downloadParentReportPdf = async ({
   sessions,
   latestByModule,
   isArabic,
+  signature,
 }: {
   sessions: LabModuleMetrics[];
   latestByModule: Record<string, LabModuleMetrics | null>;
   isArabic: boolean;
+  signature?: PdfSignature;
 }) => {
   const doc = await createPdfDoc();
   const locale = isArabic ? 'ar-SA' : 'en-US';
@@ -114,6 +116,14 @@ export const downloadParentReportPdf = async ({
     }
   });
 
+  if (signature?.label) {
+    if (y > pageHeight - 120) {
+      doc.addPage();
+      y = 62;
+    }
+    y = drawSignatureBlock(doc, { ...signature, y });
+  }
+
   doc.save(isArabic ? 'تقرير-ولي-الامر.pdf' : 'parent-report.pdf');
 };
 
@@ -124,6 +134,7 @@ export const downloadClinicianReportPdf = async ({
   fatigueSlope,
   fatigueDirection,
   consistencyAverage,
+  signature,
 }: {
   sessions: LabModuleMetrics[];
   latestByModule: Record<string, LabModuleMetrics | null>;
@@ -131,6 +142,7 @@ export const downloadClinicianReportPdf = async ({
   fatigueSlope: number;
   fatigueDirection: 'improving' | 'worsening' | 'stable';
   consistencyAverage: number | null;
+  signature?: PdfSignature;
 }) => {
   const doc = await createPdfDoc();
   const locale = isArabic ? 'ar-SA' : 'en-US';
@@ -230,6 +242,14 @@ export const downloadClinicianReportPdf = async ({
       y = 62;
     }
   });
+
+  if (signature?.label) {
+    if (y > pageHeight - 120) {
+      doc.addPage();
+      y = 62;
+    }
+    y = drawSignatureBlock(doc, { ...signature, y });
+  }
 
   doc.save(isArabic ? 'تقرير-الأخصائي.pdf' : 'clinician-report.pdf');
 };

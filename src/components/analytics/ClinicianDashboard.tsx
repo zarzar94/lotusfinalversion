@@ -969,6 +969,14 @@ export default function ClinicianDashboard() {
 
   const handleExportPdf = useCallback(() => {
     if (!sessionMetrics.length) return;
+    const signature = user
+      ? {
+          label: isArabic ? 'توقيع الأخصائي' : 'Clinician signature',
+          name: (isArabic ? user.nameAr ?? user.name : user.name ?? user.nameAr) ?? user.email ?? '',
+          title: user.clinic ?? (isArabic ? 'أخصائي' : 'Clinician'),
+          date: new Date().toLocaleDateString(isArabic ? 'ar-SA' : 'en-US'),
+        }
+      : undefined;
     void downloadClinicianReportPdf({
       sessions: sessionMetrics,
       latestByModule,
@@ -976,8 +984,9 @@ export default function ClinicianDashboard() {
       fatigueSlope,
       fatigueDirection,
       consistencyAverage,
+      signature,
     });
-  }, [consistencyAverage, fatigueDirection, fatigueSlope, isArabic, latestByModule, sessionMetrics]);
+  }, [consistencyAverage, fatigueDirection, fatigueSlope, isArabic, latestByModule, sessionMetrics, user]);
 
   const handleExportCsv = useCallback(() => {
     if (!filteredPatients.length) return;

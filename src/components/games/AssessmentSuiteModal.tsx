@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
+import { useUser } from '../../context/UserContext';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import LabButton from '../labui/LabButton';
@@ -54,6 +55,7 @@ export default function AssessmentSuiteModal({
   const [session, setSession] = useState<AssessmentSession>(() => ({ id: genId(), startedAt: Date.now(), outcomes: {} }));
   const [reportTemplate, setReportTemplate] = useState<'parent' | 'school'>('parent');
   const { isArabic, direction, t } = useLanguage();
+  const { user } = useUser();
   const reportLang = isArabic ? 'ar' : 'en';
   const modalRef = useFocusTrap<HTMLDivElement>(open);
 
@@ -338,7 +340,26 @@ export default function AssessmentSuiteModal({
                 <LabButton variant="ghost" onClick={() => downloadSessionCsv(session, { lang: reportLang, template: reportTemplate })}>
                   {t('games.exportCsvSummary')}
                 </LabButton>
-                <LabButton onClick={() => downloadSessionPdf(session, { lang: reportLang, template: reportTemplate }, { label: composite.label, message: composite.message })}>
+                <LabButton onClick={() => {
+                  const signature = user
+                    ? {
+                        label: reportTemplate === 'school'
+                          ? (isArabic ? 'توقيع المدرسة' : 'School signature')
+                          : (isArabic ? 'توقيع ولي الأمر' : 'Parent signature'),
+                        name: (isArabic ? user.nameAr ?? user.name : user.name ?? user.nameAr) ?? user.email ?? '',
+                        title: reportTemplate === 'school'
+                          ? (user.school ?? (isArabic ? 'مدرسة' : 'School'))
+                          : (isArabic ? 'ولي الأمر' : 'Parent'),
+                        date: new Date().toLocaleDateString(isArabic ? 'ar-SA' : 'en-US'),
+                      }
+                    : undefined;
+                  void downloadSessionPdf(
+                    session,
+                    { lang: reportLang, template: reportTemplate },
+                    { label: composite.label, message: composite.message },
+                    signature,
+                  );
+                }}>
                   {t('games.exportPdfReport')}
                 </LabButton>
                 <LabButton variant="ghost" onClick={() => setStep('attention')}>

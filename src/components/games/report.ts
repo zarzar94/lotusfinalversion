@@ -1,5 +1,5 @@
 import type { jsPDF } from 'jspdf';
-import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../../utils/pdf';
+import { createPdfDoc, drawSignatureBlock, PDF_MARGIN_X, type PdfSignature, writePdfText } from '../../utils/pdf';
 import { translations } from '../../i18n/translations';
 import { brandCyan, brandInk, brandPink, brandPurple, brandPurpleDark } from '../styles';
 import { AssessmentSession, TestOutcome, TestKey } from './types';
@@ -138,7 +138,12 @@ const writeMetrics = (
   return y;
 };
 
-export const downloadSessionPdf = async (session: AssessmentSession, options: ReportOptions, composite?: ReportComposite) => {
+export const downloadSessionPdf = async (
+  session: AssessmentSession,
+  options: ReportOptions,
+  composite?: ReportComposite,
+  signature?: PdfSignature,
+) => {
   const { lang, template } = options;
   const copy = getReportCopy(lang);
   const templateLabel = template === 'parent' ? copy.typeParent : copy.typeSchool;
@@ -259,6 +264,11 @@ export const downloadSessionPdf = async (session: AssessmentSession, options: Re
   doc.setFont('Cairo', 'normal');
   doc.setFontSize(10);
   applyHexColor(doc, brandPurpleDark, 'setTextColor');
+  if (signature?.label) {
+    y = ensurePage(doc, y + 12);
+    y = drawSignatureBlock(doc, { ...signature, y, contentWidth });
+  }
+
   y = writePdfText(doc, copy.footerNote, PDF_MARGIN_X, y + 14, { maxWidth: contentWidth, lineHeight: 14 });
 
   const templateTag = template.toUpperCase();

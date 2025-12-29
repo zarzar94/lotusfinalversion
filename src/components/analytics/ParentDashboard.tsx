@@ -689,12 +689,21 @@ export default function ParentDashboard() {
 
   const handleExportPdf = useCallback(() => {
     if (!sessionMetrics.length) return;
+    const signature = user
+      ? {
+          label: isArabic ? 'توقيع ولي الأمر' : 'Parent signature',
+          name: (isArabic ? user.nameAr ?? user.name : user.name ?? user.nameAr) ?? user.email ?? '',
+          title: isArabic ? 'ولي الأمر' : 'Parent',
+          date: new Date().toLocaleDateString(isArabic ? 'ar-SA' : 'en-US'),
+        }
+      : undefined;
     void downloadParentReportPdf({
       sessions: sessionMetrics,
       latestByModule,
       isArabic,
+      signature,
     });
-  }, [isArabic, latestByModule, sessionMetrics]);
+  }, [isArabic, latestByModule, sessionMetrics, user]);
 
   const handleExportCsv = useCallback(() => {
     if (!sessionMetrics.length) return;
