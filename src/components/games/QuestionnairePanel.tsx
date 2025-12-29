@@ -155,13 +155,6 @@ export default function QuestionnairePanel({
 
       {stage === 'done' ? (
         <>
-          <div style={{ ...styles.section, marginBottom: 12 }}>
-            <div style={{ fontWeight: 900, color: brandPurpleDark }}>النتيجة المبدئية</div>
-            <p style={{ ...styles.muted, marginTop: 6 }}>
-              مجموع النقاط: <b style={{ color: brandPink }}>{score}</b> / {maxScore}
-            </p>
-            <p style={{ ...styles.muted, marginTop: 6 }}>{message}</p>
-          </div>
           <MetricsSummaryPanel
             title={isArabic ? 'ملخص الاستبيان' : 'Questionnaire summary'}
             subtitle={message}
