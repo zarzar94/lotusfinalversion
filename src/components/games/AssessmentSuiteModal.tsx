@@ -6,6 +6,7 @@ import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import LabButton from '../labui/LabButton';
 import LabButtonAnchor from '../labui/LabButtonAnchor';
+import SignatureCapture from '../labui/SignatureCapture';
 import type { AssessmentSession, GameResult, TestKey, TestOutcome } from './types';
 import { resultMeta } from './types';
 import HeadphoneCheckPanel, { HeadphoneCheckResult } from './HeadphoneCheckPanel';
@@ -54,6 +55,8 @@ export default function AssessmentSuiteModal({
   >('intro');
   const [session, setSession] = useState<AssessmentSession>(() => ({ id: genId(), startedAt: Date.now(), outcomes: {} }));
   const [reportTemplate, setReportTemplate] = useState<'parent' | 'school'>('parent');
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+  const [signatureVisible, setSignatureVisible] = useState(false);
   const { isArabic, direction, t } = useLanguage();
   const { user } = useUser();
   const reportLang = isArabic ? 'ar' : 'en';
@@ -64,6 +67,8 @@ export default function AssessmentSuiteModal({
     // reset when opened fresh
     setStep('intro');
     setSession({ id: genId(), startedAt: Date.now(), outcomes: {} });
+    setSignatureDataUrl(null);
+    setSignatureVisible(false);
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = '';
@@ -336,6 +341,37 @@ export default function AssessmentSuiteModal({
                 </div>
               </div>
 
+              <div style={{ marginTop: 12, display: 'grid', gap: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>
+                    {t('signature.title', 'Signature')} ({t('signature.optional', 'Optional')})
+                  </span>
+                  <LabButton
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setSignatureVisible((prev) => !prev)}
+                  >
+                    {signatureVisible
+                      ? t('signature.close', 'Close')
+                      : t('signature.add', 'Add signature')}
+                  </LabButton>
+                  {signatureDataUrl && (
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>
+                      {t('signature.saved', 'Signature saved.')}
+                    </span>
+                  )}
+                </div>
+                {signatureVisible && (
+                  <SignatureCapture
+                    value={signatureDataUrl}
+                    onChange={setSignatureDataUrl}
+                    helper={t('signature.hint', 'Draw your signature in the box.')}
+                    clearLabel={t('signature.clear', 'Clear')}
+                    savedLabel={t('signature.saved', 'Signature saved.')}
+                  />
+                )}
+              </div>
+
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
                 <LabButton variant="ghost" onClick={() => downloadSessionCsv(session, { lang: reportLang, template: reportTemplate })}>
                   {t('games.exportCsvSummary')}
@@ -351,6 +387,7 @@ export default function AssessmentSuiteModal({
                           ? (user.school ?? (isArabic ? 'مدرسة' : 'School'))
                           : (isArabic ? 'ولي الأمر' : 'Parent'),
                         date: new Date().toLocaleDateString(isArabic ? 'ar-SA' : 'en-US'),
+                        imageDataUrl: signatureDataUrl ?? undefined,
                       }
                     : undefined;
                   void downloadSessionPdf(

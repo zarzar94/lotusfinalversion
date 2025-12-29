@@ -11,6 +11,8 @@ import { renderLabIcon } from './icons/index';
 import LabCard from './labui/LabCard';
 import LabButton from './labui/LabButton';
 import LabButtonAnchor from './labui/LabButtonAnchor';
+import LabModal from './labui/LabModal';
+import SignatureCapture from './labui/SignatureCapture';
 
 // Impact Statistics
 const IMPACT_STATS = {
@@ -260,6 +262,8 @@ const SchoolPartnershipSection = () => {
   const processSteps = useMemo(() => getProcessSteps(t), [t]);
   const tiers = useMemo(() => getTiers(t), [t]);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [signatureOpen, setSignatureOpen] = useState(false);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
 
   const demoPack = useMemo(() => ({
     title: t('schools.demoPack.title'),
@@ -280,7 +284,14 @@ const SchoolPartnershipSection = () => {
     try {
       const { session, composite } = buildDemoSession(t);
       const options = { lang: isArabic ? 'ar' : 'en', template: 'school' } as const;
-      await downloadSessionPdf(session, options, composite);
+      const signature = {
+        label: t('signature.title', 'Signature'),
+        name: t('schools.demoPack.signatureName', 'Authorized representative'),
+        title: t('schools.demoPack.signatureTitle', 'School'),
+        date: new Date().toLocaleDateString(isArabic ? 'ar-SA' : 'en-US'),
+        imageDataUrl: signatureDataUrl ?? undefined,
+      };
+      await downloadSessionPdf(session, options, composite, signature);
       await wait(350);
       downloadSessionCsv(session, options);
       await wait(350);
@@ -288,7 +299,7 @@ const SchoolPartnershipSection = () => {
     } finally {
       setIsDownloading(false);
     }
-  }, [isArabic, isDownloading, t]);
+  }, [isArabic, isDownloading, t, signatureDataUrl]);
   return (
     <section id="schools" style={{ scrollMarginTop: 92, marginBottom: spacing[5] }}>
       <LabCard variant="panel">
@@ -483,6 +494,16 @@ const SchoolPartnershipSection = () => {
           >
             {isDownloading ? demoPack.buttonLoading : demoPack.button}
           </LabButton>
+        </div>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          <LabButton variant="ghost" size="sm" onClick={() => setSignatureOpen(true)}>
+            {t('signature.add', 'Add signature')}
+          </LabButton>
+          {signatureDataUrl && (
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
+              {t('signature.saved', 'Signature saved.')}
+            </span>
+          )}
         </div>
 
         <div style={{
@@ -704,6 +725,32 @@ const SchoolPartnershipSection = () => {
         </div>
       </div>
       </LabCard>
+
+      <LabModal
+        open={signatureOpen}
+        onClose={() => setSignatureOpen(false)}
+        title={t('signature.title', 'Signature')}
+      >
+        <SignatureCapture
+          value={signatureDataUrl}
+          onChange={setSignatureDataUrl}
+          label={`${t('signature.title', 'Signature')} (${t('signature.optional', 'Optional')})`}
+          helper={t('signature.hint', 'Draw your signature in the box.')}
+          clearLabel={t('signature.clear', 'Clear')}
+          savedLabel={t('signature.saved', 'Signature saved.')}
+        />
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: isArabic ? 'flex-start' : 'flex-end',
+            marginTop: spacing[4],
+          }}
+        >
+          <LabButton variant="ghost" onClick={() => setSignatureOpen(false)}>
+            {t('signature.close', 'Close')}
+          </LabButton>
+        </div>
+      </LabModal>
     </section>
   );
 };

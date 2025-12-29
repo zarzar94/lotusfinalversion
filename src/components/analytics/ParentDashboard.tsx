@@ -42,6 +42,8 @@ import { getStreakDays, getUniqueSessionStats } from '../../utils/sessionStats';
 import LabButton from '../labui/LabButton';
 import LabCard from '../labui/LabCard';
 import LabPill from '../labui/LabPill';
+import LabModal from '../labui/LabModal';
+import SignatureCapture from '../labui/SignatureCapture';
 import {
   ParentIcon,
   ReportIcon,
@@ -580,6 +582,8 @@ export default function ParentDashboard() {
   const [childrenData, setChildrenData] = useState<ChildData[] | null>(null);
   const [expandedChild, setExpandedChild] = useState<string | null>(MOCK_CHILDREN[0]?.id || null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [signatureOpen, setSignatureOpen] = useState(false);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
   const token = getToken();
   const hasToken = Boolean(token);
   const canFetch = Boolean(token && isAuthenticated && isOnline && hasAccess && user?.role === 'parent');
@@ -695,6 +699,7 @@ export default function ParentDashboard() {
           name: (isArabic ? user.nameAr ?? user.name : user.name ?? user.nameAr) ?? user.email ?? '',
           title: isArabic ? 'ولي الأمر' : 'Parent',
           date: new Date().toLocaleDateString(isArabic ? 'ar-SA' : 'en-US'),
+          imageDataUrl: signatureDataUrl ?? undefined,
         }
       : undefined;
     void downloadParentReportPdf({
@@ -703,7 +708,7 @@ export default function ParentDashboard() {
       isArabic,
       signature,
     });
-  }, [isArabic, latestByModule, sessionMetrics, user]);
+  }, [isArabic, latestByModule, sessionMetrics, user, signatureDataUrl]);
 
   const handleExportCsv = useCallback(() => {
     if (!sessionMetrics.length) return;
@@ -935,7 +940,20 @@ export default function ParentDashboard() {
               >
                 {t('auto.ParentDashboard.k63', 'PDF Report')}
               </LabButton>
+              <LabButton
+                size="sm"
+                variant="ghost"
+                onClick={() => setSignatureOpen(true)}
+                leftIcon={<CheckCircleIcon size={16} tone={signatureDataUrl ? 'success' : 'muted'} />}
+              >
+                {t('signature.add', 'Add signature')}
+              </LabButton>
             </div>
+            {signatureDataUrl && (
+              <div style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
+                {t('signature.saved', 'Signature saved.')}
+              </div>
+            )}
             {exportDisabled && (
               <div style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
                 {t('auto.ParentDashboard.k64', 'No session data yet')}
@@ -1162,6 +1180,32 @@ export default function ParentDashboard() {
           titleAr="استكشف المنصة"
         />
       </div>
+
+      <LabModal
+        open={signatureOpen}
+        onClose={() => setSignatureOpen(false)}
+        title={t('signature.title', 'Signature')}
+      >
+        <SignatureCapture
+          value={signatureDataUrl}
+          onChange={setSignatureDataUrl}
+          label={`${t('signature.title', 'Signature')} (${t('signature.optional', 'Optional')})`}
+          helper={t('signature.hint', 'Draw your signature in the box.')}
+          clearLabel={t('signature.clear', 'Clear')}
+          savedLabel={t('signature.saved', 'Signature saved.')}
+        />
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: isArabic ? 'flex-start' : 'flex-end',
+            marginTop: spacing[4],
+          }}
+        >
+          <LabButton variant="ghost" onClick={() => setSignatureOpen(false)}>
+            {t('signature.close', 'Close')}
+          </LabButton>
+        </div>
+      </LabModal>
     </section>
   );
 }

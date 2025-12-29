@@ -49,6 +49,8 @@ import {
 import LabButton from '../labui/LabButton';
 import LabCard from '../labui/LabCard';
 import LabPill from '../labui/LabPill';
+import LabModal from '../labui/LabModal';
+import SignatureCapture from '../labui/SignatureCapture';
 import {
   ClinicianIcon,
   ParentIcon,
@@ -801,6 +803,8 @@ export default function ClinicianDashboard() {
   const [analysis, setAnalysis] = useState<SessionProgressTrend | null>(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [signatureOpen, setSignatureOpen] = useState(false);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
   const token = getToken();
   const hasToken = Boolean(token);
   const canFetch = Boolean(token && isAuthenticated && isOnline && hasAccess);
@@ -975,6 +979,7 @@ export default function ClinicianDashboard() {
           name: (isArabic ? user.nameAr ?? user.name : user.name ?? user.nameAr) ?? user.email ?? '',
           title: user.clinic ?? (isArabic ? 'أخصائي' : 'Clinician'),
           date: new Date().toLocaleDateString(isArabic ? 'ar-SA' : 'en-US'),
+          imageDataUrl: signatureDataUrl ?? undefined,
         }
       : undefined;
     void downloadClinicianReportPdf({
@@ -986,7 +991,7 @@ export default function ClinicianDashboard() {
       consistencyAverage,
       signature,
     });
-  }, [consistencyAverage, fatigueDirection, fatigueSlope, isArabic, latestByModule, sessionMetrics, user]);
+  }, [consistencyAverage, fatigueDirection, fatigueSlope, isArabic, latestByModule, sessionMetrics, user, signatureDataUrl]);
 
   const handleExportCsv = useCallback(() => {
     if (!filteredPatients.length) return;
@@ -1256,7 +1261,20 @@ export default function ClinicianDashboard() {
               >
                 {t('auto.ClinicianDashboard.k89', 'PDF Report')}
               </LabButton>
+              <LabButton
+                size="sm"
+                variant="ghost"
+                onClick={() => setSignatureOpen(true)}
+                leftIcon={<CheckCircleIcon size={16} tone={signatureDataUrl ? 'success' : 'muted'} />}
+              >
+                {t('signature.add', 'Add signature')}
+              </LabButton>
             </div>
+            {signatureDataUrl && (
+              <div style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
+                {t('signature.saved', 'Signature saved.')}
+              </div>
+            )}
             {(exportDisabled || exportCsvDisabled) && (
               <div style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
                 {exportDisabled
@@ -1673,6 +1691,32 @@ export default function ClinicianDashboard() {
           titleAr="وصول سريع"
         />
       </div>
+
+      <LabModal
+        open={signatureOpen}
+        onClose={() => setSignatureOpen(false)}
+        title={t('signature.title', 'Signature')}
+      >
+        <SignatureCapture
+          value={signatureDataUrl}
+          onChange={setSignatureDataUrl}
+          label={`${t('signature.title', 'Signature')} (${t('signature.optional', 'Optional')})`}
+          helper={t('signature.hint', 'Draw your signature in the box.')}
+          clearLabel={t('signature.clear', 'Clear')}
+          savedLabel={t('signature.saved', 'Signature saved.')}
+        />
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: isArabic ? 'flex-start' : 'flex-end',
+            marginTop: spacing[4],
+          }}
+        >
+          <LabButton variant="ghost" onClick={() => setSignatureOpen(false)}>
+            {t('signature.close', 'Close')}
+          </LabButton>
+        </div>
+      </LabModal>
     </section>
   );
 }

@@ -441,6 +441,8 @@ export const translations = {
         note: 'لا يتطلب تشغيل الألعاب - بدون بيانات شخصية.',
         button: 'تحميل حزمة العرض التجريبي',
         buttonLoading: 'جارٍ تجهيز الملفات...',
+        signatureName: '\u0645\u0645\u062b\u0644 \u0627\u0644\u0645\u062f\u0631\u0633\u0629',
+        signatureTitle: '\u0627\u0644\u0645\u062f\u0631\u0633\u0629',
       },
       interpretationGuide: {
         title: 'كيفية تفسير النتائج',
@@ -1249,11 +1251,23 @@ export const translations = {
       modules: 'الوحدة',
       bandOverTime: 'النطاق عبر الزمن',
       bandLegend: 'مرتفع = 3، متوسط = 2، منخفض = 1',
+      bandExplanation: 'مرتفع: 70–100\nمتوسط: 40–69\nمنخفض: 0–39\nنطاقات فحص غير تشخيصية.',
+      bandHelpAria: 'شرح نطاقات النتائج',
       moduleComparisons: 'مقارنات الوحدات',
       leftRightSplits: 'تفصيل يسار/يمين',
       leftLabel: 'يسار',
       rightLabel: 'يمين',
       sessionTimeline: 'الجلسات الأخيرة',
+    },
+
+    signature: {
+      title: 'التوقيع',
+      add: 'إضافة توقيع',
+      hint: 'ارسم توقيعك داخل الإطار.',
+      clear: 'مسح',
+      saved: 'تم حفظ التوقيع.',
+      close: 'إغلاق',
+      optional: 'اختياري',
     },
 
     debug: {
@@ -1726,6 +1740,8 @@ export const translations = {
         note: 'No gameplay required - no personal data.',
         button: 'Download Demo Pack',
         buttonLoading: 'Preparing downloads...',
+        signatureName: 'Authorized representative',
+        signatureTitle: 'School',
       },
       interpretationGuide: {
         title: 'How to Interpret Results',
@@ -2477,11 +2493,23 @@ export const translations = {
       modules: 'Module',
       bandOverTime: 'Band Over Time',
       bandLegend: 'High = 3, Mid = 2, Low = 1',
+      bandExplanation: 'High: 70–100\nMid: 40–69\nLow: 0–39\nNon-diagnostic screening bands.',
+      bandHelpAria: 'Explain band ranges',
       moduleComparisons: 'Module Comparisons',
       leftRightSplits: 'Left/Right Splits',
       leftLabel: 'Left',
       rightLabel: 'Right',
       sessionTimeline: 'Recent Sessions',
+    },
+
+    signature: {
+      title: 'Signature',
+      add: 'Add signature',
+      hint: 'Draw your signature in the box.',
+      clear: 'Clear',
+      saved: 'Signature saved.',
+      close: 'Close',
+      optional: 'Optional',
     },
 
     debug: {
@@ -2518,3 +2546,4 @@ export const translations = {
 } as const;
 
 export type TranslationKey = keyof typeof translations.ar;
+

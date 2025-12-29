@@ -5,3 +5,4 @@ export { default as LabCard } from './LabCard';
 export { default as LabModal } from './LabModal';
 export { default as LabPill } from './LabPill';
 export { LabShell, LabShellContent } from './LabShell';
+export { default as SignatureCapture } from './SignatureCapture';

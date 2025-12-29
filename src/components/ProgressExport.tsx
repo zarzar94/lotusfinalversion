@@ -18,6 +18,9 @@ import {
   transitions,
 } from './styles';
 import { renderLabIcon } from './icons/index';
+import LabButton from './labui/LabButton';
+import LabModal from './labui/LabModal';
+import SignatureCapture from './labui/SignatureCapture';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PDF GENERATION
@@ -44,7 +47,8 @@ const generateProgressPdf = async (
     gamesCompleted: string[];
     checklistCompleted: boolean;
   },
-  achievements: { title: string; titleAr: string; icon: string; unlockedAt?: number }[]
+  achievements: { title: string; titleAr: string; icon: string; unlockedAt?: number }[],
+  signatureImageDataUrl?: string | null
 ): Promise<void> => {
   const doc = await createPdfDoc();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -273,6 +277,7 @@ const generateProgressPdf = async (
     name: displayName || user.email || 'N/A',
     title: user.role.charAt(0).toUpperCase() + user.role.slice(1),
     date: dateStr,
+    imageDataUrl: signatureImageDataUrl ?? undefined,
     y,
   });
 
@@ -307,6 +312,8 @@ export const ProgressExportButton = memo(({
   const { state, getUnlockedAchievements } = useGamification();
 
   const [isExporting, setIsExporting] = useState(false);
+  const [signatureOpen, setSignatureOpen] = useState(false);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
 
   const handleExport = useCallback(async () => {
     if (!user || isExporting) return;
@@ -326,14 +333,15 @@ export const ProgressExportButton = memo(({
           gamesCompleted: state.gamesCompleted,
           checklistCompleted: state.checklistCompleted,
         },
-        getUnlockedAchievements()
+        getUnlockedAchievements(),
+        signatureDataUrl
       );
     } catch (error) {
       console.error('Failed to export progress:', error);
     } finally {
       setIsExporting(false);
     }
-  }, [user, clinicalProgress, state, getUnlockedAchievements, isArabic, t, isExporting]);
+  }, [user, clinicalProgress, state, getUnlockedAchievements, isArabic, t, isExporting, signatureDataUrl]);
 
   // Listen for export-progress event from ProfileMenu
   useEffect(() => {
@@ -376,28 +384,65 @@ export const ProgressExportButton = memo(({
   };
 
   return (
-    <button
-      onClick={handleExport}
-      disabled={isExporting}
-      style={{
-        ...sizeStyles[size],
-        ...variantStyles[variant],
-        borderRadius: radius.lg,
-        fontWeight: typography.weight.bold,
-        fontFamily: typography.fontFamily,
-        cursor: isExporting ? 'wait' : 'pointer',
-        opacity: isExporting ? 0.7 : 1,
-        transition: transitions.fast,
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: spacing[2],
-      }}
-    >
-      <span>{renderLabIcon(isExporting ? '\u{23F3}' : '\u{1F4C4}', { size: 16, tone: 'cyan' })}</span>
-      {isExporting
-        ? (t('auto.ProgressExport.k28', "Exporting..."))
-        : (t('auto.ProgressExport.k29', "Export Report"))}
-    </button>
+    <>
+      <div style={{ display: 'flex', gap: spacing[2], alignItems: 'center', flexWrap: 'wrap' }}>
+        <button
+          onClick={handleExport}
+          disabled={isExporting}
+          style={{
+            ...sizeStyles[size],
+            ...variantStyles[variant],
+            borderRadius: radius.lg,
+            fontWeight: typography.weight.bold,
+            fontFamily: typography.fontFamily,
+            cursor: isExporting ? 'wait' : 'pointer',
+            opacity: isExporting ? 0.7 : 1,
+            transition: transitions.fast,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: spacing[2],
+          }}
+        >
+          <span>{renderLabIcon(isExporting ? '\u{23F3}' : '\u{1F4C4}', { size: 16, tone: 'cyan' })}</span>
+          {isExporting
+            ? (t('auto.ProgressExport.k28', "Exporting..."))
+            : (t('auto.ProgressExport.k29', "Export Report"))}
+        </button>
+        <LabButton size="sm" variant="ghost" onClick={() => setSignatureOpen(true)}>
+          {t('signature.add', 'Add signature')}
+        </LabButton>
+        {signatureDataUrl && (
+          <span style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
+            {t('signature.saved', 'Signature saved.')}
+          </span>
+        )}
+      </div>
+      <LabModal
+        open={signatureOpen}
+        onClose={() => setSignatureOpen(false)}
+        title={t('signature.title', 'Signature')}
+      >
+        <SignatureCapture
+          value={signatureDataUrl}
+          onChange={setSignatureDataUrl}
+          label={`${t('signature.title', 'Signature')} (${t('signature.optional', 'Optional')})`}
+          helper={t('signature.hint', 'Draw your signature in the box.')}
+          clearLabel={t('signature.clear', 'Clear')}
+          savedLabel={t('signature.saved', 'Signature saved.')}
+        />
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: isArabic ? 'flex-start' : 'flex-end',
+            marginTop: spacing[4],
+          }}
+        >
+          <LabButton variant="ghost" onClick={() => setSignatureOpen(false)}>
+            {t('signature.close', 'Close')}
+          </LabButton>
+        </div>
+      </LabModal>
+    </>
   );
 });
 ProgressExportButton.displayName = 'ProgressExportButton';
