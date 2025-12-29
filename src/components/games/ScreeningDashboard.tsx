@@ -318,14 +318,14 @@ const ResultCard = memo(function ResultCard({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#fff',
+          color: colors.text.primary,
           fontSize: 16,
           fontWeight: typography.weight.bold,
           flexShrink: 0,
         }}>
           {renderLabIcon(
             result === 'high' ? '✓' : result === 'medium' ? '⚠️' : '✕',
-            { size: 16, style: { color: '#fff' } },
+            { size: 16, style: { color: colors.text.primary } },
           )}
         </div>
       )}
@@ -512,7 +512,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
             padding: `${spacing[3]}px ${spacing[5]}px`,
             background: `linear-gradient(135deg, ${config.color}, ${config.color}cc)`,
             borderRadius: radius.lg,
-            color: '#fff',
+            color: colors.text.primary,
             fontSize: typography.size.sm,
             fontWeight: typography.weight.bold,
             textDecoration: 'none',

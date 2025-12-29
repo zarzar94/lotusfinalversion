@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
-import { brandCyan, styles } from '../../styles';
+import { brandCyan, colors, styles } from '../../styles';
 import LabButton from '../labui/LabButton';
 import { renderLabIcon } from '../icons/index';
 import HeadphoneCheckPanel, { type HeadphoneCheckResult } from './HeadphoneCheckPanel';
@@ -450,7 +450,7 @@ export default function FocusedAttentionTestPanel({
             background: 'rgba(0,0,0,0.18)',
             textAlign: 'center',
           }}>
-            <div style={{ fontSize: 56, fontWeight: 900, marginTop: 12, minHeight: 68, color: stimulusVisible ? '#fff' : 'rgba(255,255,255,0.2)' }}>
+            <div style={{ fontSize: 56, fontWeight: 900, marginTop: 12, minHeight: 68, color: stimulusVisible ? colors.text.primary : 'rgba(255,255,255,0.2)' }}>
               {stimulusVisible ? (stimulus?.label ?? '--') : '--'}
             </div>
             <div style={{ marginTop: 12, ...styles.muted }}>{responsePrompt}</div>

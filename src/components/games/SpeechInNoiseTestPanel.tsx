@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
-import { brandCyan, brandPurpleDark, styles } from '../../styles';
+import { brandCyan, brandPurpleDark, colors, styles } from '../../styles';
 import LabButton from '../labui/LabButton';
 import { renderLabIcon } from '../icons/index';
 import HeadphoneCheckPanel, { type HeadphoneCheckResult } from './HeadphoneCheckPanel';
@@ -455,7 +455,7 @@ export default function SpeechInNoiseTestPanel({
                     borderRadius: 10,
                     border: `1px solid ${selected.includes(word) ? brandCyan : 'rgba(255,255,255,0.1)'}`,
                     background: selected.includes(word) ? `${brandCyan}20` : 'rgba(255,255,255,0.04)',
-                    color: selected.includes(word) ? brandCyan : '#fff',
+                    color: selected.includes(word) ? brandCyan : colors.text.primary,
                     fontWeight: 700,
                     cursor: 'pointer',
                   }}

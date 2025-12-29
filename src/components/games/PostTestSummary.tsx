@@ -597,7 +597,7 @@ const PostTestSummary = memo(function PostTestSummary({
               borderRadius: radius.lg,
               fontSize: typography.size.sm,
               fontWeight: typography.weight.black,
-              color: '#fff',
+              color: colors.text.primary,
               cursor: 'pointer',
               transition: transitions.bounce,
               boxShadow: `0 4px 20px ${meta.color}30`,
@@ -606,7 +606,7 @@ const PostTestSummary = memo(function PostTestSummary({
               gap: spacing[2],
             }}
           >
-            {renderLabIcon('\u2713', { size: 16, style: { color: '#fff' } })} {t('auto.PostTestSummary.k6', "Done")}
+            {renderLabIcon('\u2713', { size: 16, style: { color: colors.text.primary } })} {t('auto.PostTestSummary.k6', "Done")}
           </button>
         </div>
       </div>

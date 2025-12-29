@@ -117,7 +117,7 @@ const LabButton = ({
               : 'transparent',
         border: `1px solid ${disabled ? 'rgba(255,255,255,0.1)' : color}`,
         borderRadius: radius.lg,
-        color: disabled ? 'rgba(255,255,255,0.3)' : variant === 'primary' ? '#fff' : color,
+        color: disabled ? 'rgba(255,255,255,0.3)' : variant === 'primary' ? colors.text.primary : color,
         fontSize: typography.size.sm,
         fontWeight: typography.weight.semibold,
         cursor: disabled ? 'not-allowed' : 'pointer',

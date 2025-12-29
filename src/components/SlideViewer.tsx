@@ -207,7 +207,7 @@ const FlaskSlideCard = memo(({
           top: 30,
           right: 12,
           background: brandPurple,
-          color: '#fff',
+          color: colors.text.primary,
           padding: '4px 10px',
           borderRadius: 6,
           fontSize: 10,

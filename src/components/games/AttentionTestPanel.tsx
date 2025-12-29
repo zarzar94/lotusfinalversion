@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
-import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
+import { brandCyan, brandPink, brandPurpleDark, brandColors, colors, styles } from '../styles';
 import LabButton from '../labui/LabButton';
 import { renderLabIcon } from '../icons/index';
 import HeadphoneCheckPanel, { type HeadphoneCheckResult } from './HeadphoneCheckPanel';
@@ -579,10 +579,10 @@ export default function AttentionTestPanel({
               fontSize: 18,
               animation: 'feedbackPop 0.3s ease-out',
               background: feedback === 'hit' ? 'rgba(143,211,204,0.2)'
-                : feedback === 'combo' ? 'rgba(255,215,0,0.2)'
+                : feedback === 'combo' ? brandColors.goldLight
                 : 'rgba(176,18,112,0.2)',
               color: feedback === 'hit' ? brandCyan
-                : feedback === 'combo' ? '#FFD700'
+                : feedback === 'combo' ? brandColors.gold
                 : brandPink,
             }}>
               {feedback === 'hit' && `?o" +${lastPointChange}`}
@@ -602,9 +602,9 @@ export default function AttentionTestPanel({
                 padding: '18px 16px',
                 fontSize: 18,
                 background: feedback === 'hit' || feedback === 'combo'
-                  ? `linear-gradient(135deg, ${brandCyan}, #4ECCA3)`
+                  ? `linear-gradient(135deg, ${brandCyan}, ${colors.success})`
                   : feedback === 'fa'
-                    ? `linear-gradient(135deg, ${brandPink}, #8B1538)`
+                    ? `linear-gradient(135deg, ${brandPink}, ${colors.errorDeep})`
                     : `linear-gradient(135deg, ${brandPurpleDark}, ${brandCyan})`,
                 transition: 'background 0.2s ease',
               }}

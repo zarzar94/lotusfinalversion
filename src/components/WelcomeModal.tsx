@@ -149,7 +149,7 @@ const WelcomeModal = memo(({ forceShow = false, onClose }: WelcomeModalProps) =>
         <div
           onClick={(e) => e.stopPropagation()}
           style={{
-            background: `linear-gradient(180deg, ${brandInk} 0%, #0a0d15 100%)`,
+            background: `linear-gradient(180deg, ${brandInk} 0%, ${colors.surface.input} 100%)`,
             borderRadius: radius['2xl'],
             border: `1px solid ${colors.border.emphasis}`,
             maxWidth: 560,

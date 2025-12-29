@@ -9,7 +9,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useScrollPastThreshold } from '../hooks/useScrollManager';
 import { positionInlineStart } from '../utils/rtl';
 import { keyframes } from '../utils/animations';
-import { brandCyan, brandPurple, radius, transitions } from './styles';
+import { brandCyan, brandPurple, colors, radius, transitions } from './styles';
 
 interface ScrollToTopButtonProps {
   threshold?: number;
@@ -52,7 +52,7 @@ function ScrollToTopButton({ threshold = 400, bottom = 220 }: ScrollToTopButtonP
           ? `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`
           : 'rgba(11,15,28,0.9)',
         border: `1px solid ${isHovered ? brandCyan : 'rgba(143,211,204,0.3)'}`,
-        color: isHovered ? '#fff' : brandCyan,
+        color: isHovered ? colors.text.primary : brandCyan,
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',

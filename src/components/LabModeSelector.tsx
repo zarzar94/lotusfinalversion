@@ -287,7 +287,7 @@ const ModeCard = memo(({
             : 'transparent',
           border: `1px solid ${isActive ? config.color : `${config.color}50`}`,
           borderRadius: radius.lg,
-          color: isActive ? '#fff' : config.color,
+          color: isActive ? colors.text.primary : config.color,
           fontSize: typography.size.sm,
           fontWeight: typography.weight.semibold,
           cursor: 'pointer',

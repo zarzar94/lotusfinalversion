@@ -449,7 +449,7 @@ const GameCard = memo(function GameCard({
           style={{
             fontSize: 14,
             fontWeight: 800,
-            color: isHovered ? '#fff' : 'rgba(255,255,255,0.9)',
+            color: isHovered ? uiColors.text.primary : 'rgba(255,255,255,0.9)',
             marginBottom: 4,
             transition: 'color 0.3s ease',
             position: 'relative',
@@ -572,7 +572,7 @@ const AchievementCard = memo(function AchievementCard({
         style={{
           fontSize: 12,
           fontWeight: 700,
-          color: isUnlocked ? '#fff' : 'rgba(255,255,255,0.4)',
+          color: isUnlocked ? uiColors.text.primary : 'rgba(255,255,255,0.4)',
           marginBottom: 4,
           lineHeight: 1.3,
         }}
@@ -706,7 +706,7 @@ const SessionItem = memo(function SessionItem({
               {t('auto.GamePortal.k9', "Latest")}
             </span>
           )}
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: uiColors.text.primary }}>
             {testsCompleted} {t('auto.GamePortal.k10', "tests")}
           </span>
         </div>
@@ -834,7 +834,7 @@ const SectionTitle = memo(function SectionTitle({
         {renderLabIcon(icon, { size: 22, tone: 'cyan' })}
       </span>
       <div>
-        <div style={{ fontWeight: 800, fontSize: 16, color: '#fff' }}>{title}</div>
+        <div style={{ fontWeight: 800, fontSize: 16, color: uiColors.text.primary }}>{title}</div>
         <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
           {subtitle}
         </div>

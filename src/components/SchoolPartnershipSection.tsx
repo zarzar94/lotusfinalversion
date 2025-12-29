@@ -369,7 +369,7 @@ const SchoolPartnershipSection = () => {
                 justifyContent: 'center',
                 fontSize: 14,
                 fontWeight: 900,
-                color: '#fff',
+                color: colors.text.primary,
               }}>
                 {step.step}
               </div>
@@ -464,7 +464,7 @@ const SchoolPartnershipSection = () => {
               <SchoolIcon size={22} color={brandCyan} />
             </div>
             <div style={{ textAlign: 'start' }}>
-              <div style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>{demoPack.title}</div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: colors.text.primary }}>{demoPack.title}</div>
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
                 {demoPack.description}
               </div>
@@ -549,7 +549,7 @@ const SchoolPartnershipSection = () => {
                 top: -12,
                 [isArabic ? 'left' : 'right']: 16,
                 background: tier.color,
-                color: '#fff',
+                color: colors.text.primary,
                 padding: '4px 12px',
                 borderRadius: 20,
                 fontSize: 11,
@@ -667,7 +667,7 @@ const SchoolPartnershipSection = () => {
         gap: 16,
       }}>
         <div>
-          <div style={{ fontSize: 20, fontWeight: 900, color: '#fff', marginBottom: 6 }}>
+          <div style={{ fontSize: 20, fontWeight: 900, color: colors.text.primary, marginBottom: 6 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
               {renderLabIcon('\u{1F3EB}', { size: 18, tone: 'cyan' })}
               {t('schools.cta.title')}

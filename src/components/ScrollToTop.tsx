@@ -62,9 +62,9 @@ export default function ScrollToTop({
       const toRoute = getRouteName(pathname);
 
       console.group('%cNavigation', `color: ${brandCyan}; font-weight: bold;`);
-      console.log(`%cFrom: ${fromRoute}`, 'color: #999;');
+      console.log(`%cFrom: ${fromRoute}`, 'color: rgba(255,255,255,0.6);');
       console.log(`%cTo: ${toRoute}`, `color: ${brandPurple}; font-weight: bold;`);
-      console.log(`%cPath: ${pathname}${search}${hash}`, 'color: #666;');
+      console.log(`%cPath: ${pathname}${search}${hash}`, 'color: rgba(255,255,255,0.45);');
       console.log(`%cTime: ${navigationTime}ms`, `color: ${colors.success};`);
       console.groupEnd();
     }

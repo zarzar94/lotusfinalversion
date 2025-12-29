@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
-import { brandCyan, brandPurpleDark, styles } from '../../styles';
+import { brandCyan, brandPurpleDark, colors, styles } from '../../styles';
 import LabButton from '../labui/LabButton';
 import { renderLabIcon } from '../icons/index';
 import HeadphoneCheckPanel, { type HeadphoneCheckResult } from './HeadphoneCheckPanel';
@@ -388,7 +388,7 @@ export default function DichoticListeningTestPanel({
                         borderRadius: 10,
                         border: `1px solid ${leftChoice === s.label ? brandCyan : 'rgba(255,255,255,0.1)'}`,
                         background: leftChoice === s.label ? `${brandCyan}20` : 'rgba(255,255,255,0.04)',
-                        color: leftChoice === s.label ? brandCyan : '#fff',
+                        color: leftChoice === s.label ? brandCyan : colors.text.primary,
                         fontWeight: 700,
                         cursor: 'pointer',
                       }}
@@ -410,7 +410,7 @@ export default function DichoticListeningTestPanel({
                         borderRadius: 10,
                         border: `1px solid ${rightChoice === s.label ? brandCyan : 'rgba(255,255,255,0.1)'}`,
                         background: rightChoice === s.label ? `${brandCyan}20` : 'rgba(255,255,255,0.04)',
-                        color: rightChoice === s.label ? brandCyan : '#fff',
+                        color: rightChoice === s.label ? brandCyan : colors.text.primary,
                         fontWeight: 700,
                         cursor: 'pointer',
                       }}
@@ -433,7 +433,7 @@ export default function DichoticListeningTestPanel({
                       borderRadius: 10,
                       border: `1px solid ${singleChoice === s.label ? brandCyan : 'rgba(255,255,255,0.1)'}`,
                       background: singleChoice === s.label ? `${brandCyan}20` : 'rgba(255,255,255,0.04)',
-                      color: singleChoice === s.label ? brandCyan : '#fff',
+                      color: singleChoice === s.label ? brandCyan : colors.text.primary,
                       fontWeight: 700,
                       cursor: 'pointer',
                     }}

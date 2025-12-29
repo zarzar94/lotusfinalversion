@@ -309,7 +309,7 @@ export default function PartnerLogos() {
             margin: 0,
             fontSize: 26,
             fontWeight: 900,
-            color: '#fff',
+            color: colors.text.primary,
             marginBottom: 8,
           }}>
             {isArabic ? 'شبكة من المؤسسات الموثوقة' : 'A Network of Trusted Institutions'}
@@ -376,7 +376,7 @@ export default function PartnerLogos() {
               {/* Name */}
               <div style={{
                 ...partnerNameBaseStyle,
-                color: hoveredPartner === partner.id ? partner.color : '#fff',
+                color: hoveredPartner === partner.id ? partner.color : colors.text.primary,
               }}>
                 {isArabic ? partner.name : partner.nameEn}
               </div>
@@ -422,7 +422,7 @@ export default function PartnerLogos() {
           <div style={{
             fontSize: 15,
             fontWeight: 800,
-            color: '#fff',
+            color: colors.text.primary,
             marginBottom: 8,
           }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
@@ -444,7 +444,7 @@ export default function PartnerLogos() {
             padding: '12px 24px',
             background: `linear-gradient(135deg, ${brandCyan}, ${brandPurple})`,
             borderRadius: 12,
-            color: '#fff',
+            color: colors.text.primary,
             fontSize: 14,
             fontWeight: 700,
             textDecoration: 'none',

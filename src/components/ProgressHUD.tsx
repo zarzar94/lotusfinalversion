@@ -71,7 +71,7 @@ const levelBadgeStyle: React.CSSProperties = {
   padding: '5px 12px',
   fontSize: 11,
   fontWeight: 900,
-  color: '#fff',
+  color: colors.text.primary,
   letterSpacing: 1,
   textTransform: 'uppercase' as const,
   boxShadow: `0 0 15px ${brandCyan}40`,
@@ -317,7 +317,7 @@ export default function ProgressHUD() {
               justifyContent: 'center',
               fontSize: 16,
               fontWeight: 900,
-              color: '#fff',
+              color: colors.text.primary,
               border: `2px solid ${brandCyan}60`,
               boxShadow: `0 0 20px ${brandCyan}40`,
               textShadow: '0 2px 4px rgba(0,0,0,0.3)',
@@ -404,7 +404,7 @@ export default function ProgressHUD() {
                 justifyContent: 'center',
                 fontSize: 22,
                 fontWeight: 900,
-                color: '#fff',
+                color: colors.text.primary,
                 boxShadow: `0 0 25px ${brandCyan}50`,
                 border: `3px solid ${brandCyan}50`,
                 textShadow: '0 2px 4px rgba(0,0,0,0.3)',
@@ -529,7 +529,7 @@ export default function ProgressHUD() {
                       filter: `drop-shadow(0 0 8px ${brandCyan}40)`,
                     }}>{achievement.icon}</span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: colors.text.primary }}>
                         {achievement.titleAr}
                       </div>
                       <div style={{

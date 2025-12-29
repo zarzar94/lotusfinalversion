@@ -9,6 +9,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import {
   brand,
+  colors,
   gradients,
   shadows,
   spacing,
@@ -251,7 +252,7 @@ const styles = {
 
   moduleName: {
     fontSize: typography.size.sm,
-    color: '#888',
+    color: colors.text.muted,
     textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
   } as React.CSSProperties,
@@ -286,13 +287,13 @@ const styles = {
   stepTitle: {
     fontSize: typography.size.xl,
     fontWeight: typography.weight.bold,
-    color: '#fff',
+    color: colors.text.primary,
     marginBottom: spacing[3],
   } as React.CSSProperties,
 
   stepDescription: {
     fontSize: typography.size.base,
-    color: '#aaa',
+    color: colors.text.secondary,
     lineHeight: 1.7,
     maxWidth: '400px',
     margin: '0 auto',
@@ -315,7 +316,7 @@ const styles = {
     border: 'none',
     cursor: 'pointer',
     fontSize: '2rem',
-    color: '#fff',
+    color: colors.text.primary,
     transition: transitions.fast,
     boxShadow: shadows.glow.cyan,
   } as React.CSSProperties,
@@ -346,7 +347,7 @@ const styles = {
 
   progressBar: {
     height: '4px',
-    background: '#333',
+    background: colors.surface.input,
     borderRadius: radius.full,
     overflow: 'hidden',
     marginBottom: spacing[4],

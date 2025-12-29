@@ -200,7 +200,7 @@ const StickySmartCTA = memo(function StickySmartCTA() {
                     background: `linear-gradient(135deg, ${config.color}, ${config.color}cc)`,
                     border: 'none',
                     borderRadius: radius.lg,
-                    color: '#fff',
+                    color: colors.text.primary,
                     fontSize: typography.size.sm,
                     fontWeight: typography.weight.bold,
                     textDecoration: 'none',
