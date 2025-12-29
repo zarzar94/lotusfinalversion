@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, memo } from 'react';
+import { useState, useMemo, useEffect, useCallback, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
 import { useSessionMetrics } from '../../hooks/useSessionMetrics';
@@ -34,8 +34,12 @@ import {
   dashboardExport,
   analytics,
 } from '../../styles';
+import { downloadCsvRows } from '../dashboards/roleDashboardExports';
+import { formatTimestamp } from '../dashboards/roleDashboardUtils';
+import LabButton from '../labui/LabButton';
 import LabCard from '../labui/LabCard';
-import { SchoolIcon, ParentIcon, WaveformIcon, CheckCircleIcon, ShieldMedicalIcon } from '../icons/index';
+import LabPill from '../labui/LabPill';
+import { SchoolIcon, ParentIcon, WaveformIcon, CheckCircleIcon, ShieldMedicalIcon, DownloadIcon } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -343,7 +347,11 @@ export default function SchoolDashboard() {
   const { user, isAuthenticated, isOnline } = useUser();
   const permissionName = 'school_analytics';
   const hasAccess = usePermission(permissionName);
-  const { sessions: sessionMetrics } = useSessionMetrics();
+  const {
+    sessions: sessionMetrics,
+    source: sessionSource,
+    isLoading: sessionsLoading,
+  } = useSessionMetrics();
   const [filter, setFilter] = useState<'all' | 'at_risk' | 'on_track' | 'completed'>('all');
   const [schoolAnalysis, setSchoolAnalysis] = useState<SchoolSessionsAnalysisResponse | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
@@ -448,6 +456,50 @@ export default function SchoolDashboard() {
     if (filter === 'all') return students;
     return students.filter(s => s.status === filter);
   }, [filter, students]);
+
+  const exportLocale = isArabic ? 'ar-SA' : 'en-US';
+  const sessionSourceTone = sessionSource === 'api'
+    ? 'success'
+    : sessionSource === 'local'
+      ? 'purple'
+      : sessionSource === 'demo'
+        ? 'warning'
+        : 'neutral';
+  const sessionSourceLabel = sessionSource === 'api'
+    ? t('auto.SchoolDashboard.k62', 'API')
+    : sessionSource === 'local'
+      ? t('auto.SchoolDashboard.k63', 'Local Cache')
+      : sessionSource === 'demo'
+        ? t('auto.SchoolDashboard.k64', 'Demo')
+        : t('auto.SchoolDashboard.k65', 'No Data');
+  const exportDisabled = filteredStudents.length === 0;
+
+  const handleExportCsv = useCallback(() => {
+    if (!filteredStudents.length) return;
+    const statusLabels: Record<StudentData['status'], string> = {
+      on_track: t('auto.SchoolDashboard.k47', 'On Track'),
+      completed: t('auto.SchoolDashboard.k48', 'Completed'),
+      needs_attention: t('auto.SchoolDashboard.k49', 'Needs Attention'),
+      at_risk: t('auto.SchoolDashboard.k50', 'At Risk'),
+    };
+    const headers = [
+      t('auto.SchoolDashboard.k66', 'Student'),
+      t('auto.SchoolDashboard.k67', 'Grade'),
+      t('auto.SchoolDashboard.k68', 'Sessions'),
+      t('auto.SchoolDashboard.k69', 'Attention'),
+      t('auto.SchoolDashboard.k70', 'Status'),
+      t('auto.SchoolDashboard.k71', 'Last Active'),
+    ];
+    const rows = filteredStudents.map((student) => ([
+      student.name,
+      student.grade,
+      `${student.sessionsCompleted}/${student.totalSessions}`,
+      student.attentionScore,
+      statusLabels[student.status] ?? student.status,
+      formatTimestamp(new Date(student.lastActivity).toISOString(), exportLocale),
+    ]));
+    downloadCsvRows([headers, ...rows], 'school-students.csv');
+  }, [exportLocale, filteredStudents, t]);
 
   const metrics = useMemo(() => {
     const totalStudents = students.length;
@@ -570,6 +622,133 @@ export default function SchoolDashboard() {
             <p style={{ margin: 0, color: colors.text.secondary, fontSize: typography.size.sm }}>
               {user?.school || (t('auto.SchoolDashboard.k13', "International Academy"))}
             </p>
+          </div>
+        </div>
+      </LabCard>
+
+      {/* Lab HUD Header */}
+      <LabCard variant="panel" style={{ marginBottom: spacing[6] }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: spacing[4],
+            alignItems: 'center',
+          }}
+        >
+          <div>
+            <div
+              style={{
+                fontSize: typography.size.xs,
+                color: colors.text.muted,
+                letterSpacing: typography.letterSpacing.wide,
+                textTransform: 'uppercase',
+                marginBottom: spacing[2],
+              }}
+            >
+              {t('auto.SchoolDashboard.k72', 'Status')}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2] }}>
+              <LabPill tone={isOnline ? 'success' : 'warning'}>
+                {isOnline ? t('auto.SchoolDashboard.k73', 'Online') : t('auto.SchoolDashboard.k74', 'Offline')}
+              </LabPill>
+              <LabPill tone={isAuthenticated ? 'cyan' : 'warning'}>
+                {isAuthenticated ? t('auto.SchoolDashboard.k75', 'Authenticated') : t('auto.SchoolDashboard.k76', 'Guest')}
+              </LabPill>
+              <LabPill tone={hasAccess ? 'success' : 'error'}>
+                {hasAccess ? t('auto.SchoolDashboard.k77', 'Access OK') : t('auto.SchoolDashboard.k78', 'Access Blocked')}
+              </LabPill>
+              <LabPill tone={hasSchoolData ? 'success' : 'warning'}>
+                {hasSchoolData
+                  ? t('auto.SchoolDashboard.k79', 'Analysis: API')
+                  : t('auto.SchoolDashboard.k80', 'Analysis: Mock')}
+              </LabPill>
+              <LabPill tone={sessionSourceTone}>
+                {t('auto.SchoolDashboard.k81', 'Sessions')}: {sessionSourceLabel}
+              </LabPill>
+              {sessionsLoading && (
+                <LabPill tone="warning">{t('auto.SchoolDashboard.k82', 'Syncing')}</LabPill>
+              )}
+              {analysisError && (
+                <LabPill tone="error">{t('auto.SchoolDashboard.k83', 'Analysis Error')}</LabPill>
+              )}
+            </div>
+          </div>
+          <div>
+            <div
+              style={{
+                fontSize: typography.size.xs,
+                color: colors.text.muted,
+                letterSpacing: typography.letterSpacing.wide,
+                textTransform: 'uppercase',
+                marginBottom: spacing[2],
+              }}
+            >
+              {t('auto.SchoolDashboard.k84', 'Filters')}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2] }}>
+              {(['all', 'on_track', 'at_risk', 'completed'] as const).map((f) => {
+                const labels = {
+                  all: { en: 'All', ar: 'auto.SchoolDashboard.k58' },
+                  on_track: { en: 'On Track', ar: 'auto.SchoolDashboard.k59' },
+                  at_risk: { en: 'At Risk', ar: 'auto.SchoolDashboard.k60' },
+                  completed: { en: 'Completed', ar: 'auto.SchoolDashboard.k61' },
+                };
+                const isActive = filter === f;
+                return (
+                  <LabButton
+                    key={f}
+                    size="sm"
+                    variant={isActive ? 'secondary' : 'ghost'}
+                    onClick={() => setFilter(f)}
+                  >
+                    {t(labels[f].ar, labels[f].en)}
+                  </LabButton>
+                );
+              })}
+            </div>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: isArabic ? 'flex-start' : 'flex-end',
+              gap: spacing[2],
+            }}
+          >
+            <div
+              style={{
+                fontSize: typography.size.xs,
+                color: colors.text.muted,
+                letterSpacing: typography.letterSpacing.wide,
+                textTransform: 'uppercase',
+              }}
+            >
+              {t('auto.SchoolDashboard.k85', 'Export')}
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                gap: spacing[2],
+                flexWrap: 'wrap',
+                justifyContent: isArabic ? 'flex-start' : 'flex-end',
+              }}
+            >
+              <LabButton
+                size="sm"
+                variant="primary"
+                onClick={handleExportCsv}
+                disabled={exportDisabled}
+                leftIcon={<DownloadIcon size={16} tone="cyan" />}
+              >
+                {t('auto.SchoolDashboard.k86', 'CSV')}
+              </LabButton>
+            </div>
+            {exportDisabled && (
+              <div style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
+                {t('auto.SchoolDashboard.k87', 'No students to export')}
+              </div>
+            )}
           </div>
         </div>
       </LabCard>
@@ -734,39 +913,6 @@ export default function SchoolDashboard() {
           >
             {t('auto.SchoolDashboard.k25', "Student List")}
           </h3>
-
-          {/* Filter Tabs */}
-          <div style={{ display: 'flex', gap: spacing[2] }}>
-            {(['all', 'on_track', 'at_risk', 'completed'] as const).map(f => {
-              const labels = {
-                all: { en: 'All', ar: 'auto.SchoolDashboard.k58' },
-                on_track: { en: 'On Track', ar: 'auto.SchoolDashboard.k59' },
-                at_risk: { en: 'At Risk', ar: 'auto.SchoolDashboard.k60' },
-                completed: { en: 'Completed', ar: 'auto.SchoolDashboard.k61' },
-              };
-              const isActive = filter === f;
-
-              return (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  style={{
-                    padding: `${spacing[1.5]}px ${spacing[3]}px`,
-                    background: isActive ? `${brandCyan}20` : 'transparent',
-                    border: `1px solid ${isActive ? brandCyan : colors.border.default}`,
-                    borderRadius: radius.md,
-                    color: isActive ? brandCyan : colors.text.secondary,
-                    fontSize: typography.size.xs,
-                    fontWeight: typography.weight.bold,
-                    cursor: 'pointer',
-                    transition: transitions.fast,
-                  }}
-                >
-                  {isArabic ? labels[f].ar : labels[f].en}
-                </button>
-              );
-            })}
-          </div>
         </div>
 
         <StudentTable students={filteredStudents} isArabic={isArabic} />

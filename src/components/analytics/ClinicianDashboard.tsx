@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useEffect, memo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
+import { useSessionMetrics } from '../../hooks/useSessionMetrics';
 import { getToken, sessionsApi } from '../../services/api';
 import type { SessionProgressTrend } from '../../types/api';
 import {
@@ -36,7 +37,17 @@ import {
   analytics,
 } from '../../styles';
 import LongitudinalCharts from '../dashboards/LongitudinalCharts';
+import { downloadClinicianReportPdf, downloadCsvRows } from '../dashboards/roleDashboardExports';
+import {
+  average,
+  computeSlope,
+  formatTimestamp,
+  getLatestByModule,
+  normalizeFatigue01,
+} from '../dashboards/roleDashboardUtils';
+import LabButton from '../labui/LabButton';
 import LabCard from '../labui/LabCard';
+import LabPill from '../labui/LabPill';
 import {
   ClinicianIcon,
   ParentIcon,
@@ -46,6 +57,7 @@ import {
   ReportIcon,
   StarIcon,
   XIcon,
+  DownloadIcon,
 } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -775,6 +787,11 @@ export default function ClinicianDashboard() {
   const { user, isAuthenticated, isOnline } = useUser();
   const permissionName = 'view_patient_reports';
   const hasAccess = usePermission(permissionName);
+  const {
+    sessions: sessionMetrics,
+    source: sessionSource,
+    isLoading: sessionsLoading,
+  } = useSessionMetrics();
   const [patientData, setPatientData] = useState<PatientData[] | null>(null);
   const [selectedPatient, setSelectedPatient] = useState<PatientData | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -855,6 +872,47 @@ export default function ClinicianDashboard() {
     });
   }, [patients, searchTerm, filterPhase]);
 
+  const exportLocale = isArabic ? 'ar-SA' : 'en-US';
+  const latestByModule = useMemo(() => getLatestByModule(sessionMetrics), [sessionMetrics]);
+  const fatigueValues = useMemo(() => (
+    sessionMetrics
+      .map((session) => normalizeFatigue01(session.fatigueIndex))
+      .filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
+  ), [sessionMetrics]);
+  const fatigueSlope = useMemo(() => (
+    fatigueValues.length >= 2 ? computeSlope(fatigueValues) : 0
+  ), [fatigueValues]);
+  const fatigueDirection = fatigueSlope > 0.01
+    ? 'worsening'
+    : fatigueSlope < -0.01
+      ? 'improving'
+      : 'stable';
+  const consistencyValues = useMemo(() => (
+    sessionMetrics
+      .map((session) => session.consistency)
+      .filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
+  ), [sessionMetrics]);
+  const consistencyAverage = consistencyValues.length
+    ? average(consistencyValues)
+    : null;
+  const sessionSourceTone = sessionSource === 'api'
+    ? 'success'
+    : sessionSource === 'local'
+      ? 'purple'
+      : sessionSource === 'demo'
+        ? 'warning'
+        : 'neutral';
+  const sessionSourceLabel = sessionSource === 'api'
+    ? t('auto.ClinicianDashboard.k57', 'API')
+    : sessionSource === 'local'
+      ? t('auto.ClinicianDashboard.k58', 'Local Cache')
+      : sessionSource === 'demo'
+        ? t('auto.ClinicianDashboard.k59', 'Demo')
+        : t('auto.ClinicianDashboard.k60', 'No Data');
+  const hasApiPatients = patientData !== null;
+  const exportDisabled = sessionMetrics.length === 0;
+  const exportCsvDisabled = patients.length === 0;
+
   useEffect(() => {
     let cancelled = false;
     const patientId = selectedPatient?.id;
@@ -911,6 +969,47 @@ export default function ClinicianDashboard() {
         : 0;
     return { total, active, completed, avgImprovement };
   }, [analysis, patients]);
+
+  const handleExportPdf = useCallback(() => {
+    if (!sessionMetrics.length) return;
+    void downloadClinicianReportPdf({
+      sessions: sessionMetrics,
+      latestByModule,
+      isArabic,
+      fatigueSlope,
+      fatigueDirection,
+      consistencyAverage,
+    });
+  }, [consistencyAverage, fatigueDirection, fatigueSlope, isArabic, latestByModule, sessionMetrics]);
+
+  const handleExportCsv = useCallback(() => {
+    if (!patients.length) return;
+    const phaseLabels: Record<string, string> = {
+      assessment: t('auto.ClinicianDashboard.k61', 'Assessment'),
+      active: t('auto.ClinicianDashboard.k62', 'Active'),
+      maintenance: t('auto.ClinicianDashboard.k63', 'Maintenance'),
+      completed: t('auto.ClinicianDashboard.k64', 'Completed'),
+    };
+    const headers = [
+      t('auto.ClinicianDashboard.k65', 'Patient'),
+      t('auto.ClinicianDashboard.k66', 'Email'),
+      t('auto.ClinicianDashboard.k67', 'Age'),
+      t('auto.ClinicianDashboard.k68', 'Phase'),
+      t('auto.ClinicianDashboard.k69', 'Sessions'),
+      t('auto.ClinicianDashboard.k70', 'Attention'),
+      t('auto.ClinicianDashboard.k71', 'Last Active'),
+    ];
+    const rows = patients.map((patient) => ([
+      patient.name,
+      patient.email,
+      Number.isFinite(patient.age) ? patient.age : '',
+      phaseLabels[patient.treatmentPhase] ?? patient.treatmentPhase,
+      `${patient.sessionsCompleted}/${patient.totalSessions}`,
+      patient.attentionScore,
+      formatTimestamp(new Date(patient.lastActivity).toISOString(), exportLocale),
+    ]));
+    downloadCsvRows([headers, ...rows], 'clinician-patients.csv');
+  }, [exportLocale, patients, t]);
 
   if (!hasAccess) {
     return (
@@ -1013,6 +1112,156 @@ export default function ClinicianDashboard() {
         </div>
       </LabCard>
 
+      {/* Lab HUD Header */}
+      <LabCard variant="panel" style={{ marginBottom: spacing[6] }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: spacing[4],
+            alignItems: 'center',
+          }}
+        >
+          <div>
+            <div
+              style={{
+                fontSize: typography.size.xs,
+                color: colors.text.muted,
+                letterSpacing: typography.letterSpacing.wide,
+                textTransform: 'uppercase',
+                marginBottom: spacing[2],
+              }}
+            >
+              {t('auto.ClinicianDashboard.k72', 'Status')}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2] }}>
+              <LabPill tone={isOnline ? 'success' : 'warning'}>
+                {isOnline ? t('auto.ClinicianDashboard.k73', 'Online') : t('auto.ClinicianDashboard.k74', 'Offline')}
+              </LabPill>
+              <LabPill tone={isAuthenticated ? 'cyan' : 'warning'}>
+                {isAuthenticated
+                  ? t('auto.ClinicianDashboard.k75', 'Authenticated')
+                  : t('auto.ClinicianDashboard.k76', 'Guest')}
+              </LabPill>
+              <LabPill tone={hasAccess ? 'success' : 'error'}>
+                {hasAccess
+                  ? t('auto.ClinicianDashboard.k77', 'Access OK')
+                  : t('auto.ClinicianDashboard.k78', 'Access Blocked')}
+              </LabPill>
+              <LabPill tone={hasApiPatients ? 'success' : 'warning'}>
+                {hasApiPatients
+                  ? t('auto.ClinicianDashboard.k79', 'Patients: API')
+                  : t('auto.ClinicianDashboard.k80', 'Patients: Mock')}
+              </LabPill>
+              <LabPill tone={sessionSourceTone}>
+                {t('auto.ClinicianDashboard.k81', 'Sessions')}: {sessionSourceLabel}
+              </LabPill>
+              {sessionsLoading && (
+                <LabPill tone="warning">{t('auto.ClinicianDashboard.k82', 'Syncing')}</LabPill>
+              )}
+              {analysisLoading && (
+                <LabPill tone="warning">{t('auto.ClinicianDashboard.k83', 'Trend Loading')}</LabPill>
+              )}
+              {analysisError && (
+                <LabPill tone="error">{t('auto.ClinicianDashboard.k84', 'Analysis Error')}</LabPill>
+              )}
+            </div>
+          </div>
+          <div>
+            <div
+              style={{
+                fontSize: typography.size.xs,
+                color: colors.text.muted,
+                letterSpacing: typography.letterSpacing.wide,
+                textTransform: 'uppercase',
+                marginBottom: spacing[2],
+              }}
+            >
+              {t('auto.ClinicianDashboard.k85', 'Filters')}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2] }}>
+              {(['all', 'active', 'completed', 'assessment'] as const).map((phase) => {
+                const labels: Record<string, { en: string; ar: string }> = {
+                  all: { en: 'All', ar: 'auto.ClinicianDashboard.k53' },
+                  active: { en: 'Active', ar: 'auto.ClinicianDashboard.k54' },
+                  completed: { en: 'Completed', ar: 'auto.ClinicianDashboard.k55' },
+                  assessment: { en: 'Assessment', ar: 'auto.ClinicianDashboard.k56' },
+                };
+                const isActive = filterPhase === phase;
+                return (
+                  <LabButton
+                    key={phase}
+                    size="sm"
+                    variant={isActive ? 'secondary' : 'ghost'}
+                    onClick={() => setFilterPhase(phase)}
+                  >
+                    {t(labels[phase].ar, labels[phase].en)}
+                  </LabButton>
+                );
+              })}
+              {searchTerm && (
+                <LabPill tone="neutral">
+                  {t('auto.ClinicianDashboard.k86', 'Search')}: {searchTerm}
+                </LabPill>
+              )}
+            </div>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: isArabic ? 'flex-start' : 'flex-end',
+              gap: spacing[2],
+            }}
+          >
+            <div
+              style={{
+                fontSize: typography.size.xs,
+                color: colors.text.muted,
+                letterSpacing: typography.letterSpacing.wide,
+                textTransform: 'uppercase',
+              }}
+            >
+              {t('auto.ClinicianDashboard.k87', 'Export')}
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                gap: spacing[2],
+                flexWrap: 'wrap',
+                justifyContent: isArabic ? 'flex-start' : 'flex-end',
+              }}
+            >
+              <LabButton
+                size="sm"
+                variant="ghost"
+                onClick={handleExportCsv}
+                disabled={exportCsvDisabled}
+                leftIcon={<DownloadIcon size={16} tone="cyan" />}
+              >
+                {t('auto.ClinicianDashboard.k88', 'CSV')}
+              </LabButton>
+              <LabButton
+                size="sm"
+                variant="primary"
+                onClick={handleExportPdf}
+                disabled={exportDisabled}
+                leftIcon={<ReportIcon size={16} tone="cyan" />}
+              >
+                {t('auto.ClinicianDashboard.k89', 'PDF Report')}
+              </LabButton>
+            </div>
+            {(exportDisabled || exportCsvDisabled) && (
+              <div style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
+                {exportDisabled
+                  ? t('auto.ClinicianDashboard.k90', 'No session data yet')
+                  : t('auto.ClinicianDashboard.k91', 'No patients to export')}
+              </div>
+            )}
+          </div>
+        </div>
+      </LabCard>
+
       {/* Stats Cards */}
       <PageTransition animation="fade-in-up" delay={100}>
         <div className="stats-grid" style={{ marginBottom: spacing[8] }}>
@@ -1106,7 +1355,7 @@ export default function ClinicianDashboard() {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Search */}
       <div
         style={{
           display: 'flex',
@@ -1132,37 +1381,6 @@ export default function ClinicianDashboard() {
             outline: 'none',
           }}
         />
-        <div style={{ display: 'flex', gap: spacing[2] }}>
-          {['all', 'active', 'completed', 'assessment'].map((phase) => {
-            const labels: Record<string, { en: string; ar: string }> = {
-              all: { en: 'All', ar: 'auto.ClinicianDashboard.k53' },
-              active: { en: 'Active', ar: 'auto.ClinicianDashboard.k54' },
-              completed: { en: 'Completed', ar: 'auto.ClinicianDashboard.k55' },
-              assessment: { en: 'Assessment', ar: 'auto.ClinicianDashboard.k56' },
-            };
-            const isActive = filterPhase === phase;
-
-            return (
-              <button
-                key={phase}
-                onClick={() => setFilterPhase(phase)}
-                style={{
-                  padding: `${spacing[2]}px ${spacing[3]}px`,
-                  background: isActive ? `${brandCyan}20` : 'transparent',
-                  border: `1px solid ${isActive ? brandCyan : colors.border.default}`,
-                  borderRadius: radius.md,
-                  color: isActive ? brandCyan : colors.text.secondary,
-                  fontSize: typography.size.xs,
-                  fontWeight: typography.weight.bold,
-                  cursor: 'pointer',
-                  transition: transitions.fast,
-                }}
-              >
-                {isArabic ? labels[phase].ar : labels[phase].en}
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       {/* Patients Table */}

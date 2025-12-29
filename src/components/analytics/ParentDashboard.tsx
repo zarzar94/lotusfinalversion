@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, memo, type ReactNode } from 'react';
+import { useState, useMemo, useEffect, useCallback, memo, type ReactNode } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUser, usePermission } from '../../context/UserContext';
 import { useSessionMetrics } from '../../hooks/useSessionMetrics';
@@ -36,8 +36,12 @@ import {
   analytics,
 } from '../../styles';
 import LongitudinalCharts from '../dashboards/LongitudinalCharts';
+import { downloadCsvRows, downloadParentReportPdf } from '../dashboards/roleDashboardExports';
+import { formatTimestamp, getLatestByModule, getModuleLabel } from '../dashboards/roleDashboardUtils';
 import { getStreakDays, getUniqueSessionStats } from '../../utils/sessionStats';
+import LabButton from '../labui/LabButton';
 import LabCard from '../labui/LabCard';
+import LabPill from '../labui/LabPill';
 import {
   ParentIcon,
   ReportIcon,
@@ -48,6 +52,7 @@ import {
   ShieldMedicalIcon,
   CheckCircleIcon,
   ChevronDownIcon,
+  DownloadIcon,
 } from '../icons/index';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -567,7 +572,11 @@ export default function ParentDashboard() {
   const { user, isAuthenticated, isOnline } = useUser();
   const permissionName = 'view_child_reports';
   const hasAccess = usePermission(permissionName);
-  const { sessions: sessionMetrics } = useSessionMetrics();
+  const {
+    sessions: sessionMetrics,
+    source: sessionSource,
+    isLoading: sessionsLoading,
+  } = useSessionMetrics();
   const [childrenData, setChildrenData] = useState<ChildData[] | null>(null);
   const [expandedChild, setExpandedChild] = useState<string | null>(MOCK_CHILDREN[0]?.id || null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
@@ -634,6 +643,23 @@ export default function ParentDashboard() {
     return MOCK_CHILDREN;
   }, [childrenData]);
   const hasApiChildren = childrenData !== null;
+  const latestByModule = useMemo(() => getLatestByModule(sessionMetrics), [sessionMetrics]);
+  const exportLocale = isArabic ? 'ar-SA' : 'en-US';
+  const sessionSourceTone = sessionSource === 'api'
+    ? 'success'
+    : sessionSource === 'local'
+      ? 'purple'
+      : sessionSource === 'demo'
+        ? 'warning'
+        : 'neutral';
+  const sessionSourceLabel = sessionSource === 'api'
+    ? t('auto.ParentDashboard.k38', 'API')
+    : sessionSource === 'local'
+      ? t('auto.ParentDashboard.k39', 'Local Cache')
+      : sessionSource === 'demo'
+        ? t('auto.ParentDashboard.k40', 'Demo')
+        : t('auto.ParentDashboard.k41', 'No Data');
+  const exportDisabled = sessionMetrics.length === 0;
 
   const overallStats = useMemo(() => {
     if (!hasApiChildren && sessionMetrics.length > 0) {
@@ -660,6 +686,32 @@ export default function ParentDashboard() {
 
     return { totalSessions, avgProgress, totalStreak, activeChildren };
   }, [children, hasApiChildren, sessionMetrics]);
+
+  const handleExportPdf = useCallback(() => {
+    if (!sessionMetrics.length) return;
+    void downloadParentReportPdf({
+      sessions: sessionMetrics,
+      latestByModule,
+      isArabic,
+    });
+  }, [isArabic, latestByModule, sessionMetrics]);
+
+  const handleExportCsv = useCallback(() => {
+    if (!sessionMetrics.length) return;
+    const headers = [
+      t('auto.ParentDashboard.k42', 'Module'),
+      t('auto.ParentDashboard.k43', 'Score'),
+      t('auto.ParentDashboard.k44', 'Band'),
+      t('auto.ParentDashboard.k45', 'Session Date'),
+    ];
+    const rows = sessionMetrics.map((session) => ([
+      getModuleLabel(String(session.moduleId), isArabic),
+      session.score100,
+      session.band,
+      formatTimestamp(session.timestamp, exportLocale),
+    ]));
+    downloadCsvRows([headers, ...rows], 'parent-sessions.csv');
+  }, [exportLocale, isArabic, sessionMetrics, t]);
 
   if (!hasAccess) {
     return (
@@ -761,6 +813,125 @@ export default function ParentDashboard() {
                 ? `مرحباً ${user?.nameAr || user?.name || 'ولي الأمر'}`
                 : `Welcome, ${user?.name || 'Parent'}`}
             </p>
+          </div>
+        </div>
+      </LabCard>
+
+      {/* Lab HUD Header */}
+      <LabCard variant="panel" style={{ marginBottom: spacing[6] }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: spacing[4],
+            alignItems: 'center',
+          }}
+        >
+          <div>
+            <div
+              style={{
+                fontSize: typography.size.xs,
+                color: colors.text.muted,
+                letterSpacing: typography.letterSpacing.wide,
+                textTransform: 'uppercase',
+                marginBottom: spacing[2],
+              }}
+            >
+              {t('auto.ParentDashboard.k46', 'Status')}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2] }}>
+              <LabPill tone={isOnline ? 'success' : 'warning'}>
+                {isOnline ? t('auto.ParentDashboard.k47', 'Online') : t('auto.ParentDashboard.k48', 'Offline')}
+              </LabPill>
+              <LabPill tone={isAuthenticated ? 'cyan' : 'warning'}>
+                {isAuthenticated ? t('auto.ParentDashboard.k49', 'Authenticated') : t('auto.ParentDashboard.k50', 'Guest')}
+              </LabPill>
+              <LabPill tone={hasAccess ? 'success' : 'error'}>
+                {hasAccess ? t('auto.ParentDashboard.k51', 'Access OK') : t('auto.ParentDashboard.k52', 'Access Blocked')}
+              </LabPill>
+              <LabPill tone={hasApiChildren ? 'success' : 'warning'}>
+                {hasApiChildren
+                  ? t('auto.ParentDashboard.k53', 'Children: API')
+                  : t('auto.ParentDashboard.k54', 'Children: Mock')}
+              </LabPill>
+              <LabPill tone={sessionSourceTone}>
+                {t('auto.ParentDashboard.k55', 'Sessions')}: {sessionSourceLabel}
+              </LabPill>
+              {sessionsLoading && (
+                <LabPill tone="warning">{t('auto.ParentDashboard.k56', 'Syncing')}</LabPill>
+              )}
+              {analysisError && (
+                <LabPill tone="error">{t('auto.ParentDashboard.k57', 'Analysis Error')}</LabPill>
+              )}
+            </div>
+          </div>
+          <div>
+            <div
+              style={{
+                fontSize: typography.size.xs,
+                color: colors.text.muted,
+                letterSpacing: typography.letterSpacing.wide,
+                textTransform: 'uppercase',
+                marginBottom: spacing[2],
+              }}
+            >
+              {t('auto.ParentDashboard.k58', 'Filters')}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2] }}>
+              <LabPill tone="neutral">{t('auto.ParentDashboard.k59', 'Scope: All Children')}</LabPill>
+              <LabPill tone="neutral">{t('auto.ParentDashboard.k60', 'Phase: All')}</LabPill>
+            </div>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: isArabic ? 'flex-start' : 'flex-end',
+              gap: spacing[2],
+            }}
+          >
+            <div
+              style={{
+                fontSize: typography.size.xs,
+                color: colors.text.muted,
+                letterSpacing: typography.letterSpacing.wide,
+                textTransform: 'uppercase',
+              }}
+            >
+              {t('auto.ParentDashboard.k61', 'Export')}
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                gap: spacing[2],
+                flexWrap: 'wrap',
+                justifyContent: isArabic ? 'flex-start' : 'flex-end',
+              }}
+            >
+              <LabButton
+                size="sm"
+                variant="ghost"
+                onClick={handleExportCsv}
+                disabled={exportDisabled}
+                leftIcon={<DownloadIcon size={16} tone="cyan" />}
+              >
+                {t('auto.ParentDashboard.k62', 'CSV')}
+              </LabButton>
+              <LabButton
+                size="sm"
+                variant="primary"
+                onClick={handleExportPdf}
+                disabled={exportDisabled}
+                leftIcon={<ReportIcon size={16} tone="cyan" />}
+              >
+                {t('auto.ParentDashboard.k63', 'PDF Report')}
+              </LabButton>
+            </div>
+            {exportDisabled && (
+              <div style={{ fontSize: typography.size.xs, color: colors.text.muted }}>
+                {t('auto.ParentDashboard.k64', 'No session data yet')}
+              </div>
+            )}
           </div>
         </div>
       </LabCard>
