@@ -703,7 +703,7 @@ export default function ParentDashboard() {
             background: 'rgba(0,0,0,0.75)',
             border: '1px solid rgba(255,255,255,0.15)',
             borderRadius: 8,
-            color: '#fff',
+            color: colors.text.primary,
             fontSize: 11,
             lineHeight: 1.4,
             pointerEvents: 'none',

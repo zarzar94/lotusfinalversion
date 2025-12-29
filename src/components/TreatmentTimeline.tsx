@@ -255,7 +255,7 @@ export default function TreatmentTimeline() {
                 <div style={{
                   fontWeight: 800,
                   fontSize: 15,
-                  color: index === activeStep ? step.color : '#fff',
+                  color: index === activeStep ? step.color : colors.text.primary,
                   marginBottom: 4,
                 }}>
                   {isArabic ? step.title : step.titleEn}
@@ -324,7 +324,7 @@ export default function TreatmentTimeline() {
                 margin: '0 0 12px',
                 fontSize: 24,
                 fontWeight: 900,
-                color: '#fff',
+                color: colors.text.primary,
               }}>
                 {isArabic ? timelineSteps[activeStep].title : timelineSteps[activeStep].titleEn}
               </h3>
@@ -379,7 +379,7 @@ export default function TreatmentTimeline() {
                 <span style={{ fontSize: 28, marginBottom: 8 }}>
                   {renderLabIcon(benefit.icon, { size: 28, tone: 'cyan' })}
                 </span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: colors.text.primary, marginBottom: 4 }}>
                   {isArabic ? benefit.label : benefit.labelEn}
                 </span>
                 <span style={{
@@ -421,7 +421,7 @@ export default function TreatmentTimeline() {
         gap: 16,
       }}>
         <div>
-          <div style={{ fontWeight: 900, fontSize: 16, color: '#fff' }}>{t('cta.headline')}</div>
+          <div style={{ fontWeight: 900, fontSize: 16, color: colors.text.primary }}>{t('cta.headline')}</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>{t('cta.subheadline')}</div>
         </div>
         <LabButtonAnchor

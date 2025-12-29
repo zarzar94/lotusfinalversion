@@ -362,7 +362,7 @@ function MedicalMonitor({
             </div>
             <div style={{ marginBottom: 16 }}>
               <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginBottom: 3, letterSpacing: '0.5px' }}>{t('games.lab.modeLabel')}</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{t('games.lab.screeningMode')}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: colors.text.primary }}>{t('games.lab.screeningMode')}</div>
             </div>
             <div>
               <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginBottom: 3, letterSpacing: '0.5px' }}>{t('games.lab.typeLabel')}</div>
@@ -552,7 +552,7 @@ function TestCard({
           <div style={{
             fontWeight: 800,
             fontSize: 14,
-            color: '#fff',
+            color: colors.text.primary,
             marginBottom: 6,
             lineHeight: 1.4,
           }}>
@@ -614,7 +614,7 @@ function TestCard({
             border: '1px solid rgba(239,68,68,0.3)',
             fontSize: 10,
             fontWeight: 700,
-            color: '#fecaca',
+            color: colors.errorSoft,
           }}>
             {labels.disclaimer}
           </span>

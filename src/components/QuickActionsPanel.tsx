@@ -354,7 +354,7 @@ export default function QuickActionsPanel() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: 24,
-                  color: isPrimary ? '#fff' : visitorConfig.color,
+                  color: isPrimary ? colors.text.primary : visitorConfig.color,
                   transition: 'transform 0.3s ease',
                   transform: isHovered ? 'scale(1.1)' : 'scale(1)',
                 }}>
@@ -365,7 +365,7 @@ export default function QuickActionsPanel() {
                 <div style={{
                   fontWeight: typography.weight.bold,
                   fontSize: typography.size.base,
-                  color: isPrimary ? '#fff' : colors.text.primary,
+                  color: isPrimary ? colors.text.primary : colors.text.primary,
                   lineHeight: 1.3,
                 }}>
                   {isArabic ? action.titleAr : action.titleEn}
@@ -399,7 +399,7 @@ export default function QuickActionsPanel() {
                     right: isArabic ? 'auto' : -10,
                     left: isArabic ? -10 : 'auto',
                     padding: '4px 10px',
-                    background: '#fff',
+                    background: colors.text.primary,
                     borderRadius: 8,
                     fontSize: 10,
                     fontWeight: 800,

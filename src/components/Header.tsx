@@ -796,7 +796,7 @@ const Header = memo(function Header() {
                     fontSize: 9,
                     fontWeight: 800,
                     background: visitorConfig.color,
-                    color: '#fff',
+                    color: colors.text.primary,
                     borderRadius: 4,
                   }}>
                     {t('nav.recommended')}

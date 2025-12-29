@@ -175,7 +175,7 @@ const PhaseCard = memo(({
           justifyContent: 'center',
           fontSize: 13,
           fontWeight: 800,
-          color: '#fff',
+          color: colors.text.primary,
           boxShadow: `0 4px 12px ${phase.color}50`,
         }}
       >

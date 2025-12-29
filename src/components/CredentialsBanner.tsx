@@ -239,7 +239,7 @@ export default function CredentialsBanner() {
           margin: 0,
           fontSize: 22,
           fontWeight: 900,
-          color: '#fff',
+          color: colors.text.primary,
         }}>
           {t('auto.CredentialsBanner.k3', "Internationally Certified & Licensed")}
         </h3>
@@ -304,10 +304,10 @@ export default function CredentialsBanner() {
                   borderRadius: 6,
                   fontSize: 9,
                   fontWeight: 800,
-                  color: '#fff',
+                  color: colors.text.primary,
                   boxShadow: `0 2px 8px ${visitorConfig.color}50`,
                 }}>
-                  {renderLabIcon(visitorConfig.icon, { size: 12, style: { color: '#fff' } })}
+                  {renderLabIcon(visitorConfig.icon, { size: 12, style: { color: colors.text.primary } })}
                 </div>
               )}
 

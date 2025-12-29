@@ -441,7 +441,7 @@ export default function TrustSignals() {
               padding: `${spacing[3]}px ${spacing[6]}px`,
               background: `linear-gradient(135deg, ${visitorConfig.color}, ${visitorConfig.color}cc)`,
               borderRadius: radius.lg,
-              color: '#fff',
+              color: colors.text.primary,
               fontSize: typography.size.sm,
               fontWeight: typography.weight.bold,
               textDecoration: 'none',

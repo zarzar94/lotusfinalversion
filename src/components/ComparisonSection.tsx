@@ -180,7 +180,7 @@ const ProgramCard = memo(function ProgramCard({
             top: spacing[3],
             left: spacing[3],
             background: program.color,
-            color: '#000',
+            color: colors.surface.base,
             fontSize: typography.size.xs,
             fontWeight: typography.weight.black,
             padding: `${spacing[1]}px ${spacing[2.5]}px`,

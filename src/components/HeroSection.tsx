@@ -78,7 +78,7 @@ const HeroSection = memo(function HeroSection() {
     { orbitRadius: 240, duration: 25, delay: 2, size: 6, color: brandPurple, reverse: true, offsetY: 10 },
     { orbitRadius: 260, duration: 30, delay: 4, size: 10, color: brandPink, reverse: false, offsetY: -15 },
     { orbitRadius: 200, duration: 18, delay: 6, size: 5, color: brandCyan, reverse: true, offsetY: 20 },
-    { orbitRadius: 280, duration: 35, delay: 8, size: 7, color: '#fff', reverse: false, offsetY: -10 },
+    { orbitRadius: 280, duration: 35, delay: 8, size: 7, color: colors.text.primary, reverse: false, offsetY: -10 },
     { orbitRadius: 230, duration: 22, delay: 10, size: 6, color: brandPurple, reverse: true, offsetY: 5 },
     { orbitRadius: 250, duration: 28, delay: 3, size: 8, color: brandCyan, reverse: false, offsetY: -20 },
     { orbitRadius: 210, duration: 19, delay: 7, size: 5, color: brandPink, reverse: true, offsetY: 15 },
@@ -418,7 +418,7 @@ const HeroSection = memo(function HeroSection() {
             width: 10,
             height: 10,
             borderRadius: '50%',
-            background: `linear-gradient(135deg, ${colors.success}, #10b981)`,
+            background: `linear-gradient(135deg, ${colors.success}, ${colors.successLight})`,
             boxShadow: `0 0 12px ${colors.success}, 0 0 24px ${colors.success}99`,
             animation: 'statusBlink 2s ease-in-out infinite',
           }} />
