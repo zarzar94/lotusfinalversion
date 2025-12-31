@@ -1,4 +1,4 @@
-# QA Checklist — Lotus AIT Platform
+# QA Checklist ï¿½ Lotus AIT Platform
 
 ## ????? ???? (Local Run)
 - `npm install`
