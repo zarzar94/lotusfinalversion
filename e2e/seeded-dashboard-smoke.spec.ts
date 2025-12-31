@@ -192,11 +192,38 @@ const drawSignatureStroke = async (page: Page, canvas: Locator): Promise<void> =
   const endX = box.x + box.width * 0.85;
   const endY = box.y + box.height * 0.45;
 
-  await page.mouse.move(startX, startY);
-  await page.mouse.down();
-  await page.mouse.move(midX, midY);
-  await page.mouse.move(endX, endY);
-  await page.mouse.up();
+  await canvas.dispatchEvent('pointerdown', {
+    clientX: startX,
+    clientY: startY,
+    pointerId: 1,
+    pointerType: 'mouse',
+    buttons: 1,
+    isPrimary: true,
+  });
+  await canvas.dispatchEvent('pointermove', {
+    clientX: midX,
+    clientY: midY,
+    pointerId: 1,
+    pointerType: 'mouse',
+    buttons: 1,
+    isPrimary: true,
+  });
+  await canvas.dispatchEvent('pointermove', {
+    clientX: endX,
+    clientY: endY,
+    pointerId: 1,
+    pointerType: 'mouse',
+    buttons: 1,
+    isPrimary: true,
+  });
+  await canvas.dispatchEvent('pointerup', {
+    clientX: endX,
+    clientY: endY,
+    pointerId: 1,
+    pointerType: 'mouse',
+    buttons: 0,
+    isPrimary: true,
+  });
 };
 
 const normalizeLoginUser = (
