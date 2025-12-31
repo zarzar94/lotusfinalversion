@@ -4,11 +4,14 @@
 - `node scripts/qa-assets.mjs` - PASS (120 checks) - verifies slide images and thumbnails, downloads (`Check list (2).pdf`, `berard-profile.pdf`), fonts (`Cairo-Regular.ttf`, `Cairo-Bold.ttf`), and branding icons under `public/`.
 - `VITE_E2E=true npm run test:e2e -- --project=chromium --grep "Seeded dashboard smoke"` - PASS (4 tests, re-run) - seeded auth, dashboards, analytics calls, and resources download.
 - `VITE_E2E=true npm run test:e2e` - PASS (125 tests, 20 skipped) - full Playwright matrix across Chromium, Firefox, WebKit, and mobile projects.
+- Playwright signature modal test (added to `seeded-dashboard-smoke.spec.ts`) - NOT RUN.
 - Seeded API smoke (auth + analytics endpoints) - PASS - `/api/sessions/analysis/children`, `/api/sessions/analysis/patients`, `/api/sessions/analysis/progress`, `/api/sessions/analysis/school`.
 - `npm run typecheck` - PASS.
 - `npm run build` - PASS.
 
 ## Recommended manual checks
+- Signature flows: Parent/Clinician dashboards, Assessment Suite summary, Progress Export, School Demo Pack - confirm signature modal opens, ink persists, and PDF exports include the signature (NOT RUN).
+- Band tooltip (AR/EN): open any dashboard chart, verify the band explanation tooltip text matches translation in Arabic and English (NOT RUN).
 - Slides: open `#pptx`; confirm thumbnails load, modal opens, arrow keys/PageUp/PageDown navigate, Esc closes, and "Slides Summary PDF" downloads.
 - Checklist: select a few items, ensure counts and recommendation update, "Official PDF" link works, "Your selections" PDF exports with Arabic text rendered.
 - Screening Lab: run each test (attention Go/No-Go, frequency 2IFC, sequencing demo, questionnaire) and the multi-test suite; confirm CSV/PDF exports download and include metrics; headphone check behaves as expected.

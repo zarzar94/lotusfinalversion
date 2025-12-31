@@ -180,6 +180,25 @@ const attachDiagnostics = async (page: Page, label: string): Promise<void> => {
   });
 };
 
+const drawSignatureStroke = async (page: Page, canvas: Locator): Promise<void> => {
+  const box = await canvas.boundingBox();
+  if (!box) {
+    throw new Error('Signature canvas was not visible for drawing.');
+  }
+  const startX = box.x + box.width * 0.2;
+  const startY = box.y + box.height * 0.5;
+  const midX = box.x + box.width * 0.6;
+  const midY = box.y + box.height * 0.55;
+  const endX = box.x + box.width * 0.85;
+  const endY = box.y + box.height * 0.45;
+
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(midX, midY);
+  await page.mouse.move(endX, endY);
+  await page.mouse.up();
+};
+
 const normalizeLoginUser = (
   user?: Record<string, unknown>
 ): Record<string, unknown> | null => {
@@ -318,6 +337,43 @@ test.describe('Seeded dashboard smoke', () => {
       const displayName = pickDisplayName(analysis.children.map((child) => child.name));
       expect(displayName).not.toBeNull();
       await expect(page.getByText(displayName!)).toBeVisible({ timeout: 15000 });
+    } finally {
+      await context.close();
+    }
+  });
+
+  test('signature modal stores data URL (parent)', async ({ browser, request }, testInfo) => {
+    if (!backendAvailable) {
+      test.skip(true, `Backend not reachable at ${backendBaseUrl}`);
+    }
+
+    const { context, page } = await createAuthedPage(browser, request, seededUsers.parent, testInfo.title);
+
+    try {
+      await page.goto(buildAppUrl('/dashboard/parent'), { waitUntil: 'domcontentloaded' });
+      const dashboard = page.locator('#parent-dashboard');
+      await expect(dashboard).toBeVisible();
+
+      const addSignature = page.getByRole('button', { name: /add signature/i }).first();
+      await expect(addSignature).toBeVisible();
+      await addSignature.click();
+
+      const modal = page.getByRole('dialog', { name: /signature/i });
+      await expect(modal).toBeVisible();
+      const canvas = modal.locator('canvas');
+      await expect(canvas).toBeVisible();
+
+      await drawSignatureStroke(page, canvas);
+
+      const dataUrl = await canvas.evaluate(
+        (node) => (node as HTMLCanvasElement).toDataURL('image/png')
+      );
+      expect(dataUrl.startsWith('data:image/png')).toBeTruthy();
+      expect(dataUrl.length).toBeGreaterThan(200);
+
+      await expect(modal.getByText(/signature saved/i)).toBeVisible();
+      await modal.getByRole('button', { name: /close/i }).click();
+      await expect(modal).toBeHidden();
     } finally {
       await context.close();
     }
