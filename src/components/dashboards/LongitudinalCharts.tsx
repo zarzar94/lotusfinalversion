@@ -255,6 +255,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
     top: number;
     content: string;
   } | null>(null);
+  const [bandTooltipPinned, setBandTooltipPinned] = useState(false);
   const scoreChartRef = useRef<HTMLDivElement>(null);
   const fatigueChartRef = useRef<HTMLDivElement>(null);
   const [showBaseline, setShowBaseline] = useState(true);
@@ -544,7 +545,14 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
   };
 
   const clearTooltip = () => setTooltip(null);
-  const clearBandTooltip = () => setBandTooltip(null);
+  const clearBandTooltip = (force = false) => {
+    if (force || !bandTooltipPinned) {
+      setBandTooltip(null);
+      if (force) {
+        setBandTooltipPinned(false);
+      }
+    }
+  };
 
   const bandExplanation = t(
     'dashboard.bandExplanation',
@@ -563,6 +571,24 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
       top: target.y - wrapper.y - 8,
       content: bandExplanation,
     });
+  };
+  const handleBandHelpEnter = (
+    event: React.MouseEvent<HTMLElement> | React.FocusEvent<HTMLElement>,
+  ) => {
+    if (bandTooltipPinned) return;
+    setBandTooltipFromEvent(event);
+  };
+  const handleBandHelpLeave = () => {
+    clearBandTooltip();
+  };
+  const handleBandHelpClick = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    if (bandTooltipPinned) {
+      clearBandTooltip(true);
+      return;
+    }
+    setBandTooltipPinned(true);
+    setBandTooltipFromEvent(event);
   };
 
   const chipStyle = (active: boolean) => ({
@@ -605,23 +631,12 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
             <button
               type="button"
               aria-label={bandHelpLabel}
-              onMouseEnter={setBandTooltipFromEvent}
-              onFocus={setBandTooltipFromEvent}
-              onMouseLeave={clearBandTooltip}
-              onBlur={clearBandTooltip}
-              onClick={(event) => {
-                event.stopPropagation();
-                setBandTooltip((current) => (current ? null : (() => {
-                  const wrapper = scoreChartRef.current?.getBoundingClientRect();
-                  const target = (event.currentTarget as HTMLElement).getBoundingClientRect();
-                  if (!wrapper) return null;
-                  return {
-                    left: target.x - wrapper.x + target.width / 2,
-                    top: target.y - wrapper.y - 8,
-                    content: bandExplanation,
-                  };
-                })()));
-              }}
+              data-e2e-band-help="true"
+              onMouseEnter={handleBandHelpEnter}
+              onFocus={handleBandHelpEnter}
+              onMouseLeave={handleBandHelpLeave}
+              onBlur={handleBandHelpLeave}
+              onClick={handleBandHelpClick}
               style={{
                 border: `1px solid ${colors.border.default}`,
                 background: colors.surface.card,
@@ -942,6 +957,7 @@ const LongitudinalCharts = memo(function LongitudinalCharts({
               zIndex: 2,
               whiteSpace: 'pre-line',
             }}
+            data-e2e-band-tooltip="true"
           >
             {bandTooltip.content}
           </div>

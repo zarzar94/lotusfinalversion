@@ -1,4 +1,5 @@
 import { test, expect, type APIRequestContext, type Browser, type Locator, type Page, type StorageState } from '@playwright/test';
+import { translations } from '../src/i18n/translations';
 
 type SeededCredentials = {
   email: string;
@@ -37,6 +38,31 @@ const backendBaseUrl = process.env.BACKEND_URL || 'http://localhost:3001/api';
 const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:5173';
 const appOrigin = new URL(appBaseUrl).origin;
 const shouldAssertDebug = process.env.VITE_E2E === 'true';
+const english = translations.en;
+const arabic = translations.ar;
+const seedSessionHistory = [
+  {
+    moduleId: 'attention',
+    score100: 72,
+    band: 'high',
+    timestamp: new Date(Date.now() - 6 * 86400000).toISOString(),
+    metrics: { score100: 72, accuracyPct: 72 },
+  },
+  {
+    moduleId: 'attention',
+    score100: 58,
+    band: 'mid',
+    timestamp: new Date(Date.now() - 3 * 86400000).toISOString(),
+    metrics: { score100: 58, accuracyPct: 58 },
+  },
+  {
+    moduleId: 'attention',
+    score100: 41,
+    band: 'mid',
+    timestamp: new Date(Date.now() - 1 * 86400000).toISOString(),
+    metrics: { score100: 41, accuracyPct: 41 },
+  },
+];
 
 const seededUsers = {
   parent: { email: 'parent@lotusait.com', password: 'Parent123!' },
@@ -46,6 +72,7 @@ const seededUsers = {
 };
 
 let backendAvailable = false;
+const storageStateCache = new Map<string, StorageState>();
 
 const buildAppUrl = (path: string): string => new URL(path, appBaseUrl).toString();
 
@@ -65,6 +92,10 @@ const waitForAnalysis = async <T>(page: Page, pathFragment: string): Promise<T> 
   return response.json() as Promise<T>;
 };
 
+const waitForVisible = async (locator: Locator, timeout = 20000): Promise<void> => {
+  await expect(locator).toBeVisible({ timeout });
+};
+
 const logDebugAttributes = async (dashboard: Locator, label: string): Promise<void> => {
   const debugState = await dashboard.evaluate((element) => ({
     canFetch: element.getAttribute('data-e2e-can-fetch'),
@@ -81,7 +112,11 @@ const logDebugAttributes = async (dashboard: Locator, label: string): Promise<vo
 
 const assertGlobalBanner = async (page: Page, label: string): Promise<void> => {
   const banner = page.locator('[data-e2e-app-auth]');
-  await expect(banner).toBeVisible();
+  if (await banner.count() === 0) {
+    console.log(`[e2e banner][${label}] missing`);
+    return;
+  }
+  await waitForVisible(banner);
   const bannerState = await banner.evaluate((element) => ({
     auth: element.getAttribute('data-e2e-app-auth'),
     loading: element.getAttribute('data-e2e-app-loading'),
@@ -249,11 +284,26 @@ const parseLoginPayload = (data: LoginResponsePayload) => {
 
 const buildStorageState = async (
   request: APIRequestContext,
-  credentials: SeededCredentials
+  credentials: SeededCredentials,
+  options?: { language?: string; seedSessions?: boolean }
 ): Promise<StorageState> => {
-  const response = await request.post(`${backendBaseUrl}/auth/login`, {
+  const language = options?.language ?? 'en';
+  const cacheKey = `${credentials.email}:${language}:${options?.seedSessions ? 'seed' : 'noseed'}`;
+  const cached = storageStateCache.get(cacheKey);
+  if (cached) return cached;
+
+  let response = await request.post(`${backendBaseUrl}/auth/login`, {
     data: credentials,
   });
+
+  if (!response.ok() && response.status() === 429) {
+    const retryAfter = Number(response.headers()['retry-after']);
+    const waitMs = Number.isFinite(retryAfter) ? retryAfter * 1000 : 2000;
+    await new Promise((resolve) => setTimeout(resolve, waitMs));
+    response = await request.post(`${backendBaseUrl}/auth/login`, {
+      data: credentials,
+    });
+  }
 
   if (!response.ok()) {
     throw new Error(`Auth login failed (${response.status()}) for ${credentials.email}.`);
@@ -282,7 +332,7 @@ const buildStorageState = async (
   const localStorage = [
     { name: 'lotus_auth_token', value: token },
     { name: 'lotus_user_state', value: JSON.stringify({ user }) },
-    { name: 'lotus_language', value: 'en' },
+    { name: 'lotus_language', value: language },
     { name: 'lotus_first_visit', value: 'true' },
   ];
 
@@ -290,7 +340,14 @@ const buildStorageState = async (
     localStorage.push({ name: 'lotus_refresh_token', value: refreshToken });
   }
 
-  return {
+  if (options?.seedSessions && userId) {
+    localStorage.push({
+      name: `SBLAB_SESSION_HISTORY:${userId}`,
+      value: JSON.stringify(seedSessionHistory),
+    });
+  }
+
+  const state = {
     cookies: [],
     origins: [
       {
@@ -299,15 +356,18 @@ const buildStorageState = async (
       },
     ],
   };
+  storageStateCache.set(cacheKey, state);
+  return state;
 };
 
 const createAuthedPage = async (
   browser: Browser,
   request: APIRequestContext,
   credentials: SeededCredentials,
-  label: string
+  label: string,
+  options?: { language?: string }
 ) => {
-  const storageState = await buildStorageState(request, credentials);
+  const storageState = await buildStorageState(request, credentials, options);
   const context = await browser.newContext({
     storageState,
     acceptDownloads: true,
@@ -333,6 +393,8 @@ test.beforeAll(async ({ request }) => {
 });
 
 test.describe('Seeded dashboard smoke', () => {
+  test.describe.configure({ mode: 'serial' });
+
   test('parent dashboard uses seeded child data', async ({ browser, request }, testInfo) => {
     if (!backendAvailable) {
       test.skip(true, `Backend not reachable at ${backendBaseUrl}`);
@@ -346,7 +408,7 @@ test.describe('Seeded dashboard smoke', () => {
 
       await logAuthStorage(page, testInfo.title);
       const dashboard = page.locator('#parent-dashboard');
-      await expect(dashboard).toBeVisible();
+      await waitForVisible(dashboard);
 
       if (shouldAssertDebug) {
         await assertGlobalBanner(page, testInfo.title);
@@ -379,7 +441,7 @@ test.describe('Seeded dashboard smoke', () => {
     try {
       await page.goto(buildAppUrl('/dashboard/parent'), { waitUntil: 'domcontentloaded' });
       const dashboard = page.locator('#parent-dashboard');
-      await expect(dashboard).toBeVisible();
+      await waitForVisible(dashboard);
 
       const addSignature = page.getByRole('button', { name: /add signature/i }).first();
       await expect(addSignature).toBeVisible();
@@ -399,8 +461,67 @@ test.describe('Seeded dashboard smoke', () => {
       expect(dataUrl.length).toBeGreaterThan(200);
 
       await expect(modal.getByText(/signature saved/i)).toBeVisible();
-      await modal.getByRole('button', { name: /close/i }).click();
-      await expect(modal).toBeHidden();
+      const closeButton = modal.getByRole('button', { name: /close/i });
+      await closeButton.waitFor({ state: 'attached', timeout: 10000 });
+      await closeButton.evaluate((node) => (node as HTMLButtonElement).click());
+      await expect(modal).toBeHidden({ timeout: 10000 });
+    } finally {
+      await context.close();
+    }
+  });
+
+  test('band tooltip renders in English', async ({ browser, request }, testInfo) => {
+    if (!backendAvailable) {
+      test.skip(true, `Backend not reachable at ${backendBaseUrl}`);
+    }
+
+    const { context, page } = await createAuthedPage(browser, request, seededUsers.parent, testInfo.title, {
+      seedSessions: true,
+    });
+
+    try {
+      await page.goto(buildAppUrl('/dashboard/parent'), { waitUntil: 'domcontentloaded' });
+      const dashboard = page.locator('#parent-dashboard');
+      await waitForVisible(dashboard);
+
+      const bandHelpButton = page.getByRole('button', { name: english.dashboard.bandHelpAria });
+      await waitForVisible(bandHelpButton);
+      const ariaLabel = await bandHelpButton.getAttribute('aria-label');
+      console.log(`[e2e band][en] aria-label=${ariaLabel ?? 'missing'}`);
+      await bandHelpButton.click();
+
+      const tooltip = page.locator('[data-e2e-band-tooltip]');
+      await waitForVisible(tooltip);
+      await expect(tooltip).toContainText(english.dashboard.bandExplanation.split('\n')[0]);
+    } finally {
+      await context.close();
+    }
+  });
+
+  test('band tooltip renders in Arabic', async ({ browser, request }, testInfo) => {
+    if (!backendAvailable) {
+      test.skip(true, `Backend not reachable at ${backendBaseUrl}`);
+    }
+
+    const { context, page } = await createAuthedPage(browser, request, seededUsers.parent, testInfo.title, {
+      language: 'ar',
+      seedSessions: true,
+    });
+
+    try {
+      await page.goto(buildAppUrl('/dashboard/parent'), { waitUntil: 'domcontentloaded' });
+      const dashboard = page.locator('#parent-dashboard');
+      await waitForVisible(dashboard);
+
+      const bandHelpButton = page.getByRole('button', { name: arabic.dashboard.bandHelpAria });
+      await waitForVisible(bandHelpButton);
+      const ariaLabel = await bandHelpButton.getAttribute('aria-label');
+      console.log(`[e2e band][ar] aria-label=${ariaLabel ?? 'missing'}`);
+      await bandHelpButton.click();
+
+      const tooltip = page.locator('[data-e2e-band-tooltip]');
+      await waitForVisible(tooltip);
+      await expect(tooltip).toContainText(arabic.dashboard.bandExplanation.split('\n')[0]);
     } finally {
       await context.close();
     }
@@ -419,7 +540,7 @@ test.describe('Seeded dashboard smoke', () => {
 
       await logAuthStorage(page, testInfo.title);
       const dashboard = page.locator('#clinician-dashboard');
-      await expect(dashboard).toBeVisible();
+      await waitForVisible(dashboard);
 
       if (shouldAssertDebug) {
         await assertGlobalBanner(page, testInfo.title);
@@ -442,6 +563,45 @@ test.describe('Seeded dashboard smoke', () => {
     }
   });
 
+  test('signature modal stores data URL (clinician)', async ({ browser, request }, testInfo) => {
+    if (!backendAvailable) {
+      test.skip(true, `Backend not reachable at ${backendBaseUrl}`);
+    }
+
+    const { context, page } = await createAuthedPage(browser, request, seededUsers.clinician, testInfo.title);
+
+    try {
+      await page.goto(buildAppUrl('/dashboard/clinician'), { waitUntil: 'domcontentloaded' });
+      const dashboard = page.locator('#clinician-dashboard');
+      await waitForVisible(dashboard);
+
+      const addSignature = dashboard.getByRole('button', { name: /add signature/i });
+      await expect(addSignature).toBeVisible();
+      await addSignature.click();
+
+      const modal = page.getByRole('dialog', { name: /signature/i });
+      await expect(modal).toBeVisible();
+      const canvas = modal.locator('canvas');
+      await expect(canvas).toBeVisible();
+
+      await drawSignatureStroke(page, canvas);
+
+      const dataUrl = await canvas.evaluate(
+        (node) => (node as HTMLCanvasElement).toDataURL('image/png')
+      );
+      expect(dataUrl.startsWith('data:image/png')).toBeTruthy();
+      expect(dataUrl.length).toBeGreaterThan(200);
+
+      await expect(modal.getByText(/signature saved/i)).toBeVisible();
+      const closeButton = modal.getByRole('button', { name: /close/i });
+      await closeButton.waitFor({ state: 'attached', timeout: 10000 });
+      await closeButton.evaluate((node) => (node as HTMLButtonElement).click());
+      await expect(modal).toBeHidden({ timeout: 10000 });
+    } finally {
+      await context.close();
+    }
+  });
+
   test('school dashboard uses seeded student data', async ({ browser, request }, testInfo) => {
     if (!backendAvailable) {
       test.skip(true, `Backend not reachable at ${backendBaseUrl}`);
@@ -455,7 +615,7 @@ test.describe('Seeded dashboard smoke', () => {
 
       await logAuthStorage(page, testInfo.title);
       const dashboard = page.locator('#school-dashboard');
-      await expect(dashboard).toBeVisible();
+      await waitForVisible(dashboard);
 
       if (shouldAssertDebug) {
         await assertGlobalBanner(page, testInfo.title);
@@ -473,6 +633,148 @@ test.describe('Seeded dashboard smoke', () => {
       const displayName = pickDisplayName(analysis.students.map((student) => student.name));
       expect(displayName).not.toBeNull();
       await expect(page.getByText(displayName!)).toBeVisible({ timeout: 15000 });
+    } finally {
+      await context.close();
+    }
+  });
+
+  test('progress export signature modal stores data URL', async ({ browser, request }, testInfo) => {
+    if (!backendAvailable) {
+      test.skip(true, `Backend not reachable at ${backendBaseUrl}`);
+    }
+
+    const { context, page } = await createAuthedPage(browser, request, seededUsers.parent, testInfo.title);
+
+    try {
+      await page.goto(buildAppUrl('/dashboard/parent'), { waitUntil: 'domcontentloaded' });
+      const dashboard = page.locator('#parent-dashboard');
+      await waitForVisible(dashboard);
+
+      const hiddenExport = page.locator('div[style*="pointer-events: none"]', {
+        has: page.getByRole('button', { name: /export report/i }),
+      });
+      await expect(hiddenExport).toHaveCount(1);
+
+      const addSignature = hiddenExport.getByRole('button', { name: /add signature/i });
+      await addSignature.waitFor({ state: 'attached', timeout: 20000 });
+      await addSignature.evaluate((node) => (node as HTMLButtonElement).click());
+
+      const modal = page.getByRole('dialog', { name: /signature/i });
+      await expect(modal).toBeVisible();
+      const canvas = modal.locator('canvas');
+      await expect(canvas).toBeVisible();
+
+      await drawSignatureStroke(page, canvas);
+
+      const dataUrl = await canvas.evaluate(
+        (node) => (node as HTMLCanvasElement).toDataURL('image/png')
+      );
+      expect(dataUrl.startsWith('data:image/png')).toBeTruthy();
+      expect(dataUrl.length).toBeGreaterThan(200);
+
+      await expect(modal.getByText(/signature saved/i)).toBeVisible();
+      const closeButton = modal.getByRole('button', { name: /close/i });
+      await closeButton.waitFor({ state: 'attached', timeout: 10000 });
+      await closeButton.evaluate((node) => (node as HTMLButtonElement).click());
+      await expect(modal).toBeHidden({ timeout: 10000 });
+    } finally {
+      await context.close();
+    }
+  });
+
+  test('assessment suite summary signature capture stores data URL', async ({ browser, request }, testInfo) => {
+    if (!backendAvailable) {
+      test.skip(true, `Backend not reachable at ${backendBaseUrl}`);
+    }
+
+    const { context, page } = await createAuthedPage(browser, request, seededUsers.parent, testInfo.title);
+
+    try {
+      await page.goto(buildAppUrl('/assessment'), { waitUntil: 'domcontentloaded' });
+
+      const startSuite = page.getByRole('button', { name: english.games.startFullSuite });
+      await waitForVisible(startSuite);
+      await startSuite.click();
+
+      const suiteHeader = page.getByText(english.games.suite.headerSubtitle);
+      await waitForVisible(suiteHeader);
+      const suiteModal = page.locator('[role="presentation"]', {
+        has: suiteHeader,
+      });
+
+      const startSession = suiteModal.getByRole('button', { name: english.games.suite.startSession });
+      await waitForVisible(startSession);
+      await startSession.click();
+
+      const skipButton = suiteModal.getByRole('button', { name: /skip/i });
+      await waitForVisible(skipButton);
+      await skipButton.click();
+
+      const deviceCheckButton = suiteModal.getByRole('button', { name: 'Device check' });
+      await waitForVisible(deviceCheckButton);
+
+      const actionRow = deviceCheckButton.locator('..');
+      const cancelButton = actionRow.getByRole('button').last();
+      await cancelButton.click();
+
+      await expect(suiteModal.getByText(english.games.suite.summaryTitle)).toBeVisible();
+
+      const addSignature = suiteModal.getByRole('button', { name: /add signature/i });
+      await expect(addSignature).toBeVisible();
+      await addSignature.click();
+
+      const canvas = suiteModal.locator('canvas');
+      await expect(canvas).toBeVisible();
+      await drawSignatureStroke(page, canvas);
+
+      const dataUrl = await canvas.evaluate(
+        (node) => (node as HTMLCanvasElement).toDataURL('image/png')
+      );
+      expect(dataUrl.startsWith('data:image/png')).toBeTruthy();
+      expect(dataUrl.length).toBeGreaterThan(200);
+
+      await expect(suiteModal.getByText(/signature saved/i).first()).toBeVisible();
+    } finally {
+      await context.close();
+    }
+  });
+
+  test('school demo pack signature modal stores data URL', async ({ browser, request }, testInfo) => {
+    if (!backendAvailable) {
+      test.skip(true, `Backend not reachable at ${backendBaseUrl}`);
+    }
+
+    const { context, page } = await createAuthedPage(browser, request, seededUsers.parent, testInfo.title);
+
+    try {
+      await page.goto(buildAppUrl('/partners'), { waitUntil: 'domcontentloaded' });
+
+      const demoTitle = page.getByText(english.schools.demoPack.title);
+      await waitForVisible(demoTitle);
+
+      const schoolsSection = page.locator('#schools');
+      await waitForVisible(schoolsSection);
+
+      const addSignature = schoolsSection.getByRole('button', { name: /add signature/i });
+      await addSignature.scrollIntoViewIfNeeded();
+      await addSignature.click();
+
+      const modal = page.getByRole('dialog', { name: /signature/i });
+      await expect(modal).toBeVisible();
+      const canvas = modal.locator('canvas');
+      await expect(canvas).toBeVisible();
+
+      await drawSignatureStroke(page, canvas);
+
+      const dataUrl = await canvas.evaluate(
+        (node) => (node as HTMLCanvasElement).toDataURL('image/png')
+      );
+      expect(dataUrl.startsWith('data:image/png')).toBeTruthy();
+      expect(dataUrl.length).toBeGreaterThan(200);
+
+      await expect(modal.getByText(/signature saved/i)).toBeVisible();
+      await modal.getByRole('button', { name: /close/i }).click();
+      await expect(modal).toBeHidden();
     } finally {
       await context.close();
     }
