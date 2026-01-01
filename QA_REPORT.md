@@ -1,13 +1,14 @@
 # QA Report - Berard AIT Sound Lab (React + Vite)
 
 ## Automated checks
+- `npm run typecheck` - PASS (re-run).
+- `npm run build` - PASS (re-run).
+- `npm test` (backend) - PASS (6 suites, 17 tests).
+- `npm run test:e2e` - PASS (125 tests, 55 skipped) - full Playwright matrix across Chromium, Firefox, WebKit, and mobile projects.
 - `node scripts/qa-assets.mjs` - PASS (120 checks) - verifies slide images and thumbnails, downloads (`Check list (2).pdf`, `berard-profile.pdf`), fonts (`Cairo-Regular.ttf`, `Cairo-Bold.ttf`), and branding icons under `public/`.
 - `VITE_E2E=true npm run test:e2e -- --project=chromium --grep "Seeded dashboard smoke"` - PASS (4 tests, re-run) - seeded auth, dashboards, analytics calls, and resources download.
-- `VITE_E2E=true npm run test:e2e` - PASS (125 tests, 20 skipped) - full Playwright matrix across Chromium, Firefox, WebKit, and mobile projects.
 - Playwright signature modal test (added to `seeded-dashboard-smoke.spec.ts`) - PASS (chromium, `--grep "signature modal"`).
 - Seeded API smoke (auth + analytics endpoints) - PASS - `/api/sessions/analysis/children`, `/api/sessions/analysis/patients`, `/api/sessions/analysis/progress`, `/api/sessions/analysis/school`.
-- `npm run typecheck` - PASS.
-- `npm run build` - PASS.
 
 ## Recommended manual checks
 - Signature flows: Parent/Clinician dashboards, Assessment Suite summary, Progress Export, School Demo Pack - confirm signature modal opens, ink persists, and PDF exports include the signature (NOT RUN).
