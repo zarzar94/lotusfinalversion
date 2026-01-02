@@ -15,6 +15,8 @@ import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
+import LabCard from '../components/labui/LabCard';
+import LabButtonAnchor from '../components/labui/LabButtonAnchor';
 import { BrainCircuitIcon } from '../components/icons/index';
 import {
   brandPink,
@@ -28,6 +30,7 @@ import {
 const NeuroplasticitySection = lazy(() => import('../components/NeuroplasticitySection'));
 const AudioJourney = lazy(() => import('../components/AudioJourney'));
 const AudioSpectrumDemo = lazy(() => import('../components/AudioSpectrumDemo'));
+const SoundLabSimulation = lazy(() => import('../components/treatment/SoundLabSimulation'));
 
 // Page header component
 const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
@@ -122,6 +125,55 @@ function SciencePage() {
           <Suspense fallback={<SectionLoader label={t('common.loadingAudioJourney')} height={400} />}>
             <AudioJourney />
           </Suspense>
+        </FadeIn>
+
+        {/* Sound Lab Simulation */}
+        <FadeIn delay={175} direction="none" scale scaleFrom={0.98}>
+          <section
+            id="simulation"
+            style={{
+              marginTop: spacing[5],
+              display: 'grid',
+              gap: spacing[4],
+              direction: isArabic ? 'rtl' : 'ltr',
+              textAlign: isArabic ? 'right' : 'left',
+            }}
+          >
+            <LabCard variant="glass" tone="pink">
+              <div style={{ display: 'grid', gap: spacing[2] }}>
+                <div
+                  style={{
+                    fontSize: typography.size.lg,
+                    fontWeight: typography.weight.bold,
+                    color: colors.text.primary,
+                  }}
+                >
+                  {isArabic ? 'محاكاة مختبر الصوت' : t('science.simulationTitle', 'Sound Lab Simulation')}
+                </div>
+                <p
+                  style={{
+                    margin: 0,
+                    color: colors.text.secondary,
+                    fontSize: typography.size.sm,
+                    lineHeight: typography.lineHeight.relaxed,
+                  }}
+                >
+                  {isArabic
+                    ? 'استكشف الطبقات الطيفية والترددات المستهدفة كما تظهر داخل المختبر.'
+                    : t('science.simulationIntro', 'Explore spectrum layers and targeted bands in a live lab-style preview.')}
+                </p>
+                <div>
+                  <LabButtonAnchor href="/lab#modules" variant="primary">
+                    {isArabic ? 'استعرض الوحدات' : t('science.simulationCta', 'Browse Modules')}
+                  </LabButtonAnchor>
+                </div>
+              </div>
+            </LabCard>
+
+            <Suspense fallback={<SectionLoader label={t('common.loading')} height={320} />}>
+              <SoundLabSimulation locale={isArabic ? 'ar' : 'en'} />
+            </Suspense>
+          </section>
         </FadeIn>
 
         {/* Audio Spectrum Demo */}

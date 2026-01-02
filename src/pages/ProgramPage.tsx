@@ -15,6 +15,8 @@ import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
+import LabCard from '../components/labui/LabCard';
+import LabButtonAnchor from '../components/labui/LabButtonAnchor';
 import { ChecklistIcon } from '../components/icons/index';
 import {
   brandPurple,
@@ -28,6 +30,7 @@ import {
 const ProgramOverview = lazy(() => import('../components/ProgramOverview'));
 const TreatmentTimeline = lazy(() => import('../components/TreatmentTimeline'));
 const RemoteProtocolSection = lazy(() => import('../components/RemoteProtocolSection'));
+const TreatmentProtocolDashboard = lazy(() => import('../components/treatment/TreatmentProtocolDashboard'));
 
 // Page header component
 const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
@@ -115,6 +118,55 @@ function ProgramPage() {
           <Suspense fallback={<SectionLoader label={t('common.loading')} height={350} />}>
             <ProgramOverview />
           </Suspense>
+        </FadeIn>
+
+        {/* Treatment Protocol Dashboard */}
+        <FadeIn delay={130} direction="none" scale scaleFrom={0.98}>
+          <section
+            id="protocol"
+            style={{
+              marginTop: spacing[5],
+              display: 'grid',
+              gap: spacing[4],
+              direction: isArabic ? 'rtl' : 'ltr',
+              textAlign: isArabic ? 'right' : 'left',
+            }}
+          >
+            <LabCard variant="glass" tone="purple">
+              <div style={{ display: 'grid', gap: spacing[2] }}>
+                <div
+                  style={{
+                    fontSize: typography.size.lg,
+                    fontWeight: typography.weight.bold,
+                    color: colors.text.primary,
+                  }}
+                >
+                  {isArabic ? 'لوحة بروتوكول العلاج' : t('program.protocolTitle', 'Treatment Protocol Dashboard')}
+                </div>
+                <p
+                  style={{
+                    margin: 0,
+                    color: colors.text.secondary,
+                    fontSize: typography.size.sm,
+                    lineHeight: typography.lineHeight.relaxed,
+                  }}
+                >
+                  {isArabic
+                    ? 'تابع جلسات الصباح والمساء والترددات المستهدفة داخل البروتوكول العلاجي.'
+                    : t('program.protocolIntro', 'Track AM/PM sessions, target bands, and protocol progress at a glance.')}
+                </p>
+                <div>
+                  <LabButtonAnchor href="/lab#flow" variant="primary">
+                    {isArabic ? 'ابدأ المسار الإرشادي' : t('program.protocolCta', 'Start Guided Flow')}
+                  </LabButtonAnchor>
+                </div>
+              </div>
+            </LabCard>
+
+            <Suspense fallback={<SectionLoader label={t('common.loading')} height={420} />}>
+              <TreatmentProtocolDashboard locale={isArabic ? 'ar' : 'en'} />
+            </Suspense>
+          </section>
         </FadeIn>
 
         {/* Treatment Timeline */}

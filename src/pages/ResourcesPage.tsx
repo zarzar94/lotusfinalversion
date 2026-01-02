@@ -15,6 +15,8 @@ import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
+import LabCard from '../components/labui/LabCard';
+import LabButtonAnchor from '../components/labui/LabButtonAnchor';
 import { BookIcon } from '../components/icons/index';
 import {
   colors,
@@ -26,7 +28,6 @@ import {
 // Lazy load sections
 const SlideViewer = lazy(() => import('../components/SlideViewer'));
 const VideoSection = lazy(() => import('../components/VideoSection'));
-const FAQSection = lazy(() => import('../components/FAQSection'));
 
 // Page header component
 const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
@@ -123,11 +124,72 @@ function ResourcesPage() {
           </Suspense>
         </FadeIn>
 
-        {/* FAQ Section */}
+        {/* FAQ Preview */}
         <FadeIn delay={200} direction="left" distance={30}>
-          <Suspense fallback={<SectionLoader label={t('common.loading')} height={400} />}>
-            <FAQSection />
-          </Suspense>
+          <LabCard
+            variant="glass"
+            tone="warning"
+            style={{
+              display: 'grid',
+              gap: spacing[3],
+              direction: isArabic ? 'rtl' : 'ltr',
+              textAlign: isArabic ? 'right' : 'left',
+            }}
+          >
+            <div
+              style={{
+                fontSize: typography.size.lg,
+                fontWeight: typography.weight.bold,
+                color: colors.text.primary,
+              }}
+            >
+              {isArabic ? 'الأسئلة الشائعة' : t('resources.faqPreviewTitle', 'Frequently Asked Questions')}
+            </div>
+            <p
+              style={{
+                margin: 0,
+                color: colors.text.secondary,
+                fontSize: typography.size.sm,
+                lineHeight: typography.lineHeight.relaxed,
+              }}
+            >
+              {isArabic
+                ? 'إجابات سريعة على أكثر الأسئلة شيوعاً قبل بدء التقييم.'
+                : t('resources.faqPreviewIntro', 'Quick answers to the most common questions before you begin.')}
+            </p>
+            <ul
+              style={{
+                margin: 0,
+                paddingInlineStart: isArabic ? 0 : spacing[4],
+                paddingInlineEnd: isArabic ? spacing[4] : 0,
+                color: colors.text.secondary,
+                fontSize: typography.size.sm,
+                lineHeight: typography.lineHeight.relaxed,
+                display: 'grid',
+                gap: spacing[2],
+              }}
+            >
+              {(isArabic
+                ? [
+                  'ما الفرق بين الفحص والتشخيص؟',
+                  'هل يحتاج طفلي سماعات خاصة؟',
+                  'متى تظهر النتائج؟',
+                ]
+                : [
+                  'What is the difference between screening and diagnosis?',
+                  'Do we need special headphones?',
+                  'When do results appear?',
+                ]
+              ).map((question) => (
+                <li key={question}>{question}</li>
+              ))}
+            </ul>
+            <div>
+              <LabButtonAnchor href="/faq" variant="primary">
+                {isArabic ? 'عرض صفحة الأسئلة' : t('resources.faqPreviewCta', 'View the full FAQ')}
+              </LabButtonAnchor>
+            </div>
+          </LabCard>
         </FadeIn>
 
         <FadeIn delay={100} direction="none" scale scaleFrom={0.98}>

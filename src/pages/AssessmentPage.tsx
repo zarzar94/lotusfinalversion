@@ -135,7 +135,7 @@ const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
     >
       {[
         { icon: '📋', label: isArabic ? 'قائمة المراجعة' : 'Checklist', color: brandCyan },
-        { icon: '🧪', label: isArabic ? '5 اختبارات' : '5 Tests', color: brandPurple },
+        { icon: '🧪', label: isArabic ? '7 وحدات' : '7 Modules', color: brandPurple },
         { icon: '📊', label: isArabic ? 'تقارير PDF' : 'PDF Reports', color: colors.success },
       ].map((item, i) => (
         <div

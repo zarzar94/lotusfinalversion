@@ -133,8 +133,8 @@ const INITIAL_ACHIEVEMENTS: Achievement[] = [
     id: 'lab_explorer',
     title: 'Lab Explorer',
     titleAr: 'مستكشف المعمل',
-    description: 'Complete all 5 games',
-    descriptionAr: 'أكمل جميع الألعاب الخمس',
+    description: 'Complete all 7 modules',
+    descriptionAr: 'أكمل جميع الوحدات السبعة',
     icon: '🧪',
     points: 150,
     unlocked: false,
@@ -864,7 +864,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     if (state.gamesCompleted.length >= 1 && !isUnlocked('game_starter')) {
       unlockAchievement('game_starter');
     }
-    if (state.gamesCompleted.length >= 5 && !isUnlocked('lab_explorer')) {
+    if (state.gamesCompleted.length >= 7 && !isUnlocked('lab_explorer')) {
       unlockAchievement('lab_explorer');
     }
     if (state.audioJourneyProgress >= 50 && !isUnlocked('sound_traveler')) {
