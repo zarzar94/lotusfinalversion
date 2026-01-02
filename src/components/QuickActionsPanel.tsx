@@ -81,7 +81,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
         titleAr: 'جرب الفحص الجماعي',
         descriptionEn: 'Preview our classroom assessment tools',
         descriptionAr: 'معاينة أدوات التقييم الصفي',
-        linkTo: '/assessment',
+        linkTo: '/lab',
       },
       {
         id: 'results',
@@ -117,7 +117,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
         titleAr: 'إجراء قائمة الفحص',
         descriptionEn: 'Complete our auditory processing questionnaire',
         descriptionAr: 'أكمل استبيان المعالجة السمعية',
-        linkTo: '/assessment#checklist',
+        linkTo: '/lab#checklist',
       },
       {
         id: 'soundlab',
@@ -126,7 +126,7 @@ const QUICK_ACTIONS: Record<VisitorMode, ModeQuickActions> = {
         titleAr: 'جرب مختبر الصوت',
         descriptionEn: 'Interactive auditory exploration games',
         descriptionAr: 'ألعاب استكشاف سمعي تفاعلية',
-        linkTo: '/assessment#games',
+        linkTo: '/lab#modules',
       },
       {
         id: 'program',

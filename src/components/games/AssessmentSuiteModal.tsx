@@ -114,7 +114,7 @@ export default function AssessmentSuiteModal({
 
   const cta = useMemo(() => {
     if (composite.result === 'low') return { title: t('games.nextStep.low'), hash: '/contact#contact', color: brandPink };
-    if (composite.result === 'medium') return { title: t('games.nextStep.medium'), hash: '#games', color: brandPurpleDark };
+    if (composite.result === 'medium') return { title: t('games.nextStep.medium'), hash: '#modules', color: brandPurpleDark };
     return { title: t('games.nextStep.high'), hash: '/partners#schools', color: brandCyan };
   }, [composite.result, t]);
   const ctaStyle = useMemo(

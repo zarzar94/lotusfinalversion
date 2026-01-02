@@ -81,7 +81,7 @@ const TRUST_NOTIFICATIONS: TrustNotification[] = [
     icon: '🎯',
     message: { ar: 'شخص ما أكمل التقييم الذاتي', en: 'Someone completed the self-assessment' },
     detail: { ar: 'الآن', en: 'Just now' },
-    action: { path: '/assessment', label: { ar: 'جرب التقييم', en: 'Try Assessment' } },
+    action: { path: '/lab', label: { ar: 'جرب التقييم', en: 'Try Assessment' } },
   },
   {
     id: '8',

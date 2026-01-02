@@ -46,7 +46,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     id: 'assessment',
-    path: '/assessment',
+    path: '/lab',
     icon: '🎯',
     label: { ar: 'التقييم', en: 'Assessment' },
     description: { ar: 'تقييم ذاتي وألعاب تشخيصية', en: 'Self-assessment and diagnostic games' },
@@ -170,9 +170,9 @@ const SmartNavigationDrawer = memo(() => {
 
       // Priority order based on mode
       const modePriority: Record<string, string[]> = {
-        school: ['/assessment', '/results', '/program', '/science', '/resources'],
-        parent: ['/program', '/assessment', '/results', '/science', '/contact'],
-        clinician: ['/science', '/program', '/results', '/assessment', '/resources'],
+        school: ['/lab', '/results', '/program', '/science', '/resources'],
+        parent: ['/program', '/lab', '/results', '/science', '/contact'],
+        clinician: ['/science', '/program', '/results', '/lab', '/resources'],
       };
 
       const priority = modePriority[mode] || modePriority.parent;

@@ -50,7 +50,7 @@ type GameMode =
 
 const nextStepFrom = (r: GameResult, t: (key: string) => string) => {
   if (r === 'low') return { label: t('games.nextStep.low'), hash: '/contact#contact', tone: brandPink };
-  if (r === 'medium') return { label: t('games.nextStep.medium'), hash: '#games', tone: brandPurple };
+  if (r === 'medium') return { label: t('games.nextStep.medium'), hash: '#modules', tone: brandPurple };
   return { label: t('games.nextStep.high'), hash: '/partners#schools', tone: brandCyan };
 };
 
@@ -671,7 +671,11 @@ function TestCard({
   );
 }
 
-const GameSection = memo(function GameSection() {
+type GameSectionProps = {
+  suiteOpenToken?: number;
+};
+
+const GameSection = memo(function GameSection({ suiteOpenToken = 0 }: GameSectionProps) {
   const { mode: visitorMode, config: visitorConfig, isSchool, isParent, isClinician } = useVisitorMode();
   const { isArabic, t } = useLanguage();
 
@@ -690,6 +694,12 @@ const GameSection = memo(function GameSection() {
     setIsTestActive(false);
     setShowSummary(false);
   }, [mode]);
+
+  useEffect(() => {
+    if (!suiteOpenToken) return;
+    setBriefingMode(null);
+    setMode('suite');
+  }, [suiteOpenToken]);
 
   // Handle mode selection - show briefing first
   const handleModeSelect = useCallback((selectedMode: GameMode) => {
@@ -873,7 +883,7 @@ const GameSection = memo(function GameSection() {
   }, []);
 
   return (
-    <section id="games" style={styles.sectionCard}>
+    <section style={styles.sectionCard}>
       <style>{`
         @keyframes monitorEnter {
           from { opacity: 0; transform: translateY(40px) scale(0.9); }

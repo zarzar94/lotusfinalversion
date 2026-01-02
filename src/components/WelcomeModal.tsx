@@ -78,7 +78,7 @@ const WelcomeModal = memo(({ forceShow = false, onClose }: WelcomeModalProps) =>
         handleClose();
         // Navigate to recommended page based on path
         const routes: Record<VisitorMode, string> = {
-          school: '/assessment',
+          school: '/lab',
           parent: '/program',
           clinician: '/science',
         };

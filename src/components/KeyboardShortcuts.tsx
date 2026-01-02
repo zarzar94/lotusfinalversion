@@ -50,7 +50,7 @@ const KeyboardShortcuts = memo(() => {
     {
       key: 'a',
       modifiers: ['alt'],
-      action: () => navigate('/assessment'),
+      action: () => navigate('/lab'),
       label: { ar: 'التقييم', en: 'Go to Assessment' },
       category: 'navigation',
     },

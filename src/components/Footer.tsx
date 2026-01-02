@@ -47,7 +47,7 @@ type QuickLink = {
 
 const QUICK_LINKS: QuickLink[] = [
   { translationKey: 'nav.program', to: '/program', icon: <HeadphonesIcon size={16} /> },
-  { translationKey: 'nav.assessment', to: '/assessment', icon: <GamepadIcon size={16} /> },
+  { translationKey: 'nav.assessment', to: '/lab', icon: <GamepadIcon size={16} /> },
   { translationKey: 'nav.results', to: '/results', icon: <ChartIcon size={16} /> },
   { translationKey: 'nav.partners', to: '/partners', icon: <UsersIcon size={16} /> },
   { translationKey: 'nav.science', to: '/science', icon: <BrainIcon size={16} /> },

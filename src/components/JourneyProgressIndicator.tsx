@@ -39,7 +39,7 @@ const JOURNEY_STEPS: JourneyStep[] = [
   },
   {
     id: 'assessment',
-    path: '/assessment',
+    path: '/lab',
     icon: '🎯',
     label: { ar: 'التقييم', en: 'Assessment' },
     description: { ar: 'قيّم احتياجاتك', en: 'Evaluate your needs' },
@@ -74,6 +74,23 @@ const JOURNEY_STEPS: JourneyStep[] = [
   },
 ];
 
+const canonicalizePath = (path: string) => {
+  if (!path) return path;
+  const cutIndex = path.search(/[?#]/);
+  const basePath = cutIndex === -1 ? path : path.slice(0, cutIndex);
+  const trimmed = basePath.replace(/\/+$/, '');
+  const normalized = trimmed === '' ? '/' : trimmed;
+  return normalized === '/assessment' ? '/lab' : normalized;
+};
+
+const normalizeVisitedPages = (pages: unknown[]) => {
+  const normalized = pages
+    .filter((page): page is string => typeof page === 'string')
+    .map(canonicalizePath)
+    .filter(Boolean);
+  return Array.from(new Set(normalized));
+};
+
 const JourneyProgressIndicator = memo(() => {
   const { isArabic } = useLanguage();
   const { mode } = useVisitorMode();
@@ -86,16 +103,22 @@ const JourneyProgressIndicator = memo(() => {
   // Track visited pages in localStorage
   const [visitedPages, setVisitedPages] = useState<Set<string>>(() => {
     const saved = localStorage.getItem('lotus_visited_pages');
-    return saved ? new Set(JSON.parse(saved)) : new Set(['/']);
+    const parsed = saved ? JSON.parse(saved) : ['/'];
+    const normalized = normalizeVisitedPages(Array.isArray(parsed) ? parsed : ['/']);
+    if (saved && JSON.stringify(parsed) !== JSON.stringify(normalized)) {
+      localStorage.setItem('lotus_visited_pages', JSON.stringify(normalized));
+    }
+    return new Set(normalized);
   });
 
   // Update visited pages when location changes
   useEffect(() => {
     setVisitedPages((prev) => {
       const newSet = new Set(prev);
-      newSet.add(location.pathname);
-      localStorage.setItem('lotus_visited_pages', JSON.stringify([...newSet]));
-      return newSet;
+      newSet.add(canonicalizePath(location.pathname));
+      const normalized = normalizeVisitedPages([...newSet]);
+      localStorage.setItem('lotus_visited_pages', JSON.stringify(normalized));
+      return new Set(normalized);
     });
   }, [location.pathname]);
 
@@ -119,9 +142,9 @@ const JourneyProgressIndicator = memo(() => {
   const getNextStep = useCallback(() => {
     // Prioritize based on visitor mode
     const priorityOrder: Record<string, string[]> = {
-      school: ['/assessment', '/results', '/program', '/science', '/contact'],
-      parent: ['/program', '/assessment', '/results', '/science', '/contact'],
-      clinician: ['/science', '/program', '/results', '/assessment', '/contact'],
+      school: ['/lab', '/results', '/program', '/science', '/contact'],
+      parent: ['/program', '/lab', '/results', '/science', '/contact'],
+      clinician: ['/science', '/program', '/results', '/lab', '/contact'],
     };
 
     const priority = priorityOrder[mode] || priorityOrder.parent;
@@ -150,7 +173,7 @@ const JourneyProgressIndicator = memo(() => {
   }, []);
 
   // Don't show on certain pages
-  if (['/settings', '/school-dashboard', '/parent-dashboard', '/clinician-dashboard'].includes(location.pathname)) {
+  if (['/settings', '/dashboard/educator', '/dashboard/parent', '/dashboard/clinician'].includes(location.pathname)) {
     return null;
   }
 

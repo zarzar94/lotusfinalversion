@@ -505,7 +505,7 @@ const ScreeningDashboard = memo(function ScreeningDashboard({
           {t('auto.ScreeningDashboard.k3', "Complete screening tests to see your results here")}
         </p>
         <a
-          href="#games"
+          href="#modules"
           style={{
             display: 'inline-block',
             marginTop: spacing[4],

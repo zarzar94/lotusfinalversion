@@ -1,5 +1,5 @@
 import { lazy, Suspense, memo, useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import ErrorBoundary from './components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
@@ -47,9 +47,9 @@ const BrainFunctionPage = lazy(() => import('./pages/BrainFunctionPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // Dashboard Pages
-const SchoolDashboard = lazy(() => import('./components/analytics/SchoolDashboard'));
-const ParentDashboard = lazy(() => import('./components/analytics/ParentDashboard'));
-const ClinicianDashboard = lazy(() => import('./components/analytics/ClinicianDashboard'));
+const ParentDashboardPage = lazy(() => import('./pages/ParentDashboardPage'));
+const ClinicianDashboardPage = lazy(() => import('./pages/ClinicianDashboardPage'));
+const EducatorDashboardPage = lazy(() => import('./pages/EducatorDashboardPage'));
 const SettingsPage = lazy(() => import('./components/SettingsPage'));
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -458,6 +458,36 @@ const ClinicalSync = memo(() => {
 });
 ClinicalSync.displayName = 'ClinicalSync';
 
+const HashRedirect = memo(({ to }: { to: string }) => {
+  const { search, hash } = useLocation();
+  return <Navigate to={`${to}${search}${hash}`} replace />;
+});
+HashRedirect.displayName = 'HashRedirect';
+
+const AssessmentRedirect = memo(() => <HashRedirect to="/lab" />);
+AssessmentRedirect.displayName = 'AssessmentRedirect';
+
+const isDashboardRoute = (pathname: string) =>
+  pathname.startsWith('/dashboard') || pathname.endsWith('-dashboard');
+
+const RouteAwareOverlays = memo(() => {
+  const { pathname } = useLocation();
+  if (isDashboardRoute(pathname)) {
+    return (
+      <div style={{ position: 'fixed', bottom: -100, left: -100, opacity: 0, pointerEvents: 'none' }}>
+        <ProgressExportButton />
+      </div>
+    );
+  }
+  return (
+    <>
+      <GamificationUI />
+      <StickySmartCTA />
+    </>
+  );
+});
+RouteAwareOverlays.displayName = 'RouteAwareOverlays';
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 // MAIN APP
@@ -539,12 +569,16 @@ function App() {
 
                       {/* 2. Assessment Page - Diagnostic Tools */}
                       <Route
-                        path="/assessment"
+                        path="/lab"
                         element={
                           <Suspense fallback={<PageLoader />}>
                             <AssessmentPage />
                           </Suspense>
                         }
+                      />
+                      <Route
+                        path="/assessment"
+                        element={<AssessmentRedirect />}
                       />
 
                       {/* 3. Program Page - Treatment Protocol */}
@@ -659,43 +693,11 @@ function App() {
                           ═══════════════════════════════════════════════════════ */}
 
                       <Route
-                        path="/school-dashboard"
-                        element={
-                          <RoleGuard allowedRoles={['school_admin']}>
-                            <Suspense fallback={<PageLoader />}>
-                              <SchoolDashboard />
-                            </Suspense>
-                          </RoleGuard>
-                        }
-                      />
-                      <Route
-                        path="/parent-dashboard"
-                        element={
-                          <RoleGuard allowedRoles={['parent']}>
-                            <Suspense fallback={<PageLoader />}>
-                              <ParentDashboard />
-                            </Suspense>
-                          </RoleGuard>
-                        }
-                      />
-                      <Route
-                        path="/clinician-dashboard"
-                        element={
-                          <RoleGuard allowedRoles={['clinician']}>
-                            <Suspense fallback={<PageLoader />}>
-                              <ClinicianDashboard />
-                            </Suspense>
-                          </RoleGuard>
-                        }
-                      />
-
-                      {/* Legacy/role dashboard paths used by Header/ProfileMenu */}
-                      <Route
                         path="/dashboard/parent"
                         element={
                           <RoleGuard allowedRoles={['parent']}>
                             <Suspense fallback={<PageLoader />}>
-                              <ParentDashboard />
+                              <ParentDashboardPage />
                             </Suspense>
                           </RoleGuard>
                         }
@@ -705,7 +707,7 @@ function App() {
                         element={
                           <RoleGuard allowedRoles={['clinician']}>
                             <Suspense fallback={<PageLoader />}>
-                              <ClinicianDashboard />
+                              <ClinicianDashboardPage />
                             </Suspense>
                           </RoleGuard>
                         }
@@ -715,11 +717,16 @@ function App() {
                         element={
                           <RoleGuard allowedRoles={['school_admin']}>
                             <Suspense fallback={<PageLoader />}>
-                              <SchoolDashboard />
+                              <EducatorDashboardPage />
                             </Suspense>
                           </RoleGuard>
                         }
                       />
+
+                      {/* Legacy dashboard aliases */}
+                      <Route path="/parent-dashboard" element={<HashRedirect to="/dashboard/parent" />} />
+                      <Route path="/clinician-dashboard" element={<HashRedirect to="/dashboard/clinician" />} />
+                      <Route path="/school-dashboard" element={<HashRedirect to="/dashboard/educator" />} />
                       <Route
                         path="/settings"
                         element={
@@ -745,11 +752,7 @@ function App() {
                     </Routes>
                   </div>
 
-                  {/* Gamification UI (always visible) */}
-                  <GamificationUI />
-
-                  {/* Sticky Smart CTA (mode-aware) */}
-                  <StickySmartCTA />
+                  <RouteAwareOverlays />
                 </GamificationProvider>
               </SyncProvider>
             </UserProvider>

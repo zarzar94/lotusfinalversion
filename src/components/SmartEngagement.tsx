@@ -47,6 +47,23 @@ const ENGAGEMENT_CELEBRATION_MILESTONES = [
     { id: 'master', threshold: 7, icon: '🏆', message: { ar: 'خبير المنصة!', en: 'Platform master!' } },
   ];
 
+const canonicalizePath = (path: string) => {
+  if (!path) return path;
+  const cutIndex = path.search(/[?#]/);
+  const basePath = cutIndex === -1 ? path : path.slice(0, cutIndex);
+  const trimmed = basePath.replace(/\/+$/, '');
+  const normalized = trimmed === '' ? '/' : trimmed;
+  return normalized === '/assessment' ? '/lab' : normalized;
+};
+
+const normalizeVisitedPages = (pages: unknown[]) => {
+  const normalized = pages
+    .filter((page): page is string => typeof page === 'string')
+    .map(canonicalizePath)
+    .filter(Boolean);
+  return Array.from(new Set(normalized));
+};
+
 /**
  * ScrollBasedCTA - Shows contextual CTAs based on scroll position
  */
@@ -94,7 +111,7 @@ export const ScrollBasedCTA = memo(() => {
         );
         break;
 
-      case '/assessment':
+      case '/lab':
         baseMilestones.push(
           {
             id: 'assessment-50',
@@ -372,7 +389,12 @@ export const EngagementCelebration = memo(() => {
   // Check for new milestones
   useEffect(() => {
     const visitedPages = localStorage.getItem('lotus_visited_pages');
-    const pageCount = visitedPages ? JSON.parse(visitedPages).length : 0;
+    const parsed = visitedPages ? JSON.parse(visitedPages) : [];
+    const normalized = normalizeVisitedPages(Array.isArray(parsed) ? parsed : []);
+    if (visitedPages && JSON.stringify(parsed) !== JSON.stringify(normalized)) {
+      localStorage.setItem('lotus_visited_pages', JSON.stringify(normalized));
+    }
+    const pageCount = visitedPages ? normalized.length : 0;
 
     for (const milestone of ENGAGEMENT_CELEBRATION_MILESTONES) {
       if (pageCount >= milestone.threshold && !celebratedMilestones.has(milestone.id)) {

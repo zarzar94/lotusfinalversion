@@ -477,7 +477,7 @@ const VISITOR_RECOMMENDATIONS = {
       messageAr: 'auto.Checklist.k2',
       actionEn: 'Continue to Sound Lab',
       actionAr: 'auto.Checklist.k3',
-      actionPath: '#games',
+      actionPath: '#modules',
     },
     medium: {
       titleEn: 'Monitor Recommended',
@@ -506,7 +506,7 @@ const VISITOR_RECOMMENDATIONS = {
       messageAr: 'auto.Checklist.k11',
       actionEn: 'Try Screening Games',
       actionAr: 'auto.Checklist.k12',
-      actionPath: '#games',
+      actionPath: '#modules',
     },
     medium: {
       titleEn: 'Further Screening Suggested',
@@ -515,7 +515,7 @@ const VISITOR_RECOMMENDATIONS = {
       messageAr: 'auto.Checklist.k14',
       actionEn: 'Start Full Assessment',
       actionAr: 'auto.Checklist.k15',
-      actionPath: '#games',
+      actionPath: '#modules',
     },
     high: {
       titleEn: 'Book Professional Screening',
@@ -535,7 +535,7 @@ const VISITOR_RECOMMENDATIONS = {
       messageAr: 'auto.Checklist.k20',
       actionEn: 'Proceed to Objective Tests',
       actionAr: 'auto.Checklist.k21',
-      actionPath: '#games',
+      actionPath: '#modules',
     },
     medium: {
       titleEn: 'Borderline - Further Evaluation',
@@ -544,7 +544,7 @@ const VISITOR_RECOMMENDATIONS = {
       messageAr: 'auto.Checklist.k23',
       actionEn: 'View Clinical Protocol',
       actionAr: 'auto.Checklist.k24',
-      actionPath: '/clinician-dashboard',
+      actionPath: '/dashboard/clinician',
     },
     high: {
       titleEn: 'Significant Indicators - Comprehensive Eval',
@@ -553,7 +553,7 @@ const VISITOR_RECOMMENDATIONS = {
       messageAr: 'auto.Checklist.k26',
       actionEn: 'Access Clinical Tools',
       actionAr: 'auto.Checklist.k27',
-      actionPath: '/clinician-dashboard',
+      actionPath: '/dashboard/clinician',
     },
   },
 };
@@ -1158,7 +1158,7 @@ const Checklist = () => {
           </>
         )}
         <LabButtonAnchor
-          href="#games"
+          href="#modules"
           variant="primary"
           style={{
             background: `linear-gradient(135deg, ${brandPurple}, ${brandPink})`,
@@ -1266,7 +1266,7 @@ const Checklist = () => {
           {/* Legacy Action links (fallback) */}
           <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             {recommendation.level === 'medium' && !VISITOR_RECOMMENDATIONS[visitorMode] && (
-              <a href="#games" style={{
+              <a href="#modules" style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,

@@ -192,7 +192,7 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
       descriptionAr: 'auto.PageNavigationCards.k6',
       icon: '🎯',
       color: brandCyan,
-      path: '/assessment',
+      path: '/lab',
     },
     {
       id: 'program',

@@ -3,7 +3,8 @@
  * Checklist and Interactive Games
  */
 
-import { lazy, Suspense, memo } from 'react';
+import { lazy, Suspense, memo, useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import BackgroundFX from '../components/BackgroundFX';
 import Footer from '../components/Footer';
@@ -15,6 +16,7 @@ import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
+import LabButton from '../components/labui/LabButton';
 import { renderLabIcon, MicroscopeIcon } from '../components/icons/index';
 import {
   brandCyan,
@@ -28,6 +30,7 @@ import {
 // Lazy load sections
 const Checklist = lazy(() => import('../components/Checklist'));
 const GameSection = lazy(() => import('../components/GameSection'));
+const VirtualAssessmentFlow = lazy(() => import('../components/assessment/VirtualAssessmentFlow'));
 
 // Page header component with lab-tech aesthetic
 const PageHeader = memo(({ isArabic }: { isArabic: boolean }) => (
@@ -169,7 +172,17 @@ PageHeader.displayName = 'PageHeader';
 
 function AssessmentPage() {
   const { isArabic, t } = useLanguage();
+  const navigate = useNavigate();
+  const [suiteOpenToken, setSuiteOpenToken] = useState(0);
   usePageTitle();
+
+  const handleOpenSuite = useCallback(() => {
+    setSuiteOpenToken((prev) => prev + 1);
+  }, []);
+
+  const handleBrowseModules = useCallback(() => {
+    navigate('/lab#modules');
+  }, [navigate]);
 
   return (
     <LabShell variant="primary">
@@ -184,6 +197,92 @@ function AssessmentPage() {
 
         <PageHeader isArabic={isArabic} />
 
+        <section
+          id="flow"
+          style={{
+            marginBottom: spacing[6],
+            direction: isArabic ? 'rtl' : 'ltr',
+            textAlign: isArabic ? 'right' : 'left',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: spacing[4],
+              flexWrap: 'wrap',
+              marginBottom: spacing[4],
+            }}
+          >
+            <div style={{ maxWidth: 720 }}>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: spacing[2],
+                  padding: `${spacing[1.5]}px ${spacing[3]}px`,
+                  borderRadius: radius.full,
+                  background: `${brandCyan}12`,
+                  border: `1px solid ${brandCyan}33`,
+                  marginBottom: spacing[3],
+                }}
+              >
+                <span style={{ fontSize: 16 }}>
+                  {renderLabIcon('dY"<', { size: 16, style: { color: brandCyan } })}
+                </span>
+                <span
+                  style={{
+                    fontSize: typography.size.xs,
+                    fontWeight: typography.weight.bold,
+                    color: brandCyan,
+                  }}
+                >
+                  {isArabic ? 'مسار إرشادي سريع' : t('lab.flowBadge', 'Guided Flow')}
+                </span>
+              </div>
+
+              <h2
+                style={{
+                  fontSize: typography.size['2xl'],
+                  fontWeight: typography.weight.black,
+                  color: colors.text.primary,
+                  margin: 0,
+                }}
+              >
+                {isArabic
+                  ? 'مسار التقييم الافتراضي الموجّه'
+                  : t('lab.flowTitle', 'Guided Virtual Assessment Flow')}
+              </h2>
+              <p
+                style={{
+                  fontSize: typography.size.base,
+                  color: colors.text.secondary,
+                  lineHeight: typography.lineHeight.relaxed,
+                  margin: `${spacing[2]}px 0 0`,
+                }}
+              >
+                {isArabic
+                  ? 'ابدأ بخطوات واضحة تجهز البيئة وتجمع الأساسيات قبل الدخول للوحدات التشخيصية.'
+                  : t('lab.flowDesc', 'Start with a clear guided flow before jumping into diagnostic modules.')}
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: spacing[2], flexWrap: 'wrap' }}>
+              <LabButton variant="primary" onClick={handleOpenSuite}>
+                {isArabic ? 'ابدأ التقييم الكامل' : 'Start Full Assessment'}
+              </LabButton>
+              <LabButton variant="ghost" onClick={handleBrowseModules}>
+                {isArabic ? 'استعرض الوحدات' : 'Browse Modules'}
+              </LabButton>
+            </div>
+          </div>
+
+          <Suspense fallback={<SectionLoader label={t('common.loading')} height={420} />}>
+            <VirtualAssessmentFlow />
+          </Suspense>
+        </section>
+
         {/* Checklist Section */}
         <FadeIn delay={100} blur blurAmount={6} scale>
           <Suspense fallback={<SectionLoader label={t('common.loadingChecklist')} height={400} />}>
@@ -192,10 +291,14 @@ function AssessmentPage() {
         </FadeIn>
 
         {/* Games Section */}
+        <div id="modules" data-anchor aria-hidden="true" />
+        <div id="games" data-anchor aria-hidden="true" />
         <FadeIn delay={200} direction="left" distance={40} scale scaleFrom={0.95}>
-          <Suspense fallback={<SectionLoader label={t('common.loadingGames')} height={350} />}>
-            <GameSection />
-          </Suspense>
+          <section>
+            <Suspense fallback={<SectionLoader label={t('common.loadingGames')} height={350} />}>
+              <GameSection suiteOpenToken={suiteOpenToken} />
+            </Suspense>
+          </section>
         </FadeIn>
 
         <FadeIn delay={100} direction="none" scale scaleFrom={0.98}>

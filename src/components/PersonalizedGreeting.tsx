@@ -41,6 +41,33 @@ const ICON_TARGET = '\u{1F3AF}';
 const ICON_CLIPBOARD = '\u{1F4CB}';
 const ICON_CHECK = '\u2713';
 
+const canonicalizePath = (path: string) => {
+  if (!path) return path;
+  const cutIndex = path.search(/[?#]/);
+  const basePath = cutIndex === -1 ? path : path.slice(0, cutIndex);
+  const trimmed = basePath.replace(/\/+$/, '');
+  const normalized = trimmed === '' ? '/' : trimmed;
+  return normalized === '/assessment' ? '/lab' : normalized;
+};
+
+const normalizeVisitedPages = (pages: unknown[]) => {
+  const normalized = pages
+    .filter((page): page is string => typeof page === 'string')
+    .map(canonicalizePath)
+    .filter(Boolean);
+  return Array.from(new Set(normalized));
+};
+
+const readVisitedPages = () => {
+  const raw = localStorage.getItem(VISITED_PAGES_KEY);
+  const parsed = raw ? JSON.parse(raw) : [];
+  const normalized = normalizeVisitedPages(Array.isArray(parsed) ? parsed : []);
+  if (raw && JSON.stringify(parsed) !== JSON.stringify(normalized)) {
+    localStorage.setItem(VISITED_PAGES_KEY, JSON.stringify(normalized));
+  }
+  return { pages: normalized, hasStored: Boolean(raw) };
+};
+
 // Streak data interface
 interface StreakData {
   currentStreak: number;
@@ -314,12 +341,12 @@ const PersonalizedGreeting = memo(({
 
   // Personalized recommendations based on behavior
   const recommendations = useMemo(() => {
-    const visited = JSON.parse(localStorage.getItem(VISITED_PAGES_KEY) || '[]');
+    const { pages: visited } = readVisitedPages();
     const recs: Array<{ path: string; label: { ar: string; en: string }; icon: string }> = [];
 
-    if (!visited.includes('/assessment')) {
+    if (!visited.includes('/lab')) {
       recs.push({
-        path: '/assessment',
+        path: '/lab',
         label: { ar: 'جرب التقييم الذاتي', en: 'Try Self-Assessment' },
         icon: ICON_TARGET,
       });
@@ -868,8 +895,8 @@ export const QuickStats = memo(({
     localStorage.setItem(VISIT_STATS_KEY, JSON.stringify(newStats));
 
     // Get pages explored
-    const visitedPages = localStorage.getItem(VISITED_PAGES_KEY);
-    const pagesCount = visitedPages ? JSON.parse(visitedPages).length : 1;
+    const { pages: visitedPages, hasStored } = readVisitedPages();
+    const pagesCount = hasStored ? visitedPages.length : 1;
 
     // Get streak
     const streakRaw = localStorage.getItem(STREAK_KEY);
@@ -1116,7 +1143,7 @@ export const ReturningUserBanner = memo(() => {
       <button
         onClick={() => {
           setIsVisible(false);
-          navigate('/assessment');
+          navigate('/lab');
         }}
         style={{
           width: '100%',

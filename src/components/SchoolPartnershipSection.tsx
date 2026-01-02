@@ -423,7 +423,7 @@ const SchoolPartnershipSection = () => {
               {t('schools.demoInstructions')}
             </p>
             <LabButtonAnchor
-              href="/assessment#games"
+              href="/lab#modules"
               variant="primary"
               style={{ marginTop: 10, display: 'inline-flex' }}
             >

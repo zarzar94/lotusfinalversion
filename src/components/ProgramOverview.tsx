@@ -51,7 +51,7 @@ const ProgramOverview = () => {
             {t('programOverview.whySchoolsDescription')}
           </p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
-            <LabButtonAnchor href="/assessment#games" variant="primary">
+            <LabButtonAnchor href="/lab#modules" variant="primary">
               {t('programOverview.startInteractive')}
             </LabButtonAnchor>
             <LabButtonAnchor href="/partners#schools" variant="ghost">
@@ -70,7 +70,7 @@ const ProgramOverview = () => {
           {t('programOverview.viewResults')}
         </LabButtonAnchor>
         <LabButtonAnchor
-          href="/assessment#checklist"
+          href="/lab#checklist"
           variant="ghost"
           style={{ borderColor: 'rgba(143,211,204,0.25)' }}
         >

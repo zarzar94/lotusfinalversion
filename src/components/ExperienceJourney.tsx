@@ -54,7 +54,7 @@ const steps: JourneyStep[] = [
     titleAr: 'التقييم العصبي',
     description: 'Run the immersive self-assessment to map focus, sound, and balance.',
     descriptionAr: 'أجرِ التقييم التفاعلي لرسم خريطة التركيز والصوت والتوازن.',
-    path: '/assessment',
+    path: '/lab',
     accent: brandPurple,
     tags: [
       { en: 'Interactive games', ar: 'ألعاب تفاعلية' },

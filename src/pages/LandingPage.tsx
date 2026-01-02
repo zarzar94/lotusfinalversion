@@ -213,7 +213,7 @@ const PageNavigationCards = memo(({ isArabic }: { isArabic: boolean }) => {
       descriptionAr: 'أدوات التشخيص التفاعلية والألعاب',
       icon: '🎯',
       color: brandCyan,
-      path: '/assessment',
+      path: '/lab',
     },
     {
       id: 'program',

@@ -21,7 +21,7 @@ interface VisitorModeConfig {
   ctaLabelAr: string;
   ctaPath: string;
   color: string;
-  priority: string[]; // Section order priority
+  priority: string[]; // Navigation order priority (nav item ids)
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -40,7 +40,7 @@ export const VISITOR_MODES: Record<VisitorMode, VisitorModeConfig> = {
     ctaLabelAr: 'اطلب تجربة مدرسية',
     ctaPath: '/contact?mode=school',
     color: colors.warning,
-    priority: ['hero', 'school-partnership', 'games', 'results', 'program', 'checklist', 'contact'],
+    priority: ['home', 'lab', 'results', 'partners', 'program', 'resources', 'science', 'about', 'contact'],
   },
   parent: {
     id: 'parent',
@@ -53,7 +53,7 @@ export const VISITOR_MODES: Record<VisitorMode, VisitorModeConfig> = {
     ctaLabelAr: 'احجز تقييم',
     ctaPath: '/contact?mode=parent',
     color: brandPurple,
-    priority: ['hero', 'checklist', 'games', 'results', 'program', 'testimonials', 'contact'],
+    priority: ['home', 'program', 'lab', 'results', 'resources', 'science', 'partners', 'about', 'contact'],
   },
   clinician: {
     id: 'clinician',
@@ -66,7 +66,7 @@ export const VISITOR_MODES: Record<VisitorMode, VisitorModeConfig> = {
     ctaLabelAr: 'تواصل كأخصائي',
     ctaPath: '/contact?mode=clinician',
     color: brandPink,
-    priority: ['hero', 'program', 'science', 'results', 'games', 'credentials', 'contact'],
+    priority: ['home', 'science', 'lab', 'program', 'results', 'resources', 'partners', 'about', 'contact'],
   },
 };
 

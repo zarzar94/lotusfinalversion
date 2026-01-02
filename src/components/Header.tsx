@@ -36,9 +36,9 @@ const NAV_ITEMS: NavItem[] = [
     priority: { school: 0, parent: 0, clinician: 0 },
   },
   {
-    id: 'assessment',
+    id: 'lab',
     translationKey: 'nav.assessment',
-    path: '/assessment',
+    path: '/lab',
     icon: <BrainIcon size={16} />,
     color: brandCyan,
     priority: { school: 1, parent: 2, clinician: 2 }, // Schools: assessment first

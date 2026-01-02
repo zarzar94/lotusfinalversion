@@ -64,7 +64,7 @@ const SECTIONS: SectionItem[] = [
   },
   {
     id: 'games',
-    href: '/#games',
+    href: '/#modules',
     labelEn: 'Games',
     labelAr: 'auto.SectionNav.k5',
     icon: GamepadIcon,

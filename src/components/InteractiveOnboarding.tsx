@@ -103,7 +103,7 @@ const TOUR_STEPS: TourStep[] = [
     },
     icon: '🎯',
     position: 'center',
-    action: { type: 'navigate', value: '/assessment' },
+    action: { type: 'navigate', value: '/lab' },
   },
   {
     id: 'program',

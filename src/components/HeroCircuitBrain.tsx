@@ -886,7 +886,7 @@ const HeroCircuitBrain = memo(function HeroCircuitBrain() {
               <span style={{ transform: isArabic ? 'rotate(180deg)' : 'none' }}>→</span>
             </button>
             <button
-              onClick={() => navigate('/assessment')}
+              onClick={() => navigate('/lab')}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',

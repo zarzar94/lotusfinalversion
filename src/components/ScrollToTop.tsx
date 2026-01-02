@@ -15,16 +15,13 @@ interface ScrollToTopProps {
 // Route name mapping for better logging
 const ROUTE_NAMES: Record<string, string> = {
   '/': 'Landing Page',
-  '/assessment': 'Assessment Page',
+  '/lab': 'Assessment Page',
   '/program': 'Program Page',
   '/science': 'Science Page',
   '/results': 'Results Page',
   '/resources': 'Resources Page',
   '/contact': 'Contact Page',
   '/partners': 'Partners Page',
-  '/school-dashboard': 'School Dashboard',
-  '/parent-dashboard': 'Parent Dashboard',
-  '/clinician-dashboard': 'Clinician Dashboard',
   '/dashboard/parent': 'Parent Dashboard (Role)',
   '/dashboard/educator': 'Educator Dashboard',
   '/dashboard/clinician': 'Clinician Dashboard (Role)',
@@ -73,7 +70,79 @@ export default function ScrollToTop({
     prevPathRef.current = pathname;
     navigationStartTime.current = Date.now();
 
-    // Scroll to top
+    const prefersReducedMotion = typeof window !== 'undefined'
+      && (document.documentElement.dataset.reducedMotion === 'true'
+        || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+    const resolvedBehavior: ScrollBehavior = prefersReducedMotion
+      ? 'auto'
+      : behavior === 'auto'
+        ? 'smooth'
+        : behavior;
+
+    if (hash) {
+      // Hash-aware scroll: anchors can mount late with lazy sections, so wait for layout stability.
+      let cancelled = false;
+      let rafId: number | null = null;
+      let stableFrames = 0;
+      let targetId = '';
+      let fallbackTried = false;
+      const maxDurationMs = 4500;
+      const startTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
+
+      try {
+        targetId = decodeURIComponent(hash.slice(1));
+      } catch {
+        targetId = hash.slice(1);
+      }
+
+      const isInViewport = (el: HTMLElement) => {
+        const rect = el.getBoundingClientRect();
+        return rect.bottom > 0 && rect.top < window.innerHeight;
+      };
+
+      const tick = () => {
+        if (cancelled) return;
+
+        const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+        const elapsed = now - startTime;
+        const target = targetId ? document.getElementById(targetId) : null;
+
+        if (target) {
+          if (isInViewport(target)) {
+            stableFrames += 1;
+            if (stableFrames >= 2) return;
+          } else {
+            stableFrames = 0;
+            target.scrollIntoView({ behavior: 'auto', block: 'start' });
+          }
+        } else {
+          stableFrames = 0;
+        }
+
+        if (elapsed >= maxDurationMs) {
+          if (!fallbackTried && targetId === 'modules') {
+            fallbackTried = true;
+            const fallback = document.getElementById('games');
+            if (fallback) {
+              fallback.scrollIntoView({ behavior: 'auto', block: 'start' });
+            }
+          }
+          return;
+        }
+
+        rafId = window.requestAnimationFrame(tick);
+      };
+
+      rafId = window.requestAnimationFrame(tick);
+      return () => {
+        cancelled = true;
+        if (rafId !== null) {
+          window.cancelAnimationFrame(rafId);
+        }
+      };
+    }
+
+    // Scroll to top for non-hash routes
     window.scrollTo({
       top: 0,
       left: 0,

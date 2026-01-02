@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { styles, brandCyan, brandPink } from '../styles';
 import LabButton from '../labui/LabButton';
+import { useLanguage } from '../../context/LanguageContext';
+import { useVisitorMode } from '../../context/VisitorModeContext';
 
 type StageId =
   | 'welcome'
@@ -64,11 +66,78 @@ const translations = {
   },
 };
 
-const VirtualAssessmentFlow = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {
-  const localizedStages = stageContent[locale];
+const flowCopy = {
+  school: {
+    intro: {
+      ar: 'ابدأ بفرز صفّي سريع يعرض المؤشرات السمعية الأساسية مع تقارير تجريبية قابلة للتحميل.',
+      en: 'School-first flow with fast classroom screening and downloadable demo reports.',
+    },
+    bullets: {
+      ar: [
+        'فرز صفّي سريع مع مؤشرات سمعية واضحة',
+        'تقارير تجريبية قابلة للتحميل ومشاركة آمنة',
+        'توصيات عملية لبرنامج المدرسة والمتابعة',
+      ],
+      en: [
+        'Fast classroom screening with clear auditory indicators',
+        'Downloadable demo reports for safe sharing',
+        'Actionable next steps for school programs',
+      ],
+    },
+  },
+  parent: {
+    intro: {
+      ar: 'ابدأ بملاحظات المنزل ثم انتقل لاختبارات التركيز والانتباه لفهم احتياجات طفلك.',
+      en: 'Start with home observations, then move into focus and attention checks.',
+    },
+    bullets: {
+      ar: [
+        'مؤشرات تركيز وانتباه مبسطة للأطفال',
+        'أسئلة موجهة لتوثيق ملاحظات المنزل',
+        'نتائج أولية تساعد على اختيار الخطوة التالية',
+      ],
+      en: [
+        'Child-friendly focus and attention signals',
+        'Guided questions to capture home observations',
+        'Starter results that clarify the next step',
+      ],
+    },
+  },
+  clinician: {
+    intro: {
+      ar: 'سير عمل سريري يبرز مقاييس الوحدات ومؤشرات الجودة وتقارير قابلة للتوقيع.',
+      en: 'Clinical workflow highlighting module metrics, quality flags, and signed reports.',
+    },
+    bullets: {
+      ar: [
+        'مقاييس وحدات تفصيلية قابلة للمقارنة',
+        'مؤشرات جودة وتنبيه مبكر لتحسين التفسير',
+        'تقارير قابلة للتوقيع والمتابعة الطولية',
+      ],
+      en: [
+        'Comparable module metrics across sessions',
+        'Quality flags for cleaner interpretation',
+        'Signature-ready reports with longitudinal tracking',
+      ],
+    },
+  },
+};
+
+const VirtualAssessmentFlow = ({ locale }: { locale?: 'ar' | 'en' }) => {
+  const { isArabic, t } = useLanguage();
+  const { mode } = useVisitorMode();
+  const activeLocale = locale ?? (isArabic ? 'ar' : 'en');
+  const localizedStages = stageContent[activeLocale];
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<StageId, string>>({} as Record<StageId, string>);
-  const t = translations[locale];
+  const labels = translations[activeLocale];
+  const copy = flowCopy[mode] ?? flowCopy.school;
+  const intro = isArabic ? copy.intro.ar : t(`lab.flowIntro.${mode}`, copy.intro.en);
+  const bullets = isArabic
+    ? copy.bullets.ar
+    : copy.bullets.en.map((text, index) => t(`lab.flowBullets.${mode}.${index}`, text));
+  const benefitsLabel = isArabic ? 'ماذا تحصل عليه' : t('lab.flowBenefits', 'What you get');
+  const inputPlaceholder = isArabic ? '???? ????????? / ???????' : t('lab.flowInputPlaceholder', 'Add notes or observations');
 
   const activeStage = localizedStages[current];
   const percent = useMemo(() => Math.round(((current + 1) / localizedStages.length) * 100), [current, localizedStages.length]);
@@ -77,13 +146,42 @@ const VirtualAssessmentFlow = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {
   const updateAnswer = (value: string) => setAnswers({ ...answers, [activeStage.id]: value });
 
   return (
-    <section style={{ ...styles.sectionCard, display: 'grid', gap: 16 }}>
+    <section
+      style={{
+        ...styles.sectionCard,
+        display: 'grid',
+        gap: 16,
+        direction: isArabic ? 'rtl' : 'ltr',
+        textAlign: isArabic ? 'right' : 'left',
+      }}
+    >
       <div style={styles.sectionHeader}>
         <div style={styles.sectionHeaderRow}>
-          <h2 style={styles.h2}>{t.title}</h2>
+          <h2 style={styles.h2}>{labels.title}</h2>
           <span style={{ ...styles.chip, background: 'rgba(143,211,204,0.14)' }}>{percent}%</span>
         </div>
-        <p style={styles.bodyText}>{t.subtitle}</p>
+        <p style={styles.bodyText}>{intro}</p>
+        <div style={{ display: 'grid', gap: 6 }}>
+          <div style={{ ...styles.kicker, opacity: 0.8 }}>{benefitsLabel}</div>
+          <ul
+            style={{
+              margin: 0,
+              paddingInlineStart: isArabic ? 0 : 18,
+              paddingInlineEnd: isArabic ? 18 : 0,
+              listStylePosition: 'inside',
+              color: 'rgba(255,255,255,0.78)',
+              fontSize: 13,
+              lineHeight: 1.6,
+              display: 'grid',
+              gap: 6,
+            }}
+          >
+            {bullets.map((bullet) => (
+              <li key={bullet}>{bullet}</li>
+            ))}
+          </ul>
+        </div>
+        <p style={{ ...styles.muted, marginTop: 4 }}>{labels.subtitle}</p>
         <div style={{ height: 8, background: 'rgba(255,255,255,0.08)', borderRadius: 999, position: 'relative' }}>
           <div
             style={{
@@ -113,7 +211,7 @@ const VirtualAssessmentFlow = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {
             <textarea
               value={answers[activeStage.id] ?? ''}
               onChange={(e) => updateAnswer(e.target.value)}
-              placeholder="أدخل الملاحظات / النتائج"
+              placeholder={inputPlaceholder}
               style={{
                 width: '100%',
                 minHeight: 90,
@@ -154,7 +252,7 @@ const VirtualAssessmentFlow = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {
             disabled={current === 0}
             style={{ padding: '10px 16px' }}
           >
-            {t.back}
+            {labels.back}
           </LabButton>
           <div style={{ display: 'flex', gap: 8 }}>
             <LabButton
@@ -163,9 +261,9 @@ const VirtualAssessmentFlow = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {
               disabled={!canContinue || current === localizedStages.length - 1}
               style={{ padding: '10px 16px' }}
             >
-              {current === localizedStages.length - 2 ? t.submit : t.next}
+                {current === localizedStages.length - 2 ? labels.submit : labels.next}
             </LabButton>
-          {current === localizedStages.length - 1 && <span style={styles.chip}>{t.complete}</span>}
+          {current === localizedStages.length - 1 && <span style={styles.chip}>{labels.complete}</span>}
           </div>
         </div>
     </section>

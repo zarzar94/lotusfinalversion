@@ -268,7 +268,7 @@ function NotFoundPage() {
                 }}
               >
                 {[
-                  { path: '/assessment', label: isArabic ? 'التقييم' : 'Assessment', icon: '🎯', color: brandCyan },
+                  { path: '/lab', label: isArabic ? 'التقييم' : 'Assessment', icon: '🎯', color: brandCyan },
                   { path: '/program', label: isArabic ? 'البرنامج' : 'Program', icon: '📋', color: brandPurple },
                   { path: '/science', label: isArabic ? 'العلوم' : 'Science', icon: '🧠', color: brandPink },
                   { path: '/results', label: isArabic ? 'النتائج' : 'Results', icon: '📊', color: colors.success },

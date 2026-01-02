@@ -107,6 +107,16 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Offset anchor jumps to account for the fixed header. */
+section[id] {
+  scroll-margin-top: 96px;
+}
+
+/* Apply the same sticky-header offset to alias anchors. */
+[data-anchor] {
+  scroll-margin-top: 96px;
+}
+
 /* Focus ring for accessibility - improved contrast */
 :focus-visible {
   outline: 2px solid var(--color-accent);

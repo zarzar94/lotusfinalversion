@@ -11,7 +11,7 @@ import { useLanguage } from '../context/LanguageContext';
 const PAGE_TITLE_KEYS: Record<string, string> = {
   '/': 'pageTitles.home',
   '/home': 'pageTitles.home',
-  '/assessment': 'pageTitles.assessment',
+  '/lab': 'pageTitles.assessment',
   '/program': 'pageTitles.program',
   '/science': 'pageTitles.science',
   '/results': 'pageTitles.results',
@@ -20,9 +20,6 @@ const PAGE_TITLE_KEYS: Record<string, string> = {
   '/contact': 'pageTitles.contact',
   '/about': 'pageTitles.about',
   '/partners': 'pageTitles.partners',
-  '/school-dashboard': 'pageTitles.schoolDashboard',
-  '/parent-dashboard': 'pageTitles.parentDashboard',
-  '/clinician-dashboard': 'pageTitles.clinicianDashboard',
   '/dashboard/parent': 'pageTitles.parentRoleDashboard',
   '/dashboard/educator': 'pageTitles.educatorDashboard',
   '/dashboard/clinician': 'pageTitles.clinicianRoleDashboard',

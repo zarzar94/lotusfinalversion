@@ -25,15 +25,15 @@ interface BreadcrumbItem {
 // Route to breadcrumb mapping
 const ROUTE_BREADCRUMBS: Record<string, BreadcrumbItem> = {
   '/': { label: 'Home', labelAr: 'الرئيسية', path: '/', icon: '🏠' },
-  '/assessment': { label: 'Assessment', labelAr: 'التقييم', path: '/assessment', icon: '🎯' },
+  '/lab': { label: 'Assessment', labelAr: 'التقييم', path: '/lab', icon: '🎯' },
   '/program': { label: 'Program', labelAr: 'البرنامج', path: '/program', icon: '📋' },
   '/science': { label: 'Science', labelAr: 'العلوم', path: '/science', icon: '🧠' },
   '/results': { label: 'Results', labelAr: 'النتائج', path: '/results', icon: '📊' },
   '/resources': { label: 'Resources', labelAr: 'الموارد', path: '/resources', icon: '📚' },
   '/contact': { label: 'Contact', labelAr: 'تواصل', path: '/contact', icon: '✉️' },
-  '/school-dashboard': { label: 'School Dashboard', labelAr: 'لوحة المدرسة', path: '/school-dashboard', icon: '🏫' },
-  '/parent-dashboard': { label: 'Parent Dashboard', labelAr: 'لوحة الأولياء', path: '/parent-dashboard', icon: '👨‍👩‍👧' },
-  '/clinician-dashboard': { label: 'Clinician Dashboard', labelAr: 'لوحة الأخصائي', path: '/clinician-dashboard', icon: '🏥' },
+  '/dashboard/educator': { label: 'School Dashboard', labelAr: 'لوحة المدرسة', path: '/dashboard/educator', icon: '🏫' },
+  '/dashboard/parent': { label: 'Parent Dashboard', labelAr: 'لوحة الأولياء', path: '/dashboard/parent', icon: '👨‍👩‍👧' },
+  '/dashboard/clinician': { label: 'Clinician Dashboard', labelAr: 'لوحة الأخصائي', path: '/dashboard/clinician', icon: '🏥' },
   '/settings': { label: 'Settings', labelAr: 'الإعدادات', path: '/settings', icon: '⚙️' },
 };
 
