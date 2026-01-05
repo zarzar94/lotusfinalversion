@@ -160,10 +160,14 @@ export function CheckCircleIcon(props: IconProps) {
   );
 }
 
-export function StarIcon(props: IconProps) {
+export function StarIcon(props: IconProps & { filled?: boolean }) {
+  const { filled = false, ...rest } = props;
   return (
-    <Icon {...props}>
-      <polygon points="12 2 15.1 8.3 22 9.3 17 14.1 18.2 21 12 17.8 5.8 21 7 14.1 2 9.3 8.9 8.3 12 2" />
+    <Icon {...rest}>
+      <polygon
+        points="12 2 15.1 8.3 22 9.3 17 14.1 18.2 21 12 17.8 5.8 21 7 14.1 2 9.3 8.9 8.3 12 2"
+        fill={filled ? 'currentColor' : 'none'}
+      />
     </Icon>
   );
 }

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, radius, shadows, spacing, transitions } from './styles';
-import { XIcon } from './Icons';
+import { XIcon } from './icons';
 import TestimonialsSection from './TestimonialsSection';
 
 export default function TestimonialsModal({

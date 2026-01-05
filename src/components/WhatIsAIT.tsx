@@ -11,7 +11,7 @@ import {
   transitions,
   colors,
 } from './styles';
-import { BrainIcon, HeadphonesIcon, CheckCircleIcon, ShieldIcon, StarIcon } from './Icons';
+import { BrainIcon, HeadphonesIcon, CheckCircleIcon, ShieldIcon, StarIcon } from './icons';
 import { renderLabIcon, ShieldMedicalIcon } from './icons/index';
 
 interface BenefitItem {

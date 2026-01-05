@@ -6,7 +6,7 @@ import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
 import { useLanguage } from '../context/LanguageContext';
 import { downloadSessionCsv, downloadSessionPdf } from './games/report';
 import type { AssessmentSession, TestOutcome } from './games/types';
-import { SchoolIcon, CheckCircleIcon, UsersIcon, ChartIcon, ClockIcon, DocumentIcon, StarIcon } from './Icons';
+import { SchoolIcon, CheckCircleIcon, UsersIcon, ChartIcon, ClockIcon, DocumentIcon, StarIcon } from './icons';
 import { renderLabIcon } from './icons/index';
 import LabCard from './labui/LabCard';
 import LabButton from './labui/LabButton';

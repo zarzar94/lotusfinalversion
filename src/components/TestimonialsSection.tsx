@@ -15,7 +15,7 @@ import {
   MicroscopeIcon,
   AlertIcon,
   ShieldCheckIcon,
-} from './Icons';
+} from './icons';
 import LabButtonAnchor from './labui/LabButtonAnchor';
 
 type Testimonial = {

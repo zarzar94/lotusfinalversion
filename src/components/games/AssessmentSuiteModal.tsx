@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 
 import { useLanguage } from '../../context/LanguageContext';
-import { useUser } from '../../context/UserContext';
+import { useUser, type UserRole } from '../../context/UserContext';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { brandCyan, brandPink, brandPurpleDark, styles } from '../styles';
 import LabButton from '../labui/LabButton';
@@ -17,7 +17,7 @@ import SequencingTestPanel from './SequencingTestPanel';
 import DichoticListeningTestPanel from './DichoticListeningTestPanel';
 import SpeechInNoiseTestPanel from './SpeechInNoiseTestPanel';
 import QuestionnairePanel from './QuestionnairePanel';
-import { downloadSessionCsv, downloadSessionPdf } from './report';
+import { downloadSessionCsv, downloadSessionPdf, type ReportTemplate } from './report';
 import { saveSession as saveLabSession } from '../../utils/sessionStorage';
 import { buildLabMetrics } from '../../utils/labMetrics';
 
@@ -32,6 +32,23 @@ const compositeFrom = (outcomes: Partial<Record<TestKey, TestOutcome>>): { resul
   const avg = available.reduce((s, o) => s + scoreMap[o.result], 0) / available.length;
   const result: GameResult = avg >= 1.5 ? 'high' : avg >= 0.8 ? 'medium' : 'low';
   return { result, score: avg };
+};
+
+const resolveDefaultTemplate = (role?: UserRole): ReportTemplate => {
+  switch (role) {
+    case 'clinician':
+      return 'clinician';
+    case 'school_admin':
+      return 'school';
+    case 'parent':
+      return 'parent';
+    case 'super_admin':
+      return 'parent';
+    case 'patient':
+    case 'guest':
+    default:
+      return 'parent';
+  }
 };
 
 export default function AssessmentSuiteModal({
@@ -54,11 +71,12 @@ export default function AssessmentSuiteModal({
     | 'summary'
   >('intro');
   const [session, setSession] = useState<AssessmentSession>(() => ({ id: genId(), startedAt: Date.now(), outcomes: {} }));
-  const [reportTemplate, setReportTemplate] = useState<'parent' | 'school'>('parent');
+  const [reportTemplate, setReportTemplate] = useState<ReportTemplate>('parent');
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
   const [signatureVisible, setSignatureVisible] = useState(false);
   const { isArabic, direction, t } = useLanguage();
   const { user } = useUser();
+  const defaultTemplate = useMemo(() => resolveDefaultTemplate(user?.role), [user?.role]);
   const reportLang = isArabic ? 'ar' : 'en';
   const modalRef = useFocusTrap<HTMLDivElement>(open);
 
@@ -67,13 +85,14 @@ export default function AssessmentSuiteModal({
     // reset when opened fresh
     setStep('intro');
     setSession({ id: genId(), startedAt: Date.now(), outcomes: {} });
+    setReportTemplate(defaultTemplate);
     setSignatureDataUrl(null);
     setSignatureVisible(false);
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = '';
     };
-  }, [open]);
+  }, [open, defaultTemplate]);
 
   const upsertOutcome = (outcome: TestOutcome) => {
     setSession((s) => ({ ...s, outcomes: { ...s.outcomes, [outcome.key]: outcome } }));
@@ -102,6 +121,13 @@ export default function AssessmentSuiteModal({
       hint: t('games.resultMeta.low.hint'),
     },
   }), [t]);
+
+  const templateLabels = useMemo(() => ({
+    parent: t('games.report.typeParent'),
+    clinician: t('games.report.typeClinician'),
+    school: t('games.report.typeSchool'),
+  }), [t]);
+  const templateOptions: ReportTemplate[] = ['parent', 'clinician', 'school'];
 
   const composite = useMemo(() => {
     const { result } = compositeFrom(session.outcomes);
@@ -315,7 +341,7 @@ export default function AssessmentSuiteModal({
                   {t('games.report.typeLabel')}
                 </span>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  {(['parent', 'school'] as const).map((type) => {
+                  {templateOptions.map((type) => {
                     const isActive = reportTemplate === type;
                     return (
                       <button
@@ -334,7 +360,7 @@ export default function AssessmentSuiteModal({
                           transition: 'all 0.2s ease',
                         }}
                       >
-                        {type === 'parent' ? t('games.report.typeParent') : t('games.report.typeSchool')}
+                        {templateLabels[type]}
                       </button>
                     );
                   })}
@@ -380,12 +406,16 @@ export default function AssessmentSuiteModal({
                   const signature = user
                     ? {
                         label: reportTemplate === 'school'
-                          ? (isArabic ? 'توقيع المدرسة' : 'School signature')
-                          : (isArabic ? 'توقيع ولي الأمر' : 'Parent signature'),
+                          ? (isArabic ? '????? ???????' : 'School signature')
+                          : reportTemplate === 'clinician'
+                            ? (isArabic ? '????? ????????' : 'Clinician signature')
+                            : (isArabic ? '????? ??? ?????' : 'Parent signature'),
                         name: (isArabic ? user.nameAr ?? user.name : user.name ?? user.nameAr) ?? user.email ?? '',
                         title: reportTemplate === 'school'
-                          ? (user.school ?? (isArabic ? 'مدرسة' : 'School'))
-                          : (isArabic ? 'ولي الأمر' : 'Parent'),
+                          ? (user.school ?? (isArabic ? '???????' : 'School'))
+                          : reportTemplate === 'clinician'
+                            ? (user.clinic ?? (isArabic ? '???????' : 'Clinic'))
+                            : (isArabic ? '??? ?????' : 'Parent'),
                         date: new Date().toLocaleDateString(isArabic ? 'ar-SA' : 'en-US'),
                         imageDataUrl: signatureDataUrl ?? undefined,
                       }
@@ -420,3 +450,4 @@ export default function AssessmentSuiteModal({
     </div>
   );
 }
+

@@ -1,15 +1,10 @@
-import { useMemo, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
+﻿import { useMemo, useState, useCallback, ReactNode } from 'react';
 
 import { checklistCategories, checklistItems, type ChecklistItem } from '../data/checklistItems';
 import { useLanguage } from '../context/LanguageContext';
 import { assetUrl } from '../utils/asset';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
-import {
-  playSelectSound,
-  playRadarPing,
-  playLaunchSound,
-  playExplosionSound,
-} from '../utils/audio';
+import { playSelectSound } from '../utils/audio';
 import { brandCyan, brandPink, brandPurple, brandPurpleDark, styles, colors, labTech, radius, spacing, typography, transitions } from './styles';
 import { useGamification } from '../context/GamificationContext';
 import { useVisitorMode } from '../context/VisitorModeContext';
@@ -23,449 +18,25 @@ import {
   CheckCircleIcon,
   AlertIcon,
   AlertCircleIcon,
-  RocketIcon,
   LightbulbIcon,
   DocumentIcon,
   TrashIcon,
   ChartIcon,
   GamepadIcon,
-} from './Icons';
+} from './icons';
 import LabCard from './labui/LabCard';
 import LabButton from './labui/LabButton';
 import LabButtonAnchor from './labui/LabButtonAnchor';
 
 // Category icons and colors for visual appeal
 const CATEGORY_CONFIG: Record<string, { icon: ReactNode; color: string }> = {
-  'صعوبات أكاديمية ولغوية': { icon: <BookIcon size={20} />, color: brandCyan },
-  'مؤشرات سمعية': { icon: <EarIcon size={20} />, color: brandPink },
-  'تعلم وتركيز ووظائف تنفيذية': { icon: <BrainIcon size={20} />, color: brandPurple },
-  'توازن وحركة': { icon: <BalanceIcon size={20} />, color: colors.success },
-  'سلوك ومزاج وصحة عامة': { icon: <HeartIcon size={20} />, color: colors.warning },
-  'تشخيصات/حالات شائعة مرتبطة بالسمع/التعلم': { icon: <MicroscopeIcon size={20} />, color: brandPurpleDark },
+  'ØµØ¹ÙˆØ¨Ø§Øª Ø£ÙƒØ§Ø¯ÙŠÙ…ÙŠØ© ÙˆÙ„ØºÙˆÙŠØ©': { icon: <BookIcon size={20} />, color: brandCyan },
+  'Ù…Ø¤Ø´Ø±Ø§Øª Ø³Ù…Ø¹ÙŠØ©': { icon: <EarIcon size={20} />, color: brandPink },
+  'ØªØ¹Ù„Ù… ÙˆØªØ±ÙƒÙŠØ² ÙˆÙˆØ¸Ø§Ø¦Ù ØªÙ†ÙÙŠØ°ÙŠØ©': { icon: <BrainIcon size={20} />, color: brandPurple },
+  'ØªÙˆØ§Ø²Ù† ÙˆØ­Ø±ÙƒØ©': { icon: <BalanceIcon size={20} />, color: colors.success },
+  'Ø³Ù„ÙˆÙƒ ÙˆÙ…Ø²Ø§Ø¬ ÙˆØµØ­Ø© Ø¹Ø§Ù…Ø©': { icon: <HeartIcon size={20} />, color: colors.warning },
+  'ØªØ´Ø®ÙŠØµØ§Øª/Ø­Ø§Ù„Ø§Øª Ø´Ø§Ø¦Ø¹Ø© Ù…Ø±ØªØ¨Ø·Ø© Ø¨Ø§Ù„Ø³Ù…Ø¹/Ø§Ù„ØªØ¹Ù„Ù…': { icon: <MicroscopeIcon size={20} />, color: brandPurpleDark },
 };
-
-// Radar blip item on the radar display
-interface RadarBlipProps {
-  item: ChecklistItem;
-  isSelected: boolean;
-  angle: number;
-  distance: number;
-  color: string;
-  onToggle: () => void;
-  isHit: boolean;
-  radarAngle: number;
-}
-
-function RadarBlip({ item, isSelected, angle, distance, color, onToggle, isHit, radarAngle }: RadarBlipProps) {
-  const x = Math.cos(angle) * distance;
-  const y = Math.sin(angle) * distance;
-
-  // Check if radar sweep is near this blip
-  const normalizedAngle = ((angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
-  const normalizedRadar = ((radarAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
-  const angleDiff = Math.abs(normalizedAngle - normalizedRadar);
-  const isSwept = angleDiff < 0.3 || angleDiff > (Math.PI * 2 - 0.3);
-
-  return (
-    <button
-      type="button"
-      onClick={() => { playSelectSound(!isSelected); onToggle(); }}
-      aria-label={item.en ?? item.ar}
-      aria-pressed={isSelected}
-      style={{
-        position: 'absolute',
-        left: `calc(50% + ${x}px)`,
-        top: `calc(50% + ${y}px)`,
-        transform: 'translate(-50%, -50%)',
-        width: isSelected ? 60 : 48,
-        height: isSelected ? 60 : 48,
-        borderRadius: 8,
-        background: isHit
-          ? 'rgba(220,38,38,0.9)'
-          : isSelected
-            ? `linear-gradient(135deg, ${color}99, ${color}55)`
-            : isSwept
-              ? `rgba(143,211,204,0.35)`
-              : 'rgba(11,15,28,0.8)',
-        border: `2px solid ${isSelected ? color : isSwept ? brandCyan : 'rgba(143,211,204,0.3)'}`,
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transition: 'all 0.2s ease',
-        boxShadow: isSelected
-          ? `0 0 20px ${color}66, 0 0 40px ${color}33`
-          : isSwept
-            ? `0 0 15px ${brandCyan}44`
-            : '0 2px 8px rgba(0,0,0,0.3)',
-        animation: isHit ? 'blipExplode 0.5s ease-out forwards' : isSelected ? 'blipPulse 1.5s ease-in-out infinite' : 'none',
-        zIndex: isSelected ? 10 : 1,
-      }}
-    >
-      {/* Blip indicator */}
-      <div style={{
-        width: isSelected ? 20 : 14,
-        height: isSelected ? 20 : 14,
-        borderRadius: '50%',
-        background: isSelected ? colors.text.primary : isSwept ? brandCyan : 'rgba(143,211,204,0.6)',
-        boxShadow: isSelected ? `0 0 10px ${color}` : 'none',
-        transition: 'all 0.2s ease',
-      }} />
-
-      {/* Selection checkmark */}
-      {isSelected && (
-        <div style={{
-          position: 'absolute',
-          top: -8,
-          right: -8,
-          width: 22,
-          height: 22,
-          borderRadius: '50%',
-          background: color,
-          border: '2px solid rgba(11,15,28,1)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-            <path d="M20 6L9 17L4 12" stroke={colors.text.primary} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-      )}
-
-      {/* Item label on hover */}
-      <div style={{
-        position: 'absolute',
-        bottom: '100%',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        background: 'rgba(11,15,28,0.95)',
-        border: `1px solid ${color}44`,
-        borderRadius: 8,
-        padding: '6px 10px',
-        fontSize: 11,
-        fontWeight: 700,
-        color: colors.text.primary,
-        whiteSpace: 'nowrap',
-        marginBottom: 6,
-        opacity: 0,
-        pointerEvents: 'none',
-        transition: 'opacity 0.2s ease',
-        maxWidth: 160,
-        textAlign: 'center',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-      }}
-        className="blip-label"
-      >
-        {item.ar}
-      </div>
-
-      <style>{`
-        button:hover .blip-label { opacity: 1; }
-      `}</style>
-    </button>
-  );
-}
-
-// Missile component
-interface MissileProps {
-  active: boolean;
-  startPos: { x: number; y: number };
-  targetPos: { x: number; y: number };
-  onImpact: () => void;
-  color: string;
-}
-
-function Missile({ active, startPos, targetPos, onImpact, color }: MissileProps) {
-  const [position, setPosition] = useState({ x: 0, y: 0, visible: false, impacted: false });
-
-  useEffect(() => {
-    if (!active) return;
-
-    setPosition({ x: startPos.x, y: startPos.y, visible: true, impacted: false });
-
-    const duration = 350;
-    const startTime = Date.now();
-
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = progress * progress;
-
-      const currentX = startPos.x + (targetPos.x - startPos.x) * eased;
-      const currentY = startPos.y + (targetPos.y - startPos.y) * eased;
-
-      setPosition({ x: currentX, y: currentY, visible: true, impacted: false });
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        setPosition(prev => ({ ...prev, impacted: true }));
-        playExplosionSound();
-        onImpact();
-        setTimeout(() => setPosition(prev => ({ ...prev, visible: false })), 500);
-      }
-    };
-
-    requestAnimationFrame(animate);
-  }, [active, startPos, targetPos, onImpact]);
-
-  if (!position.visible) return null;
-
-  const angle = Math.atan2(targetPos.y - startPos.y, targetPos.x - startPos.x);
-
-  return (
-    <>
-      {!position.impacted && (
-        <div style={{
-          position: 'absolute',
-          left: position.x,
-          top: position.y,
-          transform: `translate(-50%, -50%) rotate(${angle + Math.PI / 2}rad)`,
-          zIndex: 1000,
-          pointerEvents: 'none',
-        }}>
-          <div style={{
-            width: 10,
-            height: 30,
-            background: `linear-gradient(180deg, ${colors.error} 0%, ${colors.errorDeep} 50%, ${colors.errorDarker} 100%)`,
-            borderRadius: '5px 5px 2px 2px',
-            position: 'relative',
-            boxShadow: '0 0 15px rgba(220,38,38,0.8)',
-          }}>
-            <div style={{
-              position: 'absolute',
-              bottom: -15,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 6,
-              height: 20,
-              background: `linear-gradient(180deg, ${colors.warningBright} 0%, ${colors.warningDeep} 40%, transparent 100%)`,
-              borderRadius: '50%',
-              filter: 'blur(2px)',
-            }} />
-          </div>
-        </div>
-      )}
-
-      {position.impacted && (
-        <div style={{
-          position: 'absolute',
-          left: position.x,
-          top: position.y,
-          transform: 'translate(-50%, -50%)',
-          zIndex: 1000,
-          pointerEvents: 'none',
-        }}>
-          <div style={{
-            width: 80,
-            height: 80,
-            borderRadius: '50%',
-            background: `radial-gradient(circle, ${colors.text.primary} 0%, ${color} 30%, ${colors.warningDeep} 60%, transparent 70%)`,
-            animation: 'explosionFlash 0.4s ease-out forwards',
-          }} />
-        </div>
-      )}
-    </>
-  );
-}
-
-// Launch button
-interface LaunchButtonProps {
-  onClick: () => void;
-  disabled?: boolean;
-  buttonRef?: React.RefObject<HTMLButtonElement>;
-}
-
-function LaunchButton({ onClick, disabled, buttonRef }: LaunchButtonProps) {
-  const [isPressed, setIsPressed] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleClick = () => {
-    if (disabled) return;
-    setIsPressed(true);
-    playLaunchSound();
-    setTimeout(() => {
-      setIsPressed(false);
-      onClick();
-    }, 150);
-  };
-
-  return (
-    <button
-      ref={buttonRef}
-      type="button"
-      onClick={handleClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      disabled={disabled}
-      style={{
-        position: 'relative',
-        width: 120,
-        height: 120,
-        borderRadius: '50%',
-        border: 'none',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        background: 'transparent',
-        outline: 'none',
-        transform: isPressed ? 'scale(0.95)' : isHovered ? 'scale(1.05)' : 'scale(1)',
-        transition: 'transform 0.15s ease',
-        opacity: disabled ? 0.5 : 1,
-      }}
-    >
-      {/* Outer metallic ring */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        borderRadius: '50%',
-        background: `linear-gradient(145deg, ${colors.surface.input} 0%, ${colors.surface.base} 50%, ${colors.surface.elevated} 100%)`,
-        boxShadow: `
-          inset 0 2px 4px rgba(255,255,255,0.1),
-          inset 0 -2px 4px rgba(0,0,0,0.3),
-          0 8px 30px rgba(0,0,0,0.5),
-          0 0 60px rgba(220,38,38,${isHovered ? 0.3 : 0.1})
-        `,
-      }} />
-
-      {/* Warning stripe ring */}
-      <div style={{
-        position: 'absolute',
-        inset: 6,
-        borderRadius: '50%',
-        background: `repeating-conic-gradient(from 0deg, ${colors.warningBright} 0deg 10deg, ${colors.surface.base} 10deg 20deg)`,
-        opacity: 0.9,
-      }} />
-
-      {/* Inner bezel */}
-      <div style={{
-        position: 'absolute',
-        inset: 14,
-        borderRadius: '50%',
-        background: `linear-gradient(145deg, ${colors.surface.elevated} 0%, ${colors.surface.base} 100%)`,
-        boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.5)',
-      }} />
-
-      {/* Red button */}
-      <div style={{
-        position: 'absolute',
-        inset: 20,
-        borderRadius: '50%',
-        background: isPressed
-          ? `linear-gradient(145deg, ${colors.errorDarker} 0%, ${colors.errorDeep} 50%, ${colors.errorStrong} 100%)`
-          : `linear-gradient(145deg, ${colors.error} 0%, ${colors.errorStrong} 50%, ${colors.errorDeep} 100%)`,
-        boxShadow: isPressed
-          ? 'inset 0 4px 15px rgba(0,0,0,0.5)'
-          : `inset 0 -4px 15px rgba(0,0,0,0.3), inset 0 4px 15px rgba(255,255,255,0.1), 0 4px 20px rgba(220,38,38,0.4)`,
-        transition: 'all 0.15s ease',
-      }}>
-        <div style={{
-          position: 'absolute',
-          top: '10%',
-          left: '20%',
-          width: '30%',
-          height: '20%',
-          borderRadius: '50%',
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.4), transparent)',
-          filter: 'blur(2px)',
-        }} />
-      </div>
-
-      {/* Icon */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: colors.text.primary,
-        textShadow: '0 2px 4px rgba(0,0,0,0.5)',
-        pointerEvents: 'none',
-      }}>
-        <RocketIcon size={24} color={colors.text.primary} style={{ marginBottom: 2 }} />
-        <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: 1 }}>إطلاق</span>
-      </div>
-
-      {/* Pulsing glow */}
-      {!disabled && (
-        <div style={{
-          position: 'absolute',
-          inset: -8,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(220,38,38,0.3), transparent 70%)',
-          animation: 'launchPulse 1.5s ease-in-out infinite',
-          pointerEvents: 'none',
-        }} />
-      )}
-    </button>
-  );
-}
-
-// Category navigation tabs
-interface CategoryTabProps {
-  category: typeof checklistCategories[number];
-  isActive: boolean;
-  selectedCount: number;
-  onClick: () => void;
-  config: { icon: ReactNode; color: string };
-}
-
-function CategoryTab({ category, isActive, selectedCount, onClick, config }: CategoryTabProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        background: isActive
-          ? `linear-gradient(135deg, ${config.color}33, ${config.color}11)`
-          : 'rgba(11,15,28,0.6)',
-        border: `2px solid ${isActive ? config.color : 'rgba(255,255,255,0.1)'}`,
-        borderRadius: 12,
-        padding: '10px 14px',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        transition: 'all 0.2s ease',
-        minWidth: 140,
-        boxShadow: isActive ? `0 4px 20px ${config.color}33` : 'none',
-        color: isActive ? config.color : 'rgba(255,255,255,0.7)',
-      }}
-    >
-      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{config.icon}</span>
-      <div style={{ textAlign: 'right', flex: 1 }}>
-        <div style={{
-          fontSize: 11,
-          fontWeight: 800,
-          color: isActive ? config.color : 'rgba(255,255,255,0.8)',
-          lineHeight: 1.2,
-        }}>
-          {category.title.slice(0, 20)}...
-        </div>
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>
-          {selectedCount}/{category.items.length}
-        </div>
-      </div>
-      {selectedCount > 0 && (
-        <div style={{
-          width: 20,
-          height: 20,
-          borderRadius: '50%',
-          background: config.color,
-          fontSize: 10,
-          fontWeight: 900,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: colors.text.primary,
-        }}>
-          {selectedCount}
-        </div>
-      )}
-    </button>
-  );
-}
 
 // Visitor-mode specific recommendations
 const VISITOR_RECOMMENDATIONS = {
@@ -576,103 +147,48 @@ const Checklist = () => {
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [exporting, setExporting] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
-  const [radarAngle, setRadarAngle] = useState(0);
-  const [missileTarget, setMissileTarget] = useState<{ item: ChecklistItem; pos: { x: number; y: number } } | null>(null);
-  const [hitItems, setHitItems] = useState<Set<string>>(new Set());
   const { completeChecklist } = useGamification();
-  const radarRef = useRef<HTMLDivElement>(null);
-  const launchButtonRef = useRef<HTMLButtonElement>(null);
 
   const selectedItems = useMemo(() => checklistItems.filter((item) => selected[item.id]), [selected]);
   const selectedCount = selectedItems.length;
   const totalItems = checklistItems.length;
+  const totalCategories = checklistCategories.length;
 
   const currentCategory = checklistCategories[currentSection];
   const currentConfig = CATEGORY_CONFIG[currentCategory?.title] || { icon: <ChartIcon size={20} />, color: brandCyan };
-
-  const categoryStats = useMemo(() => {
-    return checklistCategories.map(cat => ({
-      ...cat,
-      selectedCount: cat.items.filter(item => selected[item.id]).length,
-    }));
-  }, [selected]);
+  const currentSelectedInCategory = currentCategory?.items.filter(item => selected[item.id]).length || 0;
+  const progressPct = Math.round(((currentSection + 1) / Math.max(1, totalCategories)) * 100);
+  const isFirstStep = currentSection === 0;
+  const isLastStep = currentSection === totalCategories - 1;
 
   const recommendation = useMemo<ChecklistRecommendation>(() => {
     if (selectedCount <= 4) {
-      return { level: 'low', label: 'مؤشرات قليلة', labelEn: 'Low', color: brandCyan, icon: <CheckCircleIcon size={24} color={brandCyan} />, msg: 'النتيجة لا تُعد تشخيصاً. إذا كانت هناك مخاوف، استشر مختصاً.' };
+      return { level: 'low', label: 'Ù…Ø¤Ø´Ø±Ø§Øª Ù‚Ù„ÙŠÙ„Ø©', labelEn: 'Low', color: brandCyan, icon: <CheckCircleIcon size={24} color={brandCyan} />, msg: 'Ø§Ù„Ù†ØªÙŠØ¬Ø© Ù„Ø§ ØªÙØ¹Ø¯ ØªØ´Ø®ÙŠØµØ§Ù‹. Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ù‡Ù†Ø§Ùƒ Ù…Ø®Ø§ÙˆÙØŒ Ø§Ø³ØªØ´Ø± Ù…Ø®ØªØµØ§Ù‹.' };
     }
     if (selectedCount <= 10) {
-      return { level: 'medium', label: 'مؤشرات متوسطة', labelEn: 'Moderate', color: brandPurple, icon: <AlertIcon size={24} color={brandPurple} />, msg: 'قد يكون من المفيد إجراء اختبار إضافي أو تجربة الألعاب السمعية.' };
+      return { level: 'medium', label: 'Ù…Ø¤Ø´Ø±Ø§Øª Ù…ØªÙˆØ³Ø·Ø©', labelEn: 'Moderate', color: brandPurple, icon: <AlertIcon size={24} color={brandPurple} />, msg: 'Ù‚Ø¯ ÙŠÙƒÙˆÙ† Ù…Ù† Ø§Ù„Ù…ÙÙŠØ¯ Ø¥Ø¬Ø±Ø§Ø¡ Ø§Ø®ØªØ¨Ø§Ø± Ø¥Ø¶Ø§ÙÙŠ Ø£Ùˆ ØªØ¬Ø±Ø¨Ø© Ø§Ù„Ø£Ù„Ø¹Ø§Ø¨ Ø§Ù„Ø³Ù…Ø¹ÙŠØ©.' };
     }
-    return { level: 'high', label: 'مؤشرات مرتفعة', labelEn: 'High', color: brandPink, icon: <AlertCircleIcon size={24} color={brandPink} />, msg: 'ننصح بحجز تقييم متخصص — خاصة إذا كانت الأعراض تؤثر على المدرسة أو السلوك.' };
+    return { level: 'high', label: 'Ù…Ø¤Ø´Ø±Ø§Øª Ù…Ø±ØªÙØ¹Ø©', labelEn: 'High', color: brandPink, icon: <AlertCircleIcon size={24} color={brandPink} />, msg: 'Ù†Ù†ØµØ­ Ø¨Ø­Ø¬Ø² ØªÙ‚ÙŠÙŠÙ… Ù…ØªØ®ØµØµ â€” Ø®Ø§ØµØ© Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ø§Ù„Ø£Ø¹Ø±Ø§Ø¶ ØªØ¤Ø«Ø± Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø¯Ø±Ø³Ø© Ø£Ùˆ Ø§Ù„Ø³Ù„ÙˆÙƒ.' };
   }, [selectedCount]);
 
-  // Radar sweep animation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRadarAngle(prev => {
-        const newAngle = prev + 0.03;
-        // Play ping sound occasionally
-        if (Math.random() < 0.02) playRadarPing();
-        return newAngle;
-      });
-    }, 30);
-    return () => clearInterval(interval);
-  }, []);
+  const handleNext = () => setCurrentSection((prev) => Math.min(prev + 1, totalCategories - 1));
+  const handleBack = () => setCurrentSection((prev) => Math.max(prev - 1, 0));
+  const handleFinish = () => {
+    const summary = document.getElementById('checklist-summary');
+    if (summary) summary.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  };
+  const backLabel = t('contactForm.actions.back', 'Back');
+  const nextLabel = t('modules.next', 'Next');
+  const finishLabel = isArabic ? 'Ø¥Ù†Ù‡Ø§Ø¡' : 'Finish';
 
   const toggle = useCallback((id: string) => {
     setSelected(prev => {
       const newSelected = { ...prev, [id]: !prev[id] };
+      playSelectSound(newSelected[id]);
       if (Object.values(newSelected).filter(Boolean).length >= 5) completeChecklist();
       return newSelected;
     });
   }, [completeChecklist]);
-
-  // Calculate blip positions in a circular pattern
-  const getBlipPosition = (index: number, total: number, radarSize: number) => {
-    const angleStep = (Math.PI * 2) / total;
-    const angle = index * angleStep - Math.PI / 2;
-    const rings = 3;
-    const ringIndex = index % rings;
-    const distance = (radarSize / 2.5) * (0.5 + ringIndex * 0.25);
-    return { angle, distance };
-  };
-
-  const handleLaunch = () => {
-    const selectedInCategory = currentCategory?.items.filter(item => selected[item.id]);
-    if (!selectedInCategory || selectedInCategory.length === 0 || !radarRef.current || !launchButtonRef.current) return;
-
-    // Target a random selected item
-    const targetItem = selectedInCategory[Math.floor(Math.random() * selectedInCategory.length)];
-    const targetIndex = currentCategory.items.findIndex(i => i.id === targetItem.id);
-    const radarRect = radarRef.current.getBoundingClientRect();
-    const buttonRect = launchButtonRef.current.getBoundingClientRect();
-
-    const { angle, distance } = getBlipPosition(targetIndex, currentCategory.items.length, radarRect.width);
-    const targetX = radarRect.width / 2 + Math.cos(angle) * distance;
-    const targetY = radarRect.height / 2 + Math.sin(angle) * distance;
-
-    const startX = buttonRect.left + buttonRect.width / 2 - radarRect.left;
-    const startY = buttonRect.top + buttonRect.height / 2 - radarRect.top;
-
-    setMissileTarget({
-      item: targetItem,
-      pos: { x: targetX, y: targetY },
-    });
-
-    setTimeout(() => {
-      setHitItems(prev => new Set([...prev, targetItem.id]));
-      setTimeout(() => {
-        setSelected(prev => ({ ...prev, [targetItem.id]: false }));
-        setHitItems(prev => {
-          const next = new Set(prev);
-          next.delete(targetItem.id);
-          return next;
-        });
-        setMissileTarget(null);
-      }, 500);
-    }, 350);
-  };
 
   const clearAll = () => setSelected({});
 
@@ -683,38 +199,38 @@ const Checklist = () => {
       const doc = await createPdfDoc();
       let y = 56;
       doc.setFont('Cairo', 'bold');
-      writePdfText(doc, 'تقرير الماسح العصبي — Berard AIT Sound Lab', PDF_MARGIN_X, y);
+      writePdfText(doc, 'ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ù…Ø§Ø³Ø­ Ø§Ù„Ø¹ØµØ¨ÙŠ â€” Berard AIT Sound Lab', PDF_MARGIN_X, y);
       y += 22;
       doc.setFont('Cairo', 'normal');
-      writePdfText(doc, `عدد المؤشرات المحددة: ${selectedCount} من ${totalItems}`, PDF_MARGIN_X, y);
+      writePdfText(doc, `Ø¹Ø¯Ø¯ Ø§Ù„Ù…Ø¤Ø´Ø±Ø§Øª Ø§Ù„Ù…Ø­Ø¯Ø¯Ø©: ${selectedCount} Ù…Ù† ${totalItems}`, PDF_MARGIN_X, y);
       y += 18;
-      writePdfText(doc, `مستوى التقييم: ${recommendation.label}`, PDF_MARGIN_X, y);
+      writePdfText(doc, `Ù…Ø³ØªÙˆÙ‰ Ø§Ù„ØªÙ‚ÙŠÙŠÙ…: ${recommendation.label}`, PDF_MARGIN_X, y);
       y += 18;
 
       // Add visitor mode context
-      const modeLabel = isSchool ? 'فحص مدرسي' : isParent ? 'فحص أسري' : isClinician ? 'تقييم سريري' : 'فحص عام';
-      writePdfText(doc, `نوع الفحص: ${modeLabel}`, PDF_MARGIN_X, y);
+      const modeLabel = isSchool ? 'ÙØ­Øµ Ù…Ø¯Ø±Ø³ÙŠ' : isParent ? 'ÙØ­Øµ Ø£Ø³Ø±ÙŠ' : isClinician ? 'ØªÙ‚ÙŠÙŠÙ… Ø³Ø±ÙŠØ±ÙŠ' : 'ÙØ­Øµ Ø¹Ø§Ù…';
+      writePdfText(doc, `Ù†ÙˆØ¹ Ø§Ù„ÙØ­Øµ: ${modeLabel}`, PDF_MARGIN_X, y);
       y += 18;
 
       // Add visitor-specific recommendation
       const visitorRec = VISITOR_RECOMMENDATIONS[visitorMode]?.[recommendation.level];
       if (visitorRec) {
-        writePdfText(doc, `التوصية: ${visitorRec.titleAr}`, PDF_MARGIN_X, y);
+        writePdfText(doc, `Ø§Ù„ØªÙˆØµÙŠØ©: ${visitorRec.titleAr}`, PDF_MARGIN_X, y);
         y += 16;
         writePdfText(doc, visitorRec.messageAr, PDF_MARGIN_X, y);
         y += 18;
       }
 
-      writePdfText(doc, `ملاحظة: هذه القائمة مؤشر أولي وليست تشخيصاً.`, PDF_MARGIN_X, y);
+      writePdfText(doc, `Ù…Ù„Ø§Ø­Ø¸Ø©: Ù‡Ø°Ù‡ Ø§Ù„Ù‚Ø§Ø¦Ù…Ø© Ù…Ø¤Ø´Ø± Ø£ÙˆÙ„ÙŠ ÙˆÙ„ÙŠØ³Øª ØªØ´Ø®ÙŠØµØ§Ù‹.`, PDF_MARGIN_X, y);
       y += 26;
 
       if (selectedItems.length === 0) {
-        writePdfText(doc, 'لم يتم تحديد أي مؤشر.', PDF_MARGIN_X, y);
+        writePdfText(doc, 'Ù„Ù… ÙŠØªÙ… ØªØ­Ø¯ÙŠØ¯ Ø£ÙŠ Ù…Ø¤Ø´Ø±.', PDF_MARGIN_X, y);
       } else {
         for (const item of selectedItems) {
           if (y > 760) { doc.addPage(); y = 56; }
           doc.setFont('Cairo', 'bold');
-          writePdfText(doc, `• ${item.ar}`, PDF_MARGIN_X, y);
+          writePdfText(doc, `â€¢ ${item.ar}`, PDF_MARGIN_X, y);
           y += 16;
           if (item.en) { doc.setFont('Cairo', 'normal'); doc.text(item.en, PDF_MARGIN_X, y); y += 16; }
           y += 6;
@@ -723,9 +239,6 @@ const Checklist = () => {
       doc.save('Neural-Assessment-Report.pdf');
     } finally { setExporting(false); }
   };
-
-  const radarSize = 380;
-  const currentSelectedInCategory = currentCategory?.items.filter(item => selected[item.id]).length || 0;
 
   return (
     <section id="checklist" style={{ scrollMarginTop: 92, marginBottom: spacing[5] }}>
@@ -765,33 +278,7 @@ const Checklist = () => {
       }} />
 
       <style>{`
-        @keyframes radarSweep { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes blipPulse { 0%, 100% { box-shadow: 0 0 10px currentColor; } 50% { box-shadow: 0 0 25px currentColor, 0 0 50px currentColor; } }
-        @keyframes blipExplode {
-          0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-          50% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
-          100% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
-        }
-        @keyframes explosionFlash {
-          0% { opacity: 1; transform: scale(0.5); }
-          50% { opacity: 1; transform: scale(1.2); }
-          100% { opacity: 0; transform: scale(1.5); }
-        }
-        @keyframes launchPulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
-        @keyframes scanLine { 0% { transform: translateY(-100%); opacity: 0; } 50% { opacity: 0.5; } 100% { transform: translateY(100%); opacity: 0; } }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        @media (max-width: 640px) {
-          .radar-container { transform: scale(0.75) !important; }
-          .category-tabs { gap: 6px !important; }
-        }
-        @media (min-width: 768px) and (max-width: 1023px) {
-          .radar-container { transform: scale(0.9) !important; }
-          .category-tabs { gap: 8px !important; }
-        }
-        @media (min-width: 1280px) {
-          .radar-container { transform: scale(1.1) !important; }
-          .category-tabs { gap: 12px !important; }
-        }
       `}</style>
 
       {/* Header - Lab Tech Style */}
@@ -880,245 +367,159 @@ const Checklist = () => {
         position: 'relative',
         zIndex: 1,
       }}>
-        حدد المؤشرات على الرادار لبناء تقرير تقييمي. اضغط الزر الأحمر لتدمير المؤشرات المحددة.
+        {t('checklist.description')}
       </p>
 
-      {/* Category Tabs */}
-      <div style={{
-        display: 'flex',
-        gap: 10,
-        overflowX: 'auto',
-        padding: '16px 0',
-        marginBottom: 16,
-        position: 'relative',
-        zIndex: 1,
-      }}>
-        {checklistCategories.map((cat, idx) => {
-          const cfg = CATEGORY_CONFIG[cat.title] || { icon: <ChartIcon size={20} />, color: brandCyan };
-          return (
-            <CategoryTab
-              key={cat.title}
-              category={cat}
-              isActive={idx === currentSection}
-              selectedCount={categoryStats[idx]?.selectedCount || 0}
-              onClick={() => setCurrentSection(idx)}
-              config={cfg}
-            />
-          );
-        })}
-      </div>
-
-      {/* Radar Display Container */}
+      {/* Progress */}
       <div style={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        gap: 24,
+        gap: spacing[2],
+        marginBottom: spacing[4],
         position: 'relative',
         zIndex: 1,
       }}>
-        {/* Category Info */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 12,
-          padding: '12px 20px',
-          background: `linear-gradient(135deg, ${currentConfig.color}22, transparent)`,
-          border: `1px solid ${currentConfig.color}44`,
-          borderRadius: 16,
+          justifyContent: 'space-between',
+          fontSize: 12,
+          color: 'rgba(255,255,255,0.6)',
         }}>
-          <span style={{ fontSize: 28 }}>{currentConfig.icon}</span>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 900, color: currentConfig.color }}>{currentCategory?.title}</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
-              {currentSelectedInCategory} مؤشر محدد من {currentCategory?.items.length}
-            </div>
-          </div>
+          <span>{currentSection + 1}/{totalCategories}</span>
+          <span>{progressPct}%</span>
         </div>
-
-        {/* Radar Display */}
-        <div
-          ref={radarRef}
-          style={{
-            width: radarSize,
-            height: radarSize,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(11,15,28,0.95) 0%, rgba(11,15,28,0.98) 100%)',
-            border: `3px solid ${brandCyan}44`,
-            position: 'relative',
-            overflow: 'hidden',
-            boxShadow: `
-              0 0 60px rgba(143,211,204,0.15),
-              inset 0 0 100px rgba(143,211,204,0.05)
-            `,
-          }}
-        >
-          {/* Grid circles */}
-          {[0.25, 0.5, 0.75, 1].map((scale, i) => (
-            <div
-              key={i}
-              style={{
-                position: 'absolute',
-                left: '50%',
-                top: '50%',
-                width: `${scale * 100}%`,
-                height: `${scale * 100}%`,
-                borderRadius: '50%',
-                border: `1px solid ${brandCyan}22`,
-                transform: 'translate(-50%, -50%)',
-              }}
-            />
-          ))}
-
-          {/* Cross lines */}
-          <div style={{
-            position: 'absolute',
-            left: '50%',
-            top: 0,
-            bottom: 0,
-            width: 1,
-            background: `linear-gradient(180deg, transparent, ${brandCyan}33, transparent)`,
-          }} />
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: 0,
-            right: 0,
-            height: 1,
-            background: `linear-gradient(90deg, transparent, ${brandCyan}33, transparent)`,
-          }} />
-
-          {/* Radar sweep line */}
-          <div
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              width: '50%',
-              height: 2,
-              background: `linear-gradient(90deg, ${brandCyan} 0%, transparent 100%)`,
-              transformOrigin: '0 50%',
-              transform: `rotate(${radarAngle}rad)`,
-              boxShadow: `0 0 20px ${brandCyan}`,
-            }}
-          />
-
-          {/* Sweep glow trail */}
-          <div
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              width: '50%',
-              height: '50%',
-              background: `conic-gradient(from ${radarAngle - 0.5}rad at 0% 0%, transparent, ${brandCyan}33, transparent)`,
-              transformOrigin: '0 0',
-              transform: 'rotate(0deg)',
-              borderRadius: '0 100% 0 0',
-            }}
-          />
-
-          {/* Center dot */}
-          <div style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 12,
-            height: 12,
-            borderRadius: '50%',
-            background: brandCyan,
-            boxShadow: `0 0 20px ${brandCyan}`,
-          }} />
-
-          {/* Blips */}
-          {currentCategory?.items.map((item, idx) => {
-            const { angle, distance } = getBlipPosition(idx, currentCategory.items.length, radarSize);
-            return (
-              <RadarBlip
-                key={item.id}
-                item={item}
-                isSelected={!!selected[item.id]}
-                angle={angle}
-                distance={distance}
-                color={currentConfig.color}
-                onToggle={() => toggle(item.id)}
-                isHit={hitItems.has(item.id)}
-                radarAngle={radarAngle}
-              />
-            );
-          })}
-
-          {/* Missile */}
-          {missileTarget && radarRef.current && launchButtonRef.current && (
-            <Missile
-              active={true}
-              startPos={{
-                x: radarSize / 2,
-                y: radarSize + 80,
-              }}
-              targetPos={missileTarget.pos}
-              onImpact={() => {}}
-              color={currentConfig.color}
-            />
-          )}
-
-          {/* Scan line effect */}
-          <div style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            height: 2,
-            background: `linear-gradient(90deg, transparent, ${brandCyan}66, transparent)`,
-            animation: 'scanLine 3s linear infinite',
-          }} />
-        </div>
-
-        {/* Launch Button */}
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 20,
+          height: 6,
+          borderRadius: 999,
+          background: 'rgba(255,255,255,0.08)',
+          overflow: 'hidden',
         }}>
-          <LaunchButton
-            onClick={handleLaunch}
-            disabled={currentSelectedInCategory === 0}
-            buttonRef={launchButtonRef}
-          />
           <div style={{
-            textAlign: 'center',
-            maxWidth: 160,
-          }}>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>
-              اضغط الزر الأحمر
-            </div>
-            <div style={{ fontSize: 14, fontWeight: 800, color: currentConfig.color }}>
-              لتدمير المؤشرات
-            </div>
-          </div>
+            width: `${progressPct}%`,
+            height: '100%',
+            background: `linear-gradient(90deg, ${brandCyan}, ${brandPurple})`,
+          }} />
         </div>
       </div>
 
-      {/* Category Note */}
-      {currentCategory?.note && (
-        <div style={{
-          marginTop: 20,
-          padding: '12px 16px',
-          background: `linear-gradient(135deg, ${currentConfig.color}10, transparent)`,
-          border: `1px solid ${currentConfig.color}33`,
-          borderRadius: 12,
-          fontSize: 13,
-          color: 'rgba(255,255,255,0.75)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          position: 'relative',
-          zIndex: 1,
-        }}>
-          <LightbulbIcon size={18} color={currentConfig.color} />
-          {currentCategory.note}
+      {/* Step Content */}
+      <div style={{
+        background: 'rgba(11,15,28,0.7)',
+        borderRadius: radius.xl,
+        border: '1px solid rgba(255,255,255,0.08)',
+        padding: spacing[4],
+        position: 'relative',
+        zIndex: 1,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: spacing[3] }}>
+          <div style={{
+            width: 44,
+            height: 44,
+            borderRadius: 12,
+            background: `${currentConfig.color}22`,
+            border: `1px solid ${currentConfig.color}44`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            {currentConfig.icon}
+          </div>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 900, color: currentConfig.color }}>{currentCategory?.title}</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
+              {currentSelectedInCategory}/{currentCategory?.items.length}
+            </div>
+          </div>
         </div>
-      )}
+
+        {currentCategory?.note && (
+          <div style={{
+            marginBottom: spacing[3],
+            padding: `${spacing[2]}px ${spacing[3]}px`,
+            background: `${currentConfig.color}10`,
+            border: `1px solid ${currentConfig.color}33`,
+            borderRadius: radius.lg,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            color: 'rgba(255,255,255,0.75)',
+            fontSize: 13,
+          }}>
+            <LightbulbIcon size={18} color={currentConfig.color} />
+            {currentCategory.note}
+          </div>
+        )}
+
+        <div style={{ display: 'grid', gap: spacing[2] }}>
+          {currentCategory?.items.map((item) => {
+            const isSelected = !!selected[item.id];
+            const label = isArabic ? item.ar : item.en ?? item.ar;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                role="checkbox"
+                aria-checked={isSelected}
+                onClick={() => toggle(item.id)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing[3],
+                  flexDirection: isArabic ? 'row-reverse' : 'row',
+                  padding: `${spacing[2]}px ${spacing[3]}px`,
+                  borderRadius: radius.lg,
+                  border: `1px solid ${isSelected ? currentConfig.color : 'rgba(255,255,255,0.08)'}`,
+                  background: isSelected
+                    ? `linear-gradient(135deg, ${currentConfig.color}22, rgba(11,15,28,0.85))`
+                    : 'rgba(11,15,28,0.5)',
+                  color: 'rgba(255,255,255,0.85)',
+                  textAlign: isArabic ? 'right' : 'left',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <span
+                  aria-hidden="true"
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: 6,
+                    border: `2px solid ${isSelected ? currentConfig.color : 'rgba(255,255,255,0.2)'}`,
+                    background: isSelected ? currentConfig.color : 'transparent',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: colors.text.primary,
+                    flexShrink: 0,
+                  }}
+                >
+                  {isSelected ? <CheckCircleIcon size={12} color={colors.text.primary} /> : null}
+                </span>
+                <span style={{ fontSize: 13, lineHeight: 1.6 }}>{label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Step Navigation */}
+      <div style={{
+        marginTop: spacing[4],
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: spacing[3],
+        flexWrap: 'wrap',
+        position: 'relative',
+        zIndex: 1,
+      }}>
+        <LabButton variant="ghost" onClick={handleBack} disabled={isFirstStep}>
+          {backLabel}
+        </LabButton>
+        <LabButton variant="primary" onClick={isLastStep ? handleFinish : handleNext}>
+          {isLastStep ? finishLabel : nextLabel}
+        </LabButton>
+      </div>
 
       {/* Quick Actions */}
       <div style={{ marginTop: 24, display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
@@ -1129,7 +530,7 @@ const Checklist = () => {
           rel="noreferrer"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
         >
-          <DocumentIcon size={16} /> PDF الرسمي
+          <DocumentIcon size={16} /> PDF Ø§Ù„Ø±Ø³Ù…ÙŠ
         </LabButtonAnchor>
         {selectedCount > 0 && (
           <>
@@ -1145,7 +546,7 @@ const Checklist = () => {
                 gap: 6,
               }}
             >
-              <TrashIcon size={16} /> مسح الكل
+              <TrashIcon size={16} /> Ù…Ø³Ø­ Ø§Ù„ÙƒÙ„
             </LabButton>
             <LabButton
               variant="primary"
@@ -1153,7 +554,7 @@ const Checklist = () => {
               disabled={exporting}
               style={exporting ? { background: colors.border.default, color: colors.text.muted, boxShadow: 'none' } : undefined}
             >
-              <ChartIcon size={16} /> {exporting ? 'تصدير...' : `تصدير التقرير (${selectedCount})`}
+              <ChartIcon size={16} /> {exporting ? 'ØªØµØ¯ÙŠØ±...' : `ØªØµØ¯ÙŠØ± Ø§Ù„ØªÙ‚Ø±ÙŠØ± (${selectedCount})`}
             </LabButton>
           </>
         )}
@@ -1167,13 +568,13 @@ const Checklist = () => {
             gap: 6,
           }}
         >
-          <GamepadIcon size={16} /> الألعاب السمعية
+          <GamepadIcon size={16} /> Ø§Ù„Ø£Ù„Ø¹Ø§Ø¨ Ø§Ù„Ø³Ù…Ø¹ÙŠØ©
         </LabButtonAnchor>
       </div>
 
       {/* Result Summary with Visitor Mode Integration */}
       {selectedCount > 0 && (
-        <div style={{
+        <div id="checklist-summary" style={{
           marginTop: 24,
           padding: 20,
           background: `linear-gradient(135deg, ${recommendation.color}15, rgba(13,17,23,0.8))`,
@@ -1279,7 +680,7 @@ const Checklist = () => {
                 fontSize: 12,
                 fontWeight: 700,
               }}>
-                <GamepadIcon size={16} /> جرّب الاختبارات السمعية
+                <GamepadIcon size={16} /> Ø¬Ø±Ù‘Ø¨ Ø§Ù„Ø§Ø®ØªØ¨Ø§Ø±Ø§Øª Ø§Ù„Ø³Ù…Ø¹ÙŠØ©
               </a>
             )}
             {recommendation.level === 'high' && !VISITOR_RECOMMENDATIONS[visitorMode] && (
@@ -1296,7 +697,7 @@ const Checklist = () => {
                 fontSize: 12,
                 fontWeight: 700,
               }}>
-                احجز تقييم متخصص
+                Ø§Ø­Ø¬Ø² ØªÙ‚ÙŠÙŠÙ… Ù…ØªØ®ØµØµ
               </a>
             )}
           </div>
@@ -1307,9 +708,9 @@ const Checklist = () => {
       <div style={{ marginTop: 20, padding: 14, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 12, display: 'flex', alignItems: 'flex-start', gap: 10, position: 'relative', zIndex: 1 }}>
         <AlertIcon size={24} color={colors.warning} style={{ flexShrink: 0 }} />
         <div>
-          <div style={{ fontWeight: 800, color: colors.warning, marginBottom: 4, fontSize: 13 }}>تنبيه</div>
+          <div style={{ fontWeight: 800, color: colors.warning, marginBottom: 4, fontSize: 13 }}>ØªÙ†Ø¨ÙŠÙ‡</div>
           <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
-            هذه أداة فحص أولية وليست تشخيصاً. للتقييم الدقيق استشر مختصاً.
+            Ù‡Ø°Ù‡ Ø£Ø¯Ø§Ø© ÙØ­Øµ Ø£ÙˆÙ„ÙŠØ© ÙˆÙ„ÙŠØ³Øª ØªØ´Ø®ÙŠØµØ§Ù‹. Ù„Ù„ØªÙ‚ÙŠÙŠÙ… Ø§Ù„Ø¯Ù‚ÙŠÙ‚ Ø§Ø³ØªØ´Ø± Ù…Ø®ØªØµØ§Ù‹.
           </p>
         </div>
       </div>
@@ -1319,3 +720,6 @@ const Checklist = () => {
 };
 
 export default Checklist;
+
+
+

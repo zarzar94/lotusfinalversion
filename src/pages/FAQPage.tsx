@@ -14,7 +14,7 @@ import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
-import { HelpIcon } from '../components/Icons';
+import { HelpIcon } from '../components/icons';
 import {
   brandPink,
   colors,

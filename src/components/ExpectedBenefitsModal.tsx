@@ -21,7 +21,7 @@ import {
   SparklesIcon,
   TargetIcon,
   XIcon,
-} from './Icons';
+} from './icons';
 
 interface BenefitItem {
   id: string;

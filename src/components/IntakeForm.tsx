@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, memo } from 'react';
 import { styles, brandCyan, brandPink, brandPurple, colors, intakePalette } from './styles';
-import { BrainIcon, UserIcon, HeartIcon, ChartIcon, CheckCircleIcon, ClipboardIcon } from './Icons';
+import { BrainIcon, UserIcon, HeartIcon, ChartIcon, CheckCircleIcon, ClipboardIcon } from './icons';
 import { renderLabIcon } from './icons/index';
 import { useLanguage } from '../context/LanguageContext';
 

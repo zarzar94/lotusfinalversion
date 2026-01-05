@@ -24,7 +24,7 @@ import {
   AlertCircleIcon,
   DocumentIcon,
   UserIcon,
-} from './Icons';
+} from './icons';
 import { renderLabIcon } from './icons/index';
 
 // Protocol phases configuration

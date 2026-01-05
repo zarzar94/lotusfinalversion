@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { styles, brandCyan, brandPink } from '../styles';
-import { MenuIcon } from '../Icons';
+import { MenuIcon } from '../icons';
 import LabButton from '../labui/LabButton';
 
 const MainNavigation = ({ locale = 'ar' }: { locale?: 'ar' | 'en' }) => {

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { styles, brandCyan, brandPink, brandPurple, brandPurpleDark, brandColors, colors, videoPalette } from './styles';
-import { PlayIcon, VideoIcon, ChartIcon, BrainIcon, EyeIcon, EarIcon, BeakerIcon } from './Icons';
+import { PlayIcon, VideoIcon, ChartIcon, BrainIcon, EyeIcon, EarIcon, BeakerIcon } from './icons';
 import { useLanguage } from '../context/LanguageContext';
 import LabButtonAnchor from './labui/LabButtonAnchor';
 

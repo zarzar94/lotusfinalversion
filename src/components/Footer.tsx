@@ -18,7 +18,7 @@ import {
   BrainIcon,
   HelpIcon,
   UsersIcon,
-} from './Icons';
+} from './icons';
 import BrainLogo from './BrainLogo';
 import { useLanguage } from '../context/LanguageContext';
 import { renderLabIcon } from './icons/index';

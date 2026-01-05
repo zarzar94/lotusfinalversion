@@ -5,7 +5,7 @@ import { pptxSlides } from '../data/pptxSlides';
 import { assetUrl } from '../utils/asset';
 import { createPdfDoc, PDF_MARGIN_X, writePdfText } from '../utils/pdf';
 import { brandCyan, brandPink, brandPurple, brandPanel, styles, transitions, colors, radius, spacing, typography, labTech } from './styles';
-import { MicroscopeIcon, FlaskIcon, SearchIcon, DownloadIcon, XIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon } from './Icons';
+import { MicroscopeIcon, FlaskIcon, SearchIcon, DownloadIcon, XIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon } from './icons';
 import { useLanguage } from '../context/LanguageContext';
 import { useVisitorMode, type VisitorMode } from '../context/VisitorModeContext';
 import LabCard from './labui/LabCard';

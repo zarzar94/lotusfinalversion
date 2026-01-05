@@ -7,6 +7,7 @@ export type IconProps = {
   size?: number;
   stroke?: number;
   tone?: IconTone;
+  color?: string;
   glow?: boolean;
   className?: string;
   style?: CSSProperties;
@@ -28,14 +29,15 @@ export function Icon({
   size = 24,
   stroke = 2,
   tone = 'cyan',
+  color,
   glow = false,
   className,
   style,
   title,
   children,
 }: IconProps) {
-  const color = toneColorMap[tone];
-  const mergedStyle: CSSProperties = { color, display: 'block', ...style };
+  const resolvedColor = color ?? toneColorMap[tone];
+  const mergedStyle: CSSProperties = { color: resolvedColor, display: 'block', ...style };
   const svg = (
     <svg
       width={size}
@@ -62,7 +64,7 @@ export function Icon({
     <span
       style={{
         display: 'inline-flex',
-        filter: `drop-shadow(0 0 ${Math.max(8, size * 0.35)}px ${color})`,
+        filter: `drop-shadow(0 0 ${Math.max(8, size * 0.35)}px ${resolvedColor})`,
       }}
     >
       {svg}

@@ -20,7 +20,7 @@ const safeJson = (value: unknown): string => {
   }
 };
 
-export type ReportTemplate = 'parent' | 'school';
+export type ReportTemplate = 'parent' | 'clinician' | 'school';
 export type ReportLang = 'ar' | 'en';
 export type ReportOptions = { lang: ReportLang; template: ReportTemplate };
 
@@ -76,6 +76,54 @@ const writeSectionHeading = (doc: jsPDF, label: string, y: number, contentWidth:
   doc.setFontSize(12);
   applyHexColor(doc, color, 'setTextColor');
   return writePdfText(doc, label, PDF_MARGIN_X, y, { maxWidth: contentWidth, lineHeight: 18 });
+};
+
+const getTemplateMeta = (template: ReportTemplate, copy: ReturnType<typeof getReportCopy>) => {
+  if (template === 'clinician') {
+    return { label: copy.typeClinician, subtitle: copy.subtitleClinician, intro: copy.introClinician };
+  }
+  if (template === 'school') {
+    return { label: copy.typeSchool, subtitle: copy.subtitleSchool, intro: copy.introSchool };
+  }
+  return { label: copy.typeParent, subtitle: copy.subtitleParent, intro: copy.introParent };
+};
+
+const totalModules = 7;
+
+const hasHighFatigue = (outcomes: Partial<Record<TestKey, TestOutcome>>) =>
+  (Object.values(outcomes) as TestOutcome[]).some((o) => {
+    if (!o?.metrics) return false;
+    const metrics = o.metrics as Record<string, unknown>;
+    const fatigueIndex = metrics.fatigueIndex;
+    const fatigueScore = metrics.fatigueScore;
+    return fatigueIndex === 'high' || (typeof fatigueScore === 'number' && fatigueScore >= 70);
+  });
+
+const buildQualityFlags = (session: AssessmentSession, copy: ReturnType<typeof getReportCopy>) => {
+  const flags: string[] = [];
+  const completed = Object.values(session.outcomes).filter(Boolean).length;
+  const hc = session.headphoneCheck;
+
+  if (hc) {
+    const hcLabel = hc.supported
+      ? (hc.passed ? copy.headphoneStatus.pass : copy.headphoneStatus.fail)
+      : copy.headphoneStatus.notSupported;
+    flags.push(`${copy.headphoneLabel}: ${hcLabel} (${hc.correct}/${hc.total})`);
+  } else {
+    flags.push(copy.qualityHeadphoneMissing);
+  }
+
+  flags.push(`${copy.qualityCompletionLabel}: ${completed}/${totalModules}`);
+
+  if (!session.outcomes.questionnaire) {
+    flags.push(copy.qualityQuestionnaireMissing);
+  }
+
+  if (hasHighFatigue(session.outcomes)) {
+    flags.push(copy.qualityFatigueFlag);
+  }
+
+  return flags;
 };
 
 export const downloadSessionCsv = (session: AssessmentSession, options: ReportOptions) => {
@@ -146,9 +194,7 @@ export const downloadSessionPdf = async (
 ) => {
   const { lang, template } = options;
   const copy = getReportCopy(lang);
-  const templateLabel = template === 'parent' ? copy.typeParent : copy.typeSchool;
-  const intro = template === 'parent' ? copy.introParent : copy.introSchool;
-  const subtitle = template === 'parent' ? copy.subtitleParent : copy.subtitleSchool;
+  const templateMeta = getTemplateMeta(template, copy);
   const resultLabels = translations[lang].games.resultMeta;
   const badgeLine = `${translations[lang].games.labBadge} | ${translations[lang].games.nonDiagnostic}`;
 
@@ -165,7 +211,7 @@ export const downloadSessionPdf = async (
   doc.setFont('Cairo', 'normal');
   doc.setFontSize(12);
   applyHexColor(doc, brandCyan, 'setTextColor');
-  y = writePdfText(doc, subtitle, PDF_MARGIN_X, y + 6, { maxWidth: contentWidth, lineHeight: 18 });
+  y = writePdfText(doc, templateMeta.subtitle, PDF_MARGIN_X, y + 6, { maxWidth: contentWidth, lineHeight: 18 });
 
   doc.setFontSize(10);
   applyHexColor(doc, brandPurple, 'setTextColor');
@@ -178,14 +224,14 @@ export const downloadSessionPdf = async (
   applyHexColor(doc, brandInk, 'setTextColor');
   y = writePdfText(doc, `${copy.sessionLabel}: ${session.id}`, PDF_MARGIN_X, y + 10, { maxWidth: contentWidth, lineHeight: 16 });
   y = writePdfText(doc, `${copy.dateLabel}: ${formatDate(lang, session.startedAt)}`, PDF_MARGIN_X, y + 4, { maxWidth: contentWidth, lineHeight: 16 });
-  y = writePdfText(doc, `${copy.typeLabel}: ${templateLabel}`, PDF_MARGIN_X, y + 4, { maxWidth: contentWidth, lineHeight: 16 });
+  y = writePdfText(doc, `${copy.typeLabel}: ${templateMeta.label}`, PDF_MARGIN_X, y + 4, { maxWidth: contentWidth, lineHeight: 16 });
 
   y = drawDivider(doc, y + 10, pageWidth, brandPurple);
 
   doc.setFont('Cairo', 'normal');
   doc.setFontSize(11);
   applyHexColor(doc, brandInk, 'setTextColor');
-  y = writePdfText(doc, intro, PDF_MARGIN_X, y + 10, { maxWidth: contentWidth, lineHeight: 16 });
+  y = writePdfText(doc, templateMeta.intro, PDF_MARGIN_X, y + 10, { maxWidth: contentWidth, lineHeight: 16 });
 
   if (session.headphoneCheck) {
     const hc = session.headphoneCheck;
@@ -248,6 +294,28 @@ export const downloadSessionPdf = async (
     y = drawDivider(doc, y + 8, pageWidth, brandCyan);
     y = ensurePage(doc, y);
   });
+
+  if (template === 'clinician') {
+    y = ensurePage(doc, y);
+    y = writeSectionHeading(doc, copy.qualityHeading, y + 16, contentWidth, brandPurpleDark);
+    doc.setFont('Cairo', 'normal');
+    doc.setFontSize(11);
+    applyHexColor(doc, brandInk, 'setTextColor');
+    for (const item of buildQualityFlags(session, copy)) {
+      y = writePdfText(doc, `- ${item}`, PDF_MARGIN_X, y + 4, { maxWidth: contentWidth, lineHeight: 16 });
+      y = ensurePage(doc, y);
+    }
+
+    y = ensurePage(doc, y);
+    y = writeSectionHeading(doc, copy.interpretationHeading, y + 16, contentWidth, brandPurpleDark);
+    doc.setFont('Cairo', 'normal');
+    doc.setFontSize(11);
+    applyHexColor(doc, brandInk, 'setTextColor');
+    for (const item of copy.interpretationBullets) {
+      y = writePdfText(doc, `- ${item}`, PDF_MARGIN_X, y + 4, { maxWidth: contentWidth, lineHeight: 16 });
+      y = ensurePage(doc, y);
+    }
+  }
 
   if (template === 'school') {
     y = ensurePage(doc, y);

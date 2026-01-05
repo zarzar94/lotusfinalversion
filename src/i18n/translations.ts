@@ -947,11 +947,17 @@ export const translations = {
         typeLabel: 'نوع التقرير',
         typeParent: 'لولي الأمر',
         typeSchool: 'للمدرسة',
+
+        typeClinician: 'الأخصائي',
         title: 'تقرير فحص المختبر التفاعلي',
         subtitleParent: 'تقرير لولي الأمر',
         subtitleSchool: 'تقرير للمدرسة',
+
+        subtitleClinician: 'تقرير الأخصائي',
         introParent: 'هذا التقرير يلخص نتائج الفحص التفاعلي بلغة واضحة ومناسبة لولي الأمر.',
         introSchool: 'هذا التقرير منظم لفريق المدرسة لمراجعة مؤشرات الاستماع والانتباه.',
+
+        introClinician: 'هذا التقرير يقدم ملخصًا تقنيًا موجّهًا للمراجعة السريرية والمتابعة طويلة المدى.',
         sessionLabel: 'الجلسة',
         dateLabel: 'التاريخ',
         summaryHeading: 'ملخص',
@@ -972,6 +978,18 @@ export const translations = {
         resultLabel: 'التصنيف',
         scoreLabel: 'الدرجة',
         metricsHeading: 'المؤشرات',
+
+        qualityHeading: 'مؤشرات الجودة',
+        qualityCompletionLabel: 'الوحدات المكتملة',
+        qualityHeadphoneMissing: 'لم يتم إجراء فحص السماعات.',
+        qualityQuestionnaireMissing: 'لم يتم استكمال الاستبيان.',
+        qualityFatigueFlag: 'تم رصد مؤشرات إجهاد في وحدة أو أكثر؛ يُنصح بإعادة الاختبار أو أخذ فواصل.',
+        interpretationHeading: 'ملاحظات تفسيرية',
+        interpretationBullets: [
+          "راجع قيمة d' وتباين زمن الاستجابة إلى جانب التقارير السلوكية.",
+          'قارن عتبة SNR وتوازن اليمين/اليسار مع ملاحظات الصف أو العيادة.',
+          'استخدم أنماط الوحدات لتوجيه الاختبارات اللاحقة وخطط الدعم الفردية.',
+        ],
         footerNote: 'هذا الفحص غير تشخيصي. يُنصح بمراجعة أخصائي لتقييم سريري كامل.',
         csvHeaders: {
           sessionId: 'معرف الجلسة',
@@ -2218,11 +2236,14 @@ export const translations = {
         typeLabel: 'Report Type',
         typeParent: 'Parent',
         typeSchool: 'School',
+        typeClinician: 'Clinician',
         title: 'Interactive Lab Screening Report',
         subtitleParent: 'Parent Report',
         subtitleSchool: 'School Report',
+        subtitleClinician: 'Clinician Report',
         introParent: 'This report summarizes the interactive screening in clear, parent-friendly language.',
         introSchool: 'This structured summary is designed for school teams reviewing listening and attention indicators.',
+        introClinician: 'This report provides a technical summary intended for clinical review and longitudinal tracking.',
         sessionLabel: 'Session',
         dateLabel: 'Date',
         summaryHeading: 'Summary',
@@ -2243,6 +2264,17 @@ export const translations = {
         resultLabel: 'Result',
         scoreLabel: 'Score',
         metricsHeading: 'Metrics',
+        qualityHeading: 'Quality Flags',
+        qualityCompletionLabel: 'Modules completed',
+        qualityHeadphoneMissing: 'Headphone check not completed.',
+        qualityQuestionnaireMissing: 'Questionnaire not completed.',
+        qualityFatigueFlag: 'Fatigue indicators detected in one or more modules; consider retest or breaks.',
+        interpretationHeading: 'Interpretation Notes',
+        interpretationBullets: [
+          "Review d' and reaction time variability alongside behavioral reports.",
+          'Compare SNR thresholds and left/right balance with classroom or clinic observations.',
+          'Use module patterns to guide follow-up testing and individualized support.',
+        ],
         footerNote: 'This screening is non-diagnostic. For clinical evaluation, consult a qualified specialist.',
         csvHeaders: {
           sessionId: 'Session ID',
@@ -2546,4 +2578,7 @@ export const translations = {
 } as const;
 
 export type TranslationKey = keyof typeof translations.ar;
+
+
+
 

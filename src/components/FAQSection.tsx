@@ -15,7 +15,7 @@ import {
   MusicIcon,
   StethoscopeIcon,
   UsersIcon,
-} from './Icons';
+} from './icons';
 import {
   styles,
   brandCyan,

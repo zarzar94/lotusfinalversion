@@ -15,7 +15,7 @@ import { BackNavigation } from '../components/shared';
 import { useLanguage } from '../context/LanguageContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { LabShell, LabShellContent } from '../components/labui/LabShell';
-import { UsersIcon } from '../components/Icons';
+import { UsersIcon } from '../components/icons';
 import {
   brandCyan,
   colors,
